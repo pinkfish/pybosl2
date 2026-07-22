@@ -63,13 +63,13 @@ also embed a viewer for any STL yourself with <code class="docutils literal notr
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-ce85e3cca2574f879b067f762437611f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-2b53a77af1f443f6a8106a30cac4d13d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-ce85e3cca2574f879b067f762437611f");
+const el = document.getElementById("stlviewer-2b53a77af1f443f6a8106a30cac4d13d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -124,13 +124,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2d342c926cd84ea3ada5c16ab4137df3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-db06ecdbbe3a42359c521f1d33c43ea9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2d342c926cd84ea3ada5c16ab4137df3");
+const el = document.getElementById("stlviewer-db06ecdbbe3a42359c521f1d33c43ea9");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -180,13 +180,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c4e4147220bc4b7b8af83bb5ddf3c023" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-a58f89965d434a8a9d86c314f52254a6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c4e4147220bc4b7b8af83bb5ddf3c023");
+const el = document.getElementById("stlviewer-a58f89965d434a8a9d86c314f52254a6");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -237,10 +237,12 @@ window.addEventListener("resize", resize);
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#bosl2.paths.Path"><code class="docutils literal notranslate"><span class="pre">Path</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#bosl2.paths.Path3D"><code class="docutils literal notranslate"><span class="pre">Path3D</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="regions.html#bosl2.regions.Path"><code class="docutils literal notranslate"><span class="pre">Path</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="regions.html#bosl2.regions.Path3D"><code class="docutils literal notranslate"><span class="pre">Path3D</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="regions.html#bosl2.regions.Region"><code class="docutils literal notranslate"><span class="pre">Region</span></code></a></li>
 </ul>
 </li>
@@ -250,8 +252,20 @@ window.addEventListener("resize", resize);
 <li class="toctree-l2"><a class="reference internal" href="beziers.html#bosl2.beziers.debug_bezier_patches"><code class="docutils literal notranslate"><span class="pre">debug_bezier_patches()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS: curves &amp; surfaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nurbs.html#coverage-of-bosl2-nurbs-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">nurbs.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="nurbs.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nurbs.html#module-bosl2.nurbs">API reference</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="vnf.html#bosl2.vnf.VNF"><code class="docutils literal notranslate"><span class="pre">VNF</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface: marching cubes &amp; metaballs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="isosurface.html#coverage-of-bosl2-isosurface-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">isosurface.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="isosurface.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="isosurface.html#module-bosl2.isosurface">API reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Sweeps (skin)</a><ul>
@@ -265,9 +279,63 @@ window.addEventListener("resize", resize);
 <li class="toctree-l2"><a class="reference internal" href="shapes3d.html#module-bosl2.shapes3d">API reference</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native-only mesh operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="native_ops.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="native_ops.html#api-reference">API reference</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="shapes2d.html#coverage-of-bosl2-shapes2d-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">shapes2d.scad</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="shapes2d.html#module-bosl2.shapes2d">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing: path generators &amp; renderers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html#coverage-of-bosl2-drawing-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">drawing.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html#api-reference">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors: copiers &amp; reflected copies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="distributors.html#coverage-of-bosl2-distributors-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">distributors.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributors.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributors.html#module-bosl2.distributors">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Colour: colorspace conversion &amp; colour operators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="color.html#coverage-of-bosl2-color-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">color.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="color.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="color.html#module-bosl2.color">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading: screw threads, rods &amp; nuts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="threading.html#coverage-of-bosl2-threading-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">threading.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="threading.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threading.html#api-reference">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws: metric screws, nuts &amp; screw holes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="screws.html#coverage-of-bosl2-screws-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">screws.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="screws.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="screws.html#api-reference">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#planar-half-cuts">Planar half-cuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#interlocking-partitions">Interlocking partitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#coverage-of-bosl2-partitions-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#module-bosl2.partitions">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#coverage-of-bosl2-miscellaneous-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">miscellaneous.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#module-bosl2.miscellaneous">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rounding.html#coverage-of-bosl2-rounding-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">rounding.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="rounding.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rounding.html#module-bosl2.rounding">API reference</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Edge/corner masking</a><ul>
@@ -358,10 +426,21 @@ window.addEventListener("resize", resize);
 <li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="beziers.html">Bezier curves, paths and surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS: curves &amp; surfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Sweeps (skin)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native-only mesh operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Edge/corner masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms (affine / reorient)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry helpers</a></li>

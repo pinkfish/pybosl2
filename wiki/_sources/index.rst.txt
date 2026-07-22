@@ -61,10 +61,21 @@ API reference
    paths
    regions
    beziers
+   nurbs
    vnf
+   isosurface
    skin
    shapes3d
+   native_ops
    shapes2d
+   drawing
+   distributors
+   color
+   threading
+   screws
+   partitions
+   miscellaneous
+   rounding
    masking
    transforms
    geometry

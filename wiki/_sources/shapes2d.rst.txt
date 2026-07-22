@@ -38,7 +38,8 @@ Coverage of BOSL2 ``shapes2d.scad``
      - ``round2d`` / ``shell2d`` are rounding / shelling operators
    * - ``arc``
      - ported
-     - :func:`~bosl2.shapes2d.arc`
+     - lives here but is documented on the :doc:`drawing` page (returns a
+       :class:`~bosl2.paths.Path`)
    * - ``text``
      - ported
      - :func:`~bosl2.shapes2d.text`
@@ -57,3 +58,4 @@ API reference
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: arc

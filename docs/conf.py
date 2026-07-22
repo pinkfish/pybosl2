@@ -26,26 +26,39 @@
 #    only (see docs/_ext/bosl2_example.py). Unchanged examples reuse their cached image/STL.
 #
 #    Before autodoc touches the bosl2 modules, this file must (1) put the repo root on sys.path so
-#    ``import bosl2`` resolves, and (2) install pysolidfive/tests/mock_libfive.py's
-#    ``pythonscad``/``openscad``/``libfive`` stand-ins, because bosl2/shapes2d.py, shapes3d.py and
-#    masking.py import ``pythonscad`` at load time (only available inside the real app) -- exactly
-#    the reason the bosl2 test-suite's conftest installs the same mock.
+#    ``import bosl2`` resolves, and (2) make the ``pythonscad``/``openscad`` native modules
+#    importable, because bosl2/shapes2d.py, shapes3d.py and masking.py import ``pythonscad`` at load
+#    time. The supported setup is a venv with the real ``pythonscad`` wheel installed (``pip install
+#    -e .[test]``); if that is not present we fall back to pysolidfive/tests/mock_libfive.py's
+#    stand-ins when they can be found beside this checkout -- the same fallback the test-suite's
+#    conftest uses.
 #
 # FileGroup: bosl2
 
 from __future__ import annotations
 
+import importlib.util
 import sys
 from pathlib import Path
 
 _DOCS_DIR = Path(__file__).resolve().parent
-_REPO_ROOT = _DOCS_DIR.parent.parent
+_REPO_ROOT = _DOCS_DIR.parent
 
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, str(_REPO_ROOT / "pysolidfive" / "tests"))
 sys.path.insert(0, str(_DOCS_DIR / "_ext"))
 
-import mock_libfive  # noqa: E402,F401  -- installs pythonscad/openscad/libfive stubs before autodoc
+# Prefer the real pythonscad wheel; otherwise install the numeric mock if it sits beside the
+# checkout, so `make html` still works without PythonSCAD installed at all.
+if importlib.util.find_spec("pythonscad") is None:
+    _mock_dir = _REPO_ROOT / "pysolidfive" / "tests"
+    if (_mock_dir / "mock_libfive.py").is_file():
+        sys.path.insert(0, str(_mock_dir))
+        import mock_libfive  # noqa: E402,F401  -- installs pythonscad/openscad/libfive stubs
+    else:
+        raise RuntimeError(
+            "docs build needs the pythonscad native modules: install the wheel with "
+            "`pip install -e .[test]`, or provide pysolidfive/tests/mock_libfive.py in the repo"
+        )
 
 project = "bosl2 (PythonSCAD port)"
 copyright = "Apache License 2.0"

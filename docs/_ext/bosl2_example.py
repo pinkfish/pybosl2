@@ -55,14 +55,24 @@ _GENERATED_DIR = _DOCS_DIR / "_generated"       # PNG previews (collected by Sph
 # URIs the viewer and download links use valid.
 _STL_DIR = _DOCS_DIR / "_extra" / "_stl"
 
-# bosl2/docs/_ext -> docs -> bosl2 -> repo root.
-_REPO_ROOT = _DOCS_DIR.parent.parent
-sys.path.insert(0, str(_REPO_ROOT / "pysolidfive" / "tests"))
-sys.path.insert(0, str(_REPO_ROOT / "bosl2" / "tests"))
+# docs/_ext -> docs -> repo root.
+_REPO_ROOT = _DOCS_DIR.parent
+sys.path.insert(0, str(_REPO_ROOT / "tests"))
 
-from render_pysolidfive import render_script  # noqa: E402
 from render_stl import find_pythonscad_binary, render_stl_script  # noqa: E402
 from stl_viewer import stl_viewer_html  # noqa: E402
+
+# PNG previews are rendered via the in-repo pysolidfive package's helper. It is optional: without a
+# PythonSCAD binary examples degrade to source-only, so stub render_script to a not-ok result rather
+# than failing to import if the helper (or its deps) is unavailable.
+try:
+    sys.path.insert(0, str(_REPO_ROOT / "pysolidfive" / "tests"))
+    from render_pysolidfive import render_script  # noqa: E402
+except ImportError:
+    from types import SimpleNamespace
+
+    def render_script(*_args, **_kwargs):  # type: ignore[misc]
+        return SimpleNamespace(ok=False, error="pysolidfive render helper unavailable", path=None)
 
 _logger = logging.getLogger(__name__)
 

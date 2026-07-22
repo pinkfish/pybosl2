@@ -14,8 +14,8 @@
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Edge/corner masking" href="masking.html" />
-    <link rel="prev" title="3-D shapes and Bosl2Solid" href="shapes3d.html" />
+    <link rel="next" title="Drawing: path generators &amp; renderers" href="drawing.html" />
+    <link rel="prev" title="Native-only mesh operations" href="native_ops.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -83,7 +83,8 @@ Each returns native 2-D geometry (via <code class="docutils literal notranslate"
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">arc</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#bosl2.shapes2d.arc" title="bosl2.shapes2d.arc"><code class="xref py py-func docutils literal notranslate"><span class="pre">arc()</span></code></a></p></td>
+<td><p>lives here but is documented on the <a class="reference internal" href="drawing.html"><span class="doc">Drawing: path generators &amp; renderers</span></a> page (returns a
+<a class="reference internal" href="paths.html#bosl2.paths.Path" title="bosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">text</span></code></p></td>
 <td><p>ported</p></td>
@@ -181,46 +182,6 @@ function form, as opposed to <a class="reference internal" href="#bosl2.shapes2d
 (BOSL2 rounds the corner-arc segment count, this rounds up); the arc geometry is
 identical, only the sampling differs.</p>
 </div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="bosl2.shapes2d.arc">
-<span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#arc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.arc" title="Link to this definition">¶</a></dt>
-<dd><p>A 2-D arc as a list of points – the Python equivalent of BOSL2’s <code class="docutils literal notranslate"><span class="pre">arc()</span></code>.</p>
-<p>Two forms are supported (the two the toolkit uses):</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">arc(r=,</span> <span class="pre">start=,</span> <span class="pre">angle=,</span> <span class="pre">cp=)</span></code> – an arc of radius <em>r</em> about <em>cp</em>, from <em>start</em>
-sweeping <em>angle</em> degrees.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">arc(n=,</span> <span class="pre">points=[p1,</span> <span class="pre">p2,</span> <span class="pre">p3])</span></code> – the arc through three points, from p1 through p2
-to p3.</p></li>
-</ul>
-<p>When <em>n</em> is omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2:
-<code class="docutils literal notranslate"><span class="pre">ceil(segs(r)</span> <span class="pre">*</span> <span class="pre">|angle|</span> <span class="pre">/</span> <span class="pre">360)</span> <span class="pre">+</span> <span class="pre">1</span></code>.</p>
-<p>Usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">arc</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-<span class="n">arc</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em><em> | </em><em>None</em>) – number of points (default: from $fn/$fa/$fs)</p></li>
-<li><p><strong>r</strong> (<em>float</em><em> | </em><em>None</em>) – radius of the arc</p></li>
-<li><p><strong>angle</strong> (<em>float</em><em> | </em><em>None</em>) – degrees to sweep from <em>start</em></p></li>
-<li><p><strong>d</strong> (<em>float</em><em> | </em><em>None</em>) – diameter (overrides <em>r</em>)</p></li>
-<li><p><strong>cp</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – centre point (default [0, 0])</p></li>
-<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – three points the arc passes through (overrides r/angle/start)</p></li>
-<li><p><strong>start</strong> (<em>float</em><em> | </em><em>None</em>) – starting angle in degrees (default 0)</p></li>
-<li><p><strong>endpoint</strong> (<em>bool</em>) – include the final point (default True)</p></li>
-<li><p><strong>_fn</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>_fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>_fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[list[float]]</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -668,13 +629,13 @@ is ported; the <code class="docutils literal notranslate"><span class="pre">&quo
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-5b2b49a691c14722b2be0ec4ee245823" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9c5231e20f114ea38c63f66a94ba7769" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-5b2b49a691c14722b2be0ec4ee245823");
+const el = document.getElementById("stlviewer-9c5231e20f114ea38c63f66a94ba7769");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -752,13 +713,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-98548b5bae8e42e7826da75cc966d24c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-098a008dc78f44f7be3b8fd5a87451a5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-98548b5bae8e42e7826da75cc966d24c");
+const el = document.getElementById("stlviewer-098a008dc78f44f7be3b8fd5a87451a5");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -840,13 +801,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-63a582bdc03e44749f6e7295ccc3d693" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9367f653e0e24adfb6f9aebac2d8fe12" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-63a582bdc03e44749f6e7295ccc3d693");
+const el = document.getElementById("stlviewer-9367f653e0e24adfb6f9aebac2d8fe12");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1028,14 +989,25 @@ pair rounds those corner types separately (default 0)</p></li>
 <li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="beziers.html">Bezier curves, paths and surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS: curves &amp; surfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Sweeps (skin)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native-only mesh operations</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">2-D shapes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#coverage-of-bosl2-shapes2d-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">shapes2d.scad</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bosl2.shapes2d">API reference</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Edge/corner masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms (affine / reorient)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry helpers</a></li>
@@ -1049,8 +1021,8 @@ pair rounds those corner types separately (default 0)</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="shapes3d.html" title="previous chapter">3-D shapes and Bosl2Solid</a></li>
-      <li>Next: <a href="masking.html" title="next chapter">Edge/corner masking</a></li>
+      <li>Previous: <a href="native_ops.html" title="previous chapter">Native-only mesh operations</a></li>
+      <li>Next: <a href="drawing.html" title="next chapter">Drawing: path generators &amp; renderers</a></li>
   </ul></li>
 </ul>
 </div>

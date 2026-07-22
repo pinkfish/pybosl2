@@ -53,3 +53,26 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+
+  # pysolidfive is a separate, self-contained piece. Its suite runs against the
+  # numeric mock_libfive stand-in (bundled in pysolidfive/tests), so it needs only
+  # numpy -- no pythonscad wheel and no system GL libraries -- and runs via unittest
+  # (its native runner; the package's eager libfive import is incompatible with
+  # pytest's package-based collection, by design).
+  pysolidfive:
+    name: pysolidfive (unittest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install numpy
+        run: python -m pip install --upgrade pip numpy
+
+      - name: Run pysolidfive tests
+        working-directory: pysolidfive/tests
+        run: python -m unittest discover -s . -t . -v

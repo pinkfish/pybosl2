@@ -14,7 +14,7 @@
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="VNF meshes" href="vnf.html" />
+    <link rel="next" title="NURBS: curves &amp; surfaces" href="nurbs.html" />
     <link rel="prev" title="Regions" href="regions.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -64,13 +64,13 @@ groups that <code class="docutils literal notranslate"><span class="pre">flatten
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3c49c674ff284755919450e0ccb72e1c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-0782b82a6a3847a4a69b01b989848ef6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3c49c674ff284755919450e0ccb72e1c");
+const el = document.getElementById("stlviewer-0782b82a6a3847a4a69b01b989848ef6");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -515,13 +515,13 @@ BOSL2’s un-ported path_sweep), plus the debug_* visualization modules.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-febca8b8b1684b7ea37b4246c8929743" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-f4c0d6be0ddd42f28921db14076757ff" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-febca8b8b1684b7ea37b4246c8929743");
+const el = document.getElementById("stlviewer-f4c0d6be0ddd42f28921db14076757ff");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -758,10 +758,21 @@ is [left, right, top, bottom] point lists.</p>
 <li class="toctree-l2"><a class="reference internal" href="#bosl2.beziers.debug_bezier_patches"><code class="docutils literal notranslate"><span class="pre">debug_bezier_patches()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS: curves &amp; surfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Sweeps (skin)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native-only mesh operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Edge/corner masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms (affine / reorient)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry helpers</a></li>
@@ -776,7 +787,7 @@ is [left, right, top, bottom] point lists.</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="regions.html" title="previous chapter">Regions</a></li>
-      <li>Next: <a href="vnf.html" title="next chapter">VNF meshes</a></li>
+      <li>Next: <a href="nurbs.html" title="next chapter">NURBS: curves &amp; surfaces</a></li>
   </ul></li>
 </ul>
 </div>

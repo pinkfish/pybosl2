@@ -33,12 +33,21 @@
 
           <div class="body" role="main">
             
-  <section id="module-bosl2.paths">
-<span id="paths"></span><h1>Paths<a class="headerlink" href="#module-bosl2.paths" title="Link to this heading">¶</a></h1>
-<dl class="py class">
+  <section id="paths">
+<h1>Paths<a class="headerlink" href="#paths" title="Link to this heading">¶</a></h1>
+<p>The object form of BOSL2’s path maths. <a class="reference internal" href="#bosl2.paths.Path" title="bosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> is a 2-D outline (a list of
+<code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> points) carrying every <code class="docutils literal notranslate"><span class="pre">paths.scad</span></code> operation as a chained method;
+<a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code></a> is its 3-D sibling (a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">z]</span></code> points), used by the 3-D
+generators like <a class="reference internal" href="drawing.html#bosl2.drawing.helix" title="bosl2.drawing.helix"><code class="xref py py-func docutils literal notranslate"><span class="pre">helix()</span></code></a>. <code class="docutils literal notranslate"><span class="pre">Path3D</span></code> reuses the same numeric kernels and
+carries only the operations that make sense in 3-D – measurement (length, tangents,
+<a class="reference internal" href="#bosl2.paths.Path3D.normals" title="bosl2.paths.Path3D.normals"><code class="xref py py-meth docutils literal notranslate"><span class="pre">normals()</span></code></a>, curvature, <a class="reference internal" href="#bosl2.paths.Path3D.torsion" title="bosl2.paths.Path3D.torsion"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torsion()</span></code></a>), resampling
+and cutting, and the 3-D transforms (<code class="docutils literal notranslate"><span class="pre">translate</span></code>/<code class="docutils literal notranslate"><span class="pre">move</span></code>, the six directional moves including
+<code class="docutils literal notranslate"><span class="pre">up</span></code>/<code class="docutils literal notranslate"><span class="pre">down</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code>, <code class="docutils literal notranslate"><span class="pre">rotate</span></code>, <code class="docutils literal notranslate"><span class="pre">mirror</span></code>) – with <a class="reference internal" href="#bosl2.paths.Path3D.path2d" title="bosl2.paths.Path3D.path2d"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path2d()</span></code></a> to
+drop to the XY plane when you need the inherently-2-D operations (<code class="docutils literal notranslate"><span class="pre">polygon</span></code>, <code class="docutils literal notranslate"><span class="pre">offset</span></code>, <code class="docutils literal notranslate"><span class="pre">area</span></code>).</p>
+<dl class="py class" id="module-bosl2.paths">
 <dt class="sig sig-object py" id="bosl2.paths.Path">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.paths.</span></span><span class="sig-name descname"><span class="pre">Path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="distributors.html#bosl2.distributors.Distributable" title="bosl2.distributors.Distributable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Distributable</span></code></a>, <a class="reference internal" href="miscellaneous.html#bosl2.miscellaneous.Extrudable" title="bosl2.miscellaneous.Extrudable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Extrudable</span></code></a>, <a class="reference internal" href="rounding.html#bosl2.rounding.Roundable" title="bosl2.rounding.Roundable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Roundable</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
 <p>A 2-D path: a list of [x, y] points, with every path operation as a method.</p>
 <p>Subclasses <code class="docutils literal notranslate"><span class="pre">list</span></code> deliberately – the same trick as <code class="xref py py-class docutils literal notranslate"><span class="pre">base_bgtk.Vec3</span></code>. Every place
 that already treats a path as a plain point list (indexing, iteration, <code class="docutils literal notranslate"><span class="pre">len()</span></code>, equality
@@ -73,13 +82,13 @@ handles, which this 2-D class cannot wrap.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-f18cfa9b7e8a443a93fb3c9ddefaeff0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-250d233180764b178fb0d4cbddb616c8" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-f18cfa9b7e8a443a93fb3c9ddefaeff0");
+const el = document.getElementById("stlviewer-250d233180764b178fb0d4cbddb616c8");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -338,23 +347,6 @@ this is for when the result is needed as points.</p>
 <li><p><strong>_fn</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>_fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>_fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path" title="bosl2.paths.Path"><em>Path</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bosl2.paths.Path.round_corners">
-<span class="sig-name descname"><span class="pre">round_corners</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path.round_corners"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path.round_corners" title="Link to this definition">¶</a></dt>
-<dd><p>Round every corner to the given radius, inserting an arc at each vertex (<code class="xref py py-meth docutils literal notranslate"><span class="pre">_round_corners()</span></code>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>list</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -661,6 +653,575 @@ this is for when the result is needed as points.</p>
 hold either a Path or a Region can ask for geometry without checking which it got.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path.stroke">
+<span class="sig-name descname"><span class="pre">stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path.stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path.stroke" title="Link to this definition">¶</a></dt>
+<dd><p>Draw this path as a solid line of the given <em>width</em> (see <a class="reference internal" href="drawing.html#bosl2.drawing.stroke" title="bosl2.drawing.stroke"><code class="xref py py-func docutils literal notranslate"><span class="pre">bosl2.drawing.stroke()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>float</em>)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path.dashed_stroke">
+<span class="sig-name descname"><span class="pre">dashed_stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dashpat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(3,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path.dashed_stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path.dashed_stroke" title="Link to this definition">¶</a></dt>
+<dd><p>Break this path into dash sub-paths (see <a class="reference internal" href="drawing.html#bosl2.drawing.dashed_stroke" title="bosl2.drawing.dashed_stroke"><code class="xref py py-func docutils literal notranslate"><span class="pre">bosl2.drawing.dashed_stroke()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dashpat</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#bosl2.paths.Path" title="bosl2.paths.Path"><em>Path</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.paths.</span></span><span class="sig-name descname"><span class="pre">Path3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="distributors.html#bosl2.distributors.Distributable" title="bosl2.distributors.Distributable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Distributable</span></code></a>, <a class="reference internal" href="miscellaneous.html#bosl2.miscellaneous.Extrudable" title="bosl2.miscellaneous.Extrudable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Extrudable</span></code></a>, <a class="reference internal" href="rounding.html#bosl2.rounding.Roundable" title="bosl2.rounding.Roundable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Roundable</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+<p>A 3-D path: a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">z]</span></code> points, with the path operations that make sense in 3-D.</p>
+<p>The 3-D counterpart of <a class="reference internal" href="#bosl2.paths.Path" title="bosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>. Like <code class="docutils literal notranslate"><span class="pre">Path</span></code> it subclasses <code class="docutils literal notranslate"><span class="pre">list</span></code> (so it stays a
+drop-in for the raw 3-D point lists the sweep/loft functions consume), and every method returns
+a NEW object. It carries the dimension-independent measurements (length, segment lengths,
+tangents, <a class="reference internal" href="#bosl2.paths.Path3D.normals" title="bosl2.paths.Path3D.normals"><code class="xref py py-meth docutils literal notranslate"><span class="pre">normals()</span></code></a>, curvature, <a class="reference internal" href="#bosl2.paths.Path3D.torsion" title="bosl2.paths.Path3D.torsion"><code class="xref py py-meth docutils literal notranslate"><span class="pre">torsion()</span></code></a>), resampling/subdividing/cutting, and the
+3-D transforms (<code class="docutils literal notranslate"><span class="pre">translate</span></code>/<code class="docutils literal notranslate"><span class="pre">move</span></code>, <code class="docutils literal notranslate"><span class="pre">right</span></code>/<code class="docutils literal notranslate"><span class="pre">left</span></code>/<code class="docutils literal notranslate"><span class="pre">back</span></code>/<code class="docutils literal notranslate"><span class="pre">forward</span></code>/<code class="docutils literal notranslate"><span class="pre">up</span></code>/<code class="docutils literal notranslate"><span class="pre">down</span></code>,
+<code class="docutils literal notranslate"><span class="pre">scale</span></code>, <code class="docutils literal notranslate"><span class="pre">mirror</span></code>, <code class="docutils literal notranslate"><span class="pre">rotate</span></code>). The inherently-2-D operations of <code class="docutils literal notranslate"><span class="pre">Path</span></code> (<code class="docutils literal notranslate"><span class="pre">polygon</span></code>,
+<code class="docutils literal notranslate"><span class="pre">area</span></code>, <code class="docutils literal notranslate"><span class="pre">offset</span></code>, <code class="docutils literal notranslate"><span class="pre">round_corners</span></code>, point-in-polygon) are intentionally absent; use
+<a class="reference internal" href="#bosl2.paths.Path3D.path2d" title="bosl2.paths.Path3D.path2d"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path2d()</span></code></a> to drop to the XY plane when you want them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>Sequence</em>) – the <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">z]</span></code> points (anything array-like; numpy scalars are converted to float)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>) – whether the path is a closed loop (default True)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>A helix resampled to fewer points and swept into a coil:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">coil</span> <span class="o">=</span> <span class="n">helix</span><span class="p">(</span><span class="n">turns</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+<span class="n">coil</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-ab8ad6e725524789aa0ccc203b4351f0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-ab8ad6e725524789aa0ccc203b4351f0");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/d8c93bbb92de5a64.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/d8c93bbb92de5a64.stl">⬇ Download STL mesh</a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.array">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span><a class="headerlink" href="#bosl2.paths.Path3D.array" title="Link to this definition">¶</a></dt>
+<dd><p>The points as an (N, 3) numpy array, for doing your own vectorised maths.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.bounds" title="Link to this definition">¶</a></dt>
+<dd><p>[[min_x, min_y, min_z], [max_x, max_y, max_z]].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.perimeter">
+<span class="sig-name descname"><span class="pre">perimeter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.perimeter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.perimeter" title="Link to this definition">¶</a></dt>
+<dd><p>Total length along the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.length">
+<span class="sig-name descname"><span class="pre">length</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bosl2.paths.Path3D.length" title="Link to this definition">¶</a></dt>
+<dd><p>Total length along the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.segment_lengths">
+<span class="sig-name descname"><span class="pre">segment_lengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.segment_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.segment_lengths" title="Link to this definition">¶</a></dt>
+<dd><p>Length of each segment, as an ndarray.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.length_fractions">
+<span class="sig-name descname"><span class="pre">length_fractions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.length_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.length_fractions" title="Link to this definition">¶</a></dt>
+<dd><p>Cumulative length fraction at each point, as an ndarray.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.is_closed">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_closed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#bosl2.paths.Path3D.is_closed" title="Link to this definition">¶</a></dt>
+<dd><p>True if the first and last points of the path coincide.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.closest_point">
+<span class="sig-name descname"><span class="pre">closest_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.closest_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.closest_point" title="Link to this definition">¶</a></dt>
+<dd><p>[SEGNUM, POINT]: the closest path segment to <em>pt</em>, and the closest point on it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pt</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.tangents">
+<span class="sig-name descname"><span class="pre">tangents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.tangents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.tangents" title="Link to this definition">¶</a></dt>
+<dd><p>Unit tangent at each point, as an ndarray.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>uniform</strong> (<em>bool</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.normals">
+<span class="sig-name descname"><span class="pre">normals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tangents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.normals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.normals" title="Link to this definition">¶</a></dt>
+<dd><p>Unit normal at each point (in the local plane of the curve), as an ndarray.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.curvature">
+<span class="sig-name descname"><span class="pre">curvature</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.curvature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.curvature" title="Link to this definition">¶</a></dt>
+<dd><p>Curvature at each point, as an ndarray.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.torsion">
+<span class="sig-name descname"><span class="pre">torsion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.torsion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.torsion" title="Link to this definition">¶</a></dt>
+<dd><p>Numeric torsion estimate at each point, as an ndarray.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.cut_points">
+<span class="sig-name descname"><span class="pre">cut_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cutdist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.cut_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.cut_points" title="Link to this definition">¶</a></dt>
+<dd><p>Point(s) at the given distance(s) along the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>direction</strong> (<em>bool</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.close" title="Link to this definition">¶</a></dt>
+<dd><p>Append the start point if the path isn’t already closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.cleanup" title="Link to this definition">¶</a></dt>
+<dd><p>Drop a duplicate closing point if present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.reversed_path">
+<span class="sig-name descname"><span class="pre">reversed_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.reversed_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.reversed_path" title="Link to this definition">¶</a></dt>
+<dd><p>The same path wound the other way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.deduplicated">
+<span class="sig-name descname"><span class="pre">deduplicated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.deduplicated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.deduplicated" title="Link to this definition">¶</a></dt>
+<dd><p>Drop consecutive repeated points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.subdivide">
+<span class="sig-name descname"><span class="pre">subdivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.subdivide"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.subdivide" title="Link to this definition">¶</a></dt>
+<dd><p>Insert points along the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>Any</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.resample">
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.resample" title="Link to this definition">¶</a></dt>
+<dd><p>Resample to evenly spaced points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>Any</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.cut">
+<span class="sig-name descname"><span class="pre">cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cutdist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.cut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.cut" title="Link to this definition">¶</a></dt>
+<dd><p>Split the path at the given distance(s), returning the sub-paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.translate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.translate" title="Link to this definition">¶</a></dt>
+<dd><p>Translate every point by <em>v</em> (a shorter vector pads with zeros).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bosl2.paths.Path3D.move" title="Link to this definition">¶</a></dt>
+<dd><p>Translate every point by <em>v</em> (a shorter vector pads with zeros).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.scale" title="Link to this definition">¶</a></dt>
+<dd><p>Scale every point by a scalar or a per-axis <code class="docutils literal notranslate"><span class="pre">[sx,</span> <span class="pre">sy,</span> <span class="pre">sz]</span></code> factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.rotate" title="Link to this definition">¶</a></dt>
+<dd><p>Rotate the points. <code class="docutils literal notranslate"><span class="pre">rotate(ang,</span> <span class="pre">axis)</span></code> spins about <em>axis</em>; <code class="docutils literal notranslate"><span class="pre">rotate(ang)</span></code> about +Z;
+<code class="docutils literal notranslate"><span class="pre">rotate([rx,</span> <span class="pre">ry,</span> <span class="pre">rz])</span></code> applies the OpenSCAD X-then-Y-then-Z Euler rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
+<li><p><strong>v</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.rot">
+<span class="sig-name descname"><span class="pre">rot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bosl2.paths.Path3D.rot" title="Link to this definition">¶</a></dt>
+<dd><p>Rotate the points. <code class="docutils literal notranslate"><span class="pre">rotate(ang,</span> <span class="pre">axis)</span></code> spins about <em>axis</em>; <code class="docutils literal notranslate"><span class="pre">rotate(ang)</span></code> about +Z;
+<code class="docutils literal notranslate"><span class="pre">rotate([rx,</span> <span class="pre">ry,</span> <span class="pre">rz])</span></code> applies the OpenSCAD X-then-Y-then-Z Euler rotation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
+<li><p><strong>v</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.mirror">
+<span class="sig-name descname"><span class="pre">mirror</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.mirror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.mirror" title="Link to this definition">¶</a></dt>
+<dd><p>Reflect every point across the plane through the origin with normal <em>v</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.right">
+<span class="sig-name descname"><span class="pre">right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.right"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.right" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>x</em> along +X.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.left">
+<span class="sig-name descname"><span class="pre">left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.left"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.left" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>x</em> along -X.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.back">
+<span class="sig-name descname"><span class="pre">back</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.back"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.back" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>y</em> along +Y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.forward" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>y</em> along -Y (BOSL2 fwd()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.fwd">
+<span class="sig-name descname"><span class="pre">fwd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bosl2.paths.Path3D.fwd" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>y</em> along -Y (BOSL2 fwd()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.up">
+<span class="sig-name descname"><span class="pre">up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.up" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>z</em> along +Z.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>z</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.down">
+<span class="sig-name descname"><span class="pre">down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.down" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>z</em> along -Z.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>z</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.path2d">
+<span class="sig-name descname"><span class="pre">path2d</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.path2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.path2d" title="Link to this definition">¶</a></dt>
+<dd><p>Drop the Z coordinate, giving a 2-D <a class="reference internal" href="#bosl2.paths.Path" title="bosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> (the XY projection).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#bosl2.paths.Path" title="bosl2.paths.Path"><em>Path</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.stroke">
+<span class="sig-name descname"><span class="pre">stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.stroke" title="Link to this definition">¶</a></dt>
+<dd><p>Draw this 3-D path as a solid tube of the given <em>width</em> (see <a class="reference internal" href="drawing.html#bosl2.drawing.stroke" title="bosl2.drawing.stroke"><code class="xref py py-func docutils literal notranslate"><span class="pre">bosl2.drawing.stroke()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>float</em>)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.paths.Path3D.dashed_stroke">
+<span class="sig-name descname"><span class="pre">dashed_stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dashpat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(3,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path3D.dashed_stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.paths.Path3D.dashed_stroke" title="Link to this definition">¶</a></dt>
+<dd><p>Break this 3-D path into dash sub-paths (see <a class="reference internal" href="drawing.html#bosl2.drawing.dashed_stroke" title="bosl2.drawing.dashed_stroke"><code class="xref py py-func docutils literal notranslate"><span class="pre">bosl2.drawing.dashed_stroke()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dashpat</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#bosl2.paths.Path3D" title="bosl2.paths.Path3D"><em>Path3D</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -694,14 +1255,26 @@ hold either a Path or a Region can ask for geometry without checking which it go
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Paths</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#bosl2.paths.Path"><code class="docutils literal notranslate"><span class="pre">Path</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bosl2.paths.Path3D"><code class="docutils literal notranslate"><span class="pre">Path3D</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="beziers.html">Bezier curves, paths and surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS: curves &amp; surfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Sweeps (skin)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native-only mesh operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Edge/corner masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms (affine / reorient)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry helpers</a></li>

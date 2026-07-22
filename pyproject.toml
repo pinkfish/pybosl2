@@ -39,13 +39,22 @@ test = [
     "numpy",
     "pythonscad",
 ]
+# Build the API docs (Sphinx autodoc). Needs pythonscad because the geometry
+# modules import it at load time, before autodoc can read their docstrings.
+docs = [
+    "sphinx>=7",
+    "numpy",
+    "pythonscad",
+]
 
 [project.urls]
 Homepage = "https://github.com/pinkfish/pybosl2"
 Repository = "https://github.com/pinkfish/pybosl2"
 
 [tool.setuptools.packages.find]
-include = ["bosl2", "bosl2.*"]
+# bosl2 is the BOSL2 port; pysolidfive is a separate, self-contained libfive/SDF
+# shape library vendored alongside it (it does not depend on bosl2).
+include = ["bosl2", "bosl2.*", "pysolidfive", "pysolidfive.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
