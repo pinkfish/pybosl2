@@ -1,0 +1,100 @@
+name: release
+
+# On a published GitHub release, take the version from the release tag, write it
+# into the code (bosl2/version.py's __version__ -- the single source of truth that
+# pyproject.toml reads dynamically), commit that bump back to main, then build the
+# sdist + wheel and attach them to the release.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to set (e.g. 1.2.3); overrides the release tag"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      # Present only if configured; the PyPI publish step is skipped without it.
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Resolve version from the release tag
+        id: ver
+        run: |
+          RAW="${{ github.event.inputs.version || github.event.release.tag_name }}"
+          VERSION="${RAW#v}"                 # strip an optional leading "v"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::release version '$RAW' is not a major.minor.update string"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $VERSION"
+
+      - name: Write the version into the code
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          python - "$VERSION" <<'PY'
+          import re, sys, pathlib
+          version = sys.argv[1]
+          path = pathlib.Path("bosl2/version.py")
+          text = path.read_text()
+          new, n = re.subn(r'^__version__ = ".*"$', f'__version__ = "{version}"',
+                           text, count=1, flags=re.MULTILINE)
+          if n != 1:
+              raise SystemExit("could not find __version__ assignment in bosl2/version.py")
+          path.write_text(new)
+          print(f"bosl2/version.py -> __version__ = {version!r}")
+          PY
+
+      - name: Commit the version bump to main
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- bosl2/version.py; then
+            echo "version already up to date; nothing to commit"
+          else
+            git add bosl2/version.py
+            git commit -m "Release ${VERSION}: set version in code"
+            git push origin HEAD:main
+          fi
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Verify the built version matches the release
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          ls dist/
+          test -f "dist/pybosl2-${VERSION}.tar.gz"
+          test -f "dist/pybosl2-${VERSION}-py3-none-any.whl"
+
+      - name: Attach build artifacts to the release
+        if: ${{ github.event_name == 'release' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.event.release.tag_name }}" dist/* --clobber
+
+      - name: Publish to PyPI
+        if: ${{ env.PYPI_API_TOKEN != '' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

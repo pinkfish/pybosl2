@@ -73,6 +73,8 @@ API reference
    color
    threading
    screws
+   screw_drive
+   bottlecaps
    partitions
    miscellaneous
    rounding

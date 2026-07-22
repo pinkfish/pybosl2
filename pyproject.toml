@@ -4,10 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pybosl2"
-version = "0.1.0"
+# Read from bosl2/version.py's __version__ (the in-code default version), so the
+# packaged version and the code never drift; the release workflow updates it there.
+dynamic = ["version"]
 description = "Python ports of the BOSL2 OpenSCAD library for use with PythonSCAD"
 readme = "README.md"
-license = "Apache-2.0"
+license = "BSD-2-Clause"
 requires-python = ">=3.10"
 authors = [
     { name = "pinkfish" },
@@ -43,6 +45,9 @@ test = [
 [project.urls]
 Homepage = "https://github.com/pinkfish/pybosl2"
 Repository = "https://github.com/pinkfish/pybosl2"
+
+[tool.setuptools.dynamic]
+version = { attr = "bosl2.version.__version__" }
 
 [tool.setuptools.packages.find]
 include = ["bosl2", "bosl2.*"]

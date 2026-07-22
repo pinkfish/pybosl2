@@ -60,4 +60,4 @@ wheel:
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE).
+BSD 2-Clause License — see [LICENSE](LICENSE).

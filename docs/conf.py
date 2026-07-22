@@ -1,19 +1,8 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# Copyright (c) 2026, pinkfish
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+# Licensed under the BSD 2-Clause License. See the LICENSE file in the project
+# root for the full license text.
+# SPDX-License-Identifier: BSD-2-Clause
 
 # LibFile: bosl2/docs/conf.py
 #    Sphinx configuration for the pure-Python bosl2 port's API docs. Build with:
@@ -48,9 +37,16 @@ sys.path.insert(0, str(_DOCS_DIR / "_ext"))
 import mock_libfive  # noqa: E402,F401  -- installs pythonscad/openscad/libfive stubs before autodoc
 
 project = "bosl2 (PythonSCAD port)"
-copyright = "Apache License 2.0"
+copyright = "2026, pinkfish"
 author = "pinkfish"
-release = "0.1.0"
+
+# Keep the docs version in sync with the code's single source of truth
+# (bosl2/version.py) without importing the package.
+import re as _re  # noqa: E402
+
+_version_src = (_DOCS_DIR.parent / "bosl2" / "version.py").read_text()
+release = _re.search(r'__version__ = "([^"]+)"', _version_src).group(1)
+version = release
 
 extensions = [
     "sphinx.ext.autodoc",

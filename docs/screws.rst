@@ -46,8 +46,9 @@ Coverage of BOSL2 ``screws.scad``
      - ported
      - the two most common recesses; cut into the head (or the shaft top for a setscrew).
    * - phillips / torx drive recesses
-     - not ported
-     - a follow-up; the recess dimensions are tabulated but the mask shapes are not built.
+     - ported separately
+     - available as masks in :doc:`screw_drive` (:class:`~bosl2.screw_drive.ScrewDrive`); not yet
+       wired into :meth:`~bosl2.screws.Screws.screw`'s ``drive=`` argument.
    * - UTS / imperial specs, shoulder screws, named anchors, per-tolerance thread classes
      - not ported
      - a follow-up; this port covers the metric fastener geometry the toolkit needs.
