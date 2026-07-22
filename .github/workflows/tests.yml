@@ -1,0 +1,78 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: pytest (python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      # The pythonscad wheel is an OpenSCAD-derived C extension; auditwheel bundles
+      # most of its libraries, but GL/font/X system libs are dlopen'd at import time
+      # and must be present on the runner.
+      - name: Install system libraries for the pythonscad wheel
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1 libglu1-mesa libegl1 libglib2.0-0 \
+            libfontconfig1 libfreetype6 libharfbuzz0b \
+            libxkbcommon0 libx11-6 libxext6 libxrender1
+
+      - name: Install package with test extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[test]'
+
+      # Confirm the native modules import before running the suite, so a wheel/ABI
+      # problem is reported clearly rather than as a wall of collection errors.
+      - name: Verify pythonscad imports
+        run: python -c "import pythonscad, openscad, bosl2.shapes3d; print('native modules import OK')"
+
+      - name: Run tests
+        run: pytest -q
+
+  # pysolidfive is a separate, self-contained piece. Its suite runs against the
+  # numeric mock_libfive stand-in (bundled in pysolidfive/tests), so it needs only
+  # numpy -- no pythonscad wheel and no system GL libraries -- and runs via unittest
+  # (its native runner; the package's eager libfive import is incompatible with
+  # pytest's package-based collection, by design).
+  pysolidfive:
+    name: pysolidfive (unittest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install numpy
+        run: python -m pip install --upgrade pip numpy
+
+      - name: Run pysolidfive tests
+        working-directory: pysolidfive/tests
+        run: python -m unittest discover -s . -t . -v
