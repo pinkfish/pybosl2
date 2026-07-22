@@ -241,7 +241,9 @@ def minkowski_difference(base, *diffs, size: float = 1000, convexity: int = 10):
     from bosl2.shapes3d import Bosl2Solid
 
     b = _unwrap(base)
-    ds = list(diffs[0]) if len(diffs) == 1 and isinstance(diffs[0], (list, tuple)) else list(diffs)
+    raw = list(diffs[0]) if len(diffs) == 1 and isinstance(diffs[0], (list, tuple)) else list(diffs)
+    # Diffs may arrive as Bosl2Solid wrappers; the native minkowski() only takes raw solids.
+    ds = [_unwrap(d) for d in raw]
     assert ds, "minkowski_difference(): needs at least one diff shape."
     center, sz = Bosl2Solid(b).bounds() if isinstance(base, Bosl2Solid) else _native_bounds(b)
     box0 = _cube([sz[i] for i in range(3)], center=True).translate([float(c) for c in center])

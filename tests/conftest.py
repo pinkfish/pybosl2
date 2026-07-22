@@ -18,21 +18,48 @@
 # pytest fixtures/setup for the bosl2 package test-suite.
 #
 # The bosl2 modules that touch native geometry (shapes2d/shapes3d/masking, and the
-# .polygon()/.polyhedron() FFI boundaries) import `pythonscad`/`openscad` at load time. This
-# conftest installs the shared numeric mock for those (and `libfive`) BEFORE any test module --
-# and therefore any bosl2 module -- is imported, so the whole suite runs without a real
-# PythonSCAD app. The mock lives in pysolidfive/tests/mock_libfive.py and installs itself into
-# sys.modules on import (it is deliberately imported as a flat top-level module).
+# .polygon()/.polyhedron() FFI boundaries) import `pythonscad`/`openscad` at load time. These
+# modules must therefore be importable BEFORE any test module -- and therefore any bosl2 module --
+# is imported.
+#
+# The supported setup is a venv with the real `pythonscad` wheel installed (`pip install -e
+# .[test]`), which provides genuine `pythonscad` and `openscad` modules. If that wheel is not
+# installed, we fall back to the shared numeric mock (pysolidfive/tests/mock_libfive.py) when it is
+# present next to this checkout, so the pure-Python suite can still run without PythonSCAD at all.
 
+import importlib.util
 import os
 import sys
 
-_HERE = os.path.dirname(__file__)
-_ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
-_MOCK_DIR = os.path.join(_ROOT, "pysolidfive", "tests")
 
-for _p in (_ROOT, _MOCK_DIR):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+def _pythonscad_installed() -> bool:
+    """True if the real `pythonscad` wheel is importable in this interpreter."""
+    try:
+        return importlib.util.find_spec("pythonscad") is not None
+    except (ImportError, ValueError):
+        return False
 
-import mock_libfive  # noqa: E402,F401  -- installs pythonscad/openscad/libfive stubs on import
+
+def _install_mock() -> bool:
+    """Install the shared numeric mock if it can be found beside this checkout; return success."""
+    here = os.path.dirname(__file__)
+    root = os.path.abspath(os.path.join(here, "..", ".."))
+    mock_dir = os.path.join(root, "pysolidfive", "tests")
+    if not os.path.isfile(os.path.join(mock_dir, "mock_libfive.py")):
+        return False
+    for p in (root, mock_dir):
+        if p not in sys.path:
+            sys.path.insert(0, p)
+    import mock_libfive  # noqa: F401  -- installs pythonscad/openscad/libfive stubs on import
+    return True
+
+
+if not _pythonscad_installed():
+    if not _install_mock():
+        import pytest
+
+        pytest.skip(
+            "neither the real `pythonscad` wheel nor the numeric mock is available; "
+            "run `pip install -e .[test]` in a venv to install PythonSCAD",
+            allow_module_level=True,
+        )

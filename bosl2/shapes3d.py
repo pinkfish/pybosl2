@@ -123,6 +123,10 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     move = translate
 
     def rotate(self, *a, **k) -> "Bosl2Solid":
+        # BOSL2 rot(a): a bare scalar angle is a rotation about the Z axis. The native
+        # openscad rotate() only accepts a vector or (angle, axis), so normalize here.
+        if len(a) == 1 and isinstance(a[0], (int, float)) and "v" not in k:
+            a = ([0.0, 0.0, float(a[0])],)
         return self._wrap(self.shape.rotate(*a, **k))
 
     rot = rotate

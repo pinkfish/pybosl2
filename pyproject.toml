@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pybosl2"
+version = "0.1.0"
+description = "Python ports of the BOSL2 OpenSCAD library for use with PythonSCAD"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+authors = [
+    { name = "pinkfish" },
+]
+keywords = ["3d", "openscad", "pythonscad", "bosl2", "cad", "3d-printing"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Manufacturing",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Graphics :: 3D Modeling",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy",
+]
+
+[project.optional-dependencies]
+# Everything needed to run the test-suite in a venv. `pythonscad` provides the
+# real `pythonscad`/`openscad` native modules the geometry code imports; the STL
+# render tests additionally need the PythonSCAD app binary and skip without it.
+test = [
+    "pytest>=7",
+    "numpy",
+    "pythonscad",
+]
+
+[project.urls]
+Homepage = "https://github.com/pinkfish/pybosl2"
+Repository = "https://github.com/pinkfish/pybosl2"
+
+[tool.setuptools.packages.find]
+include = ["bosl2", "bosl2.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
