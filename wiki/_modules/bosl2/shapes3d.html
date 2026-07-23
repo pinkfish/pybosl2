@@ -31,22 +31,11 @@
           <div class="body" role="main">
             
   <h1>Source code for bosl2.shapes3d</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Licensed to the Apache Software Foundation (ASF) under one</span>
-<span class="c1"># or more contributor license agreements.  See the NOTICE file</span>
-<span class="c1"># distributed with this work for additional information</span>
-<span class="c1"># regarding copyright ownership.  The ASF licenses this file</span>
-<span class="c1"># to you under the Apache License, Version 2.0 (the</span>
-<span class="c1"># &quot;License&quot;); you may not use this file except in compliance</span>
-<span class="c1"># with the License.  You may obtain a copy of the License at</span>
+<span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
-<span class="c1">#   http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="c1">#</span>
-<span class="c1"># Unless required by applicable law or agreed to in writing,</span>
-<span class="c1"># software distributed under the License is distributed on an</span>
-<span class="c1"># &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
-<span class="c1"># KIND, either express or implied.  See the License for the</span>
-<span class="c1"># specific language governing permissions and limitations</span>
-<span class="c1"># under the License.</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: bosl2/shapes3d.py</span>
 <span class="c1">#    Every shape in this file (cube, cuboid, prismoid, octahedron, wedge, cylinder, cyl, xcyl,</span>
@@ -68,6 +57,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -135,17 +125,54 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span> <span class="o">=</span> <span class="n">anchor</span> <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CENTER</span>
+        <span class="c1"># True once a positional transform (translate/rotate/scale/...) has been applied, so the</span>
+        <span class="c1"># tracked cuboid size/anchor metadata no longer describes the object&#39;s current position.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_moved</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_unwrap</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Bosl2Solid</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">:</span> <span class="n">PyOpenSCAD</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap a native result, carrying size/anchor metadata (and moved-ness) forward unchanged.</span>
+
+<span class="sd">        Use for ops that do NOT move/resize the geometry (colour, repair, native mesh ops).&quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">_moved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moved</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_moved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">:</span> <span class="n">PyOpenSCAD</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap a native result of a positional transform, flagging the tracked metadata stale.&quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">_moved</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">out</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">attr</span>
+        <span class="c1"># __getattr__ only fires on a normal-lookup miss. Guard the recursion trap: never bounce</span>
+        <span class="c1"># back through here for `shape` (or dunders) when the object is half-built (unpickling,</span>
+        <span class="c1"># __new__, or an __init__ that raised before setting .shape) -- raise a clean AttributeError</span>
+        <span class="c1"># so copy/pickle/hasattr behave instead of blowing the stack.</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;shape&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">)</span>   <span class="c1"># bypass __getattr__: no recursion</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">attr</span>                                  <span class="c1"># plain native attr (.position/.size/...)</span>
+        <span class="n">native_cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_forward</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="c1"># Re-wrap native geometry so a passed-through op (linear_extrude/offset/resize/...) keeps</span>
+            <span class="c1"># the Bosl2Solid fluent API instead of silently leaking a raw handle. The result may be</span>
+            <span class="c1"># in a different position, so treat it as moved. Non-geometry results pass through.</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">attr</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">native_cls</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_moved</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="n">result</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">native_cls</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">result</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap_moved</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">result</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="n">_forward</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="n">_forward</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Bosl2Solid(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">!r}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">!r}</span><span class="s2">, anchor=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="si">!r}</span><span class="s2">)&quot;</span>
@@ -155,7 +182,7 @@
 <div class="viewcode-block" id="Bosl2Solid.translate">
 <a class="viewcode-back" href="../../shapes3d.html#bosl2.shapes3d.Bosl2Solid.translate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_moved</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
 
 
     <span class="n">move</span> <span class="o">=</span> <span class="n">translate</span>
@@ -163,11 +190,13 @@
 <div class="viewcode-block" id="Bosl2Solid.rotate">
 <a class="viewcode-back" href="../../shapes3d.html#bosl2.shapes3d.Bosl2Solid.rotate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
-        <span class="c1"># BOSL2 rot(a): a bare scalar angle is a rotation about the Z axis. The native</span>
-        <span class="c1"># openscad rotate() only accepts a vector or (angle, axis), so normalize here.</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="s2">&quot;v&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+        <span class="c1"># BOSL2 rot(a): a bare scalar angle is a rotation about the Z axis. The native openscad</span>
+        <span class="c1"># rotate() only accepts a vector or (angle, axis), so normalize here. Accept any real</span>
+        <span class="c1"># scalar (incl. numpy int/float scalars) but not bool (a subclass of int).</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Real</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;v&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span><span class="p">):</span>
             <span class="n">a</span> <span class="o">=</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])],)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_moved</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">))</span></div>
 
 
     <span class="n">rot</span> <span class="o">=</span> <span class="n">rotate</span>
@@ -175,7 +204,7 @@
 <div class="viewcode-block" id="Bosl2Solid.mirror">
 <a class="viewcode-back" href="../../shapes3d.html#bosl2.shapes3d.Bosl2Solid.mirror">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mirror</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_moved</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">mirror</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
 
 
     <span class="c1"># Directional translates (BOSL2 transforms.scad): right/left +/-X, back/fwd +/-Y, up/down +/-Z.</span>
@@ -221,13 +250,13 @@
 <div class="viewcode-block" id="Bosl2Solid.multmatrix">
 <a class="viewcode-back" href="../../shapes3d.html#bosl2.shapes3d.Bosl2Solid.multmatrix">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">multmatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">m</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_moved</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">m</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Bosl2Solid.scale">
 <a class="viewcode-back" href="../../shapes3d.html#bosl2.shapes3d.Bosl2Solid.scale">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_moved</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
 
 
     <span class="c1"># ---- native-only mesh operations (no BOSL2 equivalent) ----</span>
@@ -336,7 +365,7 @@
         <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mats</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="n">out</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_moved</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
     <span class="c1"># ---- bounding-box anchoring (works on ANY object, via PythonSCAD&#39;s native bbox) ----</span>
     <span class="c1">#</span>
@@ -353,7 +382,9 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">position</span>
             <span class="n">sz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">size</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="c1"># The native handle doesn&#39;t expose position/size (the numeric test mock). A genuine</span>
+            <span class="c1"># error from the real accessor (e.g. a broken mesh) is NOT swallowed -- it propagates.</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">pos</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -381,6 +412,15 @@
             <span class="n">mincorner</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">nb</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">mincorner</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span> <span class="n">size</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># Fall back to construction-time cuboid metadata -- but only if the object hasn&#39;t been</span>
+            <span class="c1"># moved since, because that metadata tracks size/anchor, not the current position. Fail</span>
+            <span class="c1"># loud rather than return a silently-stale centre (this path is the numeric mock only).</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moved</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;bounds(): no native bounding box (numeric mock) and the object has been &quot;</span>
+                    <span class="s2">&quot;transformed since construction, so its tracked cuboid metadata is stale. Run &quot;</span>
+                    <span class="s2">&quot;under the real PythonSCAD app for a correct bbox, or anchor before transforming.&quot;</span>
+                <span class="p">)</span>
             <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">_anchor_offset_box3</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">),</span> <span class="n">size</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -3279,6 +3319,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour: colorspace conversion &amp; colour operators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading: screw threads, rods &amp; nuts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joiners.html">Joiners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
@@ -3313,7 +3364,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;Apache License 2.0.
+      &#169;2026, pinkfish.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>

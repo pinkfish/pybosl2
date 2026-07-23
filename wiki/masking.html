@@ -96,6 +96,27 @@ sharp edge, +X/+Y extending into the material, centered along its own Z axis ove
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="bosl2.masking.chamfer_edge_mask">
+<span class="sig-prename descclassname"><span class="pre">bosl2.masking.</span></span><span class="sig-name descname"><span class="pre">chamfer_edge_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/masking.html#chamfer_edge_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.masking.chamfer_edge_mask" title="Link to this definition">¶</a></dt>
+<dd><p>A standalone 3-D edge-chamfer cutter of length <em>l</em> (BOSL2 chamfer_edge_mask()).</p>
+<p>A diamond bar (a square prism rotated 45 degrees, with its vertices <em>chamfer</em> out along each
+axis – i.e. <code class="docutils literal notranslate"><span class="pre">cylinder(r=chamfer,</span> <span class="pre">$fn=4)</span></code>), centered on its own Z axis. Position it along a
+sharp edge and subtract it to bevel the edge by <em>chamfer</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l</strong> (<em>float</em>) – length of the cutter along its axis (default 1)</p></li>
+<li><p><strong>chamfer</strong> (<em>float</em>) – chamfer size – the diamond’s half-diagonal along each axis (default 1)</p></li>
+<li><p><strong>excess</strong> (<em>float</em>) – extra length past <em>l</em> so the cut clears the surface (default 0.1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>PyOpenSCAD</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="bosl2.masking.edge_mask">
 <span class="sig-prename descclassname"><span class="pre">bosl2.masking.</span></span><span class="sig-name descname"><span class="pre">edge_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ALL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">except_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/masking.html#edge_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.masking.edge_mask" title="Link to this definition">¶</a></dt>
 <dd><p>Cut an already-built 3-D edge cutter (e.g. from rounding_edge_mask()) along each selected
@@ -278,12 +299,24 @@ isn’t given</p></li>
 <li class="toctree-l1"><a class="reference internal" href="color.html">Colour: colorspace conversion &amp; colour operators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="threading.html">Threading: screw threads, rods &amp; nuts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Edge/corner masking</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#bosl2.masking.mask2d_roundover"><code class="docutils literal notranslate"><span class="pre">mask2d_roundover()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bosl2.masking.rounding_edge_mask"><code class="docutils literal notranslate"><span class="pre">rounding_edge_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bosl2.masking.chamfer_edge_mask"><code class="docutils literal notranslate"><span class="pre">chamfer_edge_mask()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bosl2.masking.edge_mask"><code class="docutils literal notranslate"><span class="pre">edge_mask()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bosl2.masking.edge_profile"><code class="docutils literal notranslate"><span class="pre">edge_profile()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bosl2.masking.edge_profile_asym"><code class="docutils literal notranslate"><span class="pre">edge_profile_asym()</span></code></a></li>
@@ -321,7 +354,7 @@ isn’t given</p></li>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;Apache License 2.0.
+      &#169;2026, pinkfish.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>

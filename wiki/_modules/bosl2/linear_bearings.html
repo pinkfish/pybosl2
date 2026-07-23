@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bosl2.linear_bearings &#8212; bosl2 (PythonSCAD port) 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bosl2.linear_bearings</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
+
+<span class="c1"># LibFile: bosl2/linear_bearings.py</span>
+<span class="c1">#    Pure-Python port of BOSL2&#39;s linear_bearings.scad: models of linear ball bearings that run along</span>
+<span class="c1">#    a rod, and the pillow-block housings that hold them. :meth:`LinearBearings.linear_bearing` is a</span>
+<span class="c1">#    generic bearing; :meth:`~LinearBearings.lmXuu_bearing` looks a standard LMxUU size up in</span>
+<span class="c1">#    :meth:`~LinearBearings.lmXuu_info` (a :class:`LinearBearingSpec` table). The housings clamp a</span>
+<span class="c1">#    bearing to a plate with a teardrop bore and a screw.</span>
+<span class="c1">#</span>
+<span class="c1"># FileSummary: Linear (LMxUU) ball bearings and their pillow-block housings.</span>
+<span class="c1"># FileGroup: BOSL2</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">TOP</span><span class="p">,</span> <span class="n">BOTTOM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">teardrop</span><span class="p">,</span> <span class="n">tube</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LinearBearings&quot;</span><span class="p">,</span> <span class="s2">&quot;LinearBearingSpec&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_union</span><span class="p">(</span><span class="n">shapes</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">shapes</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="LinearBearingSpec">
+<a class="viewcode-back" href="../../linear_bearings.html#bosl2.linear_bearings.LinearBearingSpec">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LinearBearingSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dimensions of a standard LMxUU linear bearing (BOSL2 lmXuu_info()).&quot;&quot;&quot;</span>
+
+    <span class="n">od</span><span class="p">:</span> <span class="nb">float</span>       <span class="c1"># outer diameter</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span>   <span class="c1"># axial length</span></div>
+
+    <span class="c1"># the bore (shaft) diameter equals the nominal size, which keys the table.</span>
+
+
+<span class="c1"># nominal size (shaft Ø) -&gt; spec, transcribed from linear_bearings.scad.</span>
+<span class="n">_LMXUU</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="mi">5</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="mi">6</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">24</span><span class="p">),</span> <span class="mi">10</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">29</span><span class="p">),</span> <span class="mi">12</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+    <span class="mi">13</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="mi">16</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">37</span><span class="p">),</span> <span class="mi">20</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">42</span><span class="p">),</span>
+    <span class="mi">25</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">59</span><span class="p">),</span> <span class="mi">30</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span> <span class="mi">35</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span> <span class="mi">70</span><span class="p">),</span>
+    <span class="mi">40</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span> <span class="mi">50</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">60</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">110</span><span class="p">),</span>
+    <span class="mi">80</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">140</span><span class="p">),</span> <span class="mi">100</span><span class="p">:</span> <span class="n">LinearBearingSpec</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">175</span><span class="p">),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="LinearBearings">
+<a class="viewcode-back" href="../../linear_bearings.html#bosl2.linear_bearings.LinearBearings">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LinearBearings</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Linear (LMxUU) ball bearings and pillow-block housings (BOSL2 linear_bearings.scad).&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LinearBearings.lmXuu_info">
+<a class="viewcode-back" href="../../linear_bearings.html#bosl2.linear_bearings.LinearBearings.lmXuu_info">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lmXuu_info</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LinearBearingSpec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The :class:`LinearBearingSpec` (od, length) for a standard LMxUU size (BOSL2 lmXuu_info()).&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_LMXUU</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported lmXuu linear bearing size: </span><span class="si">{</span><span class="n">size</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinearBearings.linear_bearing">
+<a class="viewcode-back" href="../../linear_bearings.html#bosl2.linear_bearings.LinearBearings.linear_bearing">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">linear_bearing</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span> <span class="n">od</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+                       <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;silver&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A generic linear ball-bearing cartridge, bore *id* / outer *od* / length *l* (BOSL2 linear_bearing()).</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            An LM8UU-sized bearing:</span>
+
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from bosl2.linear_bearings import LinearBearings</span>
+<span class="sd">                LinearBearings.linear_bearing(l=24, od=15, id=8).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">_union</span><span class="p">([</span>
+            <span class="n">tube</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="n">od</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">l</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">tube</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">od</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="n">od</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">l</span><span class="p">),</span>
+            <span class="n">tube</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="nb">id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">l</span><span class="p">),</span>
+            <span class="n">tube</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="n">od</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">l</span><span class="p">),</span>
+        <span class="p">])</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">od</span><span class="p">,</span> <span class="n">od</span><span class="p">,</span> <span class="n">l</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span> <span class="k">if</span> <span class="n">color</span> <span class="k">else</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="LinearBearings.lmXuu_bearing">
+<a class="viewcode-back" href="../../linear_bearings.html#bosl2.linear_bearings.LinearBearings.lmXuu_bearing">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lmXuu_bearing</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;silver&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmXuu_bearing()).&quot;&quot;&quot;</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">LinearBearings</span><span class="o">.</span><span class="n">lmXuu_info</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">od</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LinearBearings.linear_bearing_housing">
+<a class="viewcode-back" href="../../linear_bearings.html#bosl2.linear_bearings.LinearBearings.linear_bearing_housing">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">linear_bearing_housing</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span> <span class="n">tab</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+                               <span class="n">wall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">tabwall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">screwsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                               <span class="n">_fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A pillow-block housing that clamps a linear bearing (bore *d*, length *l*) to a plate (BOSL2 linear_bearing_housing()).</span>
+
+<span class="sd">        The teardrop bore prints without support; the split *gap* and a *screwsize* clamp screw</span>
+<span class="sd">        through the tabs let it grip the bearing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">od</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">wall</span>
+        <span class="n">ogap</span> <span class="o">=</span> <span class="n">gap</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">tabwall</span>
+        <span class="n">tabh</span> <span class="o">=</span> <span class="n">tab</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">od</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">ogap</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="c1"># teardrop bearing shell + base + clamp tabs, then the bore, split gap and screw hole removed.</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">_union</span><span class="p">([</span>
+            <span class="n">teardrop</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">od</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">l</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>                <span class="c1"># teardrop shell, axis along X</span>
+            <span class="n">cuboid</span><span class="p">([</span><span class="n">l</span><span class="p">,</span> <span class="n">od</span><span class="p">,</span> <span class="n">od</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">od</span> <span class="o">/</span> <span class="mi">4</span><span class="p">),</span>                  <span class="c1"># base</span>
+            <span class="n">cuboid</span><span class="p">([</span><span class="n">l</span><span class="p">,</span> <span class="n">ogap</span><span class="p">,</span> <span class="n">od</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">tab</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">od</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">tab</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>  <span class="c1"># clamp tabs</span>
+        <span class="p">])</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">-</span> <span class="n">teardrop</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">l</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>   <span class="c1"># bearing bore</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">-</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">l</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">od</span><span class="p">])</span>                            <span class="c1"># split gap</span>
+        <span class="c1"># clamp screw across the tabs (a simple clearance hole)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+        <span class="n">screw</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw_hole</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;M</span><span class="si">{</span><span class="n">screwsize</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">ogap</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span> <span class="ow">or</span> <span class="mi">16</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">tabh</span><span class="p">)</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">-</span> <span class="n">screw</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="n">od</span><span class="p">,</span> <span class="n">od</span> <span class="o">+</span> <span class="n">tab</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="LinearBearings.lmXuu_housing">
+<a class="viewcode-back" href="../../linear_bearings.html#bosl2.linear_bearings.LinearBearings.lmXuu_housing">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lmXuu_housing</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">tab</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">wall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                      <span class="n">tabwall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">screwsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">_fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmXuu_housing()).&quot;&quot;&quot;</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">LinearBearings</span><span class="o">.</span><span class="n">lmXuu_info</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing_housing</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">od</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">tab</span><span class="o">=</span><span class="n">tab</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="n">gap</span><span class="p">,</span>
+                                                     <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">tabwall</span><span class="o">=</span><span class="n">tabwall</span><span class="p">,</span> <span class="n">screwsize</span><span class="o">=</span><span class="n">screwsize</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Bezier curves, paths and surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS: curves &amp; surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../skin.html">Sweeps (skin)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native-only mesh operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joiners.html">Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../masking.html">Edge/corner masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transforms.html">Transforms (affine / reorient)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../math.html">Numeric helpers (math)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vectors.html">Vector helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../comparisons.html">Approximate comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../constants.html">Direction constants</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, pinkfish.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -14,7 +14,7 @@
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Partitions: planar cuts &amp; interlocking splits" href="partitions.html" />
+    <link rel="next" title="Screw drives: Phillips, hex, Torx &amp; Robertson recesses" href="screw_drive.html" />
     <link rel="prev" title="Threading: screw threads, rods &amp; nuts" href="threading.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -88,8 +88,9 @@ and thread in <code class="docutils literal notranslate"><span class="pre">tests
 <td><p>the two most common recesses; cut into the head (or the shaft top for a setscrew).</p></td>
 </tr>
 <tr class="row-odd"><td><p>phillips / torx drive recesses</p></td>
-<td><p>not ported</p></td>
-<td><p>a follow-up; the recess dimensions are tabulated but the mask shapes are not built.</p></td>
+<td><p>ported separately</p></td>
+<td><p>available as masks in <a class="reference internal" href="screw_drive.html"><span class="doc">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</span></a> (<a class="reference internal" href="screw_drive.html#bosl2.screw_drive.ScrewDrive" title="bosl2.screw_drive.ScrewDrive"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScrewDrive</span></code></a>); not yet
+wired into <a class="reference internal" href="#bosl2.screws.Screws.screw" title="bosl2.screws.Screws.screw"><code class="xref py py-meth docutils literal notranslate"><span class="pre">screw()</span></code></a>’s <code class="docutils literal notranslate"><span class="pre">drive=</span></code> argument.</p></td>
 </tr>
 <tr class="row-even"><td><p>UTS / imperial specs, shoulder screws, named anchors, per-tolerance thread classes</p></td>
 <td><p>not ported</p></td>
@@ -105,13 +106,13 @@ and thread in <code class="docutils literal notranslate"><span class="pre">tests
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3d273f7791914682ac28c25558f4c6a8" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8068dd4412864666a85d518e6abb423d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3d273f7791914682ac28c25558f4c6a8");
+const el = document.getElementById("stlviewer-8068dd4412864666a85d518e6abb423d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -160,13 +161,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0f0f373f5e1f4f5abca97540ea200ab6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-48d4f28087604a339d1d11a4c7d93e4e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0f0f373f5e1f4f5abca97540ea200ab6");
+const el = document.getElementById("stlviewer-48d4f28087604a339d1d11a4c7d93e4e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -217,13 +218,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2aad10002dd44d0d8095354e8283f2b5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-f4f18fcf4c374cde84bd9ff11fbcb536" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2aad10002dd44d0d8095354e8283f2b5");
+const el = document.getElementById("stlviewer-f4f18fcf4c374cde84bd9ff11fbcb536");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -365,6 +366,17 @@ with its mouth at <code class="docutils literal notranslate"><span class="pre">z
 <li class="toctree-l2"><a class="reference internal" href="#api-reference">API reference</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
@@ -382,7 +394,7 @@ with its mouth at <code class="docutils literal notranslate"><span class="pre">z
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="threading.html" title="previous chapter">Threading: screw threads, rods &amp; nuts</a></li>
-      <li>Next: <a href="partitions.html" title="next chapter">Partitions: planar cuts &amp; interlocking splits</a></li>
+      <li>Next: <a href="screw_drive.html" title="next chapter">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
   </ul></li>
 </ul>
 </div>
@@ -399,7 +411,7 @@ with its mouth at <code class="docutils literal notranslate"><span class="pre">z
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;Apache License 2.0.
+      &#169;2026, pinkfish.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>

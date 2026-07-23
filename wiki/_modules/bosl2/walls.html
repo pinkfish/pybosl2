@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bosl2.walls &#8212; bosl2 (PythonSCAD port) 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bosl2.walls</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
+
+<span class="c1"># LibFile: bosl2/walls.py</span>
+<span class="c1">#    Pure-Python port of BOSL2&#39;s walls.scad: FDM-optimised wall shapes that use less material and</span>
+<span class="c1">#    print without support. :meth:`Walls.sparse_wall` is an X-braced open wall (and</span>
+<span class="c1">#    :meth:`~Walls.sparse_cuboid` its solid-box variant); :meth:`~Walls.corrugated_wall` a sinusoidal</span>
+<span class="c1">#    corrugated panel; :meth:`~Walls.thinning_wall` / :meth:`~Walls.thinning_triangle` walls whose</span>
+<span class="c1">#    middle thins away while the edges stay thick; :meth:`~Walls.narrowing_strut` the home-plate strut</span>
+<span class="c1">#    those triangles are built from.</span>
+<span class="c1">#</span>
+<span class="c1">#    The honeycomb hex_panel() is not ported.</span>
+<span class="c1">#</span>
+<span class="c1"># FileSummary: FDM-optimised walls: sparse, corrugated, thinning and struts.</span>
+<span class="c1"># FileGroup: BOSL2</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_opolygon</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">cuboid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Walls&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rect</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A native 2D axis-aligned rectangle from two opposite corners.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_opolygon</span><span class="p">([[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">],</span> <span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y0</span><span class="p">],</span> <span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">],</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y1</span><span class="p">]])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_circle_2tangents</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Centre of the circle of radius *r* tangent to segments p2-&gt;p1 and p2-&gt;p3 (BOSL2</span>
+<span class="sd">    circle_2tangents()[0]); the corner is at *p2*. Points are 3-vectors (the y component is 0 here).&quot;&quot;&quot;</span>
+    <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">))</span>
+    <span class="n">v1</span> <span class="o">=</span> <span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span><span class="p">)</span>
+    <span class="n">v2</span> <span class="o">=</span> <span class="p">(</span><span class="n">p3</span> <span class="o">-</span> <span class="n">p2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p3</span> <span class="o">-</span> <span class="n">p2</span><span class="p">)</span>
+    <span class="n">bis</span> <span class="o">=</span> <span class="n">v1</span> <span class="o">+</span> <span class="n">v2</span>
+    <span class="n">bis</span> <span class="o">=</span> <span class="n">bis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">bis</span><span class="p">)</span>
+    <span class="n">half</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)))</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">p2</span> <span class="o">+</span> <span class="n">bis</span> <span class="o">*</span> <span class="p">(</span><span class="n">r</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">half</span><span class="p">)))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_segs</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OpenSCAD segs(r) with the default $fa=12, $fs=2.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="mi">360</span> <span class="o">/</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span>
+
+
+<div class="viewcode-block" id="Walls">
+<a class="viewcode-back" href="../../walls.html#bosl2.walls.Walls">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Walls</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;FDM-optimised wall shapes (BOSL2 walls.scad).&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Walls.narrowing_strut">
+<a class="viewcode-back" href="../../walls.html#bosl2.walls.Walls.narrowing_strut">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">narrowing_strut</span><span class="p">(</span><span class="n">w</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">wall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">ang</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2 narrowing_strut()).</span>
+
+<span class="sd">        The triangular top converges at *ang* so the strut can brace an overhang without needing</span>
+<span class="sd">        support. *w* is the width (thickness), *l* the length, *wall* the height of the rectangular</span>
+<span class="sd">        base. It sits on the ``z = 0`` plane with the apex pointing up.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from bosl2.walls import Walls</span>
+<span class="sd">                Walls.narrowing_strut(w=10, l=100, wall=5, ang=30).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">wall</span> <span class="o">+</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">ang</span><span class="p">))</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">wall</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">wall</span><span class="p">]]</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Walls.sparse_wall">
+<a class="viewcode-back" href="../../walls.html#bosl2.walls.Walls.sparse_wall">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sparse_wall</span><span class="p">(</span><span class="n">h</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">maxang</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+                    <span class="n">strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">max_bridge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An open, X-cross-braced rectangular wall that saves material and prints support-free (BOSL2 sparse_wall()).</span>
+
+<span class="sd">        A solid border of width *strut* frames a lattice of diagonal braces, each kept under *maxang*</span>
+<span class="sd">        from vertical (so it needs no support) and spaced so no bridge exceeds *max_bridge*. The wall</span>
+<span class="sd">        is *thick* in X, *l* long in Y and *h* tall in Z.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from bosl2.walls import Walls</span>
+<span class="sd">                Walls.sparse_wall(h=50, l=100, thick=4).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="n">Walls</span><span class="o">.</span><span class="n">_sparse_wall2d</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">maxang</span><span class="p">,</span> <span class="n">strut</span><span class="p">,</span> <span class="n">max_bridge</span><span class="p">)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">thick</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">thick</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sparse_wall2d</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">maxang</span><span class="p">,</span> <span class="n">strut</span><span class="p">,</span> <span class="n">max_bridge</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The 2D cross-braced pattern, in the (X=h, Y=l) plane (BOSL2 sparse_wall2d()).&quot;&quot;&quot;</span>
+        <span class="n">zoff</span> <span class="o">=</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">strut</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">yoff</span> <span class="o">=</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">strut</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">maxa</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">maxang</span><span class="p">)</span>
+        <span class="n">maxhyp</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_bridge</span> <span class="o">+</span> <span class="n">strut</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">maxa</span><span class="p">)</span>
+        <span class="n">maxz</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">maxhyp</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">maxa</span><span class="p">)</span>
+        <span class="n">zreps</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">zoff</span> <span class="o">/</span> <span class="n">maxz</span><span class="p">)</span>
+        <span class="n">zstep</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zoff</span> <span class="o">/</span> <span class="n">zreps</span>
+        <span class="n">hyp</span> <span class="o">=</span> <span class="n">zstep</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">maxa</span><span class="p">)</span>
+        <span class="n">maxy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">hyp</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">maxa</span><span class="p">),</span> <span class="n">max_bridge</span> <span class="o">+</span> <span class="n">strut</span><span class="p">)</span>
+        <span class="n">yreps</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">yoff</span> <span class="o">/</span> <span class="n">maxy</span><span class="p">)</span>
+        <span class="n">ystep</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">yoff</span> <span class="o">/</span> <span class="n">yreps</span>
+        <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan</span><span class="p">(</span><span class="n">ystep</span> <span class="o">/</span> <span class="n">zstep</span><span class="p">)</span>
+
+        <span class="c1"># solid border, built as four bars so there is no polygon-with-hole</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_rect</span><span class="p">(</span><span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">strut</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">_rect</span><span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">strut</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">_rect</span><span class="p">(</span><span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">strut</span><span class="p">),</span>
+            <span class="n">_rect</span><span class="p">(</span><span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">strut</span><span class="p">,</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">wx</span> <span class="o">=</span> <span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="n">strut</span><span class="p">)</span> <span class="o">/</span> <span class="n">zreps</span>
+        <span class="n">wy</span> <span class="o">=</span> <span class="n">strut</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">iy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">yreps</span><span class="p">):</span>
+            <span class="n">vpos</span> <span class="o">=</span> <span class="p">(</span><span class="n">iy</span> <span class="o">-</span> <span class="p">(</span><span class="n">yreps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">ystep</span>
+            <span class="k">for</span> <span class="n">jx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">zreps</span><span class="p">):</span>
+                <span class="n">upos</span> <span class="o">=</span> <span class="p">(</span><span class="n">jx</span> <span class="o">-</span> <span class="p">(</span><span class="n">zreps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">zstep</span>
+                <span class="k">for</span> <span class="n">syx</span> <span class="ow">in</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="o">-</span><span class="n">ang</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">ang</span><span class="p">)):</span>
+                    <span class="n">corners</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="n">wx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">wy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">wx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">wy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="n">wx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">wy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">wx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">wy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)]</span>
+                    <span class="n">poly</span> <span class="o">=</span> <span class="p">[[</span><span class="n">upos</span> <span class="o">+</span> <span class="n">cx</span><span class="p">,</span> <span class="n">vpos</span> <span class="o">+</span> <span class="n">cy</span> <span class="o">+</span> <span class="n">syx</span> <span class="o">*</span> <span class="n">cx</span><span class="p">]</span> <span class="k">for</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="ow">in</span> <span class="n">corners</span><span class="p">]</span>
+                    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">poly</span><span class="p">))</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">region</span> <span class="o">|</span> <span class="n">p</span>
+        <span class="k">return</span> <span class="n">region</span>
+
+<div class="viewcode-block" id="Walls.sparse_cuboid">
+<a class="viewcode-back" href="../../walls.html#bosl2.walls.Walls.sparse_cuboid">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sparse_cuboid</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="n">strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">maxang</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+                      <span class="n">max_bridge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A solid cuboid whose interior is X-cross-braced along *dir* (&quot;X&quot;, &quot;Y&quot; or &quot;Z&quot;) (BOSL2 sparse_cuboid()).</span>
+
+<span class="sd">        A drop-in for :func:`~bosl2.shapes3d.cuboid` when the part would benefit from the sparse</span>
+<span class="sd">        lattice; *dir* is the axis the diagonal braces (and the through-gaps) run along.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">size</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">)))</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span>
+            <span class="n">braced</span> <span class="o">=</span> <span class="n">Walls</span><span class="o">.</span><span class="n">sparse_wall</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sx</span><span class="p">,</span> <span class="n">maxang</span><span class="p">,</span> <span class="n">strut</span><span class="p">,</span> <span class="n">max_bridge</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;Y&quot;</span><span class="p">:</span>
+            <span class="n">braced</span> <span class="o">=</span> <span class="n">Walls</span><span class="o">.</span><span class="n">sparse_wall</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">maxang</span><span class="p">,</span> <span class="n">strut</span><span class="p">,</span> <span class="n">max_bridge</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;Z&quot;</span><span class="p">:</span>
+            <span class="n">braced</span> <span class="o">=</span> <span class="n">Walls</span><span class="o">.</span><span class="n">sparse_wall</span><span class="p">(</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">maxang</span><span class="p">,</span> <span class="n">strut</span><span class="p">,</span> <span class="n">max_bridge</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;sparse_cuboid(): dir must be &quot;X&quot;, &quot;Y&quot; or &quot;Z&quot;.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">((</span><span class="n">braced</span> <span class="o">&amp;</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sz</span><span class="p">]))</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sz</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Walls.corrugated_wall">
+<a class="viewcode-back" href="../../walls.html#bosl2.walls.Walls.corrugated_wall">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">corrugated_wall</span><span class="p">(</span><span class="n">h</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+                        <span class="n">wall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A corrugated wall: a solid border framing a sinusoidal sheet of thickness *wall* (BOSL2 corrugated_wall()).</span>
+
+<span class="sd">        The corrugation waves back and forth across the *thick* thickness as it runs along the length,</span>
+<span class="sd">        which stiffens a thin wall. *strut* is the width of the solid top/bottom/end border.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from bosl2.walls import Walls</span>
+<span class="sd">                Walls.corrugated_wall(h=50, l=100, thick=5).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">amplitude</span> <span class="o">=</span> <span class="p">(</span><span class="n">thick</span> <span class="o">-</span> <span class="n">wall</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">period</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">thick</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">((</span><span class="n">_segs</span><span class="p">(</span><span class="n">thick</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span>          <span class="c1"># quantup(segs(thick/2), 4)</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">period</span> <span class="o">/</span> <span class="n">steps</span>
+        <span class="n">il</span> <span class="o">=</span> <span class="n">l</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">strut</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">step</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">il</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">step</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">il</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="n">amplitude</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="n">period</span> <span class="o">*</span> <span class="mi">360</span><span class="p">))</span> <span class="o">-</span> <span class="n">wall</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ys</span><span class="p">]</span>
+        <span class="n">pts</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">amplitude</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="n">period</span> <span class="o">*</span> <span class="mi">360</span><span class="p">))</span> <span class="o">+</span> <span class="n">wall</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">ys</span><span class="p">)]</span>
+        <span class="n">sheet</span> <span class="o">=</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">h</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">strut</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">thick</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span> <span class="o">-</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">thick</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">l</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">strut</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">strut</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">((</span><span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">sheet</span><span class="p">)</span> <span class="o">|</span> <span class="n">frame</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">thick</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Walls.thinning_wall">
+<a class="viewcode-back" href="../../walls.html#bosl2.walls.Walls.thinning_wall">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">thinning_wall</span><span class="p">(</span><span class="n">h</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">ang</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+                      <span class="n">strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">wall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A rectangular wall that thins to *wall* in the middle while the edges stay *thick* (BOSL2 thinning_wall()).</span>
+
+<span class="sd">        Angled shoulders (kept under *ang*) join the thick border to the thin centre so nothing</span>
+<span class="sd">        overhangs. *l* may be a single length or ``(bottom, top)`` for a trapezoidal wall. The diagonal</span>
+<span class="sd">        ``braces`` option of the original is not ported.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from bosl2.walls import Walls</span>
+<span class="sd">                Walls.thinning_wall(h=50, l=80, thick=4).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l1</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">l</span>
+        <span class="n">l2</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">l</span>
+        <span class="n">strut</span> <span class="o">=</span> <span class="n">strut</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">thick</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">wall</span> <span class="o">=</span> <span class="n">wall</span> <span class="k">if</span> <span class="n">wall</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">thick</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="n">bevel_h</span> <span class="o">=</span> <span class="n">strut</span> <span class="o">+</span> <span class="p">(</span><span class="n">thick</span> <span class="o">-</span> <span class="n">wall</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">ang</span><span class="p">))</span>
+        <span class="n">cp1</span> <span class="o">=</span> <span class="n">_circle_2tangents</span><span class="p">(</span><span class="n">strut</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">l2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">l1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">cp2</span> <span class="o">=</span> <span class="n">_circle_2tangents</span><span class="p">(</span><span class="n">bevel_h</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">l2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">l1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">cp3</span> <span class="o">=</span> <span class="n">_circle_2tangents</span><span class="p">(</span><span class="n">bevel_h</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">l1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">l2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">cp4</span> <span class="o">=</span> <span class="n">_circle_2tangents</span><span class="p">(</span><span class="n">strut</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">l1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="n">l2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">z1</span><span class="p">,</span> <span class="n">z2</span><span class="p">,</span> <span class="n">z3</span> <span class="o">=</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cp1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cp2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">x3</span><span class="p">,</span> <span class="n">x4</span><span class="p">,</span> <span class="n">x5</span><span class="p">,</span> <span class="n">x6</span> <span class="o">=</span> <span class="n">l2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cp1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cp2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cp4</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cp3</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">thick</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">wall</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="n">pts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">x4</span><span class="p">,</span> <span class="o">-</span><span class="n">y1</span><span class="p">,</span> <span class="o">-</span><span class="n">z1</span><span class="p">],</span> <span class="p">[</span><span class="n">x4</span><span class="p">,</span> <span class="o">-</span><span class="n">y1</span><span class="p">,</span> <span class="o">-</span><span class="n">z1</span><span class="p">],</span> <span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="o">-</span><span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">x1</span><span class="p">,</span> <span class="o">-</span><span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">x5</span><span class="p">,</span> <span class="o">-</span><span class="n">y1</span><span class="p">,</span> <span class="o">-</span><span class="n">z2</span><span class="p">],</span> <span class="p">[</span><span class="n">x5</span><span class="p">,</span> <span class="o">-</span><span class="n">y1</span><span class="p">,</span> <span class="o">-</span><span class="n">z2</span><span class="p">],</span> <span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="o">-</span><span class="n">y1</span><span class="p">,</span> <span class="n">z2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">x2</span><span class="p">,</span> <span class="o">-</span><span class="n">y1</span><span class="p">,</span> <span class="n">z2</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">x6</span><span class="p">,</span> <span class="o">-</span><span class="n">y2</span><span class="p">,</span> <span class="o">-</span><span class="n">z3</span><span class="p">],</span> <span class="p">[</span><span class="n">x6</span><span class="p">,</span> <span class="o">-</span><span class="n">y2</span><span class="p">,</span> <span class="o">-</span><span class="n">z3</span><span class="p">],</span> <span class="p">[</span><span class="n">x3</span><span class="p">,</span> <span class="o">-</span><span class="n">y2</span><span class="p">,</span> <span class="n">z3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">x3</span><span class="p">,</span> <span class="o">-</span><span class="n">y2</span><span class="p">,</span> <span class="n">z3</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">x4</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="o">-</span><span class="n">z1</span><span class="p">],</span> <span class="p">[</span><span class="n">x4</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="o">-</span><span class="n">z1</span><span class="p">],</span> <span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">x5</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="o">-</span><span class="n">z2</span><span class="p">],</span> <span class="p">[</span><span class="n">x5</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="o">-</span><span class="n">z2</span><span class="p">],</span> <span class="p">[</span><span class="n">x2</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">x2</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z2</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="n">x6</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="o">-</span><span class="n">z3</span><span class="p">],</span> <span class="p">[</span><span class="n">x6</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="o">-</span><span class="n">z3</span><span class="p">],</span> <span class="p">[</span><span class="n">x3</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z3</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">x3</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z3</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">21</span><span class="p">],</span> <span class="p">[</span><span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">22</span><span class="p">],</span> <span class="p">[</span><span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">23</span><span class="p">],</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">17</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">21</span><span class="p">],</span> <span class="p">[</span><span class="mi">18</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">22</span><span class="p">],</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">23</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span> <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">18</span><span class="p">],</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">19</span><span class="p">],</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span> <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">18</span><span class="p">],</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">19</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">]</span>                 <span class="c1"># bake zrot(90): l runs along Y</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">VNF</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">thick</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Walls.thinning_triangle">
+<a class="viewcode-back" href="../../walls.html#bosl2.walls.Walls.thinning_triangle">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">thinning_triangle</span><span class="p">(</span><span class="n">h</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">ang</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+                          <span class="n">strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">wall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">diagonly</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                          <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A right-triangular wall with thick edges thinning to *wall* in the middle (BOSL2 thinning_triangle()).</span>
+
+<span class="sd">        The hypotenuse rises from the front-bottom to the back-top. *diagonly* keeps only the</span>
+<span class="sd">        hypotenuse edge thick; *center* centres the shape (otherwise it rests on ``z = 0`` at the</span>
+<span class="sd">        front). Built from :meth:`narrowing_strut` braces.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from bosl2.walls import Walls</span>
+<span class="sd">                Walls.thinning_triangle(h=50, l=80, thick=4, center=True).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan</span><span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="n">l</span><span class="p">))</span>
+        <span class="n">dlen</span> <span class="o">=</span> <span class="n">h</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">dang</span><span class="p">))</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="n">Walls</span><span class="o">.</span><span class="n">narrowing_strut</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">diagonly</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ns</span><span class="p">(</span><span class="n">w</span><span class="o">=</span><span class="n">thick</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">strut</span><span class="p">,</span> <span class="n">ang</span><span class="o">=</span><span class="n">ang</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ns</span><span class="p">(</span><span class="n">w</span><span class="o">=</span><span class="n">thick</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">h</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">strut</span><span class="p">,</span> <span class="n">ang</span><span class="o">=</span><span class="n">ang</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">hyp</span> <span class="o">=</span> <span class="n">ns</span><span class="p">(</span><span class="n">w</span><span class="o">=</span><span class="n">thick</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">dlen</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">strut</span><span class="p">,</span> <span class="n">ang</span><span class="o">=</span><span class="n">ang</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="o">-</span><span class="n">dang</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cuboid</span><span class="p">([</span><span class="n">thick</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">hyp</span><span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cuboid</span><span class="p">([</span><span class="n">wall</span><span class="p">,</span> <span class="n">l</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">]))</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">|</span> <span class="n">p</span>
+        <span class="n">cutter</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">thick</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">l</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="o">-</span><span class="n">dang</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">-</span> <span class="n">cutter</span>
+        <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">back</span><span class="p">(</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">thick</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Bezier curves, paths and surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS: curves &amp; surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../skin.html">Sweeps (skin)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native-only mesh operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polyhedra.html">Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../walls.html">Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joiners.html">Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../masking.html">Edge/corner masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transforms.html">Transforms (affine / reorient)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../math.html">Numeric helpers (math)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vectors.html">Vector helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../comparisons.html">Approximate comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../constants.html">Direction constants</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, pinkfish.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

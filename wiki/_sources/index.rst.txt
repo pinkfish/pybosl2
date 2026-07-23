@@ -10,6 +10,15 @@ curves and surfaces, :class:`~bosl2.vnf.VNF` for vertex-face meshes, and the
 
     Path([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(r=-2).round_corners(radius=1).polygon()
 
+.. raw:: html
+
+   <p style="margin:1.4em 0;padding:14px 18px;border:1px solid #38bdf0;border-radius:10px;
+      background:rgba(56,189,240,0.07);font-size:1.05em;">
+     &#9881;&#65039; <b><a href="specs/index.html">Visual parts catalog &amp; spec sheets &rarr;</a></b>
+     &nbsp;&mdash;&nbsp; the gears, hinges, joiners, cube-truss and ball-bearing modules with
+     technical schematics and metrics measured from real rendered STL.
+   </p>
+
 Rendered examples
 -----------------
 
@@ -73,6 +82,19 @@ API reference
    color
    threading
    screws
+   screw_drive
+   bottlecaps
+   ball_bearings
+   linear_bearings
+   modular_hose
+   nema_steppers
+   polyhedra
+   walls
+   cubetruss
+   gears
+   sliders
+   hinges
+   joiners
    partitions
    miscellaneous
    rounding

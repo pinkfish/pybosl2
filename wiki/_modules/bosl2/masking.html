@@ -31,22 +31,11 @@
           <div class="body" role="main">
             
   <h1>Source code for bosl2.masking</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Licensed to the Apache Software Foundation (ASF) under one</span>
-<span class="c1"># or more contributor license agreements.  See the NOTICE file</span>
-<span class="c1"># distributed with this work for additional information</span>
-<span class="c1"># regarding copyright ownership.  The ASF licenses this file</span>
-<span class="c1"># to you under the Apache License, Version 2.0 (the</span>
-<span class="c1"># &quot;License&quot;); you may not use this file except in compliance</span>
-<span class="c1"># with the License.  You may obtain a copy of the License at</span>
+<span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
-<span class="c1">#   http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="c1">#</span>
-<span class="c1"># Unless required by applicable law or agreed to in writing,</span>
-<span class="c1"># software distributed under the License is distributed on an</span>
-<span class="c1"># &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
-<span class="c1"># KIND, either express or implied.  See the License for the</span>
-<span class="c1"># specific language governing permissions and limitations</span>
-<span class="c1"># under the License.</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: bosl2/masking.py</span>
 <span class="c1">#    Pure-Python port of the pieces of BOSL2&#39;s masks2d.scad/masks3d.scad/</span>
@@ -184,6 +173,25 @@
     <span class="n">cross</span> <span class="o">=</span> <span class="n">mask2d_roundover</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">excess</span><span class="o">=</span><span class="n">excess</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span>
     <span class="n">scale</span> <span class="o">=</span> <span class="n">rad2</span> <span class="o">/</span> <span class="n">rad1</span> <span class="k">if</span> <span class="n">rad1</span> <span class="k">else</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">cross</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="chamfer_edge_mask">
+<a class="viewcode-back" href="../../masking.html#bosl2.masking.chamfer_edge_mask">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chamfer_edge_mask</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyOpenSCAD</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A standalone 3-D edge-chamfer cutter of length *l* (BOSL2 chamfer_edge_mask()).</span>
+
+<span class="sd">    A diamond bar (a square prism rotated 45 degrees, with its vertices *chamfer* out along each</span>
+<span class="sd">    axis -- i.e. ``cylinder(r=chamfer, $fn=4)``), centered on its own Z axis. Position it along a</span>
+<span class="sd">    sharp edge and subtract it to bevel the edge by *chamfer*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        l:       length of the cutter along its axis (default 1)</span>
+<span class="sd">        chamfer: chamfer size -- the diamond&#39;s half-diagonal along each axis (default 1)</span>
+<span class="sd">        excess:  extra length past *l* so the cut clears the surface (default 0.1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">diamond</span> <span class="o">=</span> <span class="p">[[</span><span class="n">chamfer</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">chamfer</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">chamfer</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">diamond</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">l</span> <span class="o">+</span> <span class="n">excess</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
@@ -490,6 +498,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour: colorspace conversion &amp; colour operators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading: screw threads, rods &amp; nuts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joiners.html">Joiners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
@@ -524,7 +543,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;Apache License 2.0.
+      &#169;2026, pinkfish.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>

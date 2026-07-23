@@ -31,22 +31,11 @@
           <div class="body" role="main">
             
   <h1>Source code for bosl2.threading</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Licensed to the Apache Software Foundation (ASF) under one</span>
-<span class="c1"># or more contributor license agreements.  See the NOTICE file</span>
-<span class="c1"># distributed with this work for additional information</span>
-<span class="c1"># regarding copyright ownership.  The ASF licenses this file</span>
-<span class="c1"># to you under the Apache License, Version 2.0 (the</span>
-<span class="c1"># &quot;License&quot;); you may not use this file except in compliance</span>
-<span class="c1"># with the License.  You may obtain a copy of the License at</span>
+<span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
-<span class="c1">#   http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="c1">#</span>
-<span class="c1"># Unless required by applicable law or agreed to in writing,</span>
-<span class="c1"># software distributed under the License is distributed on an</span>
-<span class="c1"># &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
-<span class="c1"># KIND, either express or implied.  See the License for the</span>
-<span class="c1"># specific language governing permissions and limitations</span>
-<span class="c1"># under the License.</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: bosl2/threading.py</span>
 <span class="c1">#    Pure-Python port of the core of BOSL2&#39;s threading.scad: screw threads built by sweeping a 2-D</span>
@@ -68,9 +57,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Threading&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Threading&quot;</span><span class="p">,</span> <span class="s2">&quot;ThreadProfile&quot;</span><span class="p">]</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -78,24 +68,64 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_iso_profile</span><span class="p">():</span>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ThreadProfile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D thread cross-section in pitch units: x along the axis in [-1/2, 1/2], y the (negative)</span>
+<span class="sd">    depth fraction. ``name`` labels the standard it came from; ``points`` is the profile polygon.</span>
+
+<span class="sd">    Behaves like the plain list of ``[x, y]`` points it wraps -- it iterates, indexes, has a length</span>
+<span class="sd">    and converts to a numpy array of shape ``(n, 2)`` -- so it drops straight into the thread</span>
+<span class="sd">    builders (and anywhere a raw point list is accepted), while also carrying its name and</span>
+<span class="sd">    :attr:`depth`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">points</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Peak-to-valley depth as a fraction of the pitch.&quot;&quot;&quot;</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">depth_abs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Absolute peak-to-valley depth (mm) at the given *pitch*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">*</span> <span class="n">pitch</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The profile as a plain list of ``[x, y]`` float pairs.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iso_profile</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ThreadProfile</span><span class="p">:</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">/</span> <span class="mi">8</span>
     <span class="n">cw</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">8</span>
-    <span class="k">return</span> <span class="p">[[</span><span class="o">-</span><span class="n">depth</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">depth</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="p">[</span><span class="n">depth</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">depth</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span><span class="s2">&quot;ISO&quot;</span><span class="p">,</span> <span class="p">(</span>
+        <span class="p">(</span><span class="o">-</span><span class="n">depth</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">depth</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">depth</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">depth</span><span class="p">)))</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadProfile</span><span class="p">:</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">pa_delta</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">depth</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">thread_angle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="n">pitch</span>
     <span class="k">assert</span> <span class="n">pa_delta</span> <span class="o">&lt;=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s2">&quot;trapezoidal thread geometry is impossible (angle/depth too large).&quot;</span>
     <span class="n">rr1</span> <span class="o">=</span> <span class="o">-</span><span class="n">depth</span> <span class="o">/</span> <span class="n">pitch</span>
     <span class="n">z1</span><span class="p">,</span> <span class="n">z2</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">-</span> <span class="n">pa_delta</span><span class="p">,</span> <span class="mf">0.25</span> <span class="o">+</span> <span class="n">pa_delta</span>
-    <span class="k">return</span> <span class="p">[[</span><span class="o">-</span><span class="n">z2</span><span class="p">,</span> <span class="n">rr1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">z1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">z1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">z2</span><span class="p">,</span> <span class="n">rr1</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;trapezoidal-</span><span class="si">{</span><span class="n">thread_angle</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">deg&quot;</span><span class="p">,</span> <span class="p">((</span><span class="o">-</span><span class="n">z2</span><span class="p">,</span> <span class="n">rr1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">z1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">z1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">z2</span><span class="p">,</span> <span class="n">rr1</span><span class="p">)))</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_buttress_profile</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.77</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.77</span><span class="p">]]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_buttress_profile</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ThreadProfile</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span><span class="s2">&quot;buttress&quot;</span><span class="p">,</span> <span class="p">(</span>
+        <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.77</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.77</span><span class="p">)))</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -167,6 +197,8 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_profile_depth_abs</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">pitch</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">ThreadProfile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">profile</span><span class="o">.</span><span class="n">depth_abs</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span>
     <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">))</span> <span class="o">*</span> <span class="n">pitch</span>
 
@@ -411,6 +443,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour: colorspace conversion &amp; colour operators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading: screw threads, rods &amp; nuts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joiners.html">Joiners</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
@@ -445,7 +488,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &#169;Apache License 2.0.
+      &#169;2026, pinkfish.
       
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>

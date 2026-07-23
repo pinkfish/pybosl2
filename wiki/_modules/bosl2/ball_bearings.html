@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bosl2.ball_bearings &#8212; bosl2 (PythonSCAD port) 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bosl2.ball_bearings</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
+
+<span class="c1"># LibFile: bosl2/ball_bearings.py</span>
+<span class="c1">#    Pure-Python port of BOSL2&#39;s ball_bearings.scad: models of standard ball-bearing cartridges.</span>
+<span class="c1">#    :meth:`BallBearings.ball_bearing` builds a bearing -- either a sealed/shielded cartridge (nested</span>
+<span class="c1">#    rings plus a shield face) or an open one (inner and outer races, a ball-race groove, and the</span>
+<span class="c1">#    balls) -- from a trade-size name (``&quot;608&quot;``, ``&quot;6902ZZ&quot;``, ``&quot;R8&quot;``) or explicit id/od/width.</span>
+<span class="c1">#    :meth:`BallBearings.ball_bearing_info` returns the tabulated dimensions as a :class:`BearingSpec`.</span>
+<span class="c1">#</span>
+<span class="c1">#    The trade-size table is transcribed verbatim from ball_bearings.scad.</span>
+<span class="c1">#</span>
+<span class="c1"># FileSummary: Standard ball-bearing cartridge models.</span>
+<span class="c1"># FileGroup: BOSL2</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">INCH</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">tube</span><span class="p">,</span> <span class="n">torus</span><span class="p">,</span> <span class="n">sphere</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BallBearings&quot;</span><span class="p">,</span> <span class="s2">&quot;BearingSpec&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="BearingSpec">
+<a class="viewcode-back" href="../../ball_bearings.html#bosl2.ball_bearings.BearingSpec">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BearingSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dimensions of a standard ball-bearing cartridge (BOSL2 ball_bearing_info()).&quot;&quot;&quot;</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span>        <span class="c1"># inner (shaft) diameter</span>
+    <span class="n">od</span><span class="p">:</span> <span class="nb">float</span>        <span class="c1"># outer diameter</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span>     <span class="c1"># axial width</span>
+    <span class="n">shielded</span><span class="p">:</span> <span class="nb">bool</span>   <span class="c1"># True for a sealed/shielded (ZZ) cartridge</span></div>
+
+
+
+<span class="n">_I</span> <span class="o">=</span> <span class="n">INCH</span>
+<span class="c1"># trade size -&gt; BearingSpec, transcribed from ball_bearings.scad.</span>
+<span class="n">_BEARINGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;R2&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">5</span> <span class="o">/</span> <span class="mi">32</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R3&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">16</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">5</span> <span class="o">/</span> <span class="mi">32</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R4&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">5</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mf">0.196</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R6&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">7</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">7</span> <span class="o">/</span> <span class="mi">32</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R8&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">9</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R10&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">11</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">9</span> <span class="o">/</span> <span class="mi">32</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R12&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">13</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">5</span> <span class="o">/</span> <span class="mi">16</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R14&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">15</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R16&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">8</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">16</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R18&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">9</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">17</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R20&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">18</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R22&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">11</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;R24&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">12</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">21</span> <span class="o">/</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span> <span class="o">*</span> <span class="n">_I</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;608&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;629&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;635&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6000&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6001&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6002&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6003&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6007&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6200&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6201&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6202&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6203&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6204&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6205&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6206&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6207&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6208&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6209&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">85</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6210&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6211&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6212&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6301&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6302&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6303&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6304&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6305&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6306&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6307&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6308&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6309&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6310&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6311&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6312&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6403&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6800&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6801&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6802&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6803&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6804&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6805&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6806&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6900&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6901&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6902&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6903&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6904&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">37</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6905&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6906&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;6907&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;6908&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;16002&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;16004&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;16005&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">47</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="s2">&quot;16100&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">&quot;16101&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="c1"># The &quot;...ZZ&quot; shielded variants share the open variant&#39;s dimensions.</span>
+<span class="n">_BEARINGS</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;ZZ&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">od</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">_BEARINGS</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+<span class="p">})</span>
+
+
+<div class="viewcode-block" id="BallBearings">
+<a class="viewcode-back" href="../../ball_bearings.html#bosl2.ball_bearings.BallBearings">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BallBearings</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard ball-bearing cartridge models (BOSL2 ball_bearings.scad).&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BallBearings.ball_bearing_info">
+<a class="viewcode-back" href="../../ball_bearings.html#bosl2.ball_bearings.BallBearings.ball_bearing_info">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ball_bearing_info</span><span class="p">(</span><span class="n">trade_size</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BearingSpec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The :class:`BearingSpec` for a standard trade size, e.g. ``&quot;608&quot;`` / ``&quot;6902ZZ&quot;`` / ``&quot;R8&quot;``.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_BEARINGS</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">trade_size</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_size</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BallBearings.ball_bearing">
+<a class="viewcode-back" href="../../ball_bearings.html#bosl2.ball_bearings.BallBearings.ball_bearing">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ball_bearing</span><span class="p">(</span><span class="n">trade_size</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">od</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shield</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;silver&quot;</span><span class="p">,</span>
+                     <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A ball-bearing cartridge model (BOSL2 ball_bearing()).</span>
+
+<span class="sd">        Give a *trade_size* name, or explicit *id*/*od*/*width* (with *shield*). Returns a</span>
+<span class="sd">        :class:`~bosl2.shapes3d.Bosl2Solid` centered on the origin.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            A common 608 skate bearing:</span>
+
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from bosl2.ball_bearings import BallBearings</span>
+<span class="sd">                BallBearings.ball_bearing(&quot;608&quot;).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">trade_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">BallBearings</span><span class="o">.</span><span class="n">ball_bearing_info</span><span class="p">(</span><span class="n">trade_size</span><span class="p">)</span>
+            <span class="nb">id</span><span class="p">,</span> <span class="n">od</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">shield</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">od</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">shielded</span>
+        <span class="k">assert</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">od</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span> <span class="s2">&quot;ball_bearing(): give a trade_size or id/od/width.&quot;</span>
+
+        <span class="n">mid_d</span> <span class="o">=</span> <span class="p">(</span><span class="nb">id</span> <span class="o">+</span> <span class="n">od</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">wall</span> <span class="o">=</span> <span class="p">(</span><span class="n">od</span> <span class="o">-</span> <span class="nb">id</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="n">shield</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">tube</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+                      <span class="o">|</span> <span class="n">tube</span><span class="p">(</span><span class="n">od</span><span class="o">=</span><span class="n">od</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+                      <span class="o">|</span> <span class="n">tube</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="n">od</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="p">(</span><span class="n">wall</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ball_cnt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">mid_d</span> <span class="o">*</span> <span class="mf">0.95</span> <span class="o">/</span> <span class="p">(</span><span class="n">wall</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)))</span>
+            <span class="n">races</span> <span class="o">=</span> <span class="n">tube</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">width</span><span class="p">)</span> <span class="o">|</span> <span class="n">tube</span><span class="p">(</span><span class="n">od</span><span class="o">=</span><span class="n">od</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+            <span class="n">races</span> <span class="o">=</span> <span class="n">races</span> <span class="o">-</span> <span class="n">torus</span><span class="p">(</span><span class="n">r_maj</span><span class="o">=</span><span class="n">mid_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">r_min</span><span class="o">=</span><span class="n">wall</span><span class="p">)</span>
+            <span class="n">balls</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="p">(</span>
+                <span class="n">sphere</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">wall</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">mid_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">ball_cnt</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ball_cnt</span><span class="p">)))</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">races</span> <span class="o">|</span> <span class="n">balls</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">od</span><span class="p">,</span> <span class="n">od</span><span class="p">,</span> <span class="n">width</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span> <span class="k">if</span> <span class="n">color</span> <span class="k">else</span> <span class="n">result</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Bezier curves, paths and surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS: curves &amp; surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../skin.html">Sweeps (skin)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native-only mesh operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joiners.html">Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../masking.html">Edge/corner masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transforms.html">Transforms (affine / reorient)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../math.html">Numeric helpers (math)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vectors.html">Vector helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../comparisons.html">Approximate comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../constants.html">Direction constants</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, pinkfish.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

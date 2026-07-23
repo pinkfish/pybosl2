@@ -1,0 +1,198 @@
+solid PythonSCAD_Model
+  facet normal 0 0.4999999999999999 0.8660254037844387
+    outer loop
+      vertex 0 0 -1.1
+      vertex -50 0 -1.1
+      vertex 0 -4.503332099679082 1.5
+    endloop
+  endfacet
+  facet normal 0 0.4999999999999999 0.8660254037844387
+    outer loop
+      vertex -50 -4.503332099679082 1.5
+      vertex 0 -4.503332099679082 1.5
+      vertex -50 0 -1.1
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 0 0 -1.1
+      vertex -50 0.2 -1.1
+      vertex -50 0 -1.1
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 0 0 -1.1
+      vertex 0 0.2 -1.1
+      vertex -50 0.2 -1.1
+    endloop
+  endfacet
+  facet normal 0 -0.5 0.8660254037844387
+    outer loop
+      vertex 0 0.2 -1.1
+      vertex 0 4.7033320996790815 1.5
+      vertex -50 0.2 -1.1
+    endloop
+  endfacet
+  facet normal 0 -0.5 0.8660254037844387
+    outer loop
+      vertex -50 4.7033320996790815 1.5
+      vertex -50 0.2 -1.1
+      vertex 0 4.7033320996790815 1.5
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex 0 0 -1.1
+      vertex 0 -4.503332099679082 1.5
+      vertex 0 0.2 -1.1
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex 0 0.2 -1.1
+      vertex 0 -4.503332099679082 1.5
+      vertex 0 4.7033320996790815 1.5
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -50 -20 -1.5
+      vertex -50 0 -1.1
+      vertex -50 0.2 -1.1
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -50 -20 -1.5
+      vertex -50 -4.503332099679082 1.5
+      vertex -50 0 -1.1
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -50 -20 -1.5
+      vertex -50 -20 1.5
+      vertex -50 -4.503332099679082 1.5
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex -50 -20 1.5
+      vertex 0 -4.503332099679082 1.5
+      vertex -50 -4.503332099679082 1.5
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex -50 -20 -1.5
+      vertex 50 -20 1.5
+      vertex -50 -20 1.5
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -50 -20 -1.5
+      vertex -50 0.2 -1.1
+      vertex -50 20 -1.5
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -50 20 -1.5
+      vertex -50 0.2 -1.1
+      vertex -50 4.7033320996790815 1.5
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -50 -20 -1.5
+      vertex -50 20 -1.5
+      vertex 50 20 -1.5
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex -50 20 -1.5
+      vertex -50 20 1.5
+      vertex 50 20 -1.5
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex -50 20 1.5
+      vertex -50 4.7033320996790815 1.5
+      vertex 0 4.7033320996790815 1.5
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -50 20 -1.5
+      vertex -50 4.7033320996790815 1.5
+      vertex -50 20 1.5
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex -50 -20 -1.5
+      vertex 50 -20 -1.5
+      vertex 50 -20 1.5
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -50 -20 -1.5
+      vertex 50 20 -1.5
+      vertex 50 -20 -1.5
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 50 -20 -1.5
+      vertex 50 20 -1.5
+      vertex 50 -20 1.5
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex -50 -20 1.5
+      vertex 50 -20 1.5
+      vertex 0 -4.503332099679082 1.5
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 50 -20 1.5
+      vertex 50 20 1.5
+      vertex 0 -4.503332099679082 1.5
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 50 20 1.5
+      vertex 0 4.7033320996790815 1.5
+      vertex 0 -4.503332099679082 1.5
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex -50 20 1.5
+      vertex 50 20 1.5
+      vertex 50 20 -1.5
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex -50 20 1.5
+      vertex 0 4.7033320996790815 1.5
+      vertex 50 20 1.5
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 50 -20 1.5
+      vertex 50 20 -1.5
+      vertex 50 20 1.5
+    endloop
+  endfacet
+endsolid PythonSCAD_Model

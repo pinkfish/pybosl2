@@ -11,6 +11,7 @@ axis-aligned bounding box, so Bosl2Solid's bbox-backed anchoring math is numeric
 """
 
 import numpy as np
+import pytest
 
 from bosl2.constants import BACK, BOTTOM, CENTER, FRONT, LEFT, RIGHT, TOP
 from bosl2.shapes3d import (
@@ -177,3 +178,35 @@ def test_textured_tile_reps_and_size():
     bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
     assert isinstance(textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3), Bosl2Solid)
     assert isinstance(textured_tile(bump, size=[40, 40], tex_size=10), Bosl2Solid)
+
+
+# --- regressions for the Bosl2Solid wrapper review fixes ---
+
+def test_getattr_no_recursion_when_shape_unset():
+    # a half-built object (via __new__, or during unpickling) must not blow the stack
+    obj = Bosl2Solid.__new__(Bosl2Solid)
+    with pytest.raises(AttributeError):
+        obj.anything
+
+
+def test_native_passthrough_op_keeps_wrapper_and_chains():
+    # resize() has no explicit override; __getattr__ must re-wrap so the fluent API survives
+    chained = cuboid([10, 10, 10]).resize([5, 5, 5]).up(3)
+    assert isinstance(chained, Bosl2Solid)
+
+
+def test_rotate_accepts_numpy_int_scalar():
+    # np.int64 is not a Python int; the scalar->Z-rotation normalization must still apply
+    assert isinstance(cuboid([10, 10, 10]).rotate(np.int64(90)), Bosl2Solid)
+    assert isinstance(cuboid([10, 10, 10]).rotate(np.float64(45)), Bosl2Solid)
+
+
+def test_bounds_metadata_fallback_fails_loud_after_move():
+    # under the numeric mock (no native bbox), tracked metadata is only valid before a transform
+    c = cuboid([10, 10, 10])
+    c._native_bounds = lambda: None
+    assert c.bounds()[0] == [0.0, 0.0, 0.0]          # unmoved: metadata is correct
+    m = cuboid([10, 10, 10]).up(50)
+    m._native_bounds = lambda: None
+    with pytest.raises(ValueError, match="transformed since construction"):
+        m.bounds()                                    # moved: refuse to return a stale centre
