@@ -51,3 +51,39 @@ API reference
 
 .. autoclass:: bosl2.screw_drive.ScrewDrive
    :members:
+
+.. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
+
+Examples
+--------
+
+These mirror the examples in BOSL2's ``screw_drive.scad``, rendered live through PythonSCAD.
+Examples that rely on BOSL2's attachment/anchor system, or on features not in this port, are omitted.
+
+.. rubric:: ``phillips_mask``
+
+A #1 Phillips recess:
+
+.. pythonscad-example::
+
+   ScrewDrive.phillips_mask(size="#1").show()
+
+A #2 Phillips recess:
+
+.. pythonscad-example::
+
+   ScrewDrive.phillips_mask(size="#2").show()
+
+A #3 Phillips recess:
+
+.. pythonscad-example::
+
+   ScrewDrive.phillips_mask(size=3).show()
+
+.. rubric:: ``robertson_mask``
+
+A #2 Robertson (square) recess:
+
+.. pythonscad-example::
+
+   ScrewDrive.robertson_mask(size=2).show()

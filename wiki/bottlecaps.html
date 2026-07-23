@@ -195,13 +195,13 @@ prismoids. Geometry is anchored with its bottom on the XY plane.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-718c9caf0141454d88ee79937cb78688" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9397b898a24b4ba0990d10b4a781c43c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-718c9caf0141454d88ee79937cb78688");
+const el = document.getElementById("stlviewer-9397b898a24b4ba0990d10b4a781c43c");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -322,6 +322,235 @@ back to a plain wall (surface texturing is not in this port).</p>
 
 </dd></dl>
 
+</section>
+<section id="id1">
+<h2>Examples<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>These mirror the examples in BOSL2’s <code class="docutils literal notranslate"><span class="pre">bottlecaps.scad</span></code>, rendered live through PythonSCAD.
+Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
+<p class="rubric"><code class="docutils literal notranslate"><span class="pre">pco1810_neck</span></code></p>
+<p>A PCO-1810 bottle neck:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1810_neck</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-5c724432427b4ae5a4323783926cfade" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-5c724432427b4ae5a4323783926cfade");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/9e2f21a7a6644939.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/9e2f21a7a6644939.stl">⬇ Download STL mesh</a></p>
+<p class="rubric"><code class="docutils literal notranslate"><span class="pre">pco1810_cap</span></code></p>
+<p>Its matching cap:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1810_cap</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-72a5ac2531984474bfd5c1678e01f97b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-72a5ac2531984474bfd5c1678e01f97b");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/aef4c1bd6830921a.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/aef4c1bd6830921a.stl">⬇ Download STL mesh</a></p>
+<p class="rubric"><code class="docutils literal notranslate"><span class="pre">pco1881_neck</span></code></p>
+<p>A PCO-1881 bottle neck:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1881_neck</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-672fb2a242b54075a4c00dcd5691f920" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-672fb2a242b54075a4c00dcd5691f920");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/dcd7726f716ce89a.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/dcd7726f716ce89a.stl">⬇ Download STL mesh</a></p>
+<p class="rubric"><code class="docutils literal notranslate"><span class="pre">pco1881_cap</span></code></p>
+<p>Its matching cap:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1881_cap</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-fa78de5b87b94f738486be30a2b2c37c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-fa78de5b87b94f738486be30a2b2c37c");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/37734acf5f5880f9.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/37734acf5f5880f9.stl">⬇ Download STL mesh</a></p>
 </section>
 </section>
 

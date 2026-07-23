@@ -44,7 +44,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # pysolidfive/tests/test_pysolidfive_render.py -> pysolidfive/tests -> pysolidfive -> repo root.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from render_pysolidfive import compare_images, find_pythonscad_binary, render_pysolidfive_shape
+from render_pysolidfive import (
+    compare_images,
+    find_pythonscad_binary,
+    render_pysolidfive_shape,
+)
 
 GOLDEN_DIR = Path(__file__).resolve().parent / "golden_images"
 OUT_DIR = Path(__file__).resolve().parent / "_render_output"
@@ -65,7 +69,10 @@ SHAPES = [
     # exact-formula edges="ALL" fast path cuboid_rounded above exercises. Should come out with
     # crisp, flat top/bottom faces and rounded vertical corners -- a superellipse-profile
     # column, not the "ALL" case's pillow-like uniformly-rounded box.
-    ("cuboid_rounded_partial_edges", "pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, edges='Z')"),
+    (
+        "cuboid_rounded_partial_edges",
+        "pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, edges='Z')",
+    ),
     ("sphere", "pysolidfive.sphere(r=10)"),
     ("cyl_rounded", "pysolidfive.cyl(h=20, r=8, rounding=2)"),
     ("torus", "pysolidfive.torus(r_maj=15, r_min=5)"),
@@ -119,14 +126,18 @@ class RealRenderTestCase(unittest.TestCase):
 
     def _render_and_compare(self, name: str, expr: str) -> None:
         if self.binary is None:
-            self.skipTest("no real PythonSCAD binary found (set PYTHONSCAD_BIN to override)")
+            self.skipTest(
+                "no real PythonSCAD binary found (set PYTHONSCAD_BIN to override)"
+            )
 
         golden = GOLDEN_DIR / f"{name}.png"
         out_png = OUT_DIR / f"{name}.png"
 
         result = render_pysolidfive_shape(expr, out_png)
         if not result.ok:
-            self.skipTest(f"real render did not produce geometry, skipping: {result.error}")
+            self.skipTest(
+                f"real render did not produce geometry, skipping: {result.error}"
+            )
 
         if not golden.is_file():
             self.skipTest(

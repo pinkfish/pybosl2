@@ -66,3 +66,43 @@ API reference
 
 .. autoclass:: bosl2.bottlecaps.BottleCaps
    :members:
+
+.. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
+
+Examples
+--------
+
+These mirror the examples in BOSL2's ``bottlecaps.scad``, rendered live through PythonSCAD.
+Examples that rely on BOSL2's attachment/anchor system, or on features not in this port, are omitted.
+
+.. rubric:: ``pco1810_neck``
+
+A PCO-1810 bottle neck:
+
+.. pythonscad-example::
+
+   BottleCaps.pco1810_neck().show()
+
+.. rubric:: ``pco1810_cap``
+
+Its matching cap:
+
+.. pythonscad-example::
+
+   BottleCaps.pco1810_cap().show()
+
+.. rubric:: ``pco1881_neck``
+
+A PCO-1881 bottle neck:
+
+.. pythonscad-example::
+
+   BottleCaps.pco1881_neck().show()
+
+.. rubric:: ``pco1881_cap``
+
+Its matching cap:
+
+.. pythonscad-example::
+
+   BottleCaps.pco1881_cap().show()

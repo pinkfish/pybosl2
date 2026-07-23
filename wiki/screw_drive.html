@@ -161,13 +161,13 @@ Robertson square-drive inch table) are transcribed verbatim from <code class="do
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-cdb690a01da64fa3929e53fb77ce1ff2" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ee41abf43b364e0c9bb4e0bcbb175dab" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-cdb690a01da64fa3929e53fb77ce1ff2");
+const el = document.getElementById("stlviewer-ee41abf43b364e0c9bb4e0bcbb175dab");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -217,13 +217,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-8846aeb156e045a8b78cddb81df881be" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-1667a1de83854edc82ee9e7fe2ba8c9b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-8846aeb156e045a8b78cddb81df881be");
+const el = document.getElementById("stlviewer-1667a1de83854edc82ee9e7fe2ba8c9b");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -301,13 +301,13 @@ screw head to cut the recess. Pass <code class="docutils literal notranslate"><s
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-572e51ee45164a53a1d387b912a2febe" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d79e60dd3e004db999622a04821fa2dd" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-572e51ee45164a53a1d387b912a2febe");
+const el = document.getElementById("stlviewer-d79e60dd3e004db999622a04821fa2dd");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -463,13 +463,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2b5abfb7b8a041bdb4e4da6cc86a694b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-1e0e320bbbe14efa8cda279436d4b29f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2b5abfb7b8a041bdb4e4da6cc86a694b");
+const el = document.getElementById("stlviewer-1e0e320bbbe14efa8cda279436d4b29f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -548,6 +548,233 @@ window.addEventListener("resize", resize);
 
 </dd></dl>
 
+</section>
+<section id="id1">
+<h2>Examples<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>These mirror the examples in BOSL2’s <code class="docutils literal notranslate"><span class="pre">screw_drive.scad</span></code>, rendered live through PythonSCAD.
+Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
+<p class="rubric"><code class="docutils literal notranslate"><span class="pre">phillips_mask</span></code></p>
+<p>A #1 Phillips recess:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ScrewDrive</span><span class="o">.</span><span class="n">phillips_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s2">&quot;#1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-6f657065216f4031b8387bf85fd1d9b1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-6f657065216f4031b8387bf85fd1d9b1");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/5bf03d3e1f954aff.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/5bf03d3e1f954aff.stl">⬇ Download STL mesh</a></p>
+<p>A #2 Phillips recess:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ScrewDrive</span><span class="o">.</span><span class="n">phillips_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s2">&quot;#2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-29ea0d2a94c34e30b3a40a0d0b88a1fb" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-29ea0d2a94c34e30b3a40a0d0b88a1fb");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/e16cfe052a225c57.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/e16cfe052a225c57.stl">⬇ Download STL mesh</a></p>
+<p>A #3 Phillips recess:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ScrewDrive</span><span class="o">.</span><span class="n">phillips_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-c16b3b173d8641c4a041bafe7738439a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-c16b3b173d8641c4a041bafe7738439a");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/728584c50154f7aa.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/728584c50154f7aa.stl">⬇ Download STL mesh</a></p>
+<p class="rubric"><code class="docutils literal notranslate"><span class="pre">robertson_mask</span></code></p>
+<p>A #2 Robertson (square) recess:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ScrewDrive</span><span class="o">.</span><span class="n">robertson_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-1c3aa586fc6f46b3a3eb068d671f4a8a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-1c3aa586fc6f46b3a3eb068d671f4a8a");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/4af36c5d2f844f47.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/4af36c5d2f844f47.stl">⬇ Download STL mesh</a></p>
 </section>
 </section>
 

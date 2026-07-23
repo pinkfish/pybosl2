@@ -68,7 +68,7 @@ def test_arc_points_no_endpoint_drops_last():
 
 
 def test_arc_points_centered():
-    pts = _arc_points(3, 2, 0, 90, cp=[10, 10])
+    pts = _arc_points(3, 2, 0, 90, center=[10, 10])
     np.testing.assert_allclose(pts[0], [12, 10], atol=1e-12)
 
 
@@ -131,15 +131,15 @@ def test_squircle_rejects_bad_squareness():
 
 
 def test_keyhole_builds_both_orientations():
-    assert keyhole(l=25, r1=4, r2=9, shoulder_r=2) is not None
-    assert keyhole(l=25, r1=9, r2=4, shoulder_r=2) is not None
-    assert keyhole(l=20, r1=5, r2=10) is not None
+    assert keyhole(length=25, r1=4, r2=9, shoulder_r=2) is not None
+    assert keyhole(length=25, r1=9, r2=4, shoulder_r=2) is not None
+    assert keyhole(length=20, r1=5, r2=10) is not None
 
 
 def test_keyhole_rejects_short_length():
     import pytest
     with pytest.raises(AssertionError):
-        keyhole(l=3, r1=5, r2=10)
+        keyhole(length=3, r1=5, r2=10)
 
 
 def test_ring_forms():

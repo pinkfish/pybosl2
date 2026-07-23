@@ -81,3 +81,47 @@ API reference
 
 .. autoclass:: bosl2.screws.Screws
    :members:
+
+.. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
+
+Examples
+--------
+
+These mirror the examples in BOSL2's ``screws.scad``, rendered live through PythonSCAD.
+Examples that rely on BOSL2's attachment/anchor system, or on features not in this port, are omitted.
+
+.. rubric:: ``screw``
+
+An M6 screw:
+
+.. pythonscad-example::
+
+   Screws.screw("M6", length=12).show()
+
+A socket-head M6:
+
+.. pythonscad-example::
+
+   Screws.screw("M6", head="socket", length=12).show()
+
+A Torx button-head M6:
+
+.. pythonscad-example::
+
+   Screws.screw("M6", head="button", drive="torx", length=12).show()
+
+.. rubric:: ``nut``
+
+An M6 nut:
+
+.. pythonscad-example::
+
+   Screws.nut("M6").show()
+
+.. rubric:: ``screw_hole``
+
+A threaded screw-hole mask:
+
+.. pythonscad-example::
+
+   Screws.screw_hole("M6", length=10).show()

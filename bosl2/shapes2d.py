@@ -50,66 +50,66 @@ from bosl2.paths import Path
 # ---------------------------------------------------------------------------
 
 
-def _frag_count(r: float, _fn: float | None = None, _fa: float | None = None, _fs: float | None = None) -> int:
+def _frag_count(radius: float, _fn: float | None = None, _fa: float | None = None, _fs: float | None = None) -> int:
     """Number of polygon segments to approximate a circle of radius *r*, mirroring OpenSCAD's $fn/$fa/$fs rules."""
     if _fn is not None and _fn >= 3:
         return int(math.floor(_fn))
     fa = _fa if _fa else 12.0
     fs = _fs if _fs else 2.0
-    return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(r)) / fs))))
+    return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(radius)) / fs))))
 
 
 def _quant(x: float, y: float) -> float:
     return math.ceil(x / y) * y
 
 
-def _polar_to_xy(r: float, a: float) -> list[float]:
-    rad = math.radians(a)
-    return [r * math.cos(rad), r * math.sin(rad)]
+def _polar_to_xy(radius: float, angle: float) -> list[float]:
+    rad = math.radians(angle)
+    return [radius * math.cos(rad), radius * math.sin(rad)]
 
 
-def _rotate2d(p: Sequence[float], deg: float) -> list[float]:
-    rad = math.radians(deg)
+def _rotate2d(point: Sequence[float], degrees: float) -> list[float]:
+    rad = math.radians(degrees)
     c, s = math.cos(rad), math.sin(rad)
-    return [p[0] * c - p[1] * s, p[0] * s + p[1] * c]
+    return [point[0] * c - point[1] * s, point[0] * s + point[1] * c]
 
 
-def _circle_pts(r: float, n: int, start: float = 0.0) -> list[list[float]]:
-    return [_polar_to_xy(r, start + 360.0 * i / n) for i in range(n)]
+def _circle_pts(radius: float, num: int, start: float = 0.0) -> list[list[float]]:
+    return [_polar_to_xy(radius, start + 360.0 * i / num) for i in range(num)]
 
 
-def _arc_points(n: int, r: float, start: float, angle: float, cp: Sequence[float] = (0.0, 0.0), endpoint: bool = True) -> list[list[float]]:
-    """*n* points along an arc of radius *r* centered at *cp*, from angle *start* sweeping *angle* degrees."""
+def _arc_points(num: int, radius: float, start: float, angle: float, center: Sequence[float] = (0.0, 0.0), endpoint: bool = True) -> list[list[float]]:
+    """*num* points along an arc of radius *radius* centered at *center*, from angle *start* sweeping *angle* degrees."""
     if not endpoint:
-        return _arc_points(n + 1, r, start, angle, cp, True)[:-1]
-    if n <= 1:
-        return [[r * math.cos(math.radians(start)) + cp[0], r * math.sin(math.radians(start)) + cp[1]]]
+        return _arc_points(num + 1, radius, start, angle, center, True)[:-1]
+    if num <= 1:
+        return [[radius * math.cos(math.radians(start)) + center[0], radius * math.sin(math.radians(start)) + center[1]]]
     pts = []
-    for i in range(n):
-        theta = math.radians(start + i * angle / (n - 1))
-        pts.append([r * math.cos(theta) + cp[0], r * math.sin(theta) + cp[1]])
+    for i in range(num):
+        theta = math.radians(start + i * angle / (num - 1))
+        pts.append([radius * math.cos(theta) + center[0], radius * math.sin(theta) + center[1]])
     return pts
 
 
-def _arc_between_points(cp: Sequence[float], p_start: Sequence[float], p_end: Sequence[float], radius: float, endpoint: bool = True, _fn=None, _fa=None, _fs=None) -> list[list[float]]:
-    """Arc around *cp* from *p_start* to *p_end*, sweeping the shorter way around."""
-    a0 = math.degrees(math.atan2(p_start[1] - cp[1], p_start[0] - cp[0]))
-    a1 = math.degrees(math.atan2(p_end[1] - cp[1], p_end[0] - cp[0]))
+def _arc_between_points(center: Sequence[float], point_start: Sequence[float], point_end: Sequence[float], radius: float, endpoint: bool = True, _fn=None, _fa=None, _fs=None) -> list[list[float]]:
+    """Arc around *center* from *point_start* to *point_end*, sweeping the shorter way around."""
+    a0 = math.degrees(math.atan2(point_start[1] - center[1], point_start[0] - center[0]))
+    a1 = math.degrees(math.atan2(point_end[1] - center[1], point_end[0] - center[0]))
     delta = (a1 - a0 + 180) % 360 - 180
-    n = max(3, math.ceil(_frag_count(radius, _fn, _fa, _fs) * abs(delta) / 360))
-    return _arc_points(n, radius, a0, delta, cp, endpoint=endpoint)
+    num = max(3, math.ceil(_frag_count(radius, _fn, _fa, _fs) * abs(delta) / 360))
+    return _arc_points(num, radius, a0, delta, center, endpoint=endpoint)
 
 
-def _arc_through_3(cp: Sequence[float], radius: float, p_start: Sequence[float], p_mid: Sequence[float], p_end: Sequence[float], endpoint: bool = True, _fn=None, _fa=None, _fs=None) -> list[list[float]]:
-    """Arc around *cp* from *p_start* to *p_end*, sweeping through *p_mid* (may be the long way around)."""
-    a0 = math.degrees(math.atan2(p_start[1] - cp[1], p_start[0] - cp[0]))
-    am = math.degrees(math.atan2(p_mid[1] - cp[1], p_mid[0] - cp[0]))
-    a1 = math.degrees(math.atan2(p_end[1] - cp[1], p_end[0] - cp[0]))
+def _arc_through_3(center: Sequence[float], radius: float, point_start: Sequence[float], point_mid: Sequence[float], point_end: Sequence[float], endpoint: bool = True, _fn=None, _fa=None, _fs=None) -> list[list[float]]:
+    """Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be the long way around)."""
+    a0 = math.degrees(math.atan2(point_start[1] - center[1], point_start[0] - center[0]))
+    am = math.degrees(math.atan2(point_mid[1] - center[1], point_mid[0] - center[0]))
+    a1 = math.degrees(math.atan2(point_end[1] - center[1], point_end[0] - center[0]))
     d_mid = (am - a0) % 360
     d_end = (a1 - a0) % 360
     delta = d_end if d_mid <= d_end else d_end - 360
-    n = max(3, math.ceil(_frag_count(radius, _fn, _fa, _fs) * abs(delta) / 360))
-    return _arc_points(n, radius, a0, delta, cp, endpoint=endpoint)
+    num = max(3, math.ceil(_frag_count(radius, _fn, _fa, _fs) * abs(delta) / 360))
+    return _arc_points(num, radius, a0, delta, center, endpoint=endpoint)
 
 
 @overload
@@ -147,13 +147,13 @@ def _circle_from_3pts(points: Sequence[Sequence[float]]) -> tuple[list[float], f
     return [ux, uy], math.hypot(x1 - ux, y1 - uy)
 
 
-def _circle_from_corner(corner: Sequence[Sequence[float]], r: float) -> list[float]:
+def _circle_from_corner(corner: Sequence[Sequence[float]], radius: float) -> list[float]:
     p0, p1, p2 = corner
     v1 = unit([p0[0] - p1[0], p0[1] - p1[1]])
     v2 = unit([p2[0] - p1[0], p2[1] - p1[1]])
     bis = unit([v1[0] + v2[0], v1[1] + v2[1]])
     half_ang = math.acos(max(-1.0, min(1.0, v1[0] * bis[0] + v1[1] * bis[1])))
-    dist = r / math.sin(half_ang)
+    dist = radius / math.sin(half_ang)
     return [p1[0] + bis[0] * dist, p1[1] + bis[1] * dist]
 
 
@@ -173,36 +173,36 @@ def _circle_circle_intersection(r1: float, c1: Sequence[float], r2: float, c2: S
     return [[xm + dx, ym - dy], [xm - dx, ym + dy]]
 
 
-def _adj_ang_to_hyp(adj: float, ang: float) -> float:
-    return adj / math.cos(math.radians(ang))
+def _adj_ang_to_hyp(adjacent: float, angle: float) -> float:
+    return adjacent / math.cos(math.radians(angle))
 
 
-def _adj_ang_to_opp(adj: float, ang: float) -> float:
-    return adj * math.tan(math.radians(ang))
+def _adj_ang_to_opp(adjacent: float, angle: float) -> float:
+    return adjacent * math.tan(math.radians(angle))
 
 
-def _opp_ang_to_adj(opp: float, ang: float) -> float:
-    return opp / math.tan(math.radians(ang))
+def _opp_ang_to_adj(opposite: float, angle: float) -> float:
+    return opposite / math.tan(math.radians(angle))
 
 
-def _v_theta(v: Sequence[float]) -> float:
-    return math.degrees(math.atan2(v[1], v[0]))
+def _v_theta(vec: Sequence[float]) -> float:
+    return math.degrees(math.atan2(vec[1], vec[0]))
 
 
-def _det2(a: Sequence[float], b: Sequence[float]) -> float:
+def _det2(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
     """The 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross)."""
-    return float(a[0] * b[1] - a[1] * b[0])
+    return float(vec_a[0] * vec_b[1] - vec_a[1] * vec_b[0])
 
 
-def _sign(x: float) -> int:
-    x = float(x)
-    return (x > 0) - (x < 0)
+def _sign(value: float) -> int:
+    value = float(value)
+    return (value > 0) - (value < 0)
 
 
-def _vector_angle(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
+def _vector_angle(point_a: Sequence[float], point_b: Sequence[float], point_c: Sequence[float]) -> float:
     """The angle in degrees at vertex *b* of the corner a-b-c."""
-    va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
-    vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
+    va = np.asarray(point_a, dtype=float) - np.asarray(point_b, dtype=float)
+    vc = np.asarray(point_c, dtype=float) - np.asarray(point_b, dtype=float)
     cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
     return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
@@ -474,7 +474,7 @@ def arc(
             centre = [float(cp[0]), float(cp[1])]
             v1 = np.asarray(pts[0]) - np.asarray(centre)
             v2 = np.asarray(pts[1]) - np.asarray(centre)
-            ang = _vector_angle(pts[0], centre, pts[1])
+            angle = _vector_angle(pts[0], centre, pts[1])
             prelim = _sign(_det2(v1, v2))
             if prelim != 0:
                 direction = prelim
@@ -483,9 +483,9 @@ def arc(
                 direction = 1
             rad = float(np.hypot(v1[0], v1[1]))
             if long or (ccw and direction < 0) or (cw and direction > 0):
-                final_angle = -direction * (360 - ang)
+                final_angle = -direction * (360 - angle)
             else:
-                final_angle = direction * ang
+                final_angle = direction * angle
             sa = math.degrees(math.atan2(v1[1], v1[0]))
             return arc(n=n, cp=centre, r=rad, start=sa, angle=final_angle, wedge=wedge,
                        endpoint=endpoint, _fn=_fn, _fa=_fa, _fs=_fs)
@@ -611,7 +611,7 @@ def ellipse(
 
 
 def _regular_ngon_path(
-    n: int,
+    num: int,
     rad: float,
     rounding: float = 0,
     realign: bool = False,
@@ -622,31 +622,31 @@ def _regular_ngon_path(
     _fs=None,
 ) -> list[list[float]]:
     if not rounding:
-        path = _circle_pts(rad, n)
+        path = _circle_pts(rad, num)
     else:
-        inset = rounding / math.sin(math.radians((180 - 360.0 / n) / 2))
-        steps = max(1, int(_frag_count(rad, _fn, _fa, _fs) // n))
+        inset = rounding / math.sin(math.radians((180 - 360.0 / num) / 2))
+        steps = max(1, int(_frag_count(rad, _fn, _fa, _fs) // num))
         path2 = []
-        for i in range(n):
-            a = 360 - i * 360.0 / n
+        for i in range(num):
+            a = 360 - i * 360.0 / num
             p = _polar_to_xy(rad - inset, a)
-            path2.extend(_arc_points(steps, rounding, a + 180.0 / n, -360.0 / n, p))
+            path2.extend(_arc_points(steps, rounding, a + 180.0 / num, -360.0 / num, p))
         maxx_idx = max(range(len(path2)), key=lambda k: path2[k][0])
         path = path2[maxx_idx:] + path2[:maxx_idx]
     extra_rot = 0.0
     if align_tip is not None:
         extra_rot += math.degrees(math.atan2(align_tip[1], align_tip[0]))
     elif align_side is not None:
-        extra_rot += math.degrees(math.atan2(align_side[1], align_side[0])) + 180.0 / n
+        extra_rot += math.degrees(math.atan2(align_side[1], align_side[0])) + 180.0 / num
     if realign:
-        extra_rot -= 180.0 / n
+        extra_rot -= 180.0 / num
     if extra_rot:
         path = [_rotate2d(p, extra_rot) for p in path]
     return path
 
 
 def regular_ngon(
-    n: int = 6,
+    num: int = 6,
     r: float | None = None,
     d: float | None = None,
     outer_r: float | None = None,
@@ -670,7 +670,7 @@ def regular_ngon(
     keyword `or`; it is exposed here as `outer_r` instead.
 
     Args:
-        n:          number of sides (default 6)
+        num:        number of sides (default 6)
         r/outer_r:  outside radius, at the points (BOSL2 `or`)
         d/od:       outside diameter, at the points
         ir:         inside radius, at the center of the sides
@@ -684,15 +684,15 @@ def regular_ngon(
         spin:       Z-axis rotation in degrees after anchor (default 0)
         _fn/_fa/_fs: arc smoothness overrides for rounded tips
     """
-    assert n >= 3
-    sc = 1 / math.cos(math.radians(180.0 / n))
+    assert num >= 3
+    sc = 1 / math.cos(math.radians(180.0 / num))
     ir_s = ir * sc if ir is not None else None
     id_s = id * sc if id is not None else None
-    side_s = side / 2 / math.sin(math.radians(180.0 / n)) if side is not None else None
+    side_s = side / 2 / math.sin(math.radians(180.0 / num)) if side is not None else None
     rad = _pick_radius(r1=ir_s, d1=id_s, r2=outer_r, d2=od, r=r, d=d, dflt=side_s)
     if rad is None:
         raise ValueError("regular_ngon(): need to specify one of r, d, outer_r, od, ir, id, side.")
-    path = _regular_ngon_path(n, rad, rounding=rounding, realign=realign, align_tip=align_tip, align_side=align_side, _fn=_fn, _fa=_fa, _fs=_fs)
+    path = _regular_ngon_path(num, rad, rounding=rounding, realign=realign, align_tip=align_tip, align_side=align_side, _fn=_fn, _fa=_fa, _fs=_fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)
@@ -718,7 +718,7 @@ def pentagon(
 ) -> PyOpenSCAD:
     """A regular pentagon. See regular_ngon() for argument details."""
     return regular_ngon(
-        n=5, r=r, d=d, outer_r=outer_r, od=od, ir=ir, id=id, side=side, rounding=rounding,
+        num=5, r=r, d=d, outer_r=outer_r, od=od, ir=ir, id=id, side=side, rounding=rounding,
         realign=realign, align_tip=align_tip, align_side=align_side, anchor=anchor, spin=spin,
         _fn=_fn, _fa=_fa, _fs=_fs,
     )
@@ -744,7 +744,7 @@ def hexagon(
 ) -> PyOpenSCAD:
     """A regular hexagon. See regular_ngon() for argument details."""
     return regular_ngon(
-        n=6, r=r, d=d, outer_r=outer_r, od=od, ir=ir, id=id, side=side, rounding=rounding,
+        num=6, r=r, d=d, outer_r=outer_r, od=od, ir=ir, id=id, side=side, rounding=rounding,
         realign=realign, align_tip=align_tip, align_side=align_side, anchor=anchor, spin=spin,
         _fn=_fn, _fa=_fa, _fs=_fs,
     )
@@ -770,7 +770,7 @@ def octagon(
 ) -> PyOpenSCAD:
     """A regular octagon. See regular_ngon() for argument details."""
     return regular_ngon(
-        n=8, r=r, d=d, outer_r=outer_r, od=od, ir=ir, id=id, side=side, rounding=rounding,
+        num=8, r=r, d=d, outer_r=outer_r, od=od, ir=ir, id=id, side=side, rounding=rounding,
         realign=realign, align_tip=align_tip, align_side=align_side, anchor=anchor, spin=spin,
         _fn=_fn, _fa=_fa, _fs=_fs,
     )
@@ -804,35 +804,35 @@ def right_triangle(
 
 
 def _trapezoid_path(
-    h: float, w1: float, w2: float, shift: float, chamfer, rounding, flip: bool, _fn=None, _fa=None, _fs=None
+    height: float, w1: float, w2: float, shift: float, chamfer, rounding, flip: bool, _fn=None, _fa=None, _fs=None
 ) -> list[list[float]]:
     chamfs = list(chamfer) if isinstance(chamfer, (list, tuple)) else [chamfer] * 4
     rounds = list(rounding) if isinstance(rounding, (list, tuple)) else [rounding] * 4
     srads = [rounds[i] if rounds[i] else chamfs[i] for i in range(4)]
     rads = [abs(s) for s in srads]
     base = [
-        [w2 / 2 + shift, h / 2],
-        [-w2 / 2 + shift, h / 2],
-        [-w1 / 2, -h / 2],
-        [w1 / 2, -h / 2],
+        [w2 / 2 + shift, height / 2],
+        [-w2 / 2 + shift, height / 2],
+        [-w1 / 2, -height / 2],
+        [w1 / 2, -height / 2],
     ]
-    ang1 = _v_theta([base[0][0] - base[3][0], base[0][1] - base[3][1]]) - 90
-    ang2 = _v_theta([base[1][0] - base[2][0], base[1][1] - base[2][1]]) - 90
-    angs = [ang1, ang2, ang2, ang1]
+    angle1 = _v_theta([base[0][0] - base[3][0], base[0][1] - base[3][1]]) - 90
+    angle2 = _v_theta([base[1][0] - base[2][0], base[1][1] - base[2][1]]) - 90
+    angles = [angle1, angle2, angle2, angle1]
     qdirs = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
     angle_pairs = [
-        {"pos": (angs[0], 90), "flip": (angs[0], -90), "neg": (180 + angs[0], 90)},
-        {"pos": (90, 180 + angs[1]), "flip": (270, 180 + angs[1]), "neg": (90, angs[1])},
-        {"pos": (180 + angs[2], 270), "flip": (180 + angs[2], 90), "neg": (angs[2], -90)},
-        {"pos": (-90, angs[3]), "flip": (90, angs[3]), "neg": (270, 180 + angs[3])},
+        {"pos": (angles[0], 90), "flip": (angles[0], -90), "neg": (180 + angles[0], 90)},
+        {"pos": (90, 180 + angles[1]), "flip": (270, 180 + angles[1]), "neg": (90, angles[1])},
+        {"pos": (180 + angles[2], 270), "flip": (180 + angles[2], 90), "neg": (angles[2], -90)},
+        {"pos": (-90, angles[3]), "flip": (90, angles[3]), "neg": (270, 180 + angles[3])},
     ]
     cpath = []
     for i in range(4):
         if rads[i] == 0:
             cpath.append(base[i])
             continue
-        hyp = _adj_ang_to_hyp(rads[i], angs[i])
-        xoff = _adj_ang_to_opp(rads[i], angs[i])
+        hyp = _adj_ang_to_hyp(rads[i], angles[i])
+        xoff = _adj_ang_to_opp(rads[i], angles[i])
         sign_a = -1 if (srads[i] < 0 and flip) else 1
         a = [xoff * qdirs[i][1] * sign_a, -rads[i] * qdirs[i][1] * sign_a]
         sign_b = 1 if (srads[i] < 0 and not flip) else -1
@@ -850,7 +850,7 @@ def _trapezoid_path(
 
 
 def trapezoid(
-    h: float | None = None,
+    height: float | None = None,
     w1: float | None = None,
     w2: float | None = None,
     angle: float | None = None,
@@ -867,10 +867,10 @@ def trapezoid(
     """A trapezoid with parallel front and back sides, built directly with polygon().
 
     Args:
-        h:        Y-axis height of the trapezoid
+        height:   Y-axis height of the trapezoid
         w1:       X-axis width of the front end
         w2:       X-axis width of the back end
-        angle:    if given in place of h/w1/w2, the missing value is derived from this angle
+        angle:    if given in place of height/w1/w2, the missing value is derived from this angle
         shift:    X-axis shift of the back of the trapezoid (default 0)
         rounding: corner rounding radius, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
         chamfer:  corner chamfer length, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
@@ -879,26 +879,26 @@ def trapezoid(
         spin:     Z-axis rotation in degrees after anchor (default 0)
         _fn/_fa/_fs: arc smoothness overrides for rounded corners
     """
-    defined = sum(x is not None for x in (h, w1, w2, angle))
-    assert defined == 3, "Must give exactly 3 of the arguments h, w1, w2, and angle."
-    if h is None:
+    defined = sum(x is not None for x in (height, w1, w2, angle))
+    assert defined == 3, "Must give exactly 3 of the arguments height, w1, w2, and angle."
+    if height is None:
         assert w1 is not None and w2 is not None and angle is not None
-        h = _opp_ang_to_adj(abs(w2 - w1) / 2, abs(angle))
+        height = _opp_ang_to_adj(abs(w2 - w1) / 2, abs(angle))
     if w1 is None:
         assert w2 is not None and angle is not None
-        w1 = w2 + 2 * (_adj_ang_to_opp(h, angle) + shift)
+        w1 = w2 + 2 * (_adj_ang_to_opp(height, angle) + shift)
     if w2 is None:
         assert w1 is not None and angle is not None
-        w2 = w1 - 2 * (_adj_ang_to_opp(h, angle) + shift)
-    assert w1 >= 0 and w2 >= 0 and h > 0 and w1 + w2 > 0, "Degenerate trapezoid geometry."
-    path = _trapezoid_path(h, w1, w2, shift, chamfer, rounding, flip, _fn, _fa, _fs)
+        w2 = w1 - 2 * (_adj_ang_to_opp(height, angle) + shift)
+    assert w1 >= 0 and w2 >= 0 and height > 0 and w1 + w2 > 0, "Degenerate trapezoid geometry."
+    path = _trapezoid_path(height, w1, w2, shift, chamfer, rounding, flip, _fn, _fa, _fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)
 
 
 def star(
-    n: int | None = None,
+    num: int | None = None,
     r: float | None = None,
     ir: float | None = None,
     d: float | None = None,
@@ -919,12 +919,12 @@ def star(
     keyword `or`; it is exposed here as `outer_r` instead.
 
     Args:
-        n:          number of stellate tips
+        num:        number of stellate tips
         r/outer_r:  radius to the tips of the star (BOSL2 `or`)
         ir:         radius to the inner corners of the star
         d/od:       diameter to the tips of the star
         id:         diameter to the inner corners of the star
-        step:       compute inner radius by virtually drawing a line `step` tips around the star (2 <= step < n/2)
+        step:       compute inner radius by virtually drawing a line `step` tips around the star (2 <= step < num/2)
         realign:    put the midpoint of the last edge (instead of vertex 0) on the X+ axis (default False)
         align_tip:  rotate so the first tip points in this 2-D direction (applied before spin)
         align_pit:  rotate so the first inner corner points in this 2-D direction (applied before spin)
@@ -935,24 +935,24 @@ def star(
     rad = _pick_radius(r1=outer_r, d1=od, r=r, d=d)
     if rad is None:
         raise ValueError("star(): must specify a radius (r, d, outer_r or od).")
-    assert n is not None, "star(): must specify n"
+    assert num is not None, "star(): must specify num"
     if step is not None:
-        stepr = rad * math.cos(math.radians(180 * step / n)) / math.cos(math.radians(180 * (step - 1) / n))
+        stepr = rad * math.cos(math.radians(180 * step / num)) / math.cos(math.radians(180 * (step - 1) / num))
     else:
         stepr = rad
     inner_r = _pick_radius(r=ir, d=id, dflt=stepr)
     path1 = []
-    for i in range(2 * n, 0, -1):
-        theta = math.radians(180.0 * i / n)
+    for i in range(2 * num, 0, -1):
+        theta = math.radians(180.0 * i / num)
         radius = inner_r if i % 2 else rad
         path1.append([radius * math.cos(theta), radius * math.sin(theta)])
     extra_rot = 0.0
     if align_tip is not None:
         extra_rot += math.degrees(math.atan2(align_tip[1], align_tip[0]))
     elif align_pit is not None:
-        extra_rot += math.degrees(math.atan2(align_pit[1], align_pit[0])) + 180.0 / n
+        extra_rot += math.degrees(math.atan2(align_pit[1], align_pit[0])) + 180.0 / num
     if realign:
-        extra_rot -= 180.0 / n
+        extra_rot -= 180.0 / num
     path = [_rotate2d(p, extra_rot) for p in path1] if extra_rot else path1
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
@@ -978,7 +978,7 @@ def jittered_poly(path: Sequence[Sequence[float]], dist: float = 1 / 512) -> lis
 
 def teardrop2d(
     r: float | None = None,
-    ang: float = 45,
+    angle: float = 45,
     cap_h: float | None = None,
     d: float | None = None,
     circum: bool = False,
@@ -996,7 +996,7 @@ def teardrop2d(
 
     Args:
         r:       radius of the circular part (default 1)
-        ang:     angle of the hat walls from the Y axis in degrees (default 45)
+        angle:   angle of the hat walls from the Y axis in degrees (default 45)
         cap_h:   height above center to truncate the shape (default: no truncation)
         d:       diameter of the circular portion (alternative to r)
         circum:  produce a circumscribing teardrop (default False)
@@ -1006,16 +1006,16 @@ def teardrop2d(
         _fn/_fa/_fs: arc smoothness overrides
     """
     rad = r if r is not None else (d / 2 if d is not None else 1)
-    minheight = rad * math.sin(math.radians(ang))
-    maxheight = rad / math.sin(math.radians(ang))
+    minheight = rad * math.sin(math.radians(angle))
+    maxheight = rad / math.sin(math.radians(angle))
     if cap_h is not None:
         assert cap_h >= minheight, f"cap_h cannot be less than {minheight} but it is {cap_h}"
     pointy = cap_h is None or cap_h >= maxheight
     if cap_h is None or pointy:
         cap_top = [0.0, maxheight]
     else:
-        cap_top = [(maxheight - cap_h) * math.tan(math.radians(ang)), cap_h]
-    cap_bot = [rad * math.cos(math.radians(ang)), rad * math.sin(math.radians(ang))]
+        cap_top = [(maxheight - cap_h) * math.tan(math.radians(angle)), cap_h]
+    cap_bot = [rad * math.cos(math.radians(angle)), rad * math.sin(math.radians(angle))]
     n = _frag_count(rad, _fn, _fa, _fs)
     start = 90.0 + (180.0 / n if realign else 0.0)
     fullcircle = _circle_pts(rad, n, start=start)
@@ -1166,7 +1166,7 @@ def _superformula(theta: float, m1: float, m2: float, n1: float, n2: float, n3: 
 
 def supershape(
     step: float = 0.5,
-    n: int | None = None,
+    num: int | None = None,
     m1: float = 4,
     m2: float | None = None,
     n1: float | None = None,
@@ -1184,7 +1184,7 @@ def supershape(
 
     Args:
         step: angle step size for sampling the superformula (smaller = slower, more accurate) (default 0.5)
-        n:    number of output points, an alternative to step
+        num:  number of output points, an alternative to step
         m1:   superformula m1 argument (default 4)
         m2:   superformula m2 argument (default: same as m1)
         n1:   superformula n1 argument (default 1)
@@ -1198,27 +1198,27 @@ def supershape(
         spin:   Z-axis rotation in degrees after anchor (default 0)
         atype:  anchor method; only "hull" is implemented here (default "hull")
     """
-    n_pts = n if n is not None else math.ceil(360.0 / step)
+    n_pts = num if num is not None else math.ceil(360.0 / step)
     n1v = n1 if n1 is not None else 1
     m2v = m2 if m2 is not None else m1
     n2v = n2 if n2 is not None else n1v
     n3v = n3 if n3 is not None else n2v
     bv = b if b is not None else a
-    angs = [360.0 - i * 360.0 / n_pts for i in range(n_pts)]
-    rvals = [_superformula(t, m1, m2v, n1v, n2v, n3v, a, bv) for t in angs]
+    angles = [360.0 - i * 360.0 / n_pts for i in range(n_pts)]
+    rvals = [_superformula(t, m1, m2v, n1v, n2v, n3v, a, bv) for t in angles]
     rad = r if r is not None else (d / 2 if d is not None else None)
     scale = (rad / max(rvals)) if rad is not None else 1.0
-    path = [[scale * rvals[i] * math.cos(math.radians(angs[i])), scale * rvals[i] * math.sin(math.radians(angs[i]))] for i in range(n_pts)]
+    path = [[scale * rvals[i] * math.cos(math.radians(angles[i])), scale * rvals[i] * math.sin(math.radians(angles[i]))] for i in range(n_pts)]
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)
 
 
-def _linearize_squareness(s: float) -> float:
+def _linearize_squareness(squareness: float) -> float:
     # Chamberlain Fong (2016), "Squircular Calculations", arXiv:1604.02174v5.
     c = 2 - 2 * math.sqrt(2)
-    d = 1 - 0.5 * c * s
-    return 2 * math.sqrt((1 + c) * s * s - c * s) / (d * d)
+    d = 1 - 0.5 * c * squareness
+    return 2 * math.sqrt((1 + c) * squareness * squareness - c * squareness) / (d * d)
 
 
 def squircle_radius_fg(squareness: float, r: float, angle: float) -> float:
@@ -1272,13 +1272,13 @@ def squircle(size, squareness: float = 0.5, style: str = "fg", anchor: Sequence[
     return _finish(shape, offset, spin)
 
 
-def keyhole(l=None, r1: float | None = None, r2: float | None = None, shoulder_r: float = 0,
-            d1: float | None = None, d2: float | None = None, length=None, anchor: Sequence[float] = CENTER,
+def keyhole(length=None, r1: float | None = None, r2: float | None = None, shoulder_r: float = 0,
+            d1: float | None = None, d2: float | None = None, _length=None, anchor: Sequence[float] = CENTER,
             spin: float = 0, _fn: float | None = None, _fa: float | None = None, _fs: float | None = None) -> PyOpenSCAD:
     """A keyhole slot -- a small circle joined to a larger one by tangent shoulders (BOSL2 keyhole()).
 
     Args:
-        l:          overall length between the two circle centers (aliases: *length*; default 15)
+        length:     overall length between the two circle centers (default 15)
         r1/d1:      radius/diameter of the small (bottom) circle (default 5)
         r2/d2:      radius/diameter of the large (top) circle (default 10)
         shoulder_r: fillet radius where the shoulders meet the circles (default 0)
@@ -1287,12 +1287,12 @@ def keyhole(l=None, r1: float | None = None, r2: float | None = None, shoulder_r
     Examples:
         .. pythonscad-example::
 
-            s2.keyhole(l=25, r1=4, r2=9, shoulder_r=2).linear_extrude(height=4).show()
+            s2.keyhole(length=25, r1=4, r2=9, shoulder_r=2).linear_extrude(height=4).show()
     """
-    lv = float(l if l is not None else (length if length is not None else 15))
+    lv = float(length if length is not None else (_length if _length is not None else 15))
     r1v = float(r1 if r1 is not None else (d1 / 2 if d1 is not None else 5))
     r2v = float(r2 if r2 is not None else (d2 / 2 if d2 is not None else 10))
-    assert lv > 0 and lv >= max(r1v, r2v), "keyhole(): l must be positive and at least max(r1, r2)."
+    assert lv > 0 and lv >= max(r1v, r2v), "keyhole(): length must be positive and at least max(r1, r2)."
     sh = float(shoulder_r) if shoulder_r is not None else min(r1v, r2v) / 2
     cp1, cp2 = [0.0, 0.0], [0.0, -lv]
     minr, maxr = min(r1v, r2v) + sh, max(r1v, r2v) + sh
@@ -1301,28 +1301,28 @@ def keyhole(l=None, r1: float | None = None, r2: float | None = None, shoulder_r
     spt2 = [-spt1[0], spt1[1]]
     base = cp1 if r1v > r2v else cp2
     ds = [spt1[0] - base[0], spt1[1] - base[1]]
-    ang = math.degrees(math.atan2(abs(ds[1]), abs(ds[0])))
+    angle = math.degrees(math.atan2(abs(ds[1]), abs(ds[0])))
 
     def _arc(**kw):
         return arc(endpoint=False, _fn=_fn, _fa=_fa, _fs=_fs, **kw)
 
     path = []
     if r1v > r2v:
-        path += [spt1] if sh <= 0 else _arc(r=sh, cp=spt1, start=180 - ang, angle=ang)
+        path += [spt1] if sh <= 0 else _arc(r=sh, cp=spt1, start=180 - angle, angle=angle)
         path += _arc(r=r2v, cp=cp2, start=0, angle=-180)
-        path += [spt2] if sh <= 0 else _arc(r=sh, cp=spt2, start=0, angle=ang)
-        path += _arc(r=r1v, cp=cp1, start=180 + ang, angle=-180 - 2 * ang)
+        path += [spt2] if sh <= 0 else _arc(r=sh, cp=spt2, start=0, angle=angle)
+        path += _arc(r=r1v, cp=cp1, start=180 + angle, angle=-180 - 2 * angle)
     else:
-        path += [spt1] if sh <= 0 else _arc(r=sh, cp=spt1, start=180, angle=ang)
-        path += _arc(r=r2v, cp=cp2, start=ang, angle=-180 - 2 * ang)
-        path += [spt2] if sh <= 0 else _arc(r=sh, cp=spt2, start=360 - ang, angle=ang)
+        path += [spt1] if sh <= 0 else _arc(r=sh, cp=spt1, start=180, angle=angle)
+        path += _arc(r=r2v, cp=cp2, start=angle, angle=-180 - 2 * angle)
+        path += [spt2] if sh <= 0 else _arc(r=sh, cp=spt2, start=360 - angle, angle=angle)
         path += _arc(r=r1v, cp=cp1, start=180, angle=-180)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)
 
 
-def ring(n: int | None = None, ring_width: float | None = None, r: float | None = None,
+def ring(num: int | None = None, ring_width: float | None = None, r: float | None = None,
          r1: float | None = None, r2: float | None = None, d: float | None = None, d1: float | None = None,
          d2: float | None = None, angle=None, anchor: Sequence[float] = CENTER, spin: float = 0,
          _fn: float | None = None, _fa: float | None = None, _fs: float | None = None) -> PyOpenSCAD:
@@ -1334,7 +1334,7 @@ def ring(n: int | None = None, ring_width: float | None = None, r: float | None 
     Args:
         r1/r2 (or d1/d2): the two radii/diameters
         r/d + ring_width: one radius plus the wall width
-        n:      number of sides (overrides the smoothness overrides)
+        num:    number of sides (overrides the smoothness overrides)
         anchor/spin: standard BOSL2 2-D anchor / spin
 
     Examples:
@@ -1352,14 +1352,14 @@ def ring(n: int | None = None, ring_width: float | None = None, r: float | None 
         assert rv is not None and ring_width is not None, "ring(): give (r1 and r2) or (r and ring_width)."
         inner, outer = min(rv, rv + ring_width), max(rv, rv + ring_width)
     assert inner != outer and outer > 0, "ring(): zero (or invalid) width."
-    fnv = n if n is not None else _fn
+    fnv = num if num is not None else _fn
     shape = circle(r=outer, _fn=fnv, _fa=_fa, _fs=_fs) - circle(r=inner, _fn=fnv, _fa=_fa, _fs=_fs)
     offset = _anchor_offset_box([2 * outer, 2 * outer], anchor)
     return _finish(shape, offset, spin)
 
 
 def reuleaux_polygon(
-    n: int = 3,
+    num: int = 3,
     r: float | None = None,
     d: float | None = None,
     anchor: Sequence[float] = CENTER,
@@ -1371,22 +1371,22 @@ def reuleaux_polygon(
     """A Reuleaux polygon (constant-width curved-side shape), built directly with polygon().
 
     Args:
-        n:      number of "sides"; must be an odd positive number (default 3)
+        num:    number of "sides"; must be an odd positive number (default 3)
         r:      scale the shape to fit in a circle of this radius
         d:      scale the shape to fit in a circle of this diameter
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         _fn/_fa/_fs: arc smoothness overrides
     """
-    assert n >= 3 and n % 2 == 1
+    assert num >= 3 and num % 2 == 1
     rad = r if r is not None else (d / 2 if d is not None else 1)
-    ssegs = max(3, math.ceil(_frag_count(rad, _fn, _fa, _fs) / n))
-    slen = math.dist(_polar_to_xy(rad, 0), _polar_to_xy(rad, 180 - 180.0 / n))
+    ssegs = max(3, math.ceil(_frag_count(rad, _fn, _fa, _fs) / num))
+    slen = math.dist(_polar_to_xy(rad, 0), _polar_to_xy(rad, 180 - 180.0 / num))
     path = []
-    for i in range(n):
-        ca = 180 - (i + 0.5) * 360.0 / n
-        sa = ca + 180 + 90.0 / n
-        ea = ca + 180 - 90.0 / n
+    for i in range(num):
+        ca = 180 - (i + 0.5) * 360.0 / num
+        sa = ca + 180 + 90.0 / num
+        ea = ca + 180 - 90.0 / num
         cp = _polar_to_xy(rad, ca)
         path += _arc_points(ssegs - 1, slen, sa, ea - sa, cp, endpoint=False)
     shape = _opolygon(path)

@@ -158,7 +158,9 @@ def render_script(
             image_path=None,
             triangles=None,
             error=f"render timed out after {timeout:.0f}s",
-            stderr=stderr_bytes.decode(errors="replace") if isinstance(stderr_bytes, bytes) else str(stderr_bytes),
+            stderr=stderr_bytes.decode(errors="replace")
+            if isinstance(stderr_bytes, bytes)
+            else str(stderr_bytes),
         )
     finally:
         script_path.unlink(missing_ok=True)
@@ -170,14 +172,25 @@ def render_script(
         # in cache: ...") is the actual raised exception's message -- more useful than the
         # traceback's first line, which is usually just "Python Code globally trusted".
         lines = stderr.splitlines()
-        cutoff = next((i for i, line in enumerate(lines) if line.startswith("Geometries in cache")), len(lines))
+        cutoff = next(
+            (
+                i
+                for i, line in enumerate(lines)
+                if line.startswith("Geometries in cache")
+            ),
+            len(lines),
+        )
         last_line = next(
             (line for line in reversed(lines[:cutoff]) if line.strip()), "unknown error"
         )
         if len(last_line) > 200:
             last_line = last_line[:200] + "... (see .stderr for full message)"
         return RenderResult(
-            ok=False, image_path=None, triangles=None, error=f"script raised: {last_line}", stderr=stderr
+            ok=False,
+            image_path=None,
+            triangles=None,
+            error=f"script raised: {last_line}",
+            stderr=stderr,
         )
 
     if proc.returncode != 0:
@@ -202,18 +215,30 @@ def render_script(
     triangles = int(m.group(1))
     if triangles <= 0:
         return RenderResult(
-            ok=False, image_path=None, triangles=triangles, error="rendered geometry has 0 triangles", stderr=stderr
+            ok=False,
+            image_path=None,
+            triangles=triangles,
+            error="rendered geometry has 0 triangles",
+            stderr=stderr,
         )
 
     if not out_png.is_file():
         return RenderResult(
-            ok=False, image_path=None, triangles=triangles, error="PNG output file was not created", stderr=stderr
+            ok=False,
+            image_path=None,
+            triangles=triangles,
+            error="PNG output file was not created",
+            stderr=stderr,
         )
 
-    return RenderResult(ok=True, image_path=out_png, triangles=triangles, error=None, stderr=stderr)
+    return RenderResult(
+        ok=True, image_path=out_png, triangles=triangles, error=None, stderr=stderr
+    )
 
 
-def render_pysolidfive_shape(expr: str, out_png: Path, imgsize: tuple[int, int] = (320, 240)) -> RenderResult:
+def render_pysolidfive_shape(
+    expr: str, out_png: Path, imgsize: tuple[int, int] = (320, 240)
+) -> RenderResult:
     """Convenience wrapper: renders a single pysolidfive expression, e.g. `"pysolidfive.cuboid([20,20,20],
     rounding=4)"`. `expr` is evaluated with `pysolidfive` already imported into scope, and the
     project root already on sys.path."""

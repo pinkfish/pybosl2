@@ -44,7 +44,14 @@ from .shapes3d import PyShape
 UP = [0.0, 0.0, 1.0]
 
 
-def _attach(shape: PyShape, size: list[float], center_off: list[float], anchor, spin: float, orient) -> PyShape:
+def _attach(
+    shape: PyShape,
+    size: list[float],
+    center_off: list[float],
+    anchor,
+    spin: float,
+    orient,
+) -> PyShape:
     """BOSL2 attachable() emulation for a shape whose declared bounding box has dimensions
     `size` and geometric center `center_off`: translate the anchor point to the origin,
     spin around Z, then rotate UP toward `orient` -- the same order attachable() applies."""
@@ -61,7 +68,11 @@ def _attach(shape: PyShape, size: list[float], center_off: list[float], anchor, 
         if o == [0.0, 0.0, -1.0]:
             shape = shape.rotate(180, [1, 0, 0])
         else:
-            axis = [UP[1] * o[2] - UP[2] * o[1], UP[2] * o[0] - UP[0] * o[2], UP[0] * o[1] - UP[1] * o[0]]
+            axis = [
+                UP[1] * o[2] - UP[2] * o[1],
+                UP[2] * o[0] - UP[0] * o[2],
+                UP[0] * o[1] - UP[1] * o[0],
+            ]
             angle = math.degrees(math.acos(max(-1.0, min(1.0, o[2]))))
             shape = shape.rotate(angle, axis)
     return shape
@@ -92,14 +103,18 @@ def knuckle_hinge(
     `inner=False` one. anchor/spin/orient follow BOSL2 attachable() semantics against the
     same declared bounding box the original uses.
     """
-    assert arm_angle == 90 and arm_height == 0, "only the arm_angle=90/arm_height=0 variant is ported"
+    assert arm_angle == 90 and arm_height == 0, (
+        "only the arm_angle=90/arm_height=0 variant is ported"
+    )
     assert isinstance(segs, int) and segs >= 2
     assert offset >= knuckle_diam / 2, "offset must be at least the knuckle radius"
 
     segs1 = math.ceil(segs / 2)
     segs2 = math.floor(segs / 2)
     seglen1 = gap + (length - (segs - 1) * gap) / (segs1 + segs2 * seg_ratio)
-    seglen2 = gap + (length - (segs - 1) * gap) / (segs1 + segs2 * seg_ratio) * seg_ratio
+    seglen2 = (
+        gap + (length - (segs - 1) * gap) / (segs1 + segs2 * seg_ratio) * seg_ratio
+    )
     numsegs = segs2 if inner else segs1
     z_adjust = 0.0 if segs % 2 == 1 else (seglen1 / 2 if inner else seglen2 / 2)
 
@@ -111,7 +126,9 @@ def knuckle_hinge(
     arm = rect2d([offset + extra, kd], anchor=[-1, 0], res=res).translate([-extra, 0])
     profile: PyShape2D = arm | circle2d(d=kd, res=res).translate([offset, 0])
     if clear_top:
-        profile = profile - rect2d([offset + kd + 1, kd + 1], anchor=[-1, -1], res=res).translate([-0.1, 0])
+        profile = profile - rect2d(
+            [offset + kd + 1, kd + 1], anchor=[-1, -1], res=res
+        ).translate([-0.1, 0])
     if pin_diam and pin_diam > 0:
         profile = profile - circle2d(d=pin_diam, res=res).translate([offset, 0])
 
@@ -127,7 +144,9 @@ def knuckle_hinge(
 
     # transform = down(offset) * yrot(-90) * zmove(z_adjust), rightmost applied first --
     # maps the extrusion axis onto X (the hinge line) and hangs the arm down to z=-offset.
-    shape = stack.translate([0, 0, z_adjust]).rotate([0, -90, 0]).translate([0, 0, -offset])
+    shape = (
+        stack.translate([0, 0, z_adjust]).rotate([0, -90, 0]).translate([0, 0, -offset])
+    )
 
     # attachable() declared box for arm_angle=90/arm_height=0.
     size = [length, kd, offset + kd / 2]
@@ -156,7 +175,9 @@ def rabbit_clip(
     joiners.scad's rabbit_clip (same path construction, bezier smoothing, and attachable
     anchoring; the "double" type isn't ported since nothing here uses it).
     """
-    assert type in ("pin", "male", "socket", "female"), f"unsupported rabbit_clip type {type!r}"
+    assert type in ("pin", "male", "socket", "female"), (
+        f"unsupported rabbit_clip type {type!r}"
+    )
     is_pin = type in ("pin", "male")
     extra = 0.02
     clearance = 0 if is_pin else clearance
@@ -166,17 +187,23 @@ def rabbit_clip(
 
     earwidth = 2 * thickness + snap
     point_length = earwidth / 2.15
-    scaled_len = length - 0.5 * (earwidth * snap + point_length * length) / math.sqrt(snap**2 + (length / 2) ** 2)
+    scaled_len = length - 0.5 * (earwidth * snap + point_length * length) / math.sqrt(
+        snap**2 + (length / 2) ** 2
+    )
     bottom_pt = np.array([0.0, max(scaled_len * 0.15 + thickness, 2 * thickness)])
-    ctr = np.array([width / 2, scaled_len]) + line_normal([width / 2 - snap, scaled_len / 2], [width / 2, scaled_len]) * (earwidth / 2)
+    ctr = np.array([width / 2, scaled_len]) + line_normal(
+        [width / 2 - snap, scaled_len / 2], [width / 2, scaled_len]
+    ) * (earwidth / 2)
     inside_pt = circle_circle_tangents(0, bottom_pt, earwidth / 2, ctr)[0][1]
-    sidepath = np.array([
-        [width / 2, 0.0],
-        [width / 2 - snap, scaled_len / 2],
-        [width / 2 + (compression if is_pin else 0), scaled_len],
-        ctr - line_normal([width / 2, scaled_len], inside_pt) * point_length,
-        inside_pt,
-    ])
+    sidepath = np.array(
+        [
+            [width / 2, 0.0],
+            [width / 2 - snap, scaled_len / 2],
+            [width / 2 + (compression if is_pin else 0), scaled_len],
+            ctr - line_normal([width / 2, scaled_len], inside_pt) * point_length,
+            inside_pt,
+        ]
+    )
     fullpath = np.vstack([sidepath, [bottom_pt], sidepath[::-1] * [-1.0, 1.0]])
     assert fullpath[4][1] < fullpath[3][1], "Pin is too wide for its length"
 
@@ -211,20 +238,30 @@ def rabbit_clip(
         # np.vstack, NOT `list + ndarray`: the latter silently BROADCASTS (adds the closure
         # point onto every row) instead of concatenating.
         finalpath = np.vstack(
-            [[[withclearance[0][0], -extra]], withclearance, [[-withclearance[0][0], -extra]]]
+            [
+                [[withclearance[0][0], -extra]],
+                withclearance,
+                [[-withclearance[0][0], -extra]],
+            ]
         )
         profile = polygon2d(finalpath, res=res)
 
     if lock:
-        lock_poly = np.array([
-            [sidepath[1][0] - thickness / 10, sidepath[1][1] + lock_clearance],
-            [sidepath[2][0] - thickness * 0.75, sidepath[2][1]],
-            [sidepath[2][0], sidepath[2][1]],
-            [sidepath[2][0], sidepath[1][1] + lock_clearance],
-        ])
+        lock_poly = np.array(
+            [
+                [sidepath[1][0] - thickness / 10, sidepath[1][1] + lock_clearance],
+                [sidepath[2][0] - thickness * 0.75, sidepath[2][1]],
+                [sidepath[2][0], sidepath[2][1]],
+                [sidepath[2][0], sidepath[1][1] + lock_clearance],
+            ]
+        )
         lock_shape = polygon2d(lock_poly + [clearance, 0.0], res=res)
         # lock=True mirrors the lock tab to both sides (BOSL2 xflip_copy()).
-        profile = profile | lock_shape | polygon2d(lock_poly * [-1.0, 1.0] - [clearance, 0.0], res=res)
+        profile = (
+            profile
+            | lock_shape
+            | polygon2d(lock_poly * [-1.0, 1.0] - [clearance, 0.0], res=res)
+        )
 
     solid = profile.extrude(depth, center=True)
     # xrot(90) * translate([0, -dy/2, -depth/2]) on the pre-extruded profile centers the

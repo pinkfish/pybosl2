@@ -114,7 +114,9 @@ class PythonSCADExampleDirective(Directive):
             _logger.warning(f"pythonscad-example: render timed out for:\n{code}")
             return None
         if not result.ok:
-            _logger.warning(f"pythonscad-example: render failed ({result.error}) for:\n{code}")
+            _logger.warning(
+                f"pythonscad-example: render failed ({result.error}) for:\n{code}"
+            )
             return None
 
         return f"/_generated/{out_png.name}"

@@ -120,6 +120,7 @@ def _wrap1(f):
     def g(v):
         vt = _as_tree(v)
         return Tree(lambda x, y, z: f(vt(x, y, z)))
+
     return g
 
 
@@ -128,6 +129,7 @@ def _wrap2(f):
         at = _as_tree(a)
         bt = _as_tree(b)
         return Tree(lambda x, y, z: f(at(x, y, z), bt(x, y, z)))
+
     return g
 
 
@@ -179,7 +181,13 @@ class _FrepResult:
             for py in steps[1]:
                 for pz in steps[2]:
                     if self.sdf(px, py, pz) <= 1e-9:
-                        points.append([px + self.offset[0], py + self.offset[1], pz + self.offset[2]])
+                        points.append(
+                            [
+                                px + self.offset[0],
+                                py + self.offset[1],
+                                pz + self.offset[2],
+                            ]
+                        )
         return points, []
 
 
@@ -227,7 +235,9 @@ class _AabbSolid:
         if mn is None or mx is None:
             return _AabbSolid()
         v = list(v) + [0.0] * (3 - len(v))
-        return _AabbSolid([mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)])
+        return _AabbSolid(
+            [mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)]
+        )
 
     def rotate(self, a, v=None):
         mn, mx = self.mn, self.mx
@@ -235,11 +245,20 @@ class _AabbSolid:
             return _AabbSolid()
         m = _rot_matrix(a, v)
         corners = [
-            [mn[0] if i & 1 == 0 else mx[0], mn[1] if i & 2 == 0 else mx[1], mn[2] if i & 4 == 0 else mx[2]]
+            [
+                mn[0] if i & 1 == 0 else mx[0],
+                mn[1] if i & 2 == 0 else mx[1],
+                mn[2] if i & 4 == 0 else mx[2],
+            ]
             for i in range(8)
         ]
-        rot = [[sum(m[r][k] * c[k] for k in range(3)) for r in range(3)] for c in corners]
-        return _AabbSolid([_bmin(c[i] for c in rot) for i in range(3)], [_bmax(c[i] for c in rot) for i in range(3)])
+        rot = [
+            [sum(m[r][k] * c[k] for k in range(3)) for r in range(3)] for c in corners
+        ]
+        return _AabbSolid(
+            [_bmin(c[i] for c in rot) for i in range(3)],
+            [_bmax(c[i] for c in rot) for i in range(3)],
+        )
 
     def _combine(self, other, mode):
         o = other if isinstance(other, _AabbSolid) else _AabbSolid()
@@ -249,8 +268,14 @@ class _AabbSolid:
         if omn is None or omx is None or mode == "sub":
             return _AabbSolid(smn, smx)
         if mode == "or":
-            return _AabbSolid([_bmin(smn[i], omn[i]) for i in range(3)], [_bmax(smx[i], omx[i]) for i in range(3)])
-        return _AabbSolid([_bmax(smn[i], omn[i]) for i in range(3)], [_bmin(smx[i], omx[i]) for i in range(3)])
+            return _AabbSolid(
+                [_bmin(smn[i], omn[i]) for i in range(3)],
+                [_bmax(smx[i], omx[i]) for i in range(3)],
+            )
+        return _AabbSolid(
+            [_bmax(smn[i], omn[i]) for i in range(3)],
+            [_bmin(smx[i], omx[i]) for i in range(3)],
+        )
 
     def __or__(self, other):
         return self._combine(other, "or")
@@ -306,13 +331,23 @@ class _AabbSolid:
 def _rot_matrix(a, v=None):
     if v is None and isinstance(a, (list, tuple)):
         rx, ry, rz = (math.radians(x) for x in (list(a) + [0, 0, 0])[:3])
-        cx, sx, cy, sy, cz, sz = math.cos(rx), math.sin(rx), math.cos(ry), math.sin(ry), math.cos(rz), math.sin(rz)
+        cx, sx, cy, sy, cz, sz = (
+            math.cos(rx),
+            math.sin(rx),
+            math.cos(ry),
+            math.sin(ry),
+            math.cos(rz),
+            math.sin(rz),
+        )
         mx = [[1, 0, 0], [0, cx, -sx], [0, sx, cx]]
         my = [[cy, 0, sy], [0, 1, 0], [-sy, 0, cy]]
         mz = [[cz, -sz, 0], [sz, cz, 0], [0, 0, 1]]
 
         def mm(p, q):
-            return [[sum(p[i][k] * q[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+            return [
+                [sum(p[i][k] * q[k][j] for k in range(3)) for j in range(3)]
+                for i in range(3)
+            ]
 
         return mm(mz, mm(my, mx))
     ang = math.radians(a)
@@ -335,8 +370,21 @@ def _mock_cube(size: "float | Sequence[float]" = 1, center=None, dim=None, **k) 
     return _AabbSolid([0.0, 0.0, 0.0], sv)
 
 
-def _mock_cylinder(h: float = 1, r=None, r1=None, r2=None, d=None, d1=None, d2=None, center=None, **k) -> Any:
-    rr = [v for v in (r, r1, r2, (d / 2 if d else None), (d1 / 2 if d1 else None), (d2 / 2 if d2 else None)) if v is not None]
+def _mock_cylinder(
+    h: float = 1, r=None, r1=None, r2=None, d=None, d1=None, d2=None, center=None, **k
+) -> Any:
+    rr = [
+        v
+        for v in (
+            r,
+            r1,
+            r2,
+            (d / 2 if d else None),
+            (d1 / 2 if d1 else None),
+            (d2 / 2 if d2 else None),
+        )
+        if v is not None
+    ]
     rad = _bmax(rr) if rr else 1.0
     hh = float(h)
     z0, z1 = (-hh / 2, hh / 2) if center else (0.0, hh)
@@ -352,7 +400,10 @@ def _mock_polyhedron(points=None, *a, **k) -> Any:
     if not points:
         return _AabbSolid()
     pts = [[float(c) for c in p] for p in points]
-    return _AabbSolid([_bmin(p[i] for p in pts) for i in range(3)], [_bmax(p[i] for p in pts) for i in range(3)])
+    return _AabbSolid(
+        [_bmin(p[i] for p in pts) for i in range(3)],
+        [_bmax(p[i] for p in pts) for i in range(3)],
+    )
 
 
 def _mock_hull(*solids, **k) -> Any:
@@ -363,7 +414,10 @@ def _mock_hull(*solids, **k) -> Any:
             pts.append(list(s.mx))
     if not pts:
         return _AabbSolid()
-    return _AabbSolid([_bmin(p[i] for p in pts) for i in range(3)], [_bmax(p[i] for p in pts) for i in range(3)])
+    return _AabbSolid(
+        [_bmin(p[i] for p in pts) for i in range(3)],
+        [_bmax(p[i] for p in pts) for i in range(3)],
+    )
 
 
 def _mock_minkowski(*solids, **k) -> Any:
@@ -375,7 +429,10 @@ def _mock_minkowski(*solids, **k) -> Any:
             mxs.append(list(s.mx))
     if not mns:
         return _AabbSolid()
-    return _AabbSolid([sum(m[i] for m in mns) for i in range(3)], [sum(m[i] for m in mxs) for i in range(3)])
+    return _AabbSolid(
+        [sum(m[i] for m in mns) for i in range(3)],
+        [sum(m[i] for m in mxs) for i in range(3)],
+    )
 
 
 def install():
@@ -399,7 +456,15 @@ def install():
     setattr(pythonscad_mock, "polyhedron", _mock_polyhedron)
     setattr(pythonscad_mock, "hull", _mock_hull)
     setattr(pythonscad_mock, "minkowski", _mock_minkowski)
-    for name in ["rotate_extrude", "textmetrics", "square", "circle", "polygon", "text", "osuse"]:
+    for name in [
+        "rotate_extrude",
+        "textmetrics",
+        "square",
+        "circle",
+        "polygon",
+        "text",
+        "osuse",
+    ]:
         setattr(pythonscad_mock, name, lambda *a, **k: _AabbSolid())
     sys.modules["pythonscad"] = pythonscad_mock
 
