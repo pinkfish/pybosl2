@@ -1,0 +1,45 @@
+name: Commit Message Lint
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Install commitlint
+        run: |
+          npm install --save-dev @commitlint/config-conventional@19 @commitlint/cli@19
+
+      - name: Validate PR commits
+        run: |
+          # Get all commits in the PR
+          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Validate PR title
+        run: |
+          # `printf '%s\n'` rather than `echo` so that titles containing
+          # `-n` / `-e` / backslash sequences are passed to commitlint
+          # byte-for-byte instead of being interpreted by the shell
+          # builtin.
+          printf '%s\n' "$GITHUB_EVENT_PULL_REQUEST_TITLE" | npx commitlint --verbose
+        env:
+          GITHUB_EVENT_PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
