@@ -13,6 +13,7 @@ ports that work in plain CPython. The modules that build native geometry
 ## Reference
 
 [Docs](https://pinkfish.github.io/pybosl2/)
+[Specs](https://pinkfish.github.io/pybosl2/specs/index.html) of the various parts
 
 ## Installation
 
