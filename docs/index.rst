@@ -73,63 +73,63 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 1
    :caption: Foundational
 
-   shapes3d
-   shapes2d
-   transforms
-   distributors
-   drawing
-   color
-   masking
-   partitions
-   native_ops
-   constants
+   3-D shapes <shapes3d>
+   2-D shapes <shapes2d>
+   Transforms <transforms>
+   Distributors <distributors>
+   Drawing <drawing>
+   Colour <color>
+   Masking <masking>
+   Partitions <partitions>
+   Native ops <native_ops>
+   Constants <constants>
 
 .. toctree::
    :maxdepth: 1
    :caption: Paths, regions & surfaces
 
-   paths
-   regions
-   rounding
-   beziers
-   nurbs
-   skin
-   vnf
-   isosurface
+   Paths <paths>
+   Regions <regions>
+   Rounding <rounding>
+   Beziers <beziers>
+   NURBS <nurbs>
+   Skin & sweeps <skin>
+   VNF meshes <vnf>
+   Isosurface <isosurface>
 
 .. toctree::
    :maxdepth: 1
    :caption: Math & geometry
 
-   geometry
-   math
-   vectors
-   comparisons
+   Geometry <geometry>
+   Math <math>
+   Vectors <vectors>
+   Comparisons <comparisons>
 
 .. toctree::
    :maxdepth: 1
    :caption: Parts library
 
-   gears
-   threading
-   screws
-   screw_drive
-   bottlecaps
-   nema_steppers
-   cubetruss
-   hinges
-   joiners
-   hooks
-   walls
-   wiring
-   sliders
-   polyhedra
-   ball_bearings
-   linear_bearings
-   modular_hose
+   Gears <gears>
+   Threading <threading>
+   Screws <screws>
+   Screw drives <screw_drive>
+   Bottle caps <bottlecaps>
+   NEMA steppers <nema_steppers>
+   Cube trusses <cubetruss>
+   Hinges <hinges>
+   Joiners <joiners>
+   Hooks <hooks>
+   Walls <walls>
+   Wiring <wiring>
+   Sliders <sliders>
+   Polyhedra <polyhedra>
+   Ball bearings <ball_bearings>
+   Linear bearings <linear_bearings>
+   Modular hose <modular_hose>
 
 .. toctree::
    :maxdepth: 1
    :caption: Extras
 
-   miscellaneous
+   Miscellaneous <miscellaneous>

@@ -38,6 +38,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 # so `import pysolidfive` below resolves the real package rather than pysolidfive/ itself.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
+# Install the numeric libfive/pythonscad stand-in BEFORE importing pysolidfive: the package does
+# `import libfive` at module load, and this environment has no real libfive (the pythonscad wheel
+# ships pythonscad/openscad but not libfive). Importing mock_libfive runs its install() side effect.
+import mock_libfive  # noqa: E402,F401
 
 import pysolidfive  # noqa: E402
 from pysolidfive import CENTER, TOP, LEFT, RIGHT, FRONT, BACK  # noqa: E402
