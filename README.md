@@ -10,6 +10,10 @@ ports that work in plain CPython. The modules that build native geometry
 (`shapes3d`, `masking`, and the `.polygon()`/`.polyhedron()` boundaries) import the
 `pythonscad`/`openscad` native modules at load time.
 
+## Reference
+
+[Docs](https://pinkfish.github.io/pybosl2/)
+
 ## Installation
 
 ```bash
