@@ -13,7 +13,6 @@
 # FileGroup: BOSL2
 
 from functools import reduce
-import math
 import operator
 
 import numpy as np

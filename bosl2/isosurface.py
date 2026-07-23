@@ -24,7 +24,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
 
 import numpy as np

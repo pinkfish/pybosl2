@@ -34,7 +34,7 @@ import numpy as np
 # can resolve these names -- this module immediately shadows all five with its own
 # BOSL2-style square()/circle()/polygon()/text()/hull() below, so the plain builtins are
 # captured under private names first.
-from pythonscad import square as _osquare, circle as _ocircle, polygon as _opolygon, text as _otext, hull as _ohull
+from pythonscad import square as _osquare, circle as _ocircle, polygon as _opolygon, text as _otext
 from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:

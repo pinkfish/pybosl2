@@ -47,7 +47,7 @@ import math
 import numpy as np
 
 from bosl2.math import EPSILON, lerp, lerpn, deriv, deriv2, deriv3
-from bosl2.vectors import is_vector, add_scalar, unit
+from bosl2.vectors import add_scalar, unit
 from bosl2.comparisons import approx
 from bosl2.geometry import line_normal, line_closest_point, pointlist_bounds, _is_point_on_segment, is_collinear, cross, general_line_intersection
 from bosl2.distributors import Distributable, _apply4  # the distributors.scad copiers, as methods

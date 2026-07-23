@@ -2332,7 +2332,6 @@ def path_text(
     # free of a numpy dependency -- bosl2.paths uses numpy internally, and numpy isn't always
     # loadable inside the real PythonSCAD app (e.g. a hardened-runtime-signed build combined
     # with an ad-hoc-signed/unsigned numpy install fails library validation).
-    from bosl2.paths import Path
 
     assert len(text) > 0, "path_text(): text must be non-empty."
     assert size > 0, "path_text(): must give positive text size."
@@ -2860,7 +2859,6 @@ def plot_revolution(f, angle, z=None, r=None, r1=None, r2=None, d=None, d1=None,
                                r1=12, r2=8).show()
     """
     from bosl2.vnf import VNF
-    from bosl2.paths import Path
 
     r1v = r1 if r1 is not None else (r if r is not None else (d1 / 2 if d1 is not None else (d / 2 if d is not None else None)))
     r2v = r2 if r2 is not None else (r if r is not None else (d2 / 2 if d2 is not None else (d / 2 if d is not None else None)))

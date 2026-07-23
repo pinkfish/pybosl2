@@ -24,7 +24,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
 
 import numpy as np
@@ -391,7 +390,6 @@ def partition_cut_mask(l=100, h=100, cutsize=10, cutpath="jigsaw", gap=0, cutpat
 
     Subtract it from a solid to split it along the cut path with a *slop*-wide kerf.
     """
-    from pythonscad import square as _square
     from bosl2.shapes3d import Bosl2Solid
 
     from bosl2.drawing import stroke as _stroke

@@ -31,7 +31,7 @@ from bosl2._helpers import union
 from bosl2.constants import CENTER, BOTTOM
 from bosl2.distributors import xcopies, ycopies, zcopies, xflip_copy, mirror_copy
 from bosl2.masking import chamfer_edge_mask
-from bosl2.shapes3d import Bosl2Solid, cuboid, cylinder, prismoid, regular_prism
+from bosl2.shapes3d import Bosl2Solid, cuboid, prismoid, regular_prism
 
 __all__ = ["CubeTruss"]
 

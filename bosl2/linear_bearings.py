@@ -20,7 +20,6 @@ import math
 from dataclasses import dataclass
 
 from bosl2._helpers import union
-from bosl2.constants import TOP, BOTTOM
 from bosl2.shapes3d import Bosl2Solid, cuboid, teardrop, tube
 
 __all__ = ["LinearBearings", "LinearBearingSpec"]

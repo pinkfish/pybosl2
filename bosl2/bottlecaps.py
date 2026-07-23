@@ -41,7 +41,6 @@ from bosl2.threading import Threading
 __all__ = ["BottleCaps", "BottleThreadSpec"]
 
 
-from bosl2._helpers import union as _union
 
 
 @dataclass(frozen=True)

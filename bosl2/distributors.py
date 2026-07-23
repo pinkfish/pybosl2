@@ -28,14 +28,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
 
 import numpy as np
 
-from bosl2.transforms import axis_angle_matrix, rot_from_to
+from bosl2.transforms import axis_angle_matrix
 from bosl2.constants import RIGHT, BACK, UP
-from bosl2._helpers import is_num, scalar_vec3, unit, translate4, rot_from_to4
+from bosl2._helpers import is_num, translate4, rot_from_to4
 
 __all__ = [
     "move_copies", "xcopies", "ycopies", "zcopies", "line_copies", "grid_copies",
@@ -200,7 +199,6 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
 
     bounds = None
     if inside is not None:
-        from bosl2.paths import Path  # lazy: point-in-polygon test
         arr = np.asarray(inside, dtype=float)
         bounds = [arr.min(axis=0), arr.max(axis=0)]
 

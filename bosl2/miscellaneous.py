@@ -25,7 +25,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from functools import reduce
 import math
 import operator
@@ -33,10 +32,10 @@ import operator
 import numpy as np
 
 from bosl2.transforms import axis_angle_matrix, rot_from_to
-from bosl2.constants import UP, RIGHT, BACK
+from bosl2.constants import UP, BACK
 from bosl2.vectors import unit
 from bosl2.geometry import pointlist_bounds
-from bosl2._helpers import vec3, rot_from_to4, zrot4, frame_map4_yz, unwrap
+from bosl2._helpers import vec3, rot_from_to4, frame_map4_yz, unwrap
 
 __all__ = [
     "extrude_from_to", "cylindrical_extrude", "chain_hull", "minkowski_difference",
