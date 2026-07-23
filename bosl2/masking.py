@@ -137,6 +137,22 @@ def rounding_edge_mask(
     return _opolygon(cross).linear_extrude(height=length, center=True, scale=scale)
 
 
+def chamfer_edge_mask(l: float = 1, chamfer: float = 1, excess: float = 0.1) -> PyOpenSCAD:
+    """A standalone 3-D edge-chamfer cutter of length *l* (BOSL2 chamfer_edge_mask()).
+
+    A diamond bar (a square prism rotated 45 degrees, with its vertices *chamfer* out along each
+    axis -- i.e. ``cylinder(r=chamfer, $fn=4)``), centered on its own Z axis. Position it along a
+    sharp edge and subtract it to bevel the edge by *chamfer*.
+
+    Args:
+        l:       length of the cutter along its axis (default 1)
+        chamfer: chamfer size -- the diamond's half-diagonal along each axis (default 1)
+        excess:  extra length past *l* so the cut clears the surface (default 0.1)
+    """
+    diamond = [[chamfer, 0], [0, chamfer], [-chamfer, 0], [0, -chamfer]]
+    return _opolygon(diamond).linear_extrude(height=l + excess, center=True)
+
+
 def _pick_axes(vec: Sequence[float]) -> tuple[int, int, int, float, float]:
     """For an edge vector (one axis 0, two axes +-1), return (run_axis, a1, a2, s1, s2)."""
     run_axis = next(i for i in range(3) if vec[i] == 0)

@@ -24,6 +24,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 import math
+import numbers
 
 import numpy as np
 
@@ -89,17 +90,54 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         self.shape = shape
         self.size = size
         self.anchor = anchor if anchor is not None else CENTER
+        # True once a positional transform (translate/rotate/scale/...) has been applied, so the
+        # tracked cuboid size/anchor metadata no longer describes the object's current position.
+        self._moved = False
 
     @staticmethod
     def _unwrap(x):
         return x.shape if isinstance(x, Bosl2Solid) else x
 
     def _wrap(self, new_shape: PyOpenSCAD) -> "Bosl2Solid":
-        return Bosl2Solid(new_shape, self.size, self.anchor)
+        """Wrap a native result, carrying size/anchor metadata (and moved-ness) forward unchanged.
+
+        Use for ops that do NOT move/resize the geometry (colour, repair, native mesh ops)."""
+        out = Bosl2Solid(new_shape, self.size, self.anchor)
+        out._moved = self._moved
+        return out
+
+    def _wrap_moved(self, new_shape: PyOpenSCAD) -> "Bosl2Solid":
+        """Wrap a native result of a positional transform, flagging the tracked metadata stale."""
+        out = Bosl2Solid(new_shape, self.size, self.anchor)
+        out._moved = True
+        return out
 
     def __getattr__(self, name):
-        attr = getattr(self.shape, name)
-        return attr
+        # __getattr__ only fires on a normal-lookup miss. Guard the recursion trap: never bounce
+        # back through here for `shape` (or dunders) when the object is half-built (unpickling,
+        # __new__, or an __init__ that raised before setting .shape) -- raise a clean AttributeError
+        # so copy/pickle/hasattr behave instead of blowing the stack.
+        if name == "shape" or (name.startswith("__") and name.endswith("__")):
+            raise AttributeError(name)
+        shape = object.__getattribute__(self, "shape")   # bypass __getattr__: no recursion
+        attr = getattr(shape, name)
+        if not callable(attr):
+            return attr                                  # plain native attr (.position/.size/...)
+        native_cls = type(shape)
+
+        def _forward(*args, **kwargs):
+            # Re-wrap native geometry so a passed-through op (linear_extrude/offset/resize/...) keeps
+            # the Bosl2Solid fluent API instead of silently leaking a raw handle. The result may be
+            # in a different position, so treat it as moved. Non-geometry results pass through.
+            result = attr(*args, **kwargs)
+            if isinstance(result, native_cls):
+                return self._wrap_moved(result)
+            if isinstance(result, (list, tuple)) and result and all(isinstance(r, native_cls) for r in result):
+                return type(result)(self._wrap_moved(r) for r in result)
+            return result
+
+        _forward.__name__ = name
+        return _forward
 
     def __repr__(self) -> str:
         return f"Bosl2Solid({self.shape!r}, size={self.size!r}, anchor={self.anchor!r})"
@@ -107,21 +145,23 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     # ---- geometry passthrough, preserving size/anchor metadata ----
 
     def translate(self, v: Sequence[float]) -> "Bosl2Solid":
-        return self._wrap(self.shape.translate(v))
+        return self._wrap_moved(self.shape.translate(v))
 
     move = translate
 
     def rotate(self, *a, **k) -> "Bosl2Solid":
-        # BOSL2 rot(a): a bare scalar angle is a rotation about the Z axis. The native
-        # openscad rotate() only accepts a vector or (angle, axis), so normalize here.
-        if len(a) == 1 and isinstance(a[0], (int, float)) and "v" not in k:
+        # BOSL2 rot(a): a bare scalar angle is a rotation about the Z axis. The native openscad
+        # rotate() only accepts a vector or (angle, axis), so normalize here. Accept any real
+        # scalar (incl. numpy int/float scalars) but not bool (a subclass of int).
+        if (len(a) == 1 and isinstance(a[0], numbers.Real)
+                and not isinstance(a[0], bool) and "v" not in k):
             a = ([0.0, 0.0, float(a[0])],)
-        return self._wrap(self.shape.rotate(*a, **k))
+        return self._wrap_moved(self.shape.rotate(*a, **k))
 
     rot = rotate
 
     def mirror(self, v: Sequence[float]) -> "Bosl2Solid":
-        return self._wrap(self.shape.mirror(v))
+        return self._wrap_moved(self.shape.mirror(v))
 
     # Directional translates (BOSL2 transforms.scad): right/left +/-X, back/fwd +/-Y, up/down +/-Z.
 
@@ -146,10 +186,10 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         return self.translate([0.0, 0.0, -z])
 
     def multmatrix(self, m: Sequence[Sequence[float]]) -> "Bosl2Solid":
-        return self._wrap(self.shape.multmatrix(m))
+        return self._wrap_moved(self.shape.multmatrix(m))
 
     def scale(self, v) -> "Bosl2Solid":
-        return self._wrap(self.shape.scale(v))
+        return self._wrap_moved(self.shape.scale(v))
 
     # ---- native-only mesh operations (no BOSL2 equivalent) ----
     #
@@ -239,7 +279,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         out = self.shape.multmatrix(np.asarray(mats[0]).tolist())
         for m in mats[1:]:
             out = out | self.shape.multmatrix(np.asarray(m).tolist())
-        return self._wrap(out)
+        return self._wrap_moved(out)
 
     # ---- bounding-box anchoring (works on ANY object, via PythonSCAD's native bbox) ----
     #
@@ -256,7 +296,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         try:
             pos = self.shape.position
             sz = self.shape.size
-        except Exception:
+        except AttributeError:
+            # The native handle doesn't expose position/size (the numeric test mock). A genuine
+            # error from the real accessor (e.g. a broken mesh) is NOT swallowed -- it propagates.
             return None
         if pos is None or sz is None:
             return None
@@ -282,6 +324,15 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
             mincorner, size = nb
             return [mincorner[i] + size[i] / 2 for i in range(3)], size
         if self.size is not None and not isinstance(self.anchor, str):
+            # Fall back to construction-time cuboid metadata -- but only if the object hasn't been
+            # moved since, because that metadata tracks size/anchor, not the current position. Fail
+            # loud rather than return a silently-stale centre (this path is the numeric mock only).
+            if self._moved:
+                raise ValueError(
+                    "bounds(): no native bounding box (numeric mock) and the object has been "
+                    "transformed since construction, so its tracked cuboid metadata is stale. Run "
+                    "under the real PythonSCAD app for a correct bbox, or anchor before transforming."
+                )
             size = [float(v) for v in self.size]
             return _anchor_offset_box3(size, self.anchor), size
         raise ValueError(

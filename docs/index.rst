@@ -75,6 +75,10 @@ API reference
    screws
    screw_drive
    bottlecaps
+   ball_bearings
+   cubetruss
+   gears
+   sliders
    partitions
    miscellaneous
    rounding

@@ -55,6 +55,19 @@ def test_impossible_trapezoid_raises():
         _trapezoidal_profile(1, 170)  # flanks would cross
 
 
+def test_thread_profile_is_structured_dataclass():
+    from bosl2.threading import ThreadProfile
+    iso = _iso_profile()
+    assert isinstance(iso, ThreadProfile)
+    assert iso.name == "ISO"
+    # depth is the peak-to-valley fraction; ISO depth = cos(30)*5/8
+    assert math.isclose(iso.depth, math.cos(math.radians(30)) * 5 / 8, abs_tol=1e-12)
+    assert math.isclose(iso.depth_abs(2.0), iso.depth * 2.0, abs_tol=1e-12)
+    # still usable as the raw point list it wraps
+    assert iso.as_points() == [list(p) for p in iso]
+    assert _trapezoidal_profile(2, 29).name == "trapezoidal-29deg"
+
+
 # -- rod builders return solids -----------------------------------------------------------
 
 @pytest.mark.parametrize("call", [

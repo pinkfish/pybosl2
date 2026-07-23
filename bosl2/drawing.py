@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 from functools import reduce
 import math
 import operator
@@ -37,7 +38,7 @@ from bosl2.geometry import general_line_intersection, line_normal
 from bosl2.paths import Path, Path3D
 from bosl2.shapes2d import arc, _frag_count, _pick_radius
 
-__all__ = ["arc", "catenary", "helix", "turtle", "stroke", "dashed_stroke"]
+__all__ = ["arc", "catenary", "helix", "turtle", "stroke", "dashed_stroke", "EndcapSpec"]
 
 
 # ---------------------------------------------------------------------------
@@ -359,16 +360,27 @@ def _turtle_arc(command, parm, parm2, state, index):
 # ---------------------------------------------------------------------------
 
 
-# Endcap/joint shape table, ported straight from BOSL2's _shape_defaults(): each entry is
-# [width_mult, length_mult, extent_mult]. The realised width/length/extent are these times the
-# stroke's line width, then the whole shape is scaled by the line width again (as BOSL2 does).
+@dataclass(frozen=True)
+class EndcapSpec:
+    """The size multipliers for one stroke endcap/joint style (BOSL2 _shape_defaults()).
+
+    The realised width/length/extent are these times the stroke's line width, then the whole shape
+    is scaled by the line width again (as BOSL2 does).
+    """
+
+    width_mult: float
+    length_mult: float
+    extent_mult: float
+
+
+# Endcap/joint shape table, ported straight from BOSL2's _shape_defaults().
 _ENDCAP_DEFAULTS = {
-    None: (1.0, 0.0, 0.0), False: (1.0, 0.0, 0.0), True: (1.0, 1.0, 0.0),
-    "butt": (1.0, 0.0, 0.0), "round": (1.0, 1.0, 0.0), "chisel": (1.0, 1.0, 0.0),
-    "square": (1.0, 1.0, 0.0), "block": (2.0, 1.0, 0.0), "diamond": (2.5, 1.0, 0.0),
-    "dot": (2.0, 1.0, 0.0), "x": (2.5, 0.4, 0.0), "cross": (3.0, 0.33, 0.0),
-    "line": (3.5, 0.22, 0.0), "arrow": (3.5, 0.4, 0.5), "arrow2": (3.5, 1.0, 0.14),
-    "arrow3": (3.5, 1.0, 0.0), "tail": (3.5, 0.47, 0.5), "tail2": (3.5, 0.28, 0.5),
+    None: EndcapSpec(1.0, 0.0, 0.0), False: EndcapSpec(1.0, 0.0, 0.0), True: EndcapSpec(1.0, 1.0, 0.0),
+    "butt": EndcapSpec(1.0, 0.0, 0.0), "round": EndcapSpec(1.0, 1.0, 0.0), "chisel": EndcapSpec(1.0, 1.0, 0.0),
+    "square": EndcapSpec(1.0, 1.0, 0.0), "block": EndcapSpec(2.0, 1.0, 0.0), "diamond": EndcapSpec(2.5, 1.0, 0.0),
+    "dot": EndcapSpec(2.0, 1.0, 0.0), "x": EndcapSpec(2.5, 0.4, 0.0), "cross": EndcapSpec(3.0, 0.33, 0.0),
+    "line": EndcapSpec(3.5, 0.22, 0.0), "arrow": EndcapSpec(3.5, 0.4, 0.5), "arrow2": EndcapSpec(3.5, 1.0, 0.14),
+    "arrow3": EndcapSpec(3.5, 1.0, 0.0), "tail": EndcapSpec(3.5, 0.47, 0.5), "tail2": EndcapSpec(3.5, 0.28, 0.5),
 }
 
 
@@ -382,10 +394,10 @@ def _endcap_polys(style, lw: float):
     assert style in _ENDCAP_DEFAULTS, f"stroke(): unknown endcap/joint style {style!r}"
     if style in (False, "butt", None):
         return []
-    w_mult, l_mult, e_mult = _ENDCAP_DEFAULTS[style]
-    w = w_mult
-    l = l_mult * w_mult
-    l2 = e_mult * w_mult
+    spec = _ENDCAP_DEFAULTS[style]
+    w = spec.width_mult
+    l = spec.length_mult * spec.width_mult
+    l2 = spec.extent_mult * spec.width_mult
 
     def circle_poly(rx, ry, n):
         return [[rx * math.cos(2 * math.pi * k / n), ry * math.sin(2 * math.pi * k / n)] for k in range(n)]
@@ -424,11 +436,11 @@ def _endcap_polys(style, lw: float):
 def _endcap_trim(style, width: float) -> float:
     """How far to pull the line back under an arrow endcap so it doesn't poke through the tip."""
     if style in ("arrow", "arrow3"):
-        wm, lm, _ = _ENDCAP_DEFAULTS[style]
-        return width * (lm * wm - 0.01)
+        spec = _ENDCAP_DEFAULTS[style]
+        return width * (spec.length_mult * spec.width_mult - 0.01)
     if style == "arrow2":
-        wm, lm, _ = _ENDCAP_DEFAULTS[style]
-        return width * (lm * wm * 3 / 4)
+        spec = _ENDCAP_DEFAULTS[style]
+        return width * (spec.length_mult * spec.width_mult * 3 / 4)
     return 0.0
 
 

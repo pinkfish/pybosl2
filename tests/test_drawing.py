@@ -231,5 +231,12 @@ def test_every_style_in_defaults_table():
         assert style in _ENDCAP_DEFAULTS
 
 
+def test_endcap_defaults_are_structured():
+    from bosl2.drawing import EndcapSpec
+    spec = _ENDCAP_DEFAULTS["arrow"]
+    assert isinstance(spec, EndcapSpec)
+    assert (spec.width_mult, spec.length_mult, spec.extent_mult) == (3.5, 0.4, 0.5)
+
+
 def test_fancy_joint_style_builds():
     assert stroke([[0, 0], [20, 0], [20, 20]], width=3, joints="diamond") is not None

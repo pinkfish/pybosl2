@@ -11,7 +11,17 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.masking import mask2d_roundover
+from bosl2.masking import mask2d_roundover, chamfer_edge_mask
+from bosl2.shapes3d import Bosl2Solid
+
+
+def test_chamfer_edge_mask_builds():
+    m = chamfer_edge_mask(l=10, chamfer=2)
+    # a diamond bar: spans +-chamfer on X and Y, length l (+excess) on Z
+    lo, size = Bosl2Solid(m)._native_bounds()
+    assert size[0] == pytest.approx(4, abs=0.01)     # 2*chamfer
+    assert size[1] == pytest.approx(4, abs=0.01)
+    assert size[2] == pytest.approx(10.1, abs=0.01)  # l + excess
 
 
 def test_returns_a_point_path():

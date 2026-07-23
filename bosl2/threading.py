@@ -24,9 +24,10 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 import math
 
-__all__ = ["Threading"]
+__all__ = ["Threading", "ThreadProfile"]
 
 
 # ---------------------------------------------------------------------------
@@ -34,24 +35,64 @@ __all__ = ["Threading"]
 # ---------------------------------------------------------------------------
 
 
-def _iso_profile():
+@dataclass(frozen=True)
+class ThreadProfile:
+    """A 2-D thread cross-section in pitch units: x along the axis in [-1/2, 1/2], y the (negative)
+    depth fraction. ``name`` labels the standard it came from; ``points`` is the profile polygon.
+
+    Behaves like the plain list of ``[x, y]`` points it wraps -- it iterates, indexes, has a length
+    and converts to a numpy array of shape ``(n, 2)`` -- so it drops straight into the thread
+    builders (and anywhere a raw point list is accepted), while also carrying its name and
+    :attr:`depth`.
+    """
+
+    name: str
+    points: tuple[tuple[float, float], ...]
+
+    @property
+    def depth(self) -> float:
+        """Peak-to-valley depth as a fraction of the pitch."""
+        ys = [p[1] for p in self.points]
+        return max(ys) - min(ys)
+
+    def depth_abs(self, pitch: float) -> float:
+        """Absolute peak-to-valley depth (mm) at the given *pitch*."""
+        return self.depth * pitch
+
+    def as_points(self) -> list[list[float]]:
+        """The profile as a plain list of ``[x, y]`` float pairs."""
+        return [[float(x), float(y)] for x, y in self.points]
+
+    def __iter__(self):
+        return (list(p) for p in self.points)
+
+    def __len__(self) -> int:
+        return len(self.points)
+
+    def __getitem__(self, i):
+        return list(self.points[i])
+
+
+def _iso_profile() -> ThreadProfile:
     depth = math.cos(math.radians(30)) * 5 / 8
     cw = 1 / 8
-    return [[-depth / math.sqrt(3) - cw / 2, -depth], [-cw / 2, 0], [cw / 2, 0],
-            [depth / math.sqrt(3) + cw / 2, -depth]]
+    return ThreadProfile("ISO", (
+        (-depth / math.sqrt(3) - cw / 2, -depth), (-cw / 2, 0), (cw / 2, 0),
+        (depth / math.sqrt(3) + cw / 2, -depth)))
 
 
-def _trapezoidal_profile(pitch, thread_angle: float = 30, thread_depth=None):
+def _trapezoidal_profile(pitch, thread_angle: float = 30, thread_depth=None) -> ThreadProfile:
     depth = thread_depth if thread_depth is not None else pitch / 2
     pa_delta = 0.5 * depth * math.tan(math.radians(thread_angle / 2)) / pitch
     assert pa_delta <= 0.25, "trapezoidal thread geometry is impossible (angle/depth too large)."
     rr1 = -depth / pitch
     z1, z2 = 0.25 - pa_delta, 0.25 + pa_delta
-    return [[-z2, rr1], [-z1, 0], [z1, 0], [z2, rr1]]
+    return ThreadProfile(f"trapezoidal-{thread_angle:g}deg", ((-z2, rr1), (-z1, 0), (z1, 0), (z2, rr1)))
 
 
-def _buttress_profile():
-    return [[-1 / 2, -0.77], [-7 / 16, -0.75], [5 / 16, 0], [7 / 16, 0], [7 / 16, -0.75], [1 / 2, -0.77]]
+def _buttress_profile() -> ThreadProfile:
+    return ThreadProfile("buttress", (
+        (-1 / 2, -0.77), (-7 / 16, -0.75), (5 / 16, 0), (7 / 16, 0), (7 / 16, -0.75), (1 / 2, -0.77)))
 
 
 # ---------------------------------------------------------------------------
@@ -123,6 +164,8 @@ def _rod_solid(d, l, pitch, profile, starts=1, left_handed=False, _fn=None, _fa=
 
 
 def _profile_depth_abs(profile, pitch):
+    if isinstance(profile, ThreadProfile):
+        return profile.depth_abs(pitch)
     ys = [float(p[1]) for p in profile]
     return (max(ys) - min(ys)) * pitch
 
