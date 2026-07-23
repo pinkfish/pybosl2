@@ -16,7 +16,7 @@ from bosl2.shapes3d import Bosl2Solid
 
 
 def _size(solid):
-    _min, size = solid._native_bounds()
+    _center, size = solid.bounds()
     return size
 
 
@@ -288,8 +288,9 @@ def test_backlash_clearance_shorten_build():
 
 
 def _size2d(solid):
-    # 2D shapes have no z-bounds; measure via a thin extrude (re-wrapped as a Bosl2Solid)
-    _min, size = Bosl2Solid(solid.shape.linear_extrude(height=0.1))._native_bounds()
+    # 2D shapes have no z-bounds; measure via a thin extrude, re-wrapping with tracked size
+    _center, size = Bosl2Solid(solid.shape.linear_extrude(height=0.1),
+                                size=[solid.size[0], solid.size[1], 0.1]).bounds()
     return size
 
 

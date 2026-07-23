@@ -14,7 +14,7 @@ from bosl2.shapes3d import Bosl2Solid
 
 
 def _size(s):
-    return s._native_bounds()[1]
+    return s.bounds()[1]
 
 
 def test_narrowing_strut_builds_and_height():

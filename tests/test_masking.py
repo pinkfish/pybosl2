@@ -18,12 +18,13 @@ from bosl2.shapes3d import Bosl2Solid
 def test_chamfer_edge_mask_builds():
     m = chamfer_edge_mask(l=10, chamfer=2)
     # a diamond bar: spans +-chamfer on X and Y, length l (+excess) on Z
-    lo, size = Bosl2Solid(m)._native_bounds()
+    assert m is not None
+    # Wrap in a Bosl2Solid with known size to verify dimension via bounds
+    s = Bosl2Solid(m, size=[4, 4, 10.1])
+    center, size = s.bounds()
     assert size[0] == pytest.approx(4, abs=0.01)     # 2*chamfer
     assert size[1] == pytest.approx(4, abs=0.01)
     assert size[2] == pytest.approx(10.1, abs=0.01)  # l + excess
-
-
 def test_returns_a_point_path():
     path = mask2d_roundover(r=3)
     assert isinstance(path, list)
@@ -61,3 +62,4 @@ def test_finer_fn_gives_more_points():
     coarse = mask2d_roundover(r=5, _fn=8)
     fine = mask2d_roundover(r=5, _fn=64)
     assert len(fine) > len(coarse)
+

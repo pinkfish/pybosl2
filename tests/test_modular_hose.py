@@ -13,7 +13,7 @@ from bosl2.shapes3d import Bosl2Solid
 
 
 def _size(s):
-    _min, size = s._native_bounds()
+    _center, size = s.bounds()
     return size
 
 

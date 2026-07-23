@@ -595,7 +595,10 @@ class Gears:
         if hide > 0:
             perim.append([0, 0])
         shape = _opolygon(_dedup(perim))
-        result = Bosl2Solid(shape, size=[2 * _pitch_radius(cp, teeth, helical)] * 2 + [0])
+        or_ = _outer_radius_basic(cp, teeth, None, False, helical,
+                                  _auto_profile_shift(teeth, pressure_angle, helical, profile_shift),
+                                  shorten)
+        result = Bosl2Solid(shape, size=[2 * or_, 2 * or_, 0])
         if shaft_diam > 0 and not hide:
             from bosl2.shapes2d import circle as _circle2d
             result = result - Bosl2Solid(_circle2d(d=shaft_diam))
@@ -618,6 +621,11 @@ class Gears:
         """
         cp = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         pr = _pitch_radius(cp, teeth, helical)
+        # Track the actual outer diameter (including profile shift) so bounds() reflects
+        # the true geometry extent.
+        or_ = _outer_radius_basic(cp, teeth, None, False, helical,
+                                  _auto_profile_shift(teeth, pressure_angle, helical, profile_shift),
+                                  shorten)
         twist = math.degrees(thickness * math.tan(math.radians(helical)) / pr)
         gear2d = Gears.spur_gear2d(circ_pitch=cp, teeth=teeth, hide=hide, pressure_angle=pressure_angle,
                                    clearance=clearance, backlash=backlash, internal=internal,
@@ -630,7 +638,7 @@ class Gears:
             solid = top | bot
         else:
             solid = gear2d.linear_extrude(height=thickness, center=True, twist=twist, convexity=teeth)
-        result = Bosl2Solid(solid, size=[2 * pr, 2 * pr, thickness])
+        result = Bosl2Solid(solid, size=[2 * or_, 2 * or_, thickness])
         return result.rotate([0, 0, gear_spin]) if gear_spin else result
 
     @staticmethod
@@ -699,13 +707,19 @@ class Gears:
         """A 3-D rack: a linear toothed bar a gear rolls along (BOSL2 rack())."""
         cp = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(cp)
+        d = _dedendum(cp, clearance)
         path = Gears._rack2d_path(cp, teeth, height, pressure_angle, backlash, clearance)
         shape = _opolygon(path).linear_extrude(height=thickness, center=True,
                                                convexity=teeth * 2).rotate([90, 0, 0])
         if helical:
             sxy = math.tan(math.radians(helical))
             shape = shape.multmatrix([[1, sxy, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-        return Bosl2Solid(shape, size=[teeth * cp, thickness, 2 * abs(a - height)])
+            sheared_length = teeth * cp + thickness * sxy
+        else:
+            sheared_length = teeth * cp
+        # After rotate([90,0,0]), Z maps to the 2D profile's Y extent.
+        z_extent = height + d - a
+        return Bosl2Solid(shape, size=[sheared_length, thickness, z_extent])
 
     # -- bevel / worm dimension helpers ------------------------------------
 
