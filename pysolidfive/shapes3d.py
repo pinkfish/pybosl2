@@ -36,9 +36,8 @@ import libfive as lv
 import numpy as np
 
 from pythonscad import frep
-from pysolidfive._constants import CENTER, BOTTOM, TOP, LEFT, RIGHT, FRONT, BACK
+from pysolidfive._constants import CENTER, BOTTOM, LEFT, FRONT
 from pysolidfive._edges import (
-    EDGES_ALL,
     _anchor_offset_box3,
     _anchor_offset_cyl,
     _anchor_offset_hull3,

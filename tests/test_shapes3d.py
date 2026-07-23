@@ -16,14 +16,46 @@ import pytest
 from bosl2.constants import BACK, BOTTOM, CENTER, FRONT, LEFT, RIGHT, TOP
 from bosl2.shapes3d import (
     Bosl2Solid,
+    _anchor_offset_hull3,
     cuboid,
     cyl,
     fillet,
     plot3d,
     plot_revolution,
+    prismoid,
     sphere,
     textured_tile,
 )
+
+# unit-cube corner cloud, for exercising _anchor_offset_hull3 directly
+_UNIT_CUBE = [[x, y, z] for x in (-0.5, 0.5) for y in (-0.5, 0.5) for z in (-0.5, 0.5)]
+
+
+def test_anchor_offset_hull3_face_is_face_centre():
+    # BOTTOM ties all four bottom corners; the anchor is the face centre, so the offset lifts z by 0.5
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, BOTTOM), [0, 0, 0.5], atol=1e-9)
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, TOP), [0, 0, -0.5], atol=1e-9)
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, RIGHT), [-0.5, 0, 0], atol=1e-9)
+
+
+def test_anchor_offset_hull3_edge_is_edge_midpoint():
+    # RIGHT+TOP ties two vertices; the anchor is their midpoint
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, [1, 0, 1]), [-0.5, 0, -0.5], atol=1e-9)
+
+
+def test_anchor_offset_hull3_corner_is_the_corner():
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, [1, 1, 1]), [-0.5, -0.5, -0.5], atol=1e-9)
+
+
+def test_anchor_offset_hull3_center_is_zero():
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, CENTER), [0, 0, 0], atol=1e-9)
+
+
+def test_prismoid_bottom_anchor_is_centred_on_xy():
+    # regression: BOTTOM (the default) must centre X/Y and rest the base on z=0, not anchor to a corner
+    lo, size = prismoid([50, 10], [50, 10], h=25)._native_bounds()
+    np.testing.assert_allclose(lo, [-25, -5, 0], atol=1e-6)
+    np.testing.assert_allclose(size, [50, 10, 25], atol=1e-6)
 
 
 def test_cuboid_is_bosl2solid_with_size():

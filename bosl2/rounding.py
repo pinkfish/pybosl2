@@ -32,6 +32,7 @@ import numpy as np
 
 from bosl2.comparisons import approx
 from bosl2.vectors import unit
+from bosl2._helpers import is_num
 
 __all__ = ["round_corners", "smooth_path", "Roundable"]
 
@@ -39,10 +40,6 @@ __all__ = ["round_corners", "smooth_path", "Roundable"]
 # ---------------------------------------------------------------------------
 # Section: corner builders
 # ---------------------------------------------------------------------------
-
-
-def _is_num(x) -> bool:
-    return isinstance(x, (int, float, np.integer, np.floating)) and not isinstance(x, bool)
 
 
 def _vector_angle3(a, b, c) -> float:
@@ -156,7 +153,7 @@ def round_corners(path, method="circle", radius=None, r=None, cut=None, joint=No
     assert method == "circle" or measure != "radius", 'radius is allowed only with method="circle".'
     assert method == "chamfer" or measure != "width", 'width is allowed only with method="chamfer".'
 
-    if _is_num(size):
+    if is_num(size):
         parm = [float(size)] * n
     elif len(size) < n:
         parm = [0.0] + [float(v) for v in size] + [0.0]
@@ -164,7 +161,7 @@ def round_corners(path, method="circle", radius=None, r=None, cut=None, joint=No
         parm = [float(v) for v in size]
     if k is None:
         kv = [0.5] * n
-    elif _is_num(k):
+    elif is_num(k):
         assert method == "smooth", 'k is only allowed with method="smooth".'
         kv = [float(k)] * n
     else:

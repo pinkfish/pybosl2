@@ -19,18 +19,12 @@
 from __future__ import annotations
 
 import math
-import operator
-from functools import reduce
 
 from pythonscad import hull as _ohull
 
 from bosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
 
 __all__ = ["Joiners"]
-
-
-def _union(shapes):
-    return reduce(operator.or_, shapes)
 
 
 class Joiners:

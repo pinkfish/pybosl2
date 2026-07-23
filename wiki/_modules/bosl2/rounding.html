@@ -65,6 +65,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.comparisons</span><span class="w"> </span><span class="kn">import</span> <span class="n">approx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_num</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;round_corners&quot;</span><span class="p">,</span> <span class="s2">&quot;smooth_path&quot;</span><span class="p">,</span> <span class="s2">&quot;Roundable&quot;</span><span class="p">]</span>
 
@@ -72,10 +73,6 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="c1"># Section: corner builders</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_is_num</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_vector_angle3</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -191,7 +188,7 @@
     <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;circle&quot;</span> <span class="ow">or</span> <span class="n">measure</span> <span class="o">!=</span> <span class="s2">&quot;radius&quot;</span><span class="p">,</span> <span class="s1">&#39;radius is allowed only with method=&quot;circle&quot;.&#39;</span>
     <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;chamfer&quot;</span> <span class="ow">or</span> <span class="n">measure</span> <span class="o">!=</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s1">&#39;width is allowed only with method=&quot;chamfer&quot;.&#39;</span>
 
-    <span class="k">if</span> <span class="n">_is_num</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_num</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
         <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="n">n</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
         <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
@@ -199,7 +196,7 @@
         <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
-    <span class="k">elif</span> <span class="n">_is_num</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="n">is_num</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="s1">&#39;k is only allowed with method=&quot;smooth&quot;.&#39;</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="n">n</span>
     <span class="k">else</span><span class="p">:</span>
@@ -394,6 +391,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polyhedra.html">Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../walls.html">Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wiring.html">Wiring</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>

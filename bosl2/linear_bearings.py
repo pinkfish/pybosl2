@@ -19,8 +19,8 @@ from __future__ import annotations
 import math
 import operator
 from dataclasses import dataclass
-from functools import reduce
 
+from bosl2._helpers import union
 from bosl2.constants import TOP, BOTTOM
 from bosl2.shapes3d import Bosl2Solid, cuboid, teardrop, tube
 
@@ -28,7 +28,7 @@ __all__ = ["LinearBearings", "LinearBearingSpec"]
 
 
 def _union(shapes):
-    return reduce(operator.or_, shapes)
+    return union(shapes)
 
 
 @dataclass(frozen=True)

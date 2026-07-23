@@ -391,6 +391,86 @@ def wall_svg():
     return _svg(body, label="Plan of a sparse cross-braced wall: a solid frame filled with diagonal X-braces.")
 
 
+def wire_svg(wires=13):
+    # cross-section of a hex-packed wire bundle, coloured from the real 17-wire table
+    palette = [[0.2, 0.2, 0.2], [1.0, 0.2, 0.2], [0.0, 0.8, 0.0], [1.0, 1.0, 0.2],
+               [0.3, 0.3, 1.0], [1.0, 1.0, 1.0], [0.7, 0.5, 0.0], [0.5, 0.5, 0.5],
+               [0.2, 0.9, 0.9], [0.8, 0.0, 0.8], [0.0, 0.6, 0.6], [1.0, 0.7, 0.7],
+               [1.0, 0.5, 1.0], [0.5, 0.6, 0.0], [1.0, 0.7, 0.0], [0.7, 1.0, 0.5], [0.6, 0.6, 1.0]]
+
+    def ring(lev):
+        if lev == 0:
+            return [(0.0, 0.0)]
+        cs = [(lev * math.cos(math.radians(60 * k)), lev * math.sin(math.radians(60 * k))) for k in range(6)]
+        pts = []
+        for k in range(6):
+            x0, y0 = cs[k]
+            x1, y1 = cs[(k + 1) % 6]
+            for s in range(lev):
+                t = s / lev
+                pts.append((x0 + (x1 - x0) * t, y0 + (y1 - y0) * t))
+        pts.reverse()
+        return pts
+
+    offs, lev = [], 0
+    while len(offs) < wires:
+        offs += ring(lev)
+        lev += 1
+    offs = offs[:wires]
+    cx, cy, scale = 230, 116, 30
+    dots = ""
+    for i, (ox, oy) in enumerate(offs):
+        r, g, b = palette[i % len(palette)]
+        col = f"#{int(r * 255):02x}{int(g * 255):02x}{int(b * 255):02x}"
+        dots += (f'<circle cx="{cx + ox * scale:.1f}" cy="{cy - oy * scale:.1f}" r="{scale * 0.47:.1f}" '
+                 f'fill="{col}" stroke="var(--ink-dim)" stroke-width="1.1"/>')
+    body = (dots + f'<text x="{cx}" y="{cy + 108}" text-anchor="middle" fill="var(--ink-dim)" '
+            f'font-family="var(--mono)" font-size="11">{wires} wires · hex-packed · 17-colour table</text>')
+    return _svg(body, label=f"Cross-section of a {wires}-wire bundle, hex-packed and colour-coded.")
+
+
+def hook_svg():
+    # side elevation of a ring hook: a base flaring along the true tangent into the ring
+    bx, hole_z, ro, ri = 30, 30, 25, 17
+    cp = (0.0, hole_z)
+    d = math.hypot(bx / 2, hole_z)
+    u = ((bx / 2 - cp[0]) / d, (0 - cp[1]) / d)
+    ang = math.acos(ro / d)
+    tans = []
+    for s in (1, -1):
+        c, si = math.cos(s * ang), math.sin(s * ang)
+        rot = (c * u[0] - si * u[1], si * u[0] + c * u[1])
+        tans.append((cp[0] + ro * rot[0], cp[1] + ro * rot[1]))
+    tx, tz = max(tans, key=lambda t: t[1])
+    scale, cx, basey = 2.4, 230, 206
+
+    def X(x):
+        return cx + x * scale
+
+    def Y(z):
+        return basey - z * scale
+
+    paddle = f"{X(-bx/2):.1f},{Y(0):.1f} {X(bx/2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f} {X(-tx):.1f},{Y(tz):.1f}"
+    body = (
+        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ro*scale:.1f}" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        f'<polygon points="{paddle}" fill="var(--panel-2)" stroke="none"/>'
+        f'<polyline points="{X(-tx):.1f},{Y(tz):.1f} {X(-bx/2):.1f},{Y(0):.1f} {X(bx/2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f}" '
+        f'fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ri*scale:.1f}" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.6"/>'
+        # tangent construction + points
+        f'<line x1="{X(bx/2):.1f}" y1="{Y(0):.1f}" x2="{X(tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
+        f'<line x1="{X(-bx/2):.1f}" y1="{Y(0):.1f}" x2="{X(-tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
+        f'<circle cx="{X(tx):.1f}" cy="{Y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
+        f'<circle cx="{X(-tx):.1f}" cy="{Y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
+        # hole_z dimension
+        f'<line x1="{X(-bx/2)-14:.1f}" y1="{Y(0):.1f}" x2="{X(-bx/2)-14:.1f}" y2="{Y(hole_z):.1f}" stroke="var(--ink-dim)" stroke-width="1"/>'
+        f'<text x="{X(-bx/2)-20:.1f}" y="{Y(hole_z/2)+3:.1f}" text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">hole_z</text>'
+        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="2.2" fill="var(--accent)"/>'
+        f'<text x="{X(0):.1f}" y="{basey+18:.1f}" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">base flares along the ring tangent</text>'
+    )
+    return _svg(body, label="Side elevation of a ring hook: a base flaring along the tangent into a holed ring.")
+
+
 # --------------------------------------------------------------------------
 # module registry: real render metrics + copy
 # --------------------------------------------------------------------------
@@ -527,11 +607,40 @@ MODULES = {
         proof=("40%", "<b>The sparse lattice fills its 4×100×50 envelope with 12,007 mm&sup3;</b> — 40% "
                "less plastic than the 20,000 mm&sup3; solid wall, and it needs no support."),
         tags=["sparse", "corrugated", "thinning-wall", "thinning-triangle", "narrowing-strut", "support-free"]),
+
+    "wiring": dict(
+        title="wiring", tests=11, svg=wire_svg(13),
+        subtitle=("A routed bundle of round wires: hex-packed in cross-section and swept along a path "
+                  "whose corners are rounded, each wire coloured from a 17-entry table."),
+        part="wire_bundle(path, wires=13, rounding=10)",
+        code='Wiring.<span class="k">wire_bundle</span>(path, wires=13, rounding=10)',
+        metrics=[("1 wire · watertight", 796, "529.0", "52×52×51"),
+                 ("13-wire bundle", 10348, "6,877.0", "60×60×55")],
+        note=("The wires pack into the optimal hex arrangement (rings of 1, 6, 12, …) and each sweeps "
+              "along the rounded route as its own tube — kept separate and coloured, exactly as BOSL2 draws them."),
+        proof=("529.0 mm³ ×13", "<b>One wire seals watertight at 796 triangles.</b> Thirteen of them, "
+               "hex-packed and tangent, are 13 independent tubes — 13 × 529.0 = 6,877 mm&sup3; of copper, no overlap."),
+        tags=["hex-packed", "path-sweep", "rounded corners", "17 colours", "separate tubes"]),
+
+    "hooks": dict(
+        title="hooks", tests=14, svg=hook_svg(),
+        subtitle=("A ring hook: a rectangular mounting base that flares up and joins tangentially to a "
+                  "Y-axis cylinder — the ring — with a round, D-shaped or custom through-hole."),
+        part="ring_hook([50, 10], 25, or_=25, ir=20)",
+        code='Hooks.<span class="k">ring_hook</span>([50, 10], 25, or_=25, ir=20)',
+        metrics=[("ring · ir=20", 208, "9,771.2", "50×10×50"),
+                 ("D-hole ring", 144, "18,737.4", "50×10×50")],
+        note=("Give exactly two of <b>or/od</b>, <b>ir/id</b> and <b>wall</b> to size the ring. The "
+              "base flares to the tangent points computed by <b>circle_point_tangents()</b>, so the "
+              "paddle meets the cylinder seamlessly. Circle, D and custom-path holes all close watertight."),
+        proof=("tangent join", "<b>The base corners must lie outside the ring</b> so a tangent exists; "
+               "the flare follows it exactly. Verified watertight for round, D and octagonal holes."),
+        tags=["ring hook", "tangent base", "circle / D / custom hole", "or·ir·wall", "solid paddle"]),
 }
 
 # gallery order and the modules that only get an API link (no rendered spec sheet)
-GALLERY = ["gears", "nema_steppers", "hinges", "joiners", "polyhedra", "walls", "threading",
-           "cubetruss", "screw_drive", "ball_bearings", "linear_bearings", "modular_hose",
+GALLERY = ["gears", "nema_steppers", "hinges", "joiners", "hooks", "polyhedra", "walls", "wiring",
+           "threading", "cubetruss", "screw_drive", "ball_bearings", "linear_bearings", "modular_hose",
            "bottlecaps", "sliders"]
 API_ONLY = {
     "threading": (25, "Watertight helical threads swept as one polyhedron; ISO / trapezoidal / acme / square / buttress."),

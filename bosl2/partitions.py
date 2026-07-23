@@ -33,6 +33,7 @@ from bosl2.transforms import axis_angle_matrix, rot_from_to, rot_about_axis
 from bosl2.constants import UP, DOWN, LEFT, RIGHT, FRONT, BACK
 from bosl2.vectors import unit
 from bosl2.geometry import pointlist_bounds
+from bosl2._helpers import is_num, zrot4
 
 __all__ = [
     "partition_path", "partition_mask", "partition_cut_mask", "Partitionable",
@@ -44,8 +45,7 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 
-def _is_num(x) -> bool:
-    return isinstance(x, (int, float)) and not isinstance(x, bool)
+# (imported from bosl2._helpers as is_num)
 
 
 def _yscale(s, path):
@@ -148,7 +148,7 @@ def _ptn_sect(cptype, length: float = 25, width: float = 25, invert=False, _fn=N
     """One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect())."""
     from bosl2.shapes2d import arc, _frag_count
 
-    if _is_num(cptype):
+    if is_num(cptype):
         assert cptype > 0, "flat section length must be positive."
         return [[0, 0], [float(cptype), 0]]
     if invert:
@@ -287,7 +287,7 @@ def partition_path(pathdesc, repeat: int = 1, y=None, altpath=None, seglen: floa
         for pd in pathdesc:
             if isinstance(pd, (list, tuple, np.ndarray)):
                 paths.append([[float(a), float(b)] for a, b in pd])
-            elif _is_num(pd):
+            elif is_num(pd):
                 paths.append(_ptn_sect(pd, _fn=_fn, _fa=_fa, _fs=_fs))
             elif isinstance(pd, str):
                 paths.append(_ptn_sect(pd, seglen, segwidth, _fn=_fn, _fa=_fa, _fs=_fs))
@@ -450,7 +450,7 @@ class Partitionable:
         else:
             xyv = np.array([v3[0], v3[1], 0.0])
         ang = math.degrees(math.atan2(xyv[1], xyv[0])) - 90
-        m = (rot_about_axis(cut_angle, v3) @ _rot4(rot_from_to(xyv, v3)) @ _zrot4(ang))
+        m = (rot_about_axis(cut_angle, v3) @ _rot4(rot_from_to(xyv, v3)) @ zrot4(ang))
         mask = mask.multmatrix(m.tolist())
         if not np.allclose(cpv, 0):
             mask = mask.translate([float(c) for c in cpv])
@@ -467,7 +467,7 @@ class Partitionable:
         v3 = _as_vec3(v)
         if cp is None:
             cpv = np.zeros(3)
-        elif _is_num(cp):
+        elif is_num(cp):
             cpv = float(cp) * unit(v3)
         else:
             cpv = _as_vec3(cp)
@@ -528,10 +528,7 @@ class Partitionable:
         return pieces
 
 
-def _zrot4(ang_deg):
-    m = np.eye(4)
-    m[:3, :3] = axis_angle_matrix(ang_deg, [0, 0, 1])
-    return m
+# (imported from bosl2._helpers as zrot4)
 
 
 def _rot4(angle_axis):

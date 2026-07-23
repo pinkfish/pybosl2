@@ -36,6 +36,7 @@ from bosl2.transforms import axis_angle_matrix, rot_from_to
 from bosl2.constants import UP, RIGHT, BACK
 from bosl2.vectors import unit
 from bosl2.geometry import pointlist_bounds
+from bosl2._helpers import vec3, rot_from_to4, zrot4, frame_map4_yz, unwrap
 
 __all__ = [
     "extrude_from_to", "cylindrical_extrude", "chain_hull", "minkowski_difference",
@@ -46,41 +47,6 @@ __all__ = [
 # ---------------------------------------------------------------------------
 # Section: helpers
 # ---------------------------------------------------------------------------
-
-
-def _vec3(v):
-    a = np.asarray(v, dtype=float)
-    if a.shape[0] == 2:
-        a = np.array([a[0], a[1], 0.0])
-    return a
-
-
-def _rot_from_to4(a, b):
-    ang, axis = rot_from_to(a, b)
-    m = np.eye(4)
-    m[:3, :3] = axis_angle_matrix(ang, axis)
-    return m
-
-
-def _zrot4(deg):
-    m = np.eye(4)
-    m[:3, :3] = axis_angle_matrix(deg, [0, 0, 1])
-    return m
-
-
-def _frame_map4(y, z):
-    """Rotation whose local +Y and +Z axes point along *y* and *z* (BOSL2 frame_map(y=, z=))."""
-    yv, zv = unit(_vec3(y)), unit(_vec3(z))
-    xv = unit(np.cross(yv, zv))
-    yv = unit(np.cross(zv, xv))
-    m = np.eye(4)
-    m[:3, 0], m[:3, 1], m[:3, 2] = xv, yv, zv
-    return m
-
-
-def _unwrap(obj):
-    from bosl2.shapes3d import Bosl2Solid
-    return obj.shape if isinstance(obj, Bosl2Solid) else obj
 
 
 def _as_native_2d(profile):
@@ -144,7 +110,7 @@ def extrude_from_to(profile, pt1, pt2, twist: float = 0, scale: float = 1, slice
     """
     from bosl2.shapes3d import Bosl2Solid
 
-    p1, p2 = _vec3(pt1), _vec3(pt2)
+    p1, p2 = vec3(pt1), vec3(pt2)
     d = p2 - p1
     height = float(np.linalg.norm(d))
     if height <= 0:
@@ -217,7 +183,7 @@ def chain_hull(*objects):
 
     objs = list(objects[0]) if len(objects) == 1 and isinstance(objects[0], (list, tuple)) else list(objects)
     assert objs, "chain_hull(): needs at least one object."
-    natives = [_unwrap(o) for o in objs]
+    natives = [unwrap(o) for o in objs]
     if len(natives) == 1:
         return Bosl2Solid(natives[0])
     hulls = [_hull(natives[i - 1], natives[i]) for i in range(1, len(natives))]
@@ -229,10 +195,10 @@ def minkowski_difference(base, *diffs, size: float = 1000, convexity: int = 10):
     from pythonscad import minkowski as _mink, cube as _cube
     from bosl2.shapes3d import Bosl2Solid
 
-    b = _unwrap(base)
+    b = unwrap(base)
     raw = list(diffs[0]) if len(diffs) == 1 and isinstance(diffs[0], (list, tuple)) else list(diffs)
     # Diffs may arrive as Bosl2Solid wrappers; the native minkowski() only takes raw solids.
-    ds = [_unwrap(d) for d in raw]
+    ds = [unwrap(d) for d in raw]
     assert ds, "minkowski_difference(): needs at least one diff shape."
     center, sz = Bosl2Solid(b).bounds() if isinstance(base, Bosl2Solid) else _native_bounds(b)
     box0 = _cube([sz[i] for i in range(3)], center=True).translate([float(c) for c in center])
@@ -289,7 +255,7 @@ class Extrudable:
             if seglen < 1e-9:
                 continue
             block = factory().linear_extrude(height=seglen, center=True, convexity=convexity)
-            block = block.rotate([90, 0, 0]).multmatrix(_rot_from_to4(BACK, [segv[0], segv[1], 0]).tolist())
+            block = block.rotate([90, 0, 0]).multmatrix(rot_from_to4(BACK, [segv[0], segv[1], 0]).tolist())
             block = block.translate([float((a[0] + b[0]) / 2), float((a[1] + b[1]) / 2), 0])
             parts.append(block)
         # corner fillets
@@ -304,14 +270,14 @@ class Extrudable:
             half = _planar_half(factory(), keep_positive_x=(ang < 0), s=s)
             corner = half.rotate_extrude(angle=ang + sgn * ea)
             corner = corner.rotate([0, 0, -sgn * ea / 2])
-            corner = corner.multmatrix(_frame_map4([t2[0] - t1[0], t2[1] - t1[1], 0], UP).tolist())
+            corner = corner.multmatrix(frame_map4_yz([t2[0] - t1[0], t2[1] - t1[1], 0], UP).tolist())
             corner = corner.translate([t1[0], t1[1], 0])
             parts.append(corner)
         # rounded caps on the open ends
         if caps and not is_closed:
             for a, b in ((pts[0], pts[1]), (pts[-1], pts[-2])):
                 cap = _planar_half(factory(), keep_positive_x=True, s=s).rotate_extrude(angle=180)
-                cap = cap.multmatrix(_rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist())
+                cap = cap.multmatrix(rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist())
                 cap = cap.translate([a[0], a[1], 0])
                 parts.append(cap)
         assert parts, "path_extrude2d(): nothing to extrude."
@@ -341,7 +307,7 @@ class Extrudable:
             vec2 = unit(parr[i + 1] - parr[i])
             # left-multiply so each frame maps local +Z exactly onto its segment direction
             # (frame_i @ UP == dir_i); this is the discrete rotation-minimizing frame.
-            acc = _rot_from_to4(vec1, vec2) @ acc
+            acc = rot_from_to4(vec1, vec2) @ acc
             rotmats.append(acc)
         interp = rot_resample(rotmats, n=2, method="count")
         eps = 1e-4

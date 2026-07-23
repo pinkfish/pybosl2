@@ -24,10 +24,10 @@
 from __future__ import annotations
 
 import math
-import operator
-from collections.abc import Sequence
-from functools import reduce
 
+from collections.abc import Sequence
+
+from bosl2._helpers import union
 from bosl2.constants import CENTER, BOTTOM
 from bosl2.distributors import xcopies, ycopies, zcopies, xflip_copy, mirror_copy
 from bosl2.masking import chamfer_edge_mask
@@ -43,7 +43,7 @@ CUBETRUSS_CLIP_THICKNESS = 1.6
 
 
 def _union(shapes):
-    return reduce(operator.or_, shapes)
+    return union(shapes)
 
 
 def _cmask(l, chamfer, orient=None):

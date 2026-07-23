@@ -49,7 +49,6 @@ sys.path.insert(0, str(_REPO_ROOT))
 sys.path.insert(0, str(_PYSOLIDFIVE_DIR / "tests"))
 sys.path.insert(0, str(_DOCS_DIR / "_ext"))
 
-import mock_libfive  # noqa: E402  (must be imported, and installed, before pysolidfive/autodoc)
 
 project = "pysolidfive"
 copyright = "Apache License 2.0"

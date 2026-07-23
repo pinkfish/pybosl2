@@ -43,6 +43,7 @@ import numpy as np
 from bosl2.transforms import apply as _apply, rot_about_axis, rot_decode, rot_inverse
 from bosl2.constants import Vec3
 from bosl2.vnf import VNF
+from bosl2._helpers import translate4, zrot4
 
 UP = Vec3([0.0, 0.0, 1.0])
 BACK = Vec3([0.0, 1.0, 0.0])
@@ -66,18 +67,7 @@ def clockwise_polygon(poly) -> list:
     return list(poly) if Path._polygon_area(poly, signed=True) <= 0 else list(reversed(list(poly)))
 
 
-def _translate4(p) -> np.ndarray:
-    m = np.eye(4)
-    m[:3, 3] = [float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0]
-    return m
-
-
-def _zrot4(a: float) -> np.ndarray:
-    r = math.radians(a)
-    c, s = math.cos(r), math.sin(r)
-    m = np.eye(4)
-    m[0, 0], m[0, 1], m[1, 0], m[1, 1] = c, -s, s, c
-    return m
+# (imported from bosl2._helpers as translate4, zrot4)
 
 
 def _scale4(s) -> np.ndarray:
@@ -242,10 +232,10 @@ def path_sweep(shape, path, method: str = "incremental", normal=None, closed: bo
         mismatch = rotations[-1][:3, :3].T @ reference[:3, :3]
         correction_twist = math.degrees(math.atan2(mismatch[1][0], mismatch[0][0]))
         twistfix = correction_twist % (360 / symmetry)
-        unscaled = [_translate4(patharr[i]) @ rotations[i] @ _zrot4((twistfix - twist) * tpathfrac[i]) for i in range(L)]
+        unscaled = [translate4(patharr[i]) @ rotations[i] @ zrot4((twistfix - twist) * tpathfrac[i]) for i in range(L)]
         if closed:
-            unscaled.append(_translate4(patharr[0]) @ rotations[0]
-                            @ _zrot4(-correction_twist + correction_twist % (360 / symmetry) - twist))
+            unscaled.append(translate4(patharr[0]) @ rotations[0]
+                            @ zrot4(-correction_twist + correction_twist % (360 / symmetry) - twist))
     elif method == "manual":
         unscaled = []
         for i in range(nprofiles):
@@ -254,11 +244,11 @@ def path_sweep(shape, path, method: str = "incremental", normal=None, closed: bo
                 ynormal, znormal = ni, ti - (ni @ ti) * ni
             else:
                 ynormal, znormal = ni - (ni @ ti) * ti, ti
-            unscaled.append(_translate4(patharr[i % L]) @ frame_map(y=ynormal, z=znormal) @ _zrot4(-twist * tpathfrac[i]))
+            unscaled.append(translate4(patharr[i % L]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i]))
     elif method == "natural":
         pathnormal = np.asarray(Path._path_normals(patharr, tangents, closed), dtype=float)
         unscaled = [
-            _translate4(patharr[i % L]) @ frame_map(x=pathnormal[i % L], z=tangents[i % L]) @ _zrot4(-twist * tpathfrac[i])
+            translate4(patharr[i % L]) @ frame_map(x=pathnormal[i % L], z=tangents[i % L]) @ zrot4(-twist * tpathfrac[i])
             for i in range(nprofiles)
         ]
     else:
@@ -420,9 +410,9 @@ def linear_sweep(region, height=None, twist: float = 0.0, scale=1, shift=(0.0, 0
     verts = []
     for i in range(slices + 1):
         u = i / slices
-        m = (_translate4([sh[0] * u, sh[1] * u, z0 + hh * u])
+        m = (translate4([sh[0] * u, sh[1] * u, z0 + hh * u])
              @ _scale4([1 + (sc[0] - 1) * u, 1 + (sc[1] - 1) * u, 1])
-             @ _zrot4(-twist * u))
+             @ zrot4(-twist * u))
         verts.append(np.asarray(_apply(m, base), dtype=float))
     vnf = VNF.vertex_array(verts, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -465,7 +455,7 @@ def rotate_sweep(shape, angle: float = 360.0, caps=None, closed: bool | None = N
         angs = [start + 360.0 * i / steps for i in range(steps)]
     else:
         angs = [start + angle * i / (steps - 1) for i in range(steps)]
-    transforms = [_zrot4(a) @ _xrot4(90) for a in angs]
+    transforms = [zrot4(a) @ _xrot4(90) for a in angs]
     vnf = sweep(prof, transforms, closed=full, caps=(not full and bool(caps)), style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
@@ -509,8 +499,8 @@ def spiral_sweep(poly, h, r=None, turns: float = 1.0, r1=None, r2=None, d=None, 
         frac = a / total
         rad = rr1 + (rr2 - rr1) * frac
         z = z0 + h * frac
-        transforms.append(_translate4([0, 0, z]) @ _zrot4(a * math.copysign(1, turns))
-                          @ _translate4([rad, 0, 0]) @ _xrot4(90))
+        transforms.append(translate4([0, 0, z]) @ zrot4(a * math.copysign(1, turns))
+                          @ translate4([rad, 0, 0]) @ _xrot4(90))
     vnf = sweep(poly, transforms, closed=False, caps=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
@@ -731,5 +721,5 @@ def rot_resample(rotlist, n, twist=None, scale=None, smoothlen: int = 1, long=Fa
         interpolated.append(rotlist[-1])
 
     end = len(interpolated) - (1 if closed else 0)
-    return [interpolated[i] @ _zrot4(smoothtwist[i]) @ _scale4([smoothscale[i], smoothscale[i], 1.0])
+    return [interpolated[i] @ zrot4(smoothtwist[i]) @ _scale4([smoothscale[i], smoothscale[i], 1.0])
             for i in range(end)]

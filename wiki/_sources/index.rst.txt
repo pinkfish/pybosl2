@@ -90,6 +90,8 @@ API reference
    nema_steppers
    polyhedra
    walls
+   wiring
+   hooks
    cubetruss
    gears
    sliders

@@ -38,10 +38,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 # so `import pysolidfive` below resolves the real package rather than pysolidfive/ itself.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-import mock_libfive  # noqa: E402  (must be imported, and installed, before pysolidfive)
 
 import pysolidfive  # noqa: E402
-from pysolidfive import CENTER, TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK  # noqa: E402
+from pysolidfive import CENTER, TOP, LEFT, RIGHT, FRONT, BACK  # noqa: E402
 
 SQRT2 = math.sqrt(2)
 

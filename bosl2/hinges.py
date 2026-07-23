@@ -20,17 +20,12 @@
 from __future__ import annotations
 
 import math
-import operator
-from functools import reduce
 
+from bosl2._helpers import union
 from bosl2.constants import BOTTOM
 from bosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
 
 __all__ = ["Hinges"]
-
-
-def _union(shapes):
-    return reduce(operator.or_, shapes)
 
 
 class Hinges:
@@ -79,7 +74,7 @@ class Hinges:
         ydir = -1 if inner else 1
         plate_w = arm + knuckle_diam / 2
         parts.append(cuboid([length, plate_w, thick]).back(ydir * plate_w / 2))
-        leaf = _union(parts)
+        leaf = union(parts)
         leaf = leaf - cyl(h=length + 1, d=pin_diam, _fn=_fn).rotate([0, 90, 0])   # pin bore
         return Bosl2Solid(leaf.shape, size=[length, plate_w + knuckle_diam / 2, knuckle_diam])
 

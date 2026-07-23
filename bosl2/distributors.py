@@ -35,6 +35,7 @@ import numpy as np
 
 from bosl2.transforms import axis_angle_matrix, rot_from_to
 from bosl2.constants import RIGHT, BACK, UP
+from bosl2._helpers import is_num, scalar_vec3, unit, translate4, rot_from_to4
 
 __all__ = [
     "move_copies", "xcopies", "ycopies", "zcopies", "line_copies", "grid_copies",
@@ -49,30 +50,20 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 
-def _is_num(x) -> bool:
-    return isinstance(x, (int, float)) and not isinstance(x, bool)
-
-
 def _scalar_vec3(v, fill: float = 0.0) -> np.ndarray:
     """BOSL2 scalar_vec3(): a scalar becomes [v, fill, fill]; a vector is padded to length 3."""
-    if _is_num(v):
+    if is_num(v):
         return np.array([float(v), float(fill), float(fill)])
     arr = list(v)
     return np.array([float(arr[i]) if i < len(arr) else float(fill) for i in range(3)])
 
 
 def _unit3(v) -> np.ndarray:
-    a = _scalar_vec3(v, 0.0) if _is_num(v) else np.asarray(v, dtype=float)
+    a = _scalar_vec3(v, 0.0) if is_num(v) else np.asarray(v, dtype=float)
     if a.shape[0] == 2:
         a = np.array([a[0], a[1], 0.0])
     n = float(np.linalg.norm(a))
     return a / n if n else a
-
-
-def _translate4(v) -> np.ndarray:
-    m = np.eye(4)
-    m[:3, 3] = _scalar_vec3(v, 0.0)
-    return m
 
 
 def _rot4(a: float, v=None, reverse: bool = False) -> np.ndarray:
@@ -90,11 +81,7 @@ def _mirror4(nv) -> np.ndarray:
     return m
 
 
-def _rot_from_to4(a, b) -> np.ndarray:
-    ang, axis = rot_from_to(a, b)
-    m = np.eye(4)
-    m[:3, :3] = axis_angle_matrix(ang, axis)
-    return m
+# (imported from bosl2._helpers as rot_from_to4)
 
 
 def _frame_map4(x=None, z=None) -> np.ndarray:
@@ -140,7 +127,7 @@ def _apply4(m: np.ndarray, pts3: np.ndarray) -> np.ndarray:
 
 def move_copies(a=([0, 0, 0],)) -> list[np.ndarray]:
     """One translation matrix per offset in *a* (BOSL2 move_copies())."""
-    return [_translate4(pos) for pos in a]
+    return [translate4(pos) for pos in a]
 
 
 def line_copies(spacing=None, n=None, l=None, p1=None, p2=None) -> list[np.ndarray]:
@@ -163,20 +150,20 @@ def line_copies(spacing=None, n=None, l=None, p1=None, p2=None) -> list[np.ndarr
         spc = np.zeros(3)
     elif spacing is None and ll is not None:
         spc = ll / (cnt - 1)
-    elif _is_num(spacing) and ll is not None:
+    elif is_num(spacing) and ll is not None:
         spc = ll / (cnt - 1)
     else:
         spc = _scalar_vec3(spacing, 0.0)
     spos = _scalar_vec3(p1, 0.0) if p1 is not None else -(cnt - 1) / 2 * spc
-    return [_translate4(i * spc + spos) for i in range(cnt)]
+    return [translate4(i * spc + spos) for i in range(cnt)]
 
 
 def _axis_copies(direction, spacing, n, l, sp) -> list[np.ndarray]:
     dirv = np.asarray(direction, dtype=float)
-    sp_pt = (sp * dirv) if _is_num(sp) else (np.asarray(sp, dtype=float) if sp is not None else None)
+    sp_pt = (sp * dirv) if is_num(sp) else (np.asarray(sp, dtype=float) if sp is not None else None)
     if isinstance(spacing, (list, tuple, np.ndarray)):  # explicit positions along the axis
         base = sp_pt if sp_pt is not None else np.zeros(3)
-        return [_translate4(base + float(s) * dirv) for s in spacing]
+        return [translate4(base + float(s) * dirv) for s in spacing]
     lv = (l * dirv) if l is not None else None
     spv = (spacing * dirv) if spacing is not None else None
     return line_copies(spacing=spv, n=n, l=lv, p1=sp_pt)
@@ -218,17 +205,17 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
         bounds = [arr.min(axis=0), arr.max(axis=0)]
 
     if size is not None:
-        size = [float(size), float(size)] if _is_num(size) else [float(size[0]), float(size[1])]
+        size = [float(size), float(size)] if is_num(size) else [float(size[0]), float(size[1])]
     elif bounds is not None:
         size = [2 * max(abs(bounds[0][i]), abs(bounds[1][i])) for i in range(2)]
 
-    if _is_num(spacing):
+    if is_num(spacing):
         from bosl2.transforms import polar_to_xy
         spacing = polar_to_xy(spacing, 60) if stagger is not False else [spacing, spacing]
     elif isinstance(spacing, (list, tuple, np.ndarray)):
         spacing = [float(spacing[0]), float(spacing[1])]
     elif size is not None:
-        if _is_num(n):
+        if is_num(n):
             spacing = [size[0] / (n - 1), size[1] / (n - 1)]
         elif isinstance(n, (list, tuple, np.ndarray)):
             spacing = [size[0] / (n[0] - 1), size[1] / (n[1] - 1)]
@@ -236,7 +223,7 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
             div = [1, 1] if stagger is False else [2, 2]
             spacing = [size[0] / div[0], size[1] / div[1]]
 
-    if _is_num(n):
+    if is_num(n):
         n = [int(n), int(n)]
     elif isinstance(n, (list, tuple, np.ndarray)):
         n = [int(n[0]), int(n[1])]
@@ -260,7 +247,7 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
             for col in range(n[0]):
                 pos = np.array([col, row]) * spacing - offset
                 if keep(pos):
-                    mats.append(_translate4(permax(pos)))
+                    mats.append(translate4(permax(pos)))
     else:
         staggermod = 1 if stagger == "alt" else 0
         cols1 = math.ceil(n[0] / 2)
@@ -271,7 +258,7 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
                 rowdx = spacing[0] if (row % 2) != staggermod else 0.0
                 pos = np.array([2 * col, row]) * spacing + np.array([rowdx, 0.0]) - offset
                 if keep(pos):
-                    mats.append(_translate4(permax(pos)))
+                    mats.append(translate4(permax(pos)))
     return mats
 
 
@@ -290,8 +277,8 @@ def rot_copies(rots=None, v=None, cp=(0, 0, 0), n=None, sa=0, offset=0, delta=(0
     cpv, deltav = _scalar_vec3(cp, 0.0), _scalar_vec3(delta, 0.0)
     mats = []
     for ang in angs:
-        m = (_translate4(cpv) @ _rot4(ang, v) @ _translate4(deltav)
-             @ _rot4(0 if subrot else ang, v, reverse=True) @ _translate4(-cpv))
+        m = (translate4(cpv) @ _rot4(ang, v) @ translate4(deltav)
+             @ _rot4(0 if subrot else ang, v, reverse=True) @ translate4(-cpv))
         mats.append(m)
     return mats
 
@@ -328,7 +315,7 @@ def arc_copies(n=6, r=None, rx=None, ry=None, d=None, dx=None, dy=None, sa=0, ea
         pos = [rxv * math.cos(math.radians(ang)), ryv * math.sin(math.radians(ang)), 0]
         ang2 = math.degrees(math.atan2(ryv * math.sin(math.radians(ang)),
                                        rxv * math.cos(math.radians(ang)))) if rot else 0
-        mats.append(_translate4(pos) @ _rot4(ang2))
+        mats.append(translate4(pos) @ _rot4(ang2))
     return mats
 
 
@@ -343,7 +330,7 @@ def sphere_copies(n=100, r=None, d=None, cone_ang=90, scale=(1, 1, 1), perp=True
         phi = math.degrees(math.acos(1 - 2 * (x + 0.5) / cnt))
         xyz = _spherical_to_xyz(rr, theta, phi)
         pos = xyz * scalev
-        m = _translate4(pos) @ (_rot_from_to4(UP, xyz) if perp else np.eye(4))
+        m = translate4(pos) @ (rot_from_to4(UP, xyz) if perp else np.eye(4))
         mats.append(m)
     return mats
 
@@ -381,11 +368,11 @@ def path_copies(path, n=None, spacing=None, sp=None, dist=None, rotate_children=
     planar = len(pts[0]) == 2
     mats = []
     for point, _ind, tangent, normal in cutlist:
-        base = _translate4(point)
+        base = translate4(point)
         if not rotate_children:
             rotm = np.eye(4)
         elif planar:
-            rotm = _rot_from_to4([0, 1, 0], _scalar_vec3(normal, 0.0))
+            rotm = rot_from_to4([0, 1, 0], _scalar_vec3(normal, 0.0))
         else:
             rotm = _frame_map4(x=tangent, z=normal)
         mats.append(base @ rotm)
@@ -395,9 +382,9 @@ def path_copies(path, n=None, spacing=None, sp=None, dist=None, rotate_children=
 def mirror_copy(v=(0, 0, 1), offset=0, cp=None) -> list[np.ndarray]:
     """The original plus a mirrored copy across the plane with normal *v* (BOSL2 mirror_copy())."""
     nv = _unit3(v)
-    cpv = _scalar_vec3(cp, 0.0) if cp is not None and not _is_num(cp) else (cp * nv if _is_num(cp) else np.zeros(3))
+    cpv = _scalar_vec3(cp, 0.0) if cp is not None and not is_num(cp) else (cp * nv if is_num(cp) else np.zeros(3))
     off = nv * offset
-    return [_translate4(off), _translate4(cpv) @ _mirror4(nv) @ _translate4(-cpv) @ _translate4(off)]
+    return [translate4(off), translate4(cpv) @ _mirror4(nv) @ translate4(-cpv) @ translate4(off)]
 
 
 def xflip_copy(offset=0, x=0) -> list[np.ndarray]:

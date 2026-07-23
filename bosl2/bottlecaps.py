@@ -27,12 +27,11 @@
 from __future__ import annotations
 
 import math
-import operator
 from dataclasses import dataclass
-from functools import reduce
 
 from pythonscad import polygon as _opolygon, rotate_extrude as _orotate_extrude
 
+from bosl2._helpers import union
 from bosl2.constants import BOTTOM, RIGHT
 from bosl2.distributors import zrot_copies
 from bosl2.drawing import turtle
@@ -42,8 +41,7 @@ from bosl2.threading import Threading
 __all__ = ["BottleCaps", "BottleThreadSpec"]
 
 
-def _union(shapes):
-    return reduce(operator.or_, shapes)
+from bosl2._helpers import union as _union
 
 
 @dataclass(frozen=True)
@@ -167,7 +165,7 @@ def _neck_thread(d: "BottleThreadSpec"):
         for m_in in zrot_copies(rots=[-28, 28], r=d.threadbase_d / 2):
             block = prismoid([20, 1.82], [20, top], h=thread_h + 0.1, anchor=BOTTOM, orient=RIGHT)
             cuts.append(block.multmatrix((m_out @ m_in).tolist()))
-    return thread - _union(cuts)
+    return thread - union(cuts)
 
 
 def _build_neck(d: "BottleThreadSpec", profile, bottom_half: bool):

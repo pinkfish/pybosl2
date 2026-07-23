@@ -619,8 +619,15 @@ def _anchor_offset_hull3(points: Sequence[Sequence[float]], anchor: Sequence[flo
     a = list(anchor)
     if a[0] == 0 and a[1] == 0 and a[2] == 0:
         return [0.0, 0.0, 0.0]
-    best = max(points, key=lambda p: p[0] * a[0] + p[1] * a[1] + p[2] * a[2])
-    return [-best[0], -best[1], -best[2]]
+    # The anchor point is the support point of the hull in direction `anchor`. When several vertices
+    # tie for the maximum projection (a whole face for a face anchor, two vertices for an edge
+    # anchor), the anchor is their centroid -- the face/edge centre -- not an arbitrary tied corner.
+    projs = [p[0] * a[0] + p[1] * a[1] + p[2] * a[2] for p in points]
+    m = max(projs)
+    eps = 1e-7 * (1.0 + abs(m))
+    tied = [p for p, pr in zip(points, projs) if pr >= m - eps]
+    n = len(tied)
+    return [-sum(p[i] for p in tied) / n for i in range(3)]
 
 
 def _anchor_offset_cyl(r1: float, r2: float, length: float, anchor: Sequence[float], axis: int = 2) -> list[float]:

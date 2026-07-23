@@ -32,6 +32,7 @@ import numpy as np
 
 from bosl2.math import lerpn
 from bosl2.comparisons import approx
+from bosl2._helpers import is_num
 
 __all__ = [
     "nurbs_curve", "nurbs_patch_points", "nurbs_vnf", "nurbs_elevate_degree", "is_nurbs_patch",
@@ -41,10 +42,6 @@ __all__ = [
 # ---------------------------------------------------------------------------
 # Section: knot-vector helpers
 # ---------------------------------------------------------------------------
-
-
-def _is_num(x) -> bool:
-    return isinstance(x, (int, float, np.integer, np.floating)) and not isinstance(x, bool)
 
 
 def _is_param_list(x) -> bool:
@@ -134,7 +131,7 @@ def _nurbs_curve_pts(control, degree=None, splinesteps=None, u=None, mult=None, 
     assert splinesteps is None or u is None, "Must define exactly one of u and splinesteps."
     if splinesteps is None and u is None:
         splinesteps = 16
-    if _is_num(u):
+    if is_num(u):
         return _nurbs_curve_pts(control, degree, u=[u], mult=mult, weights=weights, knots=knots, type=type)
 
     if weights is not None:
@@ -226,7 +223,7 @@ def nurbs_curve(control, degree=None, splinesteps=None, u=None, mult=None, weigh
     """
     from bosl2.paths import Path, Path3D
 
-    scalar = _is_num(u)
+    scalar = is_num(u)
     pts = _nurbs_curve_pts(control, degree, splinesteps=splinesteps, u=u, mult=mult,
                            weights=weights, type=type, knots=knots)
     if scalar:
@@ -297,10 +294,10 @@ def nurbs_patch_points(patch, degree=None, splinesteps=None, u=None, v=None, wei
     degree = _force_list2(degree)
     type = _force_list2(type)
     splinesteps = [None, None] if splinesteps is None else _force_list2(splinesteps)
-    mult = [mult, mult] if (mult is None or _is_num(mult) or (mult and _is_num(mult[0]))) else list(mult)
-    knots = [knots, knots] if (knots is None or (knots and _is_num(knots[0]))) else list(knots)
+    mult = [mult, mult] if (mult is None or is_num(mult) or (mult and is_num(mult[0]))) else list(mult)
+    knots = [knots, knots] if (knots is None or (knots and is_num(knots[0]))) else list(knots)
 
-    if _is_num(u) and _is_num(v):
+    if is_num(u) and is_num(v):
         inner = [_nurbs_curve_pts(ctrl, degree[1], u=v, type=type[1], mult=mult[1], knots=knots[1])[0]
                  for ctrl in patch]
         return _nurbs_curve_pts(inner, degree[0], u=u, type=type[0], mult=mult[0], knots=knots[0])[0]
@@ -458,7 +455,7 @@ def nurbs_elevate_degree(control, degree=None, knots=None, type="clamped", times
         return [r[0], r[1], new_ctrl, r[3], None, new_w]
 
     assert type in ("clamped", "open"), 'nurbs_elevate_degree: type must be "clamped" or "open".'
-    assert _is_num(times) and times >= 1, "times must be a positive integer."
+    assert is_num(times) and times >= 1, "times must be a positive integer."
     n = len(control)
     if knots is None and mult is None:
         xknots = ([float(x) for x in lerpn(0, 1, n - degree + 1)] if type == "clamped"

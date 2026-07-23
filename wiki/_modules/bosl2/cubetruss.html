@@ -57,10 +57,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span><span class="p">,</span> <span class="n">BOTTOM</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.distributors</span><span class="w"> </span><span class="kn">import</span> <span class="n">xcopies</span><span class="p">,</span> <span class="n">ycopies</span><span class="p">,</span> <span class="n">zcopies</span><span class="p">,</span> <span class="n">xflip_copy</span><span class="p">,</span> <span class="n">mirror_copy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.masking</span><span class="w"> </span><span class="kn">import</span> <span class="n">chamfer_edge_mask</span>
@@ -76,7 +76,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_union</span><span class="p">(</span><span class="n">shapes</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">shapes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">union</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cmask</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -501,6 +501,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polyhedra.html">Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../walls.html">Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wiring.html">Wiring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hooks.html">Hooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>
