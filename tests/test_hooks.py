@@ -20,7 +20,7 @@ def _bounds(s):
 def test_circle_point_tangents_lie_on_circle_and_are_tangent():
     cp = [0, 25]
     for t in _circle_point_tangents(25, cp, [25, 0]):
-        assert math.dist(t, cp) == pytest.approx(25, abs=1e-6)   # on the circle
+        assert math.dist(t, cp) == pytest.approx(25, abs=1e-6)  # on the circle
         # radius CT is perpendicular to the tangent line TP
         ct = (t[0] - cp[0], t[1] - cp[1])
         tp = (25 - t[0], 0 - t[1])
@@ -34,13 +34,15 @@ def test_tangent_requires_external_point():
 
 def test_basic_ring_hook_envelope():
     lo, sz = _bounds(Hooks.ring_hook([50, 10], 25, or_=25, ir=20))
-    assert tuple(round(v) for v in sz) == (50, 10, 50)        # width, depth, hole_z + or
-    assert lo[2] == pytest.approx(0.0, abs=0.05)               # base rests on z=0
+    assert tuple(round(v) for v in sz) == (50, 10, 50)  # width, depth, hole_z + or
+    assert lo[2] == pytest.approx(0.0, abs=0.05)  # base rests on z=0
 
 
 def test_ring_height_is_hole_z_plus_or():
     _, sz = _bounds(Hooks.ring_hook([50, 10], 40, or_=25, ir=20))
-    assert sz[2] == pytest.approx(65.0, abs=0.5)   # faceted ring top sits just under hole_z + or
+    assert sz[2] == pytest.approx(
+        65.0, abs=0.5
+    )  # faceted ring top sits just under hole_z + or
 
 
 def test_wall_and_od_id_forms_equivalent():
@@ -49,34 +51,46 @@ def test_wall_and_od_id_forms_equivalent():
     assert [round(v, 1) for v in a] == [round(v, 1) for v in b]
 
 
-@pytest.mark.parametrize("kw", [
-    dict(base_size=[50, 10], hole_z=25, or_=25, ir=0),               # solid paddle
-    dict(base_size=[50, 10], hole_z=25, or_=25, ir=15, hole="D"),    # D hole
-    dict(base_size=[40, 10], hole_z=25, or_=25, ir=0),               # narrow base
-])
+@pytest.mark.parametrize(
+    "kw",
+    [
+        dict(base_size=[50, 10], hole_z=25, or_=25, ir=0),  # solid paddle
+        dict(base_size=[50, 10], hole_z=25, or_=25, ir=15, hole="D"),  # D hole
+        dict(base_size=[40, 10], hole_z=25, or_=25, ir=0),  # narrow base
+    ],
+)
 def test_variants_build(kw):
     assert isinstance(Hooks.ring_hook(**kw), Bosl2Solid)
 
 
 def test_custom_hole_path_builds():
-    oct8 = [[10 * math.cos(math.radians(22.5 + 45 * k)), 10 * math.sin(math.radians(22.5 + 45 * k))]
-            for k in range(8)]
+    oct8 = [
+        [
+            10 * math.cos(math.radians(22.5 + 45 * k)),
+            10 * math.sin(math.radians(22.5 + 45 * k)),
+        ]
+        for k in range(8)
+    ]
     assert isinstance(Hooks.ring_hook([50, 20], 30, or_=25, hole=oct8), Bosl2Solid)
 
 
 def test_must_define_exactly_two_of_or_ir_wall():
     with pytest.raises(ValueError):
-        Hooks.ring_hook([50, 10], 25, or_=25)                        # only one given
+        Hooks.ring_hook([50, 10], 25, or_=25)  # only one given
 
 
 def test_base_corners_must_be_outside_cylinder():
     with pytest.raises(ValueError):
-        Hooks.ring_hook([10, 10], 5, or_=25, ir=0)                   # corners inside cylinder, no tangent
+        Hooks.ring_hook(
+            [10, 10], 5, or_=25, ir=0
+        )  # corners inside cylinder, no tangent
 
 
 def test_circle_hole_must_fit_above_base():
     with pytest.raises(ValueError):
-        Hooks.ring_hook([50, 10], 10, or_=25, ir=20)                 # ir >= hole_z: hole pokes out the base
+        Hooks.ring_hook(
+            [50, 10], 10, or_=25, ir=20
+        )  # ir >= hole_z: hole pokes out the base
 
 
 def test_custom_hole_rejects_ir_and_wall():

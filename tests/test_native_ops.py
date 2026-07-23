@@ -33,10 +33,13 @@ def test_wrap_returns_solid_with_and_without_fn():
     assert isinstance(_cube().wrap(20, _fn=32), Bosl2Solid)
 
 
-@pytest.mark.skipif(not _HAS_ROOF, reason="native roof() not provided by the pythonscad pip wheel")
+@pytest.mark.skipif(
+    not _HAS_ROOF, reason="native roof() not provided by the pythonscad pip wheel"
+)
 def test_roof_is_2d_to_3d_constructor():
     # roof() is a 2-D -> 3-D constructor (a hip roof over a 2-D outline), not a solid method.
     import bosl2.shapes2d as s2
+
     assert isinstance(s3.roof(s2.square([20, 20], center=True)), Bosl2Solid)
     # accepts a Bosl2Solid-wrapped 2-D shape too
     assert isinstance(s3.roof(Bosl2Solid(s2.square([20, 20], center=True))), Bosl2Solid)
@@ -73,5 +76,8 @@ def test_methods_are_chainable():
 def test_pull_coerces_numpy_inputs():
     # numpy vectors must be coerced to plain floats at the native boundary (see CLAUDE.md)
     import numpy as np
-    assert isinstance(_cube().pull(np.array([0.0, 0.0, 1.0]), np.float64(5)), Bosl2Solid)
+
+    assert isinstance(
+        _cube().pull(np.array([0.0, 0.0, 1.0]), np.float64(5)), Bosl2Solid
+    )
     assert _cube().inside(np.array([0.0, 0.0, 0.0])) is True

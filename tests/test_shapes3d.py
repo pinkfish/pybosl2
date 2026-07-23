@@ -33,22 +33,34 @@ _UNIT_CUBE = [[x, y, z] for x in (-0.5, 0.5) for y in (-0.5, 0.5) for z in (-0.5
 
 def test_anchor_offset_hull3_face_is_face_centre():
     # BOTTOM ties all four bottom corners; the anchor is the face centre, so the offset lifts z by 0.5
-    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, BOTTOM), [0, 0, 0.5], atol=1e-9)
-    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, TOP), [0, 0, -0.5], atol=1e-9)
-    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, RIGHT), [-0.5, 0, 0], atol=1e-9)
+    np.testing.assert_allclose(
+        _anchor_offset_hull3(_UNIT_CUBE, BOTTOM), [0, 0, 0.5], atol=1e-9
+    )
+    np.testing.assert_allclose(
+        _anchor_offset_hull3(_UNIT_CUBE, TOP), [0, 0, -0.5], atol=1e-9
+    )
+    np.testing.assert_allclose(
+        _anchor_offset_hull3(_UNIT_CUBE, RIGHT), [-0.5, 0, 0], atol=1e-9
+    )
 
 
 def test_anchor_offset_hull3_edge_is_edge_midpoint():
     # RIGHT+TOP ties two vertices; the anchor is their midpoint
-    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, [1, 0, 1]), [-0.5, 0, -0.5], atol=1e-9)
+    np.testing.assert_allclose(
+        _anchor_offset_hull3(_UNIT_CUBE, [1, 0, 1]), [-0.5, 0, -0.5], atol=1e-9
+    )
 
 
 def test_anchor_offset_hull3_corner_is_the_corner():
-    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, [1, 1, 1]), [-0.5, -0.5, -0.5], atol=1e-9)
+    np.testing.assert_allclose(
+        _anchor_offset_hull3(_UNIT_CUBE, [1, 1, 1]), [-0.5, -0.5, -0.5], atol=1e-9
+    )
 
 
 def test_anchor_offset_hull3_center_is_zero():
-    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, CENTER), [0, 0, 0], atol=1e-9)
+    np.testing.assert_allclose(
+        _anchor_offset_hull3(_UNIT_CUBE, CENTER), [0, 0, 0], atol=1e-9
+    )
 
 
 def test_prismoid_bottom_anchor_is_centred_on_xy():
@@ -91,8 +103,12 @@ def test_directional_moves_shift_center():
 
 def test_move_and_translate_agree():
     c = cuboid([10, 10, 10])
-    np.testing.assert_allclose(c.move([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
-    np.testing.assert_allclose(c.translate([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
+    np.testing.assert_allclose(
+        c.move([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9
+    )
+    np.testing.assert_allclose(
+        c.translate([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9
+    )
 
 
 def test_rot_is_rotate_alias():
@@ -140,13 +156,16 @@ def test_getattr_falls_through_to_native():
 
 def test_plot3d_surface_and_solid():
     import math
-    xs = list(range(-9, 10, 3)); ys = list(range(-9, 10, 3))
+
+    xs = list(range(-9, 10, 3))
+    ys = list(range(-9, 10, 3))
     assert isinstance(plot3d(lambda x, y: math.cos(x / 6), xs, ys), Bosl2Solid)
     assert isinstance(plot3d(lambda x, y: math.cos(x / 6), xs, ys, base=0), Bosl2Solid)
 
 
 def test_orient_reorient_return_bosl2solid():
     from bosl2.constants import RIGHT, TOP
+
     c = cuboid([40, 30, 20])
     assert isinstance(c.orient(RIGHT), Bosl2Solid)
     assert isinstance(c.reorient(anchor=TOP, spin=30, orient=RIGHT), Bosl2Solid)
@@ -175,6 +194,7 @@ def test_reanchor_bbox_override_moves_center():
 
 def test_resolve_bounds_rejects_bad_bbox():
     import pytest
+
     c = cuboid([10, 10, 10])
     with pytest.raises(AssertionError):
         c.anchor_point(TOP, bbox=[[0, 0, 0]])  # wrong shape
@@ -189,15 +209,19 @@ def test_fillet_builds():
 
 def test_fillet_rejects_non_right_angle():
     import pytest
+
     with pytest.raises(AssertionError):
         fillet(l=20, r=6, ang=120)
 
 
 def test_plot_revolution_taper_and_path():
     import math
+
     f = lambda a, z: 2 * math.sin(math.radians(a))
     assert isinstance(
-        plot_revolution(f, angle=list(range(0, 361, 20)), z=list(range(0, 21, 5)), r1=10, r2=6),
+        plot_revolution(
+            f, angle=list(range(0, 361, 20)), z=list(range(0, 21, 5)), r1=10, r2=6
+        ),
         Bosl2Solid,
     )
     prof = [[10, 0], [8, 10], [10, 20]]
@@ -208,11 +232,14 @@ def test_plot_revolution_taper_and_path():
 
 def test_textured_tile_reps_and_size():
     bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
-    assert isinstance(textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3), Bosl2Solid)
+    assert isinstance(
+        textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3), Bosl2Solid
+    )
     assert isinstance(textured_tile(bump, size=[40, 40], tex_size=10), Bosl2Solid)
 
 
 # --- regressions for the Bosl2Solid wrapper review fixes ---
+
 
 def test_getattr_no_recursion_when_shape_unset():
     # a half-built object (via __new__, or during unpickling) must not blow the stack
@@ -237,8 +264,8 @@ def test_bounds_metadata_fallback_fails_loud_after_move():
     # under the numeric mock (no native bbox), tracked metadata is only valid before a transform
     c = cuboid([10, 10, 10])
     c._native_bounds = lambda: None
-    assert c.bounds()[0] == [0.0, 0.0, 0.0]          # unmoved: metadata is correct
+    assert c.bounds()[0] == [0.0, 0.0, 0.0]  # unmoved: metadata is correct
     m = cuboid([10, 10, 10]).up(50)
     m._native_bounds = lambda: None
     with pytest.raises(ValueError, match="transformed since construction"):
-        m.bounds()                                    # moved: refuse to return a stale centre
+        m.bounds()  # moved: refuse to return a stale centre

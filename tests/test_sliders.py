@@ -17,10 +17,13 @@ def _size(solid):
     return size
 
 
-@pytest.mark.parametrize("kw", [
-    {"l": 30, "base": 10, "wall": 4, "slop": 0.2},
-    {"l": 40, "w": 14, "h": 12, "base": 8, "wall": 5},
-])
+@pytest.mark.parametrize(
+    "kw",
+    [
+        {"l": 30, "base": 10, "wall": 4, "slop": 0.2},
+        {"l": 40, "w": 14, "h": 12, "base": 8, "wall": 5},
+    ],
+)
 def test_slider_builds(kw):
     assert isinstance(S.slider(**kw), Bosl2Solid)
 

@@ -22,10 +22,13 @@ from bosl2.shapes3d import Bosl2Solid, cuboid
 
 # -- matrix generators --------------------------------------------------------------------
 
+
 def test_move_copies_matrices():
     mats = D.move_copies([[0, 0, 0], [10, 0, 0], [0, 5, 0]])
     assert len(mats) == 3
-    np.testing.assert_allclose(mats[1][:3, 3], [10, 0, 0], atol=1e-9)  # translation column
+    np.testing.assert_allclose(
+        mats[1][:3, 3], [10, 0, 0], atol=1e-9
+    )  # translation column
 
 
 def test_xcopies_centered_by_default():
@@ -64,8 +67,10 @@ def test_arc_copies_positions_on_circle():
 def test_mirror_copy_is_original_plus_reflection():
     mats = D.mirror_copy([1, 0, 0])
     assert len(mats) == 2
-    np.testing.assert_allclose(mats[0], np.eye(4), atol=1e-9)          # the original
-    np.testing.assert_allclose(mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9)  # X reflection
+    np.testing.assert_allclose(mats[0], np.eye(4), atol=1e-9)  # the original
+    np.testing.assert_allclose(
+        mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9
+    )  # X reflection
 
 
 # -- Path (2-D) returns a list of Path copies ---------------------------------------------
@@ -92,9 +97,11 @@ def test_path_zrot_copies_in_plane():
 
 
 def test_path_out_of_plane_copier_raises():
-    for call in (lambda: SQUARE.zcopies(10, n=3),
-                 lambda: SQUARE.xrot_copies(n=4, r=10),
-                 lambda: SQUARE.sphere_copies(n=8, r=20)):
+    for call in (
+        lambda: SQUARE.zcopies(10, n=3),
+        lambda: SQUARE.xrot_copies(n=4, r=10),
+        lambda: SQUARE.sphere_copies(n=8, r=20),
+    ):
         with pytest.raises(AssertionError):
             call()
 
@@ -128,8 +135,11 @@ def test_path3d_sphere_copies():
 
 # -- Bosl2Solid returns a unioned solid ---------------------------------------------------
 
+
 def test_solid_grid_copies_returns_solid():
-    assert isinstance(cuboid([10, 10, 10]).grid_copies(n=[3, 3], spacing=20), Bosl2Solid)
+    assert isinstance(
+        cuboid([10, 10, 10]).grid_copies(n=[3, 3], spacing=20), Bosl2Solid
+    )
 
 
 def test_solid_ring_and_flip_return_solid():
@@ -146,6 +156,7 @@ def test_solid_path_copies_returns_solid():
 
 
 # -- distribute (list of distinct children) -----------------------------------------------
+
 
 def test_distribute_returns_solid():
     a, b, c = cuboid([10, 10, 10]), cuboid([20, 20, 20]), cuboid([5, 5, 5])

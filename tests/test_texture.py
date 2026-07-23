@@ -6,12 +6,18 @@
 
 """Tests for bosl2.texture: the texture() engine and textured_tile's use of it."""
 
-
 import numpy as np
 import pytest
 
-from bosl2.texture import (TEXTURES, texture, is_heightfield_texture, is_vnf_texture,
-                           is_watertight_topology, rasterize_vnf_texture, vnf_tile_to_solid)
+from bosl2.texture import (
+    TEXTURES,
+    texture,
+    is_heightfield_texture,
+    is_vnf_texture,
+    is_watertight_topology,
+    rasterize_vnf_texture,
+    vnf_tile_to_solid,
+)
 from bosl2.shapes3d import textured_tile, Bosl2Solid
 
 _HF = [n for n, (_b, k) in TEXTURES.items() if k == "heightfield"]
@@ -22,7 +28,9 @@ _VNF = [n for n, (_b, k) in TEXTURES.items() if k == "vnf"]
 def test_heightfield_textures_are_2d_arrays_in_range(name):
     a = np.array(texture(name))
     assert a.ndim == 2 and a.size > 0
-    assert a.min() >= -1e-9 and a.max() <= 1.6 + 1e-9      # heights normalised to [0,1] (trunc_pyr to 1.5)
+    assert (
+        a.min() >= -1e-9 and a.max() <= 1.6 + 1e-9
+    )  # heights normalised to [0,1] (trunc_pyr to 1.5)
     assert is_heightfield_texture(texture(name))
 
 
@@ -30,7 +38,7 @@ def test_heightfield_textures_are_2d_arrays_in_range(name):
 def test_vnf_textures_are_valid_meshes(name):
     verts, faces = texture(name)
     assert all(len(v) == 3 for v in verts)
-    assert max(i for f in faces for i in f) < len(verts)   # face indices in range
+    assert max(i for f in faces for i in f) < len(verts)  # face indices in range
     assert is_vnf_texture(texture(name))
     assert not is_heightfield_texture(texture(name))
 
@@ -66,7 +74,9 @@ def test_textured_tile_by_name_builds(name):
 
 
 def test_textured_tile_raw_array_still_works():
-    s = textured_tile([[0, 0, 0], [0, 1, 0], [0, 0, 0]], size=[40, 40], tex_reps=[4, 4], tex_depth=3)
+    s = textured_tile(
+        [[0, 0, 0], [0, 1, 0], [0, 0, 0]], size=[40, 40], tex_reps=[4, 4], tex_depth=3
+    )
     assert isinstance(s, Bosl2Solid)
 
 

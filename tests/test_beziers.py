@@ -21,7 +21,9 @@ PATCH = [
     [[-50, 16, 20], [-16, 16, -20], [16, 16, 20], [50, 16, 20]],
     [[-50, 50, 0], [-16, 50, -20], [16, 50, 20], [50, 50, 0]],
 ]
-CIRCLE = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
+CIRCLE = [
+    [math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)
+]
 
 
 def _valid(vnf):
@@ -29,6 +31,7 @@ def _valid(vnf):
 
 
 # -- curve evaluation ---------------------------------------------------------------------
+
 
 def test_points_hits_endpoints_exactly():
     b = Bezier(CUBIC)
@@ -58,7 +61,10 @@ def test_tangent_is_unit():
 
 
 def test_curvature_scalar_and_list():
-    assert np.isscalar(Bezier(CUBIC).curvature(0.5)) or np.ndim(Bezier(CUBIC).curvature(0.5)) == 0
+    assert (
+        np.isscalar(Bezier(CUBIC).curvature(0.5))
+        or np.ndim(Bezier(CUBIC).curvature(0.5)) == 0
+    )
     assert np.asarray(Bezier(CUBIC).curvature([0.2, 0.8])).shape == (2,)
 
 
@@ -68,7 +74,10 @@ def test_closest_point():
     # the returned u really is near the closest sample
     pt = Bezier(CUBIC).points(u)
     d = float(np.linalg.norm(pt - np.array([40, 15])))
-    coarse = min(float(np.linalg.norm(Bezier(CUBIC).points(x) - np.array([40, 15]))) for x in np.linspace(0, 1, 50))
+    coarse = min(
+        float(np.linalg.norm(Bezier(CUBIC).points(x) - np.array([40, 15])))
+        for x in np.linspace(0, 1, 50)
+    )
     assert d <= coarse + 1e-6
 
 
@@ -84,6 +93,7 @@ def test_line_intersection_finds_endpoints_on_axis():
 
 
 # -- bezier path --------------------------------------------------------------------------
+
 
 def test_path_curve_requires_valid_length():
     with pytest.raises(AssertionError):
@@ -117,6 +127,7 @@ def test_from_path_returns_cubic_bezpath():
 
 # -- control-point construction -----------------------------------------------------------
 
+
 def test_begin_tang_end_2d():
     b = Bezier.begin([0, 0], 0, 2)  # along +X, distance 2
     np.testing.assert_allclose(b, [[0, 0], [2, 0]], atol=1e-9)
@@ -136,7 +147,11 @@ def test_joint_independent_directions():
 
 def test_begin_3d_spherical():
     b = Bezier.begin([-30, 0, 0], 90, 20, p=135)
-    np.testing.assert_allclose(b[1], [-30, 20 * math.sin(math.radians(135)), 20 * math.cos(math.radians(135))], atol=1e-6)
+    np.testing.assert_allclose(
+        b[1],
+        [-30, 20 * math.sin(math.radians(135)), 20 * math.cos(math.radians(135))],
+        atol=1e-6,
+    )
 
 
 def test_vector_direction_form():
@@ -145,12 +160,19 @@ def test_vector_direction_form():
 
 
 def test_flatten_concatenates_groups():
-    flat = Bezier.flatten([Bezier.begin([0, 0], -20, 0.4), Bezier.tang([0.25, 0], 0, 0.2, 0.4), Bezier.end([1, 0], 230, 1)])
+    flat = Bezier.flatten(
+        [
+            Bezier.begin([0, 0], -20, 0.4),
+            Bezier.tang([0.25, 0], 0, 0.2, 0.4),
+            Bezier.end([1, 0], 230, 1),
+        ]
+    )
     assert isinstance(flat, Bezier)
     assert len(flat) == 2 + 3 + 2
 
 
 # -- surfaces (BezierPatch) ---------------------------------------------------------------
+
 
 def test_is_patch_distinguishes_patch_from_list():
     assert BezierPatch.is_patch(PATCH)
@@ -198,7 +220,13 @@ def test_sheet_is_valid_vnf():
 def test_vnf_degenerate_has_fewer_faces_than_naive():
     deg = [
         [[-12.5, 12.5, 15]] * 5,
-        [[-6.25, 11.25, 15], [-6.25, 8.75, 15], [-6.25, 6.25, 15], [-8.75, 6.25, 15], [-11.25, 6.25, 15]],
+        [
+            [-6.25, 11.25, 15],
+            [-6.25, 8.75, 15],
+            [-6.25, 6.25, 15],
+            [-8.75, 6.25, 15],
+            [-11.25, 6.25, 15],
+        ],
         [[0, 10, 15], [0, 5, 15], [0, 0, 15], [-5, 0, 15], [-10, 0, 15]],
         [[0, 10, 8.75], [0, 5, 8.75], [0, 0, 8.75], [-5, 0, 8.75], [-10, 0, 8.75]],
         [[0, 10, 2.5], [0, 5, 2.5], [0, 0, 2.5], [-5, 0, 2.5], [-10, 0, 2.5]],
@@ -217,8 +245,11 @@ def test_vnf_degenerate_return_edges():
 
 # -- sweeps -------------------------------------------------------------------------------
 
+
 def test_bezier_sweep_valid():
-    v = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=6)
+    v = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(
+        CIRCLE, splinesteps=6
+    )
     assert isinstance(v, VNF) and _valid(v)
 
 
@@ -229,5 +260,7 @@ def test_bezpath_sweep_valid():
 
 
 def test_sweep_transforms_mode():
-    tl = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=4, transforms=True)
+    tl = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(
+        CIRCLE, splinesteps=4, transforms=True
+    )
     assert len(tl) == 5 and np.asarray(tl[0]).shape == (4, 4)

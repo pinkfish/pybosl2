@@ -30,7 +30,9 @@ __all__ = ["hsl", "hsv", "rainbow", "rainbow_colors", "Colorable"]
 # ---------------------------------------------------------------------------
 
 
-def hsl(h: float, s: float = 1.0, l: float = 0.5, a: float | None = None) -> list[float]:
+def hsl(
+    h: float, s: float = 1.0, l: float = 0.5, a: float | None = None
+) -> list[float]:
     """Convert HSL to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsl().
 
     Args:
@@ -50,7 +52,9 @@ def hsl(h: float, s: float = 1.0, l: float = 0.5, a: float | None = None) -> lis
     return rgb + ([a] if a is not None else [])
 
 
-def hsv(h: float, s: float = 1.0, v: float = 1.0, a: float | None = None) -> list[float]:
+def hsv(
+    h: float, s: float = 1.0, v: float = 1.0, a: float | None = None
+) -> list[float]:
     """Convert HSV to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsv().
 
     Args:
@@ -93,8 +97,13 @@ def hsv(h: float, s: float = 1.0, v: float = 1.0, a: float | None = None) -> lis
 # ---------------------------------------------------------------------------
 
 
-def rainbow_colors(n: int, stride: int = 1, maxhues: int | None = None, shuffle: bool = False,
-                   seed=None) -> list[list[float]]:
+def rainbow_colors(
+    n: int,
+    stride: int = 1,
+    maxhues: int | None = None,
+    shuffle: bool = False,
+    seed=None,
+) -> list[list[float]]:
     """The list of ``n`` ``[R, G, B]`` colours stepped around the ROYGBIV wheel (BOSL2 rainbow()).
 
     Args:
@@ -114,8 +123,13 @@ def rainbow_colors(n: int, stride: int = 1, maxhues: int | None = None, shuffle:
     return [hsv(h=hue) for hue in hues]
 
 
-def rainbow(items: Sequence, stride: int = 1, maxhues: int | None = None, shuffle: bool = False,
-            seed=None) -> list:
+def rainbow(
+    items: Sequence,
+    stride: int = 1,
+    maxhues: int | None = None,
+    shuffle: bool = False,
+    seed=None,
+) -> list:
     """Colour each object in *items* a different hue, returning the coloured list (BOSL2 rainbow()).
 
     Each item must support ``.color([r, g, b])`` (a :class:`~bosl2.shapes3d.Bosl2Solid` or a native
@@ -129,7 +143,9 @@ def rainbow(items: Sequence, stride: int = 1, maxhues: int | None = None, shuffl
         seed:    seed for the shuffle
     """
     items = list(items)
-    colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
+    colors = rainbow_colors(
+        len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed
+    )
     return [obj.color(col) for obj, col in zip(items, colors)]
 
 
@@ -149,7 +165,9 @@ class Colorable:
     already-coloured children keep their colour, matching OpenSCAD's ``color()`` semantics).
     """
 
-    def _color_native(self, c=None, alpha=None):  # pragma: no cover - overridden by the host class
+    def _color_native(
+        self, c=None, alpha=None
+    ):  # pragma: no cover - overridden by the host class
         raise NotImplementedError
 
     def _highlight_native(self):  # pragma: no cover - overridden by the host class

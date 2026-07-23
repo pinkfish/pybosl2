@@ -37,12 +37,14 @@ def test_steeper_angle_flares_more():
 def test_female_is_enlarged_by_slop():
     male = _size(J.dovetail("male", width=15, height=8, slide=30))
     female = _size(J.dovetail("female", width=15, height=8, slide=30, slop=0.2))
-    assert female[2] > male[2]                     # female taller by the slop
+    assert female[2] > male[2]  # female taller by the slop
 
 
 @pytest.mark.parametrize("kw", [{}, {"taper": 4}, {"back_width": 12}])
 def test_dovetail_taper_builds(kw):
-    assert isinstance(J.dovetail("male", width=18, height=6, slide=40, **kw), Bosl2Solid)
+    assert isinstance(
+        J.dovetail("male", width=18, height=6, slide=40, **kw), Bosl2Solid
+    )
 
 
 def test_snap_pin_and_socket_build():

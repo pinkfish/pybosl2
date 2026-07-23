@@ -32,10 +32,10 @@ def _union(shapes):
 class NemaSpec:
     """Standard dimensions of a NEMA stepper motor (BOSL2 nema_motor_info())."""
 
-    motor_width: float     # body cross-section (square)
-    plinth_height: float   # raised boss around the shaft
+    motor_width: float  # body cross-section (square)
+    plinth_height: float  # raised boss around the shaft
     plinth_diam: float
-    screw_spacing: float   # centre-to-centre of the mounting holes
+    screw_spacing: float  # centre-to-centre of the mounting holes
     screw_size: float
     screw_depth: float
     shaft_diam: float
@@ -66,8 +66,9 @@ class NemaSteppers:
             raise ValueError(f"Unsupported NEMA size: {size!r}")
 
     @staticmethod
-    def nema_stepper_motor(size: int = 17, h: float = 24, shaft_len: float = 20,
-                           _fn: int | None = None) -> Bosl2Solid:
+    def nema_stepper_motor(
+        size: int = 17, h: float = 24, shaft_len: float = 20, _fn: int | None = None
+    ) -> Bosl2Solid:
         """A model of a NEMA *size* stepper motor (BOSL2 nema_stepper_motor()).
 
         The motor's mounting face is at ``z = 0`` with the body below it and the plinth and *shaft_len*
@@ -83,24 +84,42 @@ class NemaSteppers:
         """
         s = NemaSteppers.nema_motor_info(size)
         if size < 23:
-            body = cuboid([s.motor_width, s.motor_width, h], chamfer=2 if size >= 8 else 0.5, edges="Z")
+            body = cuboid(
+                [s.motor_width, s.motor_width, h],
+                chamfer=2 if size >= 8 else 0.5,
+                edges="Z",
+            )
         else:
-            body = cuboid([s.motor_width, s.motor_width, h], rounding=s.screw_size, edges="Z")
-        body = body.down(h / 2)                                       # mounting face at z=0, body below
+            body = cuboid(
+                [s.motor_width, s.motor_width, h], rounding=s.screw_size, edges="Z"
+            )
+        body = body.down(h / 2)  # mounting face at z=0, body below
         for sx in (-1, 1):
-            for sy in (-1, 1):                                        # blind mounting holes at the corners
-                hole = cyl(h=s.screw_depth * 2, d=s.screw_size, _fn=_fn) \
-                    .right(sx * s.screw_spacing / 2).back(sy * s.screw_spacing / 2)
+            for sy in (-1, 1):  # blind mounting holes at the corners
+                hole = (
+                    cyl(h=s.screw_depth * 2, d=s.screw_size, _fn=_fn)
+                    .right(sx * s.screw_spacing / 2)
+                    .back(sy * s.screw_spacing / 2)
+                )
                 body = body - hole
-        plinth = cyl(h=s.plinth_height, d=s.plinth_diam, _fn=_fn).up(s.plinth_height / 2) \
-            - cyl(h=s.plinth_height * 3, d=s.shaft_diam + 0.75, _fn=_fn)
+        plinth = cyl(h=s.plinth_height, d=s.plinth_diam, _fn=_fn).up(
+            s.plinth_height / 2
+        ) - cyl(h=s.plinth_height * 3, d=s.shaft_diam + 0.75, _fn=_fn)
         shaft = cyl(h=shaft_len, d=s.shaft_diam, _fn=_fn).up(shaft_len / 2)
-        return Bosl2Solid((body | plinth | shaft).shape,
-                          size=[s.motor_width, s.motor_width, h + shaft_len])
+        return Bosl2Solid(
+            (body | plinth | shaft).shape,
+            size=[s.motor_width, s.motor_width, h + shaft_len],
+        )
 
     @staticmethod
-    def nema_mount_mask(size: int, depth: float = 5, l: float = 5, atype: str = "full",
-                        slop: float = 0.0, _fn: int | None = None) -> Bosl2Solid:
+    def nema_mount_mask(
+        size: int,
+        depth: float = 5,
+        l: float = 5,
+        atype: str = "full",
+        slop: float = 0.0,
+        _fn: int | None = None,
+    ) -> Bosl2Solid:
         """The mounting cutout for a NEMA *size* motor -- difference it from a plate (BOSL2 nema_mount_mask()).
 
         Cuts the four screw holes and (``atype="full"``) the central plinth clearance. A slot length
@@ -113,9 +132,11 @@ class NemaSteppers:
 
         def slotted(d, cx=0.0, cy=0.0):
             if l > 0:
-                return [cyl(h=depth, d=d, _fn=_fn).back(l / 2).right(cx).back(cy),
-                        cyl(h=depth, d=d, _fn=_fn).forward(l / 2).right(cx).back(cy),
-                        cuboid([d, l, depth]).right(cx).back(cy)]
+                return [
+                    cyl(h=depth, d=d, _fn=_fn).back(l / 2).right(cx).back(cy),
+                    cyl(h=depth, d=d, _fn=_fn).forward(l / 2).right(cx).back(cy),
+                    cuboid([d, l, depth]).right(cx).back(cy),
+                ]
             return [cyl(h=depth, d=d, _fn=_fn).right(cx).back(cy)]
 
         parts = []

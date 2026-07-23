@@ -18,11 +18,12 @@ from bosl2.shapes3d import Bosl2Solid, cuboid
 
 # -- HSV / HSL primaries ------------------------------------------------------------------
 
+
 def test_hsv_primaries():
     np.testing.assert_allclose(hsv(0, 1, 1), [1, 0, 0], atol=1e-9)
     np.testing.assert_allclose(hsv(120, 1, 1), [0, 1, 0], atol=1e-9)
     np.testing.assert_allclose(hsv(240, 1, 1), [0, 0, 1], atol=1e-9)
-    np.testing.assert_allclose(hsv(60, 1, 1), [1, 1, 0], atol=1e-9)   # yellow
+    np.testing.assert_allclose(hsv(60, 1, 1), [1, 1, 0], atol=1e-9)  # yellow
     np.testing.assert_allclose(hsv(180, 1, 1), [0, 1, 1], atol=1e-9)  # cyan
 
 
@@ -64,6 +65,7 @@ def test_hsv_validates_ranges():
 
 
 # -- rainbow ------------------------------------------------------------------------------
+
 
 def test_rainbow_colors_count_and_spread():
     cols = rainbow_colors(6)

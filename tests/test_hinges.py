@@ -20,7 +20,7 @@ def _size(s):
 def test_living_hinge_mask_and_plate():
     mask = H.living_hinge_mask(l=100, thick=3, foldangle=60)
     assert isinstance(mask, Bosl2Solid)
-    assert _size(mask)[0] == pytest.approx(100, abs=0.1)          # spans the plate length
+    assert _size(mask)[0] == pytest.approx(100, abs=0.1)  # spans the plate length
     plate = cuboid([100, 40, 3]) - mask.down(1.5)
     assert isinstance(plate, Bosl2Solid)
 

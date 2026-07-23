@@ -56,7 +56,9 @@ class Walls:
     """FDM-optimised wall shapes (BOSL2 walls.scad)."""
 
     @staticmethod
-    def narrowing_strut(w: float = 10, l: float = 100, wall: float = 5, ang: float = 30) -> Bosl2Solid:
+    def narrowing_strut(
+        w: float = 10, l: float = 100, wall: float = 5, ang: float = 30
+    ) -> Bosl2Solid:
         """A strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2 narrowing_strut()).
 
         The triangular top converges at *ang* so the strut can brace an overhang without needing
@@ -71,12 +73,20 @@ class Walls:
         """
         h = wall + w / 2 / math.tan(math.radians(ang))
         profile = [[-w / 2, 0], [w / 2, 0], [w / 2, wall], [0, h], [-w / 2, wall]]
-        shape = _opolygon(profile).linear_extrude(height=l, center=True).rotate([90, 0, 0])
+        shape = (
+            _opolygon(profile).linear_extrude(height=l, center=True).rotate([90, 0, 0])
+        )
         return Bosl2Solid(shape, size=[w, l, h])
 
     @staticmethod
-    def sparse_wall(h: float = 50, l: float = 100, thick: float = 4, maxang: float = 30,
-                    strut: float = 5, max_bridge: float = 20) -> Bosl2Solid:
+    def sparse_wall(
+        h: float = 50,
+        l: float = 100,
+        thick: float = 4,
+        maxang: float = 30,
+        strut: float = 5,
+        max_bridge: float = 20,
+    ) -> Bosl2Solid:
         """An open, X-cross-braced rectangular wall that saves material and prints support-free (BOSL2 sparse_wall()).
 
         A solid border of width *strut* frames a lattice of diagonal braces, each kept under *maxang*
@@ -123,7 +133,12 @@ class Walls:
             for jx in range(zreps):
                 upos = (jx - (zreps - 1) / 2) * zstep
                 for syx in (math.tan(-ang), math.tan(ang)):
-                    corners = [(-wx / 2, -wy / 2), (wx / 2, -wy / 2), (wx / 2, wy / 2), (-wx / 2, wy / 2)]
+                    corners = [
+                        (-wx / 2, -wy / 2),
+                        (wx / 2, -wy / 2),
+                        (wx / 2, wy / 2),
+                        (-wx / 2, wy / 2),
+                    ]
                     poly = [[upos + cx, vpos + cy + syx * cx] for cx, cy in corners]
                     parts.append(_opolygon(poly))
         region = parts[0]
@@ -132,28 +147,47 @@ class Walls:
         return region
 
     @staticmethod
-    def sparse_cuboid(size, dir: str = "Y", strut: float = 5, maxang: float = 30,
-                      max_bridge: float = 20) -> Bosl2Solid:
+    def sparse_cuboid(
+        size,
+        dir: str = "Y",
+        strut: float = 5,
+        maxang: float = 30,
+        max_bridge: float = 20,
+    ) -> Bosl2Solid:
         """A solid cuboid whose interior is X-cross-braced along *dir* ("X", "Y" or "Z") (BOSL2 sparse_cuboid()).
 
         A drop-in for :func:`~bosl2.shapes3d.cuboid` when the part would benefit from the sparse
         lattice; *dir* is the axis the diagonal braces (and the through-gaps) run along.
         """
-        sx, sy, sz = (float(v) for v in (size if not isinstance(size, (int, float)) else (size, size, size)))
+        sx, sy, sz = (
+            float(v)
+            for v in (
+                size if not isinstance(size, (int, float)) else (size, size, size)
+            )
+        )
         d = str(dir).upper()
         if d == "X":
             braced = Walls.sparse_wall(sz, sy, sx, maxang, strut, max_bridge)
         elif d == "Y":
-            braced = Walls.sparse_wall(sz, sx, sy, maxang, strut, max_bridge).rotate([0, 0, 90])
+            braced = Walls.sparse_wall(sz, sx, sy, maxang, strut, max_bridge).rotate(
+                [0, 0, 90]
+            )
         elif d == "Z":
-            braced = Walls.sparse_wall(sx, sy, sz, maxang, strut, max_bridge).rotate([0, 90, 0])
+            braced = Walls.sparse_wall(sx, sy, sz, maxang, strut, max_bridge).rotate(
+                [0, 90, 0]
+            )
         else:
             raise ValueError('sparse_cuboid(): dir must be "X", "Y" or "Z".')
         return Bosl2Solid((braced & cuboid([sx, sy, sz])).shape, size=[sx, sy, sz])
 
     @staticmethod
-    def corrugated_wall(h: float = 50, l: float = 100, thick: float = 5, strut: float = 5,
-                        wall: float = 2) -> Bosl2Solid:
+    def corrugated_wall(
+        h: float = 50,
+        l: float = 100,
+        thick: float = 5,
+        strut: float = 5,
+        wall: float = 2,
+    ) -> Bosl2Solid:
         """A corrugated wall: a solid border framing a sinusoidal sheet of thickness *wall* (BOSL2 corrugated_wall()).
 
         The corrugation waves back and forth across the *thick* thickness as it runs along the length,
@@ -167,19 +201,33 @@ class Walls:
         """
         amplitude = (thick - wall) / 2
         period = min(15, thick * 2)
-        steps = ((_segs(thick / 2) + 3) // 4) * 4          # quantup(segs(thick/2), 4)
+        steps = ((_segs(thick / 2) + 3) // 4) * 4  # quantup(segs(thick/2), 4)
         step = period / steps
         il = l - 2 * strut + 2 * step
         ys = [-il / 2 + i * step for i in range(int(il / step) + 1)]
-        pts = [[amplitude * math.sin(math.radians(y / period * 360)) - wall / 2, y] for y in ys]
-        pts += [[amplitude * math.sin(math.radians(y / period * 360)) + wall / 2, y] for y in reversed(ys)]
+        pts = [
+            [amplitude * math.sin(math.radians(y / period * 360)) - wall / 2, y]
+            for y in ys
+        ]
+        pts += [
+            [amplitude * math.sin(math.radians(y / period * 360)) + wall / 2, y]
+            for y in reversed(ys)
+        ]
         sheet = _opolygon(pts).linear_extrude(height=h - 2 * strut + 0.1, center=True)
-        frame = cuboid([thick, l, h]) - cuboid([thick + 0.5, l - 2 * strut, h - 2 * strut])
+        frame = cuboid([thick, l, h]) - cuboid(
+            [thick + 0.5, l - 2 * strut, h - 2 * strut]
+        )
         return Bosl2Solid((Bosl2Solid(sheet) | frame).shape, size=[thick, l, h])
 
     @staticmethod
-    def thinning_wall(h: float = 50, l=100, thick: float = 5, ang: float = 30,
-                      strut: float | None = None, wall: float | None = None) -> Bosl2Solid:
+    def thinning_wall(
+        h: float = 50,
+        l=100,
+        thick: float = 5,
+        ang: float = 30,
+        strut: float | None = None,
+        wall: float | None = None,
+    ) -> Bosl2Solid:
         """A rectangular wall that thins to *wall* in the middle while the edges stay *thick* (BOSL2 thinning_wall()).
 
         Angled shoulders (kept under *ang*) join the thick border to the thin centre so nothing
@@ -198,45 +246,110 @@ class Walls:
         wall = wall if wall is not None else thick / 2
 
         bevel_h = strut + (thick - wall) / 2 / math.tan(math.radians(ang))
-        cp1 = _circle_2tangents(strut, [0, 0, h / 2], [l2 / 2, 0, h / 2], [l1 / 2, 0, -h / 2])
-        cp2 = _circle_2tangents(bevel_h, [0, 0, h / 2], [l2 / 2, 0, h / 2], [l1 / 2, 0, -h / 2])
-        cp3 = _circle_2tangents(bevel_h, [0, 0, -h / 2], [l1 / 2, 0, -h / 2], [l2 / 2, 0, h / 2])
-        cp4 = _circle_2tangents(strut, [0, 0, -h / 2], [l1 / 2, 0, -h / 2], [l2 / 2, 0, h / 2])
+        cp1 = _circle_2tangents(
+            strut, [0, 0, h / 2], [l2 / 2, 0, h / 2], [l1 / 2, 0, -h / 2]
+        )
+        cp2 = _circle_2tangents(
+            bevel_h, [0, 0, h / 2], [l2 / 2, 0, h / 2], [l1 / 2, 0, -h / 2]
+        )
+        cp3 = _circle_2tangents(
+            bevel_h, [0, 0, -h / 2], [l1 / 2, 0, -h / 2], [l2 / 2, 0, h / 2]
+        )
+        cp4 = _circle_2tangents(
+            strut, [0, 0, -h / 2], [l1 / 2, 0, -h / 2], [l2 / 2, 0, h / 2]
+        )
 
         z1, z2, z3 = h / 2, cp1[2], cp2[2]
         x1, x2, x3, x4, x5, x6 = l2 / 2, cp1[0], cp2[0], l1 / 2, cp4[0], cp3[0]
         y1, y2 = thick / 2, wall / 2
 
         pts = [
-            [-x4, -y1, -z1], [x4, -y1, -z1], [x1, -y1, z1], [-x1, -y1, z1],
-            [-x5, -y1, -z2], [x5, -y1, -z2], [x2, -y1, z2], [-x2, -y1, z2],
-            [-x6, -y2, -z3], [x6, -y2, -z3], [x3, -y2, z3], [-x3, -y2, z3],
-            [-x4, y1, -z1], [x4, y1, -z1], [x1, y1, z1], [-x1, y1, z1],
-            [-x5, y1, -z2], [x5, y1, -z2], [x2, y1, z2], [-x2, y1, z2],
-            [-x6, y2, -z3], [x6, y2, -z3], [x3, y2, z3], [-x3, y2, z3],
+            [-x4, -y1, -z1],
+            [x4, -y1, -z1],
+            [x1, -y1, z1],
+            [-x1, -y1, z1],
+            [-x5, -y1, -z2],
+            [x5, -y1, -z2],
+            [x2, -y1, z2],
+            [-x2, -y1, z2],
+            [-x6, -y2, -z3],
+            [x6, -y2, -z3],
+            [x3, -y2, z3],
+            [-x3, -y2, z3],
+            [-x4, y1, -z1],
+            [x4, y1, -z1],
+            [x1, y1, z1],
+            [-x1, y1, z1],
+            [-x5, y1, -z2],
+            [x5, y1, -z2],
+            [x2, y1, z2],
+            [-x2, y1, z2],
+            [-x6, y2, -z3],
+            [x6, y2, -z3],
+            [x3, y2, z3],
+            [-x3, y2, z3],
         ]
         faces = [
-            [4, 5, 1], [5, 6, 2], [6, 7, 3], [7, 4, 0],
-            [4, 1, 0], [5, 2, 1], [6, 3, 2], [7, 0, 3],
-            [8, 9, 5], [9, 10, 6], [10, 11, 7], [11, 8, 4],
-            [8, 5, 4], [9, 6, 5], [10, 7, 6], [11, 4, 7],
-            [11, 10, 9], [20, 21, 22],
-            [11, 9, 8], [20, 22, 23],
-            [16, 17, 21], [17, 18, 22], [18, 19, 23], [19, 16, 20],
-            [16, 21, 20], [17, 22, 21], [18, 23, 22], [19, 20, 23],
-            [12, 13, 17], [13, 14, 18], [14, 15, 19], [15, 12, 16],
-            [12, 17, 16], [13, 18, 17], [14, 19, 18], [15, 16, 19],
-            [0, 1, 13], [1, 2, 14], [2, 3, 15], [3, 0, 12],
-            [0, 13, 12], [1, 14, 13], [2, 15, 14], [3, 12, 15],
+            [4, 5, 1],
+            [5, 6, 2],
+            [6, 7, 3],
+            [7, 4, 0],
+            [4, 1, 0],
+            [5, 2, 1],
+            [6, 3, 2],
+            [7, 0, 3],
+            [8, 9, 5],
+            [9, 10, 6],
+            [10, 11, 7],
+            [11, 8, 4],
+            [8, 5, 4],
+            [9, 6, 5],
+            [10, 7, 6],
+            [11, 4, 7],
+            [11, 10, 9],
+            [20, 21, 22],
+            [11, 9, 8],
+            [20, 22, 23],
+            [16, 17, 21],
+            [17, 18, 22],
+            [18, 19, 23],
+            [19, 16, 20],
+            [16, 21, 20],
+            [17, 22, 21],
+            [18, 23, 22],
+            [19, 20, 23],
+            [12, 13, 17],
+            [13, 14, 18],
+            [14, 15, 19],
+            [15, 12, 16],
+            [12, 17, 16],
+            [13, 18, 17],
+            [14, 19, 18],
+            [15, 16, 19],
+            [0, 1, 13],
+            [1, 2, 14],
+            [2, 3, 15],
+            [3, 0, 12],
+            [0, 13, 12],
+            [1, 14, 13],
+            [2, 15, 14],
+            [3, 12, 15],
         ]
-        pts = [[-y, x, z] for x, y, z in pts]                 # bake zrot(90): l runs along Y
+        pts = [[-y, x, z] for x, y, z in pts]  # bake zrot(90): l runs along Y
         shape = VNF(pts, faces).polyhedron()
         return Bosl2Solid(shape, size=[thick, l1, h])
 
     @staticmethod
-    def thinning_triangle(h: float = 50, l: float = 100, thick: float = 5, ang: float = 30,
-                          strut: float = 5, wall: float = 3, diagonly: bool = False,
-                          center: bool | None = None) -> Bosl2Solid:
+    def thinning_triangle(
+        h: float = 50,
+        l: float = 100,
+        thick: float = 5,
+        ang: float = 30,
+        strut: float = 5,
+        wall: float = 3,
+        diagonly: bool = False,
+        center: bool | None = None,
+    ) -> Bosl2Solid:
         """A right-triangular wall with thick edges thinning to *wall* in the middle (BOSL2 thinning_triangle()).
 
         The hypotenuse rises from the front-bottom to the back-top. *diagonly* keeps only the
@@ -255,8 +368,16 @@ class Walls:
         parts = []
         if not diagonly:
             parts.append(ns(w=thick, l=l, wall=strut, ang=ang).down(h / 2))
-            parts.append(ns(w=thick, l=h - 0.1, wall=strut, ang=ang).rotate([-90, 0, 0]).forward(l / 2))
-        hyp = ns(w=thick, l=dlen * 1.2, wall=strut, ang=ang).rotate([0, 180, 0]).rotate([-dang, 0, 0])
+            parts.append(
+                ns(w=thick, l=h - 0.1, wall=strut, ang=ang)
+                .rotate([-90, 0, 0])
+                .forward(l / 2)
+            )
+        hyp = (
+            ns(w=thick, l=dlen * 1.2, wall=strut, ang=ang)
+            .rotate([0, 180, 0])
+            .rotate([-dang, 0, 0])
+        )
         parts.append(cuboid([thick, l, h]) & hyp)
         parts.append(cuboid([wall, l - 0.1, h - 0.1]))
         body = parts[0]

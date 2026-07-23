@@ -39,6 +39,7 @@ def _install_mock() -> bool:
         if p not in sys.path:
             sys.path.insert(0, p)
     import mock_libfive  # noqa: F401  -- installs pythonscad/openscad/libfive stubs on import
+
     return True
 
 

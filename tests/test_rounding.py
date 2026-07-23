@@ -21,6 +21,7 @@ P3 = [[0, 0, 0], [40, 0, 0], [40, 40, 20], [0, 40, 20]]
 
 # -- round_corners ------------------------------------------------------------------------
 
+
 def test_circle_inserts_points_and_returns_path():
     out = round_corners(SQ, radius=5)
     assert isinstance(out, Path) and not isinstance(out, Path3D)
@@ -28,11 +29,20 @@ def test_circle_inserts_points_and_returns_path():
     assert out.closed is True
 
 
-@pytest.mark.parametrize("method,kw", [
-    ("circle", {"radius": 5}), ("circle", {"cut": 3}), ("circle", {"joint": 5}),
-    ("smooth", {"joint": 8}), ("smooth", {"cut": 2}), ("smooth", {"joint": 8, "k": 0.8}),
-    ("chamfer", {"joint": 6}), ("chamfer", {"cut": 4}), ("chamfer", {"width": 5}),
-])
+@pytest.mark.parametrize(
+    "method,kw",
+    [
+        ("circle", {"radius": 5}),
+        ("circle", {"cut": 3}),
+        ("circle", {"joint": 5}),
+        ("smooth", {"joint": 8}),
+        ("smooth", {"cut": 2}),
+        ("smooth", {"joint": 8, "k": 0.8}),
+        ("chamfer", {"joint": 6}),
+        ("chamfer", {"cut": 4}),
+        ("chamfer", {"width": 5}),
+    ],
+)
 def test_every_method_measure_builds(method, kw):
     out = round_corners(SQ, method=method, **kw)
     assert isinstance(out, Path) and len(out) >= len(SQ)
@@ -52,7 +62,7 @@ def test_3d_paths_return_path3d():
 def test_open_path_leaves_endpoints():
     out = round_corners([[0, 0], [40, 0], [40, 30], [0, 30]], radius=5, closed=False)
     assert out.closed is False
-    np.testing.assert_allclose(out[0], [0, 0], atol=1e-9)   # first point unchanged
+    np.testing.assert_allclose(out[0], [0, 0], atol=1e-9)  # first point unchanged
     np.testing.assert_allclose(out[-1], [0, 30], atol=1e-9)  # last point unchanged
 
 
@@ -91,6 +101,7 @@ def test_oversized_roundover_raises():
 
 # -- Path / Path3D method form ------------------------------------------------------------
 
+
 def test_path_round_corners_method_uses_own_closed():
     open_sq = Path(SQ, closed=False)
     out = open_sq.round_corners(radius=5)
@@ -102,6 +113,7 @@ def test_path3d_round_corners_method():
 
 
 # -- smooth_path --------------------------------------------------------------------------
+
 
 def test_smooth_path_returns_denser_path():
     wig = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]

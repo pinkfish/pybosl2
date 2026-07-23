@@ -35,7 +35,7 @@ def test_components_and_string():
 
 def test_leading_v_and_short_forms():
     assert Version("v2.5.7").as_tuple() == (2, 5, 7)
-    assert Version("1.4").as_tuple() == (1, 4, 0)   # missing update defaults to 0
+    assert Version("1.4").as_tuple() == (1, 4, 0)  # missing update defaults to 0
     assert Version("3").as_tuple() == (3, 0, 0)
 
 

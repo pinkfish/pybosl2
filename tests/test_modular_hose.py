@@ -17,7 +17,10 @@ def _size(s):
     return size
 
 
-@pytest.mark.parametrize("size,bore,outer", [(0.25, 3.268, 4.864), (0.5, 6.422, 8.096), (0.75, 9.902, 11.989)])
+@pytest.mark.parametrize(
+    "size,bore,outer",
+    [(0.25, 3.268, 4.864), (0.5, 6.422, 8.096), (0.75, 9.902, 11.989)],
+)
 def test_radius_matches_profile(size, bore, outer):
     assert MH.modular_hose_radius(size) == pytest.approx(bore, abs=0.01)
     assert MH.modular_hose_radius(size, outer=True) == pytest.approx(outer, abs=0.01)
@@ -40,7 +43,10 @@ def test_builds(size, type):
 
 
 def test_bigger_size_bigger_hose():
-    assert _size(MH.modular_hose(0.75, "segment"))[0] > _size(MH.modular_hose(0.25, "segment"))[0]
+    assert (
+        _size(MH.modular_hose(0.75, "segment"))[0]
+        > _size(MH.modular_hose(0.25, "segment"))[0]
+    )
 
 
 def test_clearance_widens_socket():

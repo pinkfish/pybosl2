@@ -51,9 +51,11 @@ def _dual(verts, faces):
             t = np.cross(n, [0, 1.0, 0])
         t = t / np.linalg.norm(t)
         b = np.cross(n, t)
+
         def ang(fi):
             d = centroids[fi] - n * float(np.dot(centroids[fi], n))
             return math.atan2(float(np.dot(d, b)), float(np.dot(d, t)))
+
         newfaces.append(sorted(adj, key=ang))
     return centroids.tolist(), newfaces
 
@@ -63,23 +65,78 @@ def _dual(verts, faces):
 _TETRA_V = _normalize([(1, 1, 1), (-1, -1, 1), (-1, 1, -1), (1, -1, -1)])
 _TETRA_F = [[0, 2, 1], [0, 1, 3], [0, 3, 2], [1, 2, 3]]
 
-_CUBE_V = _normalize([(-1, -1, -1), (1, -1, -1), (1, 1, -1), (-1, 1, -1),
-                      (-1, -1, 1), (1, -1, 1), (1, 1, 1), (-1, 1, 1)])
-_CUBE_F = [[0, 1, 2, 3], [4, 7, 6, 5], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [3, 7, 4, 0]]
+_CUBE_V = _normalize(
+    [
+        (-1, -1, -1),
+        (1, -1, -1),
+        (1, 1, -1),
+        (-1, 1, -1),
+        (-1, -1, 1),
+        (1, -1, 1),
+        (1, 1, 1),
+        (-1, 1, 1),
+    ]
+)
+_CUBE_F = [
+    [0, 1, 2, 3],
+    [4, 7, 6, 5],
+    [0, 4, 5, 1],
+    [1, 5, 6, 2],
+    [2, 6, 7, 3],
+    [3, 7, 4, 0],
+]
 
-_OCTA_V = _normalize([(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)])
-_OCTA_F = [[4, 0, 2], [4, 2, 1], [4, 1, 3], [4, 3, 0], [5, 2, 0], [5, 1, 2], [5, 3, 1], [5, 0, 3]]
+_OCTA_V = _normalize(
+    [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]
+)
+_OCTA_F = [
+    [4, 0, 2],
+    [4, 2, 1],
+    [4, 1, 3],
+    [4, 3, 0],
+    [5, 2, 0],
+    [5, 1, 2],
+    [5, 3, 1],
+    [5, 0, 3],
+]
 
-_ICOSA_V = _normalize([
-    (-1, _PHI, 0), (1, _PHI, 0), (-1, -_PHI, 0), (1, -_PHI, 0),
-    (0, -1, _PHI), (0, 1, _PHI), (0, -1, -_PHI), (0, 1, -_PHI),
-    (_PHI, 0, -1), (_PHI, 0, 1), (-_PHI, 0, -1), (-_PHI, 0, 1),
-])
+_ICOSA_V = _normalize(
+    [
+        (-1, _PHI, 0),
+        (1, _PHI, 0),
+        (-1, -_PHI, 0),
+        (1, -_PHI, 0),
+        (0, -1, _PHI),
+        (0, 1, _PHI),
+        (0, -1, -_PHI),
+        (0, 1, -_PHI),
+        (_PHI, 0, -1),
+        (_PHI, 0, 1),
+        (-_PHI, 0, -1),
+        (-_PHI, 0, 1),
+    ]
+)
 _ICOSA_F = [
-    [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
-    [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
-    [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
-    [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
+    [0, 11, 5],
+    [0, 5, 1],
+    [0, 1, 7],
+    [0, 7, 10],
+    [0, 10, 11],
+    [1, 5, 9],
+    [5, 11, 4],
+    [11, 10, 2],
+    [10, 7, 6],
+    [7, 1, 8],
+    [3, 9, 4],
+    [3, 4, 2],
+    [3, 2, 6],
+    [3, 6, 8],
+    [3, 8, 9],
+    [4, 9, 5],
+    [2, 4, 11],
+    [6, 2, 10],
+    [8, 6, 7],
+    [9, 8, 1],
 ]
 
 _DODECA_V, _DODECA_F = _dual(_ICOSA_V, _ICOSA_F)
@@ -92,8 +149,14 @@ _SOLIDS = {
     "dodecahedron": (_DODECA_V, _DODECA_F, math.sqrt(3) / 4 * (1 + math.sqrt(5))),
     "icosahedron": (_ICOSA_V, _ICOSA_F, math.sqrt(10 + 2 * math.sqrt(5)) / 4),
 }
-_ALIASES = {"tetra": "tetrahedron", "hexahedron": "cube", "hex": "cube",
-            "octa": "octahedron", "dodeca": "dodecahedron", "icosa": "icosahedron"}
+_ALIASES = {
+    "tetra": "tetrahedron",
+    "hexahedron": "cube",
+    "hex": "cube",
+    "octa": "octahedron",
+    "dodeca": "dodecahedron",
+    "icosa": "icosahedron",
+}
 
 
 def _inradius_ratio(name):
@@ -110,7 +173,9 @@ class Polyhedra:
     def _resolve(name):
         key = _ALIASES.get(str(name).lower(), str(name).lower())
         if key not in _SOLIDS:
-            raise ValueError(f"unknown polyhedron {name!r}; expected one of {sorted(_SOLIDS)}")
+            raise ValueError(
+                f"unknown polyhedron {name!r}; expected one of {sorted(_SOLIDS)}"
+            )
         return key
 
     @staticmethod
@@ -118,12 +183,22 @@ class Polyhedra:
         """The named solid's vertex/face data and counts (BOSL2 regular_polyhedron_info())."""
         key = Polyhedra._resolve(name)
         verts, faces, _ratio = _SOLIDS[key]
-        return {"name": key, "vertices": [list(v) for v in verts], "faces": [list(f) for f in faces],
-                "num_vertices": len(verts), "num_faces": len(faces)}
+        return {
+            "name": key,
+            "vertices": [list(v) for v in verts],
+            "faces": [list(f) for f in faces],
+            "num_vertices": len(verts),
+            "num_faces": len(faces),
+        }
 
     @staticmethod
-    def regular_polyhedron(name: str = "cube", r: float | None = None, d: float | None = None,
-                           ir: float | None = None, side: float | None = None) -> Bosl2Solid:
+    def regular_polyhedron(
+        name: str = "cube",
+        r: float | None = None,
+        d: float | None = None,
+        ir: float | None = None,
+        side: float | None = None,
+    ) -> Bosl2Solid:
         """A Platonic solid, sized by circumradius *r*, diameter *d*, inradius *ir*, or *side* (BOSL2 regular_polyhedron()).
 
         *name* is ``tetrahedron`` / ``cube`` / ``octahedron`` / ``dodecahedron`` / ``icosahedron``
@@ -140,7 +215,7 @@ class Polyhedra:
         key = Polyhedra._resolve(name)
         verts, faces, ratio = _SOLIDS[key]
         if side is not None:
-            scale = side * ratio               # circumradius for the requested side
+            scale = side * ratio  # circumradius for the requested side
         elif d is not None:
             scale = d / 2
         elif ir is not None:

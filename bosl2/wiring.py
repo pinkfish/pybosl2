@@ -25,10 +25,22 @@ __all__ = ["Wiring"]
 
 # The 17 base wire colours, in the same order as BOSL2 wiring.scad.
 _WIRE_COLORS = [
-    [0.2, 0.2, 0.2], [1.0, 0.2, 0.2], [0.0, 0.8, 0.0], [1.0, 1.0, 0.2],
-    [0.3, 0.3, 1.0], [1.0, 1.0, 1.0], [0.7, 0.5, 0.0], [0.5, 0.5, 0.5],
-    [0.2, 0.9, 0.9], [0.8, 0.0, 0.8], [0.0, 0.6, 0.6], [1.0, 0.7, 0.7],
-    [1.0, 0.5, 1.0], [0.5, 0.6, 0.0], [1.0, 0.7, 0.0], [0.7, 1.0, 0.5],
+    [0.2, 0.2, 0.2],
+    [1.0, 0.2, 0.2],
+    [0.0, 0.8, 0.0],
+    [1.0, 1.0, 0.2],
+    [0.3, 0.3, 1.0],
+    [1.0, 1.0, 1.0],
+    [0.7, 0.5, 0.0],
+    [0.5, 0.5, 0.5],
+    [0.2, 0.9, 0.9],
+    [0.8, 0.0, 0.8],
+    [0.0, 0.6, 0.6],
+    [1.0, 0.7, 0.7],
+    [1.0, 0.5, 1.0],
+    [0.5, 0.6, 0.0],
+    [1.0, 0.7, 0.0],
+    [0.7, 1.0, 0.5],
     [0.6, 0.6, 1.0],
 ]
 
@@ -44,10 +56,13 @@ def _hex_offset_ring(d, lev):
     ``lev=0`` is the single centre point; ``lev>=1`` is a hexagon of ``6*lev`` points."""
     if lev == 0:
         return [[0.0, 0.0]]
-    R = lev * d                                              # hexagon circumradius; side length == R
-    corners = [(R * math.cos(math.radians(60 * k)), R * math.sin(math.radians(60 * k))) for k in range(6)]
+    R = lev * d  # hexagon circumradius; side length == R
+    corners = [
+        (R * math.cos(math.radians(60 * k)), R * math.sin(math.radians(60 * k)))
+        for k in range(6)
+    ]
     pts = []
-    for k in range(6):                                       # subdivide each edge into lev segments
+    for k in range(6):  # subdivide each edge into lev segments
         x0, y0 = corners[k]
         x1, y1 = corners[(k + 1) % 6]
         for s in range(lev):
@@ -77,8 +92,14 @@ class Wiring:
         return _hex_offsets(n, d)
 
     @staticmethod
-    def wire_bundle(path, wires: int, wirediam: float = 2, rounding: float = 10,
-                    wirenum: int = 0, corner_steps: int = 15) -> Bosl2Solid:
+    def wire_bundle(
+        path,
+        wires: int,
+        wirediam: float = 2,
+        rounding: float = 10,
+        wirenum: int = 0,
+        corner_steps: int = 15,
+    ) -> Bosl2Solid:
         """A bundle of *wires* round wires that follow *path*, its corners rounded to *rounding* (BOSL2 wire_bundle()).
 
         The wires are hex-packed in the bundle cross-section and each is coloured from the 17-entry
@@ -98,10 +119,17 @@ class Wiring:
             raise ValueError("wire_bundle() needs at least one wire.")
         sides = max(_segs(wirediam / 2), 8)
         offsets = _hex_offsets(wires, wirediam)
-        rounded_path = round_corners(path, radius=rounding, closed=False, _fn=(corner_steps + 1) * 4)
+        rounded_path = round_corners(
+            path, radius=rounding, closed=False, _fn=(corner_steps + 1) * 4
+        )
         r = wirediam / 2
-        profile = [[r * math.cos(2 * math.pi * k / sides), r * math.sin(2 * math.pi * k / sides)]
-                   for k in range(sides)]
+        profile = [
+            [
+                r * math.cos(2 * math.pi * k / sides),
+                r * math.sin(2 * math.pi * k / sides),
+            ]
+            for k in range(sides)
+        ]
 
         bundle = None
         for i in range(wires):

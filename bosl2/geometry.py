@@ -41,8 +41,15 @@ def is_collinear(a, b=None, c=None, eps: float = EPSILON) -> bool:
             return True
         a, b, c = points[0], points[1], points[2]
         # BOSL2 checks every triple, not just the first three; match that.
-        return all(is_collinear(points[i], points[i + 1], points[i + 2], eps) for i in range(len(points) - 2))
-    a, b, c = np.asarray(a, dtype=float), np.asarray(b, dtype=float), np.asarray(c, dtype=float)
+        return all(
+            is_collinear(points[i], points[i + 1], points[i + 2], eps)
+            for i in range(len(points) - 2)
+        )
+    a, b, c = (
+        np.asarray(a, dtype=float),
+        np.asarray(b, dtype=float),
+        np.asarray(c, dtype=float),
+    )
     v1 = b - a
     v2 = c - a
     n1 = float(np.linalg.norm(v1))
@@ -116,7 +123,9 @@ def general_line_intersection(s1, s2, eps: float = EPSILON):
     return [point, t, u]
 
 
-def circle_circle_tangents(r1: float, cp1, r2: float, cp2, d1: float | None = None, d2: float | None = None) -> list[list[list[float]]]:
+def circle_circle_tangents(
+    r1: float, cp1, r2: float, cp2, d1: float | None = None, d2: float | None = None
+) -> list[list[list[float]]]:
     """Tangent lines between two circles (r1, cp1) and (r2, cp2).
 
     Returns a list of up to 4 tangent lines, each a [point_on_circle1, point_on_circle2]
@@ -128,7 +137,12 @@ def circle_circle_tangents(r1: float, cp1, r2: float, cp2, d1: float | None = No
     cp1 = np.asarray(cp1, dtype=float)
     cp2 = np.asarray(cp2, dtype=float)
     dist = float(np.linalg.norm(cp2 - cp1))
-    r_vals = [(r2v - r1v) / dist, (r2v - r1v) / dist, (-r2v - r1v) / dist, (-r2v - r1v) / dist]
+    r_vals = [
+        (r2v - r1v) / dist,
+        (r2v - r1v) / dist,
+        (-r2v - r1v) / dist,
+        (-r2v - r1v) / dist,
+    ]
     k_vals = [-1, 1, -1, 1]
     ext = [1, 1, -1, -1]
     if 1 - r_vals[2] ** 2 >= 0:

@@ -37,10 +37,28 @@ from bosl2.constants import RIGHT, BACK, UP
 from bosl2._helpers import is_num, translate4, rot_from_to4
 
 __all__ = [
-    "move_copies", "xcopies", "ycopies", "zcopies", "line_copies", "grid_copies",
-    "rot_copies", "xrot_copies", "yrot_copies", "zrot_copies", "arc_copies", "sphere_copies",
-    "path_copies", "mirror_copy", "xflip_copy", "yflip_copy", "zflip_copy",
-    "distribute", "xdistribute", "ydistribute", "zdistribute", "Distributable",
+    "move_copies",
+    "xcopies",
+    "ycopies",
+    "zcopies",
+    "line_copies",
+    "grid_copies",
+    "rot_copies",
+    "xrot_copies",
+    "yrot_copies",
+    "zrot_copies",
+    "arc_copies",
+    "sphere_copies",
+    "path_copies",
+    "mirror_copy",
+    "xflip_copy",
+    "yflip_copy",
+    "zflip_copy",
+    "distribute",
+    "xdistribute",
+    "ydistribute",
+    "zdistribute",
+    "Distributable",
 ]
 
 
@@ -94,7 +112,13 @@ def _frame_map4(x=None, z=None) -> np.ndarray:
 
 def _spherical_to_xyz(r: float, theta: float, phi: float) -> np.ndarray:
     th, ph = math.radians(theta), math.radians(phi)
-    return np.array([r * math.sin(ph) * math.cos(th), r * math.sin(ph) * math.sin(th), r * math.cos(ph)])
+    return np.array(
+        [
+            r * math.sin(ph) * math.cos(th),
+            r * math.sin(ph) * math.sin(th),
+            r * math.cos(ph),
+        ]
+    )
 
 
 def _radius(r=None, d=None, r1=None, d1=None, dflt=None):
@@ -136,13 +160,20 @@ def line_copies(spacing=None, n=None, l=None, p1=None, p2=None) -> list[np.ndarr
     elif spacing is not None and n is not None:
         ll = (n - 1) * _scalar_vec3(spacing, 0.0)
     elif p1 is not None and p2 is not None:
-        ll = _scalar_vec3(np.asarray(p2, dtype=float) - np.asarray(p1, dtype=float), 0.0)
+        ll = _scalar_vec3(
+            np.asarray(p2, dtype=float) - np.asarray(p1, dtype=float), 0.0
+        )
     else:
         ll = None
     if n is not None:
         cnt = int(n)
     elif spacing is not None and ll is not None:
-        cnt = int(math.floor(np.linalg.norm(ll) / np.linalg.norm(_scalar_vec3(spacing, 0.0)) + 1.000001))
+        cnt = int(
+            math.floor(
+                np.linalg.norm(ll) / np.linalg.norm(_scalar_vec3(spacing, 0.0))
+                + 1.000001
+            )
+        )
     else:
         cnt = 2
     if cnt <= 1:
@@ -159,8 +190,14 @@ def line_copies(spacing=None, n=None, l=None, p1=None, p2=None) -> list[np.ndarr
 
 def _axis_copies(direction, spacing, n, l, sp) -> list[np.ndarray]:
     dirv = np.asarray(direction, dtype=float)
-    sp_pt = (sp * dirv) if is_num(sp) else (np.asarray(sp, dtype=float) if sp is not None else None)
-    if isinstance(spacing, (list, tuple, np.ndarray)):  # explicit positions along the axis
+    sp_pt = (
+        (sp * dirv)
+        if is_num(sp)
+        else (np.asarray(sp, dtype=float) if sp is not None else None)
+    )
+    if isinstance(
+        spacing, (list, tuple, np.ndarray)
+    ):  # explicit positions along the axis
         base = sp_pt if sp_pt is not None else np.zeros(3)
         return [translate4(base + float(s) * dirv) for s in spacing]
     lv = (l * dirv) if l is not None else None
@@ -183,12 +220,16 @@ def zcopies(spacing=None, n=None, l=None, sp=None) -> list[np.ndarray]:
     return _axis_copies(UP, spacing, n, l, sp)
 
 
-def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, nonzero=None,
-                axes="xy") -> list[np.ndarray]:
+def grid_copies(
+    spacing=None, n=None, size=None, stagger=False, inside=None, nonzero=None, axes="xy"
+) -> list[np.ndarray]:
     """Copies laid out in a square or staggered (hex) grid (BOSL2 grid_copies())."""
-    assert stagger in (False, True, "alt"), "grid_copies(): stagger must be False, True or 'alt'."
-    assert len(axes) == 2 and axes[0] in "xyz" and axes[1] in "xyz" and axes[0] != axes[1], \
-        "grid_copies(): invalid axes."
+    assert stagger in (False, True, "alt"), (
+        "grid_copies(): stagger must be False, True or 'alt'."
+    )
+    assert (
+        len(axes) == 2 and axes[0] in "xyz" and axes[1] in "xyz" and axes[0] != axes[1]
+    ), "grid_copies(): invalid axes."
     ai = {"x": 0, "y": 1, "z": 2}
 
     def permax(pt):
@@ -203,13 +244,20 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
         bounds = [arr.min(axis=0), arr.max(axis=0)]
 
     if size is not None:
-        size = [float(size), float(size)] if is_num(size) else [float(size[0]), float(size[1])]
+        size = (
+            [float(size), float(size)]
+            if is_num(size)
+            else [float(size[0]), float(size[1])]
+        )
     elif bounds is not None:
         size = [2 * max(abs(bounds[0][i]), abs(bounds[1][i])) for i in range(2)]
 
     if is_num(spacing):
         from bosl2.transforms import polar_to_xy
-        spacing = polar_to_xy(spacing, 60) if stagger is not False else [spacing, spacing]
+
+        spacing = (
+            polar_to_xy(spacing, 60) if stagger is not False else [spacing, spacing]
+        )
     elif isinstance(spacing, (list, tuple, np.ndarray)):
         spacing = [float(spacing[0]), float(spacing[1])]
     elif size is not None:
@@ -226,7 +274,10 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
     elif isinstance(n, (list, tuple, np.ndarray)):
         n = [int(n[0]), int(n[1])]
     elif size is not None and spacing is not None:
-        n = [int(math.floor(size[0] / spacing[0])) + 1, int(math.floor(size[1] / spacing[1])) + 1]
+        n = [
+            int(math.floor(size[0] / spacing[0])) + 1,
+            int(math.floor(size[1] / spacing[1])) + 1,
+        ]
     else:
         n = [2, 2]
 
@@ -237,6 +288,7 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
         if inside is None:
             return True
         from bosl2.paths import Path
+
         return Path._point_in_polygon(pos, inside, nonzero=bool(nonzero)) >= 0
 
     mats = []
@@ -254,17 +306,28 @@ def grid_copies(spacing=None, n=None, size=None, stagger=False, inside=None, non
             rowcols = cols1 if (row % 2) == staggermod else cols2
             for col in range(rowcols):
                 rowdx = spacing[0] if (row % 2) != staggermod else 0.0
-                pos = np.array([2 * col, row]) * spacing + np.array([rowdx, 0.0]) - offset
+                pos = (
+                    np.array([2 * col, row]) * spacing + np.array([rowdx, 0.0]) - offset
+                )
                 if keep(pos):
                     mats.append(translate4(permax(pos)))
     return mats
 
 
-def rot_copies(rots=None, v=None, cp=(0, 0, 0), n=None, sa=0, offset=0, delta=(0, 0, 0),
-               subrot=True) -> list[np.ndarray]:
+def rot_copies(
+    rots=None,
+    v=None,
+    cp=(0, 0, 0),
+    n=None,
+    sa=0,
+    offset=0,
+    delta=(0, 0, 0),
+    subrot=True,
+) -> list[np.ndarray]:
     """Rotated copies about an axis, optionally offset into a ring (BOSL2 rot_copies())."""
-    assert subrot or np.linalg.norm(_scalar_vec3(delta, 0.0)) > 0, \
+    assert subrot or np.linalg.norm(_scalar_vec3(delta, 0.0)) > 0, (
         "rot_copies(): subrot can only be False when delta is nonzero."
+    )
     sang = sa + offset
     if n is not None:
         angs = [] if n <= 0 else [i / n * 360 + sang for i in range(n)]
@@ -275,49 +338,76 @@ def rot_copies(rots=None, v=None, cp=(0, 0, 0), n=None, sa=0, offset=0, delta=(0
     cpv, deltav = _scalar_vec3(cp, 0.0), _scalar_vec3(delta, 0.0)
     mats = []
     for ang in angs:
-        m = (translate4(cpv) @ _rot4(ang, v) @ translate4(deltav)
-             @ _rot4(0 if subrot else ang, v, reverse=True) @ translate4(-cpv))
+        m = (
+            translate4(cpv)
+            @ _rot4(ang, v)
+            @ translate4(deltav)
+            @ _rot4(0 if subrot else ang, v, reverse=True)
+            @ translate4(-cpv)
+        )
         mats.append(m)
     return mats
 
 
-def xrot_copies(rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True) -> list[np.ndarray]:
+def xrot_copies(
+    rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True
+) -> list[np.ndarray]:
     """Rotated copies around the X axis, optionally into a ring of radius *r* (BOSL2 xrot_copies())."""
     rr = _radius(r=r, d=d, dflt=0)
-    return rot_copies(rots=rots, v=RIGHT, cp=cp, n=n, sa=sa, delta=[0, rr, 0], subrot=subrot)
+    return rot_copies(
+        rots=rots, v=RIGHT, cp=cp, n=n, sa=sa, delta=[0, rr, 0], subrot=subrot
+    )
 
 
-def yrot_copies(rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True) -> list[np.ndarray]:
+def yrot_copies(
+    rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True
+) -> list[np.ndarray]:
     """Rotated copies around the Y axis, optionally into a ring of radius *r* (BOSL2 yrot_copies())."""
     rr = _radius(r=r, d=d, dflt=0)
-    return rot_copies(rots=rots, v=BACK, cp=cp, n=n, sa=sa, delta=[-rr, 0, 0], subrot=subrot)
+    return rot_copies(
+        rots=rots, v=BACK, cp=cp, n=n, sa=sa, delta=[-rr, 0, 0], subrot=subrot
+    )
 
 
-def zrot_copies(rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True) -> list[np.ndarray]:
+def zrot_copies(
+    rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True
+) -> list[np.ndarray]:
     """Rotated copies around the Z axis, optionally into a ring of radius *r* (BOSL2 zrot_copies())."""
     rr = _radius(r=r, d=d, dflt=0)
-    return rot_copies(rots=rots, v=UP, cp=cp, n=n, sa=sa, delta=[rr, 0, 0], subrot=subrot)
+    return rot_copies(
+        rots=rots, v=UP, cp=cp, n=n, sa=sa, delta=[rr, 0, 0], subrot=subrot
+    )
 
 
-def arc_copies(n=6, r=None, rx=None, ry=None, d=None, dx=None, dy=None, sa=0, ea=360,
-               rot=True) -> list[np.ndarray]:
+def arc_copies(
+    n=6, r=None, rx=None, ry=None, d=None, dx=None, dy=None, sa=0, ea=360, rot=True
+) -> list[np.ndarray]:
     """Copies spread along an (elliptical) arc in the XY plane (BOSL2 arc_copies())."""
     rxv = _radius(r1=rx, r=r, d1=dx, d=d, dflt=1)
     ryv = _radius(r1=ry, r=r, d1=dy, d=d, dflt=1)
     sa, ea = sa % 360, ea % 360
     extra_n = 1 if abs(ea - sa) < 0.01 else 0
-    delt = (((360.0 if ea <= sa else 0) + ea - sa)) / (n - 1 + extra_n)
+    delt = ((360.0 if ea <= sa else 0) + ea - sa) / (n - 1 + extra_n)
     mats = []
     for i in range(n):
         ang = sa + i * delt
         pos = [rxv * math.cos(math.radians(ang)), ryv * math.sin(math.radians(ang)), 0]
-        ang2 = math.degrees(math.atan2(ryv * math.sin(math.radians(ang)),
-                                       rxv * math.cos(math.radians(ang)))) if rot else 0
+        ang2 = (
+            math.degrees(
+                math.atan2(
+                    ryv * math.sin(math.radians(ang)), rxv * math.cos(math.radians(ang))
+                )
+            )
+            if rot
+            else 0
+        )
         mats.append(translate4(pos) @ _rot4(ang2))
     return mats
 
 
-def sphere_copies(n=100, r=None, d=None, cone_ang=90, scale=(1, 1, 1), perp=True) -> list[np.ndarray]:
+def sphere_copies(
+    n=100, r=None, d=None, cone_ang=90, scale=(1, 1, 1), perp=True
+) -> list[np.ndarray]:
     """Copies spread over a sphere/ellipsoid by the golden-spiral method (BOSL2 sphere_copies())."""
     rr = _radius(r=r, d=d, dflt=50)
     cnt = math.ceil(n / (cone_ang / 180))
@@ -333,8 +423,9 @@ def sphere_copies(n=100, r=None, d=None, cone_ang=90, scale=(1, 1, 1), perp=True
     return mats
 
 
-def path_copies(path, n=None, spacing=None, sp=None, dist=None, rotate_children=True,
-                closed=None) -> list[np.ndarray]:
+def path_copies(
+    path, n=None, spacing=None, sp=None, dist=None, rotate_children=True, closed=None
+) -> list[np.ndarray]:
     """Copies placed along *path*, oriented to it (BOSL2 path_copies())."""
     from bosl2.paths import Path
 
@@ -353,14 +444,20 @@ def path_copies(path, n=None, spacing=None, sp=None, dist=None, rotate_children=
     elif n is not None and spacing is None:
         distances = list(np.linspace(0, length, n, endpoint=not closed))
     else:
-        cnt = n if n is not None else int(math.floor(length / spacing)) + (0 if closed else 1)
+        cnt = (
+            n
+            if n is not None
+            else int(math.floor(length / spacing)) + (0 if closed else 1)
+        )
         ptlist = [i * spacing for i in range(cnt)]
         center = sum(ptlist) / len(ptlist)
         if closed:
             distances = sorted((e - center) % length for e in ptlist)
         else:
             distances = [e + length / 2 - center for e in ptlist]
-    assert min(distances) >= -1e-9 and max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
+    assert min(distances) >= -1e-9 and max(distances) <= length + 1e-9, (
+        "path_copies(): copies don't fit on the path."
+    )
     distances = [min(max(dst, 0.0), length) for dst in distances]
     cutlist = Path._path_cut_points(pts, distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2
@@ -380,9 +477,16 @@ def path_copies(path, n=None, spacing=None, sp=None, dist=None, rotate_children=
 def mirror_copy(v=(0, 0, 1), offset=0, cp=None) -> list[np.ndarray]:
     """The original plus a mirrored copy across the plane with normal *v* (BOSL2 mirror_copy())."""
     nv = _unit3(v)
-    cpv = _scalar_vec3(cp, 0.0) if cp is not None and not is_num(cp) else (cp * nv if is_num(cp) else np.zeros(3))
+    cpv = (
+        _scalar_vec3(cp, 0.0)
+        if cp is not None and not is_num(cp)
+        else (cp * nv if is_num(cp) else np.zeros(3))
+    )
     off = nv * offset
-    return [translate4(off), translate4(cpv) @ _mirror4(nv) @ translate4(-cpv) @ translate4(off)]
+    return [
+        translate4(off),
+        translate4(cpv) @ _mirror4(nv) @ translate4(-cpv) @ translate4(off),
+    ]
 
 
 def xflip_copy(offset=0, x=0) -> list[np.ndarray]:
@@ -415,7 +519,9 @@ class Distributable:
     """
 
     def _distribute(self, mats):  # pragma: no cover - overridden by every host class
-        raise NotImplementedError("Distributable subclasses must implement _distribute().")
+        raise NotImplementedError(
+            "Distributable subclasses must implement _distribute()."
+        )
 
     def move_copies(self, a=([0, 0, 0],)):
         """Copy to each offset in *a*."""
@@ -437,41 +543,89 @@ class Distributable:
         """Copies spread along a line."""
         return self._distribute(line_copies(spacing, n, l, p1, p2))
 
-    def grid_copies(self, spacing=None, n=None, size=None, stagger=False, inside=None,
-                    nonzero=None, axes="xy"):
+    def grid_copies(
+        self,
+        spacing=None,
+        n=None,
+        size=None,
+        stagger=False,
+        inside=None,
+        nonzero=None,
+        axes="xy",
+    ):
         """Copies in a square or staggered (hex) grid."""
-        return self._distribute(grid_copies(spacing, n, size, stagger, inside, nonzero, axes))
+        return self._distribute(
+            grid_copies(spacing, n, size, stagger, inside, nonzero, axes)
+        )
 
-    def rot_copies(self, rots=None, v=None, cp=(0, 0, 0), n=None, sa=0, offset=0, delta=(0, 0, 0),
-                   subrot=True):
+    def rot_copies(
+        self,
+        rots=None,
+        v=None,
+        cp=(0, 0, 0),
+        n=None,
+        sa=0,
+        offset=0,
+        delta=(0, 0, 0),
+        subrot=True,
+    ):
         """Rotated copies about an axis (optionally into a ring via *delta*)."""
         return self._distribute(rot_copies(rots, v, cp, n, sa, offset, delta, subrot))
 
-    def xrot_copies(self, rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True):
+    def xrot_copies(
+        self, rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True
+    ):
         """Rotated copies around the X axis."""
         return self._distribute(xrot_copies(rots, cp, n, sa, r, d, subrot))
 
-    def yrot_copies(self, rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True):
+    def yrot_copies(
+        self, rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True
+    ):
         """Rotated copies around the Y axis."""
         return self._distribute(yrot_copies(rots, cp, n, sa, r, d, subrot))
 
-    def zrot_copies(self, rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True):
+    def zrot_copies(
+        self, rots=None, cp=(0, 0, 0), n=None, sa=0, r=None, d=None, subrot=True
+    ):
         """Rotated copies around the Z axis."""
         return self._distribute(zrot_copies(rots, cp, n, sa, r, d, subrot))
 
-    def arc_copies(self, n=6, r=None, rx=None, ry=None, d=None, dx=None, dy=None, sa=0, ea=360,
-                   rot=True):
+    def arc_copies(
+        self,
+        n=6,
+        r=None,
+        rx=None,
+        ry=None,
+        d=None,
+        dx=None,
+        dy=None,
+        sa=0,
+        ea=360,
+        rot=True,
+    ):
         """Copies spread along an (elliptical) arc in the XY plane."""
         return self._distribute(arc_copies(n, r, rx, ry, d, dx, dy, sa, ea, rot))
 
-    def sphere_copies(self, n=100, r=None, d=None, cone_ang=90, scale=(1, 1, 1), perp=True):
+    def sphere_copies(
+        self, n=100, r=None, d=None, cone_ang=90, scale=(1, 1, 1), perp=True
+    ):
         """Copies spread over a sphere/ellipsoid surface."""
         return self._distribute(sphere_copies(n, r, d, cone_ang, scale, perp))
 
-    def path_copies(self, path, n=None, spacing=None, sp=None, dist=None, rotate_children=True,
-                    closed=None):
+    def path_copies(
+        self,
+        path,
+        n=None,
+        spacing=None,
+        sp=None,
+        dist=None,
+        rotate_children=True,
+        closed=None,
+    ):
         """Copies placed along *path*, oriented to it."""
-        return self._distribute(path_copies(path, n, spacing, sp, dist, rotate_children, closed))
+        return self._distribute(
+            path_copies(path, n, spacing, sp, dist, rotate_children, closed)
+        )
 
     def mirror_copy(self, v=(0, 0, 1), offset=0, cp=None):
         """This object plus a copy mirrored across the plane with normal *v*."""
@@ -508,16 +662,34 @@ def distribute(children, spacing=None, sizes=None, dir=RIGHT, l=None):
     cnt = len(children)
     assert cnt >= 1, "distribute(): needs at least one child."
     if sizes is None:
-        extents = [float(abs(np.asarray(c.bounds()[1], dtype=float) @ dirv
-                            - np.asarray(c.bounds()[0], dtype=float) @ dirv)) for c in children]
+        extents = [
+            float(
+                abs(
+                    np.asarray(c.bounds()[1], dtype=float) @ dirv
+                    - np.asarray(c.bounds()[0], dtype=float) @ dirv
+                )
+            )
+            for c in children
+        ]
     else:
         extents = [float(s) for s in sizes]
-    gaps = [0.0] if cnt < 2 else [extents[i] / 2 + extents[i + 1] / 2 for i in range(cnt - 1)]
-    spc = ((l - sum(gaps)) / (cnt - 1)) if (l is not None and cnt > 1) else (spacing if spacing is not None else 10)
+    gaps = (
+        [0.0]
+        if cnt < 2
+        else [extents[i] / 2 + extents[i + 1] / 2 for i in range(cnt - 1)]
+    )
+    spc = (
+        ((l - sum(gaps)) / (cnt - 1))
+        if (l is not None and cnt > 1)
+        else (spacing if spacing is not None else 10)
+    )
     gaps2 = [g + spc for g in gaps]
     positions = np.cumsum([0.0] + gaps2)
     start = -sum(gaps2) / 2 * dirv
-    placed = [c.translate((start + positions[i] * dirv).tolist()) for i, c in enumerate(children)]
+    placed = [
+        c.translate((start + positions[i] * dirv).tolist())
+        for i, c in enumerate(children)
+    ]
     out = placed[0]
     for c in placed[1:]:
         out = out | c

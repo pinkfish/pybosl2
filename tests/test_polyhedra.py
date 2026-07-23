@@ -12,8 +12,13 @@ import pytest
 from bosl2.polyhedra import Polyhedra as P
 from bosl2.shapes3d import Bosl2Solid
 
-_COUNTS = {"tetrahedron": (4, 4), "cube": (8, 6), "octahedron": (6, 8),
-          "dodecahedron": (20, 12), "icosahedron": (12, 20)}
+_COUNTS = {
+    "tetrahedron": (4, 4),
+    "cube": (8, 6),
+    "octahedron": (6, 8),
+    "dodecahedron": (20, 12),
+    "icosahedron": (12, 20),
+}
 
 
 def _size(s):
@@ -35,7 +40,7 @@ def test_euler_characteristic(name):
         for i in range(len(f)):
             edges.add(frozenset((f[i], f[(i + 1) % len(f)])))
     V, E, F = info["num_vertices"], len(edges), info["num_faces"]
-    assert V - E + F == 2                    # Euler's formula
+    assert V - E + F == 2  # Euler's formula
 
 
 @pytest.mark.parametrize("name", list(_COUNTS))

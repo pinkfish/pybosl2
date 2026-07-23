@@ -70,7 +70,9 @@ def test_apply_single_point_vs_list():
     m = np.eye(4)
     m[:3, 3] = [10, 20, 30]  # pure translation
     np.testing.assert_allclose(apply(m, [1, 1, 1]), [11, 21, 31])
-    np.testing.assert_allclose(apply(m, [[0, 0, 0], [1, 2, 3]]), [[10, 20, 30], [11, 22, 33]])
+    np.testing.assert_allclose(
+        apply(m, [[0, 0, 0], [1, 2, 3]]), [[10, 20, 30], [11, 22, 33]]
+    )
 
 
 def test_apply_returns_plain_lists():
@@ -79,8 +81,12 @@ def test_apply_returns_plain_lists():
 
 
 def test_rot_about_axis_through_point():
-    m = rot_about_axis(90, [0, 0, 1], cp=[5, 0, 0])  # rotate 90 about the vertical line at x=5
-    np.testing.assert_allclose(apply(m, [5, 0, 0]), [5, 0, 0], atol=1e-9)  # the axis point is fixed
+    m = rot_about_axis(
+        90, [0, 0, 1], cp=[5, 0, 0]
+    )  # rotate 90 about the vertical line at x=5
+    np.testing.assert_allclose(
+        apply(m, [5, 0, 0]), [5, 0, 0], atol=1e-9
+    )  # the axis point is fixed
     np.testing.assert_allclose(apply(m, [6, 0, 0]), [5, 1, 0], atol=1e-9)
 
 

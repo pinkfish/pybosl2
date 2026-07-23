@@ -26,7 +26,11 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from pythonscad import polygon as _opolygon, rotate_extrude as _orotate_extrude, hull as _ohull
+from pythonscad import (
+    polygon as _opolygon,
+    rotate_extrude as _orotate_extrude,
+    hull as _ohull,
+)
 
 from bosl2._helpers import union
 from bosl2.constants import INCH, BOTTOM
@@ -56,22 +60,22 @@ def _union(shapes):
 class PhillipsSpec:
     """Phillips recess geometry for one bit size (ISO 4757). See :func:`ScrewDrive.phillips_mask`."""
 
-    shaft: float   # shaft/outer diameter
-    b: float       # cutout wing spacing radius
-    e: float       # cutout wing base width
-    g: float       # tip cone diameter
-    alpha: float   # cutout near-face angle
-    beta: float    # cutout tilt angle
+    shaft: float  # shaft/outer diameter
+    b: float  # cutout wing spacing radius
+    e: float  # cutout wing base width
+    g: float  # tip cone diameter
+    alpha: float  # cutout near-face angle
+    beta: float  # cutout tilt angle
 
 
 @dataclass(frozen=True)
 class TorxSpec:
     """Torx driver dimensions for one size (ISO 14583). See :func:`ScrewDrive.torx_info`."""
 
-    od: float              # outer diameter
-    id: float              # inner diameter
-    depth: float           # drive-hole depth
-    tip_rounding: float    # external tip rounding radius
+    od: float  # outer diameter
+    id: float  # inner diameter
+    depth: float  # drive-hole depth
+    tip_rounding: float  # external tip rounding radius
     inner_rounding: float  # inner rounding radius
 
     def as_tuple(self) -> tuple[float, float, float, float, float]:
@@ -201,14 +205,19 @@ class ScrewDrive:
         shaft, b, e, g = spec.shaft, spec.b, spec.e, spec.g
         alpha, beta, gamma = spec.alpha, spec.beta, _PH_GAMMA
 
-        h1 = _adj_ang_to_opp(g / 2, _PH_BOT_ANGLE)              # height of the small conical tip
-        h2 = _adj_ang_to_opp((shaft - g) / 2, 90 - _PH_SIDE_ANGLE)  # height of the larger cone
+        h1 = _adj_ang_to_opp(g / 2, _PH_BOT_ANGLE)  # height of the small conical tip
+        h2 = _adj_ang_to_opp(
+            (shaft - g) / 2, 90 - _PH_SIDE_ANGLE
+        )  # height of the larger cone
         length = h1 + h2
-        h3 = _adj_ang_to_opp(b / 2, _PH_BOT_ANGLE)             # height where the cutout starts
+        h3 = _adj_ang_to_opp(b / 2, _PH_BOT_ANGLE)  # height where the cutout starts
 
         p0 = [0.0, 0.0]
         p1 = [_adj_ang_to_opp(e / 2, 90 - alpha / 2), -e / 2]
-        p2 = [p1[0] + _adj_ang_to_opp((shaft - e) / 2, 90 - gamma / 2), p1[1] - (shaft - e) / 2]
+        p2 = [
+            p1[0] + _adj_ang_to_opp((shaft - e) / 2, 90 - gamma / 2),
+            p1[1] - (shaft - e) / 2,
+        ]
         cut_path = [p0, p1, p2, [p2[0], -p2[1]], [p1[0], -p1[1]]]
 
         # One cutout wing: extruded profile, dropped 1mm, tilted by beta, raised to h3.
@@ -217,7 +226,9 @@ class ScrewDrive:
         cutter = _union(wing.multmatrix(m.tolist()) for m in zrot_copies(n=4, r=b / 2))
         cutter = cutter.rotate([0, 0, 45])
 
-        body = _orotate_extrude(_opolygon([[0, 0], [g / 2, h1], [shaft / 2, length], [0, length]]), fn=_fn)
+        body = _orotate_extrude(
+            _opolygon([[0, 0], [g / 2, h1], [shaft / 2, length], [0, length]]), fn=_fn
+        )
         mask = Bosl2Solid(body - cutter, size=[shaft, shaft, length])
         return mask.down(length / 2) if center else mask
 
@@ -245,15 +256,20 @@ class ScrewDrive:
     # ---- Hex (Allen) -----------------------------------------------------
 
     @staticmethod
-    def hex_drive_mask(size: float, length: float, slop: float = 0.0,
-                       center: bool = False) -> Bosl2Solid:
+    def hex_drive_mask(
+        size: float, length: float, slop: float = 0.0, center: bool = False
+    ) -> Bosl2Solid:
         """A hex (Allen) driver-recess mask, *size* across flats, *length* tall (BOSL2 hex_drive_mask()).
 
         The recess is slightly oversized per the ISO standard; *slop* enlarges it by a further
         ``2 * slop``.
         """
-        realsize = 1.0072 * size + 0.0341 + 2 * slop   # empirical fit to the ISO standard
-        solid = hexagon(inner_diameter=realsize).linear_extrude(height=length, center=center)
+        realsize = (
+            1.0072 * size + 0.0341 + 2 * slop
+        )  # empirical fit to the ISO standard
+        solid = hexagon(inner_diameter=realsize).linear_extrude(
+            height=length, center=center
+        )
         return Bosl2Solid(solid, size=[realsize, realsize, length])
 
     # ---- Torx ------------------------------------------------------------
@@ -284,21 +300,32 @@ class ScrewDrive:
     @staticmethod
     def _torx_profile(size: int):
         spec = ScrewDrive.torx_info(size)
-        od, id_, tip, rounding = spec.od, spec.id, spec.tip_rounding, spec.inner_rounding
+        od, id_, tip, rounding = (
+            spec.od,
+            spec.id,
+            spec.tip_rounding,
+            spec.inner_rounding,
+        )
         base = od - 2 * tip
         fn = int(_quantup(_frag_count(od / 2), 12))
 
         # Six outward lobes: two rotated copies of a hull of three tip circles, plus the base circle.
-        tip_circles = [circle(radius=tip, _fn=fn // 2).translate([base / 2, 0]).multmatrix(m.tolist())
-                       for m in zrot_copies(n=3)]
+        tip_circles = [
+            circle(radius=tip, _fn=fn // 2)
+            .translate([base / 2, 0])
+            .multmatrix(m.tolist())
+            for m in zrot_copies(n=3)
+        ]
         tri = _ohull(*tip_circles)
         lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(n=2))
         solid = circle(diameter=base, _fn=fn) | lobes
 
         # Six inner rounding cutouts.
         cut = _union(
-            circle(radius=rounding, _fn=fn).translate([id_ / 2 + rounding, 0])
-            .rotate([0, 0, 180 / 6]).multmatrix(m.tolist())
+            circle(radius=rounding, _fn=fn)
+            .translate([id_ / 2 + rounding, 0])
+            .rotate([0, 0, 180 / 6])
+            .multmatrix(m.tolist())
             for m in zrot_copies(n=6)
         )
         return solid - cut
@@ -316,14 +343,17 @@ class ScrewDrive:
                 ScrewDrive.torx_mask(size=30, length=10).show()
         """
         od = ScrewDrive.torx_diam(size)
-        solid = ScrewDrive._torx_profile(size).linear_extrude(height=length, center=center)
+        solid = ScrewDrive._torx_profile(size).linear_extrude(
+            height=length, center=center
+        )
         return Bosl2Solid(solid, size=[od, od, length])
 
     # ---- Robertson / square ---------------------------------------------
 
     @staticmethod
-    def robertson_mask(size: int, extra: float = 1.0, ang: float = 2.5,
-                       slop: float = 0.0) -> Bosl2Solid:
+    def robertson_mask(
+        size: int, extra: float = 1.0, ang: float = 2.5, slop: float = 0.0
+    ) -> Bosl2Solid:
         """A Robertson/square driver-recess mask for square-drive *size* ``0``..``4`` (BOSL2 robertson_mask()).
 
         Args:
@@ -335,9 +365,9 @@ class ScrewDrive:
         if not (isinstance(size, int) and 0 <= size <= 4):
             raise ValueError(f"robertson size must be an int 0..4, got {size!r}")
         spec = _ROBERTSON[size]
-        M = spec.m * INCH   # across flats
-        T = spec.t * INCH   # depth
-        F = spec.f * INCH   # flat-to-taper transition
+        M = spec.m * INCH  # across flats
+        T = spec.t * INCH  # depth
+        F = spec.f * INCH  # flat-to-taper transition
         h = T + extra
         m_slop = M + 2 * slop
         m_top = m_slop + 2 * _adj_ang_to_opp(F + extra, ang)

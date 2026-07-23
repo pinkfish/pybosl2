@@ -19,6 +19,7 @@ UNIT = [[0, 0], [10, 0], [10, 10], [0, 10]]
 
 # -- construction / drop-in list behaviour ------------------------------------------------
 
+
 def test_is_a_list_of_plain_floats():
     p = Path(np.asarray(SQUARE, dtype=float))
     assert isinstance(p, list)
@@ -43,6 +44,7 @@ def test_array_property():
 
 # -- measurement --------------------------------------------------------------------------
 
+
 def test_bounds_width_length():
     p = Path(SQUARE)
     np.testing.assert_allclose(p.bounds(), [[0, 0], [80, 60]])
@@ -63,7 +65,9 @@ def test_is_clockwise():
 
 def test_perimeter_closed_vs_open():
     assert Path(SQUARE).perimeter() == 280
-    assert Path(SQUARE, closed=False).perimeter() == 220  # three segments, no closing edge
+    assert (
+        Path(SQUARE, closed=False).perimeter() == 220
+    )  # three segments, no closing edge
 
 
 def test_segment_lengths_and_fractions():
@@ -99,6 +103,7 @@ def test_closest_point():
 
 # -- tangents / normals / curvature -------------------------------------------------------
 
+
 def test_tangents_are_unit():
     t = Path(SQUARE).tangents()
     np.testing.assert_allclose(np.linalg.norm(t, axis=1), np.ones(4), atol=1e-9)
@@ -117,6 +122,7 @@ def test_curvature_of_straightish_polygon():
 
 
 # -- derived paths ------------------------------------------------------------------------
+
 
 def test_offset_shrinks_area():
     assert math.isclose(Path(UNIT).offset(r=-1).area(), 64.0, abs_tol=1e-6)
@@ -186,6 +192,7 @@ def test_cut_points_along_open_path():
 
 # -- transforms ---------------------------------------------------------------------------
 
+
 def test_translate_and_move_alias():
     np.testing.assert_allclose(Path(UNIT).translate([1, 2])[0], [1, 2])
     np.testing.assert_allclose(Path(UNIT).move([1, 2])[0], [1, 2])
@@ -201,19 +208,28 @@ def test_directional_moves():
 
 
 def test_rot_and_rotate_alias():
-    np.testing.assert_allclose(Path([[1, 0]], closed=False).rot(90)[0], [0, 1], atol=1e-9)
-    np.testing.assert_allclose(Path([[1, 0]], closed=False).rotate(90)[0], [0, 1], atol=1e-9)
+    np.testing.assert_allclose(
+        Path([[1, 0]], closed=False).rot(90)[0], [0, 1], atol=1e-9
+    )
+    np.testing.assert_allclose(
+        Path([[1, 0]], closed=False).rotate(90)[0], [0, 1], atol=1e-9
+    )
 
 
 def test_mirror_across_y_axis():
-    np.testing.assert_allclose(Path([[3, 2]], closed=False).mirror([1, 0])[0], [-3, 2], atol=1e-9)
+    np.testing.assert_allclose(
+        Path([[3, 2]], closed=False).mirror([1, 0])[0], [-3, 2], atol=1e-9
+    )
 
 
 def test_yflip():
-    np.testing.assert_allclose(Path([[3, 2]], closed=False).yflip()[0], [3, -2], atol=1e-9)
+    np.testing.assert_allclose(
+        Path([[3, 2]], closed=False).yflip()[0], [3, -2], atol=1e-9
+    )
 
 
 # -- conversion ---------------------------------------------------------------------------
+
 
 def test_to_region():
     from bosl2.regions import Region
@@ -229,6 +245,7 @@ def test_polygon_and_geometry_use_mock():
 
 # -- splitting ----------------------------------------------------------------------------
 
+
 def test_polygon_parts_of_simple_square():
     parts = Path(SQUARE).polygon_parts()
     assert len(parts) == 1
@@ -242,6 +259,7 @@ def test_split_at_self_crossings():
 
 
 # -- private static kernels ---------------------------------------------------------------
+
 
 def test_select_circular_index():
     assert Path._select([10, 20, 30], 4) == 20  # 4 % 3

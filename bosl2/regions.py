@@ -20,7 +20,10 @@ from typing import Any
 
 import numpy as np
 
-from bosl2.paths import Path, Path3D  # Path/Path3D live in paths.py; re-exported here for compatibility
+from bosl2.paths import (
+    Path,
+    Path3D,
+)  # Path/Path3D live in paths.py; re-exported here for compatibility
 
 __all__ = ["Path", "Path3D", "Region"]
 
@@ -76,11 +79,15 @@ class Region(list):
     def holes(self) -> list[Path]:
         return list(self[1:])
 
-    def offset(self, r: float | None = None, delta: float | None = None, chamfer: bool = False) -> "Region":
+    def offset(
+        self, r: float | None = None, delta: float | None = None, chamfer: bool = False
+    ) -> "Region":
         """Offset every path in the region."""
         return Region([p.offset(r=r, delta=delta, chamfer=chamfer) for p in self])
 
-    def round_corners(self, radius: float | list[float] | None = None, **kwargs: Any) -> "Region":
+    def round_corners(
+        self, radius: float | list[float] | None = None, **kwargs: Any
+    ) -> "Region":
         return Region([p.round_corners(radius=radius, **kwargs) for p in self])
 
     def translate(self, v: Sequence[float]) -> "Region":
@@ -115,13 +122,21 @@ class Region(list):
 
         paths = [p if isinstance(p, Path) else Path(p) for p in self]
         if len(paths) <= 1:
-            return (paths[0] if paths else Path(self)).debug_polygon(size=size, vertices=vertices)
+            return (paths[0] if paths else Path(self)).debug_polygon(
+                size=size, vertices=vertices
+            )
         solid = Bosl2Solid(self.geometry().linear_extrude(height=0.01, center=True))
         if not vertices:
             return solid
-        labels = [text3d(f"{chr(97 + j)}{i}", size=size, h=0.02, halign="center", valign="center")
-                  .translate([float(x), float(y), 0.01]).color("red")
-                  for j, path in enumerate(paths) for i, (x, y) in enumerate(path)]
+        labels = [
+            text3d(
+                f"{chr(97 + j)}{i}", size=size, h=0.02, halign="center", valign="center"
+            )
+            .translate([float(x), float(y), 0.01])
+            .color("red")
+            for j, path in enumerate(paths)
+            for i, (x, y) in enumerate(path)
+        ]
         return reduce(operator.or_, [solid, *labels])
 
     def stroke(self, width: float = 1, **kwargs: Any):
@@ -130,7 +145,9 @@ class Region(list):
 
         return _stroke(self, width=width, **kwargs)
 
-    def dashed_stroke(self, dashpat: Sequence[float] = (3, 3), **kwargs: Any) -> list[Path]:
+    def dashed_stroke(
+        self, dashpat: Sequence[float] = (3, 3), **kwargs: Any
+    ) -> list[Path]:
         """Break every path in this region into dash sub-paths (see :func:`bosl2.drawing.dashed_stroke`)."""
         from bosl2.drawing import dashed_stroke as _dashed
 

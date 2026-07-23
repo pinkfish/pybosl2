@@ -15,7 +15,11 @@ import numpy as np
 import pytest
 
 from bosl2.nurbs import (
-    nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch,
+    nurbs_curve,
+    nurbs_patch_points,
+    nurbs_vnf,
+    nurbs_elevate_degree,
+    is_nurbs_patch,
 )
 from bosl2.paths import Path, Path3D
 from bosl2.vnf import VNF
@@ -23,13 +27,16 @@ from bosl2.vnf import VNF
 
 CTRL3 = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
 CTRL2 = [[0, 0], [10, 20], [30, -10], [50, 20]]
-PATCH = [[[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],
-         [[-50, 16, 20], [-16, 16, 40], [16, 16, 40], [50, 16, 20]],
-         [[-50, -16, 20], [-16, -16, 40], [16, -16, 40], [50, -16, 20]],
-         [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]]]
+PATCH = [
+    [[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],
+    [[-50, 16, 20], [-16, 16, 40], [16, 16, 40], [50, 16, 20]],
+    [[-50, -16, 20], [-16, -16, 40], [16, -16, 40], [50, -16, 20]],
+    [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]],
+]
 
 
 # -- nurbs_curve --------------------------------------------------------------------------
+
 
 def test_curve_returns_path3d_for_3d_control():
     c = nurbs_curve(CTRL3, 3, splinesteps=8)
@@ -55,7 +62,9 @@ def test_scalar_u_returns_single_point():
 
 
 def test_closed_curve_is_flagged_closed():
-    c = nurbs_curve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type="closed")
+    c = nurbs_curve(
+        [[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type="closed"
+    )
     assert isinstance(c, Path) and c.closed is True
 
 
@@ -90,9 +99,10 @@ def test_parameter_list_form():
 
 # -- surfaces -----------------------------------------------------------------------------
 
+
 def test_is_nurbs_patch():
     assert is_nurbs_patch(PATCH)
-    assert not is_nurbs_patch([[0, 0], [1, 1]])          # a path, not a patch
+    assert not is_nurbs_patch([[0, 0], [1, 1]])  # a path, not a patch
     assert not is_nurbs_patch([1, 2, 3])
 
 
@@ -125,15 +135,18 @@ def test_nurbs_vnf_parameter_list():
 
 def test_nurbs_vnf_caps_require_closed_clamped():
     with pytest.raises(AssertionError):
-        nurbs_vnf(PATCH, 3, type="clamped", caps=True)  # both clamped -> no caps allowed
+        nurbs_vnf(
+            PATCH, 3, type="clamped", caps=True
+        )  # both clamped -> no caps allowed
 
 
 # -- degree elevation ---------------------------------------------------------------------
 
+
 def test_elevate_raises_degree_and_count():
     el = nurbs_elevate_degree(CTRL2, 3)
     assert el[0] == "clamped"
-    assert el[1] == 4                 # degree raised 3 -> 4
+    assert el[1] == 4  # degree raised 3 -> 4
     assert len(el[2]) == len(CTRL2) + 1  # one more control point per elevation
 
 

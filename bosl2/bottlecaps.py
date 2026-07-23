@@ -41,8 +41,6 @@ from bosl2.threading import Threading
 __all__ = ["BottleCaps", "BottleThreadSpec"]
 
 
-
-
 @dataclass(frozen=True)
 class BottleThreadSpec:
     """All dimensions (mm) of one bottle threading's neck and cap, from bottlecaps.scad."""
@@ -80,31 +78,78 @@ class BottleThreadSpec:
     cap_thread_depth: float
     cap_turns: float
     # -- variant-specific (only one threading uses each) --
-    tamper_ring_r: float | None = None    # PCO-1810 tamper-ring corner radius
+    tamper_ring_r: float | None = None  # PCO-1810 tamper-ring corner radius
     tamper_ring_ang: float | None = None  # PCO-1881 tamper-ring flank angle
-    tamper_divot_r: float | None = None   # PCO-1881 tamper divot radius
+    tamper_divot_r: float | None = None  # PCO-1881 tamper divot radius
 
 
 # PCO-1810 and PCO-1881 neck/cap dimensions (mm), transcribed from bottlecaps.scad.
 _PCO1810 = BottleThreadSpec(
-    inner_d=21.74, neck_d=26.19, neck_h=5.00, support_d=33.00, support_width=1.45,
-    support_rad=0.40, support_h=21.00, support_ang=16, tamper_ring_d=27.97,
-    tamper_ring_width=0.50, tamper_base_d=25.71, tamper_base_h=14.10,
-    threadbase_d=24.51, thread_pitch=3.18, flank_angle=20, thread_od=27.43, lip_d=25.07,
-    lip_h=1.70, lip_leadin_r=0.20, lip_recess_d=24.94, lip_recess_h=1.00, lip_roundover_r=0.58,
-    neck_turns=810, cap_id=28.58, cap_tamper_ring_h=14.10, cap_thread_od=28.58,
-    cap_thread_pitch=3.18, cap_flank_angle=20, cap_thread_depth=1.6, cap_turns=810,
+    inner_d=21.74,
+    neck_d=26.19,
+    neck_h=5.00,
+    support_d=33.00,
+    support_width=1.45,
+    support_rad=0.40,
+    support_h=21.00,
+    support_ang=16,
+    tamper_ring_d=27.97,
+    tamper_ring_width=0.50,
+    tamper_base_d=25.71,
+    tamper_base_h=14.10,
+    threadbase_d=24.51,
+    thread_pitch=3.18,
+    flank_angle=20,
+    thread_od=27.43,
+    lip_d=25.07,
+    lip_h=1.70,
+    lip_leadin_r=0.20,
+    lip_recess_d=24.94,
+    lip_recess_h=1.00,
+    lip_roundover_r=0.58,
+    neck_turns=810,
+    cap_id=28.58,
+    cap_tamper_ring_h=14.10,
+    cap_thread_od=28.58,
+    cap_thread_pitch=3.18,
+    cap_flank_angle=20,
+    cap_thread_depth=1.6,
+    cap_turns=810,
     tamper_ring_r=1.60,
 )
 _PCO1881 = BottleThreadSpec(
-    inner_d=21.74, neck_d=26.19, neck_h=5.00, support_d=33.00, support_width=0.58,
-    support_rad=0.30, support_h=17.00, support_ang=15, tamper_ring_d=28.00,
-    tamper_ring_width=0.30, tamper_base_d=25.71, tamper_base_h=11.20,
-    threadbase_d=24.20, thread_pitch=2.70, flank_angle=15, thread_od=27.4,
-    lip_d=25.07, lip_h=1.70, lip_leadin_r=0.30, lip_recess_d=24.94, lip_recess_h=1.00,
-    lip_roundover_r=0.58, neck_turns=650, cap_id=28.58, cap_tamper_ring_h=11.20,
-    cap_thread_od=25.5, cap_thread_pitch=2.70, cap_flank_angle=15, cap_thread_depth=1.6,
-    cap_turns=650, tamper_ring_ang=45, tamper_divot_r=1.08,
+    inner_d=21.74,
+    neck_d=26.19,
+    neck_h=5.00,
+    support_d=33.00,
+    support_width=0.58,
+    support_rad=0.30,
+    support_h=17.00,
+    support_ang=15,
+    tamper_ring_d=28.00,
+    tamper_ring_width=0.30,
+    tamper_base_d=25.71,
+    tamper_base_h=11.20,
+    threadbase_d=24.20,
+    thread_pitch=2.70,
+    flank_angle=15,
+    thread_od=27.4,
+    lip_d=25.07,
+    lip_h=1.70,
+    lip_leadin_r=0.30,
+    lip_recess_d=24.94,
+    lip_recess_h=1.00,
+    lip_roundover_r=0.58,
+    neck_turns=650,
+    cap_id=28.58,
+    cap_tamper_ring_h=11.20,
+    cap_thread_od=25.5,
+    cap_thread_pitch=2.70,
+    cap_flank_angle=15,
+    cap_thread_depth=1.6,
+    cap_turns=650,
+    tamper_ring_ang=45,
+    tamper_divot_r=1.08,
 )
 
 
@@ -115,36 +160,150 @@ def _turtle_start(x, y=0.0):
 
 def _pco1810_profile(d: "BottleThreadSpec"):
     h = d.support_h + d.neck_h
-    return turtle([
-        "untilx", d.neck_d / 2, "left", 90, "move", d.neck_h - 1, "arcright", 1, 90,
-        "untilx", d.support_d / 2 - d.support_rad, "arcleft", d.support_rad, 90,
-        "move", d.support_width, "arcleft", d.support_rad, 90 - d.support_ang,
-        "untilx", d.tamper_base_d / 2, "right", 90 - d.support_ang,
-        "untily", h - d.tamper_base_h, "right", 90, "untilx", d.tamper_ring_d / 2, "left", 90,
-        "move", d.tamper_ring_width, "arcleft", d.tamper_ring_r, 90,
-        "untilx", d.threadbase_d / 2, "right", 90, "untily", h - d.lip_h - d.lip_leadin_r,
-        "arcright", d.lip_leadin_r, 90, "untilx", d.lip_d / 2, "left", 90,
-        "untily", h - d.lip_recess_h, "left", 90, "untilx", d.lip_recess_d / 2, "right", 90,
-        "untily", h - d.lip_roundover_r, "arcleft", d.lip_roundover_r, 90,
-        "untilx", d.inner_d / 2,
-    ], state=_turtle_start(d.inner_d / 2))
+    return turtle(
+        [
+            "untilx",
+            d.neck_d / 2,
+            "left",
+            90,
+            "move",
+            d.neck_h - 1,
+            "arcright",
+            1,
+            90,
+            "untilx",
+            d.support_d / 2 - d.support_rad,
+            "arcleft",
+            d.support_rad,
+            90,
+            "move",
+            d.support_width,
+            "arcleft",
+            d.support_rad,
+            90 - d.support_ang,
+            "untilx",
+            d.tamper_base_d / 2,
+            "right",
+            90 - d.support_ang,
+            "untily",
+            h - d.tamper_base_h,
+            "right",
+            90,
+            "untilx",
+            d.tamper_ring_d / 2,
+            "left",
+            90,
+            "move",
+            d.tamper_ring_width,
+            "arcleft",
+            d.tamper_ring_r,
+            90,
+            "untilx",
+            d.threadbase_d / 2,
+            "right",
+            90,
+            "untily",
+            h - d.lip_h - d.lip_leadin_r,
+            "arcright",
+            d.lip_leadin_r,
+            90,
+            "untilx",
+            d.lip_d / 2,
+            "left",
+            90,
+            "untily",
+            h - d.lip_recess_h,
+            "left",
+            90,
+            "untilx",
+            d.lip_recess_d / 2,
+            "right",
+            90,
+            "untily",
+            h - d.lip_roundover_r,
+            "arcleft",
+            d.lip_roundover_r,
+            90,
+            "untilx",
+            d.inner_d / 2,
+        ],
+        state=_turtle_start(d.inner_d / 2),
+    )
 
 
 def _pco1881_profile(d: "BottleThreadSpec"):
     h = d.support_h + d.neck_h
-    return turtle([
-        "untilx", d.neck_d / 2, "left", 90, "move", d.neck_h - 1, "arcright", 1, 90,
-        "untilx", d.support_d / 2 - d.support_rad, "arcleft", d.support_rad, 90,
-        "move", d.support_width, "arcleft", d.support_rad, 90 - d.support_ang,
-        "untilx", d.tamper_base_d / 2, "arcright", d.tamper_divot_r, 180 - d.support_ang * 2,
-        "left", 90 - d.support_ang, "untily", h - d.tamper_base_h, "right", 90,
-        "untilx", d.tamper_ring_d / 2, "left", 90, "move", d.tamper_ring_width,
-        "left", d.tamper_ring_ang, "untilx", d.threadbase_d / 2, "right", d.tamper_ring_ang,
-        "untily", h - d.lip_h - d.lip_leadin_r, "arcright", d.lip_leadin_r, 90,
-        "untilx", d.lip_d / 2, "left", 90, "untily", h - d.lip_recess_h, "left", 90,
-        "untilx", d.lip_recess_d / 2, "right", 90, "untily", h - d.lip_roundover_r,
-        "arcleft", d.lip_roundover_r, 90, "untilx", d.inner_d / 2,
-    ], state=_turtle_start(d.inner_d / 2))
+    return turtle(
+        [
+            "untilx",
+            d.neck_d / 2,
+            "left",
+            90,
+            "move",
+            d.neck_h - 1,
+            "arcright",
+            1,
+            90,
+            "untilx",
+            d.support_d / 2 - d.support_rad,
+            "arcleft",
+            d.support_rad,
+            90,
+            "move",
+            d.support_width,
+            "arcleft",
+            d.support_rad,
+            90 - d.support_ang,
+            "untilx",
+            d.tamper_base_d / 2,
+            "arcright",
+            d.tamper_divot_r,
+            180 - d.support_ang * 2,
+            "left",
+            90 - d.support_ang,
+            "untily",
+            h - d.tamper_base_h,
+            "right",
+            90,
+            "untilx",
+            d.tamper_ring_d / 2,
+            "left",
+            90,
+            "move",
+            d.tamper_ring_width,
+            "left",
+            d.tamper_ring_ang,
+            "untilx",
+            d.threadbase_d / 2,
+            "right",
+            d.tamper_ring_ang,
+            "untily",
+            h - d.lip_h - d.lip_leadin_r,
+            "arcright",
+            d.lip_leadin_r,
+            90,
+            "untilx",
+            d.lip_d / 2,
+            "left",
+            90,
+            "untily",
+            h - d.lip_recess_h,
+            "left",
+            90,
+            "untilx",
+            d.lip_recess_d / 2,
+            "right",
+            90,
+            "untily",
+            h - d.lip_roundover_r,
+            "arcleft",
+            d.lip_roundover_r,
+            90,
+            "untilx",
+            d.inner_d / 2,
+        ],
+        state=_turtle_start(d.inner_d / 2),
+    )
 
 
 def _neck_thread(d: "BottleThreadSpec"):
@@ -154,23 +313,31 @@ def _neck_thread(d: "BottleThreadSpec"):
     """
     thread_h = (d.thread_od - d.threadbase_d) / 2
     turns = d.neck_turns / 360
-    thread = Threading.thread_helix(d=d.threadbase_d - 0.1, pitch=d.thread_pitch,
-                                    thread_depth=thread_h + 0.1, flank_angle=d.flank_angle,
-                                    turns=turns)
-    thread = thread.down(turns * d.thread_pitch / 2)   # BOSL2 anchor=TOP: top at z=0
+    thread = Threading.thread_helix(
+        d=d.threadbase_d - 0.1,
+        pitch=d.thread_pitch,
+        thread_depth=thread_h + 0.1,
+        flank_angle=d.flank_angle,
+        turns=turns,
+    )
+    thread = thread.down(turns * d.thread_pitch / 2)  # BOSL2 anchor=TOP: top at z=0
     top = 1.82 + 2 * math.sin(math.radians(29)) * thread_h
     cuts = []
     for m_out in zrot_copies(rots=[90, 270]):
         for m_in in zrot_copies(rots=[-28, 28], r=d.threadbase_d / 2):
-            block = prismoid([20, 1.82], [20, top], h=thread_h + 0.1, anchor=BOTTOM, orient=RIGHT)
+            block = prismoid(
+                [20, 1.82], [20, top], h=thread_h + 0.1, anchor=BOTTOM, orient=RIGHT
+            )
             cuts.append(block.multmatrix((m_out @ m_in).tolist()))
     return thread - union(cuts)
 
 
 def _build_neck(d: "BottleThreadSpec", profile, bottom_half: bool):
     h = d.support_h + d.neck_h
-    body = Bosl2Solid(_orotate_extrude(_opolygon([[float(x), float(y)] for x, y in profile])),
-                      size=[d.support_d, d.support_d, h])
+    body = Bosl2Solid(
+        _orotate_extrude(_opolygon([[float(x), float(y)] for x, y in profile])),
+        size=[d.support_d, d.support_d, h],
+    )
     thread = _neck_thread(d)
     if bottom_half:
         thread = thread.bottom_half()
@@ -187,10 +354,14 @@ def _build_cap(d: "BottleThreadSpec", wall: float, texture: str):
     turns = d.cap_turns / 360
     H = turns * d.cap_thread_pitch
     # internal thread (this port's thread_helix has no internal= flank flip -- approximate).
-    thread = Threading.thread_helix(d=d.cap_thread_od - d.cap_thread_depth * 2, pitch=d.cap_thread_pitch,
-                                    thread_depth=d.cap_thread_depth, flank_angle=d.cap_flank_angle,
-                                    turns=turns)
-    thread = thread.up(H / 2 + wall + 2)     # BOSL2 anchor=BOTTOM, then up(wall+2)
+    thread = Threading.thread_helix(
+        d=d.cap_thread_od - d.cap_thread_depth * 2,
+        pitch=d.cap_thread_pitch,
+        thread_depth=d.cap_thread_depth,
+        flank_angle=d.cap_flank_angle,
+        turns=turns,
+    )
+    thread = thread.up(H / 2 + wall + 2)  # BOSL2 anchor=BOTTOM, then up(wall+2)
     cap = (shell | thread).rotate([0, 0, 45])
     return Bosl2Solid(cap.shape, size=[w, w, h])
 

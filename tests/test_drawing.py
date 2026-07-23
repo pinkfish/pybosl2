@@ -23,6 +23,7 @@ from bosl2.regions import Region
 
 # -- arc returns a Path -------------------------------------------------------------------
 
+
 def test_arc_returns_open_path():
     a = arc(radius=16, start=0, angle=60)
     assert isinstance(a, Path)
@@ -39,7 +40,11 @@ def test_arc_wedge_is_closed_with_centre_first():
 
 def test_arc_angle_range_form():
     a = arc(count=5, radius=10, angle=[30, 90])
-    np.testing.assert_allclose(a[0], [10 * math.cos(math.radians(30)), 10 * math.sin(math.radians(30))], atol=1e-9)
+    np.testing.assert_allclose(
+        a[0],
+        [10 * math.cos(math.radians(30)), 10 * math.sin(math.radians(30))],
+        atol=1e-9,
+    )
     np.testing.assert_allclose(a[-1], [0, 10], atol=1e-9)
 
 
@@ -50,15 +55,18 @@ def test_arc_two_point_short_and_long():
     np.testing.assert_allclose(short[0], [10, 0], atol=1e-9)
     np.testing.assert_allclose(long[0], [10, 0], atol=1e-9)
     assert short[len(short) // 2][0] > 0  # short arc stays in the +x/+y quadrant
-    assert long[len(long) // 2][0] < 0    # long arc swings around through -x
+    assert long[len(long) // 2][0] < 0  # long arc swings around through -x
 
 
 def test_arc_corner_is_tangent_fillet():
     c = arc(corner=[[0, 10], [0, 0], [10, 0]], radius=3)
     assert isinstance(c, Path)
     # tangent points sit 3 up the y-leg and 3 along the x-leg
-    np.testing.assert_allclose(sorted([c[0].tolist() if hasattr(c[0], "tolist") else c[0], c[-1]]),
-                               sorted([[0.0, 3.0], [3.0, 0.0]]), atol=1e-9)
+    np.testing.assert_allclose(
+        sorted([c[0].tolist() if hasattr(c[0], "tolist") else c[0], c[-1]]),
+        sorted([[0.0, 3.0], [3.0, 0.0]]),
+        atol=1e-9,
+    )
 
 
 def test_arc_collinear_points_raise():
@@ -67,6 +75,7 @@ def test_arc_collinear_points_raise():
 
 
 # -- catenary -----------------------------------------------------------------------------
+
 
 def test_catenary_droop_hits_endpoints_and_midpoint():
     c = catenary(width=80, droop=30, n=21)
@@ -90,6 +99,7 @@ def test_catenary_requires_exactly_one_of_droop_angle():
 
 # -- helix --------------------------------------------------------------------------------
 
+
 def test_helix_returns_path3d():
     h = helix(turns=2, h=40, r=10)
     assert isinstance(h, Path3D)  # the 3-D path object
@@ -110,6 +120,7 @@ def test_helix_flat_spiral():
 
 
 # -- turtle -------------------------------------------------------------------------------
+
 
 def test_turtle_square():
     p = turtle(["move", 10, "left", 90, "move", 10, "left", 90, "move", 10])
@@ -136,6 +147,7 @@ def test_turtle_unknown_command_raises():
 
 # -- stroke / dashed_stroke build geometry ------------------------------------------------
 
+
 def test_stroke_2d_builds():
     assert arc(radius=30, angle=200).stroke(width=3) is not None
 
@@ -150,8 +162,9 @@ def test_stroke_closed_path_defaults_from_flag():
 
 
 def test_stroke_region_strokes_every_path():
-    reg = Region.with_holes([[0, 0], [40, 0], [40, 30], [0, 30]],
-                            [[10, 10], [30, 10], [30, 20], [10, 20]])
+    reg = Region.with_holes(
+        [[0, 0], [40, 0], [40, 30], [0, 30]], [[10, 10], [30, 10], [30, 20], [10, 20]]
+    )
     assert reg.stroke(width=2) is not None
 
 
@@ -181,8 +194,24 @@ def test_dashed_stroke_3d_yields_path3d():
 
 # -- fancy endcaps generate directly (no fallback) ----------------------------------------
 
-ALL_ENDCAPS = ["round", "square", "butt", False, "dot", "block", "diamond", "chisel", "line",
-               "x", "cross", "arrow", "arrow2", "arrow3", "tail", "tail2"]
+ALL_ENDCAPS = [
+    "round",
+    "square",
+    "butt",
+    False,
+    "dot",
+    "block",
+    "diamond",
+    "chisel",
+    "line",
+    "x",
+    "cross",
+    "arrow",
+    "arrow2",
+    "arrow3",
+    "tail",
+    "tail2",
+]
 
 
 @pytest.mark.parametrize("style", ALL_ENDCAPS)
@@ -233,6 +262,7 @@ def test_every_style_in_defaults_table():
 
 def test_endcap_defaults_are_structured():
     from bosl2.drawing import EndcapSpec
+
     spec = _ENDCAP_DEFAULTS["arrow"]
     assert isinstance(spec, EndcapSpec)
     assert (spec.width_mult, spec.length_mult, spec.extent_mult) == (3.5, 0.4, 0.5)

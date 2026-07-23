@@ -31,9 +31,18 @@ class Joiners:
     """Dovetail joints and snap-pin connectors (BOSL2 joiners.scad)."""
 
     @staticmethod
-    def dovetail(gender: str = "male", width: float = 15, height: float = 8, slide: float = 30,
-                 angle: float | None = None, slope: float = 6, taper: float = 0,
-                 back_width: float | None = None, slop: float = 0.0, _fn: int | None = None) -> Bosl2Solid:
+    def dovetail(
+        gender: str = "male",
+        width: float = 15,
+        height: float = 8,
+        slide: float = 30,
+        angle: float | None = None,
+        slope: float = 6,
+        taper: float = 0,
+        back_width: float | None = None,
+        slop: float = 0.0,
+        _fn: int | None = None,
+    ) -> Bosl2Solid:
         """A dovetail joint that slides along Y and flares upward in X (BOSL2 dovetail()).
 
         The male form is a tenon you attach to a part; the female form is the same shape enlarged by
@@ -55,7 +64,7 @@ class Joiners:
         hslop = slop if gender == "female" else 0.0
         w = width + 2 * hslop
         h = height + hslop
-        flare = 2 * h / slope   # total added width at the top
+        flare = 2 * h / slope  # total added width at the top
 
         if taper or back_width is not None:
             if back_width is None:
@@ -70,8 +79,15 @@ class Joiners:
         return Bosl2Solid(body.shape, size=[w + flare, slide, h])
 
     @staticmethod
-    def snap_pin(diameter: float = 5, length: float = 12, nub_depth: float = 0.6, snap: float = 2.2,
-                 clearance: float = 0.2, slot: float = 1.2, _fn: int | None = None) -> Bosl2Solid:
+    def snap_pin(
+        diameter: float = 5,
+        length: float = 12,
+        nub_depth: float = 0.6,
+        snap: float = 2.2,
+        clearance: float = 0.2,
+        slot: float = 1.2,
+        _fn: int | None = None,
+    ) -> Bosl2Solid:
         """A press-and-click snap pin: a slotted shaft with a barbed head (BOSL2 snap_pin()).
 
         Push it head-first through a hole (or a :meth:`snap_pin_socket`); the slot lets the barb
@@ -88,20 +104,40 @@ class Joiners:
         """
         shaft = cyl(h=length, d=diameter, _fn=_fn)
         # barb: a downward-facing ratchet lip at the tip (wide at its base, tapering to the shaft).
-        barb = cyl(h=snap, d1=diameter + 2 * nub_depth, d2=diameter, _fn=_fn).up(length / 2 - snap / 2)
+        barb = cyl(h=snap, d1=diameter + 2 * nub_depth, d2=diameter, _fn=_fn).up(
+            length / 2 - snap / 2
+        )
         tip = sphere(d=diameter, _fn=_fn).up(length / 2)
         pin = shaft | barb | tip
-        pin = pin - cuboid([diameter + 2 * nub_depth + 1, slot, length + snap])   # flex slot
-        return Bosl2Solid(pin.shape, size=[diameter + 2 * nub_depth, diameter, length + diameter / 2])
+        pin = pin - cuboid(
+            [diameter + 2 * nub_depth + 1, slot, length + snap]
+        )  # flex slot
+        return Bosl2Solid(
+            pin.shape, size=[diameter + 2 * nub_depth, diameter, length + diameter / 2]
+        )
 
     @staticmethod
-    def snap_pin_socket(diameter: float = 5, length: float = 12, nub_depth: float = 0.6,
-                        snap: float = 2.2, clearance: float = 0.2, _fn: int | None = None) -> Bosl2Solid:
+    def snap_pin_socket(
+        diameter: float = 5,
+        length: float = 12,
+        nub_depth: float = 0.6,
+        snap: float = 2.2,
+        clearance: float = 0.2,
+        _fn: int | None = None,
+    ) -> Bosl2Solid:
         """The mating socket mask for a :meth:`snap_pin` -- difference it out of a part (BOSL2 snap_pin_socket()).
 
         A clearance bore with a relief groove that the pin's barb clicks into.
         """
         bore = cyl(h=length + 1, d=diameter + 2 * clearance, _fn=_fn)
-        relief = cyl(h=snap + clearance, d=diameter + 2 * nub_depth + 2 * clearance, _fn=_fn).up(length / 2 - snap / 2)
-        return Bosl2Solid((bore | relief).shape,
-                          size=[diameter + 2 * nub_depth + 2 * clearance, diameter + 2 * clearance, length])
+        relief = cyl(
+            h=snap + clearance, d=diameter + 2 * nub_depth + 2 * clearance, _fn=_fn
+        ).up(length / 2 - snap / 2)
+        return Bosl2Solid(
+            (bore | relief).shape,
+            size=[
+                diameter + 2 * nub_depth + 2 * clearance,
+                diameter + 2 * clearance,
+                length,
+            ],
+        )

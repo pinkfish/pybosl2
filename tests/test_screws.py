@@ -20,6 +20,7 @@ from bosl2.shapes3d import Bosl2Solid
 
 # -- spec parsing / pitch lookup ----------------------------------------------------------
 
+
 def test_parse_plain_metric_name():
     assert _parse_spec("M6") == (6.0, 1.0)
     assert _parse_spec("M8") == (8.0, 1.25)
@@ -36,8 +37,10 @@ def test_parse_number_and_dict():
     assert _parse_spec({"diameter": 10, "pitch": 1.25}) == (10.0, 1.25)
 
 
-@pytest.mark.parametrize("thread,expected", [("coarse", 1.5), ("fine", 1.25), ("extra fine", 1.0),
-                                             ("super fine", 0.75)])
+@pytest.mark.parametrize(
+    "thread,expected",
+    [("coarse", 1.5), ("fine", 1.25), ("extra fine", 1.0), ("super fine", 0.75)],
+)
 def test_pitch_classes_M10(thread, expected):
     assert _lookup_pitch(10, thread) == expected
 
@@ -54,17 +57,18 @@ def test_unknown_size_raises():
 
 # -- head dimensions (verbatim from screws.scad metric tables) ----------------------------
 
+
 def test_socket_head_dims():
     info = Screws.screw_info("M6", head="socket", drive="hex")
-    assert info["head_size"] == 10          # ISO 4762 head diameter
-    assert info["head_height"] == 6.0       # socket head height == nominal diameter
-    assert info["drive_size"] == 5          # hex key across-flats
-    assert info["drive_depth"] == 3.0       # diameter / 2
+    assert info["head_size"] == 10  # ISO 4762 head diameter
+    assert info["head_height"] == 6.0  # socket head height == nominal diameter
+    assert info["drive_size"] == 5  # hex key across-flats
+    assert info["drive_depth"] == 3.0  # diameter / 2
 
 
 def test_hex_head_dims():
     info = Screws.screw_info("M8", head="hex")
-    assert info["head_size"] == 13          # across-flats
+    assert info["head_size"] == 13  # across-flats
     assert info["head_height"] == 5.3
 
 
@@ -84,8 +88,8 @@ def test_pan_head_dims():
 
 def test_flat_head_dims_and_angle():
     info = Screws.screw_info("M6", head="flat")
-    assert info["head_size"] == 11.085          # actual (mean) diameter, ISO 10642/7046
-    assert info["head_size_sharp"] == 12.6      # theoretical sharp diameter
+    assert info["head_size"] == 11.085  # actual (mean) diameter, ISO 10642/7046
+    assert info["head_size_sharp"] == 12.6  # theoretical sharp diameter
     assert info["head_angle"] == 90.0
     # 90-degree countersink: cone height == radius drop == (head - shaft)/2
     assert math.isclose(info["head_height"], (11.085 - 6) / 2)
@@ -95,8 +99,8 @@ def test_setscrew_drive():
     info = Screws.screw_info("M6", head="none", drive="hex")
     assert info["head"] == "none"
     assert info["head_size"] is None
-    assert info["drive_size"] == 3          # hex key
-    assert info["drive_depth"] == 3.0       # diameter / 2
+    assert info["drive_size"] == 3  # hex key
+    assert info["drive_depth"] == 3.0  # diameter / 2
 
 
 def test_head_table_nearest_size_fallback():
@@ -116,6 +120,7 @@ def test_unknown_head_raises():
 
 
 # -- nut dimensions (ISO 4032 / 4035 / 4034) ----------------------------------------------
+
 
 def test_nut_dims_normal():
     assert _nut_dims(6, "normal", None) == (10, 5.2)
@@ -139,6 +144,7 @@ def test_nut_thin_falls_back_when_undefined():
 
 # -- builders all return solids -----------------------------------------------------------
 
+
 @pytest.mark.parametrize("head", ["socket", "hex", "button", "pan", "flat", "none"])
 def test_screw_builds(head):
     drive = "hex" if head in ("socket", "button", "none") else "none"
@@ -160,10 +166,14 @@ def test_nut_thickness_classes_build():
         assert isinstance(Screws.nut("M6", thickness=t, _fn=8), Bosl2Solid)
 
 
-@pytest.mark.parametrize("head,counterbore", [("none", 0), ("socket", 4), ("flat", 0), ("hex", 3)])
+@pytest.mark.parametrize(
+    "head,counterbore", [("none", 0), ("socket", 4), ("flat", 0), ("hex", 3)]
+)
 def test_screw_hole_builds(head, counterbore):
-    assert isinstance(Screws.screw_hole("M6", 20, head=head, counterbore=counterbore, _fn=8),
-                      Bosl2Solid)
+    assert isinstance(
+        Screws.screw_hole("M6", 20, head=head, counterbore=counterbore, _fn=8),
+        Bosl2Solid,
+    )
 
 
 def test_tapped_hole_builds():

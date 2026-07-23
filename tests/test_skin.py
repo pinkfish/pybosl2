@@ -35,7 +35,10 @@ def _valid(vnf):
 
 
 def _circle(r, n=24):
-    return [[r * math.cos(t), r * math.sin(t)] for t in np.linspace(0, 2 * math.pi, n, endpoint=False)]
+    return [
+        [r * math.cos(t), r * math.sin(t)]
+        for t in np.linspace(0, 2 * math.pi, n, endpoint=False)
+    ]
 
 
 def test_path3d_pads_z():
@@ -77,7 +80,9 @@ def test_sweep_open_has_caps_closed_does_not():
 
 @pytest.mark.parametrize("method", ["incremental", "natural"])
 def test_curved_sweep_methods(method):
-    curve = [[math.cos(t) * 10, math.sin(t) * 10, t * 2] for t in np.linspace(0, math.pi, 10)]
+    curve = [
+        [math.cos(t) * 10, math.sin(t) * 10, t * 2] for t in np.linspace(0, math.pi, 10)
+    ]
     vnf = path_sweep(SQUARE, curve, method=method)
     assert len(vnf.vertices) == 40
     assert _valid(vnf)
@@ -91,7 +96,10 @@ def test_manual_method_with_normals():
 
 
 def test_closed_sweep_has_no_caps():
-    circ = [[math.cos(t) * 20, math.sin(t) * 20, 0] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
+    circ = [
+        [math.cos(t) * 20, math.sin(t) * 20, 0]
+        for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)
+    ]
     vnf = path_sweep(SQUARE, circ, closed=True)
     assert _valid(vnf)
     # 25 profiles (closed adds the wrap) x 4 verts
@@ -124,6 +132,7 @@ def test_sweep_direct_from_transforms():
 
 # -- skin ---------------------------------------------------------------------------------
 
+
 def test_slice_profiles_inserts_intermediates():
     a = [[0, 0], [1, 0], [1, 1]]
     b = [[0, 2], [1, 2], [1, 3]]
@@ -140,7 +149,12 @@ def test_skin_two_profiles():
 
 
 def test_skin_reindex_method():
-    vnf = skin([_circle(6), [[-8, -8], [8, -8], [8, 8], [-8, 8]]], slices=8, method="reindex", z=[0, 20])
+    vnf = skin(
+        [_circle(6), [[-8, -8], [8, -8], [8, 8], [-8, 8]]],
+        slices=8,
+        method="reindex",
+        z=[0, 20],
+    )
     assert _valid(vnf) and vnf.volume() > 0
 
 
@@ -150,7 +164,12 @@ def test_skin_three_profiles():
 
 
 def test_skin_closed_stack():
-    profs = [_circle(4), [[-6, -6], [6, -6], [6, 6], [-6, 6]], _circle(4), [[-6, -6], [6, -6], [6, 6], [-6, 6]]]
+    profs = [
+        _circle(4),
+        [[-6, -6], [6, -6], [6, 6], [-6, 6]],
+        _circle(4),
+        [[-6, -6], [6, -6], [6, 6], [-6, 6]],
+    ]
     vnf = skin(profs, slices=3, closed=True, z=[0, 10, 20, 30])
     assert _valid(vnf)
 
@@ -166,6 +185,7 @@ def test_skin_needs_two_profiles():
 
 
 # -- linear_sweep -------------------------------------------------------------------------
+
 
 def test_linear_sweep_plain_box_volume():
     sq = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
@@ -186,8 +206,12 @@ def test_linear_sweep_center_vs_base():
     centered = linear_sweep(sq, height=10, center=True)
     bz = [v[2] for v in base.vertices]
     cz = [v[2] for v in centered.vertices]
-    assert math.isclose(min(bz), 0.0, abs_tol=1e-9) and math.isclose(max(bz), 10.0, abs_tol=1e-9)
-    assert math.isclose(min(cz), -5.0, abs_tol=1e-9) and math.isclose(max(cz), 5.0, abs_tol=1e-9)
+    assert math.isclose(min(bz), 0.0, abs_tol=1e-9) and math.isclose(
+        max(bz), 10.0, abs_tol=1e-9
+    )
+    assert math.isclose(min(cz), -5.0, abs_tol=1e-9) and math.isclose(
+        max(cz), 5.0, abs_tol=1e-9
+    )
 
 
 # -- rotate_sweep -------------------------------------------------------------------------
@@ -212,6 +236,7 @@ def test_rotate_sweep_rejects_bad_angle():
 
 # -- spiral_sweep -------------------------------------------------------------------------
 
+
 def test_spiral_sweep_coil():
     section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
     vnf = spiral_sweep(section, h=40, r=12, turns=5)
@@ -226,6 +251,7 @@ def test_spiral_sweep_conical_taper():
 
 # -- path_sweep2d -------------------------------------------------------------------------
 
+
 def test_path_sweep2d_open():
     shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
     path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
@@ -235,20 +261,27 @@ def test_path_sweep2d_open():
 
 def test_path_sweep2d_closed_loop():
     shape = [[-1, -2], [1, -2], [1, 2], [-1, 2]]
-    ring = [[20 * math.cos(t), 20 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 32, endpoint=False)]
+    ring = [
+        [20 * math.cos(t), 20 * math.sin(t)]
+        for t in np.linspace(0, 2 * math.pi, 32, endpoint=False)
+    ]
     vnf = path_sweep2d(shape, ring, closed=True)
     assert _valid(vnf) and vnf.volume() > 0
 
 
 # -- subdivide_and_slice ------------------------------------------------------------------
 
+
 def test_subdivide_and_slice_equalizes_and_slices():
-    profs = subdivide_and_slice([[[0, 0], [1, 0], [1, 1]], [[0, 2], [2, 2], [2, 3]]], slices=3, numpoints=6)
+    profs = subdivide_and_slice(
+        [[[0, 0], [1, 0], [1, 1]], [[0, 2], [2, 2], [2, 3]]], slices=3, numpoints=6
+    )
     assert len(profs) == 5  # 3 interpolated + 2 endpoints
     assert all(len(p) == 6 for p in profs)
 
 
 # -- rot_resample -------------------------------------------------------------------------
+
 
 def test_rot_resample_changes_count_and_sweeps():
     sq = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
@@ -268,6 +301,8 @@ def test_rot_resample_count_method():
 
 
 def test_rot_resample_rejects_even_smoothlen():
-    tl = path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], [[0, 0, 0], [0, 0, 10]], transforms=True)
+    tl = path_sweep(
+        [[-1, -1], [1, -1], [1, 1], [-1, 1]], [[0, 0, 0], [0, 0, 10]], transforms=True
+    )
     with pytest.raises(AssertionError):
         rot_resample(tl, n=6, smoothlen=2)

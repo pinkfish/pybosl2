@@ -98,7 +98,9 @@ def rot_decode(m, long: bool = False) -> list:
     line through *cp* in direction *axis* then translating along the axis reproduces *m*. *axis*,
     *cp* and the axial translation are returned as :class:`~bosl2.constants.Vec3`. With *long*, the
     complementary (>180 degree) rotation about the reversed axis is chosen."""
-    from bosl2.constants import Vec3  # local: constants is lightweight, avoid a load-order cycle
+    from bosl2.constants import (
+        Vec3,
+    )  # local: constants is lightweight, avoid a load-order cycle
 
     m = np.asarray(m, dtype=float)
     r = m[:3, :3]
@@ -106,11 +108,19 @@ def rot_decode(m, long: bool = False) -> list:
     largest = int(np.argmax([r[0, 0], r[1, 1], r[2, 2]]))
     axis_matrix = r + r.T - (np.trace(r) - 1) * np.eye(3)
     q_im = axis_matrix[largest]
-    q_re = r[(largest + 2) % 3][(largest + 1) % 3] - r[(largest + 1) % 3][(largest + 2) % 3]
+    q_re = (
+        r[(largest + 2) % 3][(largest + 1) % 3]
+        - r[(largest + 1) % 3][(largest + 2) % 3]
+    )
     c_sin = float(np.linalg.norm(q_im))
     c_cos = abs(float(q_re))
     if c_sin < 1e-12:
-        return [0.0, Vec3([0.0, 0.0, 1.0]), Vec3([0.0, 0.0, 0.0]), Vec3([float(v) for v in translation])]
+        return [
+            0.0,
+            Vec3([0.0, 0.0, 1.0]),
+            Vec3([0.0, 0.0, 0.0]),
+            Vec3([float(v) for v in translation]),
+        ]
     angle = math.degrees(2 * math.atan2(c_sin, c_cos))
     axis = (1.0 if q_re >= 0 else -1.0) * q_im / c_sin
     tproj = translation - (translation @ axis) * axis

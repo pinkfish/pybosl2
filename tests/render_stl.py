@@ -97,8 +97,13 @@ _PREAMBLE = (
 )
 
 
-def render_object(expr: str, out_stl: Path, setup: str = "", timeout: float = 180.0,
-                  export_format: str | None = None) -> StlResult:
+def render_object(
+    expr: str,
+    out_stl: Path,
+    setup: str = "",
+    timeout: float = 180.0,
+    export_format: str | None = None,
+) -> StlResult:
     """Build ``obj = <expr>`` (after any *setup* statements) in the real app and export it to STL.
 
     *expr* must evaluate to a native solid or a Bosl2Solid (a VNF/patch expression should end in
@@ -107,11 +112,18 @@ def render_object(expr: str, out_stl: Path, setup: str = "", timeout: float = 18
     failure so callers can assert on ``.ok``. Only raises if no binary can be located at all.
     """
     body = _PREAMBLE + setup + f"obj = {expr}\n" + "obj.show()\n"
-    return render_stl_script(body, out_stl, timeout=timeout, export_format=export_format)
+    return render_stl_script(
+        body, out_stl, timeout=timeout, export_format=export_format
+    )
 
 
-def render_stl_script(script_source: str, out_stl: Path, timeout: float = 180.0, cwd=None,
-                      export_format: str | None = None) -> StlResult:
+def render_stl_script(
+    script_source: str,
+    out_stl: Path,
+    timeout: float = 180.0,
+    cwd=None,
+    export_format: str | None = None,
+) -> StlResult:
     """Run a full python-mode *script_source* (ending in ``.show()``) in the real app, exporting STL.
 
     The lower-level entry point behind :func:`render_object`; also used by the docs
@@ -119,9 +131,13 @@ def render_stl_script(script_source: str, out_stl: Path, timeout: float = 180.0,
     """
     binary = find_pythonscad_binary()
     if binary is None:
-        raise FileNotFoundError("no PythonSCAD binary found (set PYTHONSCAD_BIN or install to /Applications)")
+        raise FileNotFoundError(
+            "no PythonSCAD binary found (set PYTHONSCAD_BIN or install to /Applications)"
+        )
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, dir=tempfile.gettempdir()) as f:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".py", delete=False, dir=tempfile.gettempdir()
+    ) as f:
         f.write(script_source)
         script_path = Path(f.name)
 
@@ -146,16 +162,25 @@ def render_stl_script(script_source: str, out_stl: Path, timeout: float = 180.0,
         )
     except subprocess.TimeoutExpired as exc:
         err = exc.stderr or b""
-        return StlResult(False, None, f"render timed out after {timeout:.0f}s",
-                         err.decode(errors="replace") if isinstance(err, bytes) else str(err))
+        return StlResult(
+            False,
+            None,
+            f"render timed out after {timeout:.0f}s",
+            err.decode(errors="replace") if isinstance(err, bytes) else str(err),
+        )
     finally:
         script_path.unlink(missing_ok=True)
 
     stderr = proc.stderr or ""
     if "Traceback (most recent call last):" in stderr:
         lines = stderr.splitlines()
-        cutoff = next((i for i, ln in enumerate(lines) if ln.startswith("Geometries in cache")), len(lines))
-        last = next((ln for ln in reversed(lines[:cutoff]) if ln.strip()), "unknown error")
+        cutoff = next(
+            (i for i, ln in enumerate(lines) if ln.startswith("Geometries in cache")),
+            len(lines),
+        )
+        last = next(
+            (ln for ln in reversed(lines[:cutoff]) if ln.strip()), "unknown error"
+        )
         return StlResult(False, None, f"script raised: {last[:200]}", stderr)
     if proc.returncode != 0:
         return StlResult(False, None, f"PythonSCAD exited {proc.returncode}", stderr)

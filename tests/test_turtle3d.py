@@ -18,8 +18,28 @@ from bosl2.shapes3d import Bosl2Solid
 
 
 def test_square_path_closes():
-    pts = Turtle().run(["move", 10, "left", 90, "move", 10, "left", 90,
-                        "move", 10, "left", 90, "move", 10]).points()
+    pts = (
+        Turtle()
+        .run(
+            [
+                "move",
+                10,
+                "left",
+                90,
+                "move",
+                10,
+                "left",
+                90,
+                "move",
+                10,
+                "left",
+                90,
+                "move",
+                10,
+            ]
+        )
+        .points()
+    )
     corners = [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0], [0, 0, 0]]
     np.testing.assert_allclose(pts, corners, atol=1e-9)
 
@@ -27,13 +47,13 @@ def test_square_path_closes():
 def test_right_and_left_are_opposite():
     r = Turtle().run(["move", 5, "right", 90, "move", 5]).points()[-1]
     left = Turtle().run(["move", 5, "left", 90, "move", 5]).points()[-1]
-    assert r[1] == pytest.approx(-left[1])                # mirror across the X axis
+    assert r[1] == pytest.approx(-left[1])  # mirror across the X axis
     assert r[0] == pytest.approx(left[0])
 
 
 def test_up_climbs_in_z():
     pts = Turtle().run(["move", 5, "up", 90, "move", 5]).points()
-    assert pts[-1][2] == pytest.approx(5)                 # turned up, then moved into +Z
+    assert pts[-1][2] == pytest.approx(5)  # turned up, then moved into +Z
 
 
 def test_length_and_scale_commands():
@@ -45,8 +65,8 @@ def test_length_and_scale_commands():
 
 def test_arcleft_point_count_and_curvature():
     pts = Turtle().run(["arcsteps", 8, "move", 5, "arcleft", 5, "move", 5]).points()
-    assert len(pts) == 1 + 1 + 8 + 1                      # start + move + 8 arc steps + move
-    assert pts[-1][1] > 0                                 # curved into +Y
+    assert len(pts) == 1 + 1 + 8 + 1  # start + move + 8 arc steps + move
+    assert pts[-1][1] > 0  # curved into +Y
 
 
 def test_repeat_command():
@@ -66,8 +86,11 @@ def test_turtle3d_classmethod_matches_instance():
 
 
 def test_compound_move_matches_simple_move():
-    np.testing.assert_allclose(Turtle().run([["move", 10]]).points(),
-                               Turtle().run(["move", 10]).points(), atol=1e-9)
+    np.testing.assert_allclose(
+        Turtle().run([["move", 10]]).points(),
+        Turtle().run(["move", 10]).points(),
+        atol=1e-9,
+    )
 
 
 def test_compound_arc_matches_simple_arc():
@@ -109,8 +132,9 @@ def test_debug_polygon_builds_with_labels():
 
 
 def test_debug_region_builds():
-    r = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]],
-                          [[15, 15], [35, 15], [35, 35], [15, 35]])
+    r = Region.with_holes(
+        [[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]]
+    )
     assert isinstance(r.debug_region(size=3), Bosl2Solid)
 
 

@@ -59,7 +59,9 @@ def test_arc_points_span():
     assert len(pts) == 3
     np.testing.assert_allclose(pts[0], [1, 0], atol=1e-12)
     np.testing.assert_allclose(pts[-1], [0, 1], atol=1e-12)
-    np.testing.assert_allclose(pts[1], [math.cos(math.radians(45)), math.sin(math.radians(45))], atol=1e-12)
+    np.testing.assert_allclose(
+        pts[1], [math.cos(math.radians(45)), math.sin(math.radians(45))], atol=1e-12
+    )
 
 
 def test_arc_points_no_endpoint_drops_last():
@@ -103,6 +105,7 @@ def test_circle_builds_a_solid_via_mock():
 
 def test_squircle_circle_at_zero_squareness():
     from bosl2.shapes2d import _squircle_fg_path
+
     pts = _squircle_fg_path([40, 40], 0.0, None, None, None)
     radii = [math.hypot(x, y) for x, y in pts]
     assert math.isclose(min(radii), 20.0, abs_tol=1e-6)
@@ -111,6 +114,7 @@ def test_squircle_circle_at_zero_squareness():
 
 def test_squircle_square_at_high_squareness():
     from bosl2.shapes2d import _squircle_fg_path
+
     pts = _squircle_fg_path([40, 40], 0.99, None, None, None)
     assert math.isclose(max(abs(x) for x, y in pts), 20.0, abs_tol=0.2)
     assert math.isclose(max(abs(y) for x, y in pts), 20.0, abs_tol=0.2)
@@ -126,6 +130,7 @@ def test_squircle_builds_solid():
 
 def test_squircle_rejects_bad_squareness():
     import pytest
+
     with pytest.raises(AssertionError):
         squircle(40, squareness=1.5)
 
@@ -138,6 +143,7 @@ def test_keyhole_builds_both_orientations():
 
 def test_keyhole_rejects_short_length():
     import pytest
+
     with pytest.raises(AssertionError):
         keyhole(length=3, radius1=5, radius2=10)
 
@@ -149,6 +155,7 @@ def test_ring_forms():
 
 def test_ring_requires_valid_params():
     import pytest
+
     with pytest.raises(AssertionError):
         ring(radius=10)
     with pytest.raises(AssertionError):

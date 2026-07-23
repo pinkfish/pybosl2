@@ -53,9 +53,7 @@ from .shapes2d import _frag_count, _polar_to_xy
 from .shapes3d import _edges, EDGE_OFFSETS, _quantup, _anchor_offset_box3
 
 
-CORNER_OFFSETS = [
-    [xa, ya, za] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)
-]
+CORNER_OFFSETS = [[xa, ya, za] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)]
 
 
 def mask2d_roundover(
@@ -126,18 +124,38 @@ def rounding_edge_mask(
         _fn/_fa/_fs: arc smoothness overrides
     """
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = r1 if r1 is not None else (r if r is not None else (d1 / 2 if d1 is not None else (d / 2 if d is not None else 1)))
-    rad2 = r2 if r2 is not None else (r if r is not None else (d2 / 2 if d2 is not None else (d / 2 if d is not None else 1)))
+    rad1 = (
+        r1
+        if r1 is not None
+        else (
+            r
+            if r is not None
+            else (d1 / 2 if d1 is not None else (d / 2 if d is not None else 1))
+        )
+    )
+    rad2 = (
+        r2
+        if r2 is not None
+        else (
+            r
+            if r is not None
+            else (d2 / 2 if d2 is not None else (d / 2 if d is not None else 1))
+        )
+    )
     if rad1 < rad2:
         cross = mask2d_roundover(rad2, excess=excess, _fn=_fn, _fa=_fa, _fs=_fs)
-        shape = _opolygon(cross).linear_extrude(height=length, center=True, scale=rad1 / rad2)
+        shape = _opolygon(cross).linear_extrude(
+            height=length, center=True, scale=rad1 / rad2
+        )
         return shape.rotate(180, [1, 0, 0])
     cross = mask2d_roundover(rad1, excess=excess, _fn=_fn, _fa=_fa, _fs=_fs)
     scale = rad2 / rad1 if rad1 else 1
     return _opolygon(cross).linear_extrude(height=length, center=True, scale=scale)
 
 
-def chamfer_edge_mask(l: float = 1, chamfer: float = 1, excess: float = 0.1) -> PyOpenSCAD:
+def chamfer_edge_mask(
+    l: float = 1, chamfer: float = 1, excess: float = 0.1
+) -> PyOpenSCAD:
     """A standalone 3-D edge-chamfer cutter of length *l* (BOSL2 chamfer_edge_mask()).
 
     A diamond bar (a square prism rotated 45 degrees, with its vertices *chamfer* out along each
@@ -161,7 +179,9 @@ def _pick_axes(vec: Sequence[float]) -> tuple[int, int, int, float, float]:
     return run_axis, a1, a2, vec[a1], vec[a2]
 
 
-def _orient_mask_along_edge(shape: PyOpenSCAD, size: Sequence[float], vec: Sequence[float]) -> PyOpenSCAD:
+def _orient_mask_along_edge(
+    shape: PyOpenSCAD, size: Sequence[float], vec: Sequence[float]
+) -> PyOpenSCAD:
     """Reorient/position an already-built edge cutter (local +X/+Y into the solid, centered
     along its own local Z which runs along the edge) onto the cuboid edge given by *vec*."""
     run_axis, a1, a2, s1, s2 = _pick_axes(vec)
@@ -183,7 +203,12 @@ def _orient_mask_along_edge(shape: PyOpenSCAD, size: Sequence[float], vec: Seque
     return shape.multmatrix(m).translate(center)
 
 
-def _extrude_mask_along_edge(mask_path: Sequence[Sequence[float]], length: float, size: Sequence[float], vec: Sequence[float]) -> PyOpenSCAD:
+def _extrude_mask_along_edge(
+    mask_path: Sequence[Sequence[float]],
+    length: float,
+    size: Sequence[float],
+    vec: Sequence[float],
+) -> PyOpenSCAD:
     shape = _opolygon(mask_path).linear_extrude(height=length, center=True)
     return _orient_mask_along_edge(shape, size, vec)
 
@@ -222,7 +247,9 @@ def edge_mask(
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    cutter = cutter.translate(
+        center if center is not None else _anchor_offset_box3(size, anchor)
+    )
     return body - cutter
 
 
@@ -263,7 +290,9 @@ def edge_profile(
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    cutter = cutter.translate(
+        center if center is not None else _anchor_offset_box3(size, anchor)
+    )
     return body - cutter
 
 
@@ -279,15 +308,24 @@ def _corner_set(v) -> list[int]:
         if v == "NONE":
             return [0] * 8
         raise ValueError(f'{v} must be "ALL", "NONE", or a vector')
-    return [1 if all(v[i] == 0 or v[i] == c[i] for i in range(3)) else 0 for c in CORNER_OFFSETS]
+    return [
+        1 if all(v[i] == 0 or v[i] == c[i] for i in range(3)) else 0
+        for c in CORNER_OFFSETS
+    ]
 
 
 def _corners(v, except_: list | None = None) -> list[int]:
     if except_ is None:
         except_ = []
-    if isinstance(v, str) or (isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)):
+    if isinstance(v, str) or (
+        isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)
+    ):
         v = [v]
-    if isinstance(except_, str) or (isinstance(except_, list) and len(except_) > 0 and not isinstance(except_[0], list)):
+    if isinstance(except_, str) or (
+        isinstance(except_, list)
+        and len(except_) > 0
+        and not isinstance(except_[0], list)
+    ):
         except_ = [except_]
     summed = [0] * 8
     for x in v:
@@ -303,7 +341,14 @@ def _corners(v, except_: list | None = None) -> list[int]:
     return [1 if (normed[i] - (1 if exc[i] > 0 else 0)) > 0 else 0 for i in range(8)]
 
 
-def _corner_cutter(size: Sequence[float], corner_vec: Sequence[float], r: float, _fn=None, _fa=None, _fs=None) -> PyOpenSCAD:
+def _corner_cutter(
+    size: Sequence[float],
+    corner_vec: Sequence[float],
+    r: float,
+    _fn=None,
+    _fa=None,
+    _fs=None,
+) -> PyOpenSCAD:
     cube_center = [corner_vec[i] * (size[i] / 2 - r / 2) for i in range(3)]
     sphere_center = [corner_vec[i] * (size[i] / 2 - r) for i in range(3)]
     cube_shape = _ocube([r, r, r], center=True).translate(cube_center)
@@ -358,7 +403,9 @@ def corner_profile(
             cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    cutter = cutter.translate(
+        center if center is not None else _anchor_offset_box3(size, anchor)
+    )
     return body - cutter
 
 
@@ -398,6 +445,29 @@ def face_profile(
         assert d is not None, "face_profile(): must give r or d"
         r = d / 2
     rad = r
-    mask = children if children is not None else mask2d_roundover(rad, _fn=_fn, _fa=_fa, _fs=_fs)
-    body = edge_profile(body, faces, children=mask, size=size, convexity=convexity, anchor=anchor, center=center)
-    return corner_profile(body, faces, r=rad, size=size, convexity=convexity, anchor=anchor, center=center, _fn=_fn, _fa=_fa, _fs=_fs)
+    mask = (
+        children
+        if children is not None
+        else mask2d_roundover(rad, _fn=_fn, _fa=_fa, _fs=_fs)
+    )
+    body = edge_profile(
+        body,
+        faces,
+        children=mask,
+        size=size,
+        convexity=convexity,
+        anchor=anchor,
+        center=center,
+    )
+    return corner_profile(
+        body,
+        faces,
+        r=rad,
+        size=size,
+        convexity=convexity,
+        anchor=anchor,
+        center=center,
+        _fn=_fn,
+        _fa=_fa,
+        _fs=_fs,
+    )

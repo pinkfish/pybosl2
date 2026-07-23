@@ -45,7 +45,9 @@ def _vector_angle3(a, b, c) -> float:
     """The angle in degrees at vertex *b* of the corner a-b-c (2-D or 3-D)."""
     va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
     vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
-    cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
+    cosv = float(np.dot(va, vc)) / (
+        float(np.linalg.norm(va)) * float(np.linalg.norm(vc))
+    )
     return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
@@ -84,12 +86,22 @@ def _arc3d(center, start, end, n):
     """*n* points along the short arc from *start* to *end* about *center* (slerp, any dimension)."""
     c = np.asarray(center, dtype=float)
     v0, v1 = np.asarray(start, dtype=float) - c, np.asarray(end, dtype=float) - c
-    ang = math.acos(max(-1.0, min(1.0, float(np.dot(v0, v1)) / (np.linalg.norm(v0) * np.linalg.norm(v1)))))
+    ang = math.acos(
+        max(
+            -1.0,
+            min(1.0, float(np.dot(v0, v1)) / (np.linalg.norm(v0) * np.linalg.norm(v1))),
+        )
+    )
     if ang < 1e-12:
-        return [list(np.asarray(start, dtype=float)), list(np.asarray(end, dtype=float))]
+        return [
+            list(np.asarray(start, dtype=float)),
+            list(np.asarray(end, dtype=float)),
+        ]
     s = math.sin(ang)
-    return [list(c + (math.sin((1 - t) * ang) * v0 + math.sin(t * ang) * v1) / s)
-            for t in np.linspace(0, 1, n)]
+    return [
+        list(c + (math.sin((1 - t) * ang) * v0 + math.sin(t * ang) * v1) / s)
+        for t in np.linspace(0, 1, n)
+    ]
 
 
 def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
@@ -107,9 +119,17 @@ def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
     center = r / math.sin(math.radians(angle)) * unit(prev + nxt) + p1
     n = max(3, math.ceil((90 - angle) / 180 * _frag_count(r, _fn, _fa, _fs)))
     if len(points[1]) == 2:
-        return [[float(c) for c in p]
-                for p in arc(n, center=[float(center[0]), float(center[1])],
-                             points=[[float(start[0]), float(start[1])], [float(end[0]), float(end[1])]])]
+        return [
+            [float(c) for c in p]
+            for p in arc(
+                n,
+                center=[float(center[0]), float(center[1])],
+                points=[
+                    [float(start[0]), float(start[1])],
+                    [float(end[0]), float(end[1])],
+                ],
+            )
+        ]
     return _arc3d(center, start, end, n)
 
 
@@ -118,8 +138,20 @@ def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
 # ---------------------------------------------------------------------------
 
 
-def round_corners(path, method="circle", radius=None, r=None, cut=None, joint=None, width=None,
-                  k=None, closed=True, _fn=None, _fa=None, _fs=None):
+def round_corners(
+    path,
+    method="circle",
+    radius=None,
+    r=None,
+    cut=None,
+    joint=None,
+    width=None,
+    k=None,
+    closed=True,
+    _fn=None,
+    _fa=None,
+    _fs=None,
+):
     """Round every corner of *path* (BOSL2 round_corners()).
 
     *method* is ``"circle"`` (a constant-radius arc), ``"smooth"`` (a continuous-curvature bezier),
@@ -141,16 +173,31 @@ def round_corners(path, method="circle", radius=None, r=None, cut=None, joint=No
     """
     from bosl2.paths import Path, Path3D
 
-    assert method in ("circle", "smooth", "chamfer"), 'method must be "circle", "smooth" or "chamfer".'
-    given = [(m, v) for m, v in (("radius", radius), ("radius", r), ("cut", cut),
-                                 ("joint", joint), ("width", width)) if v is not None]
+    assert method in ("circle", "smooth", "chamfer"), (
+        'method must be "circle", "smooth" or "chamfer".'
+    )
+    given = [
+        (m, v)
+        for m, v in (
+            ("radius", radius),
+            ("radius", r),
+            ("cut", cut),
+            ("joint", joint),
+            ("width", width),
+        )
+        if v is not None
+    ]
     assert len(given) == 1, "Must give exactly one of radius, r, cut, joint or width."
     measure, size = given[0]
     pts = [[float(c) for c in p] for p in path]
     n = len(pts)
     assert n > 2, f"Path has length {n}. Length must be 3 or more."
-    assert method == "circle" or measure != "radius", 'radius is allowed only with method="circle".'
-    assert method == "chamfer" or measure != "width", 'width is allowed only with method="chamfer".'
+    assert method == "circle" or measure != "radius", (
+        'radius is allowed only with method="circle".'
+    )
+    assert method == "chamfer" or measure != "width", (
+        'width is allowed only with method="chamfer".'
+    )
 
     if is_num(size):
         parm = [float(size)] * n
@@ -165,7 +212,11 @@ def round_corners(path, method="circle", radius=None, r=None, cut=None, joint=No
         kv = [float(k)] * n
     else:
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < n else [float(v) for v in k]
+        kv = (
+            ([0.0] + [float(v) for v in k] + [0.0])
+            if len(k) < n
+            else [float(v) for v in k]
+        )
     assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
     assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
 
@@ -176,17 +227,30 @@ def round_corners(path, method="circle", radius=None, r=None, cut=None, joint=No
         if (not closed and (i == 0 or i == n - 1)) or parm[i] == 0:
             dk.append([0.0])
             continue
-        assert not (approx(p0, p1) or approx(p1, p2)), f"Repeated point in path at index {i} with nonzero rounding."
+        assert not (approx(p0, p1) or approx(p1, p2)), (
+            f"Repeated point in path at index {i} with nonzero rounding."
+        )
         angle = _vector_angle3(p0, p1, p2) / 2
-        assert not approx(angle, 0), f"Path turns back on itself at index {i} with nonzero rounding."
+        assert not approx(angle, 0), (
+            f"Path turns back on itself at index {i} with nonzero rounding."
+        )
         ar = math.radians(angle)
         if method == "chamfer":
-            dk.append([parm[i] if measure == "joint" else
-                       parm[i] / math.cos(ar) if measure == "cut" else
-                       parm[i] / math.sin(ar) / 2])  # width
+            dk.append(
+                [
+                    parm[i]
+                    if measure == "joint"
+                    else parm[i] / math.cos(ar)
+                    if measure == "cut"
+                    else parm[i] / math.sin(ar) / 2
+                ]
+            )  # width
         elif method == "smooth":
-            dk.append([parm[i], kv[i]] if measure == "joint" else
-                      [8 * parm[i] / math.cos(ar) / (1 + 4 * kv[i]), kv[i]])  # cut
+            dk.append(
+                [parm[i], kv[i]]
+                if measure == "joint"
+                else [8 * parm[i] / math.cos(ar) / (1 + 4 * kv[i]), kv[i]]
+            )  # cut
         elif measure == "radius":
             dk.append([parm[i] / math.tan(ar), parm[i]])
         elif measure == "joint":
@@ -198,15 +262,27 @@ def round_corners(path, method="circle", radius=None, r=None, cut=None, joint=No
                 cr = parm[i] / (1 / math.sin(ar) - 1)
                 dk.append([cr / math.tan(ar), cr])
 
-    lengths = [float(np.linalg.norm(np.asarray(pts[i % n]) - np.asarray(pts[(i - 1) % n]))) for i in range(n + 1)]
+    lengths = [
+        float(np.linalg.norm(np.asarray(pts[i % n]) - np.asarray(pts[(i - 1) % n])))
+        for i in range(n + 1)
+    ]
     scale = []
     for i in range(n):
         if closed or (i != 0 and i != n - 1):
-            a = lengths[i] / (dk[(i - 1) % n][0] + dk[i][0]) if (dk[(i - 1) % n][0] + dk[i][0]) else math.inf
-            b = lengths[i + 1] / (dk[i][0] + dk[(i + 1) % n][0]) if (dk[i][0] + dk[(i + 1) % n][0]) else math.inf
+            a = (
+                lengths[i] / (dk[(i - 1) % n][0] + dk[i][0])
+                if (dk[(i - 1) % n][0] + dk[i][0])
+                else math.inf
+            )
+            b = (
+                lengths[i + 1] / (dk[i][0] + dk[(i + 1) % n][0])
+                if (dk[i][0] + dk[(i + 1) % n][0])
+                else math.inf
+            )
             scale.append(min(a, b))
-    assert not scale or min(scale) >= 1 - 1e-9, \
+    assert not scale or min(scale) >= 1 - 1e-9, (
         "Roundovers are too big for the path (they overlap); reduce the sizes."
+    )
 
     out = []
     for i in range(n):
@@ -240,8 +316,15 @@ def _dedup(pts, eps=1e-9):
 # ---------------------------------------------------------------------------
 
 
-def smooth_path(path, tangents=None, size=None, relsize=None, splinesteps=10, uniform=False,
-                closed=False):
+def smooth_path(
+    path,
+    tangents=None,
+    size=None,
+    relsize=None,
+    splinesteps=10,
+    uniform=False,
+    closed=False,
+):
     """Fit a smooth continuous-curvature curve through *path* (BOSL2 smooth_path(), method="edges").
 
     Runs a cubic bezier through every point of *path*, matching the path's tangents, and samples it
@@ -263,8 +346,14 @@ def smooth_path(path, tangents=None, size=None, relsize=None, splinesteps=10, un
     from bosl2.beziers import Bezier
     from bosl2.paths import Path, Path3D
 
-    bez = Bezier.from_path(path, closed=closed, tangents=tangents, size=size, relsize=relsize,
-                           uniform=uniform)
+    bez = Bezier.from_path(
+        path,
+        closed=closed,
+        tangents=tangents,
+        size=size,
+        relsize=relsize,
+        uniform=uniform,
+    )
     smoothed = [[float(c) for c in p] for p in bez.path_curve(splinesteps=splinesteps)]
     if closed and len(smoothed) > 1 and approx(smoothed[0], smoothed[-1]):
         smoothed = smoothed[:-1]
@@ -281,15 +370,48 @@ class Roundable:
     """Mixin adding the rounding.scad path operators as methods on :class:`~bosl2.paths.Path` and
     :class:`~bosl2.paths.Path3D`."""
 
-    def round_corners(self, radius=None, r=None, method="circle", cut=None, joint=None, width=None,
-                      k=None, closed=None, **kwargs):
+    def round_corners(
+        self,
+        radius=None,
+        r=None,
+        method="circle",
+        cut=None,
+        joint=None,
+        width=None,
+        k=None,
+        closed=None,
+        **kwargs,
+    ):
         """Round every corner of this path (see :func:`round_corners`)."""
-        return round_corners(self, method=method, radius=radius, r=r, cut=cut, joint=joint,
-                             width=width, k=k, closed=self.closed if closed is None else closed, **kwargs)
+        return round_corners(
+            self,
+            method=method,
+            radius=radius,
+            r=r,
+            cut=cut,
+            joint=joint,
+            width=width,
+            k=k,
+            closed=self.closed if closed is None else closed,
+            **kwargs,
+        )
 
-    def smooth_path(self, tangents=None, size=None, relsize=None, splinesteps=10, uniform=False,
-                    closed=None):
+    def smooth_path(
+        self,
+        tangents=None,
+        size=None,
+        relsize=None,
+        splinesteps=10,
+        uniform=False,
+        closed=None,
+    ):
         """Fit a smooth continuous-curvature curve through this path (see :func:`smooth_path`)."""
-        return smooth_path(self, tangents=tangents, size=size, relsize=relsize,
-                           splinesteps=splinesteps, uniform=uniform,
-                           closed=self.closed if closed is None else closed)
+        return smooth_path(
+            self,
+            tangents=tangents,
+            size=size,
+            relsize=relsize,
+            splinesteps=splinesteps,
+            uniform=uniform,
+            closed=self.closed if closed is None else closed,
+        )

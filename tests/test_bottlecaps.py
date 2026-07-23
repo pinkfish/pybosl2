@@ -24,7 +24,7 @@ def test_pco1810_neck_envelope():
     neck = BC.pco1810_neck()
     assert isinstance(neck, Bosl2Solid)
     w, _wy, hgt = _size(neck)
-    assert w == pytest.approx(33.0, abs=0.2)          # support ring diameter
+    assert w == pytest.approx(33.0, abs=0.2)  # support ring diameter
     assert hgt == pytest.approx(21.0 + 5.0, abs=0.2)  # support_h + neck_h
 
 
@@ -41,7 +41,7 @@ def test_pco1810_cap_envelope():
     assert isinstance(cap, Bosl2Solid)
     w, _wy, hgt = _size(cap)
     assert w == pytest.approx(28.58 + 2 * 2, abs=0.3)  # cap_id + 2*wall
-    assert hgt == pytest.approx(14.10 + 2, abs=0.3)     # tamper_ring_h + wall
+    assert hgt == pytest.approx(14.10 + 2, abs=0.3)  # tamper_ring_h + wall
 
 
 def test_pco1881_cap_envelope():

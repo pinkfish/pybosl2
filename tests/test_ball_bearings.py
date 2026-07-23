@@ -42,18 +42,21 @@ def test_unknown_size_raises():
         BB.ball_bearing_info("nope")
 
 
-@pytest.mark.parametrize("kw", [
-    {"trade_size": "608"},
-    {"trade_size": "608", "shield": False},
-    {"trade_size": "6902ZZ"},
-    {"id": 12, "od": 32, "width": 10, "shield": False},
-])
+@pytest.mark.parametrize(
+    "kw",
+    [
+        {"trade_size": "608"},
+        {"trade_size": "608", "shield": False},
+        {"trade_size": "6902ZZ"},
+        {"id": 12, "od": 32, "width": 10, "shield": False},
+    ],
+)
 def test_ball_bearing_builds(kw):
     assert isinstance(BB.ball_bearing(**kw), Bosl2Solid)
 
 
 def test_envelope_matches_od_and_width():
-    b = BB.ball_bearing("6205")            # id 25, od 52, width 15
+    b = BB.ball_bearing("6205")  # id 25, od 52, width 15
     w, _wy, hgt = _size(b)
     assert w == pytest.approx(52, abs=0.5)
     assert hgt == pytest.approx(15, abs=0.01)

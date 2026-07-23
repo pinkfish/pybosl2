@@ -31,8 +31,16 @@ import numpy as np
 from bosl2._mctable import TRI_TABLE, EDGE_CORNERS, CORNER_OFFSETS
 
 __all__ = [
-    "isosurface", "metaballs", "mb_sphere", "mb_cuboid", "mb_torus", "mb_capsule", "mb_disk",
-    "mb_octahedron", "mb_connector", "Metaball",
+    "isosurface",
+    "metaballs",
+    "mb_sphere",
+    "mb_cuboid",
+    "mb_torus",
+    "mb_capsule",
+    "mb_disk",
+    "mb_octahedron",
+    "mb_connector",
+    "Metaball",
 ]
 
 INF = math.inf
@@ -51,8 +59,11 @@ def _to_bbox(bounding_box):
 
 
 def _voxsize_vec(voxel_size):
-    return np.array([voxel_size] * 3, dtype=float) if isinstance(voxel_size, (int, float)) \
+    return (
+        np.array([voxel_size] * 3, dtype=float)
+        if isinstance(voxel_size, (int, float))
         else np.asarray(voxel_size, dtype=float)
+    )
 
 
 def _resolve_grid(bbox, voxel_size, voxel_count, exact_bounds):
@@ -61,7 +72,9 @@ def _resolve_grid(bbox, voxel_size, voxel_count, exact_bounds):
         voxsize = _voxsize_vec(voxel_size)
     else:
         size = bbox[1] - bbox[0]
-        voxvol = float(size[0] * size[1] * size[2]) / (voxel_count if voxel_count else 22 ** 3)
+        voxvol = float(size[0] * size[1] * size[2]) / (
+            voxel_count if voxel_count else 22**3
+        )
         voxsize = np.array([voxvol ** (1 / 3)] * 3, dtype=float)
     if exact_bounds:
         return bbox, voxsize
@@ -75,9 +88,12 @@ def _grid_axes(bbox, voxsize):
     def axis(lo, hi, step):
         n = int(math.floor((hi - lo) / step + 0.5)) + 1
         return lo + step * np.arange(n)
-    return (axis(bbox[0][0], bbox[1][0], voxsize[0]),
-            axis(bbox[0][1], bbox[1][1], voxsize[1]),
-            axis(bbox[0][2], bbox[1][2], voxsize[2]))
+
+    return (
+        axis(bbox[0][0], bbox[1][0], voxsize[0]),
+        axis(bbox[0][1], bbox[1][1], voxsize[1]),
+        axis(bbox[0][2], bbox[1][2], voxsize[2]),
+    )
 
 
 def _sample_field(f, xs, ys, zs):
@@ -105,8 +121,16 @@ def _sample_field(f, xs, ys, zs):
 # ---------------------------------------------------------------------------
 
 
-def isosurface(f, isovalue, bounding_box=None, voxel_size=None, voxel_count=None, closed=True,
-               reverse=False, exact_bounds=False):
+def isosurface(
+    f,
+    isovalue,
+    bounding_box=None,
+    voxel_size=None,
+    voxel_count=None,
+    closed=True,
+    reverse=False,
+    exact_bounds=False,
+):
     """Mesh the level set of a scalar field *f* at *isovalue* into a VNF (BOSL2 isosurface()).
 
     The solid is the region where ``f >= isovalue`` (a single number) or, for a range
@@ -135,9 +159,9 @@ def isosurface(f, isovalue, bounding_box=None, voxel_size=None, voxel_count=None
         lo, hi = float(isovalue[0]), float(isovalue[1])
         assert lo < hi, "isovalue range must be [min, max] with min < max."
         if math.isinf(lo):
-            iso, reverse = hi, not reverse   # f <= hi
+            iso, reverse = hi, not reverse  # f <= hi
         else:
-            iso = lo                         # f >= lo
+            iso = lo  # f >= lo
     else:
         iso = float(isovalue)
 
@@ -152,8 +176,12 @@ def isosurface(f, isovalue, bounding_box=None, voxel_size=None, voxel_count=None
             voxsize = (bbox[1] - bbox[0]) / (np.array(F.shape) - 1)
         xs, ys, zs = _grid_axes(bbox, voxsize)
     else:
-        assert bounding_box is not None, "isosurface(): a callable field needs a bounding_box."
-        bbox, voxsize = _resolve_grid(_to_bbox(bounding_box), voxel_size, voxel_count, exact_bounds)
+        assert bounding_box is not None, (
+            "isosurface(): a callable field needs a bounding_box."
+        )
+        bbox, voxsize = _resolve_grid(
+            _to_bbox(bounding_box), voxel_size, voxel_count, exact_bounds
+        )
         xs, ys, zs = _grid_axes(bbox, voxsize)
         F = _sample_field(f, xs, ys, zs)
 
@@ -169,9 +197,15 @@ def isosurface(f, isovalue, bounding_box=None, voxel_size=None, voxel_count=None
 def _marching_cubes(F, xs, ys, zs, iso, closed):
     if closed:
         F = np.pad(F, 1, mode="constant", constant_values=-1e30)
-        xs = np.concatenate([[xs[0] - (xs[1] - xs[0])], xs, [xs[-1] + (xs[-1] - xs[-2])]])
-        ys = np.concatenate([[ys[0] - (ys[1] - ys[0])], ys, [ys[-1] + (ys[-1] - ys[-2])]])
-        zs = np.concatenate([[zs[0] - (zs[1] - zs[0])], zs, [zs[-1] + (zs[-1] - zs[-2])]])
+        xs = np.concatenate(
+            [[xs[0] - (xs[1] - xs[0])], xs, [xs[-1] + (xs[-1] - xs[-2])]]
+        )
+        ys = np.concatenate(
+            [[ys[0] - (ys[1] - ys[0])], ys, [ys[-1] + (ys[-1] - ys[-2])]]
+        )
+        zs = np.concatenate(
+            [[zs[0] - (zs[1] - zs[0])], zs, [zs[-1] + (zs[-1] - zs[-2])]]
+        )
     nx, ny, nz = F.shape
     coords = (xs, ys, zs)
     verts = []
@@ -200,8 +234,14 @@ def _marching_cubes(F, xs, ys, zs, iso, closed):
     for i in range(nx - 1):
         for j in range(ny - 1):
             for k in range(nz - 1):
-                cvals = [F[i + CORNER_OFFSETS[c][0], j + CORNER_OFFSETS[c][1], k + CORNER_OFFSETS[c][2]]
-                         for c in range(8)]
+                cvals = [
+                    F[
+                        i + CORNER_OFFSETS[c][0],
+                        j + CORNER_OFFSETS[c][1],
+                        k + CORNER_OFFSETS[c][2],
+                    ]
+                    for c in range(8)
+                ]
                 cubeindex = 0
                 for c in range(8):
                     if cvals[c] < iso:
@@ -211,9 +251,13 @@ def _marching_cubes(F, xs, ys, zs, iso, closed):
                     continue
                 for t in range(0, len(tris), 3):
                     face = []
-                    for e in tris[t:t + 3]:
+                    for e in tris[t : t + 3]:
                         c0, c1 = EDGE_CORNERS[e]
-                        face.append(edge_vertex(corner_pos(c0, i, j, k), corner_pos(c1, i, j, k)))
+                        face.append(
+                            edge_vertex(
+                                corner_pos(c0, i, j, k), corner_pos(c1, i, j, k)
+                            )
+                        )
                     if face[0] != face[1] and face[1] != face[2] and face[0] != face[2]:
                         faces.append(face)
     return verts, faces
@@ -275,6 +319,7 @@ def mb_sphere(r=None, cutoff=INF, influence=1, negative=False, d=None):
     def field(pts):
         dist = np.linalg.norm(pts, axis=1)
         return _mb_field(dist, rr, influence, cutoff, neg)
+
     return Metaball(field, neg)
 
 
@@ -282,26 +327,42 @@ def mb_cuboid(size, squareness=0.5, cutoff=INF, influence=1, negative=False):
     """A rounded-cuboid metaball field (BOSL2 mb_cuboid()). *squareness* 0..1: 0 round, 1 square."""
     assert 0 <= squareness <= 1, "mb_cuboid(): squareness must be in [0, 1]."
     xp = _squircle_se_exponent(squareness)
-    inv = np.array([2 / size] * 3) if isinstance(size, (int, float)) else 2 / np.asarray(size, dtype=float)
+    inv = (
+        np.array([2 / size] * 3)
+        if isinstance(size, (int, float))
+        else 2 / np.asarray(size, dtype=float)
+    )
     neg = -1 if negative else 1
 
     def field(pts):
         p = np.abs(pts * inv)
-        dist = np.max(p, axis=1) if xp >= 1100 else np.sum(p ** xp, axis=1) ** (1 / xp)
+        dist = np.max(p, axis=1) if xp >= 1100 else np.sum(p**xp, axis=1) ** (1 / xp)
         return _mb_field(dist, 1.0, influence, cutoff, neg)
+
     return Metaball(field, neg)
 
 
-def mb_torus(r_maj=None, r_min=None, cutoff=INF, influence=1, negative=False, d_maj=None, d_min=None):
+def mb_torus(
+    r_maj=None,
+    r_min=None,
+    cutoff=INF,
+    influence=1,
+    negative=False,
+    d_maj=None,
+    d_min=None,
+):
     """A torus metaball field, major radius *r_maj*, tube radius *r_min* (BOSL2 mb_torus())."""
     rmaj, rmin = _radius(r_maj, d_maj), _radius(r_min, d_min)
-    assert rmaj and rmin and rmaj > 0 and rmin > 0, "mb_torus(): need positive r_maj and r_min."
+    assert rmaj and rmin and rmaj > 0 and rmin > 0, (
+        "mb_torus(): need positive r_maj and r_min."
+    )
     neg = -1 if negative else 1
 
     def field(pts):
         rad = np.hypot(pts[:, 0], pts[:, 1]) - rmaj
         dist = np.hypot(rad, pts[:, 2])
         return _mb_field(dist, rmin, influence, cutoff, neg)
+
     return Metaball(field, neg)
 
 
@@ -317,9 +378,11 @@ def mb_capsule(h=None, r=None, cutoff=INF, influence=1, negative=False, d=None):
         z = pts[:, 2]
         rxy = np.hypot(pts[:, 0], pts[:, 1])
         below, above = z < -hl, z > hl
-        dist = np.where(below, np.hypot(rxy, z + hl),
-                        np.where(above, np.hypot(rxy, z - hl), rxy))
+        dist = np.where(
+            below, np.hypot(rxy, z + hl), np.where(above, np.hypot(rxy, z - hl), rxy)
+        )
         return _mb_field(dist, rr, influence, cutoff, neg)
+
     return Metaball(field, neg)
 
 
@@ -337,6 +400,7 @@ def mb_disk(h=None, r=None, cutoff=INF, influence=1, negative=False, d=None):
         z = pts[:, 2]
         dist = np.where(rxy < ri, np.abs(z), np.hypot(rxy - ri, z))
         return _mb_field(dist, hl, influence, cutoff, neg)
+
     return Metaball(field, neg)
 
 
@@ -355,13 +419,18 @@ def mb_octahedron(size, squareness=0.5, cutoff=INF, influence=1, negative=False)
         return (a + b + c + e) ** (1 / xp)
 
     corr = 1.0 / _octdist(np.array([[1 / 3, 1 / 3, 1 / 3]]))[0]
-    scale = np.array([2 / size] * 3) if isinstance(size, (int, float)) else 2 / np.asarray(size, dtype=float)
+    scale = (
+        np.array([2 / size] * 3)
+        if isinstance(size, (int, float))
+        else 2 / np.asarray(size, dtype=float)
+    )
     inv = corr * scale
     neg = -1 if negative else 1
 
     def field(pts):
         dist = _octdist(pts * inv)
         return _mb_field(dist, 1.0, influence, cutoff, neg)
+
     return Metaball(field, neg)
 
 
@@ -371,21 +440,25 @@ def mb_connector(p1, p2, r=None, cutoff=INF, influence=1, negative=False, d=None
 
     rr = _radius(r, d)
     a, b = np.asarray(p1, dtype=float), np.asarray(p2, dtype=float)
-    assert rr and rr > 0 and not np.array_equal(a, b), "mb_connector(): need distinct points and positive r."
+    assert rr and rr > 0 and not np.array_equal(a, b), (
+        "mb_connector(): need distinct points and positive r."
+    )
     neg = -1 if negative else 1
     dc = b - a
     h = float(np.linalg.norm(dc)) / 2
-    ang, axis = rot_from_to(dc, [0, 0, 1])          # rotate the axis onto +Z
+    ang, axis = rot_from_to(dc, [0, 0, 1])  # rotate the axis onto +Z
     m3 = np.asarray(axis_angle_matrix(ang, axis), dtype=float)
 
     def field(pts):
-        local = (pts - (a + b) / 2) @ m3.T          # center on the midpoint, align to +Z
+        local = (pts - (a + b) / 2) @ m3.T  # center on the midpoint, align to +Z
         z = local[:, 2]
         rxy = np.hypot(local[:, 0], local[:, 1])
         below, above = z < -h, z > h
-        dist = np.where(below, np.hypot(rxy, z + h),
-                        np.where(above, np.hypot(rxy, z - h), rxy))
+        dist = np.where(
+            below, np.hypot(rxy, z + h), np.where(above, np.hypot(rxy, z - h), rxy)
+        )
         return _mb_field(dist, rr, influence, cutoff, neg)
+
     return Metaball(field, neg)
 
 
@@ -412,14 +485,28 @@ def _parse_spec(spec):
     items = list(spec)
     if items and isinstance(items[0], Metaball):
         raise AssertionError("metaballs(): spec must be (transform, metaball) pairs.")
-    if items and isinstance(items[0], (tuple, list)) and len(items[0]) == 2 and isinstance(items[0][1], Metaball):
+    if (
+        items
+        and isinstance(items[0], (tuple, list))
+        and len(items[0]) == 2
+        and isinstance(items[0][1], Metaball)
+    ):
         return [(_to_matrix(t), mb) for t, mb in items]
-    assert len(items) % 2 == 0, "metaballs(): flat spec must alternate transform and metaball."
+    assert len(items) % 2 == 0, (
+        "metaballs(): flat spec must alternate transform and metaball."
+    )
     return [(_to_matrix(items[i]), items[i + 1]) for i in range(0, len(items), 2)]
 
 
-def metaballs(spec, bounding_box, voxel_size=None, voxel_count=None, isovalue=1, closed=True,
-              exact_bounds=False):
+def metaballs(
+    spec,
+    bounding_box,
+    voxel_size=None,
+    voxel_count=None,
+    isovalue=1,
+    closed=True,
+    exact_bounds=False,
+):
     """Mesh a set of transformed metaball field primitives into a blobby surface (BOSL2 metaballs()).
 
     *spec* is a list of ``(transform, metaball)`` pairs (or the BOSL2 flat
@@ -441,7 +528,9 @@ def metaballs(spec, bounding_box, voxel_size=None, voxel_count=None, isovalue=1,
     """
     pairs = _parse_spec(spec)
     assert pairs, "metaballs(): the spec is empty."
-    bbox, voxsize = _resolve_grid(_to_bbox(bounding_box), voxel_size, voxel_count, exact_bounds)
+    bbox, voxsize = _resolve_grid(
+        _to_bbox(bounding_box), voxel_size, voxel_count, exact_bounds
+    )
     invs = [np.linalg.inv(t) for t, _ in pairs]
 
     def field(pts):
@@ -452,5 +541,11 @@ def metaballs(spec, bounding_box, voxel_size=None, voxel_count=None, isovalue=1,
             total += ball.field(local)
         return total
 
-    return isosurface(field, isovalue, bounding_box=bbox, voxel_size=voxsize, closed=closed,
-                      exact_bounds=True)
+    return isosurface(
+        field,
+        isovalue,
+        bounding_box=bbox,
+        voxel_size=voxsize,
+        closed=closed,
+        exact_bounds=True,
+    )

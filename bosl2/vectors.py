@@ -22,7 +22,9 @@ import numpy as np
 from bosl2.math import EPSILON
 
 
-def is_vector(v, length: int | None = None, zero: bool | None = None, eps: float = EPSILON) -> bool:
+def is_vector(
+    v, length: int | None = None, zero: bool | None = None, eps: float = EPSILON
+) -> bool:
     """True if *v* is a list/tuple/ndarray of finite numbers (optionally of a given length and/or zero-ness)."""
     if isinstance(v, np.ndarray):
         if v.ndim != 1 or v.size == 0:
@@ -30,7 +32,12 @@ def is_vector(v, length: int | None = None, zero: bool | None = None, eps: float
     elif not isinstance(v, (list, tuple)) or len(v) == 0:
         return False
     for x in v:
-        if isinstance(x, bool) or not isinstance(x, (int, float, np.floating, np.integer)) or math.isinf(x) or math.isnan(x):
+        if (
+            isinstance(x, bool)
+            or not isinstance(x, (int, float, np.floating, np.integer))
+            or math.isinf(x)
+            or math.isnan(x)
+        ):
             return False
     if length is not None and len(v) != length:
         return False

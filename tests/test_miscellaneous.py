@@ -23,6 +23,7 @@ PATH3 = Path3D([[0, 0, 0], [20, 0, 10], [20, 20, 20]], closed=False)
 
 # -- path_extrude2d -----------------------------------------------------------------------
 
+
 def test_path_extrude2d_returns_solid():
     assert isinstance(L_PATH.path_extrude2d(s2.square([4, 8], center=True)), Bosl2Solid)
 
@@ -30,17 +31,29 @@ def test_path_extrude2d_returns_solid():
 def test_path_extrude2d_accepts_various_profiles():
     # native shape, a Path, a Region, a Bosl2Solid, and a factory all work as the profile
     assert isinstance(L_PATH.path_extrude2d(s2.circle(radius=3)), Bosl2Solid)
-    assert isinstance(L_PATH.path_extrude2d(Path([[-2, -4], [2, -4], [2, 4], [-2, 4]])), Bosl2Solid)
+    assert isinstance(
+        L_PATH.path_extrude2d(Path([[-2, -4], [2, -4], [2, 4], [-2, 4]])), Bosl2Solid
+    )
     from bosl2.regions import Region
-    assert isinstance(L_PATH.path_extrude2d(Region([[[-2, -4], [2, -4], [2, 4], [-2, 4]]])), Bosl2Solid)
-    assert isinstance(L_PATH.path_extrude2d(lambda: s2.square([4, 8], center=True)), Bosl2Solid)
+
+    assert isinstance(
+        L_PATH.path_extrude2d(Region([[[-2, -4], [2, -4], [2, 4], [-2, 4]]])),
+        Bosl2Solid,
+    )
+    assert isinstance(
+        L_PATH.path_extrude2d(lambda: s2.square([4, 8], center=True)), Bosl2Solid
+    )
 
 
 def test_path_extrude2d_closed_and_caps():
     loop = Path([[0, 0], [40, 0], [40, 40], [0, 40]], closed=True)
-    assert isinstance(loop.path_extrude2d(s2.square([4, 6], center=True), closed=True), Bosl2Solid)
+    assert isinstance(
+        loop.path_extrude2d(s2.square([4, 6], center=True), closed=True), Bosl2Solid
+    )
     straight = Path([[0, 0], [40, 0]], closed=False)
-    assert isinstance(straight.path_extrude2d(s2.square([6, 8], center=True), caps=True), Bosl2Solid)
+    assert isinstance(
+        straight.path_extrude2d(s2.square([6, 8], center=True), caps=True), Bosl2Solid
+    )
 
 
 def test_path_extrude2d_caps_on_closed_raises():
@@ -56,6 +69,7 @@ def test_path_extrude2d_requires_2d_path():
 
 # -- path_extrude (2-D and 3-D paths) -----------------------------------------------------
 
+
 def test_path_extrude_on_2d_path():
     assert isinstance(L_PATH.path_extrude(s2.circle(radius=3)), Bosl2Solid)
 
@@ -70,9 +84,17 @@ def test_path_extrude_factory_profile():
 
 # -- free functions -----------------------------------------------------------------------
 
+
 def test_extrude_from_to():
-    assert isinstance(M.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30]), Bosl2Solid)
-    assert isinstance(M.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2), Bosl2Solid)
+    assert isinstance(
+        M.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30]), Bosl2Solid
+    )
+    assert isinstance(
+        M.extrude_from_to(
+            s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2
+        ),
+        Bosl2Solid,
+    )
 
 
 def test_extrude_from_to_same_point_raises():
@@ -81,8 +103,12 @@ def test_extrude_from_to_same_point_raises():
 
 
 def test_cylindrical_extrude():
-    assert isinstance(M.cylindrical_extrude(s2.square([20, 8]), ir=25, or_=30), Bosl2Solid)
-    assert isinstance(M.cylindrical_extrude(s2.square([20, 8]), id=50, od=60, spin=45), Bosl2Solid)
+    assert isinstance(
+        M.cylindrical_extrude(s2.square([20, 8]), ir=25, or_=30), Bosl2Solid
+    )
+    assert isinstance(
+        M.cylindrical_extrude(s2.square([20, 8]), id=50, od=60, spin=45), Bosl2Solid
+    )
 
 
 def test_cylindrical_extrude_needs_radii():
@@ -91,14 +117,20 @@ def test_cylindrical_extrude_needs_radii():
 
 
 def test_chain_hull():
-    assert isinstance(M.chain_hull(cuboid([5, 5, 5]), sphere(r=4).right(20)), Bosl2Solid)
-    assert isinstance(M.chain_hull([cuboid([5, 5, 5]), sphere(r=4), cuboid([3, 3, 3])]), Bosl2Solid)
+    assert isinstance(
+        M.chain_hull(cuboid([5, 5, 5]), sphere(r=4).right(20)), Bosl2Solid
+    )
+    assert isinstance(
+        M.chain_hull([cuboid([5, 5, 5]), sphere(r=4), cuboid([3, 3, 3])]), Bosl2Solid
+    )
     # single object passes through
     assert isinstance(M.chain_hull(cuboid([5, 5, 5])), Bosl2Solid)
 
 
 def test_minkowski_difference():
-    assert isinstance(M.minkowski_difference(cuboid([40, 40, 40]), sphere(r=8)), Bosl2Solid)
+    assert isinstance(
+        M.minkowski_difference(cuboid([40, 40, 40]), sphere(r=8)), Bosl2Solid
+    )
 
 
 # -- Bosl2Solid methods -------------------------------------------------------------------
