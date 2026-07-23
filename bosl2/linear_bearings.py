@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import math
-import operator
 from dataclasses import dataclass
 
 from bosl2._helpers import union

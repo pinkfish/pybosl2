@@ -64,46 +64,72 @@ Sweeping a profile along a bezier curve:
 API reference
 -------------
 
+The modules are grouped by role, mirroring BOSL2's own organisation. **Foundational** holds the
+primitives and transforms most models start from; **Paths, regions & surfaces** the advanced
+2-D/3-D modelling toolkit; **Math & geometry** the numeric helpers; and **Parts library** the
+ready-made mechanical parts — each with a visual spec sheet in the catalog linked above.
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :caption: Foundational
+
+   shapes3d
+   shapes2d
+   transforms
+   distributors
+   drawing
+   color
+   masking
+   partitions
+   native_ops
+   constants
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Paths, regions & surfaces
 
    paths
    regions
+   rounding
    beziers
    nurbs
+   skin
    vnf
    isosurface
-   skin
-   shapes3d
-   native_ops
-   shapes2d
-   drawing
-   distributors
-   color
-   threading
-   screws
-   screw_drive
-   bottlecaps
-   ball_bearings
-   linear_bearings
-   modular_hose
-   nema_steppers
-   polyhedra
-   walls
-   wiring
-   hooks
-   cubetruss
-   gears
-   sliders
-   hinges
-   joiners
-   partitions
-   miscellaneous
-   rounding
-   masking
-   transforms
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Math & geometry
+
    geometry
    math
    vectors
    comparisons
-   constants
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Parts library
+
+   gears
+   threading
+   screws
+   screw_drive
+   bottlecaps
+   nema_steppers
+   cubetruss
+   hinges
+   joiners
+   hooks
+   walls
+   wiring
+   sliders
+   polyhedra
+   ball_bearings
+   linear_bearings
+   modular_hose
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Extras
+
+   miscellaneous

@@ -16,17 +16,16 @@
 
 from __future__ import annotations
 
-import operator
 from dataclasses import dataclass
-from functools import reduce
 
+from bosl2._helpers import union
 from bosl2.shapes3d import Bosl2Solid, cuboid, cyl
 
 __all__ = ["NemaSteppers", "NemaSpec"]
 
 
 def _union(shapes):
-    return reduce(operator.or_, shapes)
+    return union(shapes)
 
 
 @dataclass(frozen=True)

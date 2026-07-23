@@ -1,6 +1,14 @@
 Threading: screw threads, rods & nuts
 =====================================
 
+.. raw:: html
+
+   <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
+     &#9881;&#65039; <b><a href="specs/index.html">Parts catalog &rarr;</a></b>
+     &nbsp;&mdash;&nbsp; this module is featured in the visual parts catalog.
+   </p>
+
+
 Pure-Python port of the core of BOSL2's ``threading.scad``. The :class:`~bosl2.threading.Threading`
 class builds screw threads by generating the whole rod (core + helical thread) as one manifold
 polyhedron -- an angular sweep of the thread profile stacked over every turn -- so the result is

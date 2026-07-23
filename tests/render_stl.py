@@ -81,18 +81,21 @@ _PREAMBLE = (
 )
 
 
-def render_object(expr: str, out_stl: Path, setup: str = "", timeout: float = 180.0) -> StlResult:
+def render_object(expr: str, out_stl: Path, setup: str = "", timeout: float = 180.0,
+                  export_format: str | None = None) -> StlResult:
     """Build ``obj = <expr>`` (after any *setup* statements) in the real app and export it to STL.
 
     *expr* must evaluate to a native solid or a Bosl2Solid (a VNF/patch expression should end in
-    ``.polyhedron()``). Returns an StlResult; never raises for a render failure so callers can
-    assert on ``.ok``. Only raises if no binary can be located at all.
+    ``.polyhedron()``). *export_format* is passed to PythonSCAD's ``--export-format`` (e.g. ``"binstl"``
+    for a compact binary STL; the default is ASCII). Returns an StlResult; never raises for a render
+    failure so callers can assert on ``.ok``. Only raises if no binary can be located at all.
     """
     body = _PREAMBLE + setup + f"obj = {expr}\n" + "obj.show()\n"
-    return render_stl_script(body, out_stl, timeout=timeout)
+    return render_stl_script(body, out_stl, timeout=timeout, export_format=export_format)
 
 
-def render_stl_script(script_source: str, out_stl: Path, timeout: float = 180.0, cwd=None) -> StlResult:
+def render_stl_script(script_source: str, out_stl: Path, timeout: float = 180.0, cwd=None,
+                      export_format: str | None = None) -> StlResult:
     """Run a full python-mode *script_source* (ending in ``.show()``) in the real app, exporting STL.
 
     The lower-level entry point behind :func:`render_object`; also used by the docs
@@ -117,6 +120,7 @@ def render_stl_script(script_source: str, out_stl: Path, timeout: float = 180.0,
                 str(out_stl),
                 "--backend",
                 "Manifold",
+                *(("--export-format", export_format) if export_format else ()),
                 str(script_path),
             ],
             capture_output=True,

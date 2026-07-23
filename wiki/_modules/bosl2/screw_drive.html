@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bosl2.screw_drive &#8212; bosl2 (PythonSCAD port) 0.1.0 documentation</title>
+    <title>bosl2.screw_drive &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -57,12 +57,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon</span> <span class="k">as</span> <span class="n">_opolygon</span><span class="p">,</span> <span class="n">rotate_extrude</span> <span class="k">as</span> <span class="n">_orotate_extrude</span><span class="p">,</span> <span class="n">hull</span> <span class="k">as</span> <span class="n">_ohull</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">INCH</span><span class="p">,</span> <span class="n">BOTTOM</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.distributors</span><span class="w"> </span><span class="kn">import</span> <span class="n">zrot_copies</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span><span class="p">,</span> <span class="n">hexagon</span><span class="p">,</span> <span class="n">_frag_count</span>
@@ -78,7 +77,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_union</span><span class="p">(</span><span class="n">shapes</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Boolean union of a non-empty iterable of shapes.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">shapes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">union</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -461,6 +460,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polyhedra.html">Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../walls.html">Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wiring.html">Wiring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hooks.html">Hooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>

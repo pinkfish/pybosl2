@@ -15,9 +15,8 @@
 from __future__ import annotations
 
 import math
-import operator
-from functools import reduce
 
+from bosl2._helpers import union
 from bosl2.constants import BOTTOM, LEFT, RIGHT, FRONT, BACK
 from bosl2.distributors import xflip_copy
 from bosl2.shapes3d import Bosl2Solid, cuboid, prismoid
@@ -27,7 +26,7 @@ __all__ = ["Sliders"]
 
 
 def _union(shapes):
-    return reduce(operator.or_, shapes)
+    return union(shapes)
 
 
 class Sliders:

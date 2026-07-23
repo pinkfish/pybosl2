@@ -99,3 +99,19 @@ html_extra_path = ["_extra"]
 
 html_theme = "alabaster"
 html_static_path: list[str] = []
+
+# A grouped, always-visible global TOC so the many modules are easy to track. Alabaster renders each
+# toctree ``:caption:`` from index.rst as a section header in the sidebar's navigation block.
+html_theme_options = {
+    "description": "A pure-Python PythonSCAD port of BOSL2",
+    "fixed_sidebar": True,
+    "sidebar_collapse": False,   # keep every group's pages visible, not just the current one's
+    "page_width": "1120px",
+    "sidebar_width": "255px",
+    "extra_nav_links": {
+        "Visual parts catalog →": "specs/index.html",
+    },
+}
+html_sidebars = {
+    "**": ["about.html", "navigation.html", "relations.html", "searchbox.html"],
+}

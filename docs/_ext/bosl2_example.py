@@ -160,7 +160,7 @@ class Bosl2ExampleDirective(Directive):
             return None
         _STL_DIR.mkdir(exist_ok=True)
         try:
-            result = render_stl_script(script, out_stl, timeout=300.0)
+            result = render_stl_script(script, out_stl, timeout=300.0, export_format="binstl")
         except subprocess.TimeoutExpired:
             _logger.warning(f"bosl2-example: STL export timed out for:\n{code}")
             return None

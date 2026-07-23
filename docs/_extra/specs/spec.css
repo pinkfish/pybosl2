@@ -73,6 +73,23 @@ table.metrics tr:last-child td{border-bottom:0}
 .tags{display:flex; flex-wrap:wrap; gap:6px}
 .tag{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); border:1px solid var(--line); border-radius:5px; padding:2px 7px}
 .tag.hot{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+/* interactive variant viewer + clickable variant tags */
+.spec .viewer{position:relative; width:100%; min-height:300px; border-radius:8px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; background:var(--panel)}
+.spec .viewer canvas{display:block}
+.spec .viewer .poster{width:100%; display:block}
+.spec .viewer .hint{position:absolute; left:10px; bottom:9px; font-family:var(--mono); font-size:10px;
+  color:var(--ink-faint); pointer-events:none}
+.taglabel{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--ink-faint)}
+button.tag{cursor:pointer; font:inherit; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim);
+  background:transparent; border:1px solid var(--line); border-radius:5px; padding:3px 9px; transition:color .13s,background .13s,border-color .13s}
+button.tag:hover{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+button.tag[aria-selected="true"]{color:var(--ground); background:var(--accent); border-color:var(--accent)}
+@media (prefers-color-scheme:light){button.tag[aria-selected="true"]{color:#fff}}
+.stats{display:flex; gap:28px; flex-wrap:wrap; font-family:var(--mono)}
+.stats>div{display:flex; flex-direction:column; gap:2px}
+.stats .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.05}
+.stats .l{font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-dim)}
 .sec-head{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:24px}
 .sec-head h3{font-family:var(--mono); font-size:15px; margin:0}
 .sec-head .count{margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--ink-dim)}

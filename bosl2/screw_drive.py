@@ -24,12 +24,11 @@
 from __future__ import annotations
 
 import math
-import operator
 from dataclasses import dataclass
-from functools import reduce
 
 from pythonscad import polygon as _opolygon, rotate_extrude as _orotate_extrude, hull as _ohull
 
+from bosl2._helpers import union
 from bosl2.constants import INCH, BOTTOM
 from bosl2.distributors import zrot_copies
 from bosl2.shapes2d import circle, hexagon, _frag_count
@@ -45,7 +44,7 @@ def _adj_ang_to_opp(adj: float, ang: float) -> float:
 
 def _union(shapes):
     """Boolean union of a non-empty iterable of shapes."""
-    return reduce(operator.or_, shapes)
+    return union(shapes)
 
 
 # ---------------------------------------------------------------------------

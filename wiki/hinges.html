@@ -5,17 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Hinges &#8212; bosl2 (PythonSCAD port) 0.1.0 documentation</title>
+    <title>Hinges &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
-    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Joiners" href="joiners.html" />
-    <link rel="prev" title="Sliders &amp; rails" href="sliders.html" />
+    <link rel="prev" title="Cube trusses" href="cubetruss.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -24,9 +24,106 @@
   
 
   </head><body>
-  
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
 
-    <div class="document">
+
+
+<p class="blurb">A pure-Python PythonSCAD port of BOSL2</p>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms (affine / reorient)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html">Edge/corner masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native-only mesh operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">Direction constants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html">Bezier curves, paths and surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS: curves &amp; surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html">Sweeps (skin)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Numeric helpers (math)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vector helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Approximate comparison</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html">Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html">Wiring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html">Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extras</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="cubetruss.html" title="previous chapter">Cube trusses</a></li>
+      <li>Next: <a href="joiners.html" title="next chapter">Joiners</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
           
@@ -35,7 +132,10 @@
             
   <section id="hinges">
 <h1>Hinges<a class="headerlink" href="#hinges" title="Link to this heading">¶</a></h1>
-<p>Pure-Python port of the hinges in BOSL2’s <code class="docutils literal notranslate"><span class="pre">hinges.scad</span></code>: a print-in-place
+<p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
+  &#9881;&#65039; <b><a href="specs/hinges.html">Spec sheet &rarr;</a></b>
+  &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.
+</p><p>Pure-Python port of the hinges in BOSL2’s <code class="docutils literal notranslate"><span class="pre">hinges.scad</span></code>: a print-in-place
 <a class="reference internal" href="#bosl2.hinges.Hinges.living_hinge_mask" title="bosl2.hinges.Hinges.living_hinge_mask"><code class="xref py py-meth docutils literal notranslate"><span class="pre">living_hinge_mask()</span></code></a> (differenced from a plate to make a folding “live”
 hinge), a functional interlocking <a class="reference internal" href="#bosl2.hinges.Hinges.knuckle_hinge" title="bosl2.hinges.Hinges.knuckle_hinge"><code class="xref py py-meth docutils literal notranslate"><span class="pre">knuckle_hinge()</span></code></a> leaf (with
 <a class="reference internal" href="#bosl2.hinges.Hinges.knuckle_hinge_pair" title="bosl2.hinges.Hinges.knuckle_hinge_pair"><code class="xref py py-meth docutils literal notranslate"><span class="pre">knuckle_hinge_pair()</span></code></a> for both leaves meshed around one pin, at any fold
@@ -59,13 +159,13 @@ material as the flexible hinge, and a V-groove wide enough to fold <em>foldangle
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-6ab26c6bedb344a1b194e900a8c04374" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9cb5bc0b8e6846fe9af69e9b4ff7e1aa" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-6ab26c6bedb344a1b194e900a8c04374");
+const el = document.getElementById("stlviewer-9cb5bc0b8e6846fe9af69e9b4ff7e1aa");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -166,13 +266,13 @@ two mesh. Pair with <a class="reference internal" href="#bosl2.hinges.Hinges.knu
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c095edff73784b9dac82348e61896fcd" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-6324d4e8eb0d4e8b92618e14fda808bb" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c095edff73784b9dac82348e61896fcd");
+const el = document.getElementById("stlviewer-6324d4e8eb0d4e8b92618e14fda808bb");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -292,90 +392,8 @@ window.addEventListener("resize", resize);
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="Main">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
-
-
-
-
-
-
-
-
-
-<search id="searchbox" style="display: none" role="search">
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html">Bezier curves, paths and surfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS: curves &amp; surfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html">Sweeps (skin)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes and Bosl2Solid</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native-only mesh operations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing: path generators &amp; renderers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors: copiers &amp; reflected copies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Colour: colorspace conversion &amp; colour operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading: screw threads, rods &amp; nuts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders &amp; rails</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Hinges</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#bosl2.hinges.Hinges"><code class="docutils literal notranslate"><span class="pre">Hinges</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html">Edge/corner masking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms (affine / reorient)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html">Numeric helpers (math)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vector helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Approximate comparison</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html">Direction constants</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="sliders.html" title="previous chapter">Sliders &amp; rails</a></li>
-      <li>Next: <a href="joiners.html" title="next chapter">Joiners</a></li>
-  </ul></li>
-</ul>
-</div>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
+    <div class="clearer"></div>
+  </div>
     <div class="footer">
       &#169;2026, pinkfish.
       

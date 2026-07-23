@@ -16,10 +16,23 @@
 
 from __future__ import annotations
 
+import json
 import math
+import re
+import sys
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent / "_extra" / "specs"
+STL_DIR = OUT / "_stl"
+
+# Rendering is optional: with the PythonSCAD app present we render each variant to an STL and measure
+# it; without it, we reuse the STLs and metrics already cached on disk (_stl/metrics.json).
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+try:
+    from tests.render_stl import find_pythonscad_binary, render_object, stl_metrics
+except Exception:  # pragma: no cover - only when the render harness can't be imported
+    find_pythonscad_binary = lambda: None  # noqa: E731
+    render_object = stl_metrics = None
 
 # --- the design system (machinist / CAM spec-sheet identity), shared by every page ---
 CSS = """
@@ -97,6 +110,23 @@ table.metrics tr:last-child td{border-bottom:0}
 .tags{display:flex; flex-wrap:wrap; gap:6px}
 .tag{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); border:1px solid var(--line); border-radius:5px; padding:2px 7px}
 .tag.hot{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+/* interactive variant viewer + clickable variant tags */
+.spec .viewer{position:relative; width:100%; min-height:300px; border-radius:8px; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; background:var(--panel)}
+.spec .viewer canvas{display:block}
+.spec .viewer .poster{width:100%; display:block}
+.spec .viewer .hint{position:absolute; left:10px; bottom:9px; font-family:var(--mono); font-size:10px;
+  color:var(--ink-faint); pointer-events:none}
+.taglabel{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--ink-faint)}
+button.tag{cursor:pointer; font:inherit; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim);
+  background:transparent; border:1px solid var(--line); border-radius:5px; padding:3px 9px; transition:color .13s,background .13s,border-color .13s}
+button.tag:hover{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+button.tag[aria-selected="true"]{color:var(--ground); background:var(--accent); border-color:var(--accent)}
+@media (prefers-color-scheme:light){button.tag[aria-selected="true"]{color:#fff}}
+.stats{display:flex; gap:28px; flex-wrap:wrap; font-family:var(--mono)}
+.stats>div{display:flex; flex-direction:column; gap:2px}
+.stats .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.05}
+.stats .l{font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-dim)}
 .sec-head{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:24px}
 .sec-head h3{font-family:var(--mono); font-size:15px; margin:0}
 .sec-head .count{margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--ink-dim)}
@@ -649,47 +679,264 @@ API_ONLY = {
     "sliders": (5, "A V-groove slider and its mating rail, both shaped to 3-D print without support."),
 }
 
+# --------------------------------------------------------------------------
+# variants: the clickable set per module. Each is (id, label, render-expression). The example code,
+# the caption and the measured metrics are all derived from the expression + a real render.
+# --------------------------------------------------------------------------
+
+_HOOK_OCT = "hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)]"
+
+SETUP = {
+    "gears": "from bosl2.gears import Gears\n",
+    "walls": "from bosl2.walls import Walls\n",
+    "wiring": "from bosl2.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
+    "hooks": "import math\nfrom bosl2.hooks import Hooks\n",
+    "polyhedra": "from bosl2.polyhedra import Polyhedra\n",
+    "hinges": "from bosl2.hinges import Hinges\n",
+    "joiners": "from bosl2.joiners import Joiners\n",
+    "cubetruss": "from bosl2.cubetruss import CubeTruss\n",
+    "ball_bearings": "from bosl2.ball_bearings import BallBearings\n",
+    "linear_bearings": "from bosl2.linear_bearings import LinearBearings\n",
+    "modular_hose": "from bosl2.modular_hose import ModularHose\n",
+    "nema_steppers": "from bosl2.nema_steppers import NemaSteppers\n",
+}
+
+VARIANTS = {
+    "gears": [
+        ("spur", "spur", "Gears.spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)"),
+        ("profile-shift", "profile-shift", "Gears.spur_gear(mod=4, teeth=7, thickness=8)"),
+        ("helical", "helical", "Gears.spur_gear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)"),
+        ("herringbone", "herringbone", "Gears.spur_gear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)"),
+        ("rack", "rack", "Gears.rack(mod=4, teeth=8, thickness=8, height=10)"),
+        ("ring", "ring gear", "Gears.ring_gear(mod=4, teeth=24, thickness=8, backing=4)"),
+        ("bevel", "bevel", "Gears.bevel_gear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)"),
+        ("worm", "worm", "Gears.worm(mod=4, d=30, l=50, starts=1)"),
+    ],
+    "walls": [
+        ("sparse", "sparse", "Walls.sparse_wall(h=50, l=100, thick=4)"),
+        ("corrugated", "corrugated", "Walls.corrugated_wall(h=50, l=100, thick=5)"),
+        ("thinning-wall", "thinning wall", "Walls.thinning_wall(h=50, l=80, thick=4)"),
+        ("thinning-triangle", "thinning triangle", "Walls.thinning_triangle(h=50, l=80, thick=4, center=True)"),
+        ("strut", "narrowing strut", "Walls.narrowing_strut(w=10, l=80, wall=5, ang=30)"),
+        ("sparse-cuboid", "sparse cuboid", "Walls.sparse_cuboid([20, 40, 30], strut=2)"),
+    ],
+    "wiring": [
+        ("13", "13 wires", "Wiring.wire_bundle(PATH, wires=13, rounding=10)"),
+        ("7", "7 wires", "Wiring.wire_bundle(PATH, wires=7, rounding=10)"),
+        ("1", "1 wire", "Wiring.wire_bundle(PATH, wires=1, rounding=10)"),
+        ("thick", "thick gauge", "Wiring.wire_bundle(PATH, wires=7, wirediam=3, rounding=15)"),
+    ],
+    "hooks": [
+        ("ring", "ring hole", "Hooks.ring_hook([50, 10], 25, or_=25, ir=20)"),
+        ("solid", "solid paddle", "Hooks.ring_hook([70, 10], 25, or_=25, ir=0)"),
+        ("d-hole", "D hole", 'Hooks.ring_hook([50, 10], 25, or_=25, ir=15, hole="D")'),
+        ("rounded", "rounded", "Hooks.ring_hook([50, 10], 40, or_=25, ir=15, rounding=5)"),
+        ("custom", "custom hole", f"Hooks.ring_hook([50, 20], 30, or_=25, {_HOOK_OCT})"),
+    ],
+    "polyhedra": [
+        ("tetrahedron", "tetrahedron", "Polyhedra.tetrahedron(r=15)"),
+        ("cube", "cube", "Polyhedra.cube(r=15)"),
+        ("octahedron", "octahedron", "Polyhedra.octahedron(r=15)"),
+        ("dodecahedron", "dodecahedron", "Polyhedra.dodecahedron(side=12)"),
+        ("icosahedron", "icosahedron", "Polyhedra.icosahedron(r=15)"),
+    ],
+    "hinges": [
+        ("pair", "knuckle pair", "Hinges.knuckle_hinge_pair(length=40, segs=5)"),
+        ("knuckle", "single leaf", "Hinges.knuckle_hinge(length=40, segs=5)"),
+        ("snap-lock", "snap lock", "Hinges.snap_lock()"),
+        ("snap-socket", "snap socket", "Hinges.snap_socket()"),
+    ],
+    "joiners": [
+        ("male", "male dovetail", 'Joiners.dovetail("male", width=15, height=8, slide=30)'),
+        ("female", "female socket", 'Joiners.dovetail("female", width=15, height=8, slide=30)'),
+        ("taper", "tapered", 'Joiners.dovetail("male", width=15, height=8, slide=30, taper=4)'),
+        ("snap-pin", "snap pin", "Joiners.snap_pin()"),
+        ("socket", "pin socket", "Joiners.snap_pin_socket()"),
+    ],
+    "cubetruss": [
+        ("truss", "3-truss", "CubeTruss.cubetruss(extents=3)"),
+        ("segment", "segment", "CubeTruss.cubetruss_segment()"),
+        ("corner", "corner", "CubeTruss.cubetruss_corner()"),
+        ("support", "support", "CubeTruss.cubetruss_support(extents=1)"),
+        ("clip", "clip", "CubeTruss.cubetruss_clip()"),
+    ],
+    "ball_bearings": [
+        ("608", "608", 'BallBearings.ball_bearing("608")'),
+        ("6902zz", "6902ZZ", 'BallBearings.ball_bearing("6902ZZ")'),
+        ("r8", "R8", 'BallBearings.ball_bearing("R8")'),
+    ],
+    "linear_bearings": [
+        ("lm8uu", "LM8UU", "LinearBearings.lmXuu_bearing(8)"),
+        ("housing", "LM8UU housing", "LinearBearings.lmXuu_housing(8)"),
+        ("lm12uu", "LM12UU", "LinearBearings.lmXuu_bearing(12)"),
+    ],
+    "modular_hose": [
+        ("segment", "segment", 'ModularHose.modular_hose(0.5, "segment")'),
+        ("ball", "ball end", 'ModularHose.modular_hose(0.5, "ball")'),
+        ("socket", "socket end", 'ModularHose.modular_hose(0.5, "socket")'),
+    ],
+    "nema_steppers": [
+        ("17", "NEMA 17", "NemaSteppers.nema_stepper_motor(17)"),
+        ("23", "NEMA 23", "NemaSteppers.nema_stepper_motor(23)"),
+        ("8", "NEMA 8", "NemaSteppers.nema_stepper_motor(8)"),
+        ("mask", "mount mask", "NemaSteppers.nema_mount_mask(17)"),
+    ],
+}
+
+
+def _derive_code(expr: str) -> tuple[str, str]:
+    """From a render expression, produce (html code with the method bolded, plain-text caption)."""
+    m = re.match(r"([A-Za-z_][\w]*)\.([A-Za-z_]\w*)\((.*)\)\s*$", expr, re.S)
+    if not m:
+        return expr, expr
+    cls, method, args = m.groups()
+    return f'{cls}.<span class="k">{method}</span>({args})', f"{method}({args})"
+
+
+def build_variant_stls(force: bool = False) -> dict:
+    """Render every variant to specs/_stl/<module>-<id>.stl and measure it; cache to metrics.json.
+
+    Returns {module: {id: {tris, vol, bbox, wt}}}. Renders only what's missing unless *force*."""
+    STL_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path = STL_DIR / "metrics.json"
+    cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+    have_app = render_object is not None and find_pythonscad_binary() is not None
+    for mod, variants in VARIANTS.items():
+        cache.setdefault(mod, {})
+        for vid, _label, expr in variants:
+            stl = STL_DIR / f"{mod}-{vid}.stl"
+            if not force and stl.exists() and vid in cache[mod]:
+                continue
+            if not have_app:
+                if vid not in cache[mod]:
+                    print(f"  ! no app and no cache for {mod}-{vid}; viewer will show the poster")
+                continue
+            res = render_object(expr, stl, setup=SETUP[mod], timeout=240, export_format="binstl")
+            if not res.ok:
+                print(f"  ! render FAILED {mod}-{vid}: {(res.error or '')[:120]}")
+                continue
+            mm = stl_metrics(stl)
+            size = "×".join(str(round(float(v))) for v in mm.size)
+            cache[mod][vid] = {"tris": mm.ntris, "vol": f"{mm.volume:,.1f}", "bbox": size, "wt": bool(mm.watertight)}
+            print(f"  rendered {mod}-{vid}: {mm.ntris} tris, wt={mm.watertight}")
+    cache_path.write_text(json.dumps(cache, indent=1))
+    return cache
+
+
 HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<title>{title}</title><link rel="stylesheet" href="spec.css"></head><body>')
 BAR = ('<header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a>'
        '<span class="sep">/</span><span class="meta">{crumb}</span>'
        '<nav><a href="index.html">catalog</a><a href="../index.html">API docs &rarr;</a></nav></div></header>')
+# module pages get an extra header link straight to that module's own API reference page.
+MODBAR = ('<header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a>'
+          '<span class="sep">/</span><span class="meta">spec sheet · {mod}.py</span>'
+          '<nav><a href="index.html">catalog</a><a href="../{mod}.html">{mod}.py API &rarr;</a>'
+          '<a href="../index.html">all API docs &rarr;</a></nav></div></header>')
 FOOT = ('<footer><div class="wrap"><span class="mono">pybosl2</span>'
         '<span class="mono" style="color:var(--ink-faint)">·</span>'
         '<span class="mono">metrics measured from the exported STL via the PythonSCAD app</span>'
         '<span class="r mono">BSD-2-Clause</span></div></footer></body></html>')
 
 
-def module_page(key, m):
-    rows = "".join(
-        f'<tr><td>{lbl}</td><td class="num">{tris:,}</td><td class="num">{vol}</td><td class="num">{bbox}</td></tr>'
-        for (lbl, tris, vol, bbox) in m["metrics"])
+_VIEWER_JS = """<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+const V = __DATA__;
+const box = document.getElementById("viewer"), poster = document.getElementById("poster");
+let renderer, scene, camera, controls, mesh, ready = false;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;
+function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
+  renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
+function init() {
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio); box.appendChild(renderer.domElement);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const k = new THREE.DirectionalLight(0xffffff, 0.85); k.position.set(1, 0.6, 1); scene.add(k);
+  const f = new THREE.DirectionalLight(0xffffff, 0.4); f.position.set(-1, -0.8, 0.5); scene.add(f);
+  controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
+  window.addEventListener("resize", resize); ready = true;
+  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
+}
+const loader = new STLLoader();
+function load(uri) {
+  if (!ready) init();
+  loader.load(uri, geo => {
+    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+    geo.computeVertexNormals(); geo.computeBoundingBox();
+    const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
+    const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
+    geo.translate(-c.x, -c.y, -c.z);
+    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--accent"), specular: 0x222222, shininess: 22 }));
+    scene.add(mesh);
+    const r = Math.max(s.x, s.y, s.z) || 1;
+    camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
+    poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
+  }, undefined, () => {
+    if (!box.querySelector(".hint")) { const h = document.createElement("div");
+      h.className = "hint"; h.textContent = "serve the docs over HTTP for the interactive 3-D view"; box.appendChild(h); }
+  });
+}
+function select(i) {
+  const v = V[i];
+  document.querySelectorAll(".tags button.tag").forEach((b, j) => b.setAttribute("aria-selected", j === i ? "true" : "false"));
+  document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
+  document.getElementById("s-tris").textContent = v.tris == null ? "\\u2014" : v.tris.toLocaleString();
+  document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;
+  document.getElementById("vpart").textContent = v.part;
+  document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+  load(v.uri);
+}
+document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
+select(0);
+</script>"""
+
+
+def module_page(key, m, metrics):
+    variants = VARIANTS[key]
+    data, cache = [], metrics.get(key, {})
+    for vid, label, expr in variants:
+        code, part = _derive_code(expr)
+        mm = cache.get(vid, {})
+        data.append({"id": vid, "label": label, "uri": f"_stl/{key}-{vid}.stl", "code": code, "part": part,
+                     "tris": mm.get("tris"), "vol": mm.get("vol", "—"), "bbox": mm.get("bbox", "—"),
+                     "wt": mm.get("wt", True)})
+    first = data[0]
+    tris0 = f'{first["tris"]:,}' if first["tris"] is not None else "—"
+    pill = '' if first["wt"] else ' style="display:none"'
+    tags = "".join(f'<button class="tag" type="button">{d["label"]}</button>' for d in data)
     proof = ""
     if m["proof"]:
         big, txt = m["proof"]
         proof = f'<div class="proof"><div class="big">{big}</div><div class="txt">{txt}</div></div>'
-    tags = "".join(f'<span class="tag{" hot" if i == 0 else ""}">{t}</span>'
-                   for i, t in enumerate(m["tags"]))
-    return (HEAD.format(title=f'{m["title"]} · pybosl2') + BAR.format(crumb=f'spec sheet · {m["title"]}.py') +
+    script = _VIEWER_JS.replace("__DATA__", json.dumps(data))
+    return (HEAD.format(title=f'{m["title"]} · pybosl2') + MODBAR.format(mod=m["title"]) +
             '<main><section class="hero"><div class="wrap">'
             f'<div class="eyebrow">Spec sheet · {m["title"]}.py</div>'
             f'<h1>{m["title"]}<span class="dim">.py</span></h1>'
             f'<p class="lede">{m["subtitle"]}</p>'
             '<div class="spec"><div class="draw">'
-            f'<div class="caption"><span>{m["part"]}</span><span>schematic</span></div>{m["svg"]}</div>'
+            f'<div class="caption"><span id="vpart">{first["part"]}</span><span>interactive · drag to orbit</span></div>'
+            f'<div class="viewer" id="viewer"><div class="poster" id="poster">{m["svg"]}</div></div></div>'
             '<div class="info">'
-            f'<div style="display:flex;align-items:center;gap:12px"><h2>rendered &amp; measured</h2>'
-            '<span class="pill pass">watertight</span></div>'
+            '<div style="display:flex;align-items:center;gap:12px"><h2>rendered &amp; measured</h2>'
+            f'<span class="pill pass" id="wtpill"{pill}>watertight</span></div>'
             f'<p>{m["note"]}</p>'
-            '<table class="metrics"><tr><th>part</th><th class="num">triangles</th>'
-            '<th class="num">volume mm&sup3;</th><th class="num">bbox mm</th></tr>'
-            f'{rows}</table>{proof}'
-            f'<div class="code">&gt;&gt;&gt; {m["code"]}</div>'
+            '<div class="taglabel">variants · click to load</div>'
             f'<div class="tags">{tags}</div>'
-            f'<div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">'
+            '<div class="stats">'
+            f'<div><span class="v" id="s-tris">{tris0}</span><span class="l">triangles</span></div>'
+            f'<div><span class="v" id="s-vol">{first["vol"]}</span><span class="l">mm&sup3; volume</span></div>'
+            f'<div><span class="v" id="s-bbox">{first["bbox"]}</span><span class="l">bbox mm</span></div></div>'
+            f'<div class="code" id="code">&gt;&gt;&gt; {first["code"]}</div>'
+            f'{proof}'
+            '<div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">'
             f'{m["tests"]} tests · <a href="../{m["title"]}.html">full API reference &rarr;</a></div>'
-            '</div></div></div></section></main>' + FOOT)
+            '</div></div></div></section></main>' + script + FOOT)
 
 
 def gallery_page():
@@ -721,15 +968,123 @@ def gallery_page():
             f'<div class="grid">{cards}</div></div></section></main>' + FOOT)
 
 
+# --------------------------------------------------------------------------
+# pretty-printer: reindent the generated one-line markup so the .html files are
+# human-readable, WITHOUT changing what the browser renders. Lines break only at
+# block-element boundaries; inline runs (text and inline tags) are never split, so
+# no significant whitespace is ever inserted between inline siblings.
+# --------------------------------------------------------------------------
+
+# Tags kept on the same line as surrounding text (breaking around these could insert visible spaces).
+_INLINE = {"a", "b", "i", "u", "em", "strong", "span", "small", "code", "sup", "sub",
+           "abbr", "br", "img", "text", "tspan", "title"}
+# Elements with no closing tag; they must not open an indent level.
+_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
+         "param", "source", "track", "wbr"}
+
+
+def _tagname(tok: str) -> str:
+    m = re.match(r"</?\s*([a-zA-Z0-9]+)", tok)
+    return m.group(1).lower() if m else ""
+
+
+def _is_block(tok: str) -> bool:
+    """A markup token that forces a line break (a non-inline, non-declaration tag)."""
+    return tok.startswith("<") and not tok.startswith("<!") and _tagname(tok) not in _INLINE
+
+
+def _closes_simple(toks: list[str], i: int) -> int:
+    """If the block element opening at *i* contains only inline/text content, return the index of its
+    matching close tag; otherwise -1. 'Simple' elements are emitted on a single line."""
+    name = _tagname(toks[i])
+    depth = 1
+    for j in range(i + 1, len(toks)):
+        t = toks[j]
+        if not _is_block(t):
+            continue                                     # text or inline tag: still simple
+        if t.rstrip().endswith("/>") or _tagname(t) in _VOID:
+            return -1                                    # a block void/self-close child (e.g. an SVG shape)
+        if t.startswith("</"):
+            depth -= 1
+            if depth == 0 and _tagname(t) == name:
+                return j
+        else:
+            return -1                                    # a nested block element -> not simple
+    return -1
+
+
+def _format_html(html: str, indent: str = "  ") -> str:
+    """Reindent well-formed generated HTML for readability without changing what it renders.
+
+    Block elements go on their own indented lines; an element whose content is only text and inline
+    tags is kept whole on one line, so no whitespace is ever inserted inside a run of inline content.
+    ``<script>`` blocks are emitted verbatim (their JS contains ``<``/``>`` that isn't markup)."""
+    out: list[str] = []
+    buf: list[str] = []
+    depth = 0
+
+    def flush():
+        if buf:
+            line = "".join(buf).strip()
+            if line:
+                out.append(indent * depth + line)
+            buf.clear()
+
+    def emit(substr: str):
+        nonlocal depth
+        toks = [t for t in re.split(r"(<[^>]+>)", substr) if t]
+        i = 0
+        while i < len(toks):
+            tok = toks[i]
+            if not _is_block(tok):
+                buf.append(tok)                          # text, inline tag, or declaration run
+                i += 1
+                continue
+            flush()
+            if tok.startswith("</"):                      # block close
+                depth = max(0, depth - 1)
+                out.append(indent * depth + tok)
+            elif tok.rstrip().endswith("/>") or _tagname(tok) in _VOID:
+                out.append(indent * depth + tok)         # self-closing / void
+            else:
+                end = _closes_simple(toks, i)
+                if end >= 0:                              # inline-only element: keep on one line
+                    out.append(indent * depth + "".join(toks[i:end + 1]))
+                    i = end
+                else:                                    # block container: open and indent
+                    out.append(indent * depth + tok)
+                    depth += 1
+            i += 1
+
+    # Split off <script>...</script> so its JS is passed through untouched (odd chunks are scripts).
+    for idx, part in enumerate(re.split(r"(<script\b[^>]*>.*?</script>)", html, flags=re.S | re.I)):
+        if not part:
+            continue
+        if idx % 2 == 1:
+            flush()
+            out.append(indent * depth + part.strip())
+        else:
+            emit(part)
+    flush()
+    return "\n".join(out) + "\n"
+
+
+def _norm(html: str) -> str:
+    """Collapse insignificant inter-tag whitespace, for proving the reindent is render-safe."""
+    return re.sub(r">\s+<", "><", html).strip()
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "spec.css").write_text(CSS)
-    (OUT / "index.html").write_text(gallery_page())
-    for key, m in MODULES.items():
-        (OUT / f"{key}.html").write_text(module_page(key, m))
+    metrics = build_variant_stls(force="--force" in sys.argv)
+    pages = {"index.html": gallery_page(),
+             **{f"{k}.html": module_page(k, m, metrics) for k, m in MODULES.items()}}
+    for name, raw in pages.items():
+        pretty = _format_html(raw)
+        assert _norm(pretty) == _norm(raw), f"reindent changed the markup of {name}"  # render-safe check
+        (OUT / name).write_text(pretty)
     print("wrote", OUT)
-    for p in sorted(OUT.iterdir()):
-        print("  ", p.name)
 
 
 if __name__ == "__main__":

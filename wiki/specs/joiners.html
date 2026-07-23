@@ -1,1 +1,125 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>joiners · pybosl2</title><link rel="stylesheet" href="spec.css"></head><body><header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a><span class="sep">/</span><span class="meta">spec sheet · joiners.py</span><nav><a href="index.html">catalog</a><a href="../index.html">API docs &rarr;</a></nav></div></header><main><section class="hero"><div class="wrap"><div class="eyebrow">Spec sheet · joiners.py</div><h1>joiners<span class="dim">.py</span></h1><p class="lede">Shapes that connect two separately-printed parts: a tapered-or-straight dovetail joint — male tenon or female socket — and a press-and-click snap pin.</p><div class="spec"><div class="draw"><div class="caption"><span>dovetail("male", width=15, height=8, slide=30)</span><span>schematic</span></div><svg viewBox="0 0 460 240" role="img" aria-label="Section of a dovetail joint: a flared male tenon seated in a female socket." xmlns="http://www.w3.org/2000/svg"><path d="M 46,52 H 414 V 210 H 46 Z M 136,60 L 324,60 L 295,174 L 165,174 Z" fill="url(#h)" fill-rule="evenodd" stroke="var(--ink-dim)" stroke-width="1.5"/><defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/></pattern></defs><path d="M 171,168 L 289,168 L 318,66 L 142,66 Z" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink)" stroke-width="1.6"/><line x1="289" y1="168" x2="318" y2="66" stroke="var(--accent)" stroke-width="1.4"/><text x="230" y="198" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">male tenon · female socket · slope 1:6</text></svg></div><div class="info"><div style="display:flex;align-items:center;gap:12px"><h2>rendered &amp; measured</h2><span class="pill pass">watertight</span></div><p>The dovetail flares to <span class="mono">w + 2·h/slope</span> at the top so it resists pulling apart; a taper lets a long joint slide home and wedge tight. The female is the same shape grown by <b>slop</b> for a press fit.</p><table class="metrics"><tr><th>part</th><th class="num">triangles</th><th class="num">volume mm&sup3;</th><th class="num">bbox mm</th></tr><tr><td>male dovetail</td><td class="num">12</td><td class="num">3,920.0</td><td class="num">18×30×8</td></tr><tr><td>snap pin</td><td class="num">1,718</td><td class="num">199.5</td><td class="num">6×6×15</td></tr></table><div class="code">&gt;&gt;&gt; Joiners.<span class="k">dovetail</span>("male", width=15, height=8, slide=30)</div><div class="tags"><span class="tag hot">dovetail</span><span class="tag">taper</span><span class="tag">male / female</span><span class="tag">snap-pin</span><span class="tag">socket</span></div><div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">8 tests · <a href="../joiners.html">full API reference &rarr;</a></div></div></div></div></section></main><footer><div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div></footer></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>joiners · pybosl2</title>
+    <link rel="stylesheet" href="spec.css">
+  </head>
+  <body>
+    <header class="bar">
+      <div class="wrap">
+        <a class="logo" href="index.html">py<b>bosl2</b></a><span class="sep">/</span><span class="meta">spec sheet · joiners.py</span>
+        <nav><a href="index.html">catalog</a><a href="../joiners.html">joiners.py API &rarr;</a><a href="../index.html">all API docs &rarr;</a></nav>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="wrap">
+          <div class="eyebrow">Spec sheet · joiners.py</div>
+          <h1>joiners<span class="dim">.py</span></h1>
+          <p class="lede">Shapes that connect two separately-printed parts: a tapered-or-straight dovetail joint — male tenon or female socket — and a press-and-click snap pin.</p>
+          <div class="spec">
+            <div class="draw">
+              <div class="caption"><span id="vpart">dovetail("male", width=15, height=8, slide=30)</span><span>interactive · drag to orbit</span></div>
+              <div class="viewer" id="viewer">
+                <div class="poster" id="poster">
+                  <svg viewBox="0 0 460 240" role="img" aria-label="Section of a dovetail joint: a flared male tenon seated in a female socket." xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 46,52 H 414 V 210 H 46 Z M 136,60 L 324,60 L 295,174 L 165,174 Z" fill="url(#h)" fill-rule="evenodd" stroke="var(--ink-dim)" stroke-width="1.5"/>
+                    <defs>
+                      <pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                        <line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/>
+                      </pattern>
+                    </defs>
+                    <path d="M 171,168 L 289,168 L 318,66 L 142,66 Z" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink)" stroke-width="1.6"/>
+                    <line x1="289" y1="168" x2="318" y2="66" stroke="var(--accent)" stroke-width="1.4"/>
+                    <text x="230" y="198" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">male tenon · female socket · slope 1:6</text>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="info">
+              <div style="display:flex;align-items:center;gap:12px">
+                <h2>rendered &amp; measured</h2>
+                <span class="pill pass" id="wtpill">watertight</span>
+              </div>
+              <p>The dovetail flares to <span class="mono">w + 2·h/slope</span> at the top so it resists pulling apart; a taper lets a long joint slide home and wedge tight. The female is the same shape grown by <b>slop</b> for a press fit.</p>
+              <div class="taglabel">variants · click to load</div>
+              <div class="tags">
+                <button class="tag" type="button">male dovetail</button>
+                <button class="tag" type="button">female socket</button>
+                <button class="tag" type="button">tapered</button>
+                <button class="tag" type="button">snap pin</button>
+                <button class="tag" type="button">pin socket</button>
+              </div>
+              <div class="stats">
+                <div><span class="v" id="s-tris">12</span><span class="l">triangles</span></div>
+                <div><span class="v" id="s-vol">3,920.0</span><span class="l">mm&sup3; volume</span></div>
+                <div><span class="v" id="s-bbox">18×30×8</span><span class="l">bbox mm</span></div>
+              </div>
+              <div class="code" id="code">&gt;&gt;&gt; Joiners.<span class="k">dovetail</span>("male", width=15, height=8, slide=30)</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">8 tests · <a href="../joiners.html">full API reference &rarr;</a></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+const V = [{"id": "male", "label": "male dovetail", "uri": "_stl/joiners-male.stl", "code": "Joiners.<span class=\"k\">dovetail</span>(\"male\", width=15, height=8, slide=30)", "part": "dovetail(\"male\", width=15, height=8, slide=30)", "tris": 12, "vol": "3,920.0", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "female", "label": "female socket", "uri": "_stl/joiners-female.stl", "code": "Joiners.<span class=\"k\">dovetail</span>(\"female\", width=15, height=8, slide=30)", "part": "dovetail(\"female\", width=15, height=8, slide=30)", "tris": 12, "vol": "3,920.0", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "taper", "label": "tapered", "uri": "_stl/joiners-taper.stl", "code": "Joiners.<span class=\"k\">dovetail</span>(\"male\", width=15, height=8, slide=30, taper=4)", "part": "dovetail(\"male\", width=15, height=8, slide=30, taper=4)", "tris": 20, "vol": "3,419.1", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "snap-pin", "label": "snap pin", "uri": "_stl/joiners-snap-pin.stl", "code": "Joiners.<span class=\"k\">snap_pin</span>()", "part": "snap_pin()", "tris": 228, "vol": "173.5", "bbox": "6\u00d76\u00d714", "wt": true}, {"id": "socket", "label": "pin socket", "uri": "_stl/joiners-socket.stl", "code": "Joiners.<span class=\"k\">snap_pin_socket</span>()", "part": "snap_pin_socket()", "tris": 112, "vol": "301.2", "bbox": "6\u00d77\u00d713", "wt": true}];
+const box = document.getElementById("viewer"), poster = document.getElementById("poster");
+let renderer, scene, camera, controls, mesh, ready = false;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;
+function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
+  renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
+function init() {
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio); box.appendChild(renderer.domElement);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const k = new THREE.DirectionalLight(0xffffff, 0.85); k.position.set(1, 0.6, 1); scene.add(k);
+  const f = new THREE.DirectionalLight(0xffffff, 0.4); f.position.set(-1, -0.8, 0.5); scene.add(f);
+  controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
+  window.addEventListener("resize", resize); ready = true;
+  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
+}
+const loader = new STLLoader();
+function load(uri) {
+  if (!ready) init();
+  loader.load(uri, geo => {
+    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+    geo.computeVertexNormals(); geo.computeBoundingBox();
+    const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
+    const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
+    geo.translate(-c.x, -c.y, -c.z);
+    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--accent"), specular: 0x222222, shininess: 22 }));
+    scene.add(mesh);
+    const r = Math.max(s.x, s.y, s.z) || 1;
+    camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
+    poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
+  }, undefined, () => {
+    if (!box.querySelector(".hint")) { const h = document.createElement("div");
+      h.className = "hint"; h.textContent = "serve the docs over HTTP for the interactive 3-D view"; box.appendChild(h); }
+  });
+}
+function select(i) {
+  const v = V[i];
+  document.querySelectorAll(".tags button.tag").forEach((b, j) => b.setAttribute("aria-selected", j === i ? "true" : "false"));
+  document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
+  document.getElementById("s-tris").textContent = v.tris == null ? "\u2014" : v.tris.toLocaleString();
+  document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;
+  document.getElementById("vpart").textContent = v.part;
+  document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+  load(v.uri);
+}
+document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
+select(0);
+</script>
+    <footer>
+      <div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div>
+    </footer>
+  </body>
+</html>

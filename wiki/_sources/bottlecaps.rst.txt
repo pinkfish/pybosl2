@@ -1,6 +1,14 @@
 Bottle caps: PCO-1810 & PCO-1881 necks and caps
 ===============================================
 
+.. raw:: html
+
+   <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
+     &#9881;&#65039; <b><a href="specs/index.html">Parts catalog &rarr;</a></b>
+     &nbsp;&mdash;&nbsp; this module is featured in the visual parts catalog.
+   </p>
+
+
 Pure-Python port of the standard soda-bottle threadings from BOSL2's ``bottlecaps.scad``. The
 :class:`~bosl2.bottlecaps.BottleCaps` class builds a threaded **neck** to graft onto a bottle body
 and a matching **cap**, for the two common beverage-bottle standards::

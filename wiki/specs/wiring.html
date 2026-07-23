@@ -1,1 +1,133 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>wiring · pybosl2</title><link rel="stylesheet" href="spec.css"></head><body><header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a><span class="sep">/</span><span class="meta">spec sheet · wiring.py</span><nav><a href="index.html">catalog</a><a href="../index.html">API docs &rarr;</a></nav></div></header><main><section class="hero"><div class="wrap"><div class="eyebrow">Spec sheet · wiring.py</div><h1>wiring<span class="dim">.py</span></h1><p class="lede">A routed bundle of round wires: hex-packed in cross-section and swept along a path whose corners are rounded, each wire coloured from a 17-entry table.</p><div class="spec"><div class="draw"><div class="caption"><span>wire_bundle(path, wires=13, rounding=10)</span><span>schematic</span></div><svg viewBox="0 0 460 240" role="img" aria-label="Cross-section of a 13-wire bundle, hex-packed and colour-coded." xmlns="http://www.w3.org/2000/svg"><circle cx="230.0" cy="116.0" r="14.1" fill="#333333" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="245.0" cy="142.0" r="14.1" fill="#ff3333" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="215.0" cy="142.0" r="14.1" fill="#00cc00" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="200.0" cy="116.0" r="14.1" fill="#ffff33" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="215.0" cy="90.0" r="14.1" fill="#4c4cff" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="245.0" cy="90.0" r="14.1" fill="#ffffff" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="260.0" cy="116.0" r="14.1" fill="#b27f00" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="275.0" cy="142.0" r="14.1" fill="#7f7f7f" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="260.0" cy="168.0" r="14.1" fill="#33e5e5" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="230.0" cy="168.0" r="14.1" fill="#cc00cc" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="200.0" cy="168.0" r="14.1" fill="#009999" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="185.0" cy="142.0" r="14.1" fill="#ffb2b2" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="170.0" cy="116.0" r="14.1" fill="#ff7fff" stroke="var(--ink-dim)" stroke-width="1.1"/><text x="230" y="224" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">13 wires · hex-packed · 17-colour table</text></svg></div><div class="info"><div style="display:flex;align-items:center;gap:12px"><h2>rendered &amp; measured</h2><span class="pill pass">watertight</span></div><p>The wires pack into the optimal hex arrangement (rings of 1, 6, 12, …) and each sweeps along the rounded route as its own tube — kept separate and coloured, exactly as BOSL2 draws them.</p><table class="metrics"><tr><th>part</th><th class="num">triangles</th><th class="num">volume mm&sup3;</th><th class="num">bbox mm</th></tr><tr><td>1 wire · watertight</td><td class="num">796</td><td class="num">529.0</td><td class="num">52×52×51</td></tr><tr><td>13-wire bundle</td><td class="num">10,348</td><td class="num">6,877.0</td><td class="num">60×60×55</td></tr></table><div class="proof"><div class="big">529.0 mm³ ×13</div><div class="txt"><b>One wire seals watertight at 796 triangles.</b> Thirteen of them, hex-packed and tangent, are 13 independent tubes — 13 × 529.0 = 6,877 mm&sup3; of copper, no overlap.</div></div><div class="code">&gt;&gt;&gt; Wiring.<span class="k">wire_bundle</span>(path, wires=13, rounding=10)</div><div class="tags"><span class="tag hot">hex-packed</span><span class="tag">path-sweep</span><span class="tag">rounded corners</span><span class="tag">17 colours</span><span class="tag">separate tubes</span></div><div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">11 tests · <a href="../wiring.html">full API reference &rarr;</a></div></div></div></div></section></main><footer><div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div></footer></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>wiring · pybosl2</title>
+    <link rel="stylesheet" href="spec.css">
+  </head>
+  <body>
+    <header class="bar">
+      <div class="wrap">
+        <a class="logo" href="index.html">py<b>bosl2</b></a><span class="sep">/</span><span class="meta">spec sheet · wiring.py</span>
+        <nav><a href="index.html">catalog</a><a href="../wiring.html">wiring.py API &rarr;</a><a href="../index.html">all API docs &rarr;</a></nav>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="wrap">
+          <div class="eyebrow">Spec sheet · wiring.py</div>
+          <h1>wiring<span class="dim">.py</span></h1>
+          <p class="lede">A routed bundle of round wires: hex-packed in cross-section and swept along a path whose corners are rounded, each wire coloured from a 17-entry table.</p>
+          <div class="spec">
+            <div class="draw">
+              <div class="caption"><span id="vpart">wire_bundle(PATH, wires=13, rounding=10)</span><span>interactive · drag to orbit</span></div>
+              <div class="viewer" id="viewer">
+                <div class="poster" id="poster">
+                  <svg viewBox="0 0 460 240" role="img" aria-label="Cross-section of a 13-wire bundle, hex-packed and colour-coded." xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="230.0" cy="116.0" r="14.1" fill="#333333" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="245.0" cy="142.0" r="14.1" fill="#ff3333" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="215.0" cy="142.0" r="14.1" fill="#00cc00" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="200.0" cy="116.0" r="14.1" fill="#ffff33" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="215.0" cy="90.0" r="14.1" fill="#4c4cff" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="245.0" cy="90.0" r="14.1" fill="#ffffff" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="260.0" cy="116.0" r="14.1" fill="#b27f00" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="275.0" cy="142.0" r="14.1" fill="#7f7f7f" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="260.0" cy="168.0" r="14.1" fill="#33e5e5" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="230.0" cy="168.0" r="14.1" fill="#cc00cc" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="200.0" cy="168.0" r="14.1" fill="#009999" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="185.0" cy="142.0" r="14.1" fill="#ffb2b2" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <circle cx="170.0" cy="116.0" r="14.1" fill="#ff7fff" stroke="var(--ink-dim)" stroke-width="1.1"/>
+                    <text x="230" y="224" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">13 wires · hex-packed · 17-colour table</text>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="info">
+              <div style="display:flex;align-items:center;gap:12px">
+                <h2>rendered &amp; measured</h2>
+                <span class="pill pass" id="wtpill" style="display:none">watertight</span>
+              </div>
+              <p>The wires pack into the optimal hex arrangement (rings of 1, 6, 12, …) and each sweeps along the rounded route as its own tube — kept separate and coloured, exactly as BOSL2 draws them.</p>
+              <div class="taglabel">variants · click to load</div>
+              <div class="tags">
+                <button class="tag" type="button">13 wires</button>
+                <button class="tag" type="button">7 wires</button>
+                <button class="tag" type="button">1 wire</button>
+                <button class="tag" type="button">thick gauge</button>
+              </div>
+              <div class="stats">
+                <div><span class="v" id="s-tris">10,348</span><span class="l">triangles</span></div>
+                <div><span class="v" id="s-vol">6,974.3</span><span class="l">mm&sup3; volume</span></div>
+                <div><span class="v" id="s-bbox">60×59×54</span><span class="l">bbox mm</span></div>
+              </div>
+              <div class="code" id="code">&gt;&gt;&gt; Wiring.<span class="k">wire_bundle</span>(PATH, wires=13, rounding=10)</div>
+              <div class="proof">
+                <div class="big">529.0 mm³ ×13</div>
+                <div class="txt"><b>One wire seals watertight at 796 triangles.</b> Thirteen of them, hex-packed and tangent, are 13 independent tubes — 13 × 529.0 = 6,877 mm&sup3; of copper, no overlap.</div>
+              </div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">11 tests · <a href="../wiring.html">full API reference &rarr;</a></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+const V = [{"id": "13", "label": "13 wires", "uri": "_stl/wiring-13.stl", "code": "Wiring.<span class=\"k\">wire_bundle</span>(PATH, wires=13, rounding=10)", "part": "wire_bundle(PATH, wires=13, rounding=10)", "tris": 10348, "vol": "6,974.3", "bbox": "60\u00d759\u00d754", "wt": false}, {"id": "7", "label": "7 wires", "uri": "_stl/wiring-7.stl", "code": "Wiring.<span class=\"k\">wire_bundle</span>(PATH, wires=7, rounding=10)", "part": "wire_bundle(PATH, wires=7, rounding=10)", "tris": 5572, "vol": "3,703.2", "bbox": "56\u00d756\u00d753", "wt": false}, {"id": "1", "label": "1 wire", "uri": "_stl/wiring-1.stl", "code": "Wiring.<span class=\"k\">wire_bundle</span>(PATH, wires=1, rounding=10)", "part": "wire_bundle(PATH, wires=1, rounding=10)", "tris": 796, "vol": "529.0", "bbox": "52\u00d752\u00d751", "wt": true}, {"id": "thick", "label": "thick gauge", "uri": "_stl/wiring-thick.stl", "code": "Wiring.<span class=\"k\">wire_bundle</span>(PATH, wires=7, wirediam=3, rounding=15)", "part": "wire_bundle(PATH, wires=7, wirediam=3, rounding=15)", "tris": 5572, "vol": "8,043.4", "bbox": "59\u00d759\u00d754", "wt": false}];
+const box = document.getElementById("viewer"), poster = document.getElementById("poster");
+let renderer, scene, camera, controls, mesh, ready = false;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;
+function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
+  renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
+function init() {
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio); box.appendChild(renderer.domElement);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const k = new THREE.DirectionalLight(0xffffff, 0.85); k.position.set(1, 0.6, 1); scene.add(k);
+  const f = new THREE.DirectionalLight(0xffffff, 0.4); f.position.set(-1, -0.8, 0.5); scene.add(f);
+  controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
+  window.addEventListener("resize", resize); ready = true;
+  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
+}
+const loader = new STLLoader();
+function load(uri) {
+  if (!ready) init();
+  loader.load(uri, geo => {
+    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+    geo.computeVertexNormals(); geo.computeBoundingBox();
+    const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
+    const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
+    geo.translate(-c.x, -c.y, -c.z);
+    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--accent"), specular: 0x222222, shininess: 22 }));
+    scene.add(mesh);
+    const r = Math.max(s.x, s.y, s.z) || 1;
+    camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
+    poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
+  }, undefined, () => {
+    if (!box.querySelector(".hint")) { const h = document.createElement("div");
+      h.className = "hint"; h.textContent = "serve the docs over HTTP for the interactive 3-D view"; box.appendChild(h); }
+  });
+}
+function select(i) {
+  const v = V[i];
+  document.querySelectorAll(".tags button.tag").forEach((b, j) => b.setAttribute("aria-selected", j === i ? "true" : "false"));
+  document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
+  document.getElementById("s-tris").textContent = v.tris == null ? "\u2014" : v.tris.toLocaleString();
+  document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;
+  document.getElementById("vpart").textContent = v.part;
+  document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+  load(v.uri);
+}
+document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
+select(0);
+</script>
+    <footer>
+      <div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div>
+    </footer>
+  </body>
+</html>
