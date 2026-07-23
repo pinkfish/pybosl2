@@ -38,7 +38,9 @@ from docutils.parsers.rst import Directive, directives
 from sphinx.util import logging
 
 _DOCS_DIR = Path(__file__).resolve().parent.parent
-_GENERATED_DIR = _DOCS_DIR / "_generated"       # PNG previews (collected by Sphinx's image handling)
+_GENERATED_DIR = (
+    _DOCS_DIR / "_generated"
+)  # PNG previews (collected by Sphinx's image handling)
 # Exported meshes live under _extra/_stl/ so that html_extra_path=["_extra"] copies the whole
 # _stl/ subdir (not just its flattened contents) to the output root, keeping the ``_stl/<hash>.stl``
 # URIs the viewer and download links use valid.
@@ -61,7 +63,10 @@ except ImportError:
     from types import SimpleNamespace
 
     def render_script(*_args, **_kwargs):  # type: ignore[misc]
-        return SimpleNamespace(ok=False, error="pysolidfive render helper unavailable", path=None)
+        return SimpleNamespace(
+            ok=False, error="pysolidfive render helper unavailable", path=None
+        )
+
 
 _logger = logging.getLogger(__name__)
 
@@ -148,13 +153,17 @@ class Bosl2ExampleDirective(Directive):
                 out.append(nodes.image(uri=img_uri))
         return out
 
-    def _render_png(self, script: str, code: str, imgsize: tuple[int, int]) -> str | None:
+    def _render_png(
+        self, script: str, code: str, imgsize: tuple[int, int]
+    ) -> str | None:
         digest = hashlib.sha256(f"png\n{imgsize}\n{code}".encode()).hexdigest()[:16]
         out_png = _GENERATED_DIR / f"{digest}.png"
         if out_png.is_file():
             return f"/_generated/{out_png.name}"
         if find_pythonscad_binary() is None:
-            _logger.warning(f"bosl2-example: no PythonSCAD binary (set PYTHONSCAD_BIN); source only for:\n{code}")
+            _logger.warning(
+                f"bosl2-example: no PythonSCAD binary (set PYTHONSCAD_BIN); source only for:\n{code}"
+            )
             return None
         _GENERATED_DIR.mkdir(exist_ok=True)
         try:
@@ -162,11 +171,17 @@ class Bosl2ExampleDirective(Directive):
         except subprocess.TimeoutExpired:
             _logger.warning(f"bosl2-example: image render timed out for:\n{code}")
             return None
-        except Exception as exc:  # the PNG helper uses its own binary finder; never crash the build
-            _logger.info(f"bosl2-example: no image preview ({type(exc).__name__}: {exc}) for:\n{code}")
+        except (
+            Exception
+        ) as exc:  # the PNG helper uses its own binary finder; never crash the build
+            _logger.info(
+                f"bosl2-example: no image preview ({type(exc).__name__}: {exc}) for:\n{code}"
+            )
             return None
         if not result.ok:
-            _logger.warning(f"bosl2-example: image render failed ({result.error}) for:\n{code}")
+            _logger.warning(
+                f"bosl2-example: image render failed ({result.error}) for:\n{code}"
+            )
             return None
         return f"/_generated/{out_png.name}"
 
@@ -179,7 +194,9 @@ class Bosl2ExampleDirective(Directive):
             return None
         _STL_DIR.mkdir(exist_ok=True)
         try:
-            result = render_stl_script(script, out_stl, timeout=300.0, export_format="binstl")
+            result = render_stl_script(
+                script, out_stl, timeout=300.0, export_format="binstl"
+            )
         except subprocess.TimeoutExpired:
             _logger.warning(f"bosl2-example: STL export timed out for:\n{code}")
             return None

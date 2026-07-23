@@ -86,11 +86,23 @@ window.addEventListener("resize", resize);
 """
 
 
-def stl_viewer_html(uri: str, width: str = "100%", height: str = "360px",
-                    color: str = "#4a90d9", background: str = "#f7f7f9") -> str:
+def stl_viewer_html(
+    uri: str,
+    width: str = "100%",
+    height: str = "360px",
+    color: str = "#4a90d9",
+    background: str = "#f7f7f9",
+) -> str:
     """The raw HTML embedding an interactive three.js viewer for the STL at *uri*."""
-    return _TEMPLATE.format(vid="stlviewer-" + uuid4().hex, uri=uri, three=_THREE,
-                            width=width, height=height, color=color, background=background)
+    return _TEMPLATE.format(
+        vid="stlviewer-" + uuid4().hex,
+        uri=uri,
+        three=_THREE,
+        width=width,
+        height=height,
+        color=color,
+        background=background,
+    )
 
 
 class STLDirective(Directive):

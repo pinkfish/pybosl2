@@ -105,7 +105,7 @@ html_static_path: list[str] = []
 html_theme_options = {
     "description": "A pure-Python PythonSCAD port of BOSL2",
     "fixed_sidebar": True,
-    "sidebar_collapse": False,   # keep every group's pages visible, not just the current one's
+    "sidebar_collapse": False,  # keep every group's pages visible, not just the current one's
     "page_width": "1120px",
     "sidebar_width": "255px",
     "extra_nav_links": {

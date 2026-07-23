@@ -153,9 +153,12 @@ footer .r{margin-left:auto}
 # procedural technical schematics (SVG), one per shape family
 # --------------------------------------------------------------------------
 
+
 def _svg(body, w=460, h=240, label=""):
-    return (f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{label}" '
-            f'xmlns="http://www.w3.org/2000/svg">{body}</svg>')
+    return (
+        f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{label}" '
+        f'xmlns="http://www.w3.org/2000/svg">{body}</svg>'
+    )
 
 
 def gear_svg(teeth=20):
@@ -175,10 +178,13 @@ def gear_svg(teeth=20):
         f'stroke-width="1" stroke-dasharray="6 5" opacity="0.8"/>'
         f'<circle cx="{cx}" cy="{cy}" r="{rb:.0f}" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/>'
         f'<circle cx="{cx}" cy="{cy}" r="2.5" fill="var(--accent)"/>'
-        f'<text x="{cx}" y="{cy+rp+22:.0f}" text-anchor="middle" fill="var(--ink-dim)" '
+        f'<text x="{cx}" y="{cy + rp + 22:.0f}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">pitch circle · z={teeth}</text>'
     )
-    return _svg(body, label=f"Schematic of a {teeth}-tooth involute gear with pitch circle and bore.")
+    return _svg(
+        body,
+        label=f"Schematic of a {teeth}-tooth involute gear with pitch circle and bore.",
+    )
 
 
 def bearing_svg(nballs=9):
@@ -189,19 +195,24 @@ def bearing_svg(nballs=9):
     for i in range(nballs):
         a = i / nballs * 2 * math.pi
         x, y = cx + rmid * math.cos(a), cy + rmid * math.sin(a)
-        dots += (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{br:.1f}" '
-                 f'fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/>')
+        dots += (
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{br:.1f}" '
+            f'fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/>'
+        )
     body = (
         f'<circle cx="{cx}" cy="{cy}" r="{ro}" fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<circle cx="{cx}" cy="{cy}" r="{ro-8}" fill="none" stroke="var(--ink-dim)" stroke-width="1.2"/>'
+        f'<circle cx="{cx}" cy="{cy}" r="{ro - 8}" fill="none" stroke="var(--ink-dim)" stroke-width="1.2"/>'
         f'<circle cx="{cx}" cy="{cy}" r="{ri}" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<circle cx="{cx}" cy="{cy}" r="{ri+8}" fill="none" stroke="var(--ink-dim)" stroke-width="1.2"/>'
+        f'<circle cx="{cx}" cy="{cy}" r="{ri + 8}" fill="none" stroke="var(--ink-dim)" stroke-width="1.2"/>'
         f'<circle cx="{cx}" cy="{cy}" r="{rmid}" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5"/>'
-        f'{dots}'
-        f'<text x="{cx}" y="{cy+ro+20}" text-anchor="middle" fill="var(--ink-dim)" '
+        f"{dots}"
+        f'<text x="{cx}" y="{cy + ro + 20}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">{nballs} balls · pitch &Oslash;</text>'
     )
-    return _svg(body, label=f"Schematic of an open ball bearing with {nballs} balls in the race.")
+    return _svg(
+        body,
+        label=f"Schematic of an open ball bearing with {nballs} balls in the race.",
+    )
 
 
 def linear_bearing_svg():
@@ -218,60 +229,76 @@ def linear_bearing_svg():
     for i in range(7):
         x = x0 + (i + 0.5) * L / 7
         for yc in (ycen_t, ycen_b):
-            dots += (f'<circle cx="{x:.1f}" cy="{yc:.1f}" r="{br:.1f}" '
-                     f'fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/>')
+            dots += (
+                f'<circle cx="{x:.1f}" cy="{yc:.1f}" r="{br:.1f}" '
+                f'fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/>'
+            )
     body = (
         f'<rect x="{x0}" y="{yo0}" width="{L}" height="{od}" rx="8" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<rect x="{x0-14}" y="{yi0}" width="{L+28}" height="{idd}" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.4"/>'
-        f'<line x1="{x0-26}" y1="{cy}" x2="{x1+26}" y2="{cy}" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/>'
-        f'{dots}'
-        f'<text x="{cx}" y="{yo1+22}" text-anchor="middle" fill="var(--ink-dim)" '
+        f'<rect x="{x0 - 14}" y="{yi0}" width="{L + 28}" height="{idd}" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.4"/>'
+        f'<line x1="{x0 - 26}" y1="{cy}" x2="{x1 + 26}" y2="{cy}" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/>'
+        f"{dots}"
+        f'<text x="{cx}" y="{yo1 + 22}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">shell &amp; ball tracks · runs on a rod</text>'
     )
-    return _svg(body, label="Longitudinal cutaway of a linear ball bearing running on a rod.")
+    return _svg(
+        body, label="Longitudinal cutaway of a linear ball bearing running on a rod."
+    )
 
 
 def truss_svg(cubes=3):
     # isometric stack of `cubes` unit cubes along one axis
     s = 46
-    ex, ey = s * 0.86, s * 0.5   # iso unit vectors
+    ex, ey = s * 0.86, s * 0.5  # iso unit vectors
     ox, oy = 120, 70
     out = ""
     for c in range(cubes):
         bx = ox + c * ex
         by = oy + c * ey
         # 3 visible faces of a cube in iso
-        top = f"{bx},{by} {bx+ex},{by+ey} {bx+ex-ex},{by+ey+s*0.0} "  # placeholder
+        top = f"{bx},{by} {bx + ex},{by + ey} {bx + ex - ex},{by + ey + s * 0.0} "  # placeholder
+
         # define 8 corners
         def P(dx, dy, dz):
             return (bx + dx * ex + dy * (-ex) + dz * 0, by + dx * ey + dy * ey - dz * s)
-        A = (bx, by); B = (bx + ex, by + ey); C = (bx, by + s); D = (bx + ex, by + ey + s)
-        E = (bx - ex, by + ey); F = (bx - ex, by + ey + s)
+
+        A = (bx, by)
+        B = (bx + ex, by + ey)
+        C = (bx, by + s)
+        D = (bx + ex, by + ey + s)
+        E = (bx - ex, by + ey)
+        F = (bx - ex, by + ey + s)
         # top rhombus A B E and the front faces
-        out += (f'<polygon points="{A[0]:.0f},{A[1]:.0f} {B[0]:.0f},{B[1]:.0f} {A[0]:.0f},{A[1]+0:.0f}" fill="none"/>'
-                f'<polygon points="{A[0]:.0f},{A[1]:.0f} {B[0]:.0f},{B[1]:.0f} {(B[0]-ex):.0f},{(B[1]):.0f} {E[0]:.0f},{E[1]:.0f}" '
-                f'fill="color-mix(in srgb,var(--accent) 16%,var(--panel-2))" stroke="var(--ink-dim)" stroke-width="1.3"/>'
-                f'<polygon points="{E[0]:.0f},{E[1]:.0f} {(B[0]-ex):.0f},{B[1]:.0f} {D[0]-ex:.0f},{D[1]:.0f} {F[0]:.0f},{F[1]:.0f}" '
-                f'fill="var(--panel)" stroke="var(--ink-dim)" stroke-width="1.3"/>'
-                f'<polygon points="{(B[0]-ex):.0f},{B[1]:.0f} {B[0]:.0f},{B[1]:.0f} {D[0]:.0f},{D[1]:.0f} {D[0]-ex:.0f},{D[1]:.0f}" '
-                f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.3"/>')
-    body = out + (f'<text x="230" y="225" text-anchor="middle" fill="var(--ink-dim)" '
-                  f'font-family="var(--mono)" font-size="11">{cubes} segments · bracing shown open</text>')
+        out += (
+            f'<polygon points="{A[0]:.0f},{A[1]:.0f} {B[0]:.0f},{B[1]:.0f} {A[0]:.0f},{A[1] + 0:.0f}" fill="none"/>'
+            f'<polygon points="{A[0]:.0f},{A[1]:.0f} {B[0]:.0f},{B[1]:.0f} {(B[0] - ex):.0f},{(B[1]):.0f} {E[0]:.0f},{E[1]:.0f}" '
+            f'fill="color-mix(in srgb,var(--accent) 16%,var(--panel-2))" stroke="var(--ink-dim)" stroke-width="1.3"/>'
+            f'<polygon points="{E[0]:.0f},{E[1]:.0f} {(B[0] - ex):.0f},{B[1]:.0f} {D[0] - ex:.0f},{D[1]:.0f} {F[0]:.0f},{F[1]:.0f}" '
+            f'fill="var(--panel)" stroke="var(--ink-dim)" stroke-width="1.3"/>'
+            f'<polygon points="{(B[0] - ex):.0f},{B[1]:.0f} {B[0]:.0f},{B[1]:.0f} {D[0]:.0f},{D[1]:.0f} {D[0] - ex:.0f},{D[1]:.0f}" '
+            f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.3"/>'
+        )
+    body = out + (
+        f'<text x="230" y="225" text-anchor="middle" fill="var(--ink-dim)" '
+        f'font-family="var(--mono)" font-size="11">{cubes} segments · bracing shown open</text>'
+    )
     return _svg(body, label=f"Isometric schematic of a {cubes}-segment cube truss.")
 
 
 def dovetail_svg():
     # section view: a male dovetail tenon (wide top) seated in a female socket
     cx = 230
-    bw, tw = 118, 176        # base / top widths (flare)
-    yb, yt = 168, 66         # base / top y
-    male = (f"M {cx-bw/2:.0f},{yb} L {cx+bw/2:.0f},{yb} "
-            f"L {cx+tw/2:.0f},{yt} L {cx-tw/2:.0f},{yt} Z")
+    bw, tw = 118, 176  # base / top widths (flare)
+    yb, yt = 168, 66  # base / top y
+    male = (
+        f"M {cx - bw / 2:.0f},{yb} L {cx + bw / 2:.0f},{yb} "
+        f"L {cx + tw / 2:.0f},{yt} L {cx - tw / 2:.0f},{yt} Z"
+    )
     body = (
         # female block with the socket removed, drawn as a surrounding outline
-        f'<path d="M 46,{yt-14} H 414 V 210 H 46 Z '
-        f'M {cx-tw/2-6:.0f},{yt-6} L {cx+tw/2+6:.0f},{yt-6} '
-        f'L {cx+bw/2+6:.0f},{yb+6} L {cx-bw/2-6:.0f},{yb+6} Z" '
+        f'<path d="M 46,{yt - 14} H 414 V 210 H 46 Z '
+        f"M {cx - tw / 2 - 6:.0f},{yt - 6} L {cx + tw / 2 + 6:.0f},{yt - 6} "
+        f'L {cx + bw / 2 + 6:.0f},{yb + 6} L {cx - bw / 2 - 6:.0f},{yb + 6} Z" '
         f'fill="url(#h)" fill-rule="evenodd" stroke="var(--ink-dim)" stroke-width="1.5"/>'
         f'<defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">'
         f'<line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/></pattern></defs>'
@@ -279,38 +306,49 @@ def dovetail_svg():
         f'<path d="{male}" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" '
         f'stroke="var(--ink)" stroke-width="1.6"/>'
         # slope callout
-        f'<line x1="{cx+bw/2:.0f}" y1="{yb}" x2="{cx+tw/2:.0f}" y2="{yt}" stroke="var(--accent)" stroke-width="1.4"/>'
-        f'<text x="{cx}" y="{yb+30:.0f}" text-anchor="middle" fill="var(--ink-dim)" '
+        f'<line x1="{cx + bw / 2:.0f}" y1="{yb}" x2="{cx + tw / 2:.0f}" y2="{yt}" stroke="var(--accent)" stroke-width="1.4"/>'
+        f'<text x="{cx}" y="{yb + 30:.0f}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">male tenon · female socket · slope 1:6</text>'
     )
-    return _svg(body, label="Section of a dovetail joint: a flared male tenon seated in a female socket.")
+    return _svg(
+        body,
+        label="Section of a dovetail joint: a flared male tenon seated in a female socket.",
+    )
 
 
 def nema_svg():
     # mounting-face view of a NEMA motor: rounded-square body, 4 bolt holes, central plinth + shaft
     cx, cy = 230, 116
-    hb = 92          # body half-width
-    bs = 62          # bolt half-spacing
+    hb = 92  # body half-width
+    bs = 62  # bolt half-spacing
     body = (
-        f'<rect x="{cx-hb}" y="{cy-hb}" width="{2*hb}" height="{2*hb}" rx="14" '
+        f'<rect x="{cx - hb}" y="{cy - hb}" width="{2 * hb}" height="{2 * hb}" rx="14" '
         f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
     )
     holes = ""
     for sx in (-1, 1):
         for sy in (-1, 1):
-            holes += (f'<circle cx="{cx+sx*bs}" cy="{cy+sy*bs}" r="7" fill="var(--ground)" '
-                      f'stroke="var(--accent)" stroke-width="1.5"/>')
+            holes += (
+                f'<circle cx="{cx + sx * bs}" cy="{cy + sy * bs}" r="7" fill="var(--ground)" '
+                f'stroke="var(--accent)" stroke-width="1.5"/>'
+            )
     # bolt-circle guide + spacing dimension
-    dim = (f'<rect x="{cx-bs}" y="{cy-bs}" width="{2*bs}" height="{2*bs}" fill="none" '
-           f'stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5" opacity="0.7"/>'
-           f'<line x1="{cx-bs}" y1="{cy+hb+16}" x2="{cx+bs}" y2="{cy+hb+16}" stroke="var(--ink-faint)" stroke-width="1"/>'
-           f'<text x="{cx}" y="{cy+hb+30}" text-anchor="middle" fill="var(--ink-dim)" '
-           f'font-family="var(--mono)" font-size="11">bolt spacing 31 mm · NEMA 17</text>')
-    plinth = (f'<circle cx="{cx}" cy="{cy}" r="34" fill="var(--panel)" stroke="var(--ink-dim)" stroke-width="1.6"/>'
-              f'<circle cx="{cx}" cy="{cy}" r="14" fill="color-mix(in srgb,var(--accent) 22%,var(--panel))" '
-              f'stroke="var(--ink-dim)" stroke-width="1.6"/>')
-    return _svg(body + dim + plinth + holes,
-                label="Mounting-face view of a NEMA stepper motor: square body, four corner bolt holes, central shaft.")
+    dim = (
+        f'<rect x="{cx - bs}" y="{cy - bs}" width="{2 * bs}" height="{2 * bs}" fill="none" '
+        f'stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5" opacity="0.7"/>'
+        f'<line x1="{cx - bs}" y1="{cy + hb + 16}" x2="{cx + bs}" y2="{cy + hb + 16}" stroke="var(--ink-faint)" stroke-width="1"/>'
+        f'<text x="{cx}" y="{cy + hb + 30}" text-anchor="middle" fill="var(--ink-dim)" '
+        f'font-family="var(--mono)" font-size="11">bolt spacing 31 mm · NEMA 17</text>'
+    )
+    plinth = (
+        f'<circle cx="{cx}" cy="{cy}" r="34" fill="var(--panel)" stroke="var(--ink-dim)" stroke-width="1.6"/>'
+        f'<circle cx="{cx}" cy="{cy}" r="14" fill="color-mix(in srgb,var(--accent) 22%,var(--panel))" '
+        f'stroke="var(--ink-dim)" stroke-width="1.6"/>'
+    )
+    return _svg(
+        body + dim + plinth + holes,
+        label="Mounting-face view of a NEMA stepper motor: square body, four corner bolt holes, central shaft.",
+    )
 
 
 def hose_svg():
@@ -323,21 +361,24 @@ def hose_svg():
         f'<circle cx="{cx}" cy="74" r="46" fill="color-mix(in srgb,var(--accent) 20%,var(--panel-2))" '
         f'stroke="var(--ink-dim)" stroke-width="1.6"/>'
         # waist / body
-        f'<path d="M {cx-34},96 L {cx+34},96 L {cx+40},150 L {cx-40},150 Z" '
+        f'<path d="M {cx - 34},96 L {cx + 34},96 L {cx + 40},150 L {cx - 40},150 Z" '
         f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.6"/>'
         # socket cup (bottom) opening down — thick ring drawn as two arcs
-        f'<path d="M {cx-58},150 A 58 58 0 0 0 {cx+58},150 L {cx+58},204 '
-        f'A 58 58 0 0 1 {cx+44},164 A 44 44 0 0 1 {cx-44},164 A 58 58 0 0 1 {cx-58},204 Z" '
+        f'<path d="M {cx - 58},150 A 58 58 0 0 0 {cx + 58},150 L {cx + 58},204 '
+        f'A 58 58 0 0 1 {cx + 44},164 A 44 44 0 0 1 {cx - 44},164 A 58 58 0 0 1 {cx - 58},204 Z" '
         f'fill="url(#h)" stroke="var(--ink-dim)" stroke-width="1.6"/>'
         f'<defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">'
         f'<line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/></pattern></defs>'
         # bore hole through it all
-        f'<rect x="{cx-15}" y="30" width="30" height="150" fill="var(--ground)" stroke="var(--ink-dim)" '
+        f'<rect x="{cx - 15}" y="30" width="30" height="150" fill="var(--ground)" stroke="var(--ink-dim)" '
         f'stroke-width="1.2" opacity="0.9"/>'
         f'<text x="{cx}" y="222" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">ball · waist · socket · through bore</text>'
     )
-    return _svg(body, label="Section of a modular hose segment: a ball end, a waist, and a socket end with a through bore.")
+    return _svg(
+        body,
+        label="Section of a modular hose segment: a ball end, a waist, and a socket end with a through bore.",
+    )
 
 
 def hinge_svg(segs=5):
@@ -364,14 +405,43 @@ def hinge_svg(segs=5):
 def poly_svg():
     # a real icosahedron: rotate the phi-based vertices, project, and paint the faces
     # back-to-front, shading each by depth so the solid reads in 3-D.
-    phi = (1 + 5 ** 0.5) / 2
-    V = [(-1, phi, 0), (1, phi, 0), (-1, -phi, 0), (1, -phi, 0),
-         (0, -1, phi), (0, 1, phi), (0, -1, -phi), (0, 1, -phi),
-         (phi, 0, -1), (phi, 0, 1), (-phi, 0, -1), (-phi, 0, 1)]
-    F = [[0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
-         [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
-         [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
-         [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1]]
+    phi = (1 + 5**0.5) / 2
+    V = [
+        (-1, phi, 0),
+        (1, phi, 0),
+        (-1, -phi, 0),
+        (1, -phi, 0),
+        (0, -1, phi),
+        (0, 1, phi),
+        (0, -1, -phi),
+        (0, 1, -phi),
+        (phi, 0, -1),
+        (phi, 0, 1),
+        (-phi, 0, -1),
+        (-phi, 0, 1),
+    ]
+    F = [
+        [0, 11, 5],
+        [0, 5, 1],
+        [0, 1, 7],
+        [0, 7, 10],
+        [0, 10, 11],
+        [1, 5, 9],
+        [5, 11, 4],
+        [11, 10, 2],
+        [10, 7, 6],
+        [7, 1, 8],
+        [3, 9, 4],
+        [3, 4, 2],
+        [3, 2, 6],
+        [3, 6, 8],
+        [3, 8, 9],
+        [4, 9, 5],
+        [2, 4, 11],
+        [6, 2, 10],
+        [8, 6, 7],
+        [9, 8, 1],
+    ]
     m = max(sum(c * c for c in v) ** 0.5 for v in V)
     ax, ay = math.radians(-22), math.radians(31)
     R = []
@@ -383,16 +453,24 @@ def poly_svg():
     cx, cy, s = 230, 112, 92
     P = [(cx + s * p[0], cy - s * p[1]) for p in R]
     body = ""
-    for i in sorted(range(len(F)), key=lambda i: sum(R[v][2] for v in F[i])):  # far first
+    for i in sorted(
+        range(len(F)), key=lambda i: sum(R[v][2] for v in F[i])
+    ):  # far first
         f = F[i]
-        depth = sum(R[v][2] for v in f) / 3               # -1 (back) .. 1 (front)
+        depth = sum(R[v][2] for v in f) / 3  # -1 (back) .. 1 (front)
         pct = int(14 + (depth + 1) / 2 * 30)
         pts = " ".join(f"{P[v][0]:.1f},{P[v][1]:.1f}" for v in f)
-        body += (f'<polygon points="{pts}" fill="color-mix(in srgb,var(--accent) {pct}%,var(--panel))" '
-                 f'stroke="var(--ink-dim)" stroke-width="1.2" stroke-linejoin="round"/>')
-    body += (f'<text x="{cx}" y="{cy + 116}" text-anchor="middle" fill="var(--ink-dim)" '
-             f'font-family="var(--mono)" font-size="11">icosahedron · 12 v · 30 e · 20 f</text>')
-    return _svg(body, label="Isometric projection of a regular icosahedron, faces depth-shaded.")
+        body += (
+            f'<polygon points="{pts}" fill="color-mix(in srgb,var(--accent) {pct}%,var(--panel))" '
+            f'stroke="var(--ink-dim)" stroke-width="1.2" stroke-linejoin="round"/>'
+        )
+    body += (
+        f'<text x="{cx}" y="{cy + 116}" text-anchor="middle" fill="var(--ink-dim)" '
+        f'font-family="var(--mono)" font-size="11">icosahedron · 12 v · 30 e · 20 f</text>'
+    )
+    return _svg(
+        body, label="Isometric projection of a regular icosahedron, faces depth-shaded."
+    )
 
 
 def wall_svg():
@@ -402,36 +480,61 @@ def wall_svg():
     ix0, iy0, ix1, iy1 = x0 + fw, y0 + fw, x1 - fw, y1 - fw
     cols = 6
     cw = (ix1 - ix0) / cols
-    strut = ('stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" '
-             'stroke-width="7" stroke-linecap="round"')
+    strut = (
+        'stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" '
+        'stroke-width="7" stroke-linecap="round"'
+    )
     braces = ""
     for i in range(cols):
         a, b = ix0 + i * cw, ix0 + (i + 1) * cw
-        braces += (f'<line x1="{a:.1f}" y1="{iy0}" x2="{b:.1f}" y2="{iy1}" {strut}/>'
-                   f'<line x1="{b:.1f}" y1="{iy0}" x2="{a:.1f}" y2="{iy1}" {strut}/>')
+        braces += (
+            f'<line x1="{a:.1f}" y1="{iy0}" x2="{b:.1f}" y2="{iy1}" {strut}/>'
+            f'<line x1="{b:.1f}" y1="{iy0}" x2="{a:.1f}" y2="{iy1}" {strut}/>'
+        )
     body = (
         f'<rect x="{x0}" y="{y0}" width="{x1 - x0}" height="{y1 - y0}" fill="var(--panel-2)"/>'
         f'<rect x="{ix0}" y="{iy0}" width="{ix1 - ix0}" height="{iy1 - iy0}" fill="var(--ground)"/>'
-        f'{braces}'
+        f"{braces}"
         f'<rect x="{x0}" y="{y0}" width="{x1 - x0}" height="{y1 - y0}" fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>'
         f'<rect x="{ix0}" y="{iy0}" width="{ix1 - ix0}" height="{iy1 - iy0}" fill="none" stroke="var(--ink-dim)" stroke-width="1.3"/>'
         f'<text x="230" y="{y1 + 26}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">sparse wall · X-braced · support-free</text>'
     )
-    return _svg(body, label="Plan of a sparse cross-braced wall: a solid frame filled with diagonal X-braces.")
+    return _svg(
+        body,
+        label="Plan of a sparse cross-braced wall: a solid frame filled with diagonal X-braces.",
+    )
 
 
 def wire_svg(wires=13):
     # cross-section of a hex-packed wire bundle, coloured from the real 17-wire table
-    palette = [[0.2, 0.2, 0.2], [1.0, 0.2, 0.2], [0.0, 0.8, 0.0], [1.0, 1.0, 0.2],
-               [0.3, 0.3, 1.0], [1.0, 1.0, 1.0], [0.7, 0.5, 0.0], [0.5, 0.5, 0.5],
-               [0.2, 0.9, 0.9], [0.8, 0.0, 0.8], [0.0, 0.6, 0.6], [1.0, 0.7, 0.7],
-               [1.0, 0.5, 1.0], [0.5, 0.6, 0.0], [1.0, 0.7, 0.0], [0.7, 1.0, 0.5], [0.6, 0.6, 1.0]]
+    palette = [
+        [0.2, 0.2, 0.2],
+        [1.0, 0.2, 0.2],
+        [0.0, 0.8, 0.0],
+        [1.0, 1.0, 0.2],
+        [0.3, 0.3, 1.0],
+        [1.0, 1.0, 1.0],
+        [0.7, 0.5, 0.0],
+        [0.5, 0.5, 0.5],
+        [0.2, 0.9, 0.9],
+        [0.8, 0.0, 0.8],
+        [0.0, 0.6, 0.6],
+        [1.0, 0.7, 0.7],
+        [1.0, 0.5, 1.0],
+        [0.5, 0.6, 0.0],
+        [1.0, 0.7, 0.0],
+        [0.7, 1.0, 0.5],
+        [0.6, 0.6, 1.0],
+    ]
 
     def ring(lev):
         if lev == 0:
             return [(0.0, 0.0)]
-        cs = [(lev * math.cos(math.radians(60 * k)), lev * math.sin(math.radians(60 * k))) for k in range(6)]
+        cs = [
+            (lev * math.cos(math.radians(60 * k)), lev * math.sin(math.radians(60 * k)))
+            for k in range(6)
+        ]
         pts = []
         for k in range(6):
             x0, y0 = cs[k]
@@ -452,11 +555,19 @@ def wire_svg(wires=13):
     for i, (ox, oy) in enumerate(offs):
         r, g, b = palette[i % len(palette)]
         col = f"#{int(r * 255):02x}{int(g * 255):02x}{int(b * 255):02x}"
-        dots += (f'<circle cx="{cx + ox * scale:.1f}" cy="{cy - oy * scale:.1f}" r="{scale * 0.47:.1f}" '
-                 f'fill="{col}" stroke="var(--ink-dim)" stroke-width="1.1"/>')
-    body = (dots + f'<text x="{cx}" y="{cy + 108}" text-anchor="middle" fill="var(--ink-dim)" '
-            f'font-family="var(--mono)" font-size="11">{wires} wires · hex-packed · 17-colour table</text>')
-    return _svg(body, label=f"Cross-section of a {wires}-wire bundle, hex-packed and colour-coded.")
+        dots += (
+            f'<circle cx="{cx + ox * scale:.1f}" cy="{cy - oy * scale:.1f}" r="{scale * 0.47:.1f}" '
+            f'fill="{col}" stroke="var(--ink-dim)" stroke-width="1.1"/>'
+        )
+    body = (
+        dots
+        + f'<text x="{cx}" y="{cy + 108}" text-anchor="middle" fill="var(--ink-dim)" '
+        f'font-family="var(--mono)" font-size="11">{wires} wires · hex-packed · 17-colour table</text>'
+    )
+    return _svg(
+        body,
+        label=f"Cross-section of a {wires}-wire bundle, hex-packed and colour-coded.",
+    )
 
 
 def hook_svg():
@@ -480,25 +591,28 @@ def hook_svg():
     def Y(z):
         return basey - z * scale
 
-    paddle = f"{X(-bx/2):.1f},{Y(0):.1f} {X(bx/2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f} {X(-tx):.1f},{Y(tz):.1f}"
+    paddle = f"{X(-bx / 2):.1f},{Y(0):.1f} {X(bx / 2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f} {X(-tx):.1f},{Y(tz):.1f}"
     body = (
-        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ro*scale:.1f}" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ro * scale:.1f}" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
         f'<polygon points="{paddle}" fill="var(--panel-2)" stroke="none"/>'
-        f'<polyline points="{X(-tx):.1f},{Y(tz):.1f} {X(-bx/2):.1f},{Y(0):.1f} {X(bx/2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f}" '
+        f'<polyline points="{X(-tx):.1f},{Y(tz):.1f} {X(-bx / 2):.1f},{Y(0):.1f} {X(bx / 2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f}" '
         f'fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ri*scale:.1f}" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.6"/>'
+        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ri * scale:.1f}" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.6"/>'
         # tangent construction + points
-        f'<line x1="{X(bx/2):.1f}" y1="{Y(0):.1f}" x2="{X(tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
-        f'<line x1="{X(-bx/2):.1f}" y1="{Y(0):.1f}" x2="{X(-tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
+        f'<line x1="{X(bx / 2):.1f}" y1="{Y(0):.1f}" x2="{X(tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
+        f'<line x1="{X(-bx / 2):.1f}" y1="{Y(0):.1f}" x2="{X(-tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
         f'<circle cx="{X(tx):.1f}" cy="{Y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
         f'<circle cx="{X(-tx):.1f}" cy="{Y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
         # hole_z dimension
-        f'<line x1="{X(-bx/2)-14:.1f}" y1="{Y(0):.1f}" x2="{X(-bx/2)-14:.1f}" y2="{Y(hole_z):.1f}" stroke="var(--ink-dim)" stroke-width="1"/>'
-        f'<text x="{X(-bx/2)-20:.1f}" y="{Y(hole_z/2)+3:.1f}" text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">hole_z</text>'
+        f'<line x1="{X(-bx / 2) - 14:.1f}" y1="{Y(0):.1f}" x2="{X(-bx / 2) - 14:.1f}" y2="{Y(hole_z):.1f}" stroke="var(--ink-dim)" stroke-width="1"/>'
+        f'<text x="{X(-bx / 2) - 20:.1f}" y="{Y(hole_z / 2) + 3:.1f}" text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">hole_z</text>'
         f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="2.2" fill="var(--accent)"/>'
-        f'<text x="{X(0):.1f}" y="{basey+18:.1f}" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">base flares along the ring tangent</text>'
+        f'<text x="{X(0):.1f}" y="{basey + 18:.1f}" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">base flares along the ring tangent</text>'
     )
-    return _svg(body, label="Side elevation of a ring hook: a base flaring along the tangent into a holed ring.")
+    return _svg(
+        body,
+        label="Side elevation of a ring hook: a base flaring along the tangent into a holed ring.",
+    )
 
 
 # --------------------------------------------------------------------------
@@ -507,176 +621,347 @@ def hook_svg():
 
 MODULES = {
     "gears": dict(
-        title="gears", tests=52, svg=gear_svg(20),
-        subtitle=("Involute spur gears whose teeth are <em>rack-carved with a real undercut</em>, "
-                  "the way the current BOSL2 does it — plus helical, herringbone, rack, ring, bevel and worm."),
+        title="gears",
+        tests=52,
+        svg=gear_svg(20),
+        subtitle=(
+            "Involute spur gears whose teeth are <em>rack-carved with a real undercut</em>, "
+            "the way the current BOSL2 does it — plus helical, herringbone, rack, ring, bevel and worm."
+        ),
         part="spur_gear(mod=5, teeth=20, thickness=8, helical=20)",
         code='Gears.<span class="k">spur_gear</span>(mod=5, teeth=20, thickness=8, helical=20, shaft_diam=6)',
-        metrics=[("helical spur · z=20", 5640, "69,617.1", "116×116×8"),
-                 ("undercut spur · z=8", 2300, "11,984.0", "55×55×8")],
-        note=("A 20-tooth helical gear meshes at <b>gear_dist()</b>; the 8-tooth gear picks up "
-              "<b>profile_shift=\"auto\"</b> so its flanks don't undercut. Both close watertight."),
+        metrics=[
+            ("helical spur · z=20", 5640, "69,617.1", "116×116×8"),
+            ("undercut spur · z=8", 2300, "11,984.0", "55×55×8"),
+        ],
+        note=(
+            "A 20-tooth helical gear meshes at <b>gear_dist()</b>; the 8-tooth gear picks up "
+            '<b>profile_shift="auto"</b> so its flanks don\'t undercut. Both close watertight.'
+        ),
         proof=None,
-        tags=["undercut", "profile_shift", "helical", "herringbone", "rack", "ring", "bevel", "worm", "gear_dist()"]),
-
+        tags=[
+            "undercut",
+            "profile_shift",
+            "helical",
+            "herringbone",
+            "rack",
+            "ring",
+            "bevel",
+            "worm",
+            "gear_dist()",
+        ],
+    ),
     "hinges": dict(
-        title="hinges", tests=6, svg=hinge_svg(5),
-        subtitle=("A print-in-place living-hinge mask, an interlocking knuckle hinge with a pin bore, "
-                  "and snap lock / socket connectors."),
+        title="hinges",
+        tests=6,
+        svg=hinge_svg(5),
+        subtitle=(
+            "A print-in-place living-hinge mask, an interlocking knuckle hinge with a pin bore, "
+            "and snap lock / socket connectors."
+        ),
         part="knuckle_hinge_pair(fold=…)",
         code='Hinges.<span class="k">knuckle_hinge_pair</span>(fold=60)',
-        metrics=[("flat · 0°", 1576, "5,929.1", "40×46×6"),
-                 ("folded · 60°", 1748, "5,927.9", "40×36×24")],
-        note=("Two leaves meshed around one pin, exported as a single mesh. Folding re-triangulates "
-              "the surface but moves mass rigidly."),
-        proof=("0.02%", "<b>&Delta;volume across the fold = 1.2 mm&sup3;.</b> A rigid rotation, not a "
-               "distortion — the pin bore and knuckle mesh stay closed."),
-        tags=["renders watertight", "living hinge", "knuckle", "snap-lock"]),
-
+        metrics=[
+            ("flat · 0°", 1576, "5,929.1", "40×46×6"),
+            ("folded · 60°", 1748, "5,927.9", "40×36×24"),
+        ],
+        note=(
+            "Two leaves meshed around one pin, exported as a single mesh. Folding re-triangulates "
+            "the surface but moves mass rigidly."
+        ),
+        proof=(
+            "0.02%",
+            "<b>&Delta;volume across the fold = 1.2 mm&sup3;.</b> A rigid rotation, not a "
+            "distortion — the pin bore and knuckle mesh stay closed.",
+        ),
+        tags=["renders watertight", "living hinge", "knuckle", "snap-lock"],
+    ),
     "cubetruss": dict(
-        title="cubetruss", tests=26, svg=truss_svg(3),
-        subtitle=("Modular cube-truss segments, the trusses tiled from them (with end clips), "
-                  "L/T corners, diagonal supports, and the printed clip family."),
+        title="cubetruss",
+        tests=26,
+        svg=truss_svg(3),
+        subtitle=(
+            "Modular cube-truss segments, the trusses tiled from them (with end clips), "
+            "L/T corners, diagonal supports, and the printed clip family."
+        ),
         part="cubetruss(extents=3)",
         code='CubeTruss.<span class="k">cubetruss</span>(extents=3)',
         metrics=[("3-segment truss", 1456, "15,456.6", "30×84×30")],
-        note=("Each 30 mm cube is lightened with octagonal tunnels through all three axes and braced; "
-              "the assembly is one watertight solid. Length = cubetruss_dist(3,1) = 84 mm."),
+        note=(
+            "Each 30 mm cube is lightened with octagonal tunnels through all three axes and braced; "
+            "the assembly is one watertight solid. Length = cubetruss_dist(3,1) = 84 mm."
+        ),
         proof=None,
-        tags=["segment", "corner", "support", "clip", "foot", "joiner"]),
-
+        tags=["segment", "corner", "support", "clip", "foot", "joiner"],
+    ),
     "joiners": dict(
-        title="joiners", tests=8, svg=dovetail_svg(),
-        subtitle=("Shapes that connect two separately-printed parts: a tapered-or-straight dovetail "
-                  "joint — male tenon or female socket — and a press-and-click snap pin."),
+        title="joiners",
+        tests=8,
+        svg=dovetail_svg(),
+        subtitle=(
+            "Shapes that connect two separately-printed parts: a tapered-or-straight dovetail "
+            "joint — male tenon or female socket — and a press-and-click snap pin."
+        ),
         part='dovetail("male", width=15, height=8, slide=30)',
         code='Joiners.<span class="k">dovetail</span>("male", width=15, height=8, slide=30)',
-        metrics=[("male dovetail", 12, "3,920.0", "18×30×8"),
-                 ("snap pin", 1718, "199.5", "6×6×15")],
-        note=("The dovetail flares to <span class=\"mono\">w + 2·h/slope</span> at the top so it "
-              "resists pulling apart; a taper lets a long joint slide home and wedge tight. The "
-              "female is the same shape grown by <b>slop</b> for a press fit."),
+        metrics=[
+            ("male dovetail", 12, "3,920.0", "18×30×8"),
+            ("snap pin", 1718, "199.5", "6×6×15"),
+        ],
+        note=(
+            'The dovetail flares to <span class="mono">w + 2·h/slope</span> at the top so it '
+            "resists pulling apart; a taper lets a long joint slide home and wedge tight. The "
+            "female is the same shape grown by <b>slop</b> for a press fit."
+        ),
         proof=None,
-        tags=["dovetail", "taper", "male / female", "snap-pin", "socket"]),
-
+        tags=["dovetail", "taper", "male / female", "snap-pin", "socket"],
+    ),
     "ball_bearings": dict(
-        title="ball_bearings", tests=10, svg=bearing_svg(9),
-        subtitle=("Standard cartridge models from a trade-size name — shielded (ZZ) or open, "
-                  "with the balls modelled rolling in the race."),
+        title="ball_bearings",
+        tests=10,
+        svg=bearing_svg(9),
+        subtitle=(
+            "Standard cartridge models from a trade-size name — shielded (ZZ) or open, "
+            "with the balls modelled rolling in the race."
+        ),
         part='ball_bearing("608")',
         code='BallBearings.<span class="k">ball_bearing</span>("608")',
         metrics=[("608 · open", 2328, "1,640.6", "22×22×7")],
-        note=("The open 608 skate bearing: inner and outer races, a toroidal ball groove, and 9 balls "
-              "spaced around it — one watertight assembly. 136 trade sizes are tabulated."),
+        note=(
+            "The open 608 skate bearing: inner and outer races, a toroidal ball groove, and 9 balls "
+            "spaced around it — one watertight assembly. 136 trade sizes are tabulated."
+        ),
         proof=None,
-        tags=["136 sizes", "608", "6902ZZ", "R8", "open / shielded"]),
-
+        tags=["136 sizes", "608", "6902ZZ", "R8", "open / shielded"],
+    ),
     "modular_hose": dict(
-        title="modular_hose", tests=16, svg=hose_svg(),
-        subtitle=("The ball-and-socket segments of a modular \"Loc-Line\" style adjustable hose — "
-                  "a ball end, a socket end, or a full segment, for the 1/4\", 1/2\" and 3/4\" sizes."),
+        title="modular_hose",
+        tests=16,
+        svg=hose_svg(),
+        subtitle=(
+            'The ball-and-socket segments of a modular "Loc-Line" style adjustable hose — '
+            'a ball end, a socket end, or a full segment, for the 1/4", 1/2" and 3/4" sizes.'
+        ),
         part='modular_hose(0.5, "segment")',
         code='ModularHose.<span class="k">modular_hose</span>(0.5, "segment")',
-        metrics=[("1/2\" segment", 2760, "3,432.6", "25×25×30"),
-                 ("1/2\" ball end", 1500, "1,465.7", "22×21×13")],
-        note=("The ball/socket cross-section is the exact turtle-path profile BOSL2 uses, revolved "
-              "into a segment. Segments chain into a bendy hose; <b>clearance</b> loosens the joint."),
+        metrics=[
+            ('1/2" segment', 2760, "3,432.6", "25×25×30"),
+            ('1/2" ball end', 1500, "1,465.7", "22×21×13"),
+        ],
+        note=(
+            "The ball/socket cross-section is the exact turtle-path profile BOSL2 uses, revolved "
+            "into a segment. Segments chain into a bendy hose; <b>clearance</b> loosens the joint."
+        ),
         proof=None,
-        tags=["ball & socket", "1/4\" · 1/2\" · 3/4\"", "clearance fit", "through bore"]),
-
+        tags=["ball & socket", '1/4" · 1/2" · 3/4"', "clearance fit", "through bore"],
+    ),
     "nema_steppers": dict(
-        title="nema_steppers", tests=13, svg=nema_svg(),
-        subtitle=("Models of NEMA-standard stepper motors — body, plinth, shaft and mounting holes — "
-                  "plus the bolt-pattern mask to difference out of a mounting plate."),
+        title="nema_steppers",
+        tests=13,
+        svg=nema_svg(),
+        subtitle=(
+            "Models of NEMA-standard stepper motors — body, plinth, shaft and mounting holes — "
+            "plus the bolt-pattern mask to difference out of a mounting plate."
+        ),
         part="nema_stepper_motor(17)",
         code='NemaSteppers.<span class="k">nema_stepper_motor</span>(17)',
-        metrics=[("NEMA 17 motor", 300, "43,714.4", "42×42×44"),
-                 ("NEMA 23 motor", 456, "79,389.8", "57×57×44")],
-        note=("NEMA 17 is the 3-D-printer classic: a 42.3 mm body on a 31 mm bolt circle with a 5 mm "
-              "shaft. Eight sizes (NEMA 6 → 42) are tabulated as a <span class=\"mono\">NemaSpec</span>."),
+        metrics=[
+            ("NEMA 17 motor", 300, "43,714.4", "42×42×44"),
+            ("NEMA 23 motor", 456, "79,389.8", "57×57×44"),
+        ],
+        note=(
+            "NEMA 17 is the 3-D-printer classic: a 42.3 mm body on a 31 mm bolt circle with a 5 mm "
+            'shaft. Eight sizes (NEMA 6 → 42) are tabulated as a <span class="mono">NemaSpec</span>.'
+        ),
         proof=None,
-        tags=["NEMA 6 → 42", "mount mask", "bolt pattern", "shaft + plinth"]),
-
+        tags=["NEMA 6 → 42", "mount mask", "bolt pattern", "shaft + plinth"],
+    ),
     "linear_bearings": dict(
-        title="linear_bearings", tests=10, svg=linear_bearing_svg(),
-        subtitle=("LMxUU linear ball bearings that run along a rod, plus the pillow-block housings "
-                  "that clamp them to a plate with a teardrop bore and a screw."),
+        title="linear_bearings",
+        tests=10,
+        svg=linear_bearing_svg(),
+        subtitle=(
+            "LMxUU linear ball bearings that run along a rod, plus the pillow-block housings "
+            "that clamp them to a plate with a teardrop bore and a screw."
+        ),
         part="lmXuu_bearing(8)",
         code='LinearBearings.<span class="k">lmXuu_bearing</span>(8)',
-        metrics=[("LM8UU bearing", 816, "2,997.1", "15×15×24"),
-                 ("LM8UU housing", 508, "6,499.2", "27×24×25")],
-        note=("The bearing is four nested shells modelling the outer race, liner and ball tracks; "
-              "the housing prints without support thanks to its teardrop bore. 17 LMxUU sizes are tabulated."),
+        metrics=[
+            ("LM8UU bearing", 816, "2,997.1", "15×15×24"),
+            ("LM8UU housing", 508, "6,499.2", "27×24×25"),
+        ],
+        note=(
+            "The bearing is four nested shells modelling the outer race, liner and ball tracks; "
+            "the housing prints without support thanks to its teardrop bore. 17 LMxUU sizes are tabulated."
+        ),
         proof=None,
-        tags=["LMxUU", "17 sizes", "pillow-block", "teardrop bore"]),
-
+        tags=["LMxUU", "17 sizes", "pillow-block", "teardrop bore"],
+    ),
     "polyhedra": dict(
-        title="polyhedra", tests=19, svg=poly_svg(),
-        subtitle=("The five Platonic solids as watertight polyhedra — sized by circumradius, diameter, "
-                  "inradius or side. The dodecahedron is built as the dual of the icosahedron."),
+        title="polyhedra",
+        tests=19,
+        svg=poly_svg(),
+        subtitle=(
+            "The five Platonic solids as watertight polyhedra — sized by circumradius, diameter, "
+            "inradius or side. The dodecahedron is built as the dual of the icosahedron."
+        ),
         part='regular_polyhedron("dodecahedron", side=12)',
         code='Polyhedra.<span class="k">regular_polyhedron</span>("dodecahedron", side=12)',
-        metrics=[("dodecahedron · side=12", 36, "13,241.9", "31×31×31"),
-                 ("icosahedron · r=15", 20, "8,559.5", "26×26×26")],
-        note=("Vertices come from exact &phi;-based coordinates, normalised to a unit circumradius and "
-              "scaled to the requested size. Every one closes watertight, winding included."),
-        proof=("V&minus;E+F=2", "<b>Euler's formula holds for all five.</b> The icosahedron's 12 "
-               "vertices, 30 edges and 20 faces satisfy it — the test suite checks each solid."),
-        tags=["tetrahedron", "cube", "octahedron", "dodecahedron", "icosahedron", "dual"]),
-
+        metrics=[
+            ("dodecahedron · side=12", 36, "13,241.9", "31×31×31"),
+            ("icosahedron · r=15", 20, "8,559.5", "26×26×26"),
+        ],
+        note=(
+            "Vertices come from exact &phi;-based coordinates, normalised to a unit circumradius and "
+            "scaled to the requested size. Every one closes watertight, winding included."
+        ),
+        proof=(
+            "V&minus;E+F=2",
+            "<b>Euler's formula holds for all five.</b> The icosahedron's 12 "
+            "vertices, 30 edges and 20 faces satisfy it — the test suite checks each solid.",
+        ),
+        tags=[
+            "tetrahedron",
+            "cube",
+            "octahedron",
+            "dodecahedron",
+            "icosahedron",
+            "dual",
+        ],
+    ),
     "walls": dict(
-        title="walls", tests=12, svg=wall_svg(),
-        subtitle=("FDM-optimised walls that use less plastic and print without support: a cross-braced "
-                  "sparse wall, a corrugated wall, thick-edged thinning walls and triangles, and struts."),
+        title="walls",
+        tests=12,
+        svg=wall_svg(),
+        subtitle=(
+            "FDM-optimised walls that use less plastic and print without support: a cross-braced "
+            "sparse wall, a corrugated wall, thick-edged thinning walls and triangles, and struts."
+        ),
         part="sparse_wall(h=50, l=100, thick=4)",
         code='Walls.<span class="k">sparse_wall</span>(h=50, l=100, thick=4)',
-        metrics=[("sparse wall · l=100", 280, "12,007.0", "4×101×50"),
-                 ("thinning wall · l=80", 44, "9,422.6", "4×80×50")],
-        note=("The diagonal braces are held under <b>maxang</b> from vertical so every overhang prints "
-              "clean; the thinning wall is BOSL2's exact 24-point polyhedron, transcribed and closed watertight."),
-        proof=("40%", "<b>The sparse lattice fills its 4×100×50 envelope with 12,007 mm&sup3;</b> — 40% "
-               "less plastic than the 20,000 mm&sup3; solid wall, and it needs no support."),
-        tags=["sparse", "corrugated", "thinning-wall", "thinning-triangle", "narrowing-strut", "support-free"]),
-
+        metrics=[
+            ("sparse wall · l=100", 280, "12,007.0", "4×101×50"),
+            ("thinning wall · l=80", 44, "9,422.6", "4×80×50"),
+        ],
+        note=(
+            "The diagonal braces are held under <b>maxang</b> from vertical so every overhang prints "
+            "clean; the thinning wall is BOSL2's exact 24-point polyhedron, transcribed and closed watertight."
+        ),
+        proof=(
+            "40%",
+            "<b>The sparse lattice fills its 4×100×50 envelope with 12,007 mm&sup3;</b> — 40% "
+            "less plastic than the 20,000 mm&sup3; solid wall, and it needs no support.",
+        ),
+        tags=[
+            "sparse",
+            "corrugated",
+            "thinning-wall",
+            "thinning-triangle",
+            "narrowing-strut",
+            "support-free",
+        ],
+    ),
     "wiring": dict(
-        title="wiring", tests=11, svg=wire_svg(13),
-        subtitle=("A routed bundle of round wires: hex-packed in cross-section and swept along a path "
-                  "whose corners are rounded, each wire coloured from a 17-entry table."),
+        title="wiring",
+        tests=11,
+        svg=wire_svg(13),
+        subtitle=(
+            "A routed bundle of round wires: hex-packed in cross-section and swept along a path "
+            "whose corners are rounded, each wire coloured from a 17-entry table."
+        ),
         part="wire_bundle(path, wires=13, rounding=10)",
         code='Wiring.<span class="k">wire_bundle</span>(path, wires=13, rounding=10)',
-        metrics=[("1 wire · watertight", 796, "529.0", "52×52×51"),
-                 ("13-wire bundle", 10348, "6,877.0", "60×60×55")],
-        note=("The wires pack into the optimal hex arrangement (rings of 1, 6, 12, …) and each sweeps "
-              "along the rounded route as its own tube — kept separate and coloured, exactly as BOSL2 draws them."),
-        proof=("529.0 mm³ ×13", "<b>One wire seals watertight at 796 triangles.</b> Thirteen of them, "
-               "hex-packed and tangent, are 13 independent tubes — 13 × 529.0 = 6,877 mm&sup3; of copper, no overlap."),
-        tags=["hex-packed", "path-sweep", "rounded corners", "17 colours", "separate tubes"]),
-
+        metrics=[
+            ("1 wire · watertight", 796, "529.0", "52×52×51"),
+            ("13-wire bundle", 10348, "6,877.0", "60×60×55"),
+        ],
+        note=(
+            "The wires pack into the optimal hex arrangement (rings of 1, 6, 12, …) and each sweeps "
+            "along the rounded route as its own tube — kept separate and coloured, exactly as BOSL2 draws them."
+        ),
+        proof=(
+            "529.0 mm³ ×13",
+            "<b>One wire seals watertight at 796 triangles.</b> Thirteen of them, "
+            "hex-packed and tangent, are 13 independent tubes — 13 × 529.0 = 6,877 mm&sup3; of copper, no overlap.",
+        ),
+        tags=[
+            "hex-packed",
+            "path-sweep",
+            "rounded corners",
+            "17 colours",
+            "separate tubes",
+        ],
+    ),
     "hooks": dict(
-        title="hooks", tests=14, svg=hook_svg(),
-        subtitle=("A ring hook: a rectangular mounting base that flares up and joins tangentially to a "
-                  "Y-axis cylinder — the ring — with a round, D-shaped or custom through-hole."),
+        title="hooks",
+        tests=14,
+        svg=hook_svg(),
+        subtitle=(
+            "A ring hook: a rectangular mounting base that flares up and joins tangentially to a "
+            "Y-axis cylinder — the ring — with a round, D-shaped or custom through-hole."
+        ),
         part="ring_hook([50, 10], 25, or_=25, ir=20)",
         code='Hooks.<span class="k">ring_hook</span>([50, 10], 25, or_=25, ir=20)',
-        metrics=[("ring · ir=20", 208, "9,771.2", "50×10×50"),
-                 ("D-hole ring", 144, "18,737.4", "50×10×50")],
-        note=("Give exactly two of <b>or/od</b>, <b>ir/id</b> and <b>wall</b> to size the ring. The "
-              "base flares to the tangent points computed by <b>circle_point_tangents()</b>, so the "
-              "paddle meets the cylinder seamlessly. Circle, D and custom-path holes all close watertight."),
-        proof=("tangent join", "<b>The base corners must lie outside the ring</b> so a tangent exists; "
-               "the flare follows it exactly. Verified watertight for round, D and octagonal holes."),
-        tags=["ring hook", "tangent base", "circle / D / custom hole", "or·ir·wall", "solid paddle"]),
+        metrics=[
+            ("ring · ir=20", 208, "9,771.2", "50×10×50"),
+            ("D-hole ring", 144, "18,737.4", "50×10×50"),
+        ],
+        note=(
+            "Give exactly two of <b>or/od</b>, <b>ir/id</b> and <b>wall</b> to size the ring. The "
+            "base flares to the tangent points computed by <b>circle_point_tangents()</b>, so the "
+            "paddle meets the cylinder seamlessly. Circle, D and custom-path holes all close watertight."
+        ),
+        proof=(
+            "tangent join",
+            "<b>The base corners must lie outside the ring</b> so a tangent exists; "
+            "the flare follows it exactly. Verified watertight for round, D and octagonal holes.",
+        ),
+        tags=[
+            "ring hook",
+            "tangent base",
+            "circle / D / custom hole",
+            "or·ir·wall",
+            "solid paddle",
+        ],
+    ),
 }
 
 # gallery order and the modules that only get an API link (no rendered spec sheet)
-GALLERY = ["gears", "nema_steppers", "hinges", "joiners", "hooks", "polyhedra", "walls", "wiring",
-           "threading", "cubetruss", "screw_drive", "ball_bearings", "linear_bearings", "modular_hose",
-           "bottlecaps", "sliders"]
+GALLERY = [
+    "gears",
+    "nema_steppers",
+    "hinges",
+    "joiners",
+    "hooks",
+    "polyhedra",
+    "walls",
+    "wiring",
+    "threading",
+    "cubetruss",
+    "screw_drive",
+    "ball_bearings",
+    "linear_bearings",
+    "modular_hose",
+    "bottlecaps",
+    "sliders",
+]
 API_ONLY = {
-    "threading": (25, "Watertight helical threads swept as one polyhedron; ISO / trapezoidal / acme / square / buttress."),
-    "screw_drive": (19, "Phillips, hex, Torx and Robertson driver-recess masks; subtract from a head to make the socket."),
-    "bottlecaps": (7, "Standard soda-bottle threadings — a PCO-1810 / PCO-1881 neck and its matching cap."),
-    "sliders": (5, "A V-groove slider and its mating rail, both shaped to 3-D print without support."),
+    "threading": (
+        25,
+        "Watertight helical threads swept as one polyhedron; ISO / trapezoidal / acme / square / buttress.",
+    ),
+    "screw_drive": (
+        19,
+        "Phillips, hex, Torx and Robertson driver-recess masks; subtract from a head to make the socket.",
+    ),
+    "bottlecaps": (
+        7,
+        "Standard soda-bottle threadings — a PCO-1810 / PCO-1881 neck and its matching cap.",
+    ),
+    "sliders": (
+        5,
+        "A V-groove slider and its mating rail, both shaped to 3-D print without support.",
+    ),
 }
 
 # --------------------------------------------------------------------------
@@ -704,34 +989,78 @@ SETUP = {
 VARIANTS = {
     "gears": [
         ("spur", "spur", "Gears.spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)"),
-        ("profile-shift", "profile-shift", "Gears.spur_gear(mod=4, teeth=7, thickness=8)"),
-        ("helical", "helical", "Gears.spur_gear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)"),
-        ("herringbone", "herringbone", "Gears.spur_gear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)"),
+        (
+            "profile-shift",
+            "profile-shift",
+            "Gears.spur_gear(mod=4, teeth=7, thickness=8)",
+        ),
+        (
+            "helical",
+            "helical",
+            "Gears.spur_gear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)",
+        ),
+        (
+            "herringbone",
+            "herringbone",
+            "Gears.spur_gear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)",
+        ),
         ("rack", "rack", "Gears.rack(mod=4, teeth=8, thickness=8, height=10)"),
-        ("ring", "ring gear", "Gears.ring_gear(mod=4, teeth=24, thickness=8, backing=4)"),
-        ("bevel", "bevel", "Gears.bevel_gear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)"),
+        (
+            "ring",
+            "ring gear",
+            "Gears.ring_gear(mod=4, teeth=24, thickness=8, backing=4)",
+        ),
+        (
+            "bevel",
+            "bevel",
+            "Gears.bevel_gear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)",
+        ),
         ("worm", "worm", "Gears.worm(mod=4, d=30, l=50, starts=1)"),
     ],
     "walls": [
         ("sparse", "sparse", "Walls.sparse_wall(h=50, l=100, thick=4)"),
         ("corrugated", "corrugated", "Walls.corrugated_wall(h=50, l=100, thick=5)"),
         ("thinning-wall", "thinning wall", "Walls.thinning_wall(h=50, l=80, thick=4)"),
-        ("thinning-triangle", "thinning triangle", "Walls.thinning_triangle(h=50, l=80, thick=4, center=True)"),
-        ("strut", "narrowing strut", "Walls.narrowing_strut(w=10, l=80, wall=5, ang=30)"),
-        ("sparse-cuboid", "sparse cuboid", "Walls.sparse_cuboid([20, 40, 30], strut=2)"),
+        (
+            "thinning-triangle",
+            "thinning triangle",
+            "Walls.thinning_triangle(h=50, l=80, thick=4, center=True)",
+        ),
+        (
+            "strut",
+            "narrowing strut",
+            "Walls.narrowing_strut(w=10, l=80, wall=5, ang=30)",
+        ),
+        (
+            "sparse-cuboid",
+            "sparse cuboid",
+            "Walls.sparse_cuboid([20, 40, 30], strut=2)",
+        ),
     ],
     "wiring": [
         ("13", "13 wires", "Wiring.wire_bundle(PATH, wires=13, rounding=10)"),
         ("7", "7 wires", "Wiring.wire_bundle(PATH, wires=7, rounding=10)"),
         ("1", "1 wire", "Wiring.wire_bundle(PATH, wires=1, rounding=10)"),
-        ("thick", "thick gauge", "Wiring.wire_bundle(PATH, wires=7, wirediam=3, rounding=15)"),
+        (
+            "thick",
+            "thick gauge",
+            "Wiring.wire_bundle(PATH, wires=7, wirediam=3, rounding=15)",
+        ),
     ],
     "hooks": [
         ("ring", "ring hole", "Hooks.ring_hook([50, 10], 25, or_=25, ir=20)"),
         ("solid", "solid paddle", "Hooks.ring_hook([70, 10], 25, or_=25, ir=0)"),
         ("d-hole", "D hole", 'Hooks.ring_hook([50, 10], 25, or_=25, ir=15, hole="D")'),
-        ("rounded", "rounded", "Hooks.ring_hook([50, 10], 40, or_=25, ir=15, rounding=5)"),
-        ("custom", "custom hole", f"Hooks.ring_hook([50, 20], 30, or_=25, {_HOOK_OCT})"),
+        (
+            "rounded",
+            "rounded",
+            "Hooks.ring_hook([50, 10], 40, or_=25, ir=15, rounding=5)",
+        ),
+        (
+            "custom",
+            "custom hole",
+            f"Hooks.ring_hook([50, 20], 30, or_=25, {_HOOK_OCT})",
+        ),
     ],
     "polyhedra": [
         ("tetrahedron", "tetrahedron", "Polyhedra.tetrahedron(r=15)"),
@@ -747,9 +1076,21 @@ VARIANTS = {
         ("snap-socket", "snap socket", "Hinges.snap_socket()"),
     ],
     "joiners": [
-        ("male", "male dovetail", 'Joiners.dovetail("male", width=15, height=8, slide=30)'),
-        ("female", "female socket", 'Joiners.dovetail("female", width=15, height=8, slide=30)'),
-        ("taper", "tapered", 'Joiners.dovetail("male", width=15, height=8, slide=30, taper=4)'),
+        (
+            "male",
+            "male dovetail",
+            'Joiners.dovetail("male", width=15, height=8, slide=30)',
+        ),
+        (
+            "female",
+            "female socket",
+            'Joiners.dovetail("female", width=15, height=8, slide=30)',
+        ),
+        (
+            "taper",
+            "tapered",
+            'Joiners.dovetail("male", width=15, height=8, slide=30, taper=4)',
+        ),
         ("snap-pin", "snap pin", "Joiners.snap_pin()"),
         ("socket", "pin socket", "Joiners.snap_pin_socket()"),
     ],
@@ -809,35 +1150,52 @@ def build_variant_stls(force: bool = False) -> dict:
                 continue
             if not have_app:
                 if vid not in cache[mod]:
-                    print(f"  ! no app and no cache for {mod}-{vid}; viewer will show the poster")
+                    print(
+                        f"  ! no app and no cache for {mod}-{vid}; viewer will show the poster"
+                    )
                 continue
-            res = render_object(expr, stl, setup=SETUP[mod], timeout=240, export_format="binstl")
+            res = render_object(
+                expr, stl, setup=SETUP[mod], timeout=240, export_format="binstl"
+            )
             if not res.ok:
                 print(f"  ! render FAILED {mod}-{vid}: {(res.error or '')[:120]}")
                 continue
             mm = stl_metrics(stl)
             size = "×".join(str(round(float(v))) for v in mm.size)
-            cache[mod][vid] = {"tris": mm.ntris, "vol": f"{mm.volume:,.1f}", "bbox": size, "wt": bool(mm.watertight)}
+            cache[mod][vid] = {
+                "tris": mm.ntris,
+                "vol": f"{mm.volume:,.1f}",
+                "bbox": size,
+                "wt": bool(mm.watertight),
+            }
             print(f"  rendered {mod}-{vid}: {mm.ntris} tris, wt={mm.watertight}")
     cache_path.write_text(json.dumps(cache, indent=1))
     return cache
 
 
-HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
-        '<meta name="viewport" content="width=device-width,initial-scale=1">'
-        '<title>{title}</title><link rel="stylesheet" href="spec.css"></head><body>')
-BAR = ('<header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a>'
-       '<span class="sep">/</span><span class="meta">{crumb}</span>'
-       '<nav><a href="index.html">catalog</a><a href="../index.html">API docs &rarr;</a></nav></div></header>')
+HEAD = (
+    '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    '<title>{title}</title><link rel="stylesheet" href="spec.css"></head><body>'
+)
+BAR = (
+    '<header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a>'
+    '<span class="sep">/</span><span class="meta">{crumb}</span>'
+    '<nav><a href="index.html">catalog</a><a href="../index.html">API docs &rarr;</a></nav></div></header>'
+)
 # module pages get an extra header link straight to that module's own API reference page.
-MODBAR = ('<header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a>'
-          '<span class="sep">/</span><span class="meta">spec sheet · {mod}.py</span>'
-          '<nav><a href="index.html">catalog</a><a href="../{mod}.html">{mod}.py API &rarr;</a>'
-          '<a href="../index.html">all API docs &rarr;</a></nav></div></header>')
-FOOT = ('<footer><div class="wrap"><span class="mono">pybosl2</span>'
-        '<span class="mono" style="color:var(--ink-faint)">·</span>'
-        '<span class="mono">metrics measured from the exported STL via the PythonSCAD app</span>'
-        '<span class="r mono">BSD-2-Clause</span></div></footer></body></html>')
+MODBAR = (
+    '<header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a>'
+    '<span class="sep">/</span><span class="meta">spec sheet · {mod}.py</span>'
+    '<nav><a href="index.html">catalog</a><a href="../{mod}.html">{mod}.py API &rarr;</a>'
+    '<a href="../index.html">all API docs &rarr;</a></nav></div></header>'
+)
+FOOT = (
+    '<footer><div class="wrap"><span class="mono">pybosl2</span>'
+    '<span class="mono" style="color:var(--ink-faint)">·</span>'
+    '<span class="mono">metrics measured from the exported STL via the PythonSCAD app</span>'
+    '<span class="r mono">BSD-2-Clause</span></div></footer></body></html>'
+)
 
 
 _VIEWER_JS = """<script type="module">
@@ -902,41 +1260,56 @@ def module_page(key, m, metrics):
     for vid, label, expr in variants:
         code, part = _derive_code(expr)
         mm = cache.get(vid, {})
-        data.append({"id": vid, "label": label, "uri": f"_stl/{key}-{vid}.stl", "code": code, "part": part,
-                     "tris": mm.get("tris"), "vol": mm.get("vol", "—"), "bbox": mm.get("bbox", "—"),
-                     "wt": mm.get("wt", True)})
+        data.append(
+            {
+                "id": vid,
+                "label": label,
+                "uri": f"_stl/{key}-{vid}.stl",
+                "code": code,
+                "part": part,
+                "tris": mm.get("tris"),
+                "vol": mm.get("vol", "—"),
+                "bbox": mm.get("bbox", "—"),
+                "wt": mm.get("wt", True),
+            }
+        )
     first = data[0]
-    tris0 = f'{first["tris"]:,}' if first["tris"] is not None else "—"
-    pill = '' if first["wt"] else ' style="display:none"'
-    tags = "".join(f'<button class="tag" type="button">{d["label"]}</button>' for d in data)
+    tris0 = f"{first['tris']:,}" if first["tris"] is not None else "—"
+    pill = "" if first["wt"] else ' style="display:none"'
+    tags = "".join(
+        f'<button class="tag" type="button">{d["label"]}</button>' for d in data
+    )
     proof = ""
     if m["proof"]:
         big, txt = m["proof"]
         proof = f'<div class="proof"><div class="big">{big}</div><div class="txt">{txt}</div></div>'
     script = _VIEWER_JS.replace("__DATA__", json.dumps(data))
-    return (HEAD.format(title=f'{m["title"]} · pybosl2') + MODBAR.format(mod=m["title"]) +
-            '<main><section class="hero"><div class="wrap">'
-            f'<div class="eyebrow">Spec sheet · {m["title"]}.py</div>'
-            f'<h1>{m["title"]}<span class="dim">.py</span></h1>'
-            f'<p class="lede">{m["subtitle"]}</p>'
-            '<div class="spec"><div class="draw">'
-            f'<div class="caption"><span id="vpart">{first["part"]}</span><span>interactive · drag to orbit</span></div>'
-            f'<div class="viewer" id="viewer"><div class="poster" id="poster">{m["svg"]}</div></div></div>'
-            '<div class="info">'
-            '<div style="display:flex;align-items:center;gap:12px"><h2>rendered &amp; measured</h2>'
-            f'<span class="pill pass" id="wtpill"{pill}>watertight</span></div>'
-            f'<p>{m["note"]}</p>'
-            '<div class="taglabel">variants · click to load</div>'
-            f'<div class="tags">{tags}</div>'
-            '<div class="stats">'
-            f'<div><span class="v" id="s-tris">{tris0}</span><span class="l">triangles</span></div>'
-            f'<div><span class="v" id="s-vol">{first["vol"]}</span><span class="l">mm&sup3; volume</span></div>'
-            f'<div><span class="v" id="s-bbox">{first["bbox"]}</span><span class="l">bbox mm</span></div></div>'
-            f'<div class="code" id="code">&gt;&gt;&gt; {first["code"]}</div>'
-            f'{proof}'
-            '<div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">'
-            f'{m["tests"]} tests · <a href="../{m["title"]}.html">full API reference &rarr;</a></div>'
-            '</div></div></div></section></main>' + script + FOOT)
+    return (
+        HEAD.format(title=f"{m['title']} · pybosl2")
+        + MODBAR.format(mod=m["title"])
+        + '<main><section class="hero"><div class="wrap">'
+        f'<div class="eyebrow">Spec sheet · {m["title"]}.py</div>'
+        f'<h1>{m["title"]}<span class="dim">.py</span></h1>'
+        f'<p class="lede">{m["subtitle"]}</p>'
+        '<div class="spec"><div class="draw">'
+        f'<div class="caption"><span id="vpart">{first["part"]}</span><span>interactive · drag to orbit</span></div>'
+        f'<div class="viewer" id="viewer"><div class="poster" id="poster">{m["svg"]}</div></div></div>'
+        '<div class="info">'
+        '<div style="display:flex;align-items:center;gap:12px"><h2>rendered &amp; measured</h2>'
+        f'<span class="pill pass" id="wtpill"{pill}>watertight</span></div>'
+        f"<p>{m['note']}</p>"
+        '<div class="taglabel">variants · click to load</div>'
+        f'<div class="tags">{tags}</div>'
+        '<div class="stats">'
+        f'<div><span class="v" id="s-tris">{tris0}</span><span class="l">triangles</span></div>'
+        f'<div><span class="v" id="s-vol">{first["vol"]}</span><span class="l">mm&sup3; volume</span></div>'
+        f'<div><span class="v" id="s-bbox">{first["bbox"]}</span><span class="l">bbox mm</span></div></div>'
+        f'<div class="code" id="code">&gt;&gt;&gt; {first["code"]}</div>'
+        f"{proof}"
+        '<div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">'
+        f'{m["tests"]} tests · <a href="../{m["title"]}.html">full API reference &rarr;</a></div>'
+        "</div></div></div></section></main>" + script + FOOT
+    )
 
 
 def gallery_page():
@@ -944,28 +1317,34 @@ def gallery_page():
     for key in GALLERY:
         if key in MODULES:
             m = MODULES[key]
-            cards += (f'<a class="card" href="{key}.html"><div class="top">'
-                      f'<span class="name">{m["title"]}<span class="py">.py</span></span>'
-                      f'<span class="arrow">spec &rarr;</span></div>'
-                      f'<p class="desc">{m["subtitle"]}</p></a>')
+            cards += (
+                f'<a class="card" href="{key}.html"><div class="top">'
+                f'<span class="name">{m["title"]}<span class="py">.py</span></span>'
+                f'<span class="arrow">spec &rarr;</span></div>'
+                f'<p class="desc">{m["subtitle"]}</p></a>'
+            )
         else:
             tests, desc = API_ONLY[key]
-            cards += (f'<a class="card" href="../{key}.html"><div class="top">'
-                      f'<span class="name">{key}<span class="py">.py</span></span>'
-                      f'<span class="tests">{tests} tests</span></div>'
-                      f'<p class="desc">{desc}</p></a>')
-    return (HEAD.format(title="pybosl2 · parts catalog") +
-            BAR.format(crumb="BOSL2 &rarr; Python · renders through PythonSCAD") +
-            '<main><section class="hero"><div class="wrap">'
-            '<div class="eyebrow">Parts catalog</div>'
-            '<h1>BOSL2 parts,<br><span class="dim">ported to Python and verified against the real app.</span></h1>'
-            '<p class="lede">Every mechanical part here is a pure-Python port that builds real, watertight, '
-            '3-D-printable geometry through PythonSCAD. The featured modules carry a spec sheet with '
-            'metrics measured straight off the exported STL.</p>'
-            '</div></section><section style="padding-top:0"><div class="wrap">'
-            '<div class="sec-head"><div class="eyebrow" style="color:var(--ink-dim)">§</div>'
-            '<h3>The library</h3><span class="count">click a featured module for its spec sheet</span></div>'
-            f'<div class="grid">{cards}</div></div></section></main>' + FOOT)
+            cards += (
+                f'<a class="card" href="../{key}.html"><div class="top">'
+                f'<span class="name">{key}<span class="py">.py</span></span>'
+                f'<span class="tests">{tests} tests</span></div>'
+                f'<p class="desc">{desc}</p></a>'
+            )
+    return (
+        HEAD.format(title="pybosl2 · parts catalog")
+        + BAR.format(crumb="BOSL2 &rarr; Python · renders through PythonSCAD")
+        + '<main><section class="hero"><div class="wrap">'
+        '<div class="eyebrow">Parts catalog</div>'
+        '<h1>BOSL2 parts,<br><span class="dim">ported to Python and verified against the real app.</span></h1>'
+        '<p class="lede">Every mechanical part here is a pure-Python port that builds real, watertight, '
+        "3-D-printable geometry through PythonSCAD. The featured modules carry a spec sheet with "
+        "metrics measured straight off the exported STL.</p>"
+        '</div></section><section style="padding-top:0"><div class="wrap">'
+        '<div class="sec-head"><div class="eyebrow" style="color:var(--ink-dim)">§</div>'
+        '<h3>The library</h3><span class="count">click a featured module for its spec sheet</span></div>'
+        f'<div class="grid">{cards}</div></div></section></main>' + FOOT
+    )
 
 
 # --------------------------------------------------------------------------
@@ -976,11 +1355,42 @@ def gallery_page():
 # --------------------------------------------------------------------------
 
 # Tags kept on the same line as surrounding text (breaking around these could insert visible spaces).
-_INLINE = {"a", "b", "i", "u", "em", "strong", "span", "small", "code", "sup", "sub",
-           "abbr", "br", "img", "text", "tspan", "title"}
+_INLINE = {
+    "a",
+    "b",
+    "i",
+    "u",
+    "em",
+    "strong",
+    "span",
+    "small",
+    "code",
+    "sup",
+    "sub",
+    "abbr",
+    "br",
+    "img",
+    "text",
+    "tspan",
+    "title",
+}
 # Elements with no closing tag; they must not open an indent level.
-_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
-         "param", "source", "track", "wbr"}
+_VOID = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}
 
 
 def _tagname(tok: str) -> str:
@@ -990,7 +1400,11 @@ def _tagname(tok: str) -> str:
 
 def _is_block(tok: str) -> bool:
     """A markup token that forces a line break (a non-inline, non-declaration tag)."""
-    return tok.startswith("<") and not tok.startswith("<!") and _tagname(tok) not in _INLINE
+    return (
+        tok.startswith("<")
+        and not tok.startswith("<!")
+        and _tagname(tok) not in _INLINE
+    )
 
 
 def _closes_simple(toks: list[str], i: int) -> int:
@@ -1001,15 +1415,15 @@ def _closes_simple(toks: list[str], i: int) -> int:
     for j in range(i + 1, len(toks)):
         t = toks[j]
         if not _is_block(t):
-            continue                                     # text or inline tag: still simple
+            continue  # text or inline tag: still simple
         if t.rstrip().endswith("/>") or _tagname(t) in _VOID:
-            return -1                                    # a block void/self-close child (e.g. an SVG shape)
+            return -1  # a block void/self-close child (e.g. an SVG shape)
         if t.startswith("</"):
             depth -= 1
             if depth == 0 and _tagname(t) == name:
                 return j
         else:
-            return -1                                    # a nested block element -> not simple
+            return -1  # a nested block element -> not simple
     return -1
 
 
@@ -1037,27 +1451,29 @@ def _format_html(html: str, indent: str = "  ") -> str:
         while i < len(toks):
             tok = toks[i]
             if not _is_block(tok):
-                buf.append(tok)                          # text, inline tag, or declaration run
+                buf.append(tok)  # text, inline tag, or declaration run
                 i += 1
                 continue
             flush()
-            if tok.startswith("</"):                      # block close
+            if tok.startswith("</"):  # block close
                 depth = max(0, depth - 1)
                 out.append(indent * depth + tok)
             elif tok.rstrip().endswith("/>") or _tagname(tok) in _VOID:
-                out.append(indent * depth + tok)         # self-closing / void
+                out.append(indent * depth + tok)  # self-closing / void
             else:
                 end = _closes_simple(toks, i)
-                if end >= 0:                              # inline-only element: keep on one line
-                    out.append(indent * depth + "".join(toks[i:end + 1]))
+                if end >= 0:  # inline-only element: keep on one line
+                    out.append(indent * depth + "".join(toks[i : end + 1]))
                     i = end
-                else:                                    # block container: open and indent
+                else:  # block container: open and indent
                     out.append(indent * depth + tok)
                     depth += 1
             i += 1
 
     # Split off <script>...</script> so its JS is passed through untouched (odd chunks are scripts).
-    for idx, part in enumerate(re.split(r"(<script\b[^>]*>.*?</script>)", html, flags=re.S | re.I)):
+    for idx, part in enumerate(
+        re.split(r"(<script\b[^>]*>.*?</script>)", html, flags=re.S | re.I)
+    ):
         if not part:
             continue
         if idx % 2 == 1:
@@ -1078,11 +1494,15 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "spec.css").write_text(CSS)
     metrics = build_variant_stls(force="--force" in sys.argv)
-    pages = {"index.html": gallery_page(),
-             **{f"{k}.html": module_page(k, m, metrics) for k, m in MODULES.items()}}
+    pages = {
+        "index.html": gallery_page(),
+        **{f"{k}.html": module_page(k, m, metrics) for k, m in MODULES.items()},
+    }
     for name, raw in pages.items():
         pretty = _format_html(raw)
-        assert _norm(pretty) == _norm(raw), f"reindent changed the markup of {name}"  # render-safe check
+        assert _norm(pretty) == _norm(raw), (
+            f"reindent changed the markup of {name}"
+        )  # render-safe check
         (OUT / name).write_text(pretty)
     print("wrote", OUT)
 

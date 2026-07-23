@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../masking.html">Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../texture.html">Textures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../constants.html">Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
@@ -55,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../turtle3d.html">Turtle (3-D)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Beziers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../skin.html">Skin &amp; sweeps</a></li>
@@ -171,8 +173,6 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BottleCaps&quot;</span><span class="p">,</span> <span class="s2">&quot;BottleThreadSpec&quot;</span><span class="p">]</span>
 
 
-
-
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BottleThreadSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;All dimensions (mm) of one bottle threading&#39;s neck and cap, from bottlecaps.scad.&quot;&quot;&quot;</span>
@@ -210,31 +210,78 @@
     <span class="n">cap_thread_depth</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">cap_turns</span><span class="p">:</span> <span class="nb">float</span>
     <span class="c1"># -- variant-specific (only one threading uses each) --</span>
-    <span class="n">tamper_ring_r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>    <span class="c1"># PCO-1810 tamper-ring corner radius</span>
+    <span class="n">tamper_ring_r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># PCO-1810 tamper-ring corner radius</span>
     <span class="n">tamper_ring_ang</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># PCO-1881 tamper-ring flank angle</span>
-    <span class="n">tamper_divot_r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># PCO-1881 tamper divot radius</span>
+    <span class="n">tamper_divot_r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># PCO-1881 tamper divot radius</span>
 
 
 <span class="c1"># PCO-1810 and PCO-1881 neck/cap dimensions (mm), transcribed from bottlecaps.scad.</span>
 <span class="n">_PCO1810</span> <span class="o">=</span> <span class="n">BottleThreadSpec</span><span class="p">(</span>
-    <span class="n">inner_d</span><span class="o">=</span><span class="mf">21.74</span><span class="p">,</span> <span class="n">neck_d</span><span class="o">=</span><span class="mf">26.19</span><span class="p">,</span> <span class="n">neck_h</span><span class="o">=</span><span class="mf">5.00</span><span class="p">,</span> <span class="n">support_d</span><span class="o">=</span><span class="mf">33.00</span><span class="p">,</span> <span class="n">support_width</span><span class="o">=</span><span class="mf">1.45</span><span class="p">,</span>
-    <span class="n">support_rad</span><span class="o">=</span><span class="mf">0.40</span><span class="p">,</span> <span class="n">support_h</span><span class="o">=</span><span class="mf">21.00</span><span class="p">,</span> <span class="n">support_ang</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">tamper_ring_d</span><span class="o">=</span><span class="mf">27.97</span><span class="p">,</span>
-    <span class="n">tamper_ring_width</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span> <span class="n">tamper_base_d</span><span class="o">=</span><span class="mf">25.71</span><span class="p">,</span> <span class="n">tamper_base_h</span><span class="o">=</span><span class="mf">14.10</span><span class="p">,</span>
-    <span class="n">threadbase_d</span><span class="o">=</span><span class="mf">24.51</span><span class="p">,</span> <span class="n">thread_pitch</span><span class="o">=</span><span class="mf">3.18</span><span class="p">,</span> <span class="n">flank_angle</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">thread_od</span><span class="o">=</span><span class="mf">27.43</span><span class="p">,</span> <span class="n">lip_d</span><span class="o">=</span><span class="mf">25.07</span><span class="p">,</span>
-    <span class="n">lip_h</span><span class="o">=</span><span class="mf">1.70</span><span class="p">,</span> <span class="n">lip_leadin_r</span><span class="o">=</span><span class="mf">0.20</span><span class="p">,</span> <span class="n">lip_recess_d</span><span class="o">=</span><span class="mf">24.94</span><span class="p">,</span> <span class="n">lip_recess_h</span><span class="o">=</span><span class="mf">1.00</span><span class="p">,</span> <span class="n">lip_roundover_r</span><span class="o">=</span><span class="mf">0.58</span><span class="p">,</span>
-    <span class="n">neck_turns</span><span class="o">=</span><span class="mi">810</span><span class="p">,</span> <span class="n">cap_id</span><span class="o">=</span><span class="mf">28.58</span><span class="p">,</span> <span class="n">cap_tamper_ring_h</span><span class="o">=</span><span class="mf">14.10</span><span class="p">,</span> <span class="n">cap_thread_od</span><span class="o">=</span><span class="mf">28.58</span><span class="p">,</span>
-    <span class="n">cap_thread_pitch</span><span class="o">=</span><span class="mf">3.18</span><span class="p">,</span> <span class="n">cap_flank_angle</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">cap_thread_depth</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span> <span class="n">cap_turns</span><span class="o">=</span><span class="mi">810</span><span class="p">,</span>
+    <span class="n">inner_d</span><span class="o">=</span><span class="mf">21.74</span><span class="p">,</span>
+    <span class="n">neck_d</span><span class="o">=</span><span class="mf">26.19</span><span class="p">,</span>
+    <span class="n">neck_h</span><span class="o">=</span><span class="mf">5.00</span><span class="p">,</span>
+    <span class="n">support_d</span><span class="o">=</span><span class="mf">33.00</span><span class="p">,</span>
+    <span class="n">support_width</span><span class="o">=</span><span class="mf">1.45</span><span class="p">,</span>
+    <span class="n">support_rad</span><span class="o">=</span><span class="mf">0.40</span><span class="p">,</span>
+    <span class="n">support_h</span><span class="o">=</span><span class="mf">21.00</span><span class="p">,</span>
+    <span class="n">support_ang</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">tamper_ring_d</span><span class="o">=</span><span class="mf">27.97</span><span class="p">,</span>
+    <span class="n">tamper_ring_width</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span>
+    <span class="n">tamper_base_d</span><span class="o">=</span><span class="mf">25.71</span><span class="p">,</span>
+    <span class="n">tamper_base_h</span><span class="o">=</span><span class="mf">14.10</span><span class="p">,</span>
+    <span class="n">threadbase_d</span><span class="o">=</span><span class="mf">24.51</span><span class="p">,</span>
+    <span class="n">thread_pitch</span><span class="o">=</span><span class="mf">3.18</span><span class="p">,</span>
+    <span class="n">flank_angle</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">thread_od</span><span class="o">=</span><span class="mf">27.43</span><span class="p">,</span>
+    <span class="n">lip_d</span><span class="o">=</span><span class="mf">25.07</span><span class="p">,</span>
+    <span class="n">lip_h</span><span class="o">=</span><span class="mf">1.70</span><span class="p">,</span>
+    <span class="n">lip_leadin_r</span><span class="o">=</span><span class="mf">0.20</span><span class="p">,</span>
+    <span class="n">lip_recess_d</span><span class="o">=</span><span class="mf">24.94</span><span class="p">,</span>
+    <span class="n">lip_recess_h</span><span class="o">=</span><span class="mf">1.00</span><span class="p">,</span>
+    <span class="n">lip_roundover_r</span><span class="o">=</span><span class="mf">0.58</span><span class="p">,</span>
+    <span class="n">neck_turns</span><span class="o">=</span><span class="mi">810</span><span class="p">,</span>
+    <span class="n">cap_id</span><span class="o">=</span><span class="mf">28.58</span><span class="p">,</span>
+    <span class="n">cap_tamper_ring_h</span><span class="o">=</span><span class="mf">14.10</span><span class="p">,</span>
+    <span class="n">cap_thread_od</span><span class="o">=</span><span class="mf">28.58</span><span class="p">,</span>
+    <span class="n">cap_thread_pitch</span><span class="o">=</span><span class="mf">3.18</span><span class="p">,</span>
+    <span class="n">cap_flank_angle</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">cap_thread_depth</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
+    <span class="n">cap_turns</span><span class="o">=</span><span class="mi">810</span><span class="p">,</span>
     <span class="n">tamper_ring_r</span><span class="o">=</span><span class="mf">1.60</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">_PCO1881</span> <span class="o">=</span> <span class="n">BottleThreadSpec</span><span class="p">(</span>
-    <span class="n">inner_d</span><span class="o">=</span><span class="mf">21.74</span><span class="p">,</span> <span class="n">neck_d</span><span class="o">=</span><span class="mf">26.19</span><span class="p">,</span> <span class="n">neck_h</span><span class="o">=</span><span class="mf">5.00</span><span class="p">,</span> <span class="n">support_d</span><span class="o">=</span><span class="mf">33.00</span><span class="p">,</span> <span class="n">support_width</span><span class="o">=</span><span class="mf">0.58</span><span class="p">,</span>
-    <span class="n">support_rad</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">support_h</span><span class="o">=</span><span class="mf">17.00</span><span class="p">,</span> <span class="n">support_ang</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">tamper_ring_d</span><span class="o">=</span><span class="mf">28.00</span><span class="p">,</span>
-    <span class="n">tamper_ring_width</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">tamper_base_d</span><span class="o">=</span><span class="mf">25.71</span><span class="p">,</span> <span class="n">tamper_base_h</span><span class="o">=</span><span class="mf">11.20</span><span class="p">,</span>
-    <span class="n">threadbase_d</span><span class="o">=</span><span class="mf">24.20</span><span class="p">,</span> <span class="n">thread_pitch</span><span class="o">=</span><span class="mf">2.70</span><span class="p">,</span> <span class="n">flank_angle</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">thread_od</span><span class="o">=</span><span class="mf">27.4</span><span class="p">,</span>
-    <span class="n">lip_d</span><span class="o">=</span><span class="mf">25.07</span><span class="p">,</span> <span class="n">lip_h</span><span class="o">=</span><span class="mf">1.70</span><span class="p">,</span> <span class="n">lip_leadin_r</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">lip_recess_d</span><span class="o">=</span><span class="mf">24.94</span><span class="p">,</span> <span class="n">lip_recess_h</span><span class="o">=</span><span class="mf">1.00</span><span class="p">,</span>
-    <span class="n">lip_roundover_r</span><span class="o">=</span><span class="mf">0.58</span><span class="p">,</span> <span class="n">neck_turns</span><span class="o">=</span><span class="mi">650</span><span class="p">,</span> <span class="n">cap_id</span><span class="o">=</span><span class="mf">28.58</span><span class="p">,</span> <span class="n">cap_tamper_ring_h</span><span class="o">=</span><span class="mf">11.20</span><span class="p">,</span>
-    <span class="n">cap_thread_od</span><span class="o">=</span><span class="mf">25.5</span><span class="p">,</span> <span class="n">cap_thread_pitch</span><span class="o">=</span><span class="mf">2.70</span><span class="p">,</span> <span class="n">cap_flank_angle</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">cap_thread_depth</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
-    <span class="n">cap_turns</span><span class="o">=</span><span class="mi">650</span><span class="p">,</span> <span class="n">tamper_ring_ang</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">tamper_divot_r</span><span class="o">=</span><span class="mf">1.08</span><span class="p">,</span>
+    <span class="n">inner_d</span><span class="o">=</span><span class="mf">21.74</span><span class="p">,</span>
+    <span class="n">neck_d</span><span class="o">=</span><span class="mf">26.19</span><span class="p">,</span>
+    <span class="n">neck_h</span><span class="o">=</span><span class="mf">5.00</span><span class="p">,</span>
+    <span class="n">support_d</span><span class="o">=</span><span class="mf">33.00</span><span class="p">,</span>
+    <span class="n">support_width</span><span class="o">=</span><span class="mf">0.58</span><span class="p">,</span>
+    <span class="n">support_rad</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
+    <span class="n">support_h</span><span class="o">=</span><span class="mf">17.00</span><span class="p">,</span>
+    <span class="n">support_ang</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">tamper_ring_d</span><span class="o">=</span><span class="mf">28.00</span><span class="p">,</span>
+    <span class="n">tamper_ring_width</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
+    <span class="n">tamper_base_d</span><span class="o">=</span><span class="mf">25.71</span><span class="p">,</span>
+    <span class="n">tamper_base_h</span><span class="o">=</span><span class="mf">11.20</span><span class="p">,</span>
+    <span class="n">threadbase_d</span><span class="o">=</span><span class="mf">24.20</span><span class="p">,</span>
+    <span class="n">thread_pitch</span><span class="o">=</span><span class="mf">2.70</span><span class="p">,</span>
+    <span class="n">flank_angle</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">thread_od</span><span class="o">=</span><span class="mf">27.4</span><span class="p">,</span>
+    <span class="n">lip_d</span><span class="o">=</span><span class="mf">25.07</span><span class="p">,</span>
+    <span class="n">lip_h</span><span class="o">=</span><span class="mf">1.70</span><span class="p">,</span>
+    <span class="n">lip_leadin_r</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
+    <span class="n">lip_recess_d</span><span class="o">=</span><span class="mf">24.94</span><span class="p">,</span>
+    <span class="n">lip_recess_h</span><span class="o">=</span><span class="mf">1.00</span><span class="p">,</span>
+    <span class="n">lip_roundover_r</span><span class="o">=</span><span class="mf">0.58</span><span class="p">,</span>
+    <span class="n">neck_turns</span><span class="o">=</span><span class="mi">650</span><span class="p">,</span>
+    <span class="n">cap_id</span><span class="o">=</span><span class="mf">28.58</span><span class="p">,</span>
+    <span class="n">cap_tamper_ring_h</span><span class="o">=</span><span class="mf">11.20</span><span class="p">,</span>
+    <span class="n">cap_thread_od</span><span class="o">=</span><span class="mf">25.5</span><span class="p">,</span>
+    <span class="n">cap_thread_pitch</span><span class="o">=</span><span class="mf">2.70</span><span class="p">,</span>
+    <span class="n">cap_flank_angle</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">cap_thread_depth</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
+    <span class="n">cap_turns</span><span class="o">=</span><span class="mi">650</span><span class="p">,</span>
+    <span class="n">tamper_ring_ang</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+    <span class="n">tamper_divot_r</span><span class="o">=</span><span class="mf">1.08</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -245,36 +292,150 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_pco1810_profile</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="s2">&quot;BottleThreadSpec&quot;</span><span class="p">):</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">support_h</span> <span class="o">+</span> <span class="n">d</span><span class="o">.</span><span class="n">neck_h</span>
-    <span class="k">return</span> <span class="n">turtle</span><span class="p">([</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">neck_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">neck_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;arcright&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_d</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_width</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_base_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span><span class="p">,</span>
-        <span class="s2">&quot;untily&quot;</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_base_h</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_width</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_r</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">threadbase_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;untily&quot;</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_leadin_r</span><span class="p">,</span>
-        <span class="s2">&quot;arcright&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_leadin_r</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untily&quot;</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_recess_h</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_recess_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untily&quot;</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_roundover_r</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_roundover_r</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">inner_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="p">],</span> <span class="n">state</span><span class="o">=</span><span class="n">_turtle_start</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">inner_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">turtle</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">neck_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">neck_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;arcright&quot;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">support_d</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">support_width</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_base_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span><span class="p">,</span>
+            <span class="s2">&quot;untily&quot;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_base_h</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_width</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_r</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">threadbase_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untily&quot;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_leadin_r</span><span class="p">,</span>
+            <span class="s2">&quot;arcright&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">lip_leadin_r</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">lip_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untily&quot;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_recess_h</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">lip_recess_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untily&quot;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_roundover_r</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">lip_roundover_r</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">inner_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">state</span><span class="o">=</span><span class="n">_turtle_start</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">inner_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_pco1881_profile</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="s2">&quot;BottleThreadSpec&quot;</span><span class="p">):</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">support_h</span> <span class="o">+</span> <span class="n">d</span><span class="o">.</span><span class="n">neck_h</span>
-    <span class="k">return</span> <span class="n">turtle</span><span class="p">([</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">neck_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">neck_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;arcright&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_d</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_width</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_base_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;arcright&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_divot_r</span><span class="p">,</span> <span class="mi">180</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span><span class="p">,</span> <span class="s2">&quot;untily&quot;</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_base_h</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_width</span><span class="p">,</span>
-        <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_ang</span><span class="p">,</span> <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">threadbase_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_ang</span><span class="p">,</span>
-        <span class="s2">&quot;untily&quot;</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_leadin_r</span><span class="p">,</span> <span class="s2">&quot;arcright&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_leadin_r</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;untily&quot;</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_recess_h</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_recess_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;untily&quot;</span><span class="p">,</span> <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_roundover_r</span><span class="p">,</span>
-        <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_roundover_r</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;untilx&quot;</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">inner_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="p">],</span> <span class="n">state</span><span class="o">=</span><span class="n">_turtle_start</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">inner_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">turtle</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">neck_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">neck_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;arcright&quot;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">support_d</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">support_width</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">support_rad</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_base_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;arcright&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_divot_r</span><span class="p">,</span>
+            <span class="mi">180</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">support_ang</span><span class="p">,</span>
+            <span class="s2">&quot;untily&quot;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">tamper_base_h</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_width</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_ang</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">threadbase_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">tamper_ring_ang</span><span class="p">,</span>
+            <span class="s2">&quot;untily&quot;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_leadin_r</span><span class="p">,</span>
+            <span class="s2">&quot;arcright&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">lip_leadin_r</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">lip_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untily&quot;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_recess_h</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">lip_recess_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untily&quot;</span><span class="p">,</span>
+            <span class="n">h</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">lip_roundover_r</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">lip_roundover_r</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;untilx&quot;</span><span class="p">,</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">inner_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">state</span><span class="o">=</span><span class="n">_turtle_start</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">inner_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_neck_thread</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="s2">&quot;BottleThreadSpec&quot;</span><span class="p">):</span>
@@ -284,23 +445,31 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">thread_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">thread_od</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">threadbase_d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">turns</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">neck_turns</span> <span class="o">/</span> <span class="mi">360</span>
-    <span class="n">thread</span> <span class="o">=</span> <span class="n">Threading</span><span class="o">.</span><span class="n">thread_helix</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">threadbase_d</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">thread_pitch</span><span class="p">,</span>
-                                    <span class="n">thread_depth</span><span class="o">=</span><span class="n">thread_h</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">flank_angle</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">flank_angle</span><span class="p">,</span>
-                                    <span class="n">turns</span><span class="o">=</span><span class="n">turns</span><span class="p">)</span>
-    <span class="n">thread</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">turns</span> <span class="o">*</span> <span class="n">d</span><span class="o">.</span><span class="n">thread_pitch</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1"># BOSL2 anchor=TOP: top at z=0</span>
+    <span class="n">thread</span> <span class="o">=</span> <span class="n">Threading</span><span class="o">.</span><span class="n">thread_helix</span><span class="p">(</span>
+        <span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">threadbase_d</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">thread_pitch</span><span class="p">,</span>
+        <span class="n">thread_depth</span><span class="o">=</span><span class="n">thread_h</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">flank_angle</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">flank_angle</span><span class="p">,</span>
+        <span class="n">turns</span><span class="o">=</span><span class="n">turns</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">thread</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">turns</span> <span class="o">*</span> <span class="n">d</span><span class="o">.</span><span class="n">thread_pitch</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># BOSL2 anchor=TOP: top at z=0</span>
     <span class="n">top</span> <span class="o">=</span> <span class="mf">1.82</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">29</span><span class="p">))</span> <span class="o">*</span> <span class="n">thread_h</span>
     <span class="n">cuts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">m_out</span> <span class="ow">in</span> <span class="n">zrot_copies</span><span class="p">(</span><span class="n">rots</span><span class="o">=</span><span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">270</span><span class="p">]):</span>
         <span class="k">for</span> <span class="n">m_in</span> <span class="ow">in</span> <span class="n">zrot_copies</span><span class="p">(</span><span class="n">rots</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">],</span> <span class="n">r</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">threadbase_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="n">block</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mf">1.82</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="n">top</span><span class="p">],</span> <span class="n">h</span><span class="o">=</span><span class="n">thread_h</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">RIGHT</span><span class="p">)</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mf">1.82</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="n">top</span><span class="p">],</span> <span class="n">h</span><span class="o">=</span><span class="n">thread_h</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">RIGHT</span>
+            <span class="p">)</span>
             <span class="n">cuts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">((</span><span class="n">m_out</span> <span class="o">@</span> <span class="n">m_in</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
     <span class="k">return</span> <span class="n">thread</span> <span class="o">-</span> <span class="n">union</span><span class="p">(</span><span class="n">cuts</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_neck</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="s2">&quot;BottleThreadSpec&quot;</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">bottom_half</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">support_h</span> <span class="o">+</span> <span class="n">d</span><span class="o">.</span><span class="n">neck_h</span>
-    <span class="n">body</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">])),</span>
-                      <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">support_d</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_d</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
+        <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">])),</span>
+        <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">support_d</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">support_d</span><span class="p">,</span> <span class="n">h</span><span class="p">],</span>
+    <span class="p">)</span>
     <span class="n">thread</span> <span class="o">=</span> <span class="n">_neck_thread</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">bottom_half</span><span class="p">:</span>
         <span class="n">thread</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="n">bottom_half</span><span class="p">()</span>
@@ -317,10 +486,14 @@
     <span class="n">turns</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">cap_turns</span> <span class="o">/</span> <span class="mi">360</span>
     <span class="n">H</span> <span class="o">=</span> <span class="n">turns</span> <span class="o">*</span> <span class="n">d</span><span class="o">.</span><span class="n">cap_thread_pitch</span>
     <span class="c1"># internal thread (this port&#39;s thread_helix has no internal= flank flip -- approximate).</span>
-    <span class="n">thread</span> <span class="o">=</span> <span class="n">Threading</span><span class="o">.</span><span class="n">thread_helix</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">cap_thread_od</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">cap_thread_depth</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">cap_thread_pitch</span><span class="p">,</span>
-                                    <span class="n">thread_depth</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">cap_thread_depth</span><span class="p">,</span> <span class="n">flank_angle</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">cap_flank_angle</span><span class="p">,</span>
-                                    <span class="n">turns</span><span class="o">=</span><span class="n">turns</span><span class="p">)</span>
-    <span class="n">thread</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">H</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">wall</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>     <span class="c1"># BOSL2 anchor=BOTTOM, then up(wall+2)</span>
+    <span class="n">thread</span> <span class="o">=</span> <span class="n">Threading</span><span class="o">.</span><span class="n">thread_helix</span><span class="p">(</span>
+        <span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">cap_thread_od</span> <span class="o">-</span> <span class="n">d</span><span class="o">.</span><span class="n">cap_thread_depth</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">cap_thread_pitch</span><span class="p">,</span>
+        <span class="n">thread_depth</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">cap_thread_depth</span><span class="p">,</span>
+        <span class="n">flank_angle</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">cap_flank_angle</span><span class="p">,</span>
+        <span class="n">turns</span><span class="o">=</span><span class="n">turns</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">thread</span> <span class="o">=</span> <span class="n">thread</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">H</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">wall</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># BOSL2 anchor=BOTTOM, then up(wall+2)</span>
     <span class="n">cap</span> <span class="o">=</span> <span class="p">(</span><span class="n">shell</span> <span class="o">|</span> <span class="n">thread</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
 

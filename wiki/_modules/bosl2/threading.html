@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../masking.html">Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../texture.html">Textures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../constants.html">Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
@@ -55,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../turtle3d.html">Turtle (3-D)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Beziers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../skin.html">Skin &amp; sweeps</a></li>
@@ -205,23 +207,44 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_iso_profile</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ThreadProfile</span><span class="p">:</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">/</span> <span class="mi">8</span>
     <span class="n">cw</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">8</span>
-    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span><span class="s2">&quot;ISO&quot;</span><span class="p">,</span> <span class="p">(</span>
-        <span class="p">(</span><span class="o">-</span><span class="n">depth</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">depth</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">depth</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">depth</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span>
+        <span class="s2">&quot;ISO&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="p">(</span><span class="o">-</span><span class="n">depth</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">depth</span><span class="p">),</span>
+            <span class="p">(</span><span class="o">-</span><span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">depth</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">cw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">depth</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadProfile</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_trapezoidal_profile</span><span class="p">(</span>
+    <span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadProfile</span><span class="p">:</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">pa_delta</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">depth</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">thread_angle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="n">pitch</span>
-    <span class="k">assert</span> <span class="n">pa_delta</span> <span class="o">&lt;=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s2">&quot;trapezoidal thread geometry is impossible (angle/depth too large).&quot;</span>
+    <span class="k">assert</span> <span class="n">pa_delta</span> <span class="o">&lt;=</span> <span class="mf">0.25</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;trapezoidal thread geometry is impossible (angle/depth too large).&quot;</span>
+    <span class="p">)</span>
     <span class="n">rr1</span> <span class="o">=</span> <span class="o">-</span><span class="n">depth</span> <span class="o">/</span> <span class="n">pitch</span>
     <span class="n">z1</span><span class="p">,</span> <span class="n">z2</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">-</span> <span class="n">pa_delta</span><span class="p">,</span> <span class="mf">0.25</span> <span class="o">+</span> <span class="n">pa_delta</span>
-    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;trapezoidal-</span><span class="si">{</span><span class="n">thread_angle</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">deg&quot;</span><span class="p">,</span> <span class="p">((</span><span class="o">-</span><span class="n">z2</span><span class="p">,</span> <span class="n">rr1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">z1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">z1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">z2</span><span class="p">,</span> <span class="n">rr1</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;trapezoidal-</span><span class="si">{</span><span class="n">thread_angle</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">deg&quot;</span><span class="p">,</span> <span class="p">((</span><span class="o">-</span><span class="n">z2</span><span class="p">,</span> <span class="n">rr1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">z1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">z1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">z2</span><span class="p">,</span> <span class="n">rr1</span><span class="p">))</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_buttress_profile</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ThreadProfile</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span><span class="s2">&quot;buttress&quot;</span><span class="p">,</span> <span class="p">(</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.77</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.77</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">ThreadProfile</span><span class="p">(</span>
+        <span class="s2">&quot;buttress&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.77</span><span class="p">),</span>
+            <span class="p">(</span><span class="o">-</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">5</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.75</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.77</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -268,7 +291,9 @@
     <span class="k">return</span> <span class="p">[[</span><span class="n">x</span> <span class="o">*</span> <span class="n">c</span> <span class="o">-</span> <span class="n">y</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">x</span> <span class="o">*</span> <span class="n">s</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">c</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rod_solid</span><span class="p">(</span>
+    <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The external threaded-rod solid, built as a direct manifold polyhedron, trimmed to length.</span>
 
 <span class="sd">    Each of the *starts* thread starts is one angular sector&#39;s vertex-array surface; the sectors are</span>
@@ -284,7 +309,11 @@
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">starts</span><span class="p">):</span>
         <span class="n">grid</span> <span class="o">=</span> <span class="n">_thread_grid</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">sides</span><span class="p">)</span>
         <span class="n">vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">col_wrap</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;convex&quot;</span><span class="p">)</span>
-        <span class="n">rv</span> <span class="o">=</span> <span class="n">_rot_z</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">),</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">starts</span><span class="p">)</span> <span class="k">if</span> <span class="n">starts</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_rot_z</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">),</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">starts</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">starts</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="n">off</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">verts</span><span class="p">)</span>
         <span class="n">verts</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rv</span><span class="p">]</span>
         <span class="n">faces</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">i</span> <span class="o">+</span> <span class="n">off</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">vnf</span><span class="o">.</span><span class="n">faces</span><span class="p">]</span>
@@ -299,8 +328,20 @@
     <span class="k">return</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">))</span> <span class="o">*</span> <span class="n">pitch</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_nut_solid</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="n">idia</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-               <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_nut_solid</span><span class="p">(</span>
+    <span class="n">nutwidth</span><span class="p">,</span>
+    <span class="n">idia</span><span class="p">,</span>
+    <span class="n">h</span><span class="p">,</span>
+    <span class="n">pitch</span><span class="p">,</span>
+    <span class="n">profile</span><span class="p">,</span>
+    <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span>
+    <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A nut: a hex/square body with a threaded hole cut by a matching thread &#39;tap&#39;.&quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">regular_prism</span><span class="p">,</span> <span class="n">cuboid</span>
 
@@ -312,10 +353,20 @@
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s1">&#39;nut shape must be &quot;hex&quot; or &quot;square&quot;.&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">pitch</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cyl</span>
+
         <span class="k">return</span> <span class="n">body</span> <span class="o">-</span> <span class="n">cyl</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="n">h</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">idia</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">slop</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span>
     <span class="n">depth_abs</span> <span class="o">=</span> <span class="n">_profile_depth_abs</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
-    <span class="n">tap</span> <span class="o">=</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">idia</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">depth_abs</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span><span class="p">,</span> <span class="n">h</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span>
-                     <span class="n">starts</span><span class="o">=</span><span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span>
+    <span class="n">tap</span> <span class="o">=</span> <span class="n">_rod_solid</span><span class="p">(</span>
+        <span class="n">idia</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">depth_abs</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span><span class="p">,</span>
+        <span class="n">h</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">profile</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="n">starts</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="n">left_handed</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">body</span> <span class="o">-</span> <span class="n">tap</span>
 
 
@@ -340,21 +391,49 @@
 <div class="viewcode-block" id="Threading.generic_threaded_rod">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.generic_threaded_rod">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">generic_threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                             <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generic_threaded_rod</span><span class="p">(</span>
+        <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A threaded rod from an explicit 2-D thread *profile* (x in [-1/2, 1/2], y the depth</span>
 <span class="sd">        fraction, both in pitch units) -- the core every other rod builds on (BOSL2 generic_threaded_rod()).&quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">pitch</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;generic_threaded_rod(): d, l and pitch must be positive.&quot;</span>
+        <span class="k">assert</span> <span class="n">pitch</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;generic_threaded_rod(): d, l and pitch must be positive.&quot;</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.generic_threaded_nut">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.generic_threaded_nut">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">generic_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                             <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generic_threaded_nut</span><span class="p">(</span>
+        <span class="n">nutwidth</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">,</span>
+        <span class="n">h</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">profile</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A nut from an explicit thread *profile* (BOSL2 generic_threaded_nut()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
+            <span class="n">nutwidth</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">h</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="p">,</span>
+            <span class="n">profile</span><span class="p">,</span>
+            <span class="n">shape</span><span class="p">,</span>
+            <span class="n">starts</span><span class="p">,</span>
+            <span class="n">left_handed</span><span class="p">,</span>
+            <span class="n">slop</span><span class="p">,</span>
+            <span class="n">_fn</span><span class="p">,</span>
+            <span class="n">_fa</span><span class="p">,</span>
+            <span class="n">_fs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># -- ISO / UTS -------------------------------------------------------------------------</span>
@@ -362,18 +441,46 @@
 <div class="viewcode-block" id="Threading.threaded_rod">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.threaded_rod">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">threaded_rod</span><span class="p">(</span>
+        <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2 threaded_rod()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_iso_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span>
+            <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_iso_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.threaded_nut">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.threaded_nut">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                     <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">threaded_nut</span><span class="p">(</span>
+        <span class="n">nutwidth</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">,</span>
+        <span class="n">h</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A hex/square nut for an ISO/UTS threaded rod (BOSL2 threaded_nut()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_iso_profile</span><span class="p">(),</span> <span class="n">shape</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
+            <span class="n">nutwidth</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">h</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="p">,</span>
+            <span class="n">_iso_profile</span><span class="p">(),</span>
+            <span class="n">shape</span><span class="p">,</span>
+            <span class="n">starts</span><span class="p">,</span>
+            <span class="n">left_handed</span><span class="p">,</span>
+            <span class="n">slop</span><span class="p">,</span>
+            <span class="n">_fn</span><span class="p">,</span>
+            <span class="n">_fa</span><span class="p">,</span>
+            <span class="n">_fs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># -- trapezoidal / metric trapezoidal --------------------------------------------------</span>
@@ -381,8 +488,18 @@
 <div class="viewcode-block" id="Threading.trapezoidal_threaded_rod">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.trapezoidal_threaded_rod">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">trapezoidal_threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                                 <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trapezoidal_threaded_rod</span><span class="p">(</span>
+        <span class="n">d</span><span class="p">,</span>
+        <span class="n">l</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">thread_angle</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2 trapezoidal_threaded_rod()).&quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">,</span> <span class="n">thread_depth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
@@ -391,12 +508,37 @@
 <div class="viewcode-block" id="Threading.trapezoidal_threaded_nut">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.trapezoidal_threaded_nut">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">trapezoidal_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                 <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                                 <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trapezoidal_threaded_nut</span><span class="p">(</span>
+        <span class="n">nutwidth</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">,</span>
+        <span class="n">h</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">thread_angle</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A nut for a trapezoidal threaded rod (BOSL2 trapezoidal_threaded_nut()).&quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">,</span> <span class="n">thread_depth</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
+            <span class="n">nutwidth</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">h</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="p">,</span>
+            <span class="n">prof</span><span class="p">,</span>
+            <span class="n">shape</span><span class="p">,</span>
+            <span class="n">starts</span><span class="p">,</span>
+            <span class="n">left_handed</span><span class="p">,</span>
+            <span class="n">slop</span><span class="p">,</span>
+            <span class="n">_fn</span><span class="p">,</span>
+            <span class="n">_fa</span><span class="p">,</span>
+            <span class="n">_fs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># -- ACME ------------------------------------------------------------------------------</span>
@@ -404,21 +546,59 @@
 <div class="viewcode-block" id="Threading.acme_threaded_rod">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.acme_threaded_rod">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">acme_threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                          <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">acme_threaded_rod</span><span class="p">(</span>
+        <span class="n">d</span><span class="p">,</span>
+        <span class="n">l</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A 29-degree ACME threaded rod (BOSL2 acme_threaded_rod()).&quot;&quot;&quot;</span>
-        <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span>
+            <span class="n">pitch</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.acme_threaded_nut">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.acme_threaded_nut">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">acme_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                          <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">acme_threaded_nut</span><span class="p">(</span>
+        <span class="n">nutwidth</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">,</span>
+        <span class="n">h</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A nut for an ACME threaded rod (BOSL2 acme_threaded_nut()).&quot;&quot;&quot;</span>
-        <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
+        <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span>
+            <span class="n">pitch</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
+            <span class="n">nutwidth</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">h</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="p">,</span>
+            <span class="n">prof</span><span class="p">,</span>
+            <span class="n">shape</span><span class="p">,</span>
+            <span class="n">starts</span><span class="p">,</span>
+            <span class="n">left_handed</span><span class="p">,</span>
+            <span class="n">slop</span><span class="p">,</span>
+            <span class="n">_fn</span><span class="p">,</span>
+            <span class="n">_fa</span><span class="p">,</span>
+            <span class="n">_fs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># -- square ----------------------------------------------------------------------------</span>
@@ -426,7 +606,9 @@
 <div class="viewcode-block" id="Threading.square_threaded_rod">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.square_threaded_rod">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">square_threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">square_threaded_rod</span><span class="p">(</span>
+        <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A square-profile threaded rod (BOSL2 square_threaded_rod()).&quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
@@ -435,11 +617,35 @@
 <div class="viewcode-block" id="Threading.square_threaded_nut">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.square_threaded_nut">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">square_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                            <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">square_threaded_nut</span><span class="p">(</span>
+        <span class="n">nutwidth</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">,</span>
+        <span class="n">h</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A nut for a square threaded rod (BOSL2 square_threaded_nut()).&quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
+            <span class="n">nutwidth</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">h</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="p">,</span>
+            <span class="n">prof</span><span class="p">,</span>
+            <span class="n">shape</span><span class="p">,</span>
+            <span class="n">starts</span><span class="p">,</span>
+            <span class="n">left_handed</span><span class="p">,</span>
+            <span class="n">slop</span><span class="p">,</span>
+            <span class="n">_fn</span><span class="p">,</span>
+            <span class="n">_fa</span><span class="p">,</span>
+            <span class="n">_fs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># -- buttress --------------------------------------------------------------------------</span>
@@ -447,18 +653,46 @@
 <div class="viewcode-block" id="Threading.buttress_threaded_rod">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.buttress_threaded_rod">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">buttress_threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">buttress_threaded_rod</span><span class="p">(</span>
+        <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An asymmetric buttress threaded rod (BOSL2 buttress_threaded_rod()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_buttress_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span>
+            <span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_buttress_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.buttress_threaded_nut">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.buttress_threaded_nut">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">buttress_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                              <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">buttress_threaded_nut</span><span class="p">(</span>
+        <span class="n">nutwidth</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">,</span>
+        <span class="n">h</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A nut for a buttress threaded rod (BOSL2 buttress_threaded_nut()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_buttress_profile</span><span class="p">(),</span> <span class="n">shape</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
+            <span class="n">nutwidth</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">h</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="p">,</span>
+            <span class="n">_buttress_profile</span><span class="p">(),</span>
+            <span class="n">shape</span><span class="p">,</span>
+            <span class="n">starts</span><span class="p">,</span>
+            <span class="n">left_handed</span><span class="p">,</span>
+            <span class="n">slop</span><span class="p">,</span>
+            <span class="n">_fn</span><span class="p">,</span>
+            <span class="n">_fa</span><span class="p">,</span>
+            <span class="n">_fs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># -- single thread helix ---------------------------------------------------------------</span>
@@ -466,8 +700,19 @@
 <div class="viewcode-block" id="Threading.thread_helix">
 <a class="viewcode-back" href="../../threading.html#bosl2.threading.Threading.thread_helix">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">thread_helix</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flank_angle</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">turns</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                     <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">thread_helix</span><span class="p">(</span>
+        <span class="n">d</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="p">,</span>
+        <span class="n">thread_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">flank_angle</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+        <span class="n">turns</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">starts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">left_handed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">profile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A single helical thread ridge (no core), for adding threads onto your own cylinder</span>
 <span class="sd">        (BOSL2 thread_helix()). The thread crest is at diameter *d*; give *thread_depth* and</span>
 <span class="sd">        *flank_angle*, or an explicit *profile*.&quot;&quot;&quot;</span>
@@ -488,8 +733,11 @@
         <span class="n">thread</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">starts</span><span class="p">):</span>
             <span class="n">sec</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">k</span> <span class="o">*</span> <span class="n">pitch</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">section</span><span class="p">]</span>
-            <span class="n">piece</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">spiral_sweep</span><span class="p">(</span><span class="n">sec</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">turns</span><span class="o">=</span><span class="n">turns</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">left_handed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">),</span>
-                                            <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
+            <span class="n">piece</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
+                <span class="n">spiral_sweep</span><span class="p">(</span>
+                    <span class="n">sec</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">turns</span><span class="o">=</span><span class="n">turns</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">left_handed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">),</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="n">starts</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">piece</span> <span class="o">=</span> <span class="n">piece</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">starts</span><span class="p">])</span>
             <span class="n">thread</span> <span class="o">=</span> <span class="n">piece</span> <span class="k">if</span> <span class="n">thread</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">thread</span> <span class="o">|</span> <span class="n">piece</span><span class="p">)</span>

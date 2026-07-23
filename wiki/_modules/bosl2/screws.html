@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bosl2.screws &#8212; bosl2 (PythonSCAD port) 0.1.0 documentation</title>
+    <title>bosl2.screws &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
-    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
-    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=7a7913eb" />
+    <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -21,9 +21,108 @@
   
 
   </head><body>
-  
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
 
-    <div class="document">
+
+
+<p class="blurb">A pure-Python PythonSCAD port of BOSL2</p>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../shapes3d.html">3-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../transforms.html">Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributors.html">Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../masking.html">Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../texture.html">Textures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../constants.html">Constants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../turtle3d.html">Turtle (3-D)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Beziers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../skin.html">Skin &amp; sweeps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../isosurface.html">Isosurface</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../vectors.html">Vectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../comparisons.html">Comparisons</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screw_drive.html">Screw drives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bottlecaps.html">Bottle caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joiners.html">Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../walls.html">Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wiring.html">Wiring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../polyhedra.html">Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extras</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
           
@@ -63,8 +162,16 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Screws&quot;</span><span class="p">,</span> <span class="s2">&quot;ThreadPitches&quot;</span><span class="p">,</span> <span class="s2">&quot;HexHead&quot;</span><span class="p">,</span> <span class="s2">&quot;SocketHead&quot;</span><span class="p">,</span> <span class="s2">&quot;ButtonHead&quot;</span><span class="p">,</span>
-           <span class="s2">&quot;PanHead&quot;</span><span class="p">,</span> <span class="s2">&quot;FlatHead&quot;</span><span class="p">,</span> <span class="s2">&quot;NutSpec&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Screws&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ThreadPitches&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HexHead&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SocketHead&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ButtonHead&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PanHead&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FlatHead&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NutSpec&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -73,9 +180,15 @@
 
 <span class="c1"># Thread-class name -&gt; the ThreadPitches attribute holding that pitch.</span>
 <span class="n">_THREAD_ALIAS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;coarse&quot;</span><span class="p">:</span> <span class="s2">&quot;coarse&quot;</span><span class="p">,</span> <span class="s2">&quot;fine&quot;</span><span class="p">:</span> <span class="s2">&quot;fine&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">:</span> <span class="s2">&quot;fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;extra fine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span> <span class="s2">&quot;extrafine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span> <span class="s2">&quot;extra-fine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;super fine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span> <span class="s2">&quot;superfine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span> <span class="s2">&quot;super-fine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coarse&quot;</span><span class="p">:</span> <span class="s2">&quot;coarse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fine&quot;</span><span class="p">:</span> <span class="s2">&quot;fine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;medium&quot;</span><span class="p">:</span> <span class="s2">&quot;fine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extra fine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extrafine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extra-fine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;super fine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;superfine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;super-fine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -91,26 +204,32 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;coarse&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The pitch for a thread class (``&quot;coarse&quot;``/``&quot;fine&quot;``/``&quot;extra-fine&quot;``/``&quot;super-fine&quot;``),</span>
 <span class="sd">        falling back to coarse if the requested class is undefined for this size.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_THREAD_ALIAS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;coarse&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">coarse</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_THREAD_ALIAS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;coarse&quot;</span><span class="p">))</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">coarse</span>
+        <span class="p">)</span>
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">HexHead</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Hex cap head (ISO 4017).&quot;&quot;&quot;</span>
-    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span>    <span class="c1"># across-flats</span>
+
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># across-flats</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span>
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SocketHead</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Socket cap head (ISO 4762). Head height == nominal diameter; hex-drive depth == diameter/2.&quot;&quot;&quot;</span>
+
     <span class="n">head_d</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">hex_drive</span><span class="p">:</span> <span class="nb">float</span>   <span class="c1"># hex drive across-flats</span>
+    <span class="n">hex_drive</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># hex drive across-flats</span>
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ButtonHead</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Button head (ISO 7380).&quot;&quot;&quot;</span>
+
     <span class="n">head_d</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">hex_drive</span><span class="p">:</span> <span class="nb">float</span>
@@ -120,6 +239,7 @@
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">PanHead</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pan head (ISO 14583).&quot;&quot;&quot;</span>
+
     <span class="n">head_d</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span>
 
@@ -127,14 +247,16 @@
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FlatHead</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Countersunk / flat head (ISO 10642 / ISO 7046), 90-degree included angle.&quot;&quot;&quot;</span>
-    <span class="n">sharp_d</span><span class="p">:</span> <span class="nb">float</span>    <span class="c1"># theoretical sharp diameter</span>
-    <span class="n">actual_d</span><span class="p">:</span> <span class="nb">float</span>   <span class="c1"># actual (truncated) diameter</span>
+
+    <span class="n">sharp_d</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># theoretical sharp diameter</span>
+    <span class="n">actual_d</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># actual (truncated) diameter</span>
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">NutSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Hex / square nut (ISO 4032 / 4035 / 4034); ``None`` where a thickness class is undefined.&quot;&quot;&quot;</span>
-    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span>      <span class="c1"># across-flats</span>
+
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># across-flats</span>
     <span class="n">normal</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">thin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">thick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
@@ -142,70 +264,162 @@
 
 <span class="c1"># nominal diameter -&gt; its thread pitches.</span>
 <span class="n">_ISO_THREAD</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">1</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="mf">1.2</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="mf">1.4</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>
-    <span class="mf">1.6</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="mf">1.8</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span>
-    <span class="mf">2.2</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span> <span class="mf">2.5</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span> <span class="mi">3</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span>
-    <span class="mf">3.5</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span> <span class="mi">4</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">5</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-    <span class="mi">6</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="mi">7</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="mi">8</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span>
-    <span class="mi">9</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="mi">10</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span>
-    <span class="mi">11</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span> <span class="mi">12</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="mi">14</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">16</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">18</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="mi">20</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">22</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">24</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-    <span class="mi">27</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">30</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="mi">33</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
-    <span class="mi">36</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="mi">39</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="mi">42</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">4.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>
+    <span class="mf">1.2</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>
+    <span class="mf">1.4</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>
+    <span class="mf">1.6</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>
+    <span class="mf">1.8</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span>
+    <span class="mf">2.2</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span>
+    <span class="mf">2.5</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span>
+    <span class="mf">3.5</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span>
+    <span class="mi">9</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span>
+    <span class="mi">11</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">),</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="mi">14</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="mi">18</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="mi">22</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="mi">24</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="mi">27</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="mi">30</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="mi">33</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="mi">36</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="mi">39</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="mi">42</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mf">4.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
     <span class="mi">48</span><span class="p">:</span> <span class="n">ThreadPitches</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="n">_HEX_HEAD</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">5</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span> <span class="mi">6</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="mi">8</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">5.3</span><span class="p">),</span> <span class="mi">10</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mf">6.4</span><span class="p">),</span>
-    <span class="mi">12</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span> <span class="mi">14</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mf">8.8</span><span class="p">),</span> <span class="mi">16</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="mi">18</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">27</span><span class="p">,</span> <span class="mf">11.5</span><span class="p">),</span>
-    <span class="mi">20</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mf">12.5</span><span class="p">),</span> <span class="mi">24</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="mi">30</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mf">18.7</span><span class="p">),</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">5.3</span><span class="p">),</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mf">6.4</span><span class="p">),</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span>
+    <span class="mi">14</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mf">8.8</span><span class="p">),</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="mi">18</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">27</span><span class="p">,</span> <span class="mf">11.5</span><span class="p">),</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mf">12.5</span><span class="p">),</span>
+    <span class="mi">24</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+    <span class="mi">30</span><span class="p">:</span> <span class="n">HexHead</span><span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mf">18.7</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="n">_SOCKET_HEAD</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mf">1.6</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">3.8</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="mf">2.5</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">4.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mf">2.6</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-    <span class="mi">3</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span> <span class="mf">3.5</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">6.2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span> <span class="mi">4</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">5</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">8.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
-    <span class="mi">6</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mi">7</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="mi">8</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="mi">10</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
-    <span class="mi">12</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="mi">14</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="mi">16</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span> <span class="mi">18</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">27</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>
-    <span class="mi">20</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">17</span><span class="p">),</span> <span class="mi">22</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">33</span><span class="p">,</span> <span class="mi">17</span><span class="p">),</span> <span class="mi">24</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="mi">27</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span>
-    <span class="mi">30</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">22</span><span class="p">),</span> <span class="mi">33</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">24</span><span class="p">),</span> <span class="mi">36</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">54</span><span class="p">,</span> <span class="mi">27</span><span class="p">),</span> <span class="mi">42</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">63</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
+    <span class="mf">1.6</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">3.8</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="mf">2.5</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">4.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="mf">2.6</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span>
+    <span class="mf">3.5</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">6.2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mf">8.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="mi">14</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>
+    <span class="mi">18</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">27</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">17</span><span class="p">),</span>
+    <span class="mi">22</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">33</span><span class="p">,</span> <span class="mi">17</span><span class="p">),</span>
+    <span class="mi">24</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span>
+    <span class="mi">27</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span>
+    <span class="mi">30</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">22</span><span class="p">),</span>
+    <span class="mi">33</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">24</span><span class="p">),</span>
+    <span class="mi">36</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">54</span><span class="p">,</span> <span class="mi">27</span><span class="p">),</span>
+    <span class="mi">42</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">63</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
     <span class="mi">48</span><span class="p">:</span> <span class="n">SocketHead</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="mi">36</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="n">_BUTTON_HEAD</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mf">1.6</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">2.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">0.69</span><span class="p">),</span>
-    <span class="mf">2.5</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">4.6</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.87</span><span class="p">),</span> <span class="mi">3</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">5.7</span><span class="p">,</span> <span class="mf">1.65</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.04</span><span class="p">),</span>
-    <span class="mf">3.5</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">5.7</span><span class="p">,</span> <span class="mf">1.65</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.21</span><span class="p">),</span> <span class="mi">4</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">7.6</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.30</span><span class="p">),</span>
-    <span class="mi">5</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">9.5</span><span class="p">,</span> <span class="mf">2.75</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">1.56</span><span class="p">),</span> <span class="mi">6</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="mf">3.3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">2.08</span><span class="p">),</span>
-    <span class="mi">8</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mf">4.4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">2.60</span><span class="p">),</span> <span class="mi">10</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">17.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">3.12</span><span class="p">),</span>
-    <span class="mi">12</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mf">6.6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">4.16</span><span class="p">),</span> <span class="mi">16</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mf">8.8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">5.2</span><span class="p">),</span>
+    <span class="mf">1.6</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">2.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">),</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">0.69</span><span class="p">),</span>
+    <span class="mf">2.5</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">4.6</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.87</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">5.7</span><span class="p">,</span> <span class="mf">1.65</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.04</span><span class="p">),</span>
+    <span class="mf">3.5</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">5.7</span><span class="p">,</span> <span class="mf">1.65</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.21</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">7.6</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.30</span><span class="p">),</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">9.5</span><span class="p">,</span> <span class="mf">2.75</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">1.56</span><span class="p">),</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">10.5</span><span class="p">,</span> <span class="mf">3.3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">2.08</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mf">4.4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">2.60</span><span class="p">),</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mf">17.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">3.12</span><span class="p">),</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mf">6.6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">4.16</span><span class="p">),</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="n">ButtonHead</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mf">8.8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">5.2</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="n">_PAN_HEAD</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mf">1.6</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mf">3.2</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">),</span> <span class="mf">2.5</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">3</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mf">5.6</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">),</span>
-    <span class="mf">3.5</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">3.1</span><span class="p">),</span> <span class="mi">4</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">3.1</span><span class="p">),</span> <span class="mi">5</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mf">9.5</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="mi">6</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.6</span><span class="p">),</span>
-    <span class="mi">8</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="mi">10</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span>
+    <span class="mf">1.6</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mf">3.2</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">),</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">),</span>
+    <span class="mf">2.5</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mf">5.6</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">),</span>
+    <span class="mf">3.5</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">3.1</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">3.1</span><span class="p">),</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mf">9.5</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.6</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="n">PanHead</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="n">_FLAT_HEAD</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mf">1.6</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">3.6</span><span class="p">,</span> <span class="mf">2.85</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">4.4</span><span class="p">,</span> <span class="mf">3.65</span><span class="p">),</span> <span class="mf">2.5</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">4.55</span><span class="p">),</span> <span class="mi">3</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">6.3</span><span class="p">,</span> <span class="mf">5.35</span><span class="p">),</span>
-    <span class="mf">3.5</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">8.2</span><span class="p">,</span> <span class="mf">7.12</span><span class="p">),</span> <span class="mi">4</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">9.4</span><span class="p">,</span> <span class="mf">8.22</span><span class="p">),</span> <span class="mi">5</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">10.4</span><span class="p">,</span> <span class="mf">9.12</span><span class="p">),</span> <span class="mi">6</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">12.6</span><span class="p">,</span> <span class="mf">11.085</span><span class="p">),</span>
-    <span class="mi">8</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">17.3</span><span class="p">,</span> <span class="mf">15.585</span><span class="p">),</span> <span class="mi">10</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">18.04</span><span class="p">),</span> <span class="mi">12</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mf">21.75</span><span class="p">),</span> <span class="mi">14</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mf">25.25</span><span class="p">),</span>
-    <span class="mi">16</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mf">28.75</span><span class="p">),</span> <span class="mi">18</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mf">32.2</span><span class="p">),</span> <span class="mi">20</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mf">35.7</span><span class="p">),</span>
+    <span class="mf">1.6</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">3.6</span><span class="p">,</span> <span class="mf">2.85</span><span class="p">),</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">4.4</span><span class="p">,</span> <span class="mf">3.65</span><span class="p">),</span>
+    <span class="mf">2.5</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">4.55</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">6.3</span><span class="p">,</span> <span class="mf">5.35</span><span class="p">),</span>
+    <span class="mf">3.5</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">8.2</span><span class="p">,</span> <span class="mf">7.12</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">9.4</span><span class="p">,</span> <span class="mf">8.22</span><span class="p">),</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">10.4</span><span class="p">,</span> <span class="mf">9.12</span><span class="p">),</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">12.6</span><span class="p">,</span> <span class="mf">11.085</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mf">17.3</span><span class="p">,</span> <span class="mf">15.585</span><span class="p">),</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">18.04</span><span class="p">),</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mf">21.75</span><span class="p">),</span>
+    <span class="mi">14</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mf">25.25</span><span class="p">),</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mf">28.75</span><span class="p">),</span>
+    <span class="mi">18</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mf">32.2</span><span class="p">),</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="n">FlatHead</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mf">35.7</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="c1"># headless setscrew: diameter -&gt; hex drive across-flats (depth == diameter/2)</span>
 <span class="n">_SETSCREW</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mf">1.4</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
-    <span class="mi">6</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="mf">1.4</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+    <span class="mf">1.6</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+    <span class="mf">1.8</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+    <span class="mf">2.5</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">_NUT</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mf">1.6</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mf">3.2</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="mf">2.5</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-    <span class="mi">3</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="mi">4</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="mi">5</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.7</span><span class="p">,</span> <span class="mf">2.7</span><span class="p">,</span> <span class="mf">5.1</span><span class="p">),</span>
-    <span class="mi">6</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">5.2</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">,</span> <span class="mf">5.7</span><span class="p">),</span> <span class="mi">8</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">6.8</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span> <span class="mi">10</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mf">8.4</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">9.3</span><span class="p">),</span>
-    <span class="mi">12</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mf">10.8</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="mi">16</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mf">14.8</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">16.4</span><span class="p">),</span> <span class="mi">20</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">20.3</span><span class="p">),</span>
-    <span class="mi">24</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mf">21.5</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">23.9</span><span class="p">),</span> <span class="mi">30</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mf">25.6</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">28.6</span><span class="p">),</span> <span class="mi">36</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">34.7</span><span class="p">),</span>
+    <span class="mf">1.6</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mf">3.2</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="mf">2.5</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.7</span><span class="p">,</span> <span class="mf">2.7</span><span class="p">,</span> <span class="mf">5.1</span><span class="p">),</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">5.2</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">,</span> <span class="mf">5.7</span><span class="p">),</span>
+    <span class="mi">8</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">6.8</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span>
+    <span class="mi">10</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mf">8.4</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">9.3</span><span class="p">),</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mf">10.8</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mf">14.8</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">16.4</span><span class="p">),</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">20.3</span><span class="p">),</span>
+    <span class="mi">24</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mf">21.5</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">23.9</span><span class="p">),</span>
+    <span class="mi">30</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mf">25.6</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">28.6</span><span class="p">),</span>
+    <span class="mi">36</span><span class="p">:</span> <span class="n">NutSpec</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">34.7</span><span class="p">),</span>
 <span class="p">}</span>
 
 <span class="c1"># ISO 965 clearance holes: fit name -&gt; radial gap fraction expressed as an absolute add per size band.</span>
@@ -265,8 +479,15 @@
 <span class="sd">        ``head_angle`` (flat heads only), ``drive``, ``drive_size``, ``drive_depth``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">_parse_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">thread</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;system&quot;</span><span class="p">:</span> <span class="s2">&quot;ISO&quot;</span><span class="p">,</span> <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span> <span class="s2">&quot;pitch&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s2">&quot;head&quot;</span><span class="p">:</span> <span class="n">head</span><span class="p">,</span>
-                <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="n">drive</span><span class="p">,</span> <span class="s2">&quot;drive_size&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;drive_depth&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;system&quot;</span><span class="p">:</span> <span class="s2">&quot;ISO&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span>
+            <span class="s2">&quot;pitch&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span>
+            <span class="s2">&quot;head&quot;</span><span class="p">:</span> <span class="n">head</span><span class="p">,</span>
+            <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="n">drive</span><span class="p">,</span>
+            <span class="s2">&quot;drive_size&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;drive_depth&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
 
         <span class="k">if</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">):</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
@@ -296,7 +517,9 @@
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">actual_d</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_size_sharp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">sharp_d</span>
             <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_angle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">90.0</span>
-            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">actual_d</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># 90-degree cone: radius drop == height</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">actual_d</span> <span class="o">-</span> <span class="n">d</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># 90-degree cone: radius drop == height</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown head type &quot;</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">info</span></div>
@@ -307,8 +530,18 @@
 <div class="viewcode-block" id="Screws.screw">
 <a class="viewcode-back" href="../../screws.html#bosl2.screws.Screws.screw">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">screw</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;socket&quot;</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">thread</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">thread_len</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">pitch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">screw</span><span class="p">(</span>
+        <span class="n">spec</span><span class="p">,</span>
+        <span class="n">length</span><span class="p">,</span>
+        <span class="n">head</span><span class="o">=</span><span class="s2">&quot;socket&quot;</span><span class="p">,</span>
+        <span class="n">drive</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <span class="n">thread</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">thread_len</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.</span>
 
 <span class="sd">        *length* is the shaft length below the head (for a flat head, below the surface). Set</span>
@@ -316,26 +549,38 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cyl</span>
 
-        <span class="n">info</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw_info</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="n">head</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">,</span> <span class="n">thread</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span> <span class="k">if</span> <span class="n">thread</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">thread</span><span class="p">,</span>
-                                 <span class="n">pitch</span><span class="o">=</span><span class="n">pitch</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw_info</span><span class="p">(</span>
+            <span class="n">spec</span><span class="p">,</span>
+            <span class="n">head</span><span class="o">=</span><span class="n">head</span><span class="p">,</span>
+            <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">,</span>
+            <span class="n">thread</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span> <span class="k">if</span> <span class="n">thread</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">thread</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="o">=</span><span class="n">pitch</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">d</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;diameter&quot;</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;pitch&quot;</span><span class="p">]</span>
         <span class="n">thread_kind</span> <span class="o">=</span> <span class="n">thread</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;coarse&quot;</span>
 
         <span class="c1"># -- shaft: top face at z=0, tip at z=-length -----------------------------------</span>
         <span class="k">if</span> <span class="n">thread</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Threading</span>
+
             <span class="n">_</span><span class="p">,</span> <span class="n">tp</span> <span class="o">=</span> <span class="n">_parse_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">thread_kind</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
             <span class="n">tl</span> <span class="o">=</span> <span class="n">length</span> <span class="k">if</span> <span class="p">(</span><span class="n">thread_len</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">thread_len</span> <span class="o">&gt;=</span> <span class="n">length</span><span class="p">)</span> <span class="k">else</span> <span class="n">thread_len</span>
             <span class="n">shank_len</span> <span class="o">=</span> <span class="n">length</span> <span class="o">-</span> <span class="n">tl</span>
-            <span class="n">shaft</span> <span class="o">=</span> <span class="n">Threading</span><span class="o">.</span><span class="n">threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">tl</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">shank_len</span> <span class="o">+</span> <span class="n">tl</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">shaft</span> <span class="o">=</span> <span class="n">Threading</span><span class="o">.</span><span class="n">threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">tl</span><span class="p">,</span> <span class="n">tp</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span>
+                <span class="n">shank_len</span> <span class="o">+</span> <span class="n">tl</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="n">shank_len</span> <span class="o">&gt;</span> <span class="mf">1e-9</span><span class="p">:</span>
-                <span class="n">shank</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">shank_len</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">shank_len</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">shank</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">shank_len</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span>
+                    <span class="n">shank_len</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="p">)</span>
                 <span class="n">shaft</span> <span class="o">=</span> <span class="n">shaft</span> <span class="o">|</span> <span class="n">shank</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">shaft</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">shaft</span>
-        <span class="n">head_top</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_height&quot;</span><span class="p">]</span>  <span class="c1"># top face of the head; 0 for a headless setscrew (recess into shaft)</span>
+        <span class="n">head_top</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span>
+            <span class="s2">&quot;head_height&quot;</span>
+        <span class="p">]</span>  <span class="c1"># top face of the head; 0 for a headless setscrew (recess into shaft)</span>
         <span class="n">headobj</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">_make_head</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">headobj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">|</span> <span class="n">headobj</span>
@@ -358,15 +603,21 @@
         <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;hex&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">regular_prism</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;socket&quot;</span><span class="p">,</span> <span class="s2">&quot;socket ribbed&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">chamfer2</span><span class="o">=</span><span class="n">hs</span> <span class="o">/</span> <span class="mi">20</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">chamfer2</span><span class="o">=</span><span class="n">hs</span> <span class="o">/</span> <span class="mi">20</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span>
+                <span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;button&quot;</span><span class="p">:</span>
             <span class="n">rnd</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">hh</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">hs</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">rounding2</span><span class="o">=</span><span class="n">rnd</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;pan&quot;</span><span class="p">,</span> <span class="s2">&quot;round&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">rounding2</span><span class="o">=</span><span class="mf">0.2</span> <span class="o">*</span> <span class="n">hs</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">rounding2</span><span class="o">=</span><span class="mf">0.2</span> <span class="o">*</span> <span class="n">hs</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span>
+                <span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;flat&quot;</span><span class="p">:</span>
             <span class="c1"># 90-degree countersunk cone: shaft diameter at the bottom, head diameter at the surface.</span>
-            <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d1</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;diameter&quot;</span><span class="p">],</span> <span class="n">d2</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d1</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;diameter&quot;</span><span class="p">],</span> <span class="n">d2</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span>
+                <span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@staticmethod</span>
@@ -395,8 +646,18 @@
 <div class="viewcode-block" id="Screws.nut">
 <a class="viewcode-back" href="../../screws.html#bosl2.screws.Screws.nut">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">nut</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">thread</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span><span class="p">,</span> <span class="n">nutwidth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nut</span><span class="p">(</span>
+        <span class="n">spec</span><span class="p">,</span>
+        <span class="n">thickness</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+        <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span>
+        <span class="n">thread</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span><span class="p">,</span>
+        <span class="n">nutwidth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">slop</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A hex or square nut with a threaded hole matching *spec* (BOSL2 nut()).</span>
 
 <span class="sd">        *thickness* is ``&quot;normal&quot;``, ``&quot;thin&quot;``, ``&quot;thick&quot;`` or a number (mm). *nutwidth* overrides</span>
@@ -406,8 +667,9 @@
 
         <span class="n">d</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">_parse_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">thread</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
         <span class="n">width</span><span class="p">,</span> <span class="n">th</span> <span class="o">=</span> <span class="n">_nut_dims</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">nutwidth</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Threading</span><span class="o">.</span><span class="n">threaded_nut</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">th</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="n">slop</span><span class="p">,</span>
-                                      <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Threading</span><span class="o">.</span><span class="n">threaded_nut</span><span class="p">(</span>
+            <span class="n">width</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">th</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="n">slop</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># -- clearance / countersink / counterbore hole cutter ---------------------------------</span>
@@ -415,8 +677,18 @@
 <div class="viewcode-block" id="Screws.screw_hole">
 <a class="viewcode-back" href="../../screws.html#bosl2.screws.Screws.screw_hole">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">screw_hole</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">counterbore</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="n">thread</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                   <span class="n">pitch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">screw_hole</span><span class="p">(</span>
+        <span class="n">spec</span><span class="p">,</span>
+        <span class="n">length</span><span class="p">,</span>
+        <span class="n">head</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <span class="n">counterbore</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">fit</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+        <span class="n">thread</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">pitch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A hole cutter for a screw: clearance shaft, plus optional countersink (flat head) or</span>
 <span class="sd">        counterbore.</span>
 
@@ -429,24 +701,35 @@
         <span class="n">d</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">_parse_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="s2">&quot;coarse&quot;</span> <span class="k">if</span> <span class="n">thread</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="n">thread</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">thread</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Threading</span>
+
             <span class="c1"># a tapped hole: cut with the rod&#39;s thread tap (major + a touch of clearance)</span>
-            <span class="n">cutter</span> <span class="o">=</span> <span class="n">Threading</span><span class="o">.</span><span class="n">threaded_rod</span><span class="p">(</span><span class="n">d</span> <span class="o">+</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">cutter</span> <span class="o">=</span> <span class="n">Threading</span><span class="o">.</span><span class="n">threaded_rod</span><span class="p">(</span>
+                <span class="n">d</span> <span class="o">+</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">gap</span> <span class="o">=</span> <span class="n">_CLEARANCE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mf">0.5</span><span class="p">)</span>
-            <span class="n">cutter</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">gap</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">cutter</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">d</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">gap</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span>
+                <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;flat&quot;</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw_info</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="n">pitch</span><span class="p">)</span>
             <span class="n">hs</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_size&quot;</span><span class="p">]</span>
             <span class="n">csk_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">hs</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
-            <span class="n">csink</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d1</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">d2</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">csk_h</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">csk_h</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">)</span>
+            <span class="n">csink</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d1</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">d2</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">csk_h</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">csk_h</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.01</span>
+            <span class="p">)</span>
             <span class="n">cutter</span> <span class="o">=</span> <span class="n">cutter</span> <span class="o">|</span> <span class="n">csink</span>
         <span class="k">elif</span> <span class="n">counterbore</span> <span class="ow">and</span> <span class="n">counterbore</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">info</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw_info</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="n">head</span> <span class="k">if</span> <span class="n">head</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;socket&quot;</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="n">pitch</span><span class="p">)</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw_info</span><span class="p">(</span>
+                <span class="n">spec</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="n">head</span> <span class="k">if</span> <span class="n">head</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;socket&quot;</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="n">pitch</span>
+            <span class="p">)</span>
             <span class="n">hd</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_size&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;hex&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;head_size&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s2">&quot;hex&quot;</span><span class="p">:</span>
                 <span class="n">hd</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">hd</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># across-corners for a hex head pocket</span>
-            <span class="n">cb</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">hd</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">counterbore</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">counterbore</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">)</span>
+            <span class="n">cb</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">hd</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">counterbore</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">counterbore</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.01</span>
+            <span class="p">)</span>
             <span class="n">cutter</span> <span class="o">=</span> <span class="n">cutter</span> <span class="o">|</span> <span class="n">cb</span>
         <span class="k">return</span> <span class="n">cutter</span></div>
 </div>
@@ -456,6 +739,7 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="c1"># Section: table helpers</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_closest</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">diam</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Look *diam* up in *table*, falling back to the nearest tabulated size.&quot;&quot;&quot;</span>
@@ -483,87 +767,8 @@
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="Main">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
-
-
-
-
-
-
-
-
-
-<search id="searchbox" style="display: none" role="search">
-    <div class="searchformwrapper">
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Bezier curves, paths and surfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS: curves &amp; surfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../vnf.html">VNF meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../skin.html">Sweeps (skin)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../shapes3d.html">3-D shapes and Bosl2Solid</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native-only mesh operations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../shapes2d.html">2-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../drawing.html">Drawing: path generators &amp; renderers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../distributors.html">Distributors: copiers &amp; reflected copies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour: colorspace conversion &amp; colour operators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading: screw threads, rods &amp; nuts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../screw_drive.html">Screw drives: Phillips, hex, Torx &amp; Robertson recesses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../bottlecaps.html">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../ball_bearings.html">Ball bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../linear_bearings.html">Linear bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modular_hose.html">Modular hose</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../nema_steppers.html">NEMA steppers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cubetruss.html">Cube trusses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../gears.html">Gears</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../sliders.html">Sliders &amp; rails</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../hinges.html">Hinges</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../joiners.html">Joiners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../masking.html">Edge/corner masking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../transforms.html">Transforms (affine / reorient)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../math.html">Numeric helpers (math)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../vectors.html">Vector helpers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../comparisons.html">Approximate comparison</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../constants.html">Direction constants</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
+    <div class="clearer"></div>
+  </div>
     <div class="footer">
       &#169;2026, pinkfish.
       

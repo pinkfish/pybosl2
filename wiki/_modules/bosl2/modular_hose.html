@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../masking.html">Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../texture.html">Textures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../constants.html">Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
@@ -55,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../turtle3d.html">Turtle (3-D)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Beziers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../skin.html">Skin &amp; sweeps</a></li>
@@ -177,36 +179,220 @@
 
 <span class="c1"># Ball (&quot;small&quot;) end cross-section, one per size (1/4&quot;, 1/2&quot;, 3/4&quot;), from modular_hose.scad.</span>
 <span class="n">_SMALL_CMDS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">([</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="mf">38.5</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mf">6.38493</span><span class="p">,</span> <span class="mf">62.15</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
-      <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mf">.5</span><span class="p">,</span> <span class="mi">90</span> <span class="o">+</span> <span class="mf">38.5</span> <span class="o">-</span> <span class="mf">62.15</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.76</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mf">67.5</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.47</span><span class="p">,</span>
-      <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="mf">67.5</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">4.165</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">],</span> <span class="mf">4.864</span><span class="p">),</span>
-    <span class="p">([</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="mi">41</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mf">10.7407</span><span class="p">,</span> <span class="mf">64.27</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
-      <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mf">.5</span><span class="p">,</span> <span class="mi">90</span> <span class="o">+</span> <span class="mi">41</span> <span class="o">-</span> <span class="mf">64.27</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.95</span> <span class="o">-</span> <span class="mf">.4</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.4</span> <span class="o">*</span> <span class="n">_SQRT2</span><span class="p">,</span>
-      <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">7.643</span> <span class="o">-</span> <span class="mf">.4</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">4.06</span><span class="p">],</span> <span class="mf">8.1</span><span class="p">),</span>
-    <span class="p">([</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="mf">30.4</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mf">13.99219</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
-      <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mf">.47</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="mi">53</span> <span class="o">+</span> <span class="mf">30.4</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.597</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">9.908</span> <span class="o">-</span> <span class="mf">1.905</span> <span class="o">/</span> <span class="n">_tan</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span> <span class="o">+</span> <span class="mf">3.81</span> <span class="o">*</span> <span class="n">_cos</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span>
-      <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">1.905</span> <span class="o">/</span> <span class="n">_sin</span><span class="p">(</span><span class="mi">25</span><span class="p">)],</span> <span class="mf">11.989</span><span class="p">),</span>
+    <span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="mf">38.5</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mf">6.38493</span><span class="p">,</span>
+            <span class="mf">62.15</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">+</span> <span class="mf">38.5</span> <span class="o">-</span> <span class="mf">62.15</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.76</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mf">67.5</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.47</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="mf">67.5</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">4.165</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">30</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">2.1</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="mf">4.864</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="mi">41</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">16</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mf">10.7407</span><span class="p">,</span>
+            <span class="mf">64.27</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">+</span> <span class="mi">41</span> <span class="o">-</span> <span class="mf">64.27</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.95</span> <span class="o">-</span> <span class="mf">0.4</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">45</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.4</span> <span class="o">*</span> <span class="n">_SQRT2</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">45</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">7.643</span> <span class="o">-</span> <span class="mf">0.4</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">30</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">4.06</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="mf">8.1</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="mf">30.4</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">16</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mf">13.99219</span><span class="p">,</span>
+            <span class="mi">53</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mf">0.47</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="mi">53</span> <span class="o">+</span> <span class="mf">30.4</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.597</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">9.908</span> <span class="o">-</span> <span class="mf">1.905</span> <span class="o">/</span> <span class="n">_tan</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span> <span class="o">+</span> <span class="mf">3.81</span> <span class="o">*</span> <span class="n">_cos</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">25</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">1.905</span> <span class="o">/</span> <span class="n">_sin</span><span class="p">(</span><span class="mi">25</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="mf">11.989</span><span class="p">,</span>
+    <span class="p">),</span>
 <span class="p">]</span>
 
 <span class="c1"># Socket (&quot;big&quot;) end cross-section, one per size.</span>
 <span class="n">_BIG_CMDS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">([</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mf">.75</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">,</span> <span class="mf">37.3</span><span class="p">,</span>
-      <span class="s2">&quot;setdir&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.21</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">1.24</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.7835</span><span class="p">,</span>
-      <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">,</span> <span class="s2">&quot;setdir&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">8.76</span><span class="p">],</span> <span class="mf">3.268</span><span class="p">),</span>
-    <span class="p">([</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mf">36.5</span><span class="p">,</span> <span class="s2">&quot;setdir&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-      <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">1.366</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.91</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;arcright&quot;</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-      <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;arcright&quot;</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mf">22.4</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">8.73</span><span class="p">],</span> <span class="mf">6.42154</span><span class="p">),</span>
-    <span class="p">([</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="mi">90</span> <span class="o">-</span> <span class="mi">22</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">7.633</span><span class="p">,</span> <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mf">13.77</span><span class="p">,</span> <span class="mf">35.27</span><span class="p">,</span> <span class="s2">&quot;setdir&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
-      <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">1.09</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">1.0177</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">1.009</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="mf">77.8</span> <span class="o">-</span> <span class="mi">45</span><span class="p">,</span>
-      <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">.3</span><span class="p">,</span> <span class="s2">&quot;arcright&quot;</span><span class="p">,</span> <span class="mf">15.5</span><span class="p">,</span> <span class="mf">34.2</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mf">6.47</span><span class="p">],</span> <span class="mf">9.90237</span><span class="p">),</span>
+    <span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="mi">22</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mf">0.75</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mf">6.5</span><span class="p">,</span>
+            <span class="mf">37.3</span><span class="p">,</span>
+            <span class="s2">&quot;setdir&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.21</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">1.24</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">45</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.7835</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">19</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">1.05</span><span class="p">,</span>
+            <span class="s2">&quot;setdir&quot;</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">22</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">8.76</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="mf">3.268</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">22</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mi">9</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mi">11</span><span class="p">,</span>
+            <span class="mf">36.5</span><span class="p">,</span>
+            <span class="s2">&quot;setdir&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mi">2</span> <span class="o">-</span> <span class="mf">1.366</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.91</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;arcright&quot;</span><span class="p">,</span>
+            <span class="mf">1.25</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">2.2</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;arcright&quot;</span><span class="p">,</span>
+            <span class="mi">13</span><span class="p">,</span>
+            <span class="mf">22.4</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">8.73</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="mf">6.42154</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="mi">90</span> <span class="o">-</span> <span class="mi">22</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">7.633</span><span class="p">,</span>
+            <span class="s2">&quot;arcsteps&quot;</span><span class="p">,</span>
+            <span class="mi">16</span><span class="p">,</span>
+            <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span>
+            <span class="mf">13.77</span><span class="p">,</span>
+            <span class="mf">35.27</span><span class="p">,</span>
+            <span class="s2">&quot;setdir&quot;</span><span class="p">,</span>
+            <span class="mi">90</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">1.09</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">1.0177</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mi">45</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">1.009</span><span class="p">,</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="mf">77.8</span> <span class="o">-</span> <span class="mi">45</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">0.3</span><span class="p">,</span>
+            <span class="s2">&quot;arcright&quot;</span><span class="p">,</span>
+            <span class="mf">15.5</span><span class="p">,</span>
+            <span class="mf">34.2</span><span class="p">,</span>
+            <span class="s2">&quot;move&quot;</span><span class="p">,</span>
+            <span class="mf">6.47</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="mf">9.90237</span><span class="p">,</span>
+    <span class="p">),</span>
 <span class="p">]</span>
 
 <span class="n">_WAIST</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.7698</span><span class="p">,</span> <span class="mf">1.8251</span><span class="p">,</span> <span class="mf">3.95998</span><span class="p">]</span>
 <span class="n">_SIZES</span> <span class="o">=</span> <span class="p">{</span><span class="mf">0.25</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 
-<span class="n">_SMALL</span> <span class="o">=</span> <span class="p">[[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">turtle</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">_ts</span><span class="p">(</span><span class="n">x0</span><span class="p">))]</span> <span class="k">for</span> <span class="n">cmds</span><span class="p">,</span> <span class="n">x0</span> <span class="ow">in</span> <span class="n">_SMALL_CMDS</span><span class="p">]</span>
-<span class="n">_BIG</span> <span class="o">=</span> <span class="p">[[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">turtle</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">_ts</span><span class="p">(</span><span class="n">x0</span><span class="p">))]</span> <span class="k">for</span> <span class="n">cmds</span><span class="p">,</span> <span class="n">x0</span> <span class="ow">in</span> <span class="n">_BIG_CMDS</span><span class="p">]</span>
+<span class="n">_SMALL</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">turtle</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">_ts</span><span class="p">(</span><span class="n">x0</span><span class="p">))]</span>
+    <span class="k">for</span> <span class="n">cmds</span><span class="p">,</span> <span class="n">x0</span> <span class="ow">in</span> <span class="n">_SMALL_CMDS</span>
+<span class="p">]</span>
+<span class="n">_BIG</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">turtle</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">_ts</span><span class="p">(</span><span class="n">x0</span><span class="p">))]</span>
+    <span class="k">for</span> <span class="n">cmds</span><span class="p">,</span> <span class="n">x0</span> <span class="ow">in</span> <span class="n">_BIG_CMDS</span>
+<span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_bounds</span><span class="p">(</span><span class="n">pts</span><span class="p">):</span>
@@ -219,7 +405,9 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_SIZES</span><span class="p">[</span><span class="n">size</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4</span><span class="se">\&quot;</span><span class="s2">, 1/2</span><span class="se">\&quot;</span><span class="s2">, 3/4</span><span class="se">\&quot;</span><span class="s2">).&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4&quot;, 1/2&quot;, 3/4&quot;).&#39;</span>
+        <span class="p">)</span>
 
 
 <div class="viewcode-block" id="ModularHose">
@@ -230,8 +418,13 @@
 <div class="viewcode-block" id="ModularHose.modular_hose">
 <a class="viewcode-back" href="../../modular_hose.html#bosl2.modular_hose.ModularHose.modular_hose">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">modular_hose</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="n">clearance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-                     <span class="n">waist_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">_fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">modular_hose</span><span class="p">(</span>
+        <span class="n">size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;segment&quot;</span><span class="p">,</span>
+        <span class="n">clearance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">waist_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A modular-hose ball end, socket end, or full segment (BOSL2 modular_hose()).</span>
 
 <span class="sd">        *size* is 0.25, 0.5 or 0.75 (the 1/4&quot;, 1/2&quot;, 3/4&quot; hose families). *type* is ``&quot;ball&quot;``/</span>
@@ -247,11 +440,15 @@
 <span class="sd">                ModularHose.modular_hose(0.5, &quot;segment&quot;).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="n">_size_index</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-        <span class="n">cl</span> <span class="o">=</span> <span class="n">clearance</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clearance</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">clearance</span><span class="p">,</span> <span class="n">clearance</span><span class="p">]</span>
+        <span class="n">cl</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">clearance</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clearance</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span>
+            <span class="k">else</span> <span class="p">[</span><span class="n">clearance</span><span class="p">,</span> <span class="n">clearance</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="n">small</span><span class="p">,</span> <span class="n">big</span> <span class="o">=</span> <span class="n">_SMALL</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">_BIG</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
         <span class="p">(</span><span class="n">_sx</span><span class="p">,</span> <span class="n">smy</span><span class="p">),</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_bounds</span><span class="p">(</span><span class="n">small</span><span class="p">)</span>
         <span class="p">(</span><span class="n">_bx</span><span class="p">,</span> <span class="n">bmy</span><span class="p">),</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_bounds</span><span class="p">(</span><span class="n">big</span><span class="p">)</span>
-        <span class="n">smallend</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span> <span class="o">-</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span> <span class="o">-</span> <span class="n">smy</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">small</span><span class="p">]</span>      <span class="c1"># normalize base to y=0</span>
+        <span class="n">smallend</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span> <span class="o">-</span> <span class="n">cl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span> <span class="o">-</span> <span class="n">smy</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">small</span><span class="p">]</span>  <span class="c1"># normalize base to y=0</span>
         <span class="n">bigend</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span> <span class="o">+</span> <span class="n">cl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span> <span class="o">-</span> <span class="n">bmy</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">big</span><span class="p">]</span>
         <span class="n">mid</span> <span class="o">=</span> <span class="n">_WAIST</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="k">if</span> <span class="n">waist_len</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">waist_len</span>
         <span class="k">assert</span> <span class="n">mid</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;waist_len must be nonnegative.&quot;</span>
@@ -259,16 +456,28 @@
         <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;segment&quot;</span><span class="p">:</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">mid</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">smallend</span><span class="p">]</span> <span class="o">+</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">bigend</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="s2">&quot;ball&quot;</span><span class="p">):</span>
-            <span class="n">shape</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">mid</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">smallend</span><span class="p">]</span> <span class="o">+</span> <span class="p">[[</span><span class="n">smallend</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">smallend</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">]]</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">mid</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">smallend</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+                <span class="p">[</span><span class="n">smallend</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">smallend</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">]</span>
         <span class="k">elif</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;big&quot;</span><span class="p">,</span> <span class="s2">&quot;socket&quot;</span><span class="p">):</span>
-            <span class="n">shape</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">mid</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">bigend</span><span class="p">]</span> <span class="o">+</span> <span class="p">[[</span><span class="n">bigend</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">bigend</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">]]</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">mid</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">bigend</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+                <span class="p">[</span><span class="n">bigend</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">bigend</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;modular_hose(): type must be one of small/big/segment/socket/ball.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;modular_hose(): type must be one of small/big/segment/socket/ball.&quot;</span>
+            <span class="p">)</span>
 
         <span class="p">(</span><span class="n">_mnx</span><span class="p">,</span> <span class="n">mny</span><span class="p">),</span> <span class="p">(</span><span class="n">mxx</span><span class="p">,</span> <span class="n">mxy</span><span class="p">)</span> <span class="o">=</span> <span class="n">_bounds</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">cy</span> <span class="o">=</span> <span class="p">(</span><span class="n">mny</span> <span class="o">+</span> <span class="n">mxy</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">poly</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">cy</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">]</span>
-        <span class="n">solid</span> <span class="o">=</span> <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">poly</span><span class="p">),</span> <span class="n">fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">)</span> <span class="k">if</span> <span class="n">_fn</span> <span class="k">else</span> <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">poly</span><span class="p">))</span>
+        <span class="n">solid</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">poly</span><span class="p">),</span> <span class="n">fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_fn</span>
+            <span class="k">else</span> <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">poly</span><span class="p">))</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">solid</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">mxx</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">mxx</span><span class="p">,</span> <span class="n">mxy</span> <span class="o">-</span> <span class="n">mny</span><span class="p">])</span></div>
 
 
