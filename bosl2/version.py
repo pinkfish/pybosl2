@@ -23,7 +23,7 @@ from __future__ import annotations
 # the literal on the next line to match the release tag (e.g. a "v1.2.3" release
 # sets this to "1.2.3"). Keep it a plain string literal so setuptools can read it
 # by AST without importing the package.
-__version__ = "0.1.0"
+__version__ = "0.5.1"
 
 
 class Version:
