@@ -94,6 +94,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_vector</span><span class="p">,</span> <span class="n">add_scalar</span><span class="p">,</span> <span class="n">unit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.comparisons</span><span class="w"> </span><span class="kn">import</span> <span class="n">approx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">line_normal</span><span class="p">,</span> <span class="n">line_closest_point</span><span class="p">,</span> <span class="n">pointlist_bounds</span><span class="p">,</span> <span class="n">_is_point_on_segment</span><span class="p">,</span> <span class="n">is_collinear</span><span class="p">,</span> <span class="n">cross</span><span class="p">,</span> <span class="n">general_line_intersection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.distributors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Distributable</span><span class="p">,</span> <span class="n">_apply4</span>  <span class="c1"># the distributors.scad copiers, as methods</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.miscellaneous</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extrudable</span>  <span class="c1"># path_extrude / path_extrude2d, as methods</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.rounding</span><span class="w"> </span><span class="kn">import</span> <span class="n">Roundable</span>  <span class="c1"># round_corners / smooth_path, as methods</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -108,7 +111,7 @@
 
 <div class="viewcode-block" id="Path">
 <a class="viewcode-back" href="../../regions.html#bosl2.paths.Path">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Path</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Path</span><span class="p">(</span><span class="n">Distributable</span><span class="p">,</span> <span class="n">Extrudable</span><span class="p">,</span> <span class="n">Roundable</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D path: a list of [x, y] points, with every path operation as a method.</span>
 
 <span class="sd">    Subclasses ``list`` deliberately -- the same trick as :class:`base_bgtk.Vec3`. Every place</span>
@@ -300,12 +303,9 @@
                                         <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="Path.round_corners">
-<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path.round_corners">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">round_corners</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Round every corner to the given radius, inserting an arc at each vertex (:meth:`_round_corners`).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_round_corners</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
-
+    <span class="c1"># round_corners() and smooth_path() come from the Roundable mixin (bosl2/rounding.py), which</span>
+    <span class="c1"># supports the circle / smooth / chamfer methods and 2-D/3-D paths. The circle+radius case is</span>
+    <span class="c1"># bit-identical to the old _round_corners kernel kept below.</span>
 
 <div class="viewcode-block" id="Path.merge_collinear">
 <a class="viewcode-back" href="../../regions.html#bosl2.paths.Path.merge_collinear">[docs]</a>
@@ -488,6 +488,46 @@
 <span class="sd">        hold either a Path or a Region can ask for geometry without checking which it got.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span></div>
 
+
+    <span class="c1"># -- drawing (bosl2/drawing.py) --------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Path.stroke">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path.stroke">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stroke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw this path as a solid line of the given *width* (see :func:`bosl2.drawing.stroke`).&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.drawing</span><span class="w"> </span><span class="kn">import</span> <span class="n">stroke</span> <span class="k">as</span> <span class="n">_stroke</span>
+
+        <span class="k">return</span> <span class="n">_stroke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path.dashed_stroke">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path.dashed_stroke">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dashed_stroke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dashpat</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Path&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Break this path into dash sub-paths (see :func:`bosl2.drawing.dashed_stroke`).&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.drawing</span><span class="w"> </span><span class="kn">import</span> <span class="n">dashed_stroke</span> <span class="k">as</span> <span class="n">_dashed</span>
+
+        <span class="k">return</span> <span class="n">_dashed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dashpat</span><span class="o">=</span><span class="n">dashpat</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="c1"># -- distributors (bosl2/distributors.py) ----------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_distribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Path&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply each copier matrix, returning the list of 2-D copies (BOSL2&#39;s function form).</span>
+
+<span class="sd">        Raises if a copier would lift the 2-D path out of the XY plane -- use :class:`Path3D` for</span>
+<span class="sd">        those (``zcopies``, ``xrot_copies``, ``sphere_copies``, ...).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">([])</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">]</span>
+        <span class="n">pts3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="mi">1</span><span class="p">))])</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">_apply4</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">pts3</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">res</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])))</span> <span class="o">&lt;</span> <span class="mf">1e-7</span><span class="p">,</span> \
+                <span class="s2">&quot;this copier moves the 2-D path out of the XY plane; convert to Path3D first&quot;</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">res</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">out</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Path(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> pts, closed=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -1436,6 +1476,336 @@
             <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_circlecorner</span><span class="p">([</span><span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">],</span> <span class="n">dk</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">dk</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_deduplicate</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span></div>
 
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Section: Path3D object</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1">#</span>
+<span class="c1"># The 3-D sibling of Path, for the paths that carry a Z (helix(), and any other 3-D point</span>
+<span class="c1"># generator). It reuses Path&#39;s numeric kernels -- they were written dimension-agnostically for</span>
+<span class="c1"># exactly this (see the module docstring) -- and only carries the operations that make sense on</span>
+<span class="c1"># a set of 3-D points: no polygon()/region()/offset()/area (those are inherently 2-D), but full</span>
+<span class="c1"># measurement (length, tangents, normals, curvature, torsion), resampling/cutting, and the 3-D</span>
+<span class="c1"># transforms (translate/move, the six directional moves including up/down, scale, mirror, rotate).</span>
+
+
+<div class="viewcode-block" id="Path3D">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Path3D</span><span class="p">(</span><span class="n">Distributable</span><span class="p">,</span> <span class="n">Extrudable</span><span class="p">,</span> <span class="n">Roundable</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 3-D path: a list of ``[x, y, z]`` points, with the path operations that make sense in 3-D.</span>
+
+<span class="sd">    The 3-D counterpart of :class:`Path`. Like ``Path`` it subclasses ``list`` (so it stays a</span>
+<span class="sd">    drop-in for the raw 3-D point lists the sweep/loft functions consume), and every method returns</span>
+<span class="sd">    a NEW object. It carries the dimension-independent measurements (length, segment lengths,</span>
+<span class="sd">    tangents, :meth:`normals`, curvature, :meth:`torsion`), resampling/subdividing/cutting, and the</span>
+<span class="sd">    3-D transforms (``translate``/``move``, ``right``/``left``/``back``/``forward``/``up``/``down``,</span>
+<span class="sd">    ``scale``, ``mirror``, ``rotate``). The inherently-2-D operations of ``Path`` (``polygon``,</span>
+<span class="sd">    ``area``, ``offset``, ``round_corners``, point-in-polygon) are intentionally absent; use</span>
+<span class="sd">    :meth:`path2d` to drop to the XY plane when you want them.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        points: the ``[x, y, z]`` points (anything array-like; numpy scalars are converted to float)</span>
+<span class="sd">        closed: whether the path is a closed loop (default True)</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A helix resampled to fewer points and swept into a coil:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            coil = helix(turns=3, h=60, r=20).resample(n=120)</span>
+<span class="sd">            coil.stroke(width=4).show()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Path3D needs [x, y, z] points, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="n">closed</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_like</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Path3D</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The points as an (N, 3) numpy array, for doing your own vectorised maths.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="c1"># -- measurement -----------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Path3D.bounds">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.bounds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;[[min_x, min_y, min_z], [max_x, max_y, max_z]].&quot;&quot;&quot;</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pts</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">pts</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="Path3D.perimeter">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.perimeter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total length along the path.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_path_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">))</span></div>
+
+
+    <span class="n">length</span> <span class="o">=</span> <span class="n">perimeter</span>
+
+<div class="viewcode-block" id="Path3D.segment_lengths">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.segment_lengths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">segment_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Length of each segment, as an ndarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_segment_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.length_fractions">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.length_fractions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">length_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cumulative length fraction at each point, as an ndarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_length_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;True if the first and last points of the path coincide.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_is_closed_path</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Path3D.closest_point">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.closest_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closest_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point on it.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_closest_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.tangents">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.tangents">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tangents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unit tangent at each point, as an ndarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_tangents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="n">uniform</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.normals">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.normals">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tangents</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unit normal at each point (in the local plane of the curve), as an ndarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tangents</span><span class="o">=</span><span class="n">tangents</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.curvature">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.curvature">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">curvature</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Curvature at each point, as an ndarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_curvature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.torsion">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.torsion">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">torsion</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Numeric torsion estimate at each point, as an ndarray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_torsion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.cut_points">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.cut_points">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cut_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutdist</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Point(s) at the given distance(s) along the path.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_cut_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutdist</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span></div>
+
+
+    <span class="c1"># -- derived paths ---------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Path3D.close">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append the start point if the path isn&#39;t already closed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_close_path</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Path3D.cleanup">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.cleanup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop a duplicate closing point if present.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_cleanup_path</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Path3D.reversed_path">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.reversed_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reversed_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The same path wound the other way.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="Path3D.deduplicated">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.deduplicated">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deduplicated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop consecutive repeated points.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_deduplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Path3D.subdivide">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.subdivide">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subdivide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert points along the path.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_subdivide_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Path3D.resample">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.resample">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resample to evenly spaced points.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">_resample_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Path3D.cut">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.cut">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutdist</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Path3D&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Split the path at the given distance(s), returning the sub-paths.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">Path</span><span class="o">.</span><span class="n">_path_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutdist</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)]</span></div>
+
+
+    <span class="c1"># -- transforms ------------------------------------------------------------------------</span>
+    <span class="c1">#</span>
+    <span class="c1"># 3-D versions of the Path transforms. Directions follow BOSL2: right/left are +/-X, back/</span>
+    <span class="c1"># forward are +/-Y, up/down are +/-Z. Every method returns a NEW Path3D.</span>
+
+<div class="viewcode-block" id="Path3D.translate">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.translate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate every point by *v* (a shorter vector pads with zeros).&quot;&quot;&quot;</span>
+        <span class="n">vv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">vv</span><span class="p">[:</span> <span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">))]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:</span> <span class="nb">min</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">))]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span> <span class="o">+</span> <span class="n">vv</span><span class="p">)</span></div>
+
+
+    <span class="n">move</span> <span class="o">=</span> <span class="n">translate</span>
+
+<div class="viewcode-block" id="Path3D.scale">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.scale">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="s2">&quot;float | Sequence[float]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scale every point by a scalar or a per-axis ``[sx, sy, sz]`` factor.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span> <span class="o">*</span> <span class="n">s</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.rotate">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.rotate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="s2">&quot;float | Sequence[float]&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate the points. ``rotate(ang, axis)`` spins about *axis*; ``rotate(ang)`` about +Z;</span>
+<span class="sd">        ``rotate([rx, ry, rz])`` applies the OpenSCAD X-then-Y-then-Z Euler rotation.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">axis_angle_matrix</span>
+
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">axis_angle_matrix</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rz</span> <span class="o">=</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">mx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">axis_angle_matrix</span><span class="p">(</span><span class="n">rx</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">my</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">axis_angle_matrix</span><span class="p">(</span><span class="n">ry</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">mz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">axis_angle_matrix</span><span class="p">(</span><span class="n">rz</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">mz</span> <span class="o">@</span> <span class="n">my</span> <span class="o">@</span> <span class="n">mx</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">axis_angle_matrix</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span> <span class="o">@</span> <span class="n">m</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+
+    <span class="n">rot</span> <span class="o">=</span> <span class="n">rotate</span>
+
+<div class="viewcode-block" id="Path3D.mirror">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.mirror">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reflect every point across the plane through the origin with normal *v*.&quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">n</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">pts</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">pts</span> <span class="o">@</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Path3D.right">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.right">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">right</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *x* along +X.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Path3D.left">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.left">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">left</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *x* along -X.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Path3D.back">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.back">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">back</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *y* along +Y.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Path3D.forward">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.forward">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *y* along -Y (BOSL2 fwd()).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
+
+
+    <span class="n">fwd</span> <span class="o">=</span> <span class="n">forward</span>
+
+<div class="viewcode-block" id="Path3D.up">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.up">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *z* along +Z.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Path3D.down">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.down">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *z* along -Z.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">])</span></div>
+
+
+    <span class="c1"># -- conversion / rendering ------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Path3D.path2d">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.path2d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path2d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop the Z coordinate, giving a 2-D :class:`Path` (the XY projection).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.stroke">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.stroke">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stroke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Draw this 3-D path as a solid tube of the given *width* (see :func:`bosl2.drawing.stroke`).&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.drawing</span><span class="w"> </span><span class="kn">import</span> <span class="n">stroke</span> <span class="k">as</span> <span class="n">_stroke</span>
+
+        <span class="k">return</span> <span class="n">_stroke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Path3D.dashed_stroke">
+<a class="viewcode-back" href="../../regions.html#bosl2.paths.Path3D.dashed_stroke">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dashed_stroke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dashpat</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Path3D&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Break this 3-D path into dash sub-paths (see :func:`bosl2.drawing.dashed_stroke`).&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.drawing</span><span class="w"> </span><span class="kn">import</span> <span class="n">dashed_stroke</span> <span class="k">as</span> <span class="n">_dashed</span>
+
+        <span class="k">return</span> <span class="n">_dashed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dashpat</span><span class="o">=</span><span class="n">dashpat</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="c1"># -- distributors (bosl2/distributors.py) ----------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_distribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Path3D&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply each copier matrix, returning the list of 3-D copies (BOSL2&#39;s function form).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">([])</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">]</span>
+        <span class="n">pts3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_like</span><span class="p">(</span><span class="n">_apply4</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">pts3</span><span class="p">))</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Path3D(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> pts, closed=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
 </pre></div>
 
           </div>
@@ -1467,10 +1837,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Bezier curves, paths and surfaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS: curves &amp; surfaces</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../isosurface.html">Isosurface: marching cubes &amp; metaballs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../skin.html">Sweeps (skin)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../shapes3d.html">3-D shapes and Bosl2Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native-only mesh operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../drawing.html">Drawing: path generators &amp; renderers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../distributors.html">Distributors: copiers &amp; reflected copies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color.html">Colour: colorspace conversion &amp; colour operators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../threading.html">Threading: screw threads, rods &amp; nuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../screws.html">Screws: metric screws, nuts &amp; screw holes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions: planar cuts &amp; interlocking splits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../miscellaneous.html">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding: round_corners &amp; smooth_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../masking.html">Edge/corner masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../transforms.html">Transforms (affine / reorient)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry helpers</a></li>

@@ -30,13 +30,12 @@ def _pythonscad_installed() -> bool:
 
 
 def _install_mock() -> bool:
-    """Install the shared numeric mock if it can be found beside this checkout; return success."""
-    here = os.path.dirname(__file__)
-    root = os.path.abspath(os.path.join(here, "..", ".."))
-    mock_dir = os.path.join(root, "pysolidfive", "tests")
+    """Install the shared numeric mock from the in-repo pysolidfive package; return success."""
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    mock_dir = os.path.join(repo_root, "pysolidfive", "tests")
     if not os.path.isfile(os.path.join(mock_dir, "mock_libfive.py")):
         return False
-    for p in (root, mock_dir):
+    for p in (repo_root, mock_dir):
         if p not in sys.path:
             sys.path.insert(0, p)
     import mock_libfive  # noqa: F401  -- installs pythonscad/openscad/libfive stubs on import
