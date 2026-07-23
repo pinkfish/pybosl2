@@ -253,7 +253,7 @@ class ScrewDrive:
         ``2 * slop``.
         """
         realsize = 1.0072 * size + 0.0341 + 2 * slop   # empirical fit to the ISO standard
-        solid = hexagon(id=realsize).linear_extrude(height=length, center=center)
+        solid = hexagon(inner_diameter=realsize).linear_extrude(height=length, center=center)
         return Bosl2Solid(solid, size=[realsize, realsize, length])
 
     # ---- Torx ------------------------------------------------------------
@@ -289,15 +289,15 @@ class ScrewDrive:
         fn = int(_quantup(_frag_count(od / 2), 12))
 
         # Six outward lobes: two rotated copies of a hull of three tip circles, plus the base circle.
-        tip_circles = [circle(r=tip, _fn=fn // 2).translate([base / 2, 0]).multmatrix(m.tolist())
+        tip_circles = [circle(radius=tip, _fn=fn // 2).translate([base / 2, 0]).multmatrix(m.tolist())
                        for m in zrot_copies(n=3)]
         tri = _ohull(*tip_circles)
         lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(n=2))
-        solid = circle(d=base, _fn=fn) | lobes
+        solid = circle(diameter=base, _fn=fn) | lobes
 
         # Six inner rounding cutouts.
         cut = _union(
-            circle(r=rounding, _fn=fn).translate([id_ / 2 + rounding, 0])
+            circle(radius=rounding, _fn=fn).translate([id_ / 2 + rounding, 0])
             .rotate([0, 0, 180 / 6]).multmatrix(m.tolist())
             for m in zrot_copies(n=6)
         )

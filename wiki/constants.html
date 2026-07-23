@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Paths" href="paths.html" />
-    <link rel="prev" title="Native-only mesh operations" href="native_ops.html" />
+    <link rel="prev" title="Textures" href="texture.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
@@ -58,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
@@ -107,7 +109,7 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="native_ops.html" title="previous chapter">Native-only mesh operations</a></li>
+      <li>Previous: <a href="texture.html" title="previous chapter">Textures</a></li>
       <li>Next: <a href="paths.html" title="next chapter">Paths</a></li>
   </ul></li>
 </ul>
@@ -132,6 +134,18 @@
             
   <section id="module-bosl2.constants">
 <span id="direction-constants"></span><h1>Direction constants<a class="headerlink" href="#module-bosl2.constants" title="Link to this heading">¶</a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.INCH">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">INCH</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">25.4</span></span><a class="headerlink" href="#bosl2.constants.INCH" title="Link to this definition">¶</a></dt>
+<dd><p>The number of millimeters in an inch.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.IDENT">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">IDENT</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[[1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0],</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1]]</span></span><a class="headerlink" href="#bosl2.constants.IDENT" title="Link to this definition">¶</a></dt>
+<dd><p>Identity transformation matrix for three-dimensional transforms. Equal to <cite>ident(4)</cite>.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="bosl2.constants.Vec3">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">Vec3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/constants.html#Vec3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.constants.Vec3" title="Link to this definition">¶</a></dt>
@@ -145,6 +159,84 @@ plain tuple or a numpy array) keeps every other list behavior – indexing,
 iteration, equality with plain lists, and crossing the osuse()/PyOpenSCAD
 FFI boundary – unchanged. (Duplicated from base_bgtk.py’s Vec3 rather than
 imported, since this package is deliberately independent of base_bgtk.py.)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.LEFT">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">LEFT</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[-1,</span> <span class="pre">0,</span> <span class="pre">0]</span></span><a class="headerlink" href="#bosl2.constants.LEFT" title="Link to this definition">¶</a></dt>
+<dd><p>Left align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.RIGHT">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">RIGHT</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">0]</span></span><a class="headerlink" href="#bosl2.constants.RIGHT" title="Link to this definition">¶</a></dt>
+<dd><p>Right align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.FRONT">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">FRONT</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0,</span> <span class="pre">-1,</span> <span class="pre">0]</span></span><a class="headerlink" href="#bosl2.constants.FRONT" title="Link to this definition">¶</a></dt>
+<dd><p>Front align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.FORWARD">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">FORWARD</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0,</span> <span class="pre">-1,</span> <span class="pre">0]</span></span><a class="headerlink" href="#bosl2.constants.FORWARD" title="Link to this definition">¶</a></dt>
+<dd><p>Forward align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.BACK">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">BACK</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">0]</span></span><a class="headerlink" href="#bosl2.constants.BACK" title="Link to this definition">¶</a></dt>
+<dd><p>Back align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.BOTTOM">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">BOTTOM</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">-1]</span></span><a class="headerlink" href="#bosl2.constants.BOTTOM" title="Link to this definition">¶</a></dt>
+<dd><p>Bottom align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.DOWN">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">DOWN</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">-1]</span></span><a class="headerlink" href="#bosl2.constants.DOWN" title="Link to this definition">¶</a></dt>
+<dd><p>Down align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.TOP">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">TOP</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1]</span></span><a class="headerlink" href="#bosl2.constants.TOP" title="Link to this definition">¶</a></dt>
+<dd><p>Top align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.UP">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">UP</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1]</span></span><a class="headerlink" href="#bosl2.constants.UP" title="Link to this definition">¶</a></dt>
+<dd><p>Up align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.CENTER">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">CENTER</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><span class="pre">Vec3</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span><a class="headerlink" href="#bosl2.constants.CENTER" title="Link to this definition">¶</a></dt>
+<dd><p>Center align/anchor the object.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.SEGMENT">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">SEGMENT</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[True,</span> <span class="pre">True]</span></span><a class="headerlink" href="#bosl2.constants.SEGMENT" title="Link to this definition">¶</a></dt>
+<dd><p>Treat a line as a segment.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.RAY">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">RAY</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[True,</span> <span class="pre">False]</span></span><a class="headerlink" href="#bosl2.constants.RAY" title="Link to this definition">¶</a></dt>
+<dd><p>Treat a line as a ray, based at the first point.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.constants.LINE">
+<span class="sig-prename descclassname"><span class="pre">bosl2.constants.</span></span><span class="sig-name descname"><span class="pre">LINE</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[False,</span> <span class="pre">False]</span></span><a class="headerlink" href="#bosl2.constants.LINE" title="Link to this definition">¶</a></dt>
+<dd><p>Treat a line as an unbounded line.</p>
 </dd></dl>
 
 </section>

@@ -24,28 +24,28 @@ from bosl2.regions import Region
 # -- arc returns a Path -------------------------------------------------------------------
 
 def test_arc_returns_open_path():
-    a = arc(r=16, start=0, angle=60)
+    a = arc(radius=16, start=0, angle=60)
     assert isinstance(a, Path)
     assert a.closed is False
     np.testing.assert_allclose(a[0], [16, 0], atol=1e-9)
 
 
 def test_arc_wedge_is_closed_with_centre_first():
-    w = arc(r=10, angle=90, cp=[2, 3], wedge=True)
+    w = arc(radius=10, angle=90, center=[2, 3], wedge=True)
     assert isinstance(w, Path)
     assert w.closed is True
     np.testing.assert_allclose(w[0], [2, 3], atol=1e-9)  # centre point prepended
 
 
 def test_arc_angle_range_form():
-    a = arc(n=5, r=10, angle=[30, 90])
+    a = arc(count=5, radius=10, angle=[30, 90])
     np.testing.assert_allclose(a[0], [10 * math.cos(math.radians(30)), 10 * math.sin(math.radians(30))], atol=1e-9)
     np.testing.assert_allclose(a[-1], [0, 10], atol=1e-9)
 
 
 def test_arc_two_point_short_and_long():
-    short = arc(n=7, cp=[0, 0], points=[[10, 0], [0, 10]])
-    long = arc(n=7, cp=[0, 0], points=[[10, 0], [0, 10]], long=True)
+    short = arc(count=7, center=[0, 0], points=[[10, 0], [0, 10]])
+    long = arc(count=7, center=[0, 0], points=[[10, 0], [0, 10]], long=True)
     # both start/end at the same points, but the long one bulges the other way (negative x mid)
     np.testing.assert_allclose(short[0], [10, 0], atol=1e-9)
     np.testing.assert_allclose(long[0], [10, 0], atol=1e-9)
@@ -54,7 +54,7 @@ def test_arc_two_point_short_and_long():
 
 
 def test_arc_corner_is_tangent_fillet():
-    c = arc(corner=[[0, 10], [0, 0], [10, 0]], r=3)
+    c = arc(corner=[[0, 10], [0, 0], [10, 0]], radius=3)
     assert isinstance(c, Path)
     # tangent points sit 3 up the y-leg and 3 along the x-leg
     np.testing.assert_allclose(sorted([c[0].tolist() if hasattr(c[0], "tolist") else c[0], c[-1]]),
@@ -63,7 +63,7 @@ def test_arc_corner_is_tangent_fillet():
 
 def test_arc_collinear_points_raise():
     with pytest.raises(AssertionError):
-        arc(n=5, points=[[0, 0], [1, 0], [2, 0]])
+        arc(count=5, points=[[0, 0], [1, 0], [2, 0]])
 
 
 # -- catenary -----------------------------------------------------------------------------
@@ -137,7 +137,7 @@ def test_turtle_unknown_command_raises():
 # -- stroke / dashed_stroke build geometry ------------------------------------------------
 
 def test_stroke_2d_builds():
-    assert arc(r=30, angle=200).stroke(width=3) is not None
+    assert arc(radius=30, angle=200).stroke(width=3) is not None
 
 
 def test_stroke_3d_builds():
@@ -156,7 +156,7 @@ def test_stroke_region_strokes_every_path():
 
 
 def test_dashed_stroke_returns_paths():
-    dashes = dashed_stroke(arc(r=30, angle=360), dashpat=[6, 4], closed=True)
+    dashes = dashed_stroke(arc(radius=30, angle=360), dashpat=[6, 4], closed=True)
     assert len(dashes) > 1
     assert all(isinstance(d, Path) for d in dashes)
 

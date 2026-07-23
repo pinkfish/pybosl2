@@ -16,10 +16,10 @@
 # Section: General Constants
 # ---------------------------------------------------------------------------
 
-# The number of millimeters in an inch.
+#: The number of millimeters in an inch.
 INCH: float = 25.4
 
-# Identity transformation matrix for three-dimensional transforms. Equal to `ident(4)`.
+#: Identity transformation matrix for three-dimensional transforms. Equal to `ident(4)`.
 IDENT: list[list[float]] = [
     [1, 0, 0, 0],
     [0, 1, 0, 0],
@@ -68,25 +68,31 @@ class Vec3(list):
     __rmul__ = __mul__  # type: ignore[assignment]
 
 
+#: Left align/anchor the object.
 LEFT: Vec3 = Vec3([-1, 0, 0])
+#: Right align/anchor the object.
 RIGHT: Vec3 = Vec3([1, 0, 0])
 
+#: Front align/anchor the object.
 FRONT: Vec3 = Vec3([0, -1, 0])
-FWD: Vec3 = FRONT
+#: Forward align/anchor the object.
 FORWARD: Vec3 = FRONT
 
+#: Back align/anchor the object.
 BACK: Vec3 = Vec3([0, 1, 0])
 
+#: Bottom align/anchor the object.
 BOTTOM: Vec3 = Vec3([0, 0, -1])
-BOT: Vec3 = BOTTOM
+#: Down align/anchor the object.
 DOWN: Vec3 = BOTTOM
 
+#: Top align/anchor the object.
 TOP: Vec3 = Vec3([0, 0, 1])
+#: Up align/anchor the object.
 UP: Vec3 = TOP
 
+#: Center align/anchor the object.
 CENTER: Vec3 = Vec3([0, 0, 0])
-CTR: Vec3 = CENTER
-CENTRE: Vec3 = CENTER
 
 # ---------------------------------------------------------------------------
 # Section: Line specifiers
@@ -95,11 +101,11 @@ CENTRE: Vec3 = CENTER
 #   with two endpoints.
 # ---------------------------------------------------------------------------
 
-# Treat a line as a segment.
+#: Treat a line as a segment.
 SEGMENT: list[bool] = [True, True]
 
-# Treat a line as a ray, based at the first point.
+#: Treat a line as a ray, based at the first point.
 RAY: list[bool] = [True, False]
 
-# Treat a line as an unbounded line.
+#: Treat a line as an unbounded line.
 LINE: list[bool] = [False, False]

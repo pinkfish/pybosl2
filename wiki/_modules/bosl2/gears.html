@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../masking.html">Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../partitions.html">Partitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../texture.html">Textures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../constants.html">Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
@@ -55,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../turtle3d.html">Turtle (3-D)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../beziers.html">Beziers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../nurbs.html">NURBS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../skin.html">Skin &amp; sweeps</a></li>
@@ -768,7 +770,7 @@
         <span class="n">result</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">or_</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">or_</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">shaft_diam</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">hide</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">_circle2d</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">-</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_circle2d</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">shaft_diam</span><span class="p">))</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">-</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_circle2d</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="n">shaft_diam</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
 

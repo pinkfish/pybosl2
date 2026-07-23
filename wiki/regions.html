@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
@@ -58,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
@@ -170,13 +172,13 @@ handles, which this 2-D class cannot wrap.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-bc0e090d9dbe47618c6524ddd29f9057" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-79d9ea1b589c43159ce8ccf3dec8449a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-bc0e090d9dbe47618c6524ddd29f9057");
+const el = document.getElementById("stlviewer-79d9ea1b589c43159ce8ccf3dec8449a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -742,6 +744,24 @@ hold either a Path or a Region can ask for geometry without checking which it go
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bosl2.regions.Path.debug_polygon">
+<span class="sig-name descname"><span class="pre">debug_polygon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path.debug_polygon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.regions.Path.debug_polygon" title="Link to this definition">¶</a></dt>
+<dd><p>A debug view of this polygon: the filled outline (as a thin flat solid) with each vertex
+labelled by its index in red (BOSL2 debug_polygon()). Set <em>size</em> for the label size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>size</strong> (<em>float</em>)</p></li>
+<li><p><strong>vertices</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bosl2.regions.Path.stroke">
 <span class="sig-name descname"><span class="pre">stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/paths.html#Path.stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.regions.Path.stroke" title="Link to this definition">¶</a></dt>
 <dd><p>Draw this path as a solid line of the given <em>width</em> (see <a class="reference internal" href="drawing.html#bosl2.drawing.stroke" title="bosl2.drawing.stroke"><code class="xref py py-func docutils literal notranslate"><span class="pre">bosl2.drawing.stroke()</span></code></a>).</p>
@@ -804,13 +824,13 @@ tangents, <a class="reference internal" href="#bosl2.regions.Path3D.normals" tit
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b45c79941eff4413ab019baa7465d4f0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-87a9245281454dfc9511f8348f15fd6d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b45c79941eff4413ab019baa7465d4f0");
+const el = document.getElementById("stlviewer-87a9245281454dfc9511f8348f15fd6d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1336,13 +1356,13 @@ accepted and treated as one outline.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-cd6885a0aa294cce9fa4a2c78a367fe0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-6f91b5ac97784fa39ef25d63bae9439e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-cd6885a0aa294cce9fa4a2c78a367fe0");
+const el = document.getElementById("stlviewer-6f91b5ac97784fa39ef25d63bae9439e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1478,6 +1498,25 @@ clipping involved.</p>
 <dt class="sig sig-object py" id="bosl2.regions.Region.geometry">
 <span class="sig-name descname"><span class="pre">geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/regions.html#Region.geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.regions.Region.geometry" title="Link to this definition">¶</a></dt>
 <dd><p>Native 2-D geometry: the outline with the holes subtracted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.regions.Region.debug_region">
+<span class="sig-name descname"><span class="pre">debug_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/regions.html#Region.debug_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.regions.Region.debug_region" title="Link to this definition">¶</a></dt>
+<dd><p>A debug view of this region: the filled region (as a thin flat solid) with every path’s
+vertices labelled in red – path <code class="docutils literal notranslate"><span class="pre">a</span></code> gets labels <code class="docutils literal notranslate"><span class="pre">a0,</span> <span class="pre">a1,</span> <span class="pre">...</span></code>, path <code class="docutils literal notranslate"><span class="pre">b</span></code> <code class="docutils literal notranslate"><span class="pre">b0,</span> <span class="pre">b1,</span> <span class="pre">...</span></code>
+(BOSL2 debug_region()). A single-path region defers to <a class="reference internal" href="paths.html#bosl2.paths.Path.debug_polygon" title="bosl2.paths.Path.debug_polygon"><code class="xref py py-meth docutils literal notranslate"><span class="pre">debug_polygon()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>size</strong> (<em>float</em>)</p></li>
+<li><p><strong>vertices</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

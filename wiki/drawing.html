@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
@@ -58,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
@@ -213,42 +215,42 @@ are not ported.</p></td>
 <h2>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.shapes2d.arc">
-<span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wedge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#arc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.arc" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wedge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterclockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#arc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.arc" title="Link to this definition">¶</a></dt>
 <dd><p>A 2-D arc, returned as a <a class="reference internal" href="paths.html#bosl2.paths.Path" title="bosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> of points (BOSL2’s <code class="docutils literal notranslate"><span class="pre">arc()</span></code>).</p>
 <p>All of BOSL2’s 2-D arc specifications are supported (3-D arcs, which project onto a plane,
 are not):</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">arc(r=,</span> <span class="pre">angle=,</span> <span class="pre">[start=],</span> <span class="pre">[cp=])</span></code> – radius <em>r</em> about <em>cp</em>, sweeping <em>angle</em> degrees from
+<li><p><code class="docutils literal notranslate"><span class="pre">arc(radius=,</span> <span class="pre">angle=,</span> <span class="pre">[start=],</span> <span class="pre">[center=])</span></code> – radius about <em>center</em>, sweeping <em>angle</em> degrees from
 <em>start</em> (or <code class="docutils literal notranslate"><span class="pre">angle=[start,</span> <span class="pre">end]</span></code> for an explicit range).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">arc(width=,</span> <span class="pre">thickness=)</span></code> – a circular segment starting and ending on the X axis.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">arc(cp=,</span> <span class="pre">points=[P0,</span> <span class="pre">P1])</span></code> – around <em>cp</em> from <code class="docutils literal notranslate"><span class="pre">P0</span></code> toward the direction of <code class="docutils literal notranslate"><span class="pre">P1</span></code>; the
-short way by default, or the long/<code class="docutils literal notranslate"><span class="pre">cw</span></code>/<code class="docutils literal notranslate"><span class="pre">ccw</span></code> way.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">arc(center=,</span> <span class="pre">points=[P0,</span> <span class="pre">P1])</span></code> – around <em>center</em> from <code class="docutils literal notranslate"><span class="pre">P0</span></code> toward the direction of <code class="docutils literal notranslate"><span class="pre">P1</span></code>; the
+short way by default, or the long/<code class="docutils literal notranslate"><span class="pre">clockwise</span></code>/<code class="docutils literal notranslate"><span class="pre">counterclockwise</span></code> way.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">arc(points=[P0,</span> <span class="pre">P1,</span> <span class="pre">P2])</span></code> – through three points, from <code class="docutils literal notranslate"><span class="pre">P0</span></code> via <code class="docutils literal notranslate"><span class="pre">P1</span></code> to <code class="docutils literal notranslate"><span class="pre">P2</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">arc(corner=[P0,</span> <span class="pre">P1,</span> <span class="pre">P2],</span> <span class="pre">r=)</span></code> – the fillet arc of radius <em>r</em> tangent to both legs of the
+<li><p><code class="docutils literal notranslate"><span class="pre">arc(corner=[P0,</span> <span class="pre">P1,</span> <span class="pre">P2],</span> <span class="pre">radius=)</span></code> – the fillet arc of radius tangent to both legs of the
 corner <code class="docutils literal notranslate"><span class="pre">P0-P1-P2</span></code>.</p></li>
 </ul>
-<p>Set <code class="docutils literal notranslate"><span class="pre">wedge=True</span></code> to prepend the centre point, giving a closed pie/sector path. When <em>n</em> is
+<p>Set <code class="docutils literal notranslate"><span class="pre">wedge=True</span></code> to prepend the centre point, giving a closed pie/sector path. When <em>count</em> is
 omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em><em> | </em><em>None</em>) – number of points (default: from $fn/$fa/$fs)</p></li>
-<li><p><strong>r/d</strong> – radius / diameter of the arc</p></li>
+<li><p><strong>count</strong> (<em>int</em><em> | </em><em>None</em>) – number of points (default: from $fn/$fa/$fs)</p></li>
+<li><p><strong>radius/diameter</strong> – radius / diameter of the arc</p></li>
 <li><p><strong>angle</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – degrees to sweep from <em>start</em>, or <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code></p></li>
-<li><p><strong>cp</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – centre point (default <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>)</p></li>
-<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – two points (with <em>cp</em>) or three points the arc passes through</p></li>
-<li><p><strong>corner</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – three points; the arc is the <em>r</em>-radius fillet tangent to both legs</p></li>
+<li><p><strong>center</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – centre point (default <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>)</p></li>
+<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – two points (with <em>center</em>) or three points the arc passes through</p></li>
+<li><p><strong>corner</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – three points; the arc is the radius fillet tangent to both legs</p></li>
 <li><p><strong>width</strong> (<em>float</em><em> | </em><em>None</em>) – chord width for the width/thickness form</p></li>
 <li><p><strong>thickness</strong> (<em>float</em><em> | </em><em>None</em>) – height of the circular segment for the width/thickness form</p></li>
 <li><p><strong>start</strong> (<em>float</em><em> | </em><em>None</em>) – starting angle in degrees (default 0)</p></li>
 <li><p><strong>wedge</strong> (<em>bool</em>) – prepend the centre point, producing a closed sector (default False)</p></li>
-<li><p><strong>long/cw/ccw</strong> – for the two-point form, take the long way / a given handedness</p></li>
+<li><p><strong>long/clockwise/counterclockwise</strong> – for the two-point form, take the long way / a given handedness</p></li>
 <li><p><strong>endpoint</strong> (<em>bool</em>) – include the final point (default True)</p></li>
-<li><p><strong>r</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>d</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>diameter</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>long</strong> (<em>bool</em>)</p></li>
-<li><p><strong>cw</strong> (<em>bool</em>)</p></li>
-<li><p><strong>ccw</strong> (<em>bool</em>)</p></li>
+<li><p><strong>clockwise</strong> (<em>bool</em>)</p></li>
+<li><p><strong>counterclockwise</strong> (<em>bool</em>)</p></li>
 <li><p><strong>_fn</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>_fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>_fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
@@ -265,42 +267,42 @@ omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.<
 
 <dl class="py function" id="module-bosl2.drawing">
 <dt class="sig sig-object py" id="bosl2.drawing.arc">
-<span class="sig-prename descclassname"><span class="pre">bosl2.drawing.</span></span><span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wedge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#arc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.drawing.arc" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bosl2.drawing.</span></span><span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wedge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterclockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#arc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.drawing.arc" title="Link to this definition">¶</a></dt>
 <dd><p>A 2-D arc, returned as a <a class="reference internal" href="paths.html#bosl2.paths.Path" title="bosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> of points (BOSL2’s <code class="docutils literal notranslate"><span class="pre">arc()</span></code>).</p>
 <p>All of BOSL2’s 2-D arc specifications are supported (3-D arcs, which project onto a plane,
 are not):</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">arc(r=,</span> <span class="pre">angle=,</span> <span class="pre">[start=],</span> <span class="pre">[cp=])</span></code> – radius <em>r</em> about <em>cp</em>, sweeping <em>angle</em> degrees from
+<li><p><code class="docutils literal notranslate"><span class="pre">arc(radius=,</span> <span class="pre">angle=,</span> <span class="pre">[start=],</span> <span class="pre">[center=])</span></code> – radius about <em>center</em>, sweeping <em>angle</em> degrees from
 <em>start</em> (or <code class="docutils literal notranslate"><span class="pre">angle=[start,</span> <span class="pre">end]</span></code> for an explicit range).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">arc(width=,</span> <span class="pre">thickness=)</span></code> – a circular segment starting and ending on the X axis.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">arc(cp=,</span> <span class="pre">points=[P0,</span> <span class="pre">P1])</span></code> – around <em>cp</em> from <code class="docutils literal notranslate"><span class="pre">P0</span></code> toward the direction of <code class="docutils literal notranslate"><span class="pre">P1</span></code>; the
-short way by default, or the long/<code class="docutils literal notranslate"><span class="pre">cw</span></code>/<code class="docutils literal notranslate"><span class="pre">ccw</span></code> way.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">arc(center=,</span> <span class="pre">points=[P0,</span> <span class="pre">P1])</span></code> – around <em>center</em> from <code class="docutils literal notranslate"><span class="pre">P0</span></code> toward the direction of <code class="docutils literal notranslate"><span class="pre">P1</span></code>; the
+short way by default, or the long/<code class="docutils literal notranslate"><span class="pre">clockwise</span></code>/<code class="docutils literal notranslate"><span class="pre">counterclockwise</span></code> way.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">arc(points=[P0,</span> <span class="pre">P1,</span> <span class="pre">P2])</span></code> – through three points, from <code class="docutils literal notranslate"><span class="pre">P0</span></code> via <code class="docutils literal notranslate"><span class="pre">P1</span></code> to <code class="docutils literal notranslate"><span class="pre">P2</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">arc(corner=[P0,</span> <span class="pre">P1,</span> <span class="pre">P2],</span> <span class="pre">r=)</span></code> – the fillet arc of radius <em>r</em> tangent to both legs of the
+<li><p><code class="docutils literal notranslate"><span class="pre">arc(corner=[P0,</span> <span class="pre">P1,</span> <span class="pre">P2],</span> <span class="pre">radius=)</span></code> – the fillet arc of radius tangent to both legs of the
 corner <code class="docutils literal notranslate"><span class="pre">P0-P1-P2</span></code>.</p></li>
 </ul>
-<p>Set <code class="docutils literal notranslate"><span class="pre">wedge=True</span></code> to prepend the centre point, giving a closed pie/sector path. When <em>n</em> is
+<p>Set <code class="docutils literal notranslate"><span class="pre">wedge=True</span></code> to prepend the centre point, giving a closed pie/sector path. When <em>count</em> is
 omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em><em> | </em><em>None</em>) – number of points (default: from $fn/$fa/$fs)</p></li>
-<li><p><strong>r/d</strong> – radius / diameter of the arc</p></li>
+<li><p><strong>count</strong> (<em>int</em><em> | </em><em>None</em>) – number of points (default: from $fn/$fa/$fs)</p></li>
+<li><p><strong>radius/diameter</strong> – radius / diameter of the arc</p></li>
 <li><p><strong>angle</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – degrees to sweep from <em>start</em>, or <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code></p></li>
-<li><p><strong>cp</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – centre point (default <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>)</p></li>
-<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – two points (with <em>cp</em>) or three points the arc passes through</p></li>
-<li><p><strong>corner</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – three points; the arc is the <em>r</em>-radius fillet tangent to both legs</p></li>
+<li><p><strong>center</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – centre point (default <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>)</p></li>
+<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – two points (with <em>center</em>) or three points the arc passes through</p></li>
+<li><p><strong>corner</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – three points; the arc is the radius fillet tangent to both legs</p></li>
 <li><p><strong>width</strong> (<em>float</em><em> | </em><em>None</em>) – chord width for the width/thickness form</p></li>
 <li><p><strong>thickness</strong> (<em>float</em><em> | </em><em>None</em>) – height of the circular segment for the width/thickness form</p></li>
 <li><p><strong>start</strong> (<em>float</em><em> | </em><em>None</em>) – starting angle in degrees (default 0)</p></li>
 <li><p><strong>wedge</strong> (<em>bool</em>) – prepend the centre point, producing a closed sector (default False)</p></li>
-<li><p><strong>long/cw/ccw</strong> – for the two-point form, take the long way / a given handedness</p></li>
+<li><p><strong>long/clockwise/counterclockwise</strong> – for the two-point form, take the long way / a given handedness</p></li>
 <li><p><strong>endpoint</strong> (<em>bool</em>) – include the final point (default True)</p></li>
-<li><p><strong>r</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>d</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>diameter</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>long</strong> (<em>bool</em>)</p></li>
-<li><p><strong>cw</strong> (<em>bool</em>)</p></li>
-<li><p><strong>ccw</strong> (<em>bool</em>)</p></li>
+<li><p><strong>clockwise</strong> (<em>bool</em>)</p></li>
+<li><p><strong>counterclockwise</strong> (<em>bool</em>)</p></li>
 <li><p><strong>_fn</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>_fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>_fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
@@ -342,13 +344,13 @@ slope in degrees at the endpoints). The curve passes through <code class="docuti
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e601bf972b794f658462843fc4da616c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-fc515e313c4244a5962a06351b734355" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e601bf972b794f658462843fc4da616c");
+const el = document.getElementById("stlviewer-fc515e313c4244a5962a06351b734355");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -432,13 +434,13 @@ spiral is <code class="docutils literal notranslate"><span class="pre">h=0</span
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0df33c03feae4bceb8fc7c5469baeb8c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-510f03e69aff45bc9b0618d89e086068" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0df33c03feae4bceb8fc7c5469baeb8c");
+const el = document.getElementById("stlviewer-510f03e69aff45bc9b0618d89e086068");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -506,13 +508,13 @@ and <code class="docutils literal notranslate"><span class="pre">repeat</span></
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-ac8f32692fb14dbbbf577e649aa747a8" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-f82cd95e5b6343d18107449e7bdfb709" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-ac8f32692fb14dbbbf577e649aa747a8");
+const el = document.getElementById("stlviewer-f82cd95e5b6343d18107449e7bdfb709");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -598,17 +600,17 @@ Arrow endcaps trim the line back so it doesn’t poke through the tip.</p>
 </dl>
 <p class="rubric">Examples</p>
 <p>An arc drawn as a 3-mm ribbon with round ends, extruded into a curved wall:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">arc</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">arc</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9f96e0861d184742bd40a46cc180c54b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-f018839720e049bda780d11881fb1ddc" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9f96e0861d184742bd40a46cc180c54b");
+const el = document.getElementById("stlviewer-f018839720e049bda780d11881fb1ddc");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -631,7 +633,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/48a2e744a16a5465.stl", function (geo) {
+new STLLoader().load("_stl/425c93d6f1a2bac0.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -651,19 +653,19 @@ new STLLoader().load("_stl/48a2e744a16a5465.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/48a2e744a16a5465.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/425c93d6f1a2bac0.stl">⬇ Download STL mesh</a></p>
 <p>A line with a fancy endcap on each end (arrow one way, tail the other):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">stroke</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">endcap1</span><span class="o">=</span><span class="s1">&#39;tail&#39;</span><span class="p">,</span> <span class="n">endcap2</span><span class="o">=</span><span class="s1">&#39;arrow&#39;</span><span class="p">)</span>                 <span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-ef2e2b13d8674b28b8902bfe940115aa" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e21843f61b2046b9ac88cea492ba3d82" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-ef2e2b13d8674b28b8902bfe940115aa");
+const el = document.getElementById("stlviewer-e21843f61b2046b9ac88cea492ba3d82");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -712,13 +714,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-077135c5e7c542379ad30be56983ac3a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-746ad2d288464ad48e0541d522cd3c90" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-077135c5e7c542379ad30be56983ac3a");
+const el = document.getElementById("stlviewer-746ad2d288464ad48e0541d522cd3c90");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -787,19 +789,19 @@ pattern is scaled slightly so a whole number of repeats fills the path exactly.<
 </dl>
 <p class="rubric">Examples</p>
 <p>A dashed circle outline, the dashes unioned and extruded into little tiles:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dashes</span> <span class="o">=</span> <span class="n">dashed_stroke</span><span class="p">(</span><span class="n">arc</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">360</span><span class="p">),</span> <span class="n">dashpat</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dashes</span> <span class="o">=</span> <span class="n">dashed_stroke</span><span class="p">(</span><span class="n">arc</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">360</span><span class="p">),</span> <span class="n">dashpat</span><span class="o">=</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">ring</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">|</span> <span class="n">b</span><span class="p">,</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dashes</span><span class="p">))</span>
 <span class="n">ring</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-90f075fb60e04bb6b9b343a88bb3fe46" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-18534c52ebf44c0ab31366bb58335707" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-90f075fb60e04bb6b9b343a88bb3fe46");
+const el = document.getElementById("stlviewer-18534c52ebf44c0ab31366bb58335707");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -822,7 +824,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/fe1f26493f59c812.stl", function (geo) {
+new STLLoader().load("_stl/3906710b9f264cfa.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -842,7 +844,7 @@ new STLLoader().load("_stl/fe1f26493f59c812.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/fe1f26493f59c812.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/3906710b9f264cfa.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 <dl class="py class">

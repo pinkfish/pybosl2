@@ -48,7 +48,7 @@ Coverage of BOSL2 ``shapes2d.scad``
      - :func:`~bosl2.shapes2d.keyhole`
    * - ``ring``
      - ported
-     - :func:`~bosl2.shapes2d.ring` — the full-annulus form (``r1``/``r2`` or ``r`` + ``ring_width``);
+     - :func:`~bosl2.shapes2d.ring` — the full-annulus form (``radius1``/``radius2`` or ``radius`` + ``ring_width``);
        the arc / 3-point / corner / width+thickness forms are not ported
 
 API reference

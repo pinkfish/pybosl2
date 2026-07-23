@@ -157,8 +157,8 @@ def helix(l: float | None = None, h: float | None = None, turns: float | None = 
 
             stroke(helix(turns=2.5, h=100, r=30), width=3).show()
     """
-    r1v = _pick_radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    r2v = _pick_radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    r1v = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
+    r2v = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
     length = l if l is not None else h
     assert sum(v is not None for v in (length, turns, angle)) == 2, \
         "helix() needs exactly two of l/h, turns, and angle."
@@ -404,11 +404,11 @@ def _endcap_polys(style, lw: float):
 
     if style in (True, "round"):
         polys = [circle_poly(w / 2, l / 2, max(8, _frag_count(w * lw / 2)))]
-    elif style == "chisel":            # circle(d=1, $fn=4) scaled [w, l] -> an axis-aligned diamond
+    elif style == "chisel":            # circle(diameter=1, $fn=4) scaled [w, l] -> an axis-aligned diamond
         polys = [circle_poly(w / 2, l / 2, 4)]
-    elif style == "diamond":           # circle(d=w, $fn=4)
+    elif style == "diamond":           # circle(diameter=w, $fn=4)
         polys = [circle_poly(w / 2, w / 2, 4)]
-    elif style == "dot":               # circle(d=w)
+    elif style == "dot":               # circle(diameter=w)
         polys = [circle_poly(w / 2, w / 2, max(8, _frag_count(w * lw)))]
     elif style in ("square", "block", "line"):
         polys = [[[-w / 2, -l / 2], [w / 2, -l / 2], [w / 2, l / 2], [-w / 2, l / 2]]]
@@ -500,7 +500,7 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
     for i in (range(nb) if closed else range(1, nb - 1)):
         at = body[i]
         if joints in (True, "round", None):
-            shapes.append(_circle(d=width).translate([at[0], at[1]]))
+            shapes.append(_circle(diameter=width).translate([at[0], at[1]]))
         elif joints == "square":
             shapes.append(_square([width, width]).translate([at[0], at[1]]))
         else:
@@ -605,7 +605,7 @@ def stroke(path, width: float = 1, closed: bool | None = None, endcaps=None, end
 
         .. pythonscad-example::
 
-            arc(r=30, angle=200).stroke(width=3).linear_extrude(height=5).show()
+            arc(radius=30, angle=200).stroke(width=3).linear_extrude(height=5).show()
 
         A line with a fancy endcap on each end (arrow one way, tail the other):
 
@@ -667,7 +667,7 @@ def dashed_stroke(path, dashpat: Sequence[float] = (3, 3), closed: bool = False,
 
         .. pythonscad-example::
 
-            dashes = dashed_stroke(arc(r=30, angle=360), dashpat=[6, 4], closed=True)
+            dashes = dashed_stroke(arc(radius=30, angle=360), dashpat=[6, 4], closed=True)
             ring = reduce(lambda a, b: a | b, (d.stroke(width=1.5) for d in dashes))
             ring.linear_extrude(height=3).show()
     """

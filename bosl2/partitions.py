@@ -115,9 +115,9 @@ def _partition_subpath(cptype, _fn=None, _fa=None, _fs=None):
         return [[0, -0.5], [0.35, -0.5], [0.35, 0], [0.15, 0], [0.15, 0.5],
                 [0.85, 0.5], [0.85, 0], [0.65, 0], [0.65, -0.5], [1, -0.5]]
     if cptype == "jigsaw":
-        return (list(arc(r=5 / 16, cp=[0, -3 / 16], start=270, angle=125, _fn=_fn, _fa=_fa, _fs=_fs))
-                + list(arc(r=5 / 16, cp=[1 / 2, 3 / 16], start=215, angle=-250, _fn=_fn, _fa=_fa, _fs=_fs))
-                + list(arc(r=5 / 16, cp=[1, -3 / 16], start=145, angle=125, _fn=_fn, _fa=_fa, _fs=_fs)))
+        return (list(arc(radius=5 / 16, center=[0, -3 / 16], start=270, angle=125, _fn=_fn, _fa=_fa, _fs=_fs))
+                + list(arc(radius=5 / 16, center=[1 / 2, 3 / 16], start=215, angle=-250, _fn=_fn, _fa=_fa, _fs=_fs))
+                + list(arc(radius=5 / 16, center=[1, -3 / 16], start=145, angle=125, _fn=_fn, _fa=_fa, _fs=_fs)))
     raise AssertionError(f"Unsupported cutpath type: {cptype!r}")
 
 
@@ -222,7 +222,7 @@ def _ptn_sect(cptype, length: float = 25, width: float = 25, invert=False, _fn=N
     elif cptype == "halfsine":
         path = [[a / 180, math.sin(math.radians(a))] for a in np.arange(0, 180.0001, 360 / steps)]
     elif cptype == "semicircle":
-        path = _yscale(2, list(arc(n=math.ceil(steps / 2), r=1 / 2, cp=[1 / 2, 0], start=180, angle=-180)))
+        path = _yscale(2, list(arc(count=math.ceil(steps / 2), radius=1 / 2, center=[1 / 2, 0], start=180, angle=-180)))
     elif cptype == "comb":
         dx = math.tan(math.radians(2)) * width / length
         assert dx <= 0.5, "width-to-length ratio too large for comb form."
@@ -239,9 +239,9 @@ def _ptn_sect(cptype, length: float = 25, width: float = 25, invert=False, _fn=N
         path = [[0, 0], [0.35, 0], [0.35, 0.5], [0.15, 0.5], [0.15, 1],
                 [0.85, 1], [0.85, 0.5], [0.65, 0.5], [0.65, 0], [1, 0]]
     elif cptype == "jigsaw":
-        path = (list(arc(n=math.ceil(steps / 4), r=5 / 16, cp=[0, 5 / 16], start=270, angle=125, _fn=_fn, _fa=_fa, _fs=_fs))
-                + list(arc(n=math.ceil(steps / 2), r=5 / 16, cp=[1 / 2, 11 / 16], start=215, angle=-250, _fn=_fn, _fa=_fa, _fs=_fs))
-                + list(arc(n=math.ceil(steps / 4), r=5 / 16, cp=[1, 5 / 16], start=145, angle=125, _fn=_fn, _fa=_fa, _fs=_fs)))
+        path = (list(arc(count=math.ceil(steps / 4), radius=5 / 16, center=[0, 5 / 16], start=270, angle=125, _fn=_fn, _fa=_fa, _fs=_fs))
+                + list(arc(count=math.ceil(steps / 2), radius=5 / 16, center=[1 / 2, 11 / 16], start=215, angle=-250, _fn=_fn, _fa=_fa, _fs=_fs))
+                + list(arc(count=math.ceil(steps / 4), radius=5 / 16, center=[1, 5 / 16], start=145, angle=125, _fn=_fn, _fa=_fa, _fs=_fs)))
     elif isinstance(cptype, (list, tuple, np.ndarray)):
         path = [list(p) for p in cptype]
     else:

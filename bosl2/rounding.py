@@ -108,7 +108,7 @@ def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
     n = max(3, math.ceil((90 - angle) / 180 * _frag_count(r, _fn, _fa, _fs)))
     if len(points[1]) == 2:
         return [[float(c) for c in p]
-                for p in arc(n, cp=[float(center[0]), float(center[1])],
+                for p in arc(n, center=[float(center[0]), float(center[1])],
                              points=[[float(start[0]), float(start[1])], [float(end[0]), float(end[1])]])]
     return _arc3d(center, start, end, n)
 

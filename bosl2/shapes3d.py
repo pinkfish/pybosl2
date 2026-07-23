@@ -1313,8 +1313,8 @@ def cylinder(
         orient: direction to rotate the top towards, after spin (default UP)
     """
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = _pick_radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _pick_radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    rad1 = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
+    rad2 = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
     use_anchor = anchor
     if center is not None:
         use_anchor = CENTER if center else BOTTOM
@@ -1403,8 +1403,8 @@ def cyl(
     if texture is not None:
         raise NotImplementedError("cyl(): texture= is not supported by this pure-Python port.")
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = _pick_radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _pick_radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    rad1 = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
+    rad2 = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
     if circum:
         sides = _frag_count(max(rad1, rad2), _fn, _fa, _fs)
         sc = 1 / math.cos(math.pi / sides)
@@ -1633,8 +1633,8 @@ def xcyl(
 ) -> Bosl2Solid:
     """A cylinder oriented along the X axis. See cyl() for argument details."""
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = _pick_radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _pick_radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    rad1 = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
+    rad2 = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
     shape = cyl(
         l=length, r1=rad1, r2=rad2, chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
         rounding=rounding, rounding1=rounding1, rounding2=rounding2, circum=circum,
@@ -1670,8 +1670,8 @@ def ycyl(
 ) -> Bosl2Solid:
     """A cylinder oriented along the Y axis. See cyl() for argument details."""
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = _pick_radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _pick_radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    rad1 = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
+    rad2 = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
     shape = cyl(
         l=length, r1=rad1, r2=rad2, chamfer=chamfer, chamfer1=chamfer1, chamfer2=chamfer2,
         rounding=rounding, rounding1=rounding1, rounding2=rounding2, circum=circum,
@@ -1764,10 +1764,10 @@ def tube(
             shape.show()
     """
     height = h if h is not None else (l if l is not None else 1)
-    orr1 = _pick_radius(r1=outer_r1, d1=od1, r=outer_r, d=od, dflt=None)
-    orr2 = _pick_radius(r1=outer_r2, d1=od2, r=outer_r, d=od, dflt=None)
-    irr1 = _pick_radius(r1=ir1, d1=id1, r=ir, d=id, dflt=None)
-    irr2 = _pick_radius(r1=ir2, d1=id2, r=ir, d=id, dflt=None)
+    orr1 = _pick_radius(radius1=outer_r1, diameter1=od1, radius=outer_r, diameter=od, dflt=None)
+    orr2 = _pick_radius(radius1=outer_r2, diameter1=od2, radius=outer_r, diameter=od, dflt=None)
+    irr1 = _pick_radius(radius1=ir1, diameter1=id1, radius=ir, diameter=id, dflt=None)
+    irr2 = _pick_radius(radius1=ir2, diameter1=id2, radius=ir, diameter=id, dflt=None)
     wall_v = wall if wall is not None else 1
     rad1 = orr1 if orr1 is not None else (irr1 + wall_v if irr1 is not None else None)
     rad2 = orr2 if orr2 is not None else (irr2 + wall_v if irr2 is not None else None)
@@ -1823,8 +1823,8 @@ def pie_slice(
     from .shapes2d import _arc_points, _opolygon
 
     length = h if h is not None else (l if l is not None else 1)
-    rad1 = _pick_radius(r1=r1, d1=d1, r=r, d=d, dflt=10)
-    rad2 = _pick_radius(r1=r2, d1=d2, r=r, d=d, dflt=10)
+    rad1 = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=10)
+    rad2 = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=10)
     use_anchor = anchor
     if center is not None:
         use_anchor = CENTER if center else BOTTOM
@@ -2010,10 +2010,10 @@ def torus(
     """
     from .shapes2d import _arc_points, _opolygon
 
-    _or = _pick_radius(r=outer_r, d=od, dflt=None)
-    _ir = _pick_radius(r=ir, d=id, dflt=None)
-    _r_maj = _pick_radius(r=r_maj, d=d_maj, dflt=None)
-    _r_min = _pick_radius(r=r_min, d=d_min, dflt=None)
+    _or = _pick_radius(radius=outer_r, diameter=od, dflt=None)
+    _ir = _pick_radius(radius=ir, diameter=id, dflt=None)
+    _r_maj = _pick_radius(radius=r_maj, diameter=d_maj, dflt=None)
+    _r_min = _pick_radius(radius=r_min, diameter=d_min, dflt=None)
 
     if _r_maj is not None:
         maj_rad = _r_maj
@@ -2085,8 +2085,8 @@ def teardrop(
         orient: direction to rotate the top towards, after spin (default UP)
     """
     length = h if h is not None else 1.0
-    rad1 = _pick_radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _pick_radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    rad1 = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
+    rad2 = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
     cap_h1v = cap_h1 if cap_h1 is not None else cap_h
     cap_h2v = cap_h2 if cap_h2 is not None else cap_h
     c1 = chamfer1 if chamfer1 else chamfer
@@ -2146,7 +2146,7 @@ def onion(
     """
     from .shapes2d import _arc_points, _opolygon
 
-    rad = _pick_radius(r=r, d=d, dflt=1)
+    rad = _pick_radius(radius=r, diameter=d, dflt=1)
     n = _frag_count(rad)
     scaled = rad / math.cos(math.pi / n) if circum else rad
     maxheight = scaled / math.sin(math.radians(ang))
@@ -2575,7 +2575,7 @@ def interior_fillet(
     """
     from .shapes2d import _opolygon
 
-    rad = _pick_radius(r=r, d=d, dflt=1)
+    rad = _pick_radius(radius=r, diameter=d, dflt=1)
     n = _frag_count(rad)
     path = _interior_fillet_path(rad, ang, overlap, n)
     shape = _opolygon(path).linear_extrude(height=l, center=True)
@@ -2692,7 +2692,7 @@ def cylindrical_heightfield(
     d2: float | None = None,
     h: float | None = None,
     height: float | None = None,
-    anchor: Sequence[float] = CTR,
+    anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
 ) -> Bosl2Solid:
@@ -2719,8 +2719,8 @@ def cylindrical_heightfield(
     """
     l_val = l if l is not None else (h if h is not None else height)
     assert l_val is not None and l_val > 0, "Must supply one of l=, h=, or height= as a finite positive number."
-    r1v = _pick_radius(r1=r1, d1=d1, r=r, d=d)
-    r2v = _pick_radius(r1=r2, d1=d2, r=r, d=d)
+    r1v = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d)
+    r2v = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d)
     assert r1v is not None and r1v > 0, "Must supply one of r=, r1=, d=, or d1= as a finite positive number."
     assert r2v is not None and r2v > 0, "Must supply one of r=, r2=, d=, or d2= as a finite positive number."
     assert base > 0, "base= must be a finite positive number."
@@ -2922,38 +2922,68 @@ def fillet(l=None, r: float | None = None, ang: float = 90, r1: float | None = N
 
 
 def textured_tile(texture, size, tex_reps=None, tex_size=None, tex_depth: float = 1,
-                  tex_inset=False, style: str = "min_edge") -> Bosl2Solid:
-    """A rectangular tile carrying a repeated height-field *texture* (BOSL2 textured_tile()).
+                  tex_inset=False, style: str = "min_edge", n=None, border=None, gap=None,
+                  roughness=None, fn=None) -> Bosl2Solid:
+    """A rectangular tile carrying a repeated *texture* (BOSL2 textured_tile()).
 
-    Only the height-field texture form is ported: *texture* is a 2-D array of scalar heights (0..1),
-    tiled *tex_reps* times (or ``tex_size`` chosen) across the *size* rectangle and raised by
-    *tex_depth*. VNF-tile textures and BOSL2's named-texture table are not ported.
+    *texture* is either a **name** from the ported :func:`~bosl2.texture.texture` engine (e.g.
+    ``"pyramids"``, ``"diamonds"``, ``"hills"``, ``"bricks"``, ``"pyramids_vnf"``), a raw **height-field**
+    (a 2-D array of scalar heights in ``[0, 1]``), or a raw **VNF tile** ``(verts, faces)``. It is tiled
+    *tex_reps* times (or ``tex_size`` chosen) across the *size* rectangle and raised by *tex_depth*.
 
     Args:
-        texture:   a 2-D array (rows x cols) of scalar heights in [0, 1]
+        texture:   a texture name, a 2-D height-field array, or a VNF tile ``(verts, faces)``
         size:      [x, y] size of the tile
         tex_reps:  integer or [nx, ny] tile repetitions (give this or *tex_size*)
         tex_size:  target tile size, from which the repetition count is computed
         tex_depth: how far the texture is raised (default 1); negative inverts it
         tex_inset: lower the texture into the surface by this fraction (True == full depth)
-        style:     vnf_vertex_array quad-subdivision style
+        style:     vnf_vertex_array quad-subdivision style (height-field textures only)
+        n/border/gap/roughness: parameters forwarded to :func:`~bosl2.texture.texture` for a named texture
 
     Examples:
-        A pyramid-bump tile:
+        A named pyramid texture:
+
+        .. pythonscad-example::
+
+            s3.textured_tile("pyramids", size=[40, 40], tex_reps=[6, 6], tex_depth=3).show()
+
+        A raw height-field:
 
         .. pythonscad-example::
 
             bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
             s3.textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
     """
+    from bosl2.texture import (is_heightfield_texture, is_vnf_texture, is_watertight_topology,
+                               rasterize_vnf_texture, texture as _texture, vnf_tile_to_solid)
+    from bosl2.vnf import VNF
+
+    if isinstance(texture, str):                          # resolve a name through the texture engine
+        texture = _texture(texture, n=n, border=border, gap=gap, roughness=roughness, fn=fn)
+
     sz = [float(size[0]), float(size[1])]
-    rows, cols = len(texture), len(texture[0])
-    if tex_reps is None:
-        assert tex_size is not None, "textured_tile(): give tex_reps or tex_size."
-        ts = [float(tex_size), float(tex_size)] if isinstance(tex_size, (int, float)) else [float(tex_size[0]), float(tex_size[1])]
-        tex_reps = [max(1, round(sz[0] / ts[0])), max(1, round(sz[1] / ts[1]))]
-    reps = [int(tex_reps[0]), int(tex_reps[1])] if hasattr(tex_reps, "__len__") else [int(tex_reps), int(tex_reps)]
     inset = 1.0 if tex_inset is True else float(tex_inset or 0)
+
+    def resolve_reps(cell):
+        if tex_reps is not None:
+            return ([int(tex_reps[0]), int(tex_reps[1])] if hasattr(tex_reps, "__len__")
+                    else [int(tex_reps), int(tex_reps)])
+        assert tex_size is not None, "textured_tile(): give tex_reps or tex_size."
+        ts = ([float(tex_size), float(tex_size)] if isinstance(tex_size, (int, float))
+              else [float(tex_size[0]), float(tex_size[1])])
+        return [max(1, round(sz[0] / ts[0])), max(1, round(sz[1] / ts[1]))]
+
+    if is_vnf_texture(texture) and not is_heightfield_texture(texture):
+        verts, faces = texture
+        reps = resolve_reps(1)
+        v, f = vnf_tile_to_solid(verts, faces, sz, reps, tex_depth=tex_depth, inset=inset)
+        if is_watertight_topology(v, f):                  # sharp VNF tiling closed cleanly
+            return Bosl2Solid(VNF(v, f).polyhedron(), size=[sz[0], sz[1], abs(tex_depth) + 0.1])
+        texture = rasterize_vnf_texture(verts, faces)     # else fall back to a sampled height-field
+
+    rows, cols = len(texture), len(texture[0])
+    reps = resolve_reps(1)
     tiled = [[(float(texture[r][c]) - inset) * tex_depth
               for _rx in range(reps[0]) for c in range(cols)]
              for _ry in range(reps[1]) for r in range(rows)]

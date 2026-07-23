@@ -82,6 +82,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    Masking <masking>
    Partitions <partitions>
    Native ops <native_ops>
+   Textures <texture>
    Constants <constants>
 
 .. toctree::
@@ -91,6 +92,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    Paths <paths>
    Regions <regions>
    Rounding <rounding>
+   Turtle (3-D) <turtle3d>
    Beziers <beziers>
    NURBS <nurbs>
    Skin & sweeps <skin>

@@ -335,6 +335,26 @@ class Path(Distributable, Extrudable, Roundable, list):
         hold either a Path or a Region can ask for geometry without checking which it got."""
         return self.polygon()
 
+    def debug_polygon(self, size: float = 1, vertices: bool = True):
+        """A debug view of this polygon: the filled outline (as a thin flat solid) with each vertex
+        labelled by its index in red (BOSL2 debug_polygon()). Set *size* for the label size.
+
+        Returns:
+            A :class:`~bosl2.shapes3d.Bosl2Solid`.
+        """
+        import operator
+        from functools import reduce
+
+        from bosl2.shapes3d import Bosl2Solid, text3d
+
+        solid = Bosl2Solid(self.polygon().linear_extrude(height=0.01, center=True))
+        if not vertices:
+            return solid
+        labels = [text3d(str(i), size=size, h=0.02, halign="center", valign="center")
+                  .translate([float(x), float(y), 0.01]).color("red")
+                  for i, (x, y) in enumerate(self)]
+        return reduce(operator.or_, [solid, *labels]) if labels else solid
+
     # -- drawing (bosl2/drawing.py) --------------------------------------------------------
 
     def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any):

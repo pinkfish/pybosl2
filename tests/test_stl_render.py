@@ -224,14 +224,14 @@ def test_squircle_extruded(tmp_path):
 
 
 def test_keyhole_extruded(tmp_path):
-    m = _render(tmp_path, "s2.keyhole(l=25, r1=4, r2=9, shoulder_r=2).linear_extrude(height=4)",
+    m = _render(tmp_path, "s2.keyhole(length=25, radius1=4, radius2=9, shoulder_radius=2).linear_extrude(height=4)",
                 name="keyhole")
     assert m.volume > 0
     assert m.watertight
 
 
 def test_ring_extruded(tmp_path):
-    m = _render(tmp_path, "s2.ring(r=20, ring_width=4).linear_extrude(height=5)", name="ring")
+    m = _render(tmp_path, "s2.ring(radius=20, ring_width=4).linear_extrude(height=5)", name="ring")
     assert m.volume > 0
     np.testing.assert_allclose(m.size[:2], [48, 48], atol=1.0)  # outer diameter ~ 2*(20+4)
 
@@ -322,7 +322,7 @@ def test_attach_places_child_on_face(tmp_path):
 
 def test_stroke_2d_arc_ribbon(tmp_path):
     # a stroked arc extruded into a curved wall -> a real thin solid
-    m = _render(tmp_path, "arc(r=30, angle=200).stroke(width=4).linear_extrude(height=3)",
+    m = _render(tmp_path, "arc(radius=30, angle=200).stroke(width=4).linear_extrude(height=3)",
                 name="stroke2d")
     assert m.volume > 0
     assert math.isclose(m.size[2], 3.0, abs_tol=1e-2)
@@ -347,7 +347,7 @@ def test_stroke_3d_helix_tube(tmp_path):
 
 def test_dashed_stroke_makes_multiple_solids(tmp_path):
     setup = (
-        "dashes = dashed_stroke(arc(r=30, angle=360), dashpat=[8, 5], closed=True)\n"
+        "dashes = dashed_stroke(arc(radius=30, angle=360), dashpat=[8, 5], closed=True)\n"
         "solid = dashes[0].stroke(width=2)\n"
         "for d in dashes[1:]:\n"
         "    solid = solid | d.stroke(width=2)\n"
@@ -623,20 +623,20 @@ def test_path_extrude2d_closed_loop(tmp_path):
 def test_path_extrude2d_takes_a_factory(tmp_path):
     # the "children" form: a factory produces a fresh profile per placement
     setup = "route = Path([[0, 0], [30, 0]], closed=False)\n"
-    m = _render(tmp_path, "route.path_extrude2d(lambda: s2.circle(r=4, _fn=16))", setup=setup, name="pe2dfac")
+    m = _render(tmp_path, "route.path_extrude2d(lambda: s2.circle(radius=4, _fn=16))", setup=setup, name="pe2dfac")
     assert m.volume > 0
     assert math.isclose(m.size[2], 8.0, abs_tol=0.3)  # circle d=8 stands 8 tall
 
 
 def test_path_extrude_3d_path(tmp_path):
     setup = "route = Path3D([[0, 0, 0], [30, 0, 10], [30, 30, 20], [0, 30, 30]], closed=False)\n"
-    m = _render(tmp_path, "route.path_extrude(s2.circle(r=4, _fn=16))", setup=setup, name="pe3d")
+    m = _render(tmp_path, "route.path_extrude(s2.circle(radius=4, _fn=16))", setup=setup, name="pe3d")
     assert m.volume > 0
     assert m.bbmax[2] > 25  # follows the rising path up to z~30
 
 
 def test_extrude_from_to_column(tmp_path):
-    m = _render(tmp_path, "extrude_from_to(s2.circle(r=4, _fn=24), [0, 0, 0], [0, 0, 30])", name="eft")
+    m = _render(tmp_path, "extrude_from_to(s2.circle(radius=4, _fn=24), [0, 0, 0], [0, 0, 30])", name="eft")
     assert math.isclose(m.size[2], 30.0, abs_tol=1e-2)
     np.testing.assert_allclose(m.size[:2], [8, 8], atol=0.2)
     assert m.watertight

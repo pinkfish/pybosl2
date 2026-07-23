@@ -105,7 +105,7 @@ def extrude_from_to(profile, pt1, pt2, twist: float = 0, scale: float = 1, slice
 
         .. pythonscad-example::
 
-            extrude_from_to(s2.circle(r=4), [0, 0, 0], [10, 20, 30], twist=180, scale=2).show()
+            extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30], twist=180, scale=2).show()
     """
     from bosl2.shapes3d import Bosl2Solid
 

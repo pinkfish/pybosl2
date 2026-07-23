@@ -29,7 +29,7 @@ def test_path_extrude2d_returns_solid():
 
 def test_path_extrude2d_accepts_various_profiles():
     # native shape, a Path, a Region, a Bosl2Solid, and a factory all work as the profile
-    assert isinstance(L_PATH.path_extrude2d(s2.circle(r=3)), Bosl2Solid)
+    assert isinstance(L_PATH.path_extrude2d(s2.circle(radius=3)), Bosl2Solid)
     assert isinstance(L_PATH.path_extrude2d(Path([[-2, -4], [2, -4], [2, 4], [-2, 4]])), Bosl2Solid)
     from bosl2.regions import Region
     assert isinstance(L_PATH.path_extrude2d(Region([[[-2, -4], [2, -4], [2, 4], [-2, 4]]])), Bosl2Solid)
@@ -51,33 +51,33 @@ def test_path_extrude2d_caps_on_closed_raises():
 
 def test_path_extrude2d_requires_2d_path():
     with pytest.raises(AssertionError):
-        PATH3.path_extrude2d(s2.circle(r=3))
+        PATH3.path_extrude2d(s2.circle(radius=3))
 
 
 # -- path_extrude (2-D and 3-D paths) -----------------------------------------------------
 
 def test_path_extrude_on_2d_path():
-    assert isinstance(L_PATH.path_extrude(s2.circle(r=3)), Bosl2Solid)
+    assert isinstance(L_PATH.path_extrude(s2.circle(radius=3)), Bosl2Solid)
 
 
 def test_path_extrude_on_3d_path():
-    assert isinstance(PATH3.path_extrude(s2.circle(r=3)), Bosl2Solid)
+    assert isinstance(PATH3.path_extrude(s2.circle(radius=3)), Bosl2Solid)
 
 
 def test_path_extrude_factory_profile():
-    assert isinstance(PATH3.path_extrude(lambda: s2.circle(r=3)), Bosl2Solid)
+    assert isinstance(PATH3.path_extrude(lambda: s2.circle(radius=3)), Bosl2Solid)
 
 
 # -- free functions -----------------------------------------------------------------------
 
 def test_extrude_from_to():
-    assert isinstance(M.extrude_from_to(s2.circle(r=4), [0, 0, 0], [10, 20, 30]), Bosl2Solid)
-    assert isinstance(M.extrude_from_to(s2.circle(r=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2), Bosl2Solid)
+    assert isinstance(M.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30]), Bosl2Solid)
+    assert isinstance(M.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2), Bosl2Solid)
 
 
 def test_extrude_from_to_same_point_raises():
     with pytest.raises(AssertionError):
-        M.extrude_from_to(s2.circle(r=4), [1, 2, 3], [1, 2, 3])
+        M.extrude_from_to(s2.circle(radius=4), [1, 2, 3], [1, 2, 3])
 
 
 def test_cylindrical_extrude():

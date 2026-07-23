@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Turtle (3-D) &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <script src="_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bezier curves, paths and surfaces" href="beziers.html" />
+    <link rel="prev" title="Rounding: round_corners &amp; smooth_path" href="rounding.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
+
+
+
+<p class="blurb">A pure-Python PythonSCAD port of BOSL2</p>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Colour</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Turtle (3-D)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Comparisons</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html">Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html">Wiring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html">Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extras</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="rounding.html" title="previous chapter">Rounding: round_corners &amp; smooth_path</a></li>
+      <li>Next: <a href="beziers.html" title="next chapter">Bezier curves, paths and surfaces</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="turtle-3-d">
+<h1>Turtle (3-D)<a class="headerlink" href="#turtle-3-d" title="Link to this heading">¶</a></h1>
+<p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">turtle3d.scad</span></code> as a <a class="reference internal" href="#bosl2.turtle3d.Turtle" title="bosl2.turtle3d.Turtle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle</span></code></a> class. A turtle
+walks through 3-D space carrying an orientation frame; a flat list of commands drives it, and the
+result is either the list of points it visited (<a class="reference internal" href="#bosl2.turtle3d.Turtle.points" title="bosl2.turtle3d.Turtle.points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">points()</span></code></a>) or a list of
+4x4 transforms (<a class="reference internal" href="#bosl2.turtle3d.Turtle.transforms" title="bosl2.turtle3d.Turtle.transforms"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transforms()</span></code></a>) ready to sweep a profile with
+<a class="reference internal" href="skin.html#bosl2.skin.path_sweep" title="bosl2.skin.path_sweep"><code class="xref py py-func docutils literal notranslate"><span class="pre">path_sweep()</span></code></a> / <a class="reference internal" href="skin.html#bosl2.skin.sweep" title="bosl2.skin.sweep"><code class="xref py py-func docutils literal notranslate"><span class="pre">sweep()</span></code></a>.</p>
+<p>The full simple command set is ported — moves (<code class="docutils literal notranslate"><span class="pre">move</span></code>/<code class="docutils literal notranslate"><span class="pre">jump</span></code>/<code class="docutils literal notranslate"><span class="pre">xmove</span></code> …), relative turns
+(<code class="docutils literal notranslate"><span class="pre">left</span></code>/<code class="docutils literal notranslate"><span class="pre">right</span></code>/<code class="docutils literal notranslate"><span class="pre">up</span></code>/<code class="docutils literal notranslate"><span class="pre">down</span></code>/<code class="docutils literal notranslate"><span class="pre">roll</span></code>), absolute turns (<code class="docutils literal notranslate"><span class="pre">xrot</span></code>/<code class="docutils literal notranslate"><span class="pre">yrot</span></code>/<code class="docutils literal notranslate"><span class="pre">zrot</span></code>/<code class="docutils literal notranslate"><span class="pre">rot</span></code>/
+<code class="docutils literal notranslate"><span class="pre">setdir</span></code>), arcs (<code class="docutils literal notranslate"><span class="pre">arcleft</span></code>/<code class="docutils literal notranslate"><span class="pre">arcright</span></code>/<code class="docutils literal notranslate"><span class="pre">arcup</span></code>/<code class="docutils literal notranslate"><span class="pre">arcdown</span></code>/<code class="docutils literal notranslate"><span class="pre">arcxrot</span></code> …/<code class="docutils literal notranslate"><span class="pre">arctodir</span></code>/
+<code class="docutils literal notranslate"><span class="pre">arcrot</span></code>), the <code class="docutils literal notranslate"><span class="pre">length</span></code>/<code class="docutils literal notranslate"><span class="pre">angle</span></code>/<code class="docutils literal notranslate"><span class="pre">scale</span></code>/<code class="docutils literal notranslate"><span class="pre">arcsteps</span></code> settings, and <code class="docutils literal notranslate"><span class="pre">repeat</span></code>. <em>Compound</em>
+commands are also supported — a single nested list starting with <code class="docutils literal notranslate"><span class="pre">&quot;move&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;arc&quot;</span></code> that applies
+several effects at once (<code class="docutils literal notranslate"><span class="pre">[&quot;move&quot;,</span> <span class="pre">40,</span> <span class="pre">&quot;grow&quot;,</span> <span class="pre">2,</span> <span class="pre">&quot;twist&quot;,</span> <span class="pre">180,</span> <span class="pre">&quot;steps&quot;,</span> <span class="pre">40]</span></code>), with
+<code class="docutils literal notranslate"><span class="pre">grow</span></code>/<code class="docutils literal notranslate"><span class="pre">shrink</span></code> scaling the swept profile, <code class="docutils literal notranslate"><span class="pre">twist</span></code> rotating it, <code class="docutils literal notranslate"><span class="pre">roll</span></code>/<code class="docutils literal notranslate"><span class="pre">rollto</span></code> rolling the
+frame, and, for <code class="docutils literal notranslate"><span class="pre">arc</span></code>, relative or absolute rotation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bosl2.turtle3d.Turtle">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.turtle3d.</span></span><span class="sig-name descname"><span class="pre">Turtle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/turtle3d.html#Turtle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.turtle3d.Turtle" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A 3-D turtle: walk it with a command list to produce a path or a list of sweep transforms
+(BOSL2 turtle3d.scad).</p>
+<p>The turtle starts at the origin pointing in <em>state</em> (default <code class="docutils literal notranslate"><span class="pre">RIGHT</span></code> = +X), with “up” along +Z.
+Commands are a flat list mixing command names and their arguments, e.g.
+<code class="docutils literal notranslate"><span class="pre">[&quot;move&quot;,</span> <span class="pre">10,</span> <span class="pre">&quot;left&quot;,</span> <span class="pre">45,</span> <span class="pre">&quot;arcright&quot;,</span> <span class="pre">2]</span></code>. Turns: <code class="docutils literal notranslate"><span class="pre">left</span></code>/<code class="docutils literal notranslate"><span class="pre">right</span></code> (about up), <code class="docutils literal notranslate"><span class="pre">up</span></code>/<code class="docutils literal notranslate"><span class="pre">down</span></code>
+(about the side), <code class="docutils literal notranslate"><span class="pre">roll</span></code> (about the heading), and absolute <code class="docutils literal notranslate"><span class="pre">xrot</span></code>/<code class="docutils literal notranslate"><span class="pre">yrot</span></code>/<code class="docutils literal notranslate"><span class="pre">zrot</span></code>. Arcs:
+<code class="docutils literal notranslate"><span class="pre">arcleft</span></code>/<code class="docutils literal notranslate"><span class="pre">arcright</span></code>/<code class="docutils literal notranslate"><span class="pre">arcup</span></code>/<code class="docutils literal notranslate"><span class="pre">arcdown</span></code> (radius[, angle]). <code class="docutils literal notranslate"><span class="pre">move</span></code>/<code class="docutils literal notranslate"><span class="pre">jump</span></code> translate;
+<code class="docutils literal notranslate"><span class="pre">length</span></code>/<code class="docutils literal notranslate"><span class="pre">angle</span></code>/<code class="docutils literal notranslate"><span class="pre">scale</span></code>/<code class="docutils literal notranslate"><span class="pre">arcsteps</span></code> set defaults; <code class="docutils literal notranslate"><span class="pre">repeat</span> <span class="pre">count</span> <span class="pre">[cmds]</span></code> repeats. A nested
+list beginning with <code class="docutils literal notranslate"><span class="pre">&quot;move&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;arc&quot;</span></code> is a <em>compound</em> step applying several effects at once
+(<code class="docutils literal notranslate"><span class="pre">grow</span></code>/<code class="docutils literal notranslate"><span class="pre">shrink</span></code>/<code class="docutils literal notranslate"><span class="pre">twist</span></code>/<code class="docutils literal notranslate"><span class="pre">roll</span></code>/<code class="docutils literal notranslate"><span class="pre">steps</span></code>/<code class="docutils literal notranslate"><span class="pre">reverse</span></code>), e.g.
+<code class="docutils literal notranslate"><span class="pre">[&quot;move&quot;,</span> <span class="pre">40,</span> <span class="pre">&quot;grow&quot;,</span> <span class="pre">2,</span> <span class="pre">&quot;twist&quot;,</span> <span class="pre">180,</span> <span class="pre">&quot;steps&quot;,</span> <span class="pre">40]</span></code> grows and twists the swept profile.</p>
+<p class="rubric">Examples</p>
+<p>A rounded square path swept into a tube:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.turtle3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Turtle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">path_sweep</span>
+<span class="n">sq</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">Turtle</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+                     <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;arcleft&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">points</span><span class="p">()</span>
+<span class="n">path_sweep</span><span class="p">(</span><span class="n">sq</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-1ac9f75b729d46f4998f3d0fdecc6fd6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-1ac9f75b729d46f4998f3d0fdecc6fd6");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/450d0db4e2cab8fc.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/450d0db4e2cab8fc.stl">⬇ Download STL mesh</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.turtle3d.Turtle.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/turtle3d.html#Turtle.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.turtle3d.Turtle.run" title="Link to this definition">¶</a></dt>
+<dd><p>Execute <em>commands</em> (optionally <em>repeat</em> times), advancing this turtle’s state. Returns self.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#bosl2.turtle3d.Turtle" title="bosl2.turtle3d.Turtle"><em>Turtle</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.turtle3d.Turtle.points">
+<span class="sig-name descname"><span class="pre">points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/turtle3d.html#Turtle.points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.turtle3d.Turtle.points" title="Link to this definition">¶</a></dt>
+<dd><p>The de-duplicated list of 3-D points the turtle has visited.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.turtle3d.Turtle.transforms">
+<span class="sig-name descname"><span class="pre">transforms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/turtle3d.html#Turtle.transforms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.turtle3d.Turtle.transforms" title="Link to this definition">¶</a></dt>
+<dd><p>The list of 4x4 transforms (position + orientation) for sweeping a profile along the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.turtle3d.Turtle.full_state">
+<span class="sig-name descname"><span class="pre">full_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/turtle3d.html#Turtle.full_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.turtle3d.Turtle.full_state" title="Link to this definition">¶</a></dt>
+<dd><p>The raw turtle state <code class="docutils literal notranslate"><span class="pre">[transforms,</span> <span class="pre">pre-transforms,</span> <span class="pre">move-length,</span> <span class="pre">angle,</span> <span class="pre">arc-steps]</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.turtle3d.Turtle.turtle3d">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">turtle3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/turtle3d.html#Turtle.turtle3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.turtle3d.Turtle.turtle3d" title="Link to this definition">¶</a></dt>
+<dd><p>One-shot BOSL2 <code class="docutils literal notranslate"><span class="pre">turtle3d()</span></code>: run <em>commands</em> from <em>state</em> and return points (default),
+sweep <em>transforms</em>, or the <em>full_state</em>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2026, pinkfish.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/turtle3d.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

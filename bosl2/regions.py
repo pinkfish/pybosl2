@@ -99,6 +99,31 @@ class Region(list):
             shape = shape - hole.polygon()
         return shape
 
+    def debug_region(self, size: float = 1, vertices: bool = True):
+        """A debug view of this region: the filled region (as a thin flat solid) with every path's
+        vertices labelled in red -- path ``a`` gets labels ``a0, a1, ...``, path ``b`` ``b0, b1, ...``
+        (BOSL2 debug_region()). A single-path region defers to :meth:`~bosl2.paths.Path.debug_polygon`.
+
+        Returns:
+            A :class:`~bosl2.shapes3d.Bosl2Solid`.
+        """
+        import operator
+        from functools import reduce
+
+        from bosl2.paths import Path
+        from bosl2.shapes3d import Bosl2Solid, text3d
+
+        paths = [p if isinstance(p, Path) else Path(p) for p in self]
+        if len(paths) <= 1:
+            return (paths[0] if paths else Path(self)).debug_polygon(size=size, vertices=vertices)
+        solid = Bosl2Solid(self.geometry().linear_extrude(height=0.01, center=True))
+        if not vertices:
+            return solid
+        labels = [text3d(f"{chr(97 + j)}{i}", size=size, h=0.02, halign="center", valign="center")
+                  .translate([float(x), float(y), 0.01]).color("red")
+                  for j, path in enumerate(paths) for i, (x, y) in enumerate(path)]
+        return reduce(operator.or_, [solid, *labels])
+
     def stroke(self, width: float = 1, **kwargs: Any):
         """Draw every path in this region as a closed solid line (see :func:`bosl2.drawing.stroke`)."""
         from bosl2.drawing import stroke as _stroke

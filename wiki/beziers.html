@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="NURBS: curves &amp; surfaces" href="nurbs.html" />
-    <link rel="prev" title="Rounding: round_corners &amp; smooth_path" href="rounding.html" />
+    <link rel="prev" title="Turtle (3-D)" href="turtle3d.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -51,6 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
@@ -58,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Beziers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
@@ -107,7 +109,7 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="rounding.html" title="previous chapter">Rounding: round_corners &amp; smooth_path</a></li>
+      <li>Previous: <a href="turtle3d.html" title="previous chapter">Turtle (3-D)</a></li>
       <li>Next: <a href="nurbs.html" title="next chapter">NURBS: curves &amp; surfaces</a></li>
   </ul></li>
 </ul>
@@ -161,13 +163,13 @@ groups that <code class="docutils literal notranslate"><span class="pre">flatten
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-f6e0d70120b24bc89f211d7f89788ac8" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e1f6c12fee6b475c917a92c5f674ca7e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-f6e0d70120b24bc89f211d7f89788ac8");
+const el = document.getElementById("stlviewer-e1f6c12fee6b475c917a92c5f674ca7e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -612,13 +614,13 @@ BOSL2’s un-ported path_sweep), plus the debug_* visualization modules.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-08a083c5deac4bb3bcd721c8167b58a1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8bab78ea17274fdc81210f9cbf599475" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-08a083c5deac4bb3bcd721c8167b58a1");
+const el = document.getElementById("stlviewer-8bab78ea17274fdc81210f9cbf599475");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

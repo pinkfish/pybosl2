@@ -601,7 +601,7 @@ class Gears:
         result = Bosl2Solid(shape, size=[2 * or_, 2 * or_, 0])
         if shaft_diam > 0 and not hide:
             from bosl2.shapes2d import circle as _circle2d
-            result = result - Bosl2Solid(_circle2d(d=shaft_diam))
+            result = result - Bosl2Solid(_circle2d(diameter=shaft_diam))
         return result
 
     @staticmethod

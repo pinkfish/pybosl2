@@ -73,13 +73,13 @@ def test_arc_points_centered():
 
 
 def test_arc_by_radius():
-    pts = arc(n=3, r=5, start=0, angle=90)
+    pts = arc(count=3, radius=5, start=0, angle=90)
     np.testing.assert_allclose(pts[0], [5, 0], atol=1e-9)
     np.testing.assert_allclose(pts[-1], [0, 5], atol=1e-9)
 
 
 def test_arc_through_three_points():
-    pts = arc(n=7, points=[[1, 0], [0, 1], [-1, 0]])
+    pts = arc(count=7, points=[[1, 0], [0, 1], [-1, 0]])
     # all points lie on the unit circle about the origin
     for p in pts:
         assert math.isclose(math.hypot(p[0], p[1]), 1.0, abs_tol=1e-9)
@@ -98,7 +98,7 @@ def test_circle_from_3pts():
 
 
 def test_circle_builds_a_solid_via_mock():
-    assert circle(r=5) is not None
+    assert circle(radius=5) is not None
 
 
 def test_squircle_circle_at_zero_squareness():
@@ -131,25 +131,25 @@ def test_squircle_rejects_bad_squareness():
 
 
 def test_keyhole_builds_both_orientations():
-    assert keyhole(length=25, r1=4, r2=9, shoulder_r=2) is not None
-    assert keyhole(length=25, r1=9, r2=4, shoulder_r=2) is not None
-    assert keyhole(length=20, r1=5, r2=10) is not None
+    assert keyhole(length=25, radius1=4, radius2=9, shoulder_radius=2) is not None
+    assert keyhole(length=25, radius1=9, radius2=4, shoulder_radius=2) is not None
+    assert keyhole(length=20, radius1=5, radius2=10) is not None
 
 
 def test_keyhole_rejects_short_length():
     import pytest
     with pytest.raises(AssertionError):
-        keyhole(length=3, r1=5, r2=10)
+        keyhole(length=3, radius1=5, radius2=10)
 
 
 def test_ring_forms():
-    assert ring(r=20, ring_width=4) is not None
-    assert ring(r1=10, r2=16) is not None
+    assert ring(radius=20, ring_width=4) is not None
+    assert ring(radius1=10, radius2=16) is not None
 
 
 def test_ring_requires_valid_params():
     import pytest
     with pytest.raises(AssertionError):
-        ring(r=10)
+        ring(radius=10)
     with pytest.raises(AssertionError):
-        ring(r=10, ring_width=0)
+        ring(radius=10, ring_width=0)
