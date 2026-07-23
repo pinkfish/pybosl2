@@ -15,3 +15,27 @@ the printed fit with the slider's ``slop``.
 
 .. autoclass:: bosl2.sliders.Sliders
    :members:
+
+.. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
+
+Examples
+--------
+
+These mirror the examples in BOSL2's ``sliders.scad``, rendered live through PythonSCAD.
+Examples that rely on BOSL2's attachment/anchor system, or on features not in this port, are omitted.
+
+.. rubric:: ``slider``
+
+A V-groove slider:
+
+.. pythonscad-example::
+
+   Sliders.slider(l=30, base=10, wall=4, slop=0.2).show()
+
+.. rubric:: ``rail``
+
+The mating rail:
+
+.. pythonscad-example::
+
+   Sliders.rail(l=100, w=10, h=10).show()

@@ -18,3 +18,73 @@ original's base weld ``fillet`` is a follow-up.
 
 .. autoclass:: bosl2.hooks.Hooks
    :members:
+
+.. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
+
+Examples
+--------
+
+These mirror the examples in BOSL2's ``hooks.scad``, rendered live through PythonSCAD.
+Examples that rely on BOSL2's attachment/anchor system, or on features not in this port, are omitted.
+
+.. rubric:: ``ring_hook``
+
+Ring connector:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([50, 10], 25, or_=25, ir=20).show()
+
+A solid paddle with no hole (ir=0):
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([70, 10], 25, or_=25, ir=0).show()
+
+Narrow base — corners still outside the ring:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([40, 10], 25, or_=25, ir=0).show()
+
+Hole sized by or/ir:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([50, 10], 40, or_=25, ir=20).show()
+
+The same hole, sized by wall thickness:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([50, 10], 40, or_=25, wall=5).show()
+
+The same hole again, sized by od/id:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([50, 10], 40, od=50, id=40).show()
+
+A semicircular D-hole:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([50, 10], 12, or_=25, ir=15, hole="D", rounding=3, hole_rounding=3).show()
+
+Small hole_z with a D-hole:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([50, 10], 1, or_=25, ir=15, hole="D").show()
+
+Rounded outer edges:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([50, 10], 40, or_=25, ir=15, rounding=5).show()
+
+An arbitrary (octagonal) hole, printable without support:
+
+.. pythonscad-example::
+
+   Hooks.ring_hook([50, 20], 30, or_=25, hole=[[13*math.cos(math.radians(22.5+45*k)), 13*math.sin(math.radians(22.5+45*k))] for k in range(8)], hole_rounding=3, rounding=4).show()

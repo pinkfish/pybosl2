@@ -92,6 +92,22 @@ _PREAMBLE = (
     "from bosl2.isosurface import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, mb_octahedron, mb_connector\n"
     "from bosl2.threading import Threading\n"
     "from bosl2.screws import Screws\n"
+    # parts library classes, so part examples can be terse (Gears.spur_gear(...).show())
+    "from bosl2.gears import Gears\n"
+    "from bosl2.walls import Walls\n"
+    "from bosl2.hooks import Hooks\n"
+    "from bosl2.wiring import Wiring\n"
+    "from bosl2.polyhedra import Polyhedra\n"
+    "from bosl2.hinges import Hinges\n"
+    "from bosl2.joiners import Joiners\n"
+    "from bosl2.cubetruss import CubeTruss\n"
+    "from bosl2.ball_bearings import BallBearings\n"
+    "from bosl2.linear_bearings import LinearBearings\n"
+    "from bosl2.modular_hose import ModularHose\n"
+    "from bosl2.nema_steppers import NemaSteppers\n"
+    "from bosl2.sliders import Sliders\n"
+    "from bosl2.bottlecaps import BottleCaps\n"
+    "from bosl2.screw_drive import ScrewDrive\n"
     "from functools import reduce\n"
     "from bosl2.constants import *\n"
 )
@@ -145,6 +161,9 @@ class Bosl2ExampleDirective(Directive):
             result = render_script(script, out_png, imgsize=imgsize, timeout=300.0)
         except subprocess.TimeoutExpired:
             _logger.warning(f"bosl2-example: image render timed out for:\n{code}")
+            return None
+        except Exception as exc:  # the PNG helper uses its own binary finder; never crash the build
+            _logger.info(f"bosl2-example: no image preview ({type(exc).__name__}: {exc}) for:\n{code}")
             return None
         if not result.ok:
             _logger.warning(f"bosl2-example: image render failed ({result.error}) for:\n{code}")

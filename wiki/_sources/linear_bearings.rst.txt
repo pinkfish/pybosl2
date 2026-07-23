@@ -21,3 +21,43 @@ along a rod, and the pillow-block housings that clamp them to a plate.
 
 .. autoclass:: bosl2.linear_bearings.LinearBearings
    :members:
+
+.. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
+
+Examples
+--------
+
+These mirror the examples in BOSL2's ``linear_bearings.scad``, rendered live through PythonSCAD.
+Examples that rely on BOSL2's attachment/anchor system, or on features not in this port, are omitted.
+
+.. rubric:: ``linear_bearing``
+
+A generic cartridge:
+
+.. pythonscad-example::
+
+   LinearBearings.linear_bearing(l=24, od=15, id=8).show()
+
+.. rubric:: ``lmXuu_bearing``
+
+A standard LM10UU:
+
+.. pythonscad-example::
+
+   LinearBearings.lmXuu_bearing(size=10).show()
+
+.. rubric:: ``linear_bearing_housing``
+
+A pillow-block housing:
+
+.. pythonscad-example::
+
+   LinearBearings.linear_bearing_housing(d=19, l=29, wall=2, tab=8, screwsize=2.5).show()
+
+.. rubric:: ``lmXuu_housing``
+
+A housing sized for an LM10UU:
+
+.. pythonscad-example::
+
+   LinearBearings.lmXuu_housing(size=10, wall=2, tab=6, screwsize=2.5).show()

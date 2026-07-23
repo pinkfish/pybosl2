@@ -21,3 +21,57 @@ the standard dimensions as a :class:`~bosl2.nema_steppers.NemaSpec`.
 
 .. autoclass:: bosl2.nema_steppers.NemaSteppers
    :members:
+
+.. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
+
+Examples
+--------
+
+These mirror the examples in BOSL2's ``nema_steppers.scad``, rendered live through PythonSCAD.
+Examples that rely on BOSL2's attachment/anchor system, or on features not in this port, are omitted.
+
+.. rubric:: ``nema_stepper_motor``
+
+NEMA 8:
+
+.. pythonscad-example::
+
+   NemaSteppers.nema_stepper_motor(size=8, h=24, shaft_len=15).show()
+
+NEMA 11:
+
+.. pythonscad-example::
+
+   NemaSteppers.nema_stepper_motor(size=11, h=24, shaft_len=20).show()
+
+NEMA 17:
+
+.. pythonscad-example::
+
+   NemaSteppers.nema_stepper_motor(size=17, h=40, shaft_len=30).show()
+
+NEMA 23:
+
+.. pythonscad-example::
+
+   NemaSteppers.nema_stepper_motor(size=23, h=50, shaft_len=40).show()
+
+.. rubric:: ``nema_mount_mask``
+
+Bolt-pattern mask for a NEMA 14:
+
+.. pythonscad-example::
+
+   NemaSteppers.nema_mount_mask(size=14, depth=5, l=5).show()
+
+NEMA 17 with slotted holes:
+
+.. pythonscad-example::
+
+   NemaSteppers.nema_mount_mask(size=17, depth=5, l=5).show()
+
+NEMA 17 with round holes (l=0):
+
+.. pythonscad-example::
+
+   NemaSteppers.nema_mount_mask(size=17, depth=5, l=0).show()
