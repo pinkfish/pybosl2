@@ -453,7 +453,7 @@ def union(*shapes: PyShape) -> PyShape:
         .. pythonscad-example::
 
             a = pysolidfive.cuboid([20.0, 20.0, 10.0], rounding=3, res=10)
-            b = pysolidfive.sphere(r=8, res=10).translate([0.0, 0.0, 8.0])
+            b = pysolidfive.sphere(radius=8, res=10).translate([0.0, 0.0, 8.0])
             shape = pysolidfive.union(a, b)
             shape.show()
     """
@@ -480,7 +480,7 @@ def intersection(*shapes: PyShape) -> PyShape:
         .. pythonscad-example::
 
             a = pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, res=10)
-            b = pysolidfive.sphere(r=12, res=10)
+            b = pysolidfive.sphere(radius=12, res=10)
             shape = pysolidfive.intersection(a, b)
             shape.show()
     """
@@ -509,8 +509,8 @@ def difference(shape: PyShape, *tools: PyShape) -> PyShape:
         .. pythonscad-example::
 
             a = pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=3, res=10)
-            b = pysolidfive.zcyl(h=30, r=5, res=10)
-            c = pysolidfive.xcyl(h=30, r=5, res=10)
+            b = pysolidfive.zcyl(height=30, radius=5, res=10)
+            c = pysolidfive.xcyl(height=30, radius=5, res=10)
             shape = pysolidfive.difference(a, b, c)
             shape.show()
     """
@@ -618,8 +618,8 @@ def hull(*shapes, directions: int = 64, res: int | None = None) -> PyShape:
     Examples:
         .. pythonscad-example::
 
-            a = pysolidfive.sphere(r=6, res=10)
-            b = pysolidfive.sphere(r=6, res=10).translate([18.0, 0.0, 0.0])
+            a = pysolidfive.sphere(radius=6, res=10)
+            b = pysolidfive.sphere(radius=6, res=10).translate([18.0, 0.0, 0.0])
             shape = pysolidfive.hull(a, b, directions=96)
             shape.show()
 
@@ -924,7 +924,7 @@ def sphere(
     Examples:
         .. pythonscad-example::
 
-            shape = pysolidfive.sphere(r=10)
+            shape = pysolidfive.sphere(radius=10)
             shape.show()
     """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
@@ -971,10 +971,10 @@ def torus(
             shape = pysolidfive.torus(major_radius=15, minor_radius=5)
             shape.show()
     """
-    _or = _pick_radius(r=outer_radius, d=outer_diameter, dflt=None)
-    _ir = _pick_radius(r=inner_radius, d=inner_diameter, dflt=None)
-    _r_maj = _pick_radius(r=major_radius, d=major_diameter, dflt=None)
-    _r_min = _pick_radius(r=minor_radius, d=minor_diameter, dflt=None)
+    _or = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
+    _ir = _pick_radius(radius=inner_radius, diameter=inner_diameter, dflt=None)
+    _r_maj = _pick_radius(radius=major_radius, diameter=major_diameter, dflt=None)
+    _r_min = _pick_radius(radius=minor_radius, diameter=minor_diameter, dflt=None)
     if _r_maj is not None:
         maj = _r_maj
     elif _ir is not None and _or is not None:
@@ -1118,10 +1118,10 @@ def cyl(
     Examples:
         .. pythonscad-example::
 
-            shape = pysolidfive.cyl(h=20, r=8, rounding=2)
+            shape = pysolidfive.cyl(height=20, radius=8, rounding=2)
             shape.show()
     """
-    length = l if l is not None else (h if h is not None else 1)
+    length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
     use_anchor = anchor
@@ -1157,12 +1157,12 @@ def cyl(
 
 def _cyl_axis(
     axis: int,
-    h: float | None,
-    r: float | None,
-    l: float | None,
+    height: float | None,
+    radius: float | None,
+    length: float | None,
     radius1: float | None,
     radius2: float | None,
-    d: float | None,
+    diameter: float | None,
     diameter1: float | None,
     diameter2: float | None,
     chamfer: float | None,
@@ -1174,9 +1174,9 @@ def _cyl_axis(
     anchor: "Sequence[float]",
     res: int,
 ) -> PyShape:
-    length = l if l is not None else (h if h is not None else 1)
-    rad1 = _radius(radius1=radius1, diameter1=diameter1, r=r, d=d, dflt=1)
-    rad2 = _radius(radius1=radius2, diameter1=diameter2, r=r, d=d, dflt=1)
+    length = length if length is not None else (height if height is not None else 1)
+    rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
     r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0)
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
@@ -1202,14 +1202,14 @@ def _cyl_axis(
 
 
 def xcyl(
-    h: float | None = None,
-    r: float | None = None,
-    d: float | None = None,
+    height: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    l: float | None = None,
+    length: float | None = None,
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
@@ -1222,12 +1222,12 @@ def xcyl(
     """A cylinder oriented along the X axis. See cyl() for argument details."""
     return _cyl_axis(
         0,
-        h,
-        r,
-        l,
+        height,
+        radius,
+        length,
         radius1,
         radius2,
-        d,
+        diameter,
         diameter1,
         diameter2,
         chamfer,
@@ -1242,14 +1242,14 @@ def xcyl(
 
 
 def ycyl(
-    h: float | None = None,
-    r: float | None = None,
-    d: float | None = None,
+    height: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    l: float | None = None,
+    length: float | None = None,
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
@@ -1262,12 +1262,12 @@ def ycyl(
     """A cylinder oriented along the Y axis. See cyl() for argument details."""
     return _cyl_axis(
         1,
-        h,
-        r,
-        l,
+        height,
+        radius,
+        length,
         radius1,
         radius2,
-        d,
+        diameter,
         diameter1,
         diameter2,
         chamfer,
@@ -1282,14 +1282,14 @@ def ycyl(
 
 
 def zcyl(
-    h: float | None = None,
-    r: float | None = None,
-    d: float | None = None,
+    height: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    l: float | None = None,
+    length: float | None = None,
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
@@ -1302,12 +1302,12 @@ def zcyl(
     """A cylinder oriented along the Z axis (same as cyl()). See cyl() for argument details."""
     return _cyl_axis(
         2,
-        h,
-        r,
-        l,
+        height,
+        radius,
+        length,
         radius1,
         radius2,
-        d,
+        diameter,
         diameter1,
         diameter2,
         chamfer,
@@ -1322,7 +1322,7 @@ def zcyl(
 
 
 def tube(
-    h: float | None = None,
+    height: float | None = None,
     outer_radius: float | None = None,
     inner_radius: float | None = None,
     outer_diameter: float | None = None,
@@ -1336,7 +1336,7 @@ def tube(
     ir2: float | None = None,
     id1: float | None = None,
     id2: float | None = None,
-    l: float | None = None,
+    length: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
@@ -1345,11 +1345,11 @@ def tube(
     Note: BOSL2's outer-radius parameters are named `or`/`or1`/`or2`; exposed here as
     `outer_radius`/`outer_r1`/`outer_r2` since `or` is a Python keyword.
     """
-    length = l if l is not None else (h if h is not None else 1)
-    orr1 = _pick_radius(radius1=outer_r1, diameter1=od1, r=outer_radius, d=outer_diameter, dflt=None)
-    orr2 = _pick_radius(radius1=outer_r2, diameter1=od2, r=outer_radius, d=outer_diameter, dflt=None)
-    irr1 = _pick_radius(radius1=ir1, diameter1=id1, r=inner_radius, d=inner_diameter, dflt=None)
-    irr2 = _pick_radius(radius1=ir2, diameter1=id2, r=inner_radius, d=inner_diameter, dflt=None)
+    length = length if length is not None else (height if height is not None else 1)
+    orr1 = _pick_radius(radius1=outer_r1, diameter1=od1, radius=outer_radius, diameter=outer_diameter, dflt=None)
+    orr2 = _pick_radius(radius1=outer_r2, diameter1=od2, radius=outer_radius, diameter=outer_diameter, dflt=None)
+    irr1 = _pick_radius(radius1=ir1, diameter1=id1, radius=inner_radius, diameter=inner_diameter, dflt=None)
+    irr2 = _pick_radius(radius1=ir2, diameter1=id2, radius=inner_radius, diameter=inner_diameter, dflt=None)
     wall_v = wall if wall is not None else 1
     rad1 = orr1 if orr1 is not None else (irr1 + wall_v if irr1 is not None else None)
     rad2 = orr2 if orr2 is not None else (irr2 + wall_v if irr2 is not None else None)
@@ -1372,15 +1372,15 @@ def tube(
 
 
 def pie_slice(
-    h: float | None = None,
-    r: float | None = None,
+    height: float | None = None,
+    radius: float | None = None,
     angle: float = 30,
     radius1: float | None = None,
     radius2: float | None = None,
-    d: float | None = None,
+    diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    l: float | None = None,
+    length: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
@@ -1388,9 +1388,9 @@ def pie_slice(
     an angular sector (built from 1-2 half-planes -- `angle` is a plain Python float fixed at
     construction time, so choosing intersection vs union of the two half-planes based on
     `angle <= 180` is an ordinary Python conditional, not a per-point SDF branch)."""
-    length = l if l is not None else (h if h is not None else 1)
-    rad1 = _radius(radius1=radius1, diameter1=diameter1, r=r, d=d, dflt=10)
-    rad2 = _radius(radius1=radius2, diameter1=diameter2, r=r, d=d, dflt=10)
+    length = length if length is not None else (height if height is not None else 1)
+    rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
+    rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=10)
     ang_v = angle % 360 if (angle > 360 or angle < 0) else angle
     ang_rad = math.radians(ang_v)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
@@ -1420,9 +1420,9 @@ def pie_slice(
 def prismoid(
     size1: list[float],
     size2: list[float],
-    h: float | None = None,
+    height: float | None = None,
     shift: list[float] = [0, 0],
-    l: float | None = None,
+    length: float | None = None,
     anchor: "Sequence[float]" = BOTTOM,
     res: int = 10,
 ) -> PyShape:
@@ -1441,12 +1441,12 @@ def prismoid(
     Args:
         size1:  [width, length] of the bottom end
         size2:  [width, length] of the top end
-        h/l:    height of the prism
+        height/length:    height of the prism
         shift:  [X,Y] shift of the top center relative to the bottom center
         anchor: anchor point (default BOTTOM)
         res:    libfive meshing resolution passed to frep() (default 10)
     """
-    height = h if h is not None else (l if l is not None else 1)
+    height = height if height is not None else (length if length is not None else 1)
     bx1, by1 = size1[0] / 2, size1[1] / 2
     bx2, by2 = size2[0] / 2, size2[1] / 2
     hb = height / 2
@@ -1473,13 +1473,13 @@ def prismoid(
 
 
 def rect_tube(
-    h: float | None = None,
+    height: float | None = None,
     size: float | list[float] | None = None,
     isize: float | list[float] | None = None,
     wall: float | None = None,
     rounding: float = 0,
     inner_rounding: float | None = None,
-    l: float | None = None,
+    length: float | None = None,
     anchor: "Sequence[float]" = BOTTOM,
     res: int = 10,
 ) -> PyShape:
@@ -1491,7 +1491,7 @@ def rect_tube(
     one inner radius (default: same as the outer).
 
     Args:
-        h/l:       height/length of the tube (default 1)
+        height/length:       height/length of the tube (default 1)
         size:      outer [X,Y] size of the tube
         isize:     inner [X,Y] size of the tube
         wall:      wall thickness (used with `size` if `isize` isn't given, or vice versa)
@@ -1500,7 +1500,7 @@ def rect_tube(
         anchor:    anchor point (default BOTTOM)
         res:       libfive meshing resolution passed to frep() (default 10)
     """
-    length = h if h is not None else (l if l is not None else 1)
+    length = height if height is not None else (length if length is not None else 1)
     assert size is not None, "rect_tube(): must give size."
     sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 2
     if isize is not None:
@@ -1532,29 +1532,29 @@ def rect_tube(
 
 
 def interior_fillet(
-    l: float = 1.0,
-    r: float | None = None,
+    length: float = 1.0,
+    radius: float | None = None,
     angle: float = 90,
-    d: float | None = None,
+    diameter: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
     """A shape to fillet an interior corner between two faces meeting at `angle` degrees, as a
-    libfive SDF: the wedge between the two faces, minus a cylindrical arc of radius `r`
-    positioned so it's tangent to both. Extruded along Y for length `l`.
+    libfive SDF: the wedge between the two faces, minus a cylindrical arc of radius `radius`
+    positioned so it's tangent to both. Extruded along Y for length `length`.
 
     CAVEAT: simplified relative to bosl2.shapes3d.interior_fillet() -- no `overlap=` flap (an
     SDF union is already watertight without one) and no independent anchor-face alignment;
     the wedge's first face lies along the local +X/Z=0 half-plane. See
     bosl2.shapes3d.interior_fillet() for the exact BOSL2-compatible anchor/orientation.
     """
-    rad = _radius(r=r, d=d, dflt=1)
+    rad = _radius(radius=radius, diameter=diameter, dflt=1)
     half = math.radians(angle / 2)
     dist = rad / math.sin(half)
     cx, cz = dist * math.cos(half), dist * math.sin(half)
     ang_rad = math.radians(angle)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
-    hb = l / 2
+    hb = length / 2
 
     def sdf_fn(x, y, z):
         sdf1 = -z
@@ -1580,14 +1580,14 @@ def rounding_edge_mask(
     excess: float = 0.1,
     res: int = 10,
 ) -> PyShape:
-    """A standalone 3-D edge-rounding CUTTER of length `l`, as a libfive SDF, for subtracting
+    """A standalone 3-D edge-rounding CUTTER of length `length`, as a libfive SDF, for subtracting
     from another PyShape to round over a sharp 90-degree edge that isn't part of a cuboid()'s
-    own edge/corner treatment -- e.g. an edge exposed by an earlier cut, or any other edge you'd
+    own edge/corner treatment -- e.g. an edge exposed by an earlier cut, or any other edge you'diameter
     otherwise position by hand. Matches bosl2.masking.rounding_edge_mask()'s local-frame
     convention exactly (same `.rotate(...).translate(...)` call sites work unchanged): origin at
     the sharp edge, +X/+Y extending into the material (with a small `excess` skirt past 0 on
     each so the cutter fully bridges the material being cut), centered along its own Z axis over
-    length `l`, with a quarter-circle bite of radius `r` taken out of the far corner.
+    length `length`, with a quarter-circle bite of radius `radius` taken out of the far corner.
 
     Built the same way interior_fillet() builds its wedge-minus-circle cutter: a square corner
     (`box`) minus a circle tangent to both its flat sides.
@@ -1596,7 +1596,7 @@ def rounding_edge_mask(
     whole length (no radius1/radius2 taper).
     """
     length = length if length is not None else (height if height is not None else 1)
-    rad = _radius(r=radius, d=diamter, dflt=1)
+    rad = _radius(radius=radius, diameter=diameter, dflt=1)
 
     def sdf_fn(x, y, z):
         box = lv.max(lv.max(x - rad, -x - excess), lv.max(y - rad, -y - excess))
@@ -1652,15 +1652,15 @@ def polygon_extrude(pts, length: float, res: int = 10) -> PyShape:
 
 def polygon_prism(
     paths,
-    h: float,
+    height: float,
     rounding_top: float = 0,
     rounding_bottom: float = 0,
     res: int = 10,
 ) -> PyShape:
     """Extrude an arbitrary SIMPLE polygon (convex or concave -- exact 2-D SDF via
-    _polygon_sdf_xy(), unlike polygon_extrude()'s convex-only half-planes) from z=0 up to z=h,
+    _polygon_sdf_xy(), unlike polygon_extrude()'s convex-only half-planes) from z=0 up to z=height,
     with optional circular treatments on each end rim -- the same job as real BOSL2's
-    offset_sweep(path, height=h, bottom=os_circle(b), top=os_circle(t)), and the same sign
+    offset_sweep(path, height=height, bottom=os_circle(b), top=os_circle(t)), and the same sign
     convention for the radii: positive is a convex roundover eased into the rim, negative is an
     outward flare, 0 leaves that rim square. Sits on z=0 (not centered), matching offset_sweep.
 
@@ -1668,7 +1668,7 @@ def polygon_prism(
     "region" of disjoint islands, min/union-combined). Holes aren't supported.
 
     Roundover rims use the same exact inset-then-offset construction as _rounded_box_sdf(), in
-    (d2d, z) cross-section coordinates: q = (d2d + r, (z - h) + r) for the top rim, then
+    (d2d, z) cross-section coordinates: q = (d2d + r, (z - height) + r) for the top rim, then
     `min(max(q), 0) + hypot(max(q, 0)) - r` -- which reduces exactly to the plain side/end
     distance away from its own rim, so both rims plus the sharp prism combine with max().
     Flares union on an extra quarter-circle ring of material outside the wall (the same
@@ -1677,7 +1677,7 @@ def polygon_prism(
 
     Args:
         paths:           one [[x, y], ...] polygon, or a list of disjoint such polygons
-        h:               extrusion height (z from 0 to h)
+        height:               extrusion height (z from 0 to height)
         rounding_top:    top-rim treatment: >0 roundover radius, <0 flare, 0 square (default 0)
         rounding_bottom: bottom-rim treatment, same convention (default 0)
         res:             libfive meshing resolution passed to frep() (default 10)
@@ -1686,8 +1686,8 @@ def polygon_prism(
     path_list = as_path_list(paths)
     for p in path_list:
         assert len(p) >= 3, f"polygon_prism(): every path needs >= 3 points, got {len(p)}"
-    assert h > 0, f"polygon_prism(): h must be > 0, h={h}"
-    assert abs(rounding_top) < h and abs(rounding_bottom) < h, "polygon_prism(): rim treatments must be smaller than h"
+    assert height > 0, f"polygon_prism(): height must be > 0, height={height}"
+    assert abs(rounding_top) < height and abs(rounding_bottom) < height, "polygon_prism(): rim treatments must be smaller than height"
 
     def sdf_fn(x, y, z):
         d2d = None
@@ -1698,10 +1698,10 @@ def polygon_prism(
 
         # Sharp prism, then max() in each roundover rim (each reduces to the sharp distance
         # away from its own rim -- see docstring).
-        out = lv.max(d2d, lv.max(z - h, -z))
+        out = lv.max(d2d, lv.max(z - height, -z))
         if rounding_top > 0:
             rt = rounding_top
-            q1, q2 = d2d + rt, (z - h) + rt
+            q1, q2 = d2d + rt, (z - height) + rt
             out = lv.max(
                 out,
                 lv.min(lv.max(q1, q2), 0) + _lv_hypot(lv.max(q1, 0), lv.max(q2, 0)) - rt,
@@ -1734,7 +1734,7 @@ def polygon_prism(
             assert u_d is not None
             f = -rounding_top
             du = lv.min(u_d, f + 1)
-            ring = lv.max(f - _lv_hypot(du - f, z - (h - f)), lv.max(z - h, (h - f) - z))
+            ring = lv.max(f - _lv_hypot(du - f, z - (height - f)), lv.max(z - height, (height - f) - z))
             ring = lv.max(ring, u_d - f)
             out = lv.min(out, ring)
         if rounding_bottom < 0:
@@ -1752,14 +1752,14 @@ def polygon_prism(
     return PyShape(
         sdf_fn,
         [min(xs) - flare, min(ys) - flare, 0],
-        [max(xs) + flare, max(ys) + flare, h],
+        [max(xs) + flare, max(ys) + flare, height],
         res,
     )
 
 
 def teardrop(
     height: float | None = None,
-    radois: float | None = None,
+    radius: float | None = None,
     angle: float = 45,
     cap_height: float | None = None,
     radius1: float | None = None,
@@ -1791,14 +1791,14 @@ def teardrop(
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = length / 2
 
-    def profile_sdf(u, v, rad):
-        circle = _lv_hypot(u, v) - rad
-        right = u * sin_a + v * cos_a - rad
-        left = -u * sin_a + v * cos_a - rad
+    def profile_sdf(u, v, radius):
+        circle = _lv_hypot(u, v) - radius
+        right = u * sin_a + v * cos_a - radius
+        left = -u * sin_a + v * cos_a - radius
         # The roof planes are only tangent to (and so only a valid boundary of) the circle
-        # at v >= rad*cos_a (their tangent height); below that they cut into the disk, so
+        # at v >= radius*cos_a (their tangent height); below that they cut into the disk, so
         # mask them out there and let the circle govern instead.
-        v_tangent = rad * cos_a
+        v_tangent = radius * cos_a
         roof = lv.max(right, left) + _PENALTY * lv.max(0, v_tangent - v)
         d = lv.min(circle, roof)
         if cap_height is not None:
@@ -1922,7 +1922,7 @@ def regular_prism(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A regular n-gon prism (equilateral, equiangular cross-section), as a libfive SDF
+    """A regular num_sides-gon prism (equilateral, equiangular cross-section), as a libfive SDF
     built on polygon_prism(). Mirrors bosl2.shapes3d.regular_prism().
 
     Size is controlled by one of the radius/diameter/side parameters, in BOSL2 priority order:
@@ -1943,10 +1943,10 @@ def regular_prism(
     import math as _m
 
     length = length if length is not None else (height if height is not None else 1)
-    sc = 1 / _m.cos(_m.radians(180.0 / n))
+    sc = 1 / _m.cos(_m.radians(180.0 / num_sides))
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
-    side_s = side / 2 / _m.sin(_m.radians(180.0 / n)) if side is not None else None
+    side_s = side / 2 / _m.sin(_m.radians(180.0 / num_sides)) if side is not None else None
     rad = _pick_radius(
         radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, radius=radius, diameter=diameter, dflt=side_s
     )
@@ -1955,12 +1955,12 @@ def regular_prism(
             "regular_prism(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
         )
 
-    pts = [[_m.cos(2 * _m.pi * i / n) * rad, _m.sin(2 * _m.pi * i / n) * rad] for i in range(n)]
+    pts = [[_m.cos(2 * _m.pi * i / num_sides) * rad, _m.sin(2 * _m.pi * i / num_sides) * rad] for i in range(num_sides)]
     if realign:
         pts = [
             [
-                p[0] * _m.cos(-_m.pi / n) - p[1] * _m.sin(-_m.pi / n),
-                p[0] * _m.sin(-_m.pi / n) + p[1] * _m.cos(-_m.pi / n),
+                p[0] * _m.cos(-_m.pi / num_sides) - p[1] * _m.sin(-_m.pi / num_sides),
+                p[0] * _m.sin(-_m.pi / num_sides) + p[1] * _m.cos(-_m.pi / num_sides),
             ]
             for p in pts
         ]

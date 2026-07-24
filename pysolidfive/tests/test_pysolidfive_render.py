@@ -73,10 +73,10 @@ SHAPES = [
         "cuboid_rounded_partial_edges",
         "pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, edges='Z')",
     ),
-    ("sphere", "pysolidfive.sphere(r=10)"),
-    ("cyl_rounded", "pysolidfive.cyl(h=20, r=8, rounding=2)"),
+    ("sphere", "pysolidfive.sphere(radius=10)"),
+    ("cyl_rounded", "pysolidfive.cyl(height=20, radius=8, rounding=2)"),
     ("torus", "pysolidfive.torus(major_radius=15, minor_radius=5)"),
-    ("teardrop", "pysolidfive.teardrop(h=10, r=8)"),
+    ("teardrop", "pysolidfive.teardrop(height=10, radius=8)"),
     # A concave L-shaped outline (exact winding-number polygon SDF -- exercises concave-outline
     # sign correctness, which polygon_extrude()'s convex half-planes can't do), with a rounded
     # bottom rim and a flared top rim (both offset_sweep/os_circle-style end treatments).
@@ -92,22 +92,22 @@ SHAPES = [
     (
         "op_union",
         "pysolidfive.union(pysolidfive.cuboid([20.0, 20.0, 10.0], rounding=3, res=10), "
-        "pysolidfive.sphere(r=8, res=10).translate([0.0, 0.0, 8.0]))",
+        "pysolidfive.sphere(radius=8, res=10).translate([0.0, 0.0, 8.0]))",
     ),
     (
         "op_intersection",
         "pysolidfive.intersection(pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, res=10), "
-        "pysolidfive.sphere(r=12, res=10))",
+        "pysolidfive.sphere(radius=12, res=10))",
     ),
     (
         "op_difference",
         "pysolidfive.difference(pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=3, res=10), "
-        "pysolidfive.zcyl(h=30, r=5, res=10), pysolidfive.xcyl(h=30, r=5, res=10))",
+        "pysolidfive.zcyl(height=30, radius=5, res=10), pysolidfive.xcyl(height=30, radius=5, res=10))",
     ),
     (
         "op_hull_spheres",
-        "pysolidfive.hull(pysolidfive.sphere(r=6, res=10), "
-        "pysolidfive.sphere(r=6, res=10).translate([18.0, 0.0, 0.0]), directions=96)",
+        "pysolidfive.hull(pysolidfive.sphere(radius=6, res=10), "
+        "pysolidfive.sphere(radius=6, res=10).translate([18.0, 0.0, 0.0]), directions=96)",
     ),
     (
         "op_hull_spike",

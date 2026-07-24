@@ -439,7 +439,7 @@ def test_stroke_2d_closed_square(tmp_path):
 def test_stroke_3d_helix_tube(tmp_path):
     m = _render(
         tmp_path,
-        "stroke(helix(turns=2, h=40, r=15), width=4)",
+        "stroke(helix(turns=2, height=40, radius=15), width=4)",
         name="stroke3d",
     )
     assert m.ntris > 0
@@ -539,7 +539,7 @@ def test_stroke_arrow_endcap_3d_is_a_cone(tmp_path):
 
 def test_path3d_rotated_helix_stroke(tmp_path):
     # rotating the helix about X swaps its Z-height into -Y; the tube follows
-    setup = "coil = helix(turns=2, h=40, r=12).rotate(90, [1, 0, 0])\n"
+    setup = "coil = helix(turns=2, height=40, radius=12).rotate(90, [1, 0, 0])\n"
     m = _render(tmp_path, "coil.stroke(width=3)", setup=setup, name="helixrot")
     assert m.volume > 0
     # after a 90-deg X rotation the ~40 tall extent now lies along Y (plus tube thickness)
@@ -547,7 +547,7 @@ def test_path3d_rotated_helix_stroke(tmp_path):
 
 
 def test_path3d_resampled_helix_stroke(tmp_path):
-    setup = "coil = helix(turns=3, h=60, r=20).resample(sides=150)\n"
+    setup = "coil = helix(turns=3, height=60, radius=20).resample(sides=150)\n"
     m = _render(tmp_path, "coil.stroke(width=4)", setup=setup, name="helixresample")
     assert m.ntris > 0
     assert m.volume > 0
@@ -555,7 +555,7 @@ def test_path3d_resampled_helix_stroke(tmp_path):
 
 
 def test_path3d_translate_moves_stroke(tmp_path):
-    setup = "coil = helix(turns=1.5, h=30, r=10).up(100)\n"
+    setup = "coil = helix(turns=1.5, height=30, radius=10).up(100)\n"
     m = _render(tmp_path, "coil.stroke(width=3)", setup=setup, name="helixup")
     assert m.bbmin[2] > 90  # lifted 100mm up
 

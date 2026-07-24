@@ -137,16 +137,16 @@ def _circlecorner(points, parm, fn=None, fa=None, fs=None):
 
 def round_corners(
     path,
-    method="circle",
-    radius=None,
+    method: str = "circle",
+    radius: float | None = None,
     cut=None,
     joint=None,
-    width=None,
-    k=None,
-    closed=True,
-    fn=None,
-    fa=None,
-    fs=None,
+    width: float | None = None,
+    k: float | None = None,
+    closed: bool = True,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ):
     """Round every corner of *path* (BOSL2 round_corners()).
 
@@ -293,9 +293,9 @@ def smooth_path(
     tangents=None,
     size=None,
     relsize=None,
-    splinesteps=10,
-    uniform=False,
-    closed=False,
+    splinesteps: int = 10,
+    uniform: bool = False,
+    closed: bool = False,
 ):
     """Fit a smooth continuous-curvature curve through *path* (BOSL2 smooth_path(), method="edges").
 
@@ -344,13 +344,13 @@ class Roundable:
 
     def round_corners(
         self,
-        radius=None,
-        method="circle",
+        radius: float | None = None,
+        method: str = "circle",
         cut=None,
         joint=None,
-        width=None,
-        k=None,
-        closed=None,
+        width: float | None = None,
+        k: float | None = None,
+        closed: bool | None = None,
         **kwargs,
     ):
         """Round every corner of this path (see :func:`round_corners`)."""
@@ -371,9 +371,9 @@ class Roundable:
         tangents=None,
         size=None,
         relsize=None,
-        splinesteps=10,
-        uniform=False,
-        closed=None,
+        splinesteps: int = 10,
+        uniform: bool = False,
+        closed: bool | None = None,
     ):
         """Fit a smooth continuous-curvature curve through this path (see :func:`smooth_path`)."""
         return smooth_path(

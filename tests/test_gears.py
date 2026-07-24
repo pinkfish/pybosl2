@@ -15,8 +15,8 @@ from bosl2.gears import Gears as G
 from bosl2.shapes3d import Bosl2Solid
 
 
-def _size(solid):
-    _center, size = solid.bounds()
+def _size(solid: Bosl2Solid):
+    _, size = solid.bounds()
     return size
 
 
@@ -89,9 +89,9 @@ def test_spur_gear_builds(kw):
 
 def test_spur_gear_envelope_matches_outer_radius():
     g = G.spur_gear(pitch=5, teeth=20, thickness=8)
-    w, l, height = _size(g)
+    width, _, height = _size(g)
     expect = 2 * G.outer_radius(5, 20)
-    assert w == pytest.approx(expect, abs=0.5)
+    assert width == pytest.approx(expect, abs=0.5)
     assert height == pytest.approx(8, abs=0.01)
 
 
@@ -131,9 +131,9 @@ def test_rack_height_too_small_raises():
 def test_ring_gear_builds_as_annulus():
     ring = G.ring_gear(pitch=5, teeth=20, thickness=6, backing=3)
     assert isinstance(ring, Bosl2Solid)
-    w, l, height = _size(ring)
+    width, _, height = _size(ring)
     expect = 2 * (G.outer_radius(circ_pitch=5, teeth=20, internal=True) + 3)
-    assert w == pytest.approx(expect, abs=0.6)
+    assert width == pytest.approx(expect, abs=0.6)
     assert height == pytest.approx(6, abs=0.01)
 
 
@@ -169,8 +169,8 @@ def test_bevel_gear_builds(kw):
 def test_bevel_gear_envelope():
     # diameter is near the pitch diameter (cone tapers, teeth add a little); thickness > 0.
     g = G.bevel_gear(pitch=5, teeth=20, face_width=10, pitch_angle=45, cutter_radius=0)
-    w, l, height = _size(g)
-    assert w == pytest.approx(2 * G.pitch_radius(5, 20), abs=3)
+    width, _, height = _size(g)
+    assert width == pytest.approx(2 * G.pitch_radius(5, 20), abs=3)
     assert height > 1
 
 
@@ -197,7 +197,7 @@ def test_worm_builds(kw):
 
 
 def test_worm_length():
-    w, l, hgt = _size(G.worm(pitch=8, diameter=30, length=50))
+    _, _, hgt = _size(G.worm(pitch=8, diameter=30, length=50))
     assert hgt == pytest.approx(50, abs=0.5)
 
 
@@ -242,8 +242,8 @@ def test_herringbone_builds(kw):
 
 def test_herringbone_envelope_matches_spur():
     height = G.herringbone_gear(mod=5, teeth=20, thickness=10)  # no helical -> matches the spur envelope
-    w, l, hgt = _size(height)
-    assert w == pytest.approx(2 * G.outer_radius(mod=5, teeth=20), abs=1.5)
+    width, _, hgt = _size(height)
+    assert width == pytest.approx(2 * G.outer_radius(mod=5, teeth=20), abs=1.5)
     assert hgt == pytest.approx(10, abs=0.01)
 
 

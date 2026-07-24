@@ -531,7 +531,7 @@ def _tex_hex_grid_vnf(border=None, **_):
         for i in range(6)
     ]
 
-    def cyl(rad, angle):  # yscale(sc, cylindrical_to_xyz(rad, angle, 1))
+    def cyl(rad: float, angle: float):  # yscale(sc, cylindrical_to_xyz(rad, angle, 1))
         return [
             rad * math.cos(math.radians(angle)),
             rad * math.sin(math.radians(angle)) * sc,
@@ -610,7 +610,7 @@ TEXTURES = {
 }
 
 
-def texture(tex, sides=None, border=None, gap=None, roughness=None, inset=None, fn=None):
+def texture(tex, sides=None, border=None, gap: float | None = None, roughness=None, inset=None, fn: int | None = None):
     """The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
     *sides* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile

@@ -201,7 +201,7 @@ class Walls:
     @staticmethod
     def thinning_wall(
         height: float = 50,
-        length=100,
+        length: float = 100,
         thick: float = 5,
         angle: float = 30,
         strut: float | None = None,

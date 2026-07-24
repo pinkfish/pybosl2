@@ -206,7 +206,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         """Numeric torsion estimate of a 3-D path at each point, as an ndarray."""
         return Path._path_torsion(self, closed=self.closed)
 
-    def cut_points(self, cutdist, direction: bool = False):
+    def cut_points(self, cutdist: float, direction: bool = False):
         """Point(s) at the given distance(s) along the path."""
         return Path._path_cut_points(self, cutdist, closed=self.closed, direction=direction)
 
@@ -271,7 +271,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         """Resample to evenly spaced points."""
         return self._like(Path._resample_path(self, closed=self.closed, **kwargs))
 
-    def cut(self, cutdist) -> list["Path"]:
+    def cut(self, cutdist: float) -> list["Path"]:
         """Split the path at the given distance(s), returning the sub-paths."""
         return [self._like(sub) for sub in Path._path_cut(self, cutdist, closed=self.closed)]
 
@@ -1586,7 +1586,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         """Numeric torsion estimate at each point, as an ndarray."""
         return Path._path_torsion(self, closed=self.closed)
 
-    def cut_points(self, cutdist, direction: bool = False):
+    def cut_points(self, cutdist: float, direction: bool = False):
         """Point(s) at the given distance(s) along the path."""
         return Path._path_cut_points(self, cutdist, closed=self.closed, direction=direction)
 
@@ -1616,7 +1616,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         """Resample to evenly spaced points."""
         return self._like(Path._resample_path(self, closed=self.closed, **kwargs))
 
-    def cut(self, cutdist) -> list["Path3D"]:
+    def cut(self, cutdist: float) -> list["Path3D"]:
         """Split the path at the given distance(s), returning the sub-paths."""
         return [self._like(sub) for sub in Path._path_cut(self, cutdist, closed=self.closed)]
 

@@ -125,8 +125,8 @@ def isosurface(
     bounding_box=None,
     voxel_size=None,
     voxel_count=None,
-    closed=True,
-    reverse=False,
+    closed: bool = True,
+    reverse: bool = False,
     exact_bounds=False,
 ):
     """Mesh the level set of a scalar field *f* at *isovalue* into a VNF (BOSL2 isosurface()).
@@ -200,7 +200,7 @@ def _marching_cubes(F, xs, ys, zs, iso, closed):
     faces = []
     cache = {}
 
-    def corner_pos(ci, i, j, k):
+    def corner_pos(ci, i, j, k: float):
         di, dj, dk = CORNER_OFFSETS[ci]
         return (i + di, j + dj, k + dk)
 
@@ -294,7 +294,13 @@ def _radius(radius=None, diameter=None):
     return radius if radius is not None else (diameter / 2 if diameter is not None else None)
 
 
-def mb_sphere(radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+def mb_sphere(
+    radius: float | None = None,
+    cutoff: float = INF,
+    influence: float = 1,
+    negative: bool = False,
+    diameter: float | None = None,
+):
     """A spherical metaball field of radius *radius* (BOSL2 mb_sphere())."""
     rr = _radius(radius, diameter)
     assert rr and rr > 0, "mb_sphere(): need a positive radius or diameter."
@@ -307,7 +313,7 @@ def mb_sphere(radius=None, cutoff=INF, influence=1, negative=False, diameter=Non
     return Metaball(field, neg)
 
 
-def mb_cuboid(size, squareness=0.5, cutoff=INF, influence=1, negative=False):
+def mb_cuboid(size, squareness=0.5, cutoff: float = INF, influence: float = 1, negative: bool = False):
     """A rounded-cuboid metaball field (BOSL2 mb_cuboid()). *squareness* 0..1: 0 round, 1 square."""
     assert 0 <= squareness <= 1, "mb_cuboid(): squareness must be in [0, 1]."
     xp = _squircle_se_exponent(squareness)
@@ -325,9 +331,9 @@ def mb_cuboid(size, squareness=0.5, cutoff=INF, influence=1, negative=False):
 def mb_torus(
     major_radius=None,
     minor_radius=None,
-    cutoff=INF,
-    influence=1,
-    negative=False,
+    cutoff: float = INF,
+    influence: float = 1,
+    negative: bool = False,
     major_diameter=None,
     minor_diameter=None,
 ):
@@ -349,7 +355,14 @@ def mb_torus(
     return Metaball(field, neg)
 
 
-def mb_capsule(height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+def mb_capsule(
+    height: float | None = None,
+    radius: float | None = None,
+    cutoff: float = INF,
+    influence: float = 1,
+    negative: bool = False,
+    diameter: float | None = None,
+):
     """
     A capsule (round-ended cylinder) metaball field, total length *height*, radius *radius*
     (BOSL2 mb_capsule()).
@@ -370,7 +383,14 @@ def mb_capsule(height=None, radius=None, cutoff=INF, influence=1, negative=False
     return Metaball(field, neg)
 
 
-def mb_disk(height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+def mb_disk(
+    height: float | None = None,
+    radius: float | None = None,
+    cutoff: float = INF,
+    influence: float = 1,
+    negative: bool = False,
+    diameter: float | None = None,
+):
     """
     A rounded-edge disk metaball field, thickness *height*, outer radius *radius* (BOSL2
     mb_disk()).
@@ -391,7 +411,7 @@ def mb_disk(height=None, radius=None, cutoff=INF, influence=1, negative=False, d
     return Metaball(field, neg)
 
 
-def mb_octahedron(size, squareness=0.5, cutoff=INF, influence=1, negative=False):
+def mb_octahedron(size, squareness=0.5, cutoff: float = INF, influence: float = 1, negative: bool = False):
     """A rounded-octahedron metaball field (BOSL2 mb_octahedron())."""
     assert 0 <= squareness <= 1, "mb_octahedron(): squareness must be in [0, 1]."
     xp = _squircle_se_exponent(squareness)
@@ -417,7 +437,15 @@ def mb_octahedron(size, squareness=0.5, cutoff=INF, influence=1, negative=False)
     return Metaball(field, neg)
 
 
-def mb_connector(p1, p2, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+def mb_connector(
+    p1,
+    p2,
+    radius: float | None = None,
+    cutoff: float = INF,
+    influence: float = 1,
+    negative: bool = False,
+    diameter: float | None = None,
+):
     """
     A capsule metaball field spanning from *p1* to *p2* with radius *radius* (BOSL2
     mb_connector()).
@@ -483,7 +511,7 @@ def metaballs(
     voxel_size=None,
     voxel_count=None,
     isovalue=1,
-    closed=True,
+    closed: bool = True,
     exact_bounds=False,
 ):
     """Mesh a set of transformed metaball field primitives into a blobby surface (BOSL2 metaballs()).

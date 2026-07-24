@@ -69,7 +69,7 @@ def axis_angle_matrix(angle: float, axis) -> np.ndarray:
     )
 
 
-def rot_about_axis(angle: float, axis, center=(0.0, 0.0, 0.0)) -> np.ndarray:
+def rot_about_axis(angle: float, axis, center: bool = (0.0, 0.0, 0.0)) -> np.ndarray:
     """4x4 matrix rotating *angle* degrees about the line through *center* in direction *axis*.
 
     The 4x4 form of BOSL2's ``rot(a=, v=, center=)``: translate *center* to the origin, rotate, translate

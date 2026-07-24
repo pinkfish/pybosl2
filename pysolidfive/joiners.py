@@ -120,11 +120,11 @@ def knuckle_hinge(
     # straight arm from x=-extra to the knuckle center at x=offset, plus the knuckle circle,
     # optionally cleared above y=0, minus the pin hole.
     arm = rect2d([offset + extra, kd], anchor=[-1, 0], res=res).translate([-extra, 0])
-    profile: PyShape2D = arm | circle2d(d=kd, res=res).translate([offset, 0])
+    profile: PyShape2D = arm | circle2d(diameter=kd, res=res).translate([offset, 0])
     if clear_top:
         profile = profile - rect2d([offset + kd + 1, kd + 1], anchor=[-1, -1], res=res).translate([-0.1, 0])
     if pin_diam and pin_diam > 0:
-        profile = profile - circle2d(d=pin_diam, res=res).translate([offset, 0])
+        profile = profile - circle2d(diameter=pin_diam, res=res).translate([offset, 0])
 
     seg_h = (seglen2 if inner else seglen1) - gap
     pitch = seglen1 + seglen2

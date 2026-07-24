@@ -139,9 +139,9 @@ class BallBearings:
         width: float | None = None,
         shield: bool = True,
         color: str | None = "silver",
-        fn=None,
-        fa=None,
-        fs=None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A ball-bearing cartridge model (BOSL2 ball_bearing()).
 

@@ -183,12 +183,12 @@ class PyShape2D:
 
     # ---- the ops SDFs are uniquely good at ----
 
-    def offset(self, delta: float = 0, r: float | None = None) -> "PyShape2D":
+    def offset(self, delta: float = 0, radius: float | None = None) -> "PyShape2D":
         """Grow (positive) or shrink (negative) by a distance -- one subtraction on the SDF, no
         polygon offsetting/self-intersection cleanup. Growth is round-style (matching native
-        offset(r=...)); accepts either the delta= or r= spelling since they coincide here.
+        offset(radius=...)); accepts either the delta= or radius= spelling since they coincide here.
         """
-        amount = float(r if r is not None else delta)
+        amount = float(radius if radius is not None else delta)
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(x, y) - amount  # noqa: E731
         g = max(amount, 0.0)
@@ -269,9 +269,9 @@ class PyShape2D:
         return getattr(self.extrude(0.01).mesh(), name)
 
 
-def circle2d(r: float | None = None, d: float | None = None, res: int = 10) -> PyShape2D:
-    """A circle at the origin -- the exact SDF `length(p) - r`."""
-    rad = _radius(r=r, d=d, dflt=1)
+def circle2d(radius: float | None = None, diameter: float | None = None, res: int = 10) -> PyShape2D:
+    """A circle at the origin -- the exact SDF `length(p) - radius`."""
+    rad = _radius(radius=radius, diameter=diameter, dflt=1)
     return PyShape2D(lambda x, y: _lv_hypot(x, y) - rad, [-rad, -rad], [rad, rad], res)
 
 
@@ -320,14 +320,14 @@ def supershape2d(
     n3: float | None = None,
     a: float = 1,
     b: float | None = None,
-    r: float | None = None,
-    d: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
     res: int = 10,
 ) -> PyShape2D:
     """A superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
     parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d()."""
     return polygon2d(
-        _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, r=r, d=d),
+        _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),
         res=res,
     )
 
@@ -457,7 +457,7 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
     assert ds, "hull2d_discs() needs at least one disc"
     if len(ds) == 1:
         cx, cy, r = ds[0]
-        return circle2d(r=r, res=res).translate([cx, cy])
+        return circle2d(radius=r, res=res).translate([cx, cy])
 
     centers = [[c[0], c[1]] for c in ds]
     rmax = max(c[2] for c in ds)
@@ -508,18 +508,18 @@ def square2d(size=10, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PySh
 
 
 def ellipse2d(
-    r: float | Sequence[float] | None = None,
-    d: float | Sequence[float] | None = None,
+    radius: float | Sequence[float] | None = None,
+    diameter: float | Sequence[float] | None = None,
     res: int = 10,
 ) -> PyShape2D:
-    """An ellipse with semi-axes *r* (``[rx, ry]``) or full diameters *d* (``[dx, dy]``).
+    """An ellipse with semi-axes *radius* (``[rx, ry]``) or full diameters *diameter* (``[dx, dy]``).
     Built by non-uniformly scaling a unit circle SDF, which gives an exact algebraic distance
     whose zero-isosurface is the desired ellipse.
     """
-    if r is not None:
-        rx, ry = (float(r), float(r)) if isinstance(r, (int, float)) else (float(r[0]), float(r[1]))
-    elif d is not None:
-        dx, dy = (float(d), float(d)) if isinstance(d, (int, float)) else (float(d[0]), float(d[1]))
+    if radius is not None:
+        rx, ry = (float(radius), float(radius)) if isinstance(radius, (int, float)) else (float(radius[0]), float(radius[1]))
+    elif diameter is not None:
+        dx, dy = (float(diameter), float(diameter)) if isinstance(diameter, (int, float)) else (float(diameter[0]), float(diameter[1]))
         rx, ry = dx / 2, dy / 2
     else:
         rx = ry = 1.0
@@ -531,9 +531,9 @@ def ellipse2d(
 
 
 def regular_ngon2d(
-    n: int = 6,
-    r: float | None = None,
-    d: float | None = None,
+    num_sides: int = 6,
+    radius: float | None = None,
+    diameter: float | None = None,
     outer_radius: float | None = None,
     outer_diameter: float | None = None,
     inner_radius: float | None = None,
@@ -542,14 +542,14 @@ def regular_ngon2d(
     realign: bool = False,
     res: int = 10,
 ) -> PyShape2D:
-    """A regular n-gon (triangle, square, pentagon, hexagon, ...) as a signed-distance field.
+    """A regular num_sides-gon (triangle, square, pentagon, hexagon, ...) as a signed-distance field.
 
     Size is controlled by one of the radius/diameter/side parameters:
-    ``inner_radius``/``inner_diameter`` > ``outer_radius``/``outer_diameter`` > ``r``/``d`` > ``side``.
+    ``inner_radius``/``inner_diameter`` > ``outer_radius``/``outer_diameter`` > ``radius``/``diameter`` > ``side``.
 
     Args:
-        n:       number of sides (default 6)
-        r/d:     radius/diameter to the vertices
+        num_sides:       number of sides (default 6)
+        radius/diameter:     radius/diameter to the vertices
         outer_radius/outer_diameter: outer radius/diameter (BOSL2 ``or``)
         inner_radius/inner_diameter:   inner radius/diameter (apothem to face centres)
         side:    length of each side
@@ -558,22 +558,22 @@ def regular_ngon2d(
     """
     import math as _m
 
-    sc = 1 / _m.cos(_m.radians(180.0 / n))
+    sc = 1 / _m.cos(_m.radians(180.0 / num_sides))
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
-    side_s = side / 2 / _m.sin(_m.radians(180.0 / n)) if side is not None else None
-    rad = _radius(radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, r=r, d=d, dflt=side_s)
+    side_s = side / 2 / _m.sin(_m.radians(180.0 / num_sides)) if side is not None else None
+    rad = _radius(radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, radius=radius, diameter=diameter, dflt=side_s)
     if rad is None:
         raise ValueError(
-            "regular_ngon2d(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
+            "regular_ngon2d(): need one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
         )
 
-    pts = [[_m.cos(2 * _m.pi * i / n) * rad, _m.sin(2 * _m.pi * i / n) * rad] for i in range(n)]
+    pts = [[_m.cos(2 * _m.pi * i / num_sides) * rad, _m.sin(2 * _m.pi * i / num_sides) * rad] for i in range(num_sides)]
     if realign:
         pts = [
             [
-                p[0] * _m.cos(-_m.pi / n) - p[1] * _m.sin(-_m.pi / n),
-                p[0] * _m.sin(-_m.pi / n) + p[1] * _m.cos(-_m.pi / n),
+                p[0] * _m.cos(-_m.pi / num_sides) - p[1] * _m.sin(-_m.pi / num_sides),
+                p[0] * _m.sin(-_m.pi / num_sides) + p[1] * _m.cos(-_m.pi / num_sides),
             ]
             for p in pts
         ]
@@ -582,10 +582,10 @@ def regular_ngon2d(
 
 
 def star2d(
-    n: int = 5,
-    r: float | None = None,
+    num_sides: int = 5,
+    radius: float | None = None,
     inner_radius: float | None = None,
-    d: float | None = None,
+    diameter: float | None = None,
     outer_radius: float | None = None,
     outer_diameter: float | None = None,
     inner_diameter: float | None = None,
@@ -593,13 +593,13 @@ def star2d(
     realign: bool = False,
     res: int = 10,
 ) -> PyShape2D:
-    """An n-pointed star polygon as a signed-distance field.
+    """An num_sides-pointed star polygon as a signed-distance field.
 
     Args:
-        n:       number of stellate tips (default 5)
-        r/outer_radius: radius to the tips (BOSL2 ``or``)
+        num_sides:       number of stellate tips (default 5)
+        radius/outer_radius: radius to the tips (BOSL2 ``or``)
         inner_radius:      radius to the inner corners
-        d/outer_diameter:    diameter to the tips
+        diameter/outer_diameter:    diameter to the tips
         inner_diameter:      diameter to the inner corners
         step:    compute inner radius by drawing a line ``step`` tips around
         realign: put edge midpoint on +X instead of tip (default False)
@@ -607,23 +607,23 @@ def star2d(
     """
     import math as _m
 
-    rad = _radius(radius1=outer_radius, diameter1=outer_diameter, r=r, d=d, dflt=1)
+    rad = _radius(radius1=outer_radius, diameter1=outer_diameter, radius=radius, diameter=diameter, dflt=1)
     if step is not None:
-        stepr = rad * _m.cos(_m.radians(180 * step / n)) / _m.cos(_m.radians(180 * (step - 1) / n))
+        stepr = rad * _m.cos(_m.radians(180 * step / num_sides)) / _m.cos(_m.radians(180 * (step - 1) / num_sides))
     else:
         stepr = rad
-    inner_r = _radius(r=inner_radius, d=inner_diameter, dflt=stepr)
+    inner_r = _radius(radius=inner_radius, diameter=inner_diameter, dflt=stepr)
 
     pts = []
-    for i in range(2 * n, 0, -1):
-        a = _m.radians(180.0 * i / n)
+    for i in range(2 * num_sides, 0, -1):
+        a = _m.radians(180.0 * i / num_sides)
         rr = inner_r if i % 2 else rad
         pts.append([rr * _m.cos(a), rr * _m.sin(a)])
     if realign:
         pts = [
             [
-                p[0] * _m.cos(-_m.pi / n) - p[1] * _m.sin(-_m.pi / n),
-                p[0] * _m.sin(-_m.pi / n) + p[1] * _m.cos(-_m.pi / n),
+                p[0] * _m.cos(-_m.pi / num_sides) - p[1] * _m.sin(-_m.pi / num_sides),
+                p[0] * _m.sin(-_m.pi / num_sides) + p[1] * _m.cos(-_m.pi / num_sides),
             ]
             for p in pts
         ]
@@ -632,7 +632,7 @@ def star2d(
 
 
 def trapezoid2d(
-    h: float | None = None,
+    height: float | None = None,
     width1: float | None = None,
     width2: float | None = None,
     angle: float | None = None,
@@ -643,32 +643,32 @@ def trapezoid2d(
     """A trapezoid with parallel front and back sides, as a signed-distance field.
 
     Args:
-        h:    Y-axis height
+        height:    Y-axis height
         width1:   X-axis width of the front end
         width2:   X-axis width of the back end
-        angle:  if given in place of h/width1/width2, the missing value is derived
+        angle:  if given in place of height/width1/width2, the missing value is derived
         shift: X-axis shift of the back (default 0)
         anchor: anchor point (default CENTER)
         res:  meshing resolution (default 10)
     """
     import math as _m
 
-    defined = sum(x is not None for x in (h, width1, width2, angle))
-    assert defined == 3, "Must give exactly 3 of h, width1, width2, and angle."
+    defined = sum(x is not None for x in (height, width1, width2, angle))
+    assert defined == 3, "Must give exactly 3 of height, width1, width2, and angle."
 
-    if h is None:
-        h = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))
+    if height is None:
+        height = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))
     if width1 is None:
-        width1 = width2 + 2 * (h * _m.tan(_m.radians(angle)) + shift)
+        width1 = width2 + 2 * (height * _m.tan(_m.radians(angle)) + shift)
     if width2 is None:
-        width2 = width1 - 2 * (h * _m.tan(_m.radians(angle)) + shift)
-    assert width1 >= 0 and width2 >= 0 and h > 0, "Degenerate trapezoid geometry."
+        width2 = width1 - 2 * (height * _m.tan(_m.radians(angle)) + shift)
+    assert width1 >= 0 and width2 >= 0 and height > 0, "Degenerate trapezoid geometry."
 
     pts = [
-        [width2 / 2 + shift, h / 2],
-        [-width2 / 2 + shift, h / 2],
-        [-width1 / 2, -h / 2],
-        [width1 / 2, -h / 2],
+        [width2 / 2 + shift, height / 2],
+        [-width2 / 2 + shift, height / 2],
+        [-width1 / 2, -height / 2],
+        [width1 / 2, -height / 2],
     ]
     return polygon2d(pts, res=res)
 

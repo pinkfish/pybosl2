@@ -83,7 +83,7 @@ class TestRevolveSDF(unittest.TestCase):
         self.assertIsNotNone(shape)
 
     def test_circle_revolved_builds(self):
-        circ = pysolidfive.circle2d(r=5).translate([8, 0])
+        circ = pysolidfive.circle2d(radius=5).translate([8, 0])
         shape = pysolidfive.revolve_sdf(circ).mesh()
         self.assertIsNotNone(shape)
 
@@ -92,7 +92,7 @@ class TestLinearSweepSDF(unittest.TestCase):
     """linear_sweep_sdf — extrude with twist/scale/shift."""
 
     def test_plain_builds(self):
-        shape = pysolidfive.linear_sweep_sdf(pysolidfive.circle2d(r=5), height=4).mesh()
+        shape = pysolidfive.linear_sweep_sdf(pysolidfive.circle2d(radius=5), height=4).mesh()
         self.assertIsNotNone(shape)
 
 
@@ -100,14 +100,14 @@ class TestSkinSDF(unittest.TestCase):
     """skin_sdf — loft between stacked 2-D profiles."""
 
     def test_two_profile_loft(self):
-        bottom = pysolidfive.circle2d(r=6)
-        top = pysolidfive.circle2d(r=3)
+        bottom = pysolidfive.circle2d(radius=6)
+        top = pysolidfive.circle2d(radius=3)
         shape = pysolidfive.skin_sdf([bottom, top], z=[0, 10]).mesh()
         self.assertIsNotNone(shape)
 
     def test_three_profile_stack(self):
         bot = pysolidfive.square2d(12)
-        mid = pysolidfive.circle2d(r=8)
+        mid = pysolidfive.circle2d(radius=8)
         top = pysolidfive.square2d(6)
         shape = pysolidfive.skin_sdf([bot, mid, top], z=[0, 6, 12]).mesh()
         self.assertIsNotNone(shape)

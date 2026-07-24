@@ -525,7 +525,12 @@ class Gears:
     # -- tooth density -----------------------------------------------------
 
     @staticmethod
-    def circular_pitch(circ_pitch=None, mod=None, pitch=None, diam_pitch=None) -> float:
+    def circular_pitch(
+        circ_pitch: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
         """Circular pitch (mm/tooth) from any pitch input (BOSL2 circular_pitch())."""
         return _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
 
@@ -535,35 +540,52 @@ class Gears:
         return mod * PI
 
     @staticmethod
-    def module_value(circ_pitch=None, mod=None, pitch=None, diam_pitch=None) -> float:
+    def module_value(
+        circ_pitch: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
         """Metric module from any pitch input (BOSL2 module_value())."""
         return _module_value(_circular_pitch(circ_pitch, mod, pitch, diam_pitch))
 
     @staticmethod
-    def diametral_pitch(circ_pitch=None, mod=None, pitch=None, diam_pitch=None) -> float:
+    def diametral_pitch(
+        circ_pitch: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
         """Diametral pitch (teeth per inch of pitch diameter) (BOSL2 diametral_pitch())."""
         return PI / _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
 
     # -- radii -------------------------------------------------------------
 
     @staticmethod
-    def pitch_radius(circ_pitch=None, teeth=11, helical=0, mod=None, pitch=None, diam_pitch=None) -> float:
+    def pitch_radius(
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        helical: float = 0,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
         """Pitch radius; meshed gears sit a :meth:`gear_dist` apart (BOSL2 pitch_radius())."""
         return _pitch_radius(_circular_pitch(circ_pitch, mod, pitch, diam_pitch), teeth, helical)
 
     @staticmethod
     def outer_radius(
-        circ_pitch=None,
-        teeth=11,
-        clearance=None,
-        internal=False,
-        helical=0,
-        profile_shift="auto",
-        pressure_angle=20,
-        shorten=0,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        clearance: float | None = None,
+        internal: bool = False,
+        helical: float = 0,
+        profile_shift: float = "auto",
+        pressure_angle: float = 20,
+        shorten: float = 0,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> float:
         """Tip radius; the gear fits within this circle (BOSL2 outer_radius())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -572,16 +594,16 @@ class Gears:
 
     @staticmethod
     def root_radius(
-        circ_pitch=None,
-        teeth=11,
-        clearance=None,
-        internal=False,
-        helical=0,
-        profile_shift="auto",
-        pressure_angle=20,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        clearance: float | None = None,
+        internal: bool = False,
+        helical: float = 0,
+        profile_shift: float = "auto",
+        pressure_angle: float = 20,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> float:
         """Root radius at the base of the tooth valleys (BOSL2 root_radius())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -590,13 +612,13 @@ class Gears:
 
     @staticmethod
     def base_radius(
-        circ_pitch=None,
-        teeth=11,
-        pressure_angle=20,
-        helical=0,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        pressure_angle: float = 20,
+        helical: float = 0,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> float:
         """Base-circle radius of the involute (BOSL2 base_radius())."""
         return _base_radius(
@@ -607,7 +629,9 @@ class Gears:
         )
 
     @staticmethod
-    def auto_profile_shift(teeth, pressure_angle=20, helical=0, profile_shift="auto") -> float:
+    def auto_profile_shift(
+        teeth: int, pressure_angle: float = 20, helical: float = 0, profile_shift: float = "auto"
+    ) -> float:
         """Minimum profile shift (modules) to avoid undercut (BOSL2 auto_profile_shift())."""
         return _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
 
@@ -615,18 +639,18 @@ class Gears:
 
     @staticmethod
     def gear_dist(
-        teeth1,
-        teeth2,
-        helical=0,
-        profile_shift1="auto",
-        profile_shift2="auto",
-        internal1=False,
-        internal2=False,
-        backlash=0,
-        pressure_angle=20,
-        circ_pitch=None,
-        mod=None,
-        diam_pitch=None,
+        teeth1: int,
+        teeth2: int,
+        helical: float = 0,
+        profile_shift1: float = "auto",
+        profile_shift2: float = "auto",
+        internal1: bool = False,
+        internal2: bool = False,
+        backlash: float = 0,
+        pressure_angle: float = 20,
+        circ_pitch: float | None = None,
+        mod: float | None = None,
+        diam_pitch: float | None = None,
     ) -> float:
         """Center-to-center distance for two meshing gears (BOSL2 gear_dist()).
 
@@ -669,19 +693,19 @@ class Gears:
 
     @staticmethod
     def gear_tooth_profile(
-        circ_pitch=None,
-        teeth=11,
-        pressure_angle=20,
-        clearance=None,
-        backlash=0.0,
-        helical=0,
-        internal=False,
-        profile_shift="auto",
-        shorten=0,
-        center=False,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        pressure_angle: float = 20,
+        clearance: float | None = None,
+        backlash: float = 0.0,
+        helical: float = 0,
+        internal: bool = False,
+        profile_shift: float = "auto",
+        shorten: float = 0,
+        center: bool = False,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> list[list[float]]:
         """
         The 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2
@@ -704,21 +728,21 @@ class Gears:
 
     @staticmethod
     def spur_gear2d(
-        circ_pitch=None,
-        teeth=11,
-        hide=0,
-        pressure_angle=20,
-        clearance=None,
-        backlash=0.0,
-        internal=False,
-        profile_shift="auto",
-        helical=0,
-        shaft_diam=0,
-        shorten=0,
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        hide: int = 0,
+        pressure_angle: float = 20,
+        clearance: float | None = None,
+        backlash: float = 0.0,
+        internal: bool = False,
+        profile_shift: float = "auto",
+        helical: float = 0,
+        shaft_diam: float = 0,
+        shorten: float = 0,
         gear_spin=0,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """A 2-D involute spur gear outline (BOSL2 spur_gear2d()).
 
@@ -767,24 +791,24 @@ class Gears:
 
     @staticmethod
     def spur_gear(
-        circ_pitch=None,
-        teeth=11,
-        thickness=6,
-        shaft_diam=0,
-        hide=0,
-        pressure_angle=20,
-        clearance=None,
-        backlash=0.0,
-        helical=0,
-        herringbone=False,
-        internal=False,
-        profile_shift="auto",
-        shorten=0,
-        slices=None,
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        thickness: float = 6,
+        shaft_diam: float = 0,
+        hide: int = 0,
+        pressure_angle: float = 20,
+        clearance: float | None = None,
+        backlash: float = 0.0,
+        helical: float = 0,
+        herringbone: bool = False,
+        internal: bool = False,
+        profile_shift: float = "auto",
+        shorten: float = 0,
+        slices: int | None = None,
         gear_spin=0,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """A 3-D involute spur gear -- helical and/or herringbone, with an optional shaft bore (BOSL2 spur_gear()).
 
@@ -834,22 +858,22 @@ class Gears:
 
     @staticmethod
     def herringbone_gear(
-        circ_pitch=None,
-        teeth=11,
-        thickness=6,
-        shaft_diam=0,
-        hide=0,
-        pressure_angle=20,
-        clearance=None,
-        backlash=0.0,
-        helical=0,
-        internal=False,
-        profile_shift="auto",
-        shorten=0,
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        thickness: float = 6,
+        shaft_diam: float = 0,
+        hide: int = 0,
+        pressure_angle: float = 20,
+        clearance: float | None = None,
+        backlash: float = 0.0,
+        helical: float = 0,
+        internal: bool = False,
+        profile_shift: float = "auto",
+        shorten: float = 0,
         gear_spin=0,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """
         A herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``.
@@ -876,18 +900,18 @@ class Gears:
 
     @staticmethod
     def ring_gear(
-        circ_pitch=None,
-        teeth=11,
-        thickness=6,
-        backing=3,
-        pressure_angle=20,
-        clearance=None,
-        backlash=0.0,
-        helical=0,
-        profile_shift="auto",
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 11,
+        thickness: float = 6,
+        backing: float = 3,
+        pressure_angle: float = 20,
+        clearance: float | None = None,
+        backlash: float = 0.0,
+        helical: float = 0,
+        profile_shift: float = "auto",
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """
         An internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2
@@ -935,15 +959,15 @@ class Gears:
 
     @staticmethod
     def rack2d(
-        circ_pitch=None,
-        teeth=20,
-        height=10,
-        pressure_angle=20,
-        backlash=0.0,
-        clearance=None,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 20,
+        height: float = 10,
+        pressure_angle: float = 20,
+        backlash: float = 0.0,
+        clearance: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """A 2-D involute rack outline -- a straight bar of teeth (BOSL2 rack2d())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -953,17 +977,17 @@ class Gears:
 
     @staticmethod
     def rack(
-        circ_pitch=None,
-        teeth=20,
-        thickness=5,
-        height=10,
-        pressure_angle=20,
-        backlash=0.0,
-        clearance=None,
-        helical=0,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 20,
+        thickness: float = 5,
+        height: float = 10,
+        pressure_angle: float = 20,
+        backlash: float = 0.0,
+        clearance: float | None = None,
+        helical: float = 0,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """A 3-D rack: a linear toothed bar a gear rolls along (BOSL2 rack())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -984,7 +1008,7 @@ class Gears:
     # -- bevel / worm dimension helpers ------------------------------------
 
     @staticmethod
-    def bevel_pitch_angle(teeth, mate_teeth, drive_angle=90) -> float:
+    def bevel_pitch_angle(teeth: int, mate_teeth, drive_angle: float = 90) -> float:
         """Pitch angle (deg) for a bevel gear meshing another (BOSL2 bevel_pitch_angle())."""
         return math.degrees(
             math.atan2(
@@ -995,15 +1019,15 @@ class Gears:
 
     @staticmethod
     def worm_gear_thickness(
-        circ_pitch=None,
-        teeth=30,
-        worm_diam=30,
-        worm_arc=60,
-        crowning=1,
-        clearance=None,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 30,
+        worm_diam: float = 30,
+        worm_arc: float = 60,
+        crowning: float = 1,
+        clearance: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> float:
         """Thickness of a worm gear matched to a worm (BOSL2 worm_gear_thickness())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -1018,24 +1042,24 @@ class Gears:
 
     @staticmethod
     def bevel_gear(
-        circ_pitch=None,
-        teeth=20,
-        face_width=10,
-        pitch_angle=45,
+        circ_pitch: float | None = None,
+        teeth: int = 20,
+        face_width: float = 10,
+        pitch_angle: float = 45,
         mate_teeth=None,
-        shaft_diam=0,
-        hide=0,
-        pressure_angle=20,
-        clearance=None,
-        backlash=0.0,
+        shaft_diam: float = 0,
+        hide: int = 0,
+        pressure_angle: float = 20,
+        clearance: float | None = None,
+        backlash: float = 0.0,
         cutter_radius=30,
-        spiral_angle=35,
-        left_handed=False,
-        slices=5,
-        interior=False,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        spiral_angle: float = 35,
+        left_handed: bool = False,
+        slices: int = 5,
+        interior: bool = False,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """A (potentially spiral) involute bevel gear (BOSL2 bevel_gear())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -1114,17 +1138,17 @@ class Gears:
 
     @staticmethod
     def worm(
-        circ_pitch=None,
-        diameter=30,
-        length=100,
-        starts=1,
-        left_handed=False,
-        pressure_angle=20,
-        backlash=0.0,
-        clearance=None,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        diameter: float = 30,
+        length: float = 100,
+        starts: int = 1,
+        left_handed: bool = False,
+        pressure_angle: float = 20,
+        backlash: float = 0.0,
+        clearance: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """A worm (a screw that meshes a worm gear) (BOSL2 worm())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -1158,21 +1182,21 @@ class Gears:
 
     @staticmethod
     def worm_gear(
-        circ_pitch=None,
-        teeth=36,
-        worm_diam=30,
-        worm_starts=1,
-        worm_arc=60,
-        crowning=1,
-        left_handed=False,
-        pressure_angle=20,
-        backlash=0.0,
-        slices=10,
-        clearance=None,
-        shaft_diam=0,
-        mod=None,
-        pitch=None,
-        diam_pitch=None,
+        circ_pitch: float | None = None,
+        teeth: int = 36,
+        worm_diam: float = 30,
+        worm_starts: int = 1,
+        worm_arc: float = 60,
+        crowning: float = 1,
+        left_handed: bool = False,
+        pressure_angle: float = 20,
+        backlash: float = 0.0,
+        slices: int = 10,
+        clearance: float | None = None,
+        shaft_diam: float = 0,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """A worm gear, hobbed to mesh a matching :meth:`worm` (BOSL2 worm_gear())."""
         assert 10 <= worm_arc <= 60, "worm_gear(): worm_arc must be between 10 and 60 degrees."

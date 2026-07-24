@@ -76,8 +76,8 @@ def _radius(
     diameter1: float | None = None,
     radius2: float | None = None,
     diameter2: float | None = None,
-    r: float | None = None,
-    d: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
     dflt: float = 1,
 ) -> float:
     """_pick_radius(), guaranteed non-None since `dflt` is always a real number here -- unlike
@@ -86,7 +86,7 @@ def _radius(
     tell "not specified" apart from a real radius (see torus()/tube(), which call
     _pick_radius() directly with `dflt=None`)."""
     result = _pick_radius(
-        radius1=radius1, diameter1=diameter1, radius2=radius2, diameter2=diameter2, r=r, d=d, dflt=dflt
+        radius1=radius1, diameter1=diameter1, radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=dflt
     )
     assert result is not None
     return result
@@ -321,8 +321,8 @@ def supershape_path(
     n3: float | None = None,
     a: float = 1,
     b: float | None = None,
-    r: float | None = None,
-    d: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
 ) -> NDArray[np.float64]:
     """The superformula outline as a closed point path -- same parameters and sampling as the
     bosl2 port's supershape() (which builds a polygon() from the identical path)."""
@@ -334,7 +334,7 @@ def supershape_path(
     bv = b if b is not None else a
     angs = [360.0 - i * 360.0 / n_pts for i in range(n_pts)]
     rvals = [superformula(t, m1, m2v, n1v, n2v, n3v, a, bv) for t in angs]
-    rad = r if r is not None else (d / 2 if d is not None else None)
+    rad = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     scale = (rad / max(rvals)) if rad is not None else 1.0
     ang_r = np.radians(np.asarray(angs))
     rv = scale * np.asarray(rvals)
@@ -701,14 +701,14 @@ def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: 
     return np.asarray(result, dtype=float)
 
 
-def offset_polyline(path: ArrayLike, d: float) -> NDArray[np.float64]:
-    """The input open polyline shifted `d` to the LEFT of its direction of travel, using
+def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
+    """The input open polyline shifted `delta` to the LEFT of its direction of travel, using
     per-vertex averaged normals -- exact for smooth densely-sampled curves (which is all
     rabbit_clip() feeds it; it is NOT a general polygon offset with joint handling)."""
     pts = as_points(path)
     tang = path_tangents(pts, closed=False, uniform=False)
     left = np.stack([-tang[:, 1], tang[:, 0]], axis=1)
-    return pts + left * d
+    return pts + left * delta
 
 
 # ---------------------------------------------------------------------------

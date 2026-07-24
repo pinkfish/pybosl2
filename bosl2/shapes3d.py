@@ -107,7 +107,7 @@ from bosl2.partitions import Partitionable
 from bosl2.paths import Path
 from bosl2.vectors import is_vector, unit
 
-from .constants import *
+from .constants import ALL, BACK, BOTTOM, CENTER, DOWN, FRONT, INCH, LEFT, RIGHT, TOP, UP
 from .shapes2d import _frag_count, _pick_radius
 from .shapes2d import text as _text2d
 
@@ -931,16 +931,16 @@ def _corner_shape(
     fn = 4 if is_chamfer else max(4, int(_quantup(_frag_count(radius, fn, fa, fs), 4)))
     base_t = [corner[i] * (size[i] / 2 - c[i]) for i in range(3)]
 
-    def xtcyl(length, radius):
+    def xtcyl(length: float, radius: float):
         return _rotate_to_axis(_ocylinder(height=length, radius=radius, center=True, fn=fn), 0)
 
-    def ytcyl(length, radius):
+    def ytcyl(length: float, radius: float):
         return _rotate_to_axis(_ocylinder(height=length, radius=radius, center=True, fn=fn), 1)
 
-    def ztcyl(length, radius):
+    def ztcyl(length: float, radius: float):
         return _ocylinder(height=length, radius=radius, center=True, fn=fn)
 
-    def tsphere(radius):
+    def tsphere(radius: float):
         return _osphere(radius=radius, fn=fn)
 
     if cnt == 0 or radius == 0:
@@ -3294,14 +3294,14 @@ def plot3d(f, x, y, zclip=None, zspan=None, base: float = 1, style: str = "defau
 
 def plot_revolution(
     f,
-    angle,
+    angle: float,
     z=None,
-    radius=None,
-    radius1=None,
-    radius2=None,
-    diameter=None,
-    diameter1=None,
-    diameter2=None,
+    radius: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     path=None,
     rclip=None,
     rspan=None,
@@ -3391,7 +3391,7 @@ def plot_revolution(
 
 
 def fillet(
-    length=None,
+    length: float | None = None,
     radius: float | None = None,
     angle: float = 90,
     radius1: float | None = None,
@@ -3400,7 +3400,7 @@ def fillet(
     diameter1: float | None = None,
     diameter2: float | None = None,
     excess: float = 0.01,
-    height=None,
+    height: float | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -3456,9 +3456,9 @@ def textured_tile(
     style: str = "min_edge",
     sides=None,
     border=None,
-    gap=None,
+    gap: float | None = None,
     roughness=None,
-    fn=None,
+    fn: int | None = None,
 ) -> Bosl2Solid:
     """A rectangular tile carrying a repeated *texture* (BOSL2 textured_tile()).
 

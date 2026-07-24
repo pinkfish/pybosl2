@@ -338,7 +338,7 @@ class Screws:
     # -- resolved dimensions ---------------------------------------------------------------
 
     @staticmethod
-    def screw_info(spec, head="socket", thread="coarse", drive="none", pitch=None):
+    def screw_info(spec, head: str = "socket", thread: str = "coarse", drive: str = "none", pitch: float | None = None):
         """Resolve a screw specification to a dict of dimensions.
 
         Keys: ``system``, ``diameter``, ``pitch``, ``head``, ``head_size``, ``head_height``,
@@ -393,16 +393,16 @@ class Screws:
     @staticmethod
     def screw(
         spec,
-        length,
-        head="socket",
-        drive="none",
-        thread=True,
-        thread_len=None,
-        pitch=None,
-        fn=None,
-        fa=None,
-        fs=None,
-    ):
+        length: float,
+        head: str = "socket",
+        drive: str = "none",
+        thread: str = True,
+        thread_len: float | None = None,
+        pitch: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Bosl2Solid:
         """A metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.
 
         *length* is the shaft length below the head (for a flat head, below the surface). Set
@@ -501,16 +501,16 @@ class Screws:
     @staticmethod
     def nut(
         spec,
-        thickness="normal",
+        thickness: float = "normal",
         shape="hex",
-        thread="coarse",
-        nutwidth=None,
-        slop=0.0,
-        pitch=None,
-        fn=None,
-        fa=None,
-        fs=None,
-    ):
+        thread: str = "coarse",
+        nutwidth: float | None = None,
+        slop: float = 0.0,
+        pitch: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Bosl2Solid:
         """A hex or square nut with a threaded hole matching *spec* (BOSL2 nut()).
 
         *thickness* is ``"normal"``, ``"thin"``, ``"thick"`` or a number (mm). *nutwidth* overrides
@@ -527,16 +527,16 @@ class Screws:
     @staticmethod
     def screw_hole(
         spec,
-        length,
-        head="none",
+        length: float,
+        head: str = "none",
         counterbore=0.0,
-        fit="normal",
-        thread=False,
-        pitch=None,
-        fn=None,
-        fa=None,
-        fs=None,
-    ):
+        fit: str = "normal",
+        thread: str = False,
+        pitch: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Bosl2Solid:
         """A hole cutter for a screw: clearance shaft, plus optional countersink (flat head) or
         counterbore.
 

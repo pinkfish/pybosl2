@@ -311,7 +311,7 @@ def _reindex_polygon(reference, poly) -> list:
     return np.roll(p, -best_k, axis=0).tolist()
 
 
-def slice_profiles(profiles, slices, closed: bool = False) -> list:
+def slice_profiles(profiles, slices: int, closed: bool = False) -> list:
     """Interpolate *slices* extra profiles between each consecutive pair (BOSL2 slice_profiles()).
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
@@ -333,10 +333,10 @@ def slice_profiles(profiles, slices, closed: bool = False) -> list:
 
 def skin(
     profiles,
-    slices,
+    slices: int,
     refine=1,
     method: str = "direct",
-    sampling=None,
+    sampling: str | None = None,
     caps=None,
     closed: bool = False,
     style: str = "min_edge",
@@ -413,11 +413,11 @@ def skin(
 
 def linear_sweep(
     region,
-    height=None,
+    height: float | None = None,
     twist: float = 0.0,
     scale=1,
     shift=(0.0, 0.0),
-    slices=None,
+    slices: int | None = None,
     caps=True,
     style: str = "default",
     center: bool | None = None,
@@ -518,14 +518,14 @@ def rotate_sweep(
 
 def spiral_sweep(
     poly,
-    height,
-    radius=None,
+    height: float,
+    radius: float | None = None,
     turns: float = 1.0,
-    radius1=None,
-    radius2=None,
-    diameter=None,
-    diameter1=None,
-    diameter2=None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     center: bool = True,
     style: str = "min_edge",
 ) -> VNF:
@@ -589,7 +589,7 @@ def spiral_sweep(
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
-def subdivide_and_slice(profiles, slices, numpoints=None, method: str = "length", closed: bool = False) -> list:
+def subdivide_and_slice(profiles, slices: int, numpoints=None, method: str = "length", closed: bool = False) -> list:
     """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
@@ -723,7 +723,7 @@ def rot_resample(
     scale=None,
     smoothlen: int = 1,
     long=False,
-    turns=0,
+    turns: float = 0,
     closed: bool = False,
     method: str = "length",
 ) -> list:

@@ -228,12 +228,12 @@ def _nurbs_curve_pts(
 
 def nurbs_curve(
     control,
-    degree=None,
-    splinesteps=None,
+    degree: int | None = None,
+    splinesteps: int | None = None,
     u=None,
     mult=None,
     weights=None,
-    type="clamped",
+    type: str = "clamped",
     knots=None,
 ):
     """Evaluate a NURBS curve, returning its points (BOSL2 nurbs_curve()).
@@ -320,12 +320,12 @@ def _column(grid, j):
 
 def nurbs_patch_points(
     patch,
-    degree=None,
-    splinesteps=None,
+    degree: int | None = None,
+    splinesteps: int | None = None,
     u=None,
     v=None,
     weights=None,
-    type=("clamped", "clamped"),
+    type: str = ("clamped", "clamped"),
     mult=(None, None),
     knots=(None, None),
 ):
@@ -416,14 +416,14 @@ def nurbs_patch_points(
 
 def nurbs_vnf(
     patch,
-    degree=None,
-    splinesteps=16,
+    degree: int | None = None,
+    splinesteps: int = 16,
     weights=None,
-    type="clamped",
+    type: str = "clamped",
     mult=None,
     knots=None,
-    style="default",
-    reverse=False,
+    style: str = "default",
+    reverse: bool = False,
     caps=None,
     cap1=None,
     cap2=None,
@@ -567,7 +567,9 @@ def _elevate_once(ctrl, p, U):
     return [list(row) for row in Q], U_new, p_new
 
 
-def nurbs_elevate_degree(control, degree=None, knots=None, type="clamped", times=1, weights=None, mult=None):
+def nurbs_elevate_degree(
+    control, degree: int | None = None, knots=None, type: str = "clamped", times: int = 1, weights=None, mult=None
+):
     """Raise a NURBS/B-spline curve's degree by *times*, returning a parameter list (BOSL2 nurbs_elevate_degree()).
 
     Returns ``[type, new_degree, new_control, new_knots, None, new_weights]``. Only ``"clamped"``

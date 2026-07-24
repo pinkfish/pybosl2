@@ -109,7 +109,7 @@ def test_catenary_requires_exactly_one_of_droop_angle():
 
 
 def test_helix_returns_path3d():
-    height = helix(turns=2, h=40, r=10)
+    height = helix(turns=2, height=40, radius=10)
     assert isinstance(height, Path3D)  # the 3-D path object
     assert not isinstance(height, Path)
     assert len(height[0]) == 3
@@ -119,11 +119,11 @@ def test_helix_returns_path3d():
 
 def test_helix_needs_exactly_two_params():
     with pytest.raises(AssertionError):
-        helix(h=40, r=10)  # only one of length/turns/angle
+        helix(height=40, radius=10)  # only one of length/turns/angle
 
 
 def test_helix_flat_spiral():
-    height = helix(h=0, radius1=50, radius2=25, length=0, turns=4)
+    height = helix(height=0, radius1=50, radius2=25, length=0, turns=4)
     assert all(math.isclose(p[2], 0, abs_tol=1e-9) for p in height)  # flat: every z is 0
 
 
@@ -161,7 +161,7 @@ def test_stroke_2d_builds():
 
 
 def test_stroke_3d_builds():
-    assert stroke(helix(turns=2, h=40, r=20), width=3) is not None
+    assert stroke(helix(turns=2, height=40, radius=20), width=3) is not None
 
 
 def test_stroke_closed_path_defaults_from_flag():
@@ -193,7 +193,7 @@ def test_dashed_stroke_region_flattens():
 
 
 def test_dashed_stroke_3d_yields_path3d():
-    dashes = helix(turns=2, h=40, r=10).dashed_stroke(dashpat=[6, 4])
+    dashes = helix(turns=2, height=40, radius=10).dashed_stroke(dashpat=[6, 4])
     assert len(dashes) > 1
     assert all(isinstance(d, Path3D) for d in dashes)
 

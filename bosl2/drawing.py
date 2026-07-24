@@ -148,13 +148,13 @@ def catenary(
 
 def helix(
     length: float | None = None,
-    h: float | None = None,
+    height: float | None = None,
     turns: float | None = None,
     angle: float | None = None,
-    r: float | None = None,
+    radius: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
-    d: float | None = None,
+    diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
 ) -> Path3D:
@@ -162,15 +162,15 @@ def helix(
 
     Returned as a :class:`~bosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
     transforms/measurements and feeds straight into :func:`stroke` or ``path_sweep``. Give
-    exactly two of *length*/*h* (length), *turns*, and *angle*; the third is derived. Positive *turns*
+    exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*
     is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
     spiral is ``height=0`` with a turn count).
 
     Args:
-        length/h:     height of the helix (0 for a flat spiral)
+        length/height:     height of the helix (0 for a flat spiral)
         turns:   number of turns (positive = right-handed)
         angle:   helix angle in degrees (measured at the base radius)
-        r/d:     radius / diameter (constant helix)
+        radius/diameter:     radius / diameter (constant helix)
         radius1/diameter1:   bottom radius / diameter
         radius2/diameter2:   top radius / diameter
 
@@ -181,11 +181,11 @@ def helix(
 
             stroke(helix(turns=2.5, height=100, radius=30), width=3).show()
     """
-    r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=r, diameter=d, dflt=1)
-    r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=r, diameter=d, dflt=1)
-    length = length if length is not None else h
+    r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
+    r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    length = length if length is not None else height
     assert sum(v is not None for v in (length, turns, angle)) == 2, (
-        "helix() needs exactly two of length/h, turns, and angle."
+        "helix() needs exactly two of length/height, turns, and angle."
     )
     assert angle is None or length != 0, "helix() cannot take an angle with length 0."
     if angle is not None and length != 0:

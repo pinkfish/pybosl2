@@ -102,14 +102,14 @@ class TestPyShape(unittest.TestCase):
 
     def test_difference(self):
         a = pysolidfive.cuboid(size=[10.0, 10.0, 10.0])
-        b = pysolidfive.sphere(r=3)
+        b = pysolidfive.sphere(radius=3)
         d = (a - b).mesh()
         self.assertGreater(d.sample(0, 0, 0), 0, "carved out by the sphere")
         self.assertLess(d.sample(4.5, 0, 0), 0, "inside the box, outside the sphere")
 
     def test_round_and_chamfer_require_cuboid_size(self):
         # A shape not built from cuboid() (no cuboid_size metadata) can't be .round()ed.
-        s = pysolidfive.sphere(r=5)
+        s = pysolidfive.sphere(radius=5)
         with self.assertRaises(AssertionError):
             s.round(1)
         with self.assertRaises(AssertionError):
@@ -202,8 +202,8 @@ class TestNamedCombinators(unittest.TestCase):
 
     def test_difference_multiple_tools(self):
         base = pysolidfive.cuboid(size=[20.0, 20.0, 20.0])
-        t1 = pysolidfive.sphere(r=3)
-        t2 = pysolidfive.sphere(r=3).translate([6, 0, 0])
+        t1 = pysolidfive.sphere(radius=3)
+        t2 = pysolidfive.sphere(radius=3).translate([6, 0, 0])
         d = pysolidfive.difference(base, t1, t2).mesh()
         self.assertGreater(d.sample(0, 0, 0), 0, "carved by t1")
         self.assertGreater(d.sample(6, 0, 0), 0, "carved by t2")
@@ -485,13 +485,13 @@ class TestConvexPolyhedron(unittest.TestCase):
 
 class TestSphere(unittest.TestCase):
     def test_sphere(self):
-        shape = pysolidfive.sphere(r=5).mesh()
+        shape = pysolidfive.sphere(radius=5).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, 0), 0)
         self.assertAlmostEqual(shape.sample(0, 0, 0), -5)
         self.assertAlmostEqual(shape.sample(10, 0, 0), 5)
 
     def test_spheroid_is_a_plain_sphere(self):
-        shape = pysolidfive.spheroid(r=3).mesh()
+        shape = pysolidfive.spheroid(radius=3).mesh()
         self.assertAlmostEqual(shape.sample(3, 0, 0), 0)
 
 
@@ -506,32 +506,32 @@ class TestTorus(unittest.TestCase):
 
 class TestCylinders(unittest.TestCase):
     def test_plain_cylinder(self):
-        shape = pysolidfive.cylinder(h=10, r=5).mesh()
+        shape = pysolidfive.cylinder(height=10, radius=5).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, 0), 0)
         self.assertAlmostEqual(shape.sample(0, 0, 5), 0)
         self.assertLess(shape.sample(0, 0, 0), 0)
 
     def test_tapered_cylinder(self):
-        shape = pysolidfive.cylinder(h=10, radius1=5, radius2=2).mesh()
+        shape = pysolidfive.cylinder(height=10, radius1=5, radius2=2).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, -5), 0, places=3, msg="bottom rim")
         self.assertAlmostEqual(shape.sample(2, 0, 5), 0, places=3, msg="top rim")
 
     def test_cyl_uniform_rounding(self):
         r = 1.0
-        shape = pysolidfive.cyl(h=10, r=5, rounding=r).mesh()
+        shape = pysolidfive.cyl(height=10, radius=5, rounding=r).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, 5), round_offset(r), places=6, msg="rim corner")
         self.assertAlmostEqual(shape.sample(5, 0, 0), 0, places=9, msg="flat side wall")
         self.assertAlmostEqual(shape.sample(0, 0, 5), 0, places=9, msg="flat top cap")
 
     def test_cyl_independent_top_bottom_chamfer(self):
         c2 = 1.5
-        shape = pysolidfive.cyl(h=10, r=5, chamfer1=0, chamfer2=c2).mesh()
+        shape = pysolidfive.cyl(height=10, radius=5, chamfer1=0, chamfer2=c2).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, 5), chamfer_offset(c2), places=6, msg="chamfered top rim")
         self.assertAlmostEqual(shape.sample(5, 0, -5), 0, places=9, msg="unchamfered bottom rim")
 
     def test_cyl_rounding_and_chamfer_are_mutually_exclusive(self):
         with self.assertRaises(AssertionError):
-            pysolidfive.cyl(h=10, r=5, rounding=1, chamfer=1)
+            pysolidfive.cyl(height=10, radius=5, rounding=1, chamfer=1)
 
     def test_xcyl_ycyl_zcyl_orient_the_axis(self):
         for shape_fn, expect_axial, expect_radial in [
@@ -539,7 +539,7 @@ class TestCylinders(unittest.TestCase):
             (pysolidfive.ycyl, (0, 5, 0), [(5, 0, 0), (0, 0, 5)]),
             (pysolidfive.zcyl, (0, 0, 5), [(5, 0, 0), (0, 5, 0)]),
         ]:
-            shape = shape_fn(h=10, r=5).mesh()
+            shape = shape_fn(height=10, radius=5).mesh()
             self.assertAlmostEqual(shape.sample(*expect_axial), 0, msg=f"{shape_fn.__name__} end cap")
             for p in expect_radial:
                 self.assertAlmostEqual(shape.sample(*p), 0, msg=f"{shape_fn.__name__} wall")
@@ -549,7 +549,7 @@ class TestCylinders(unittest.TestCase):
 class TestMirror(unittest.TestCase):
     def test_mirror_z_flips_a_cone(self):
         # A bottom-anchored cone (wide base at z=0, apex at z=8) mirrored across z=0.
-        cone = pysolidfive.cylinder(h=8, radius1=4, radius2=0.01, center=False)
+        cone = pysolidfive.cylinder(height=8, radius1=4, radius2=0.01, center=False)
         flipped = cone.mirror([0, 0, 1]).mesh()
         self.assertLess(flipped.sample(3, 0, -0.5), 0, msg="wide base now just below z=0")
         self.assertGreater(flipped.sample(3, 0, 0.5), 0, msg="nothing above z=0 at r=3")
@@ -568,7 +568,7 @@ class TestCylShift(unittest.TestCase):
         # cyl(shift=) slides the section center linearly from [0,0] at the bottom to
         # `shift`
         # at the top (BOSL2's oblique cone). h=10 centered, radius1=4, radius2=2, shift=[6, 0].
-        shape = pysolidfive.cyl(h=10, radius1=4, radius2=2, shift=[6, 0]).mesh()
+        shape = pysolidfive.cyl(height=10, radius1=4, radius2=2, shift=[6, 0]).mesh()
         self.assertLess(shape.sample(0, 0, -4.9), 0, msg="bottom center solid")
         self.assertLess(shape.sample(6, 0, 4.9), 0, msg="top center slid to x=6")
         self.assertGreater(shape.sample(0, 0, 4.9), 0, msg="original top center now empty")
@@ -576,12 +576,12 @@ class TestCylShift(unittest.TestCase):
 
     def test_shift_rejects_rounding(self):
         with self.assertRaises(AssertionError):
-            pysolidfive.cyl(h=10, r=4, shift=[2, 0], rounding=1)
+            pysolidfive.cyl(height=10, radius=4, shift=[2, 0], rounding=1)
 
 
 class TestTubes(unittest.TestCase):
     def test_tube(self):
-        shape = pysolidfive.tube(h=10, outer_radius=5, inner_radius=3).mesh()
+        shape = pysolidfive.tube(height=10, outer_radius=5, inner_radius=3).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, 0), 0, msg="outer wall")
         self.assertAlmostEqual(shape.sample(3, 0, 0), 0, msg="inner wall")
         self.assertLess(shape.sample(4, 0, 0), 0, msg="inside the wall material")
@@ -594,10 +594,10 @@ class TestTubes(unittest.TestCase):
         # can't
         # resolve anything.
         with self.assertRaises(AssertionError):
-            pysolidfive.tube(h=10)
+            pysolidfive.tube(height=10)
 
     def test_rect_tube(self):
-        shape = pysolidfive.rect_tube(h=10, size=[20, 16], isize=[16, 12], anchor=CENTER).mesh()
+        shape = pysolidfive.rect_tube(height=10, size=[20, 16], isize=[16, 12], anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(10, 0, 0), 0, msg="outer wall")
         self.assertAlmostEqual(shape.sample(8, 0, 0), 0, msg="inner wall")
         self.assertLess(shape.sample(9, 0, 0), 0, msg="in the wall")
@@ -606,13 +606,13 @@ class TestTubes(unittest.TestCase):
 
 class TestPieSlice(unittest.TestCase):
     def test_acute_sector(self):
-        shape = pysolidfive.pie_slice(h=10, r=5, angle=90).mesh()
+        shape = pysolidfive.pie_slice(height=10, radius=5, angle=90).mesh()
         self.assertLess(shape.sample(3, 3, 0), 0, msg="inside the 90deg wedge (Q1)")
         self.assertGreater(shape.sample(-3, 3, 0), 0, msg="Q2 excluded")
         self.assertGreater(shape.sample(3, -3, 0), 0, msg="Q4 excluded")
 
     def test_reflex_sector(self):
-        shape = pysolidfive.pie_slice(h=10, r=5, angle=270).mesh()
+        shape = pysolidfive.pie_slice(height=10, radius=5, angle=270).mesh()
         self.assertLess(shape.sample(3, 3, 0), 0, msg="Q1 included")
         self.assertLess(shape.sample(-3, 3, 0), 0, msg="Q2 included")
         self.assertLess(shape.sample(-3, -3, 0), 0, msg="Q3 included")
@@ -621,13 +621,13 @@ class TestPieSlice(unittest.TestCase):
 
 class TestPrismoid(unittest.TestCase):
     def test_non_tapered_matches_plain_box(self):
-        shape = pysolidfive.prismoid(size1=[10, 10], size2=[10, 10], h=10, anchor=CENTER).mesh()
+        shape = pysolidfive.prismoid(size1=[10, 10], size2=[10, 10], height=10, anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, 0), 0)
         self.assertAlmostEqual(shape.sample(0, 0, 5), 0)
         self.assertLess(shape.sample(0, 0, 0), 0)
 
     def test_tapered(self):
-        shape = pysolidfive.prismoid(size1=[20, 20], size2=[10, 10], h=10, anchor=CENTER).mesh()
+        shape = pysolidfive.prismoid(size1=[20, 20], size2=[10, 10], height=10, anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(10, 0, -5), 0, places=3, msg="bottom rim (wider)")
         self.assertAlmostEqual(shape.sample(5, 0, 5), 0, places=3, msg="top rim (narrower)")
         self.assertLess(shape.sample(0, 0, 0), 0)
@@ -635,7 +635,7 @@ class TestPrismoid(unittest.TestCase):
 
 class TestInteriorFillet(unittest.TestCase):
     def test_90_degree_fillet(self):
-        shape = pysolidfive.interior_fillet(l=10, r=2, anchor=CENTER).mesh()
+        shape = pysolidfive.interior_fillet(length=10, radius=2, anchor=CENTER).mesh()
         self.assertLess(shape.sample(0.5, 0, 0.5), 0, msg="near-corner sliver, inside the fillet")
         self.assertGreater(shape.sample(2, 0, 2), 0, msg="circle center, the carved-out hole")
         self.assertGreater(shape.sample(1.5, 0, 1.5), 0, msg="past the arc, inside the removed circle")
@@ -648,7 +648,7 @@ class TestPositionableCutters(unittest.TestCase):
     via .rotate()/.translate() rather than an automatic per-edge sweep)."""
 
     def test_rounding_edge_mask(self):
-        shape = pysolidfive.rounding_edge_mask(l=10, r=2).mesh()
+        shape = pysolidfive.rounding_edge_mask(length=10, radius=2).mesh()
         self.assertLess(shape.sample(0, 0, 0), 0, msg="sharp corner, inside the cutter")
         self.assertGreater(
             shape.sample(2, 2, 0),
@@ -683,7 +683,7 @@ class TestPolygonPrism(unittest.TestCase):
     L_PATH = [[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]]
 
     def test_concave_polygon_sign_is_exact(self):
-        shape = pysolidfive.polygon_prism(self.L_PATH, h=10).mesh()
+        shape = pysolidfive.polygon_prism(self.L_PATH, height=10).mesh()
         self.assertLess(shape.sample(5, 5, 5), 0, msg="inside the corner arm")
         self.assertLess(shape.sample(30, 7, 5), 0, msg="inside the X arm")
         self.assertLess(shape.sample(7, 30, 5), 0, msg="inside the Y arm")
@@ -700,7 +700,7 @@ class TestPolygonPrism(unittest.TestCase):
         # sign-correct half-plane underestimate out past a convex vertex, same
         # documented
         # tradeoff as polygon_extrude()/the convex fast path.
-        shape = pysolidfive.polygon_prism(self.L_PATH, h=10).mesh()
+        shape = pysolidfive.polygon_prism(self.L_PATH, height=10).mesh()
         # Inside the concave notch the nearest features are the two notch FACES: from
         # (20, 20)
         # that's exactly 5, to either.
@@ -715,14 +715,14 @@ class TestPolygonPrism(unittest.TestCase):
         self.assertLessEqual(v, math.hypot(5, 5) + 1e-9)
 
     def test_boundary_reads_zero(self):
-        shape = pysolidfive.polygon_prism(self.L_PATH, h=10).mesh()
+        shape = pysolidfive.polygon_prism(self.L_PATH, height=10).mesh()
         self.assertAlmostEqual(shape.sample(0, 20, 5), 0, places=9, msg="on the left face")
         self.assertAlmostEqual(shape.sample(20, 15, 5), 0, places=9, msg="on the notch face")
         self.assertAlmostEqual(shape.sample(20, 7, 10), 0, places=9, msg="on the top face")
 
     def test_either_winding_order(self):
-        a = pysolidfive.polygon_prism(self.L_PATH, h=10).mesh()
-        b = pysolidfive.polygon_prism(list(reversed(self.L_PATH)), h=10).mesh()
+        a = pysolidfive.polygon_prism(self.L_PATH, height=10).mesh()
+        b = pysolidfive.polygon_prism(list(reversed(self.L_PATH)), height=10).mesh()
         for p in [(5, 5, 5), (30, 30, 5), (45, -5, 5)]:
             self.assertAlmostEqual(a.sample(*p), b.sample(*p), places=9)
 
@@ -732,7 +732,7 @@ class TestPolygonPrism(unittest.TestCase):
         # quarter circle -- the 45-degree point of that arc sits at
         # (r - r/sqrt(2)) inside the wall and (r - r/sqrt(2)) below the top.
         r = 2.0
-        shape = pysolidfive.polygon_prism(self.L_PATH, h=10, rounding_top=r).mesh()
+        shape = pysolidfive.polygon_prism(self.L_PATH, height=10, rounding_top=r).mesh()
         k = r - r / math.sqrt(2)
         self.assertAlmostEqual(
             shape.sample(-0 + k, 20, 10 - k),
@@ -746,7 +746,7 @@ class TestPolygonPrism(unittest.TestCase):
 
     def test_bottom_roundover_rim(self):
         r = 2.0
-        shape = pysolidfive.polygon_prism(self.L_PATH, h=10, rounding_bottom=r).mesh()
+        shape = pysolidfive.polygon_prism(self.L_PATH, height=10, rounding_bottom=r).mesh()
         k = r - r / math.sqrt(2)
         self.assertAlmostEqual(shape.sample(k, 20, k), 0, places=9)
         self.assertGreater(shape.sample(0.01, 20, 0.01), 0, msg="sharp bottom corner is rounded away")
@@ -759,7 +759,7 @@ class TestPolygonPrism(unittest.TestCase):
         # a
         # quarter circle centered 2 out at 2 below the top.
         f = 2.0
-        shape = pysolidfive.polygon_prism(self.L_PATH, h=10, rounding_top=-f).mesh()
+        shape = pysolidfive.polygon_prism(self.L_PATH, height=10, rounding_top=-f).mesh()
         self.assertGreater(shape.sample(-1, 20, 5), 0, msg="mid-wall not flared")
         self.assertLess(shape.sample(-1, 20, 9.9), 0, msg="inside the flare near the top")
         self.assertGreater(shape.sample(-1, 20, 10.1), 0, msg="above the rim plane")
@@ -772,24 +772,24 @@ class TestPolygonPrism(unittest.TestCase):
     def test_region_of_disjoint_islands(self):
         square_a = [[0, 0], [10, 0], [10, 10], [0, 10]]
         square_b = [[20, 0], [30, 0], [30, 10], [0 + 20, 10]]
-        shape = pysolidfive.polygon_prism([square_a, square_b], h=5).mesh()
+        shape = pysolidfive.polygon_prism([square_a, square_b], height=5).mesh()
         self.assertLess(shape.sample(5, 5, 2), 0, msg="inside island A")
         self.assertLess(shape.sample(25, 5, 2), 0, msg="inside island B")
         self.assertGreater(shape.sample(15, 5, 2), 0, msg="in the gap between islands")
 
     def test_rejects_bad_arguments(self):
         with self.assertRaises(AssertionError):
-            pysolidfive.polygon_prism(self.L_PATH, h=0)
+            pysolidfive.polygon_prism(self.L_PATH, height=0)
         with self.assertRaises(AssertionError):
-            pysolidfive.polygon_prism([[0, 0], [1, 0]], h=5)
+            pysolidfive.polygon_prism([[0, 0], [1, 0]], height=5)
         with self.assertRaises(AssertionError):
-            pysolidfive.polygon_prism(self.L_PATH, h=5, rounding_top=6)
+            pysolidfive.polygon_prism(self.L_PATH, height=5, rounding_top=6)
 
 
 class TestTeardropAndOnion(unittest.TestCase):
     def test_teardrop(self):
         r, angle = 3, 45
-        shape = pysolidfive.teardrop(h=6, r=r, angle=angle, anchor=CENTER).mesh()
+        shape = pysolidfive.teardrop(height=6, radius=r, angle=angle, anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(r, 0, 0), 0, msg="equator")
         self.assertLess(shape.sample(0, 0, 0), 0, msg="center")
         apex = r / math.sin(math.radians(angle))
@@ -805,7 +805,7 @@ class TestTeardropAndOnion(unittest.TestCase):
         # rad*cos(angle)), so it's worth checking explicitly rather than just the two
         # endpoints.
         r, angle = 3, 45
-        shape = pysolidfive.teardrop(h=6, r=r, angle=angle, anchor=CENTER).mesh()
+        shape = pysolidfive.teardrop(height=6, radius=r, angle=angle, anchor=CENTER).mesh()
         apex = r / math.sin(math.radians(angle))
         v = apex * 0.7
         u = (r - v * math.cos(math.radians(angle))) / math.sin(math.radians(angle))
@@ -813,7 +813,7 @@ class TestTeardropAndOnion(unittest.TestCase):
 
     def test_onion(self):
         r, angle = 3, 45
-        shape = pysolidfive.onion(r=r, angle=angle, anchor=CENTER).mesh()
+        shape = pysolidfive.onion(radius=r, angle=angle, anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(r, 0, 0), 0)
         self.assertLess(shape.sample(0, 0, 0), 0)
         apex = r / math.sin(math.radians(angle))
@@ -854,21 +854,21 @@ class TestRegularPrism(unittest.TestCase):
     """regular_prism (n-gon prism) -- SDF via polygon_prism()."""
 
     def test_hex_prism_builds(self):
-        shape = pysolidfive.regular_prism(n=6, h=10, r=8).mesh()
+        shape = pysolidfive.regular_prism(num_sides=6, height=10, radius=8).mesh()
         self.assertAlmostEqual(shape.sample(8, 0, 0), 0, places=3, msg="vertex on surface")
         self.assertLess(shape.sample(0, 0, 5), 0, msg="interior is inside")
 
     def test_triangle_prism_with_side_length(self):
-        shape = pysolidfive.regular_prism(n=3, h=6, side=9).mesh()
+        shape = pysolidfive.regular_prism(num_sides=3, height=6, side=9).mesh()
         self.assertAlmostEqual(shape.sample(5.196, 0, 0), 0, places=3, msg="vertex on surface")
         self.assertLess(shape.sample(0, 0, 3), 0, msg="interior is inside")
 
     def test_pentagon_with_inner_radius(self):
-        shape = pysolidfive.regular_prism(n=5, h=5, inner_radius=6).mesh()
+        shape = pysolidfive.regular_prism(num_sides=5, height=5, inner_radius=6).mesh()
         self.assertLess(shape.sample(0, 0, 2.5), 0, msg="interior is inside")
 
     def test_realign_rotates_half_a_facet(self):
-        shape = pysolidfive.regular_prism(n=4, h=4, r=10).mesh()
+        shape = pysolidfive.regular_prism(num_sides=4, height=4, radius=10).mesh()
         self.assertTrue(
             abs(shape.sample(10, 0, 0)) < 0.01 or abs(shape.sample(0, 10, 0)) < 0.01,
             msg="a square's vertex or face centre sits on an axis",

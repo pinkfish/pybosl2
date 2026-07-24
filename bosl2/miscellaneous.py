@@ -106,9 +106,9 @@ def extrude_from_to(
     pt2,
     twist: float = 0,
     scale: float = 1,
-    slices=None,
+    slices: int | None = None,
     convexity: int = 10,
-):
+) -> Bosl2Solid:
     """Linearly extrude a 2-D *profile* between two 3-D points (BOSL2 extrude_from_to()).
 
     The profile's origin is placed on *pt1* and *pt2*, oriented perpendicular to the line between
@@ -146,18 +146,18 @@ def extrude_from_to(
 
 def cylindrical_extrude(
     profile,
-    inner_radius=None,
-    outer_radius=None,
-    outer_diameter=None,
-    inner_diameter=None,
+    inner_radius: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_diameter: float | None = None,
     size=None,
     spin: float = 0,
     orient=UP,
     convexity: int = 10,
-    fn=None,
-    fa=None,
-    fs=None,
-):
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Bosl2Solid:
     """Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2 cylindrical_extrude()).
 
     Chops the profile into vertical facets and extrudes each radially. Handy for embossing text
@@ -260,7 +260,7 @@ class Extrudable:
     of OpenSCAD children (a native 2-D shape, a Path/Region, a Bosl2Solid, or a factory).
     """
 
-    def path_extrude2d(self, profile, caps: bool = False, closed=None, s=None, convexity: int = 10):
+    def path_extrude2d(self, profile, caps: bool = False, closed: bool | None = None, s=None, convexity: int = 10):
         """Extrude a 2-D *profile* along this 2-D path, standing it vertically (BOSL2 path_extrude2d()).
 
         Builds a straight run for each segment and a revolved fillet at each corner, unioned into a
@@ -421,7 +421,13 @@ class Miscellaneous:
         big2 = _cube([size] * 3, center=True)
         return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))
 
-    def round3d(self, radius=None, outer_radius=None, inner_radius=None, size: float = 1000):
+    def round3d(
+        self,
+        radius: float | None = None,
+        outer_radius: float | None = None,
+        inner_radius: float | None = None,
+        size: float = 1000,
+    ):
         """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,
         *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow."""
         orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)

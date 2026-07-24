@@ -54,7 +54,7 @@ from bosl2.geometry import is_collinear
 from bosl2.paths import Path
 from bosl2.vectors import unit
 
-from .constants import *
+from .constants import CENTER, FRONT, LEFT, TOP
 
 # ---------------------------------------------------------------------------
 # Internal helpers (not part of BOSL2's public API)
@@ -1548,7 +1548,7 @@ def squircle(
 
 
 def keyhole(
-    length=None,
+    length: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
     shoulder_radius: float = 0,
@@ -1625,7 +1625,7 @@ def ring(
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    angle=None,
+    angle: float | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,

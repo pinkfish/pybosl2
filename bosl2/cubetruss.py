@@ -246,7 +246,7 @@ class CubeTruss:
         smax = size * (max(ex, ey, ez) + 1)
         octid = size - 2 * strut
 
-        def octprism(length, rot):
+        def octprism(length: float, rot):
             # cyl(diameter=octid, circum=true, realign=true, $fn=8): an octagon across-flats octid, +half facet.
             p = regular_prism(8, inner_diameter=octid, height=length, anchor=CENTER).rotate([0, 0, 180 / 8])
             return p.rotate(rot) if rot else p

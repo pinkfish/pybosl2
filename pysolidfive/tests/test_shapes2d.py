@@ -74,7 +74,7 @@ class TestShape2D(unittest.TestCase):
     verified through .extrude() since a 2-D SDF only becomes measurable geometry as a prism."""
 
     def test_circle_extruded_to_height(self):
-        shape = pysolidfive.circle2d(r=5).extrude(4).mesh()
+        shape = pysolidfive.circle2d(radius=5).extrude(4).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, 2), 0, places=9, msg="on the wall")
         # At the centroid the NEAREST surface is a z cap (distance 2), not the wall (5).
         self.assertAlmostEqual(shape.sample(0, 0, 2), -2, places=9, msg="exact distance inside")
@@ -82,7 +82,7 @@ class TestShape2D(unittest.TestCase):
         self.assertGreater(shape.sample(0, 0, -1), 0, msg="below z=0 (base sits at z=0)")
 
     def test_extrude_centered(self):
-        shape = pysolidfive.circle2d(r=5).extrude(4, center=True).mesh()
+        shape = pysolidfive.circle2d(radius=5).extrude(4, center=True).mesh()
         self.assertAlmostEqual(shape.sample(0, 0, 2), 0, places=9)
         self.assertAlmostEqual(shape.sample(0, 0, -2), 0, places=9)
 
@@ -112,21 +112,21 @@ class TestShape2D(unittest.TestCase):
         self.assertAlmostEqual(shape.sample(20, 15, 1), 0, places=9, msg="on the notch face")
 
     def test_offset_grows_and_shrinks_exactly(self):
-        grown = pysolidfive.circle2d(r=5).offset(2).extrude(2).mesh()
+        grown = pysolidfive.circle2d(radius=5).offset(2).extrude(2).mesh()
         self.assertAlmostEqual(grown.sample(7, 0, 1), 0, places=9)
-        shrunk = pysolidfive.circle2d(r=5).offset(-2).extrude(2).mesh()
+        shrunk = pysolidfive.circle2d(radius=5).offset(-2).extrude(2).mesh()
         self.assertAlmostEqual(shrunk.sample(3, 0, 1), 0, places=9)
 
     def test_outline_strip(self):
-        ring = pysolidfive.circle2d(r=5).outline(2).extrude(2).mesh()
+        ring = pysolidfive.circle2d(radius=5).outline(2).extrude(2).mesh()
         self.assertAlmostEqual(ring.sample(6, 0, 1), 0, places=9, msg="outer edge of the strip")
         self.assertAlmostEqual(ring.sample(4, 0, 1), 0, places=9, msg="inner edge of the strip")
         self.assertLess(ring.sample(5, 0, 1), 0, msg="centered on the boundary")
         self.assertGreater(ring.sample(0, 0, 1), 0, msg="middle punched out")
 
     def test_booleans_and_transforms(self):
-        a = pysolidfive.circle2d(r=4)
-        b = pysolidfive.circle2d(r=4).translate([6, 0])
+        a = pysolidfive.circle2d(radius=4)
+        b = pysolidfive.circle2d(radius=4).translate([6, 0])
         union = (a | b).extrude(2).mesh()
         self.assertLess(union.sample(3, 0, 1), 0, msg="in the overlap")
         self.assertLess(union.sample(9, 0, 1), 0, msg="inside b only")
@@ -176,14 +176,14 @@ class TestShape2D(unittest.TestCase):
         self.assertLess(shape.sample(5, 0, 1), 0)
 
     def test_linear_extrude_alias(self):
-        a = pysolidfive.circle2d(r=5).linear_extrude(height=4).mesh()
-        b = pysolidfive.circle2d(r=5).extrude(4).mesh()
+        a = pysolidfive.circle2d(radius=5).linear_extrude(height=4).mesh()
+        b = pysolidfive.circle2d(radius=5).extrude(4).mesh()
         for p in [(5, 0, 2), (0, 0, 2), (0, 0, 5)]:
             self.assertAlmostEqual(a.sample(*p), b.sample(*p), places=9)
 
     def test_extrude_rim_roundover(self):
         r = 1.0
-        shape = pysolidfive.circle2d(r=5).extrude(4, rounding_top=r).mesh()
+        shape = pysolidfive.circle2d(radius=5).extrude(4, rounding_top=r).mesh()
         k = r - r / math.sqrt(2)
         self.assertAlmostEqual(shape.sample(5 - k, 0, 4 - k), 0, places=9, msg="rim arc 45-degree point")
         self.assertGreater(shape.sample(4.99, 0, 3.99), 0, msg="sharp rim rounded away")
@@ -205,7 +205,7 @@ class TestShape2D(unittest.TestCase):
         # m=4, n1 large approaches a square of circumradius r; just anchor the basics:
         # sampled
         # outline closes, contains the origin, and honours the r= scaling.
-        shape = pysolidfive.supershape2d(m1=4, n1=1, r=10, n=90).extrude(2).mesh()
+        shape = pysolidfive.supershape2d(m1=4, n1=1, radius=10, n=90).extrude(2).mesh()
         self.assertLess(shape.sample(0, 0, 1), 0)
         self.assertGreater(shape.sample(11, 0, 1), 0, msg="outside the scaling circle")
 
@@ -247,7 +247,7 @@ class TestUnion2D(unittest.TestCase):
     """union2d(): balanced many-way union whose SDF evaluation depth stays log2(n)."""
 
     def test_matches_chained_union(self):
-        discs = [pysolidfive.circle2d(d=4).translate([i * 3, 0]) for i in range(5)]
+        discs = [pysolidfive.circle2d(diameter=4).translate([i * 3, 0]) for i in range(5)]
         shape = pysolidfive.union2d(discs).extrude(2).mesh()
         for i in range(5):
             self.assertLess(shape.sample(i * 3, 0, 1), 0, msg=f"disc {i} centre solid")
@@ -256,13 +256,13 @@ class TestUnion2D(unittest.TestCase):
     def test_hundreds_of_pieces_evaluates(self):
         # The regression this helper exists for: a linear `|` chain of this many pieces
         # overflows Python's recursion limit when the composed SDF lambda is evaluated.
-        discs = [pysolidfive.circle2d(d=2).translate([i * 0.1, 0]) for i in range(800)]
+        discs = [pysolidfive.circle2d(diameter=2).translate([i * 0.1, 0]) for i in range(800)]
         shape = pysolidfive.union2d(discs).extrude(2).mesh()
         self.assertLess(shape.sample(40, 0, 1), 0, msg="mid-strip solid")
         self.assertGreater(shape.sample(40, 3, 1), 0, msg="above the strip empty")
 
     def test_single_piece_passthrough(self):
-        disc = pysolidfive.circle2d(d=4)
+        disc = pysolidfive.circle2d(diameter=4)
         self.assertIs(pysolidfive.union2d([disc]), disc)
 
 
@@ -270,15 +270,15 @@ class TestRegularNgon2D(unittest.TestCase):
     """regular_ngon2d -- 2-D n-gon SDF via polygon2d()."""
 
     def test_hexagon_vertex_on_positive_x(self):
-        shape = pysolidfive.regular_ngon2d(n=6, r=8).extrude(4).mesh()
+        shape = pysolidfive.regular_ngon2d(num_sides=6, radius=8).extrude(4).mesh()
         self.assertAlmostEqual(shape.sample(8, 0, 2), 0, places=6, msg="vertex on surface")
 
     def test_square_by_side_length(self):
-        shape = pysolidfive.regular_ngon2d(n=4, side=10).extrude(3).mesh()
+        shape = pysolidfive.regular_ngon2d(num_sides=4, side=10).extrude(3).mesh()
         self.assertAlmostEqual(shape.sample(7.071, 0, 1.5), 0, places=3, msg="corner on surface")
 
     def test_realign_puts_face_on_axis(self):
-        shape = pysolidfive.regular_ngon2d(n=8, r=10, realign=True).extrude(2).mesh()
+        shape = pysolidfive.regular_ngon2d(num_sides=8, radius=10, realign=True).extrude(2).mesh()
         # After realign, a face centre faces +X. Distance to face centre from origin
         # is r*cos(pi/n) = 10*cos(pi/8) ≈ 9.239. Test on the extruded Z face at midpoint
         # instead.
@@ -289,16 +289,16 @@ class TestStar2D(unittest.TestCase):
     """star2d -- n-pointed star SDF via polygon2d()."""
 
     def test_five_point_star_builds(self):
-        shape = pysolidfive.star2d(n=5, r=12, inner_radius=5).extrude(4).mesh()
+        shape = pysolidfive.star2d(num_sides=5, radius=12, inner_radius=5).extrude(4).mesh()
         self.assertAlmostEqual(shape.sample(12, 0, 2), 0, places=6, msg="tip on surface")
         self.assertLess(shape.sample(0, 0, 2), 0, msg="interior is inside")
 
     def test_star_with_step_inner_radius(self):
-        shape = pysolidfive.star2d(n=7, r=15, step=3).extrude(3).mesh()
+        shape = pysolidfive.star2d(num_sides=7, radius=15, step=3).extrude(3).mesh()
         self.assertLess(shape.sample(0, 0, 1.5), 0)
 
     def test_eight_point_star(self):
-        shape = pysolidfive.star2d(n=8, r=10, inner_radius=4).extrude(2).mesh()
+        shape = pysolidfive.star2d(num_sides=8, radius=10, inner_radius=4).extrude(2).mesh()
         self.assertAlmostEqual(shape.sample(10, 0, 1), 0, places=6)
 
 
@@ -306,12 +306,12 @@ class TestEllipse2D(unittest.TestCase):
     """ellipse2d -- non-uniformly scaled circle SDF."""
 
     def test_wide_ellipse(self):
-        shape = pysolidfive.ellipse2d(r=[12, 6]).extrude(3).mesh()
+        shape = pysolidfive.ellipse2d(radius=[12, 6]).extrude(3).mesh()
         self.assertAlmostEqual(shape.sample(12, 0, 1.5), 0, places=6, msg="+X tip")
         self.assertAlmostEqual(shape.sample(0, 6, 1.5), 0, places=6, msg="+Y tip")
 
     def test_ellipse_by_diameter(self):
-        shape = pysolidfive.ellipse2d(d=[20, 10]).extrude(2).mesh()
+        shape = pysolidfive.ellipse2d(diameter=[20, 10]).extrude(2).mesh()
         self.assertAlmostEqual(shape.sample(10, 0, 1), 0, places=6)
 
     def test_default_circle(self):
@@ -336,7 +336,7 @@ class TestTrapezoid2D(unittest.TestCase):
     """trapezoid2d -- trapezoid SDF via polygon2d()."""
 
     def test_symmetric_trapezoid(self):
-        shape = pysolidfive.trapezoid2d(h=12, width1=10, width2=6).extrude(3).mesh()
+        shape = pysolidfive.trapezoid2d(height=12, width1=10, width2=6).extrude(3).mesh()
         self.assertAlmostEqual(shape.sample(5, -6, 1.5), 0, places=6, msg="front bottom")
         self.assertAlmostEqual(shape.sample(3, 6, 1.5), 0, places=6, msg="back top")
 
@@ -345,7 +345,7 @@ class TestTrapezoid2D(unittest.TestCase):
         self.assertLess(shape.sample(0, 0, 1), 0, msg="interior is inside")
 
     def test_shifted_trapezoid(self):
-        shape = pysolidfive.trapezoid2d(h=10, width1=8, width2=4, shift=2).extrude(2).mesh()
+        shape = pysolidfive.trapezoid2d(height=10, width1=8, width2=4, shift=2).extrude(2).mesh()
         self.assertLess(shape.sample(0, 0, 1), 0)
 
 

@@ -716,7 +716,7 @@ class BezierPatch(list):
 
     # -- meshing ---------------------------------------------------------------------------
 
-    def vnf(self, splinesteps=16, style: str = "default") -> VNF:
+    def vnf(self, splinesteps: int = 16, style: str = "default") -> VNF:
         """Mesh this patch into a :class:`~bosl2.vnf.VNF`. *splinesteps* is a scalar or [u, v]."""
         ss = splinesteps if isinstance(splinesteps, (list, tuple, np.ndarray)) else (splinesteps, splinesteps)
         uvals = list(lerpn(0, 1, int(ss[0]) + 1))
@@ -724,7 +724,7 @@ class BezierPatch(list):
         return VNF.vertex_array(self.points(uvals, vvals), style=style, reverse=False)
 
     @staticmethod
-    def to_vnf(patches, splinesteps=16, style: str = "default") -> VNF:
+    def to_vnf(patches, splinesteps: int = 16, style: str = "default") -> VNF:
         """One patch or a list of patches into a single VNF (BOSL2 bezier_vnf())."""
         if BezierPatch.is_patch(patches):
             return BezierPatch(patches).vnf(splinesteps, style)
@@ -745,7 +745,7 @@ class BezierPatch(list):
         m = (T @ base).tolist()
         return BezierPatch([_apply(m, row) for row in patch])
 
-    def sheet(self, delta, splinesteps=16, style: str = "default") -> VNF:
+    def sheet(self, delta: float, splinesteps: int = 16, style: str = "default") -> VNF:
         """A thin sheet from this patch, offsetting along the surface normals by *delta* (BOSL2 bezier_sheet()).
 
         *delta* is a 2-vector [d0, diameter1] of the two offset distances (a scalar d means [0, -d])."""
