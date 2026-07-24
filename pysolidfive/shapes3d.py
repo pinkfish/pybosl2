@@ -177,14 +177,14 @@ class PyShape:
 
     def __init__(
         self,
-        sdf_fn,
-        mn,
-        mx,
+        sdf_fn: "Callable",
+        mn: "Sequence[float]",
+        mx: "Sequence[float]",
         res: int = 10,
-        cuboid_size=None,
-        cuboid_center=(0.0, 0.0, 0.0),
-        cuboid_edge_amounts=None,
-        cuboid_edge_modes=None,
+        cuboid_size: "Sequence[float] | None" = None,
+        cuboid_center: "Sequence[float]" = (0.0, 0.0, 0.0),
+        cuboid_edge_amounts: "list[list[float]] | None" = None,
+        cuboid_edge_modes: "list[list[str]] | None" = None,
     ):
         self._sdf_fn = sdf_fn
         self.mn = list(mn)
@@ -201,14 +201,14 @@ class PyShape:
 
     def _wrap(
         self,
-        sdf_fn,
-        mn,
-        mx,
-        cuboid_size=None,
-        cuboid_center=(0.0, 0.0, 0.0),
-        cuboid_edge_amounts=None,
-        cuboid_edge_modes=None,
-    ):
+        sdf_fn: "Callable",
+        mn: "Sequence[float]",
+        mx: "Sequence[float]",
+        cuboid_size: "Sequence[float] | None" = None,
+        cuboid_center: "Sequence[float]" = (0.0, 0.0, 0.0),
+        cuboid_edge_amounts: "list[list[float]] | None" = None,
+        cuboid_edge_modes: "list[list[str]] | None" = None,
+    ) -> "PyShape":
         return PyShape(
             sdf_fn,
             mn,
@@ -249,7 +249,7 @@ class PyShape:
 
     # ---- SDF-level composition ----
 
-    def translate(self, v) -> "PyShape":
+    def translate(self, v: "Sequence[float]") -> "PyShape":
         tx, ty, tz = (list(v) + [0.0, 0.0, 0.0])[:3]
         fn = self._sdf_fn
         new_fn = lambda x, y, z: fn(x - tx, y - ty, z - tz)  # noqa: E731
@@ -302,7 +302,7 @@ class PyShape:
         new_mx = [max(c[i] for c in rotated) for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
 
-    def scale(self, v) -> "PyShape":
+    def scale(self, v: "float | Sequence[float]") -> "PyShape":
         """Scale the SDF (`f(p) -> s_min * f(p / s)`), exact zero set, no meshing involved --
         `v` a single factor or a per-axis [sx, sy, sz], matching the real scale(). The value is
         renormalized by the smallest factor so it stays a conservative (never-overestimating)

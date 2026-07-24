@@ -2920,7 +2920,15 @@ def _heightfield_reorient(pts: Sequence[Sequence[float]], faces: list[list[int]]
     This lets every face-building loop above stay simple, unflipped index math instead of having
     to derive the correct BOSL2-style reverse=true/false flag by hand for every patch (top/bottom/
     walls, or the wrapped lateral tube surface) -- which is easy to get subtly wrong per-patch.
+
+    All-triangle manifolds take the vectorized numpy fast path in :func:`_heightfield_reorient_tris`;
+    the general flood-fill below is the fallback for polygon or non-manifold face lists.
     """
+    if faces and all(len(f) == 3 for f in faces):
+        fast = _heightfield_reorient_tris(pts, faces)
+        if fast is not None:
+            return fast
+
     edge_faces: dict[frozenset[int], list[int]] = {}
     for fi, f in enumerate(faces):
         sides = len(f)
@@ -2960,6 +2968,73 @@ def _heightfield_reorient(pts: Sequence[Sequence[float]], faces: list[list[int]]
                 + v0[2] * (v1[0] * v2[1] - v1[1] * v2[0])
             )
     return [list(reversed(f)) for f in faces] if volume > 0 else faces
+
+
+def _heightfield_reorient_tris(
+    pts: Sequence[Sequence[float]], faces: Sequence[Sequence[int]]
+) -> list[list[int]] | None:
+    """Vectorized reorientation for an all-triangle mesh: pair shared edges with numpy, resolve one
+    globally-consistent winding with a path-compressed union-find over relative face parity, then a
+    signed-volume flip to OpenSCAD's outward convention. Equivalent winding to the flood-fill in
+    :func:`_heightfield_reorient` (verified to render identically in PythonSCAD) and faster. Returns
+    None for a non-manifold mesh (an edge shared by 3+ faces), deferring to the flood-fill.
+    """
+    P = np.asarray(pts, dtype=float)
+    F = len(faces)
+    tris = np.asarray(faces, dtype=np.int64)
+    src = tris[:, [0, 1, 2]].ravel()
+    dst = tris[:, [1, 2, 0]].ravel()
+    key = np.minimum(src, dst).astype(np.int64) * len(P) + np.maximum(src, dst)
+    order = np.argsort(key, kind="stable")
+    key = key[order]
+    fid = np.repeat(np.arange(F), 3)[order]
+    fwd = (src < dst)[order]
+    _, counts = np.unique(key, return_counts=True)
+    if counts.size and counts.max() > 2:
+        return None  # non-manifold -> defer to the robust flood-fill
+
+    dup = np.empty(len(key), dtype=bool)
+    dup[0] = False
+    dup[1:] = key[1:] == key[:-1]
+    pairs = np.nonzero(dup)[0]  # each pairs faces (fid[i-1], fid[i]) sharing that edge
+    fa_ = fid[pairs - 1].tolist()
+    fb_ = fid[pairs].tolist()
+    # two triangles sharing an edge agree iff they traverse it in OPPOSITE order; equal fwd -> flip
+    need_flip = (fwd[pairs - 1] == fwd[pairs]).tolist()
+
+    parent = list(range(F))
+    parity = bytearray(F)  # parity[x] = orientation of x relative to parent[x]
+
+    def find(x: int) -> int:
+        path = []
+        while parent[x] != x:
+            path.append(x)
+            x = parent[x]
+        root = x
+        acc = 0
+        for node in reversed(path):
+            acc ^= parity[node]
+            parity[node] = acc
+            parent[node] = root
+        return root
+
+    for a, b, nf in zip(fa_, fb_, need_flip):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            pa = parity[a] if a != ra else 0
+            pb = parity[b] if b != rb else 0
+            parent[ra] = rb
+            parity[ra] = pa ^ pb ^ (1 if nf else 0)
+    for i in range(F):
+        find(i)
+
+    flip = np.frombuffer(bytes(parity), dtype=np.uint8).astype(bool)
+    out = tris.copy()
+    out[flip] = out[flip][:, ::-1]
+    v0, v1, v2 = P[out[:, 0]], P[out[:, 1]], P[out[:, 2]]
+    if float(np.einsum("ij,ij->", v0, np.cross(v1, v2))) > 0:
+        out = out[:, ::-1]
+    return out.tolist()
 
 
 def _heightfield_polyhedron(
