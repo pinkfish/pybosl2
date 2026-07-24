@@ -273,7 +273,7 @@ def test_profile_shift_grows_the_tooth():
         math.hypot(x, y)
         for x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0.5)
     )
-    assert r1 > r0
+    assert radius1 > r0
 
 
 # -- new-API sizing (circ_pitch / mod / diam_pitch) & gear_dist ---------------

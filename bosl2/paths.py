@@ -948,9 +948,9 @@ class Path(Distributable, Extrudable, Roundable, list):
             closed = False
         diameter1 = np.asarray(deriv(path, closed=closed), dtype=float)
         diameter2 = np.asarray(deriv2(path, closed=closed), dtype=float)
-        n1 = np.linalg.norm(d1, axis=1)
-        n2 = np.linalg.norm(d2, axis=1)
-        dot = np.einsum("ij,ij->i", d1, d2)
+        n1 = np.linalg.norm(diameter1, axis=1)
+        n2 = np.linalg.norm(diameter2, axis=1)
+        dot = np.einsum("ij,ij->i", diameter1, diameter2)
         val = np.clip((n1 * n2) ** 2 - dot**2, 0.0, None)
         return np.sqrt(val) / n1**3
 
@@ -960,7 +960,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         diameter1 = np.asarray(deriv(path, closed=closed), dtype=float)
         diameter2 = np.asarray(deriv2(path, closed=closed), dtype=float)
         d3 = np.asarray(deriv3(path, closed=closed), dtype=float)
-        crossterm = np.cross(d1, d2)
+        crossterm = np.cross(diameter1, diameter2)
         dot = np.einsum("ij,ij->i", crossterm, d3)
         denom = np.einsum("ij,ij->i", crossterm, crossterm)
         return dot / denom

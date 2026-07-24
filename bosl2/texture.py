@@ -154,13 +154,13 @@ def _sq(s, z=0.0):
     return [[0.0, 0.0, z], [s, 0.0, z], [s, s, z], [0.0, s, z]]
 
 
-def _rect(w, h, z=0.0):
-    """path3d of a *w* x *h* rectangle centred at the origin, at height *z* (BOSL2 rect())."""
+def _rect(w, height, z=0.0):
+    """path3d of a *w* x *height* rectangle centred at the origin, at height *z* (BOSL2 rect())."""
     return [
-        [-w / 2, -h / 2, z],
-        [w / 2, -h / 2, z],
-        [w / 2, h / 2, z],
-        [-w / 2, h / 2, z],
+        [-w / 2, -height / 2, z],
+        [w / 2, -height / 2, z],
+        [w / 2, height / 2, z],
+        [-w / 2, height / 2, z],
     ]
 
 
@@ -170,9 +170,9 @@ def _mv(off, pts):
 
 
 def _sqr(size, z=0.0):
-    """path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, h]``)."""
+    """path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``)."""
     w, height = (size, size) if isinstance(size, (int, float)) else (size[0], size[1])
-    return [[0.0, 0.0, z], [w, 0.0, z], [w, h, z], [0.0, h, z]]
+    return [[0.0, 0.0, z], [w, 0.0, z], [w, height, z], [0.0, height, z]]
 
 
 def _zrot2(pts, deg):
@@ -362,7 +362,7 @@ def _tex_trunc_diamonds_vnf(border=None, **_):
     assert 0 < b < 0.5, "trunc_diamonds texture requires border in (0, 0.5/sqrt(2))."
     diameter1 = [[p[0], p[1], 0.0] for p in _circle_xy(1, 4)]
     diameter2 = [[p[0], p[1], 0.0] for p in _circle_xy(1 - b * 2, 4)]
-    verts = _mv([0.5, 0.5, 0], d1) + _mv([0.5, 0.5, 1], d2)
+    verts = _mv([0.5, 0.5, 0], diameter1) + _mv([0.5, 0.5, 1], diameter2)
     for a in (0, 90, 180, 270):
         verts += _mv([0.5, 0.5], _zrot2([[0.5, b, 1], [b, 0.5, 1], [0.5, 0.5, 1]], -a))
     faces = []
@@ -571,7 +571,7 @@ def _tex_hex_grid_vnf(border=None, **_):
         return [a[0] + b3[0], a[1] + b3[1], a[2] + b3[2]]
 
     verts = (
-        [list(h) for h in hex_]
+        [list(height) for height in hex_]
         + top
         + [
             add(hex_[0], [0, -diag * sc, 1]),

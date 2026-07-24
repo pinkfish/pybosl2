@@ -103,7 +103,7 @@ def _is_point_on_segment(point, seg, eps: float = EPSILON) -> bool:
 
 
 def general_line_intersection(s1, s2, eps: float = EPSILON):
-    """Intersection of infinite lines through segments s1=(a,b), s2=(c,d).
+    """Intersection of infinite lines through segments s1=(a,b), s2=(c,diameter).
 
     Returns [point, t, u] where t/u are the parametric positions of the
     intersection along s1/s2 (0 at the first point, 1 at the second), or
@@ -112,7 +112,7 @@ def general_line_intersection(s1, s2, eps: float = EPSILON):
     a, b = np.asarray(s1[0], dtype=float), np.asarray(s1[1], dtype=float)
     c, diameter = np.asarray(s2[0], dtype=float), np.asarray(s2[1], dtype=float)
     v1 = a - b
-    v2 = c - d
+    v2 = c - diameter
     denominator = cross(v1, v2)
     if abs(denominator) <= eps:
         return None

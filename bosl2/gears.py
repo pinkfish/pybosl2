@@ -803,7 +803,7 @@ class Gears:
             _auto_profile_shift(teeth, pressure_angle, helical, profile_shift),
             shorten,
         )
-        result = Bosl2Solid(shape, size=[2 * or_, 2 * or_, 0])
+        result = Bosl2Solid(shape, size=[2 * outer_radius, 2 * outer_radius, 0])
         if shaft_diam > 0 and not hide:
             from bosl2.shapes2d import circle as _circle2d
 
@@ -880,7 +880,7 @@ class Gears:
             solid = gear2d.linear_extrude(
                 height=thickness, center=True, twist=twist, convexity=teeth
             )
-        result = Bosl2Solid(solid, size=[2 * or_, 2 * or_, thickness])
+        result = Bosl2Solid(solid, size=[2 * outer_radius, 2 * outer_radius, thickness])
         return result.rotate([0, 0, gear_spin]) if gear_spin else result
 
     @staticmethod
@@ -956,8 +956,10 @@ class Gears:
             internal=True,
             profile_shift=profile_shift,
         )
-        body = cylinder(height=thickness, diameter=2 * or_, center=True)
-        return Bosl2Solid((body - cavity).shape, size=[2 * or_, 2 * or_, thickness])
+        body = cylinder(height=thickness, diameter=2 * outer_radius, center=True)
+        return Bosl2Solid(
+            (body - cavity).shape, size=[2 * outer_radius, 2 * outer_radius, thickness]
+        )
 
     # -- rack --------------------------------------------------------------
 
@@ -1274,7 +1276,7 @@ class Gears:
             u = sl / slices - 0.5
             zang = u * worm_arc
             cz = math.cos(math.radians(zang))
-            tp = [0.0, r1 - r2 * cz, r2 * math.sin(math.radians(zang))]
+            tp = [0.0, radius1 - radius2 * cz, radius2 * math.sin(math.radians(zang))]
             zang2 = u * helical
             ring = []
             for i in range(teeth):

@@ -141,9 +141,9 @@ class Bezier(list):
         diameter2 = np.atleast_2d(np.asarray(self.derivative(us, 2), dtype=float))
         out = []
         for i in range(len(us)):
-            n1 = float(np.linalg.norm(d1[i]))
-            n2 = float(np.linalg.norm(d2[i]))
-            val = math.sqrt(max((n1 * n2) ** 2 - float(d1[i] @ d2[i]) ** 2, 0.0)) / (
+            n1 = float(np.linalg.norm(diameter1[i]))
+            n2 = float(np.linalg.norm(diameter2[i]))
+            val = math.sqrt(max((n1 * n2) ** 2 - float(diameter1[i] @ diameter2[i]) ** 2, 0.0)) / (
                 n1**3
             )
             out.append(val)
@@ -164,7 +164,7 @@ class Bezier(list):
             diameter1 = np.linalg.norm(path[i - 1] - pt)
             diameter2 = np.linalg.norm(path[i] - pt)
             d3 = np.linalg.norm(path[i + 1] - pt)
-            if d2 <= d1 and d2 <= d3:
+            if diameter2 <= diameter1 and diameter2 <= d3:
                 minima_ranges.append((uvals[i - 1], uvals[i + 1]))
         if (
             len(minima_ranges) == 0

@@ -1865,8 +1865,8 @@ def regular_prism(
     diameter: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
-    ir: float | None = None,
-    id: float | None = None,
+    inner_radius: float | None = None,
+    inner_diameter: float | None = None,
     side: float | None = None,
     length: float | None = None,
     chamfer: float | None = None,
@@ -1892,7 +1892,7 @@ def regular_prism(
     fn=sides for chamfered/rounded ends), so it shares cyl()'s exact rim geometry.
 
     Sizing gives the CIRCUMradius (vertex distance) unless noted -- exactly one of ``radius``/``diameter``
-    (radius/diameter to the vertices), ``ir``/``id`` (inradius/apothem to the face centers,
+    (radius/diameter to the vertices), ``inner_radius``/``inner_diameter`` (inradius/apothem to the face centers,
     converted via ``/cos(180/sides)``), or ``side`` (edge length, converted via ``/(2 sin(180/sides))``).
     ``radius1``/``radius2`` (or the corresponding taper) set the bottom/top radius independently for a frustum.
 
@@ -1902,7 +1902,7 @@ def regular_prism(
     Args:
         sides:        number of sides (integer >= 3)
         height/length/height/length: prism height (default 1)
-        radius/diameter/ir/id/side:    overall size (see above)
+        radius/diameter/inner_radius/inner_diameter/side:    overall size (see above)
         radius1/radius2:    bottom/top circumradius for a tapered prism
         chamfer/chamfer1/chamfer2:    end chamfer size (overall/bottom/top)
         rounding/rounding1/rounding2: end rounding radius (overall/bottom/top)
@@ -1935,11 +1935,11 @@ def regular_prism(
             return spec_r
         if side is not None:
             return side / (2 * math.sin(math.pi / n))
-        if id is not None:
-            return (id / 2) / cos_half
-        if ir is not None:
-            return ir / cos_half
-        if d is not None:
+        if inner_diameter is not None:
+            return (inner_diameter / 2) / cos_half
+        if inner_radius is not None:
+            return inner_radius / cos_half
+        if diameter is not None:
             return d / 2
         if r is not None:
             return r

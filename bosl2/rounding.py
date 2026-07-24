@@ -116,8 +116,8 @@ def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
     start, end = p1 + prev * d, p1 + nxt * d
     if approx(angle, 90):
         return [list(start), list(end)]
-    center = r / math.sin(math.radians(angle)) * unit(prev + nxt) + p1
-    sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(r, _fn, _fa, _fs)))
+    center = radius / math.sin(math.radians(angle)) * unit(prev + nxt) + p1
+    sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, _fn, _fa, _fs)))
     if len(points[1]) == 2:
         return [
             [float(c) for c in p]

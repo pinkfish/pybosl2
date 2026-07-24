@@ -360,7 +360,9 @@ def _corner_cutter(
     cube_center = [corner_vec[i] * (size[i] / 2 - radius / 2) for i in range(3)]
     sphere_center = [corner_vec[i] * (size[i] / 2 - radius) for i in range(3)]
     cube_shape = _ocube([radius, radius, radius], center=True).translate(cube_center)
-    sphere_shape = _osphere(radius=radius, fn=_fn, fa=_fa, fs=_fs).translate(sphere_center)
+    sphere_shape = _osphere(radius=radius, fn=_fn, fa=_fa, fs=_fs).translate(
+        sphere_center
+    )
     return cube_shape - sphere_shape
 
 

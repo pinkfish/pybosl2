@@ -141,24 +141,24 @@ class LinearBearings:
         """
         outer_diameter = diameter + 2 * wall
         ogap = gap + 2 * tabwall
-        tabh = tab / 2 + od / 2 * math.sqrt(2) - ogap / 2 - 1
+        tabh = tab / 2 + outer_diameter / 2 * math.sqrt(2) - ogap / 2 - 1
 
         # teardrop bearing shell + base + clamp tabs, then the bore, split gap and screw hole removed.
         body = _union(
             [
-                teardrop(diameter=od, height=length).rotate(
+                teardrop(diameter=outer_diameter, height=length).rotate(
                     [0, 90, 0]
                 ),  # teardrop shell, axis along X
-                cuboid([length, od, od / 2]).down(od / 4),  # base
-                cuboid([length, ogap, od / 2 + tab / 2]).up(
-                    (od / 2 + tab / 2) / 2
+                cuboid([length, outer_diameter, outer_diameter / 2]).down(outer_diameter / 4),  # base
+                cuboid([length, ogap, outer_diameter / 2 + tab / 2]).up(
+                    (outer_diameter / 2 + tab / 2) / 2
                 ),  # clamp tabs
             ]
         )
         body = body - teardrop(diameter=diameter, height=length + 0.1).rotate(
             [0, 90, 0]
         )  # bearing bore
-        body = body - cuboid([length + 0.1, gap, od])  # split gap
+        body = body - cuboid([length + 0.1, gap, outer_diameter])  # split gap
         # clamp screw across the tabs (a simple clearance hole)
         from bosl2.screws import Screws
 
@@ -168,7 +168,7 @@ class LinearBearings:
             .up(tabh)
         )
         body = body - screw
-        return Bosl2Solid(body.shape, size=[length, od, od + tab / 2])
+        return Bosl2Solid(body.shape, size=[length, outer_diameter, outer_diameter + tab / 2])
 
     @staticmethod
     def lmXuu_housing(

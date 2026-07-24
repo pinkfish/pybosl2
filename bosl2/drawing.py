@@ -153,7 +153,7 @@ def catenary(
 
 
 def helix(
-    l: float | None = None,
+    length: float | None = None,
     h: float | None = None,
     turns: float | None = None,
     angle: float | None = None,
@@ -168,12 +168,12 @@ def helix(
 
     Returned as a :class:`~bosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
     transforms/measurements and feeds straight into :func:`stroke` or ``path_sweep``. Give
-    exactly two of *l*/*h* (length), *turns*, and *angle*; the third is derived. Positive *turns*
+    exactly two of *length*/*h* (length), *turns*, and *angle*; the third is derived. Positive *turns*
     is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
     spiral is ``height=0`` with a turn count).
 
     Args:
-        l/h:     height of the helix (0 for a flat spiral)
+        length/h:     height of the helix (0 for a flat spiral)
         turns:   number of turns (positive = right-handed)
         angle:   helix angle in degrees (measured at the base radius)
         r/d:     radius / diameter (constant helix)
@@ -189,7 +189,7 @@ def helix(
     """
     r1v = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
     r2v = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
-    length = l if l is not None else h
+    length = length if length is not None else h
     assert sum(v is not None for v in (length, turns, angle)) == 2, (
         "helix() needs exactly two of length/h, turns, and angle."
     )
@@ -485,55 +485,55 @@ def _endcap_polys(style, lw: float):
         ]
 
     if style in (True, "round"):
-        polys = [circle_poly(w / 2, l / 2, max(8, _frag_count(w * lw / 2)))]
+        polys = [circle_poly(w / 2, length / 2, max(8, _frag_count(w * lw / 2)))]
     elif (
         style == "chisel"
-    ):  # circle(diameter=1, $fn=4) scaled [w, l] -> an axis-aligned diamond
-        polys = [circle_poly(w / 2, l / 2, 4)]
+    ):  # circle(diameter=1, $fn=4) scaled [w, length] -> an axis-aligned diamond
+        polys = [circle_poly(w / 2, length / 2, 4)]
     elif style == "diamond":  # circle(diameter=w, $fn=4)
         polys = [circle_poly(w / 2, w / 2, 4)]
     elif style == "dot":  # circle(diameter=w)
         polys = [circle_poly(w / 2, w / 2, max(8, _frag_count(w * lw)))]
     elif style in ("square", "block", "line"):
-        polys = [[[-w / 2, -l / 2], [w / 2, -l / 2], [w / 2, l / 2], [-w / 2, l / 2]]]
+        polys = [[[-w / 2, -length / 2], [w / 2, -length / 2], [w / 2, length / 2], [-w / 2, length / 2]]]
     elif style == "x":
         tri = [
-            [(w + l / 2) / 2, (w - l / 2) / 2],
-            [(w - l / 2) / 2, (w + l / 2) / 2],
-            [0, l / 2],
+            [(w + length / 2) / 2, (w - length / 2) / 2],
+            [(w - length / 2) / 2, (w + length / 2) / 2],
+            [0, length / 2],
         ]
         polys = [_rot_pts(a, tri) for a in (0, 90, 180, 270)]
     elif style == "cross":
-        tri = [[l / 2, w / 2], [-l / 2, w / 2], [-l / 2, l / 2]]
+        tri = [[length / 2, w / 2], [-length / 2, w / 2], [-length / 2, length / 2]]
         polys = [_rot_pts(a, tri) for a in (0, 90, 180, 270)]
     elif style == "arrow":
         polys = [
             [
                 [0, 0],
                 [w / 2, -l2],
-                [w / 2, -l2 - l],
-                [0, -l],
-                [-w / 2, -l2 - l],
+                [w / 2, -l2 - length],
+                [0, -length],
+                [-w / 2, -l2 - length],
                 [-w / 2, -l2],
             ]
         ]
     elif style == "arrow2":
-        polys = [[[0, 0], [w / 2, -l2 - l], [0, -l], [-w / 2, -l2 - l]]]
+        polys = [[[0, 0], [w / 2, -l2 - length], [0, -length], [-w / 2, -l2 - length]]]
     elif style == "arrow3":
-        polys = [[[0, 0], [w / 2, -l], [-w / 2, -l]]]
+        polys = [[[0, 0], [w / 2, -length], [-w / 2, -length]]]
     elif style == "tail":
         polys = [
             [
                 [0, 0],
                 [w / 2, l2],
-                [w / 2, l2 - l],
-                [0, -l],
-                [-w / 2, l2 - l],
+                [w / 2, l2 - length],
+                [0, -length],
+                [-w / 2, l2 - length],
                 [-w / 2, l2],
             ]
         ]
     elif style == "tail2":
-        polys = [[[w / 2, 0], [w / 2, -l], [0, -l - l2], [-w / 2, -l], [-w / 2, 0]]]
+        polys = [[[w / 2, 0], [w / 2, -length], [0, -length - l2], [-w / 2, -length], [-w / 2, 0]]]
     else:  # pragma: no cover - table and branches are kept in sync
         raise AssertionError(f"stroke(): unhandled endcap style {style!r}")
     return [[[p[0] * lw, p[1] * lw] for p in poly] for poly in polys]

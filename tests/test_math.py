@@ -70,7 +70,7 @@ def test_deriv2_of_parabola_is_constant():
     xs = list(range(5))
     path = [[x, x * x] for x in xs]
     diameter2 = deriv2(path)
-    np.testing.assert_allclose(d2[:, 1], [2, 2, 2, 2, 2], atol=1e-9)
+    np.testing.assert_allclose(diameter2[:, 1], [2, 2, 2, 2, 2], atol=1e-9)
 
 
 def test_deriv3_requires_five_points_and_zero_for_quadratic():
