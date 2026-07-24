@@ -47,10 +47,11 @@ jobs:
       - name: Install PythonSCAD binary
         run: |
           gh release download --repo pythonscad/pythonscad \
-            --pattern 'PythonSCAD-x86_64.AppImage' \
+            --pattern '*qt6*x86_64.AppImage' \
             --dir /tmp
-          chmod +x /tmp/PythonSCAD-x86_64.AppImage
-          /tmp/PythonSCAD-x86_64.AppImage --appimage-extract
+          APPIMAGE=$(ls /tmp/*qt6*x86_64.AppImage | head -1)
+          chmod +x "$APPIMAGE"
+          "$APPIMAGE" --appimage-extract
           sudo cp squashfs-root/AppRun /usr/local/bin/pythonscad
           pythonscad --version || echo "PythonSCAD binary installed (version check may fail headless)"
         env:
