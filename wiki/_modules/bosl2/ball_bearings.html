@@ -8,21 +8,22 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pysidebar.css?v=dd122b57" />
     <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -98,9 +99,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -125,10 +126,10 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
+
   <h1>Source code for bosl2.ball_bearings</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
@@ -140,7 +141,8 @@
 <span class="c1">#    Pure-Python port of BOSL2&#39;s ball_bearings.scad: models of standard ball-bearing cartridges.</span>
 <span class="c1">#    :meth:`BallBearings.ball_bearing` builds a bearing -- either a sealed/shielded cartridge (nested</span>
 <span class="c1">#    rings plus a shield face) or an open one (inner and outer races, a ball-race groove, and the</span>
-<span class="c1">#    balls) -- from a trade-size name (``&quot;608&quot;``, ``&quot;6902ZZ&quot;``, ``&quot;R8&quot;``) or explicit id/od/width.</span>
+<span class="c1">#    balls) -- from a trade-size name (``&quot;608&quot;``, ``&quot;6902ZZ&quot;``, ``&quot;R8&quot;``) or explicit</span>
+<span class="c1">#    inner_diameter/outer_diameter/width.</span>
 <span class="c1">#    :meth:`BallBearings.ball_bearing_info` returns the tabulated dimensions as a :class:`BearingSpec`.</span>
 <span class="c1">#</span>
 <span class="c1">#    The trade-size table is transcribed verbatim from ball_bearings.scad.</span>
@@ -156,22 +158,19 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">INCH</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">tube</span><span class="p">,</span> <span class="n">torus</span><span class="p">,</span> <span class="n">sphere</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">torus</span><span class="p">,</span> <span class="n">tube</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BallBearings&quot;</span><span class="p">,</span> <span class="s2">&quot;BearingSpec&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="BearingSpec">
-<a class="viewcode-back" href="../../ball_bearings.html#bosl2.ball_bearings.BearingSpec">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BearingSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dimensions of a standard ball-bearing cartridge (BOSL2 ball_bearing_info()).&quot;&quot;&quot;</span>
 
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># inner (shaft) diameter</span>
-    <span class="n">od</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># outer diameter</span>
+    <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># inner (shaft) diameter</span>
+    <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># outer diameter</span>
     <span class="n">width</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># axial width</span>
-    <span class="n">shielded</span><span class="p">:</span> <span class="nb">bool</span>  <span class="c1"># True for a sealed/shielded (ZZ) cartridge</span></div>
-
+    <span class="n">shielded</span><span class="p">:</span> <span class="nb">bool</span>  <span class="c1"># True for a sealed/shielded (ZZ) cartridge</span>
 
 
 <span class="n">_I</span> <span class="o">=</span> <span class="n">INCH</span>
@@ -248,10 +247,7 @@
 <span class="p">}</span>
 <span class="c1"># The &quot;...ZZ&quot; shielded variants share the open variant&#39;s dimensions.</span>
 <span class="n">_BEARINGS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-    <span class="p">{</span>
-        <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;ZZ&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">od</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">_BEARINGS</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-    <span class="p">}</span>
+    <span class="p">{</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;ZZ&quot;</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">_BEARINGS</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
 <span class="p">)</span>
 
 
@@ -264,7 +260,10 @@
 <a class="viewcode-back" href="../../ball_bearings.html#bosl2.ball_bearings.BallBearings.ball_bearing_info">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ball_bearing_info</span><span class="p">(</span><span class="n">trade_size</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BearingSpec</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The :class:`BearingSpec` for a standard trade size, e.g. ``&quot;608&quot;`` / ``&quot;6902ZZ&quot;`` / ``&quot;R8&quot;``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The :class:`BearingSpec` for a standard trade size, e.g. ``&quot;608&quot;`` / ``&quot;6902ZZ&quot;`` /</span>
+<span class="sd">        ``&quot;R8&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_BEARINGS</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">trade_size</span><span class="p">)]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -281,9 +280,9 @@
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">shield</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;silver&quot;</span><span class="p">,</span>
-        <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A ball-bearing cartridge model (BOSL2 ball_bearing()).</span>
 
@@ -300,7 +299,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">trade_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">spec</span> <span class="o">=</span> <span class="n">BallBearings</span><span class="o">.</span><span class="n">ball_bearing_info</span><span class="p">(</span><span class="n">trade_size</span><span class="p">)</span>
-            <span class="n">inner_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">shield</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">shielded</span>
+            <span class="n">inner_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">shield</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">inner_diameter</span><span class="p">,</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">outer_diameter</span><span class="p">,</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">shielded</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">assert</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span> <span class="p">(</span>
             <span class="s2">&quot;ball_bearing(): give a trade_size or inner_diameter/outer_diameter/width.&quot;</span>
         <span class="p">)</span>
@@ -309,20 +313,53 @@
         <span class="n">wall</span> <span class="o">=</span> <span class="p">(</span><span class="n">outer_diameter</span> <span class="o">-</span> <span class="n">inner_diameter</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span>
         <span class="k">if</span> <span class="n">shield</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">tube</span><span class="p">(</span><span class="n">inner_diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
-                <span class="o">|</span> <span class="n">tube</span><span class="p">(</span><span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
-                <span class="o">|</span> <span class="n">tube</span><span class="p">(</span><span class="n">inner_diameter</span><span class="o">=</span><span class="n">inner_diameter</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="p">(</span><span class="n">wall</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">tube</span><span class="p">(</span>
+                    <span class="n">inner_diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span>
+                    <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span>
+                    <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                    <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+                    <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+                    <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">|</span> <span class="n">tube</span><span class="p">(</span>
+                    <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span>
+                    <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span>
+                    <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                    <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+                    <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+                    <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">|</span> <span class="n">tube</span><span class="p">(</span>
+                    <span class="n">inner_diameter</span><span class="o">=</span><span class="n">inner_diameter</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span>
+                    <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span>
+                    <span class="n">height</span><span class="o">=</span><span class="p">(</span><span class="n">wall</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+                    <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+                    <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ball_cnt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">mid_d</span> <span class="o">*</span> <span class="mf">0.95</span> <span class="o">/</span> <span class="p">(</span><span class="n">wall</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)))</span>
-            <span class="n">races</span> <span class="o">=</span> <span class="n">tube</span><span class="p">(</span><span class="n">inner_diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">)</span> <span class="o">|</span> <span class="n">tube</span><span class="p">(</span><span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
-            <span class="n">races</span> <span class="o">=</span> <span class="n">races</span> <span class="o">-</span> <span class="n">torus</span><span class="p">(</span><span class="n">major_radius</span><span class="o">=</span><span class="n">mid_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">minor_radius</span><span class="o">=</span><span class="n">wall</span><span class="p">)</span>
+            <span class="n">races</span> <span class="o">=</span> <span class="n">tube</span><span class="p">(</span>
+                <span class="n">inner_diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span>
+                <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+                <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">|</span> <span class="n">tube</span><span class="p">(</span>
+                <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span>
+                <span class="n">wall</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+                <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+                <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">races</span> <span class="o">=</span> <span class="n">races</span> <span class="o">-</span> <span class="n">torus</span><span class="p">(</span><span class="n">major_radius</span><span class="o">=</span><span class="n">mid_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">minor_radius</span><span class="o">=</span><span class="n">wall</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
             <span class="n">balls</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span>
                 <span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span>
                 <span class="p">(</span>
-                    <span class="n">sphere</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="n">wall</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span>
-                    <span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">mid_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-                    <span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">ball_cnt</span><span class="p">])</span>
+                    <span class="n">sphere</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="n">wall</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">mid_d</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">ball_cnt</span><span class="p">])</span>
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ball_cnt</span><span class="p">)</span>
                 <span class="p">),</span>
             <span class="p">)</span>
@@ -334,22 +371,22 @@
 </pre></div>
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

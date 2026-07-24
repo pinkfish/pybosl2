@@ -8,7 +8,8 @@
 #    Pure-Python port of BOSL2's ball_bearings.scad: models of standard ball-bearing cartridges.
 #    :meth:`BallBearings.ball_bearing` builds a bearing -- either a sealed/shielded cartridge (nested
 #    rings plus a shield face) or an open one (inner and outer races, a ball-race groove, and the
-#    balls) -- from a trade-size name (``"608"``, ``"6902ZZ"``, ``"R8"``) or explicit id/od/width.
+#    balls) -- from a trade-size name (``"608"``, ``"6902ZZ"``, ``"R8"``) or explicit
+#    inner_diameter/outer_diameter/width.
 #    :meth:`BallBearings.ball_bearing_info` returns the tabulated dimensions as a :class:`BearingSpec`.
 #
 #    The trade-size table is transcribed verbatim from ball_bearings.scad.
@@ -24,7 +25,7 @@ from dataclasses import dataclass
 from functools import reduce
 
 from bosl2.constants import INCH
-from bosl2.shapes3d import Bosl2Solid, tube, torus, sphere
+from bosl2.shapes3d import Bosl2Solid, sphere, torus, tube
 
 __all__ = ["BallBearings", "BearingSpec"]
 
@@ -113,10 +114,7 @@ _BEARINGS = {
 }
 # The "...ZZ" shielded variants share the open variant's dimensions.
 _BEARINGS.update(
-    {
-        name + "ZZ": BearingSpec(s.inner_diameter, s.outer_diameter, s.width, True)
-        for name, s in list(_BEARINGS.items())
-    }
+    {name + "ZZ": BearingSpec(s.inner_diameter, s.outer_diameter, s.width, True) for name, s in list(_BEARINGS.items())}
 )
 
 
@@ -125,7 +123,10 @@ class BallBearings:
 
     @staticmethod
     def ball_bearing_info(trade_size: str) -> BearingSpec:
-        """The :class:`BearingSpec` for a standard trade size, e.g. ``"608"`` / ``"6902ZZ"`` / ``"R8"``."""
+        """
+        The :class:`BearingSpec` for a standard trade size, e.g. ``"608"`` / ``"6902ZZ"`` /
+        ``"R8"``.
+        """
         try:
             return _BEARINGS[str(trade_size)]
         except KeyError:
@@ -139,9 +140,9 @@ class BallBearings:
         width: float | None = None,
         shield: bool = True,
         color: str | None = "silver",
-        fn=None,
-        fa=None,
-        fs=None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A ball-bearing cartridge model (BOSL2 ball_bearing()).
 
@@ -214,15 +215,11 @@ class BallBearings:
                 fa=fa,
                 fs=fs,
             )
-            races = races - torus(
-                major_radius=mid_d / 2, minor_radius=wall, fn=fn, fa=fa, fs=fs
-            )
+            races = races - torus(major_radius=mid_d / 2, minor_radius=wall, fn=fn, fa=fa, fs=fs)
             balls = reduce(
                 operator.or_,
                 (
-                    sphere(diameter=wall * 2, fn=fn, fa=fa, fs=fs)
-                    .right(mid_d / 2)
-                    .rotate([0, 0, i * 360 / ball_cnt])
+                    sphere(diameter=wall * 2, fn=fn, fa=fa, fs=fs).right(mid_d / 2).rotate([0, 0, i * 360 / ball_cnt])
                     for i in range(ball_cnt)
                 ),
             )

@@ -24,19 +24,21 @@
 
 from __future__ import annotations
 
+import math
+import operator
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import reduce
-import math
-import operator
 
 import numpy as np
 
-from bosl2.math import lerp, lerpn
-from bosl2.vectors import unit
 from bosl2.geometry import general_line_intersection, line_normal
+from bosl2.math import lerp, lerpn
 from bosl2.paths import Path, Path3D
-from bosl2.shapes2d import arc, _frag_count, _pick_radius
+from bosl2.shapes2d import _frag_count, _pick_radius, arc
+from bosl2.shapes3d import cyl as _cyl
+from bosl2.shapes3d import sphere as _sphere
+from bosl2.vectors import unit
 
 __all__ = [
     "arc",
@@ -100,21 +102,15 @@ def catenary(
 
             catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()
     """
-    assert (droop is None) != (angle is None), (
-        "catenary() needs exactly one of droop= or angle="
-    )
+    assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
     assert width > 0, "catenary() needs width > 0."
-    assert isinstance(sides, int) and sides > 0, (
-        "catenary() needs a positive integer sides."
-    )
+    assert isinstance(sides, int) and sides > 0, "catenary() needs a positive integer sides."
     given = droop if droop is not None else angle
     assert given is not None
     sgn = int(math.copysign(1, given))
     droop_a = None if droop is None else abs(droop)
     angle_a = None if angle is None else abs(angle)
-    assert angle_a is None or (0 < angle_a < 90), (
-        "catenary() angle must satisfy 0 < |angle| < 90."
-    )
+    assert angle_a is None or (0 < angle_a < 90), "catenary() angle must satisfy 0 < |angle| < 90."
 
     if droop_a is None:  # solve for the scale that gives the requested endpoint slope
         assert angle_a is not None
@@ -154,31 +150,31 @@ def catenary(
 
 def helix(
     length: float | None = None,
-    h: float | None = None,
+    height: float | None = None,
     turns: float | None = None,
     angle: float | None = None,
-    r: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
-    d: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    radius: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
 ) -> Path3D:
     """A 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
 
     Returned as a :class:`~bosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
     transforms/measurements and feeds straight into :func:`stroke` or ``path_sweep``. Give
-    exactly two of *length*/*h* (length), *turns*, and *angle*; the third is derived. Positive *turns*
+    exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*
     is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
     spiral is ``height=0`` with a turn count).
 
     Args:
-        length/h:     height of the helix (0 for a flat spiral)
+        length/height:     height of the helix (0 for a flat spiral)
         turns:   number of turns (positive = right-handed)
         angle:   helix angle in degrees (measured at the base radius)
-        r/d:     radius / diameter (constant helix)
-        r1/d1:   bottom radius / diameter
-        r2/d2:   top radius / diameter
+        radius/diameter:     radius / diameter (constant helix)
+        radius1/diameter1:   bottom radius / diameter
+        radius2/diameter2:   top radius / diameter
 
     Examples:
         A 2.5-turn helix drawn as a tube:
@@ -187,19 +183,17 @@ def helix(
 
             stroke(helix(turns=2.5, height=100, radius=30), width=3).show()
     """
-    r1v = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
-    r2v = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
-    length = length if length is not None else h
+    r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
+    r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    length = length if length is not None else height
     assert sum(v is not None for v in (length, turns, angle)) == 2, (
-        "helix() needs exactly two of length/h, turns, and angle."
+        "helix() needs exactly two of length/height, turns, and angle."
     )
     assert angle is None or length != 0, "helix() cannot take an angle with length 0."
     if angle is not None and length != 0:
         dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
     else:
-        assert (
-            length is not None and turns is not None
-        )  # else-branch only reached with both set
+        assert length is not None and turns is not None  # else-branch only reached with both set
         dz = length / abs(turns)
     if turns is not None:
         maxtheta = 360.0 * turns
@@ -272,11 +266,7 @@ def _turtle_repeat(commands, state, full_state, repeat):
 def _turtle_command_len(commands, index) -> int:
     if commands[index] == "repeat":
         return 3
-    if (
-        commands[index] in _TURTLE_TWO_ARG
-        and len(commands) > index + 2
-        and not isinstance(commands[index + 2], str)
-    ):
+    if commands[index] in _TURTLE_TWO_ARG and len(commands) > index + 2 and not isinstance(commands[index + 2], str):
         return 3
     if index + 1 < len(commands) and isinstance(commands[index + 1], str):
         return 1
@@ -297,12 +287,8 @@ def _turtle(commands, state, index: int = 0):
 def _turtle_command(command, parm, parm2, state, index):
     PATH, STEP, ANGLE, ARCS = 0, 1, 2, 3
     if command == "repeat":
-        assert isinstance(parm, (int, float)), (
-            f'"repeat" needs a count at index {index}'
-        )
-        assert isinstance(parm2, (list, tuple)), (
-            f'"repeat" needs a command list at index {index}'
-        )
+        assert isinstance(parm, (int, float)), f'"repeat" needs a count at index {index}'
+        assert isinstance(parm2, (list, tuple)), f'"repeat" needs a command list at index {index}'
         return _turtle_repeat(list(parm2), state, True, int(parm))
 
     parm = None if isinstance(parm, str) else parm
@@ -323,15 +309,9 @@ def _turtle_command(command, parm, parm2, state, index):
     if command == "move":
         return with_point((parm if parm is not None else 1) * step + lastpt)
     if command == "xmove":
-        return with_point(
-            (parm if parm is not None else 1) * np.linalg.norm(step) * np.array([1, 0])
-            + lastpt
-        )
+        return with_point((parm if parm is not None else 1) * np.linalg.norm(step) * np.array([1, 0]) + lastpt)
     if command == "ymove":
-        return with_point(
-            (parm if parm is not None else 1) * np.linalg.norm(step) * np.array([0, 1])
-            + lastpt
-        )
+        return with_point((parm if parm is not None else 1) * np.linalg.norm(step) * np.array([0, 1]) + lastpt)
     if command == "xymove":
         return with_point(lastpt + np.asarray(parm, dtype=float))
     if command == "jump":
@@ -359,10 +339,7 @@ def _turtle_command(command, parm, parm2, state, index):
     if command == "setdir":
         if isinstance(parm, (list, tuple, np.ndarray)):
             return with_step(np.linalg.norm(step) * unit([parm[0], parm[1]]))
-        return with_step(
-            np.linalg.norm(step)
-            * np.array([math.cos(math.radians(parm)), math.sin(math.radians(parm))])
-        )
+        return with_step(np.linalg.norm(step) * np.array([math.cos(math.radians(parm)), math.sin(math.radians(parm))]))
     if command == "length":
         return with_step(parm * unit(step))
     if command == "scale":
@@ -380,9 +357,7 @@ def _turtle_command(command, parm, parm2, state, index):
 
 def _turtle_arc(command, parm, parm2, state, index):
     PATH, STEP, ANGLE, ARCS = 0, 1, 2, 3
-    assert isinstance(parm, (int, float)), (
-        f'"{command}" needs a numeric radius at index {index}'
-    )
+    assert isinstance(parm, (int, float)), f'"{command}" needs a numeric radius at index {index}'
     lastpt = np.asarray(state[PATH][-1], dtype=float)
     step = np.asarray(state[STEP], dtype=float)
     lrsign = 1 if command in ("arcleft", "arcleftto") else -1
@@ -395,9 +370,7 @@ def _turtle_arc(command, parm, parm2, state, index):
         turn = math.copysign(1, parm) * lrsign * myangle
         rot_step = _rot2(lrsign * myangle, step)
     else:  # arcleftto / arcrightto
-        assert isinstance(parm2, (int, float)), (
-            f'"{command}" needs a numeric angle at index {index}'
-        )
+        assert isinstance(parm2, (int, float)), f'"{command}" needs a numeric angle at index {index}'
         radius = parm
         center = lastpt + lrsign * radius * line_normal([0, 0], step)
         start_angle = math.degrees(math.atan2(step[1], step[0])) % 360
@@ -413,9 +386,7 @@ def _turtle_arc(command, parm, parm2, state, index):
     else:
         p_mid = _rot2(turn / 2, lastpt - center) + center
         p_end = _rot2(turn, lastpt - center) + center
-        arcpath = list(arc(steps, points=[lastpt, p_mid, p_end]))[
-            1:
-        ]  # drop the shared first point
+        arcpath = list(arc(steps, points=[lastpt, p_mid, p_end]))[1:]  # drop the shared first point
     s = list(state)
     s[PATH] = state[PATH] + [[float(p[0]), float(p[1])] for p in arcpath]
     s[STEP] = [float(rot_step[0]), float(rot_step[1])]
@@ -479,16 +450,11 @@ def _endcap_polys(style, lw: float):
     l2 = spec.extent_mult * spec.width_mult
 
     def circle_poly(rx, ry, n):
-        return [
-            [rx * math.cos(2 * math.pi * k / n), ry * math.sin(2 * math.pi * k / n)]
-            for k in range(n)
-        ]
+        return [[rx * math.cos(2 * math.pi * k / n), ry * math.sin(2 * math.pi * k / n)] for k in range(n)]
 
     if style in (True, "round"):
         polys = [circle_poly(w / 2, length / 2, max(8, _frag_count(w * lw / 2)))]
-    elif (
-        style == "chisel"
-    ):  # circle(diameter=1, $fn=4) scaled [w, length] -> an axis-aligned diamond
+    elif style == "chisel":  # circle(diameter=1, $fn=4) scaled [w, length] -> an axis-aligned diamond
         polys = [circle_poly(w / 2, length / 2, 4)]
     elif style == "diamond":  # circle(diameter=w, $fn=4)
         polys = [circle_poly(w / 2, w / 2, 4)]
@@ -599,16 +565,15 @@ def _trim_ends(body, trim1: float, trim2: float):
 
 
 def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
-    from bosl2.shapes2d import circle as _circle, square as _square
+    from bosl2.shapes2d import circle as _circle
+    from bosl2.shapes2d import square as _square
 
     shapes = []
     sides = len(pts)
     # Pull the body back under arrow endcaps; endcaps still sit at the original endpoints.
     body = list(pts)
     if not closed and sides >= 2:
-        body = _trim_ends(
-            body, _endcap_trim(endcap1, width), _endcap_trim(endcap2, width)
-        )
+        body = _trim_ends(body, _endcap_trim(endcap1, width), _endcap_trim(endcap2, width))
     nb = len(body)
     for i in range(nb) if closed else range(nb - 1):
         a, b = body[i], body[(i + 1) % nb]
@@ -643,7 +608,7 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
 
 def _oriented_to(shape, outdir, at):
     """Rotate a Z-up native solid so +Z points along 3-D *outdir*, then translate it to *at*."""
-    from bosl2.transforms import rot_from_to, axis_angle_matrix
+    from bosl2.transforms import axis_angle_matrix, rot_from_to
 
     angle, axis = rot_from_to([0, 0, 1], outdir)
     m3 = np.asarray(axis_angle_matrix(angle, axis), dtype=float)
@@ -652,11 +617,16 @@ def _oriented_to(shape, outdir, at):
 
 
 def _endcap_geometry_3d(style, at, outdir, width: float):
-    """Native 3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid."""
-    from bosl2.shapes3d import sphere as _sphere
+    """
+    Native 3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid.
+    """
+    from pythonscad import (
+        polygon as _opolygon,
+    )
     from pythonscad import (
         rotate_extrude as _orotate_extrude,
-        polygon as _opolygon,
+    )
+    from pythonscad import (
         square as _osquare,
     )
 
@@ -678,7 +648,6 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
 
 
 def _stroke3d(pts, width, closed, endcap1, endcap2):
-    from bosl2.shapes3d import sphere as _sphere, cyl as _cyl
 
     radius = width / 2
     shapes = []
@@ -732,7 +701,8 @@ def stroke(
     Arrow endcaps trim the line back so it doesn't poke through the tip.
 
     Args:
-        path:     a point list, :class:`~bosl2.paths.Path`/:class:`~bosl2.paths.Path3D`, or :class:`~bosl2.regions.Region`
+        path:     a point list, :class:`~bosl2.paths.Path`/:class:`~bosl2.paths.Path3D`, or
+        :class:`~bosl2.regions.Region`
         width:    line width (default 1)
         closed:   close the path into a loop (default: the path's own ``closed`` flag, or True for a Region)
         endcaps:  style for both ends (``endcap1``/``endcap2`` override per end)
@@ -768,9 +738,7 @@ def stroke(
         and isinstance(path[0], (Path, Path3D))
         and not isinstance(path, (Path, Path3D))
     ):
-        parts = [
-            stroke(p, width=width, closed=True, joints=joints, dots=dots) for p in path
-        ]
+        parts = [stroke(p, width=width, closed=True, joints=joints, dots=dots) for p in path]
         shape = reduce(operator.or_, parts)
         return shape.color(color) if color is not None else shape
 
@@ -780,16 +748,8 @@ def stroke(
     if dots:
         joints = "dot"
         endcaps = "dot" if endcaps is None else endcaps
-    cap1 = (
-        endcap1
-        if endcap1 is not None
-        else (endcaps if endcaps is not None else "round")
-    )
-    cap2 = (
-        endcap2
-        if endcap2 is not None
-        else (endcaps if endcaps is not None else "round")
-    )
+    cap1 = endcap1 if endcap1 is not None else (endcaps if endcaps is not None else "round")
+    cap2 = endcap2 if endcap2 is not None else (endcaps if endcaps is not None else "round")
     jnt = joints if joints is not None else "round"
 
     dim = len(pts[0])

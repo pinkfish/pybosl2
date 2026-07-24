@@ -56,7 +56,11 @@ _GENERATED_DIR = _DOCS_DIR / "_generated"
 # pysolidfive/docs/_ext/pythonscad_example.py -> _ext -> docs -> pysolidfive -> pysolidfive/tests.
 sys.path.insert(0, str(_DOCS_DIR.parent / "tests"))
 
-from render_pysolidfive import PROJECT_ROOT, find_pythonscad_binary, render_script  # noqa: E402
+from render_pysolidfive import (  # noqa: E402
+    PROJECT_ROOT,
+    find_pythonscad_binary,
+    render_script,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -114,9 +118,7 @@ class PythonSCADExampleDirective(Directive):
             _logger.warning(f"pythonscad-example: render timed out for:\n{code}")
             return None
         if not result.ok:
-            _logger.warning(
-                f"pythonscad-example: render failed ({result.error}) for:\n{code}"
-            )
+            _logger.warning(f"pythonscad-example: render failed ({result.error}) for:\n{code}")
             return None
 
         return f"/_generated/{out_png.name}"

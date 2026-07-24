@@ -10,7 +10,6 @@ carries only the operations that make sense in 3-D -- measurement (length, tange
 and cutting, and the 3-D transforms (``translate``/``move``, the six directional moves including
 ``up``/``down``, ``scale``, ``rotate``, ``mirror``) -- with :meth:`~bosl2.paths.Path3D.path2d` to
 drop to the XY plane when you need the inherently-2-D operations (``polygon``, ``offset``, ``area``).
-
 .. automodule:: bosl2.paths
    :members:
    :undoc-members:

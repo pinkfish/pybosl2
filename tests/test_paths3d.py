@@ -16,7 +16,6 @@ import pytest
 
 from bosl2.paths import Path, Path3D
 
-
 SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 
 
@@ -44,9 +43,7 @@ def test_perimeter_open_vs_closed():
     line = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 30]], closed=False)
     assert math.isclose(line.perimeter(), 30.0, abs_tol=1e-9)
     tri = Path3D([[0, 0, 0], [3, 0, 0], [3, 4, 0]], closed=True)
-    assert math.isclose(
-        tri.perimeter(), 3 + 4 + 5, abs_tol=1e-9
-    )  # closed adds the 5 hypotenuse
+    assert math.isclose(tri.perimeter(), 3 + 4 + 5, abs_tol=1e-9)  # closed adds the 5 hypotenuse
 
 
 def test_segment_lengths_and_fractions():
@@ -76,14 +73,10 @@ def test_scale_scalar_and_vector():
 def test_rotate_about_z_axis_and_euler():
     p = Path3D([[1, 0, 0]], closed=False)
     np.testing.assert_allclose(p.rotate(90)[0], [0, 1, 0], atol=1e-9)  # scalar -> Z
-    np.testing.assert_allclose(
-        p.rotate(90, [1, 0, 0])[0], [1, 0, 0], atol=1e-9
-    )  # about its own axis
+    np.testing.assert_allclose(p.rotate(90, [1, 0, 0])[0], [1, 0, 0], atol=1e-9)  # about its own axis
     np.testing.assert_allclose(p.rotate([0, 0, 90])[0], [0, 1, 0], atol=1e-9)  # euler Z
     z_up = Path3D([[0, 0, 1]], closed=False)
-    np.testing.assert_allclose(
-        z_up.rotate([90, 0, 0])[0], [0, -1, 0], atol=1e-9
-    )  # euler X: +Z -> -Y
+    np.testing.assert_allclose(z_up.rotate([90, 0, 0])[0], [0, -1, 0], atol=1e-9)  # euler X: +Z -> -Y
 
 
 def test_mirror_across_plane():

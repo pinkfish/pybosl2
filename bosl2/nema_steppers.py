@@ -59,7 +59,10 @@ class NemaSteppers:
 
     @staticmethod
     def nema_motor_info(size: int) -> NemaSpec:
-        """The :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2 nema_motor_info())."""
+        """
+        The :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2
+        nema_motor_info()).
+        """
         try:
             return _NEMA[int(size)]
         except (KeyError, ValueError):
@@ -95,9 +98,7 @@ class NemaSteppers:
                 edges="Z",
             )
         else:
-            body = cuboid(
-                [s.motor_width, s.motor_width, height], rounding=s.screw_size, edges="Z"
-            )
+            body = cuboid([s.motor_width, s.motor_width, height], rounding=s.screw_size, edges="Z")
         body = body.down(height / 2)  # mounting face at z=0, body below
         for sx in (-1, 1):
             for sy in (-1, 1):  # blind mounting holes at the corners
@@ -113,18 +114,14 @@ class NemaSteppers:
                     .back(sy * s.screw_spacing / 2)
                 )
                 body = body - hole
-        plinth = cyl(
-            height=s.plinth_height, diameter=s.plinth_diam, fn=fn, fa=fa, fs=fs
-        ).up(s.plinth_height / 2) - cyl(
+        plinth = cyl(height=s.plinth_height, diameter=s.plinth_diam, fn=fn, fa=fa, fs=fs).up(s.plinth_height / 2) - cyl(
             height=s.plinth_height * 3,
             diameter=s.shaft_diam + 0.75,
             fn=fn,
             fa=fa,
             fs=fs,
         )
-        shaft = cyl(height=shaft_len, diameter=s.shaft_diam, fn=fn, fa=fa, fs=fs).up(
-            shaft_len / 2
-        )
+        shaft = cyl(height=shaft_len, diameter=s.shaft_diam, fn=fn, fa=fa, fs=fs).up(shaft_len / 2)
         return Bosl2Solid(
             (body | plinth | shaft).shape,
             size=[s.motor_width, s.motor_width, height + shaft_len],
@@ -151,22 +148,14 @@ class NemaSteppers:
         sz = s.screw_size + slop
         ss = s.screw_spacing
 
-        def slotted(d, cx=0.0, cy=0.0):
+        def slotted(d: float, cx: float = 0.0, cy: float = 0.0):
             if length > 0:
                 return [
-                    cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs)
-                    .back(length / 2)
-                    .right(cx)
-                    .back(cy),
-                    cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs)
-                    .forward(length / 2)
-                    .right(cx)
-                    .back(cy),
+                    cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).back(length / 2).right(cx).back(cy),
+                    cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).forward(length / 2).right(cx).back(cy),
                     cuboid([d, length, depth]).right(cx).back(cy),
                 ]
-            return [
-                cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)
-            ]
+            return [cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)]
 
         parts = []
         for sx in (-1, 1):

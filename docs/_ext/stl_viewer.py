@@ -90,7 +90,7 @@ def stl_viewer_html(
     uri: str,
     width: str = "100%",
     height: str = "360px",
-    color: str = "#4a90d9",
+    color: str = "#6f9ac9",
     background: str = "#f7f7f9",
 ) -> str:
     """The raw HTML embedding an interactive three.js viewer for the STL at *uri*."""
@@ -122,7 +122,7 @@ class STLDirective(Directive):
             self.arguments[0],
             width=self.options.get("width", "100%"),
             height=self.options.get("height", "360px"),
-            color=self.options.get("color", "#4a90d9"),
+            color=self.options.get("color", "#6f9ac9"),
             background=self.options.get("background", "#f7f7f9"),
         )
         return [nodes.raw("", html, format="html")]

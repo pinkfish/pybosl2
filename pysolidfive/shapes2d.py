@@ -27,15 +27,13 @@
 from __future__ import annotations
 
 import math
-
 from collections.abc import Sequence
+from typing import Callable
 
 import libfive as lv
 
 from pysolidfive._constants import CENTER
 from pysolidfive.paths import (
-    as_path_list,
-    as_points,
     _PENALTY,
     _collinear,
     _halfplane_max_sdf,
@@ -45,10 +43,13 @@ from pysolidfive.paths import (
     _polygon_sdf_xy,
     _radius,
     _rect2d,
+    as_path_list,
+    as_points,
+)
+from pysolidfive.paths import (
     supershape_path as _supershape_path,
 )
 from pysolidfive.shapes3d import PyShape
-
 
 # ---------------------------------------------------------------------------
 # Section: 2-D shapes (PyShape2D) -- symbolic 2-D SDFs that extrude into PyShapes
@@ -69,18 +70,18 @@ class PyShape2D:
     which is almost never what you want, so extrude explicitly.
     """
 
-    def __init__(self, sdf_fn, mn, mx, res: int = 10):
+    def __init__(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float], res: int = 10):
         self._sdf_fn = sdf_fn
         self.mn = [float(mn[0]), float(mn[1])]
         self.mx = [float(mx[0]), float(mx[1])]
         self.res = res
 
-    def _wrap(self, sdf_fn, mn, mx) -> "PyShape2D":
+    def _wrap(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float]) -> PyShape2D:
         return PyShape2D(sdf_fn, mn, mx, self.res)
 
     # ---- transforms ----
 
-    def translate(self, v) -> "PyShape2D":
+    def translate(self, v: Sequence[float]) -> PyShape2D:
         tx, ty = float(v[0]), float(v[1])
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(x - tx, y - ty)  # noqa: E731
@@ -90,17 +91,15 @@ class PyShape2D:
             [self.mx[0] + tx, self.mx[1] + ty],
         )
 
-    def rotate(self, a) -> "PyShape2D":
+    def rotate(self, a) -> PyShape2D:
         """Rotate by `a` degrees around the origin -- a plain scalar, or the native
         [0, 0, a] vector spelling (only z-rotation makes sense for a 2-D shape; the x/y
         components must be 0), so migrated call sites keep working unchanged."""
         if isinstance(a, (list, tuple)):
-            assert len(a) == 3 and not a[0] and not a[1], (
-                f"2-D rotate only supports [0, 0, angle], got {a}"
-            )
+            assert len(a) == 3 and not a[0] and not a[1], f"2-D rotate only supports [0, 0, angle], got {a}"
             a = a[2]
-        ang = math.radians(a)
-        c, s = math.cos(ang), math.sin(ang)
+        angle = math.radians(a)
+        c, s = math.cos(angle), math.sin(angle)
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(c * x + s * y, -s * x + c * y)  # noqa: E731
         corners = [
@@ -116,7 +115,7 @@ class PyShape2D:
             [max(p[0] for p in rot), max(p[1] for p in rot)],
         )
 
-    def scale(self, v) -> "PyShape2D":
+    def scale(self, v) -> PyShape2D:
         s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 2
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
@@ -128,16 +127,14 @@ class PyShape2D:
             [self.mx[0] * s[0], self.mx[1] * s[1]],
         )
 
-    def mirror(self, v) -> "PyShape2D":
+    def mirror(self, v) -> PyShape2D:
         """Mirror across the line through the origin whose NORMAL is `v` (native convention)."""
         nx, ny = float(v[0]), float(v[1])
         nlen = math.hypot(nx, ny)
         nx, ny = nx / nlen, ny / nlen
         fn = self._sdf_fn
         # reflect: p - 2*(p.n)n
-        new_fn = lambda x, y: fn(
-            x - 2 * (x * nx + y * ny) * nx, y - 2 * (x * nx + y * ny) * ny
-        )  # noqa: E731
+        new_fn = lambda x, y: fn(x - 2 * (x * nx + y * ny) * nx, y - 2 * (x * nx + y * ny) * ny)  # noqa: E731
         corners = [
             [self.mn[0], self.mn[1]],
             [self.mx[0], self.mn[1]],
@@ -159,7 +156,7 @@ class PyShape2D:
 
     # ---- booleans ----
 
-    def __or__(self, other: "PyShape2D") -> "PyShape2D":
+    def __or__(self, other: "PyShape2D") -> PyShape2D:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y: lv.min(fa(x, y), fb(x, y))  # noqa: E731
         return self._wrap(
@@ -168,7 +165,7 @@ class PyShape2D:
             [max(self.mx[i], other.mx[i]) for i in range(2)],
         )
 
-    def __and__(self, other: "PyShape2D") -> "PyShape2D":
+    def __and__(self, other: "PyShape2D") -> PyShape2D:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y: lv.max(fa(x, y), fb(x, y))  # noqa: E731
         # The intersection can only live where BOTH boxes overlap -- so the meshing region
@@ -180,34 +177,30 @@ class PyShape2D:
             [min(self.mx[i], other.mx[i]) for i in range(2)],
         )
 
-    def __sub__(self, other: "PyShape2D") -> "PyShape2D":
+    def __sub__(self, other: "PyShape2D") -> PyShape2D:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y: lv.max(fa(x, y), -fb(x, y))  # noqa: E731
         return self._wrap(new_fn, list(self.mn), list(self.mx))
 
     # ---- the ops SDFs are uniquely good at ----
 
-    def offset(self, delta: float = 0, r: float | None = None) -> "PyShape2D":
+    def offset(self, delta: float = 0, radius: float | None = None) -> PyShape2D:
         """Grow (positive) or shrink (negative) by a distance -- one subtraction on the SDF, no
         polygon offsetting/self-intersection cleanup. Growth is round-style (matching native
-        offset(r=...)); accepts either the delta= or r= spelling since they coincide here.
+        offset(radius=...)); accepts either the delta= or radius= spelling since they coincide here.
         """
-        amount = float(r if r is not None else delta)
+        amount = float(radius if radius is not None else delta)
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(x, y) - amount  # noqa: E731
         g = max(amount, 0.0)
-        return self._wrap(
-            new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g]
-        )
+        return self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
 
-    def outline(self, width: float) -> "PyShape2D":
+    def outline(self, width: float) -> PyShape2D:
         """The centered outline strip of this shape's boundary: |d| - width/2."""
         fn = self._sdf_fn
         new_fn = lambda x, y: lv.abs(fn(x, y)) - width / 2  # noqa: E731
         g = width / 2
-        return self._wrap(
-            new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g]
-        )
+        return self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
 
     # ---- to 3-D ----
 
@@ -236,24 +229,18 @@ class PyShape2D:
                 q1, q2 = d2d + rounding_top, (zz - h) + rounding_top
                 out = lv.max(
                     out,
-                    lv.min(lv.max(q1, q2), 0)
-                    + _lv_hypot(lv.max(q1, 0), lv.max(q2, 0))
-                    - rounding_top,
+                    lv.min(lv.max(q1, q2), 0) + _lv_hypot(lv.max(q1, 0), lv.max(q2, 0)) - rounding_top,
                 )
             if rounding_bottom > 0:
                 q1, q2 = d2d + rounding_bottom, -zz + rounding_bottom
                 out = lv.max(
                     out,
-                    lv.min(lv.max(q1, q2), 0)
-                    + _lv_hypot(lv.max(q1, 0), lv.max(q2, 0))
-                    - rounding_bottom,
+                    lv.min(lv.max(q1, q2), 0) + _lv_hypot(lv.max(q1, 0), lv.max(q2, 0)) - rounding_bottom,
                 )
             if rounding_top < 0:
                 f = -rounding_top
                 du = lv.min(lv.abs(d2d), f + 1)
-                ring = lv.max(
-                    f - _lv_hypot(du - f, zz - (h - f)), lv.max(zz - h, (h - f) - zz)
-                )
+                ring = lv.max(f - _lv_hypot(du - f, zz - (h - f)), lv.max(zz - h, (h - f) - zz))
                 ring = lv.max(ring, lv.abs(d2d) - f)
                 out = lv.min(out, ring)
             if rounding_bottom < 0:
@@ -283,11 +270,9 @@ class PyShape2D:
         return getattr(self.extrude(0.01).mesh(), name)
 
 
-def circle2d(
-    r: float | None = None, d: float | None = None, res: int = 10
-) -> PyShape2D:
-    """A circle at the origin -- the exact SDF `length(p) - r`."""
-    rad = _radius(r=r, d=d, dflt=1)
+def circle2d(radius: float | None = None, diameter: float | None = None, res: int = 10) -> PyShape2D:
+    """A circle at the origin -- the exact SDF `length(p) - radius`."""
+    rad = _radius(radius=radius, diameter=diameter, dflt=1)
     return PyShape2D(lambda x, y: _lv_hypot(x, y) - rad, [-rad, -rad], [rad, rad], res)
 
 
@@ -303,30 +288,16 @@ def rect2d(
     counterclockwise from the +x+y corner), reusing the same per-corner quadrant SDF the 3-D
     cuboid edge machinery is built on. `anchor` uses the usual direction-vector convention.
     """
-    sz = (
-        [float(size), float(size)]
-        if isinstance(size, (int, float))
-        else [float(v) for v in size]
-    )
+    sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
     hx, hy = sz[0] / 2, sz[1] / 2
-    has_rounding = (
-        (rounding != 0) if isinstance(rounding, (int, float)) else any(rounding)
-    )
+    has_rounding = (rounding != 0) if isinstance(rounding, (int, float)) else any(rounding)
     has_chamfer = (chamfer != 0) if isinstance(chamfer, (int, float)) else any(chamfer)
-    assert not (has_rounding and has_chamfer), (
-        "Cannot specify nonzero rounding and chamfer together"
-    )
+    assert not (has_rounding and has_chamfer), "Cannot specify nonzero rounding and chamfer together"
     mode = "chamfer" if has_chamfer else "round"
     amt = chamfer if has_chamfer else rounding
-    per_corner = (
-        [float(amt)] * 4 if isinstance(amt, (int, float)) else [float(v) for v in amt]
-    )
-    assert len(per_corner) == 4, (
-        f"per-corner treatment needs 4 values, got {per_corner}"
-    )
-    assert max(per_corner) <= min(hx, hy) + 1e-9, (
-        f"corner treatment {per_corner} exceeds half the rectangle {sz}"
-    )
+    per_corner = [float(amt)] * 4 if isinstance(amt, (int, float)) else [float(v) for v in amt]
+    assert len(per_corner) == 4, f"per-corner treatment needs 4 values, got {per_corner}"
+    assert max(per_corner) <= min(hx, hy) + 1e-9, f"corner treatment {per_corner} exceeds half the rectangle {sz}"
     # BOSL2 corner order [(+,+), (-,+), (-,-), (+,-)] -> _rect2d's [(-,-), (+,-), (-,+), (+,+)].
     amount = [per_corner[2], per_corner[3], per_corner[1], per_corner[0]]
 
@@ -350,16 +321,14 @@ def supershape2d(
     n3: float | None = None,
     a: float = 1,
     b: float | None = None,
-    r: float | None = None,
-    d: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
     res: int = 10,
 ) -> PyShape2D:
     """A superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
     parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d()."""
     return polygon2d(
-        _supershape_path(
-            step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, r=r, d=d
-        ),
+        _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),
         res=res,
     )
 
@@ -442,10 +411,7 @@ def union2d(shapes: list[PyShape2D]) -> PyShape2D:
     shapes = list(shapes)
     assert shapes, "union2d() needs at least one shape"
     while len(shapes) > 1:
-        shapes = [
-            shapes[i] | shapes[i + 1] if i + 1 < len(shapes) else shapes[i]
-            for i in range(0, len(shapes), 2)
-        ]
+        shapes = [shapes[i] | shapes[i + 1] if i + 1 < len(shapes) else shapes[i] for i in range(0, len(shapes), 2)]
     return shapes[0]
 
 
@@ -457,7 +423,7 @@ def stroke2d(path, width: float = 1, closed: bool = False, res: int = 10) -> PyS
     segs = pts if closed else pts[:-1]
 
     def sdf_fn(x, y):
-        d2 = None
+        diameter2 = None
         n = len(pts)
         for i in range(len(segs)):
             ax, ay = pts[i]
@@ -470,15 +436,13 @@ def stroke2d(path, width: float = 1, closed: bool = False, res: int = 10) -> PyS
             t = lv.max(0, lv.min(1, (px * ex + py * ey) / elen2))
             dx, dy = px - t * ex, py - t * ey
             seg_d2 = dx * dx + dy * dy
-            d2 = seg_d2 if d2 is None else lv.min(d2, seg_d2)
-        return lv.sqrt(d2) - width / 2
+            diameter2 = seg_d2 if diameter2 is None else lv.min(diameter2, seg_d2)
+        return lv.sqrt(diameter2) - width / 2
 
     xs = [p[0] for p in pts]
     ys = [p[1] for p in pts]
     g = width / 2
-    return PyShape2D(
-        sdf_fn, [min(xs) - g, min(ys) - g], [max(xs) + g, max(ys) + g], res
-    )
+    return PyShape2D(sdf_fn, [min(xs) - g, min(ys) - g], [max(xs) + g, max(ys) + g], res)
 
 
 def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
@@ -494,7 +458,7 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
     assert ds, "hull2d_discs() needs at least one disc"
     if len(ds) == 1:
         cx, cy, r = ds[0]
-        return circle2d(r=r, res=res).translate([cx, cy])
+        return circle2d(radius=r, res=res).translate([cx, cy])
 
     centers = [[c[0], c[1]] for c in ds]
     rmax = max(c[2] for c in ds)
@@ -502,7 +466,7 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
     def sdf_fn(x, y):
         if len(centers) == 2 or _collinear(centers):
             # Degenerate hull: distance to the segment chain between extreme centers.
-            d2 = None
+            diameter2 = None
             for i in range(len(centers) - 1):
                 ax, ay = centers[i]
                 bx, by = centers[i + 1]
@@ -514,8 +478,8 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
                 t = lv.max(0, lv.min(1, (px * ex + py * ey) / elen2))
                 dx, dy = px - t * ex, py - t * ey
                 sd2 = dx * dx + dy * dy
-                d2 = sd2 if d2 is None else lv.min(d2, sd2)
-            body = lv.sqrt(d2) - rmax
+                diameter2 = sd2 if diameter2 is None else lv.min(diameter2, sd2)
+            body = lv.sqrt(diameter2) - rmax
         else:
             hull_pts = _hull2d_points(centers)
             halfmax = _halfplane_max_sdf(x, y, hull_pts)
@@ -531,3 +495,252 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
     xs = [c[0] - c[2] for c in ds] + [c[0] + c[2] for c in ds]
     ys = [c[1] - c[2] for c in ds] + [c[1] + c[2] for c in ds]
     return PyShape2D(sdf_fn, [min(xs), min(ys)], [max(xs), max(ys)], res)
+
+
+# ---------------------------------------------------------------------------
+#  additional 2-D shapes
+# ---------------------------------------------------------------------------
+
+
+def square2d(size=10, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PyShape2D:
+    """A square of the given *size* (scalar or ``[w, h]``). Delegates to rect2d()."""
+    sz = [float(size), float(size)] if isinstance(size, (int, float)) else list(size)
+    return rect2d(sz, anchor=anchor, res=res)
+
+
+def ellipse2d(
+    radius: float | Sequence[float] | None = None,
+    diameter: float | Sequence[float] | None = None,
+    res: int = 10,
+) -> PyShape2D:
+    """An ellipse with semi-axes *radius* (``[rx, ry]``) or full diameters *diameter* (``[dx, dy]``).
+    Built by non-uniformly scaling a unit circle SDF, which gives an exact algebraic distance
+    whose zero-isosurface is the desired ellipse.
+    """
+    if radius is not None:
+        rx, ry = (
+            (float(radius), float(radius)) if isinstance(radius, (int, float)) else (float(radius[0]), float(radius[1]))
+        )
+    elif diameter is not None:
+        dx, dy = (
+            (float(diameter), float(diameter))
+            if isinstance(diameter, (int, float))
+            else (float(diameter[0]), float(diameter[1]))
+        )
+        rx, ry = dx / 2, dy / 2
+    else:
+        rx = ry = 1.0
+
+    def sdf_fn(x, y):
+        return _lv_hypot(x / max(rx, 1e-9), y / max(ry, 1e-9)) - 1.0
+
+    return PyShape2D(sdf_fn, [-rx, -ry], [rx, ry], res)
+
+
+def regular_ngon2d(
+    num_sides: int = 6,
+    radius: float | None = None,
+    diameter: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_radius: float | None = None,
+    inner_diameter: float | None = None,
+    side: float | None = None,
+    realign: bool = False,
+    res: int = 10,
+) -> PyShape2D:
+    """A regular num_sides-gon (triangle, square, pentagon, hexagon, ...) as a signed-distance field.
+
+    Size is controlled by one of the radius/diameter/side parameters:
+    ``inner_radius``/``inner_diameter`` > ``outer_radius``/``outer_diameter`` > ``radius``/``diameter`` > ``side``.
+
+    Args:
+        num_sides:       number of sides (default 6)
+        radius/diameter:     radius/diameter to the vertices
+        outer_radius/outer_diameter: outer radius/diameter (BOSL2 ``or``)
+        inner_radius/inner_diameter:   inner radius/diameter (apothem to face centres)
+        side:    length of each side
+        realign: rotate so a face centre faces +X (default: vertex at +X)
+        res:     meshing resolution (default 10)
+    """
+    import math as _m
+
+    sc = 1 / _m.cos(_m.radians(180.0 / num_sides))
+    ir_s = inner_radius * sc if inner_radius is not None else None
+    id_s = inner_diameter * sc if inner_diameter is not None else None
+    side_s = side / 2 / _m.sin(_m.radians(180.0 / num_sides)) if side is not None else None
+    rad = _radius(
+        radius1=ir_s,
+        diameter1=id_s,
+        radius2=outer_radius,
+        diameter2=outer_diameter,
+        radius=radius,
+        diameter=diameter,
+        dflt=side_s,
+    )
+    if rad is None:
+        raise ValueError(
+            "regular_ngon2d(): need one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."  # noqa: E501
+        )
+
+    pts = [[_m.cos(2 * _m.pi * i / num_sides) * rad, _m.sin(2 * _m.pi * i / num_sides) * rad] for i in range(num_sides)]
+    if realign:
+        pts = [
+            [
+                p[0] * _m.cos(-_m.pi / num_sides) - p[1] * _m.sin(-_m.pi / num_sides),
+                p[0] * _m.sin(-_m.pi / num_sides) + p[1] * _m.cos(-_m.pi / num_sides),
+            ]
+            for p in pts
+        ]
+
+    return polygon2d(pts, res=res)
+
+
+def star2d(
+    num_sides: int = 5,
+    radius: float | None = None,
+    inner_radius: float | None = None,
+    diameter: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_diameter: float | None = None,
+    step: int | None = None,
+    realign: bool = False,
+    res: int = 10,
+) -> PyShape2D:
+    """An num_sides-pointed star polygon as a signed-distance field.
+
+    Args:
+        num_sides:       number of stellate tips (default 5)
+        radius/outer_radius: radius to the tips (BOSL2 ``or``)
+        inner_radius:      radius to the inner corners
+        diameter/outer_diameter:    diameter to the tips
+        inner_diameter:      diameter to the inner corners
+        step:    compute inner radius by drawing a line ``step`` tips around
+        realign: put edge midpoint on +X instead of tip (default False)
+        res:     meshing resolution (default 10)
+    """
+    import math as _m
+
+    rad = _radius(radius1=outer_radius, diameter1=outer_diameter, radius=radius, diameter=diameter, dflt=1)
+    if step is not None:
+        stepr = rad * _m.cos(_m.radians(180 * step / num_sides)) / _m.cos(_m.radians(180 * (step - 1) / num_sides))
+    else:
+        stepr = rad
+    inner_r = _radius(radius=inner_radius, diameter=inner_diameter, dflt=stepr)
+
+    pts = []
+    for i in range(2 * num_sides, 0, -1):
+        a = _m.radians(180.0 * i / num_sides)
+        rr = inner_r if i % 2 else rad
+        pts.append([rr * _m.cos(a), rr * _m.sin(a)])
+    if realign:
+        pts = [
+            [
+                p[0] * _m.cos(-_m.pi / num_sides) - p[1] * _m.sin(-_m.pi / num_sides),
+                p[0] * _m.sin(-_m.pi / num_sides) + p[1] * _m.cos(-_m.pi / num_sides),
+            ]
+            for p in pts
+        ]
+
+    return polygon2d(pts, res=res)
+
+
+def trapezoid2d(
+    height: float | None = None,
+    width1: float | None = None,
+    width2: float | None = None,
+    angle: float | None = None,
+    shift: float = 0,
+    anchor: "Sequence[float]" = CENTER,
+    res: int = 10,
+) -> PyShape2D:
+    """A trapezoid with parallel front and back sides, as a signed-distance field.
+
+    Args:
+        height:    Y-axis height
+        width1:   X-axis width of the front end
+        width2:   X-axis width of the back end
+        angle:  if given in place of height/width1/width2, the missing value is derived
+        shift: X-axis shift of the back (default 0)
+        anchor: anchor point (default CENTER)
+        res:  meshing resolution (default 10)
+    """
+    import math as _m
+
+    defined = sum(x is not None for x in (height, width1, width2, angle))
+    assert defined == 3, "Must give exactly 3 of height, width1, width2, and angle."
+
+    if height is None:
+        height = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))
+    if width1 is None:
+        width1 = width2 + 2 * (height * _m.tan(_m.radians(angle)) + shift)
+    if width2 is None:
+        width2 = width1 - 2 * (height * _m.tan(_m.radians(angle)) + shift)
+    assert width1 >= 0 and width2 >= 0 and height > 0, "Degenerate trapezoid geometry."
+
+    pts = [
+        [width2 / 2 + shift, height / 2],
+        [-width2 / 2 + shift, height / 2],
+        [-width1 / 2, -height / 2],
+        [width1 / 2, -height / 2],
+    ]
+    return polygon2d(pts, res=res)
+
+
+def keyhole2d(
+    length: float = 15,
+    radius1: float = 5,
+    radius2: float = 10,
+    shoulder_radius: float = 0,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    res: int = 10,
+) -> PyShape2D:
+    """A keyhole slot -- a small circle joined to a larger one by tangent shoulders, as an
+    SDF-based polygon.
+
+    Args:
+        length:     overall length between the two circle centres (default 15)
+        radius1/diameter1:      radius/diameter of the small circle (default 5)
+        radius2/diameter2:      radius/diameter of the large circle (default 10)
+        shoulder_radius: fillet radius at the shoulder junctions (default 0)
+        res:        meshing resolution (default 10)
+    """
+    import math as _m
+
+    r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5)
+    r2v = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10)
+    assert length > 0 and length >= max(r1v, r2v), "keyhole2d(): length must be positive."
+
+    # Build profile: two circles connected by tangent lines (shoulders)
+    sh = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
+    cp1, cp2 = [0.0, 0.0], [0.0, -length]
+    minr, maxr = min(r1v, r2v) + sh, max(r1v, r2v) + sh
+    dy = _m.sqrt(max(maxr * maxr - minr * minr, 0))
+    spt1 = [cp1[0] + minr, cp1[1] - dy] if r1v > r2v else [cp2[0] + minr, cp2[1] + dy]
+    spt2 = [-spt1[0], spt1[1]]
+
+    # Sample arcs and lines
+    steps = max(12, res * 4)
+    pts = []
+    if r1v > r2v:
+        pts.append(spt1)
+        for i in range(steps):
+            a = _m.radians(90 - 90 * i / (steps - 1))
+            pts.append([cp2[0] + r2v * _m.cos(a), cp2[1] - r2v * _m.sin(a)])
+        pts.append(spt2)
+        for i in range(steps):
+            a = _m.radians(270 - 90 * i / (steps - 1))
+            pts.append([cp1[0] + r1v * _m.cos(a), cp1[1] - r1v * _m.sin(a)])
+    else:
+        pts.append(spt1)
+        for i in range(steps):
+            a = _m.radians(90 + 90 * i / (steps - 1))
+            pts.append([cp2[0] + r2v * _m.cos(a), cp2[1] + r2v * _m.sin(a)])
+        pts.append(spt2)
+        for i in range(steps):
+            a = _m.radians(270 + 90 * i / (steps - 1))
+            pts.append([cp1[0] + r1v * _m.cos(a), cp1[1] + r1v * _m.sin(a)])
+
+    return polygon2d(pts, res=res)

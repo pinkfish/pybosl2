@@ -173,10 +173,7 @@ class _FrepResult:
         n = int(self.res)
         n = 16 if n > 16 else (2 if n < 2 else n)
         points = []
-        steps = [
-            [self.mn[i] + (self.mx[i] - self.mn[i]) * k / n for k in range(n + 1)]
-            for i in range(3)
-        ]
+        steps = [[self.mn[i] + (self.mx[i] - self.mn[i]) * k / n for k in range(n + 1)] for i in range(3)]
         for px in steps[0]:
             for py in steps[1]:
                 for pz in steps[2]:
@@ -197,7 +194,7 @@ def frep(exp, mn, mx, res):
 
 # This module shadows the builtins min/max/abs with SDF-Tree-returning wrappers (above), so
 # the AABB helpers below -- which need ordinary numeric min/max -- bind the real builtins.
-import builtins as _bi
+import builtins as _bi  # noqa: E402
 
 _bmin = _bi.min
 _bmax = _bi.max
@@ -235,9 +232,7 @@ class _AabbSolid:
         if mn is None or mx is None:
             return _AabbSolid()
         v = list(v) + [0.0] * (3 - len(v))
-        return _AabbSolid(
-            [mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)]
-        )
+        return _AabbSolid([mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)])
 
     def rotate(self, a, v=None):
         mn, mx = self.mn, self.mx
@@ -252,9 +247,7 @@ class _AabbSolid:
             ]
             for i in range(8)
         ]
-        rot = [
-            [sum(m[r][k] * c[k] for k in range(3)) for r in range(3)] for c in corners
-        ]
+        rot = [[sum(m[r][k] * c[k] for k in range(3)) for r in range(3)] for c in corners]
         return _AabbSolid(
             [_bmin(c[i] for c in rot) for i in range(3)],
             [_bmax(c[i] for c in rot) for i in range(3)],
@@ -344,17 +337,14 @@ def _rot_matrix(a, v=None):
         mz = [[cz, -sz, 0], [sz, cz, 0], [0, 0, 1]]
 
         def mm(p, q):
-            return [
-                [sum(p[i][k] * q[k][j] for k in range(3)) for j in range(3)]
-                for i in range(3)
-            ]
+            return [[sum(p[i][k] * q[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
 
         return mm(mz, mm(my, mx))
-    ang = math.radians(a)
+    angle = math.radians(a)
     ax = list(v) if v is not None else [0, 0, 1]
     n = math.sqrt(sum(x * x for x in ax)) or 1.0
     x, y, z = (c / n for c in ax)
-    c, s, t = math.cos(ang), math.sin(ang), 1 - math.cos(ang)
+    c, s, t = math.cos(angle), math.sin(angle), 1 - math.cos(angle)
     return [
         [t * x * x + c, t * x * y - s * z, t * x * z + s * y],
         [t * x * y + s * z, t * y * y + c, t * y * z - s * x],
@@ -371,17 +361,17 @@ def _mock_cube(size: "float | Sequence[float]" = 1, center=None, dim=None, **k) 
 
 
 def _mock_cylinder(
-    h: float = 1, r=None, r1=None, r2=None, d=None, d1=None, d2=None, center=None, **k
+    h: float = 1, r=None, radius1=None, radius2=None, d=None, diameter1=None, diameter2=None, center=None, **k
 ) -> Any:
     rr = [
         v
         for v in (
             r,
-            r1,
-            r2,
+            radius1,
+            radius2,
             (d / 2 if d else None),
-            (d1 / 2 if d1 else None),
-            (d2 / 2 if d2 else None),
+            (diameter1 / 2 if diameter1 else None),
+            (diameter2 / 2 if diameter2 else None),
         )
         if v is not None
     ]

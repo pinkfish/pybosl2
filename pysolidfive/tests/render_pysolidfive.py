@@ -50,8 +50,14 @@ from pathlib import Path
 # pysolidfive/tests/render_pysolidfive.py -> pysolidfive/tests -> pysolidfive -> repo root.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
+# PythonSCAD-dev is preferred: the plain app's hardened runtime rejects the installed numpy,
+# while the dev build allows it (matches bosl2/tests/render_stl.py's discovery order).
 _CANDIDATE_BINARIES = [
+    "/Applications/PythonSCAD-dev.app/Contents/MacOS/PythonSCAD",
     "/Applications/PythonSCAD.app/Contents/MacOS/PythonSCAD",
+    # AppImage extracted by CI (see .github/workflows/docs.yml)
+    "/usr/local/bin/pythonscad",
+    "squashfs-root/AppRun",
 ]
 
 # pysolidfive's frep()-meshed PolySets report "Triangles: N"; real BOSL2/CSG solids (Manifold
@@ -113,13 +119,9 @@ def render_script(
     """
     binary = find_pythonscad_binary()
     if binary is None:
-        raise FileNotFoundError(
-            "no PythonSCAD binary found (set PYTHONSCAD_BIN or install to /Applications)"
-        )
+        raise FileNotFoundError("no PythonSCAD binary found (set PYTHONSCAD_BIN or install to /Applications)")
 
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, dir=tempfile.gettempdir()
-    ) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, dir=tempfile.gettempdir()) as f:
         f.write(script_source)
         script_path = Path(f.name)
 
@@ -158,9 +160,7 @@ def render_script(
             image_path=None,
             triangles=None,
             error=f"render timed out after {timeout:.0f}s",
-            stderr=stderr_bytes.decode(errors="replace")
-            if isinstance(stderr_bytes, bytes)
-            else str(stderr_bytes),
+            stderr=stderr_bytes.decode(errors="replace") if isinstance(stderr_bytes, bytes) else str(stderr_bytes),
         )
     finally:
         script_path.unlink(missing_ok=True)
@@ -173,16 +173,10 @@ def render_script(
         # traceback's first line, which is usually just "Python Code globally trusted".
         lines = stderr.splitlines()
         cutoff = next(
-            (
-                i
-                for i, line in enumerate(lines)
-                if line.startswith("Geometries in cache")
-            ),
+            (i for i, line in enumerate(lines) if line.startswith("Geometries in cache")),
             len(lines),
         )
-        last_line = next(
-            (line for line in reversed(lines[:cutoff]) if line.strip()), "unknown error"
-        )
+        last_line = next((line for line in reversed(lines[:cutoff]) if line.strip()), "unknown error")
         if len(last_line) > 200:
             last_line = last_line[:200] + "... (see .stderr for full message)"
         return RenderResult(
@@ -231,23 +225,15 @@ def render_script(
             stderr=stderr,
         )
 
-    return RenderResult(
-        ok=True, image_path=out_png, triangles=triangles, error=None, stderr=stderr
-    )
+    return RenderResult(ok=True, image_path=out_png, triangles=triangles, error=None, stderr=stderr)
 
 
-def render_pysolidfive_shape(
-    expr: str, out_png: Path, imgsize: tuple[int, int] = (320, 240)
-) -> RenderResult:
+def render_pysolidfive_shape(expr: str, out_png: Path, imgsize: tuple[int, int] = (320, 240)) -> RenderResult:
     """Convenience wrapper: renders a single pysolidfive expression, e.g. `"pysolidfive.cuboid([20,20,20],
     rounding=4)"`. `expr` is evaluated with `pysolidfive` already imported into scope, and the
     project root already on sys.path."""
     script = (
-        "import sys\n"
-        f"sys.path.insert(0, {str(PROJECT_ROOT)!r})\n"
-        "import pysolidfive\n"
-        f"shape = {expr}\n"
-        "shape.show()\n"
+        f"import sys\nsys.path.insert(0, {str(PROJECT_ROOT)!r})\nimport pysolidfive\nshape = {expr}\nshape.show()\n"
     )
     return render_script(script, out_png, imgsize=imgsize)
 

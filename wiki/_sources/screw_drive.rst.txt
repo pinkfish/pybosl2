@@ -48,7 +48,6 @@ A T30 Torx tip:
 
 API reference
 -------------
-
 .. autoclass:: bosl2.screw_drive.ScrewDrive
    :members:
 

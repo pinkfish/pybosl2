@@ -17,7 +17,6 @@ without support. :meth:`~bosl2.walls.Walls.sparse_wall` is an X-cross-braced ope
 middle thins away while the edges stay thick, joined by angled shoulders that don't overhang;
 :meth:`~bosl2.walls.Walls.narrowing_strut` the home-plate strut those triangles are built from. The
 honeycomb ``hex_panel`` is a follow-up.
-
 .. autoclass:: bosl2.walls.Walls
    :members:
 

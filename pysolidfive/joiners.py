@@ -103,18 +103,14 @@ def knuckle_hinge(
     `inner=False` one. anchor/spin/orient follow BOSL2 attachable() semantics against the
     same declared bounding box the original uses.
     """
-    assert arm_angle == 90 and arm_height == 0, (
-        "only the arm_angle=90/arm_height=0 variant is ported"
-    )
+    assert arm_angle == 90 and arm_height == 0, "only the arm_angle=90/arm_height=0 variant is ported"
     assert isinstance(segs, int) and segs >= 2
     assert offset >= knuckle_diam / 2, "offset must be at least the knuckle radius"
 
     segs1 = math.ceil(segs / 2)
     segs2 = math.floor(segs / 2)
     seglen1 = gap + (length - (segs - 1) * gap) / (segs1 + segs2 * seg_ratio)
-    seglen2 = (
-        gap + (length - (segs - 1) * gap) / (segs1 + segs2 * seg_ratio) * seg_ratio
-    )
+    seglen2 = gap + (length - (segs - 1) * gap) / (segs1 + segs2 * seg_ratio) * seg_ratio
     numsegs = segs2 if inner else segs1
     z_adjust = 0.0 if segs % 2 == 1 else (seglen1 / 2 if inner else seglen2 / 2)
 
@@ -124,13 +120,11 @@ def knuckle_hinge(
     # straight arm from x=-extra to the knuckle center at x=offset, plus the knuckle circle,
     # optionally cleared above y=0, minus the pin hole.
     arm = rect2d([offset + extra, kd], anchor=[-1, 0], res=res).translate([-extra, 0])
-    profile: PyShape2D = arm | circle2d(d=kd, res=res).translate([offset, 0])
+    profile: PyShape2D = arm | circle2d(diameter=kd, res=res).translate([offset, 0])
     if clear_top:
-        profile = profile - rect2d(
-            [offset + kd + 1, kd + 1], anchor=[-1, -1], res=res
-        ).translate([-0.1, 0])
+        profile = profile - rect2d([offset + kd + 1, kd + 1], anchor=[-1, -1], res=res).translate([-0.1, 0])
     if pin_diam and pin_diam > 0:
-        profile = profile - circle2d(d=pin_diam, res=res).translate([offset, 0])
+        profile = profile - circle2d(diameter=pin_diam, res=res).translate([offset, 0])
 
     seg_h = (seglen2 if inner else seglen1) - gap
     pitch = seglen1 + seglen2
@@ -144,9 +138,7 @@ def knuckle_hinge(
 
     # transform = down(offset) * yrot(-90) * zmove(z_adjust), rightmost applied first --
     # maps the extrusion axis onto X (the hinge line) and hangs the arm down to z=-offset.
-    shape = (
-        stack.translate([0, 0, z_adjust]).rotate([0, -90, 0]).translate([0, 0, -offset])
-    )
+    shape = stack.translate([0, 0, z_adjust]).rotate([0, -90, 0]).translate([0, 0, -offset])
 
     # attachable() declared box for arm_angle=90/arm_height=0.
     size = [length, kd, offset + kd / 2]
@@ -175,9 +167,7 @@ def rabbit_clip(
     joiners.scad's rabbit_clip (same path construction, bezier smoothing, and attachable
     anchoring; the "double" type isn't ported since nothing here uses it).
     """
-    assert type in ("pin", "male", "socket", "female"), (
-        f"unsupported rabbit_clip type {type!r}"
-    )
+    assert type in ("pin", "male", "socket", "female"), f"unsupported rabbit_clip type {type!r}"
     is_pin = type in ("pin", "male")
     extra = 0.02
     clearance = 0 if is_pin else clearance
@@ -187,9 +177,7 @@ def rabbit_clip(
 
     earwidth = 2 * thickness + snap
     point_length = earwidth / 2.15
-    scaled_len = length - 0.5 * (earwidth * snap + point_length * length) / math.sqrt(
-        snap**2 + (length / 2) ** 2
-    )
+    scaled_len = length - 0.5 * (earwidth * snap + point_length * length) / math.sqrt(snap**2 + (length / 2) ** 2)
     bottom_pt = np.array([0.0, max(scaled_len * 0.15 + thickness, 2 * thickness)])
     ctr = np.array([width / 2, scaled_len]) + line_normal(
         [width / 2 - snap, scaled_len / 2], [width / 2, scaled_len]
@@ -257,11 +245,7 @@ def rabbit_clip(
         )
         lock_shape = polygon2d(lock_poly + [clearance, 0.0], res=res)
         # lock=True mirrors the lock tab to both sides (BOSL2 xflip_copy()).
-        profile = (
-            profile
-            | lock_shape
-            | polygon2d(lock_poly * [-1.0, 1.0] - [clearance, 0.0], res=res)
-        )
+        profile = profile | lock_shape | polygon2d(lock_poly * [-1.0, 1.0] - [clearance, 0.0], res=res)
 
     solid = profile.extrude(depth, center=True)
     # xrot(90) * translate([0, -dy/2, -depth/2]) on the pre-extruded profile centers the

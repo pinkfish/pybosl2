@@ -11,7 +11,7 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.masking import mask2d_roundover, chamfer_edge_mask
+from bosl2.masking import chamfer_edge_mask, mask2d_roundover
 from bosl2.shapes3d import Bosl2Solid
 
 
@@ -52,9 +52,7 @@ def test_quarter_circle_bite_radius():
     path = mask2d_roundover(radius=radius, excess=0.01)
     arc_pts = np.asarray(path[3:])  # the first three points are the two flat legs
     for p in arc_pts:
-        assert math.isclose(
-            math.hypot(p[0] - radius, p[1] - radius), radius, abs_tol=1e-9
-        )
+        assert math.isclose(math.hypot(p[0] - radius, p[1] - radius), radius, abs_tol=1e-9)
 
 
 def test_requires_r_or_d():

@@ -8,21 +8,22 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pysidebar.css?v=dd122b57" />
     <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -98,9 +99,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -125,10 +126,10 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
+
   <h1>Source code for bosl2.texture</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
@@ -206,34 +207,26 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_tex_wave_ribs</span><span class="p">(</span><span class="n">sides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sides</span> <span class="k">if</span> <span class="n">sides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">8</span><span class="p">))</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">[(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">360</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">sides</span><span class="p">)]</span>
-    <span class="p">]</span>
+    <span class="k">return</span> <span class="p">[[(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">360</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">sides</span><span class="p">)]]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_tex_diamonds</span><span class="p">(</span><span class="n">sides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="n">_quantup</span><span class="p">(</span><span class="n">sides</span> <span class="k">if</span> <span class="n">sides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sides</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="n">_lerpn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sides</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">_sel</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">),</span> <span class="n">_sel</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
-    <span class="p">]</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="nb">min</span><span class="p">(</span><span class="n">_sel</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">),</span> <span class="n">_sel</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_tex_pyramids</span><span class="p">(</span><span class="n">sides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="n">_quantup</span><span class="p">(</span><span class="n">sides</span> <span class="k">if</span> <span class="n">sides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span>
-        <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
+        <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
     <span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_tex_trunc_pyramids</span><span class="p">(</span><span class="n">sides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="n">_quantup</span><span class="p">(</span><span class="n">sides</span> <span class="k">if</span> <span class="n">sides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span>
-        <span class="p">[</span>
-            <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">sides</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span> <span class="o">*</span> <span class="mf">1.5</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
-        <span class="p">]</span>
+        <span class="p">[(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">sides</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">sides</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span> <span class="o">*</span> <span class="mf">1.5</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
     <span class="p">]</span>
 
@@ -241,10 +234,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_tex_hills</span><span class="p">(</span><span class="n">sides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sides</span> <span class="k">if</span> <span class="n">sides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">12</span><span class="p">)</span>
     <span class="n">angs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">359.999</span><span class="p">,</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">sides</span><span class="p">))</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">[(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">angs</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">angs</span>
-    <span class="p">]</span>
+    <span class="k">return</span> <span class="p">[[(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">angs</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">angs</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_tex_bricks</span><span class="p">(</span><span class="n">sides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">roughness</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
@@ -278,13 +268,13 @@
     <span class="k">return</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">z</span><span class="p">]]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_rect</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;path3d of a *w* x *h* rectangle centred at the origin, at height *z* (BOSL2 rect()).&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rect</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;path3d of a *w* x *height* rectangle centred at the origin, at height *z* (BOSL2 rect()).&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span>
-        <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
-        <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
-        <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
-        <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
     <span class="p">]</span>
 
 
@@ -294,18 +284,17 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_sqr</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, h]``).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">w</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">return</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">z</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">z</span><span class="p">]]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_zrot2</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">deg</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Rotate points about Z by *deg* degrees, preserving z (BOSL2 zrot()).&quot;&quot;&quot;</span>
     <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg</span><span class="p">)),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg</span><span class="p">))</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="p">[</span><span class="n">c</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span>
-    <span class="p">]</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">c</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_tex_diamonds_vnf</span><span class="p">(</span><span class="o">**</span><span class="n">_</span><span class="p">):</span>
@@ -343,9 +332,7 @@
     <span class="n">b</span> <span class="o">=</span> <span class="n">border</span> <span class="k">if</span> <span class="n">border</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.1</span>
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;trunc_pyramids_vnf texture requires border in (0, 0.5).&quot;</span>
     <span class="n">verts</span> <span class="o">=</span> <span class="n">_sq</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">_rect</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">b</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">b</span><span class="p">))</span>
-    <span class="n">faces</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
-        <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
-    <span class="p">]</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]]</span>
     <span class="k">return</span> <span class="n">verts</span><span class="p">,</span> <span class="n">faces</span>
 
 
@@ -385,11 +372,7 @@
     <span class="n">g</span> <span class="o">=</span> <span class="n">gap</span> <span class="k">if</span> <span class="n">gap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.25</span>
     <span class="k">assert</span> <span class="n">b</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;trunc_ribs_vnf requires gap&gt;=0 and border&gt;=0.&quot;</span>
     <span class="k">assert</span> <span class="n">g</span> <span class="o">+</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;trunc_ribs_vnf requires 2*border+gap &lt;= 1.&quot;</span>
-    <span class="n">verts</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">_rect</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">g</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-        <span class="o">+</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">_rect</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">g</span> <span class="o">-</span> <span class="n">b</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="o">+</span> <span class="n">_sq</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="p">)</span>
+    <span class="n">verts</span> <span class="o">=</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">_rect</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">g</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">+</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">_rect</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">g</span> <span class="o">-</span> <span class="n">b</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">_sq</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">faces</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">]]</span>
     <span class="k">if</span> <span class="n">g</span> <span class="o">+</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">:</span>
         <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
@@ -401,9 +384,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_tex_bricks_vnf</span><span class="p">(</span><span class="n">border</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">):</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">border</span> <span class="k">if</span> <span class="n">border</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.05</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">gap</span> <span class="k">if</span> <span class="n">gap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.05</span>
-    <span class="k">assert</span> <span class="n">b</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">+</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="p">(</span>
-        <span class="s2">&quot;bricks_vnf requires border&gt;=0, gap&gt;0, gap+border&lt;0.5.&quot;</span>
-    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">b</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">g</span> <span class="o">+</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;bricks_vnf requires border&gt;=0, gap&gt;0, gap+border&lt;0.5.&quot;</span>
     <span class="n">verts</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">_sqr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="o">+</span> <span class="n">_mv</span><span class="p">([</span><span class="n">g</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">g</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">_sqr</span><span class="p">([</span><span class="mi">1</span> <span class="o">-</span> <span class="n">g</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="n">g</span><span class="p">]))</span>
@@ -486,7 +467,7 @@
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;trunc_diamonds texture requires border in (0, 0.5/sqrt(2)).&quot;</span>
     <span class="n">diameter1</span> <span class="o">=</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_circle_xy</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
     <span class="n">diameter2</span> <span class="o">=</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_circle_xy</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
-    <span class="n">verts</span> <span class="o">=</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">d1</span><span class="p">)</span> <span class="o">+</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">d2</span><span class="p">)</span>
+    <span class="n">verts</span> <span class="o">=</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">diameter1</span><span class="p">)</span> <span class="o">+</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">diameter2</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">270</span><span class="p">):</span>
         <span class="n">verts</span> <span class="o">+=</span> <span class="n">_mv</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">_zrot2</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="o">-</span><span class="n">a</span><span class="p">))</span>
     <span class="n">faces</span> <span class="o">=</span> <span class="p">[]</span>
@@ -563,7 +544,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_circle_xy</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;*n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2 circle()).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    *n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2</span>
+<span class="sd">    circle()).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span>
         <span class="p">[</span>
             <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">360</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span><span class="p">)),</span>
@@ -680,10 +664,10 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
     <span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">cyl</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">ang</span><span class="p">):</span>  <span class="c1"># yscale(sc, cylindrical_to_xyz(rad, ang, 1))</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cyl</span><span class="p">(</span><span class="n">rad</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>  <span class="c1"># yscale(sc, cylindrical_to_xyz(rad, angle, 1))</span>
         <span class="k">return</span> <span class="p">[</span>
-            <span class="n">rad</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">ang</span><span class="p">)),</span>
-            <span class="n">rad</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">ang</span><span class="p">))</span> <span class="o">*</span> <span class="n">sc</span><span class="p">,</span>
+            <span class="n">rad</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)),</span>
+            <span class="n">rad</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span> <span class="o">*</span> <span class="n">sc</span><span class="p">,</span>
             <span class="mf">1.0</span><span class="p">,</span>
         <span class="p">]</span>
 
@@ -691,7 +675,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b3</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b3</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">b3</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
 
     <span class="n">verts</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hex_</span><span class="p">]</span>
+        <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="k">for</span> <span class="n">height</span> <span class="ow">in</span> <span class="n">hex_</span><span class="p">]</span>
         <span class="o">+</span> <span class="n">top</span>
         <span class="o">+</span> <span class="p">[</span>
             <span class="n">add</span><span class="p">(</span><span class="n">hex_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">diag</span> <span class="o">*</span> <span class="n">sc</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
@@ -759,9 +743,7 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="texture">
-<a class="viewcode-back" href="../../texture.html#bosl2.texture.texture">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">texture</span><span class="p">(</span><span class="n">tex</span><span class="p">,</span> <span class="n">sides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">roughness</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">texture</span><span class="p">(</span><span class="n">tex</span><span class="p">,</span> <span class="n">sides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">roughness</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).</span>
 
 <span class="sd">    *sides* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile</span>
@@ -774,17 +756,15 @@
         <span class="n">border</span> <span class="o">=</span> <span class="n">inset</span>
     <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tex</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TEXTURES</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unrecognized (or unported) texture name: </span><span class="si">{</span><span class="n">tex</span><span class="si">!r}</span><span class="s2">; &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;available: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">TEXTURES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized (or unported) texture name: </span><span class="si">{</span><span class="n">tex</span><span class="si">!r}</span><span class="s2">; available: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">TEXTURES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">builder</span><span class="p">,</span> <span class="n">_kind</span> <span class="o">=</span> <span class="n">TEXTURES</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">builder</span><span class="p">(</span><span class="n">sides</span><span class="o">=</span><span class="n">sides</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="n">gap</span><span class="p">,</span> <span class="n">roughness</span><span class="o">=</span><span class="n">roughness</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">)</span></div>
-
+    <span class="k">return</span> <span class="n">builder</span><span class="p">(</span><span class="n">sides</span><span class="o">=</span><span class="n">sides</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">border</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="n">gap</span><span class="p">,</span> <span class="n">roughness</span><span class="o">=</span><span class="n">roughness</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_weld</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">idx</span><span class="p">,</span> <span class="n">newV</span><span class="p">,</span> <span class="n">remap</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">[],</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">V</span><span class="p">:</span>
         <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">tol</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">tol</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">tol</span><span class="p">))</span>
@@ -806,9 +786,7 @@
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)):</span>
             <span class="n">halfedges</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">f</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)]))</span>
-    <span class="n">nxt</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">a</span><span class="p">:</span> <span class="n">b</span> <span class="k">for</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="n">halfedges</span> <span class="k">if</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">halfedges</span>
-    <span class="p">}</span>  <span class="c1"># boundary half-edges, directed</span>
+    <span class="n">nxt</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="p">:</span> <span class="n">b</span> <span class="k">for</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="n">halfedges</span> <span class="k">if</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">halfedges</span><span class="p">}</span>  <span class="c1"># boundary half-edges, directed</span>
     <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">nxt</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">:</span>
@@ -835,7 +813,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">is_watertight_topology</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
 
     <span class="n">e</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
@@ -886,9 +866,7 @@
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ny</span><span class="p">):</span>
             <span class="n">off</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span> <span class="ow">in</span> <span class="n">verts</span><span class="p">:</span>
-                <span class="n">V</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="n">vx</span><span class="p">)</span> <span class="o">/</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">sx</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">vy</span><span class="p">)</span> <span class="o">/</span> <span class="n">ny</span> <span class="o">*</span> <span class="n">sy</span><span class="p">,</span> <span class="p">(</span><span class="n">vz</span> <span class="o">-</span> <span class="n">inset</span><span class="p">)</span> <span class="o">*</span> <span class="n">tex_depth</span><span class="p">]</span>
-                <span class="p">)</span>
+                <span class="n">V</span><span class="o">.</span><span class="n">append</span><span class="p">([(</span><span class="n">i</span> <span class="o">+</span> <span class="n">vx</span><span class="p">)</span> <span class="o">/</span> <span class="n">nx</span> <span class="o">*</span> <span class="n">sx</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">vy</span><span class="p">)</span> <span class="o">/</span> <span class="n">ny</span> <span class="o">*</span> <span class="n">sy</span><span class="p">,</span> <span class="p">(</span><span class="n">vz</span> <span class="o">-</span> <span class="n">inset</span><span class="p">)</span> <span class="o">*</span> <span class="n">tex_depth</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
                 <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">off</span> <span class="o">+</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">f</span><span class="p">])</span>
     <span class="n">V</span><span class="p">,</span> <span class="n">F</span> <span class="o">=</span> <span class="n">_weld</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">F</span><span class="p">)</span>
@@ -916,22 +894,22 @@
 </pre></div>
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

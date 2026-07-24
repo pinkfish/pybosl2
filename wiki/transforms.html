@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -16,16 +17,16 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Distributors: copiers &amp; reflected copies" href="distributors.html" />
     <link rel="prev" title="2-D shapes" href="shapes2d.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -101,9 +102,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -128,11 +129,11 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
-  <section id="module-bosl2.transforms">
+
+  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-func"><a href="#module-bosl2.transforms.polar_to_xy">polar_to_xy</a></li><li class="ps-func"><a href="#module-bosl2.transforms.rot_from_to">rot_from_to</a></li><li class="ps-func"><a href="#module-bosl2.transforms.axis_angle_matrix">axis_angle_matrix</a></li><li class="ps-func"><a href="#module-bosl2.transforms.rot_about_axis">rot_about_axis</a></li><li class="ps-func"><a href="#module-bosl2.transforms.rot_inverse">rot_inverse</a></li><li class="ps-func"><a href="#module-bosl2.transforms.rot_decode">rot_decode</a></li><li class="ps-func"><a href="#module-bosl2.transforms.reorient">reorient</a></li><li class="ps-func"><a href="#module-bosl2.transforms.apply">apply</a></li></ul></div><section id="module-bosl2.transforms">
 <span id="transforms-affine-reorient"></span><h1>Transforms (affine / reorient)<a class="headerlink" href="#module-bosl2.transforms" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.transforms.polar_to_xy">
@@ -186,7 +187,10 @@ degrees about a perpendicular axis).</p>
 back.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>angle</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>center</strong> (<em>bool</em>)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
@@ -197,7 +201,8 @@ back.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.transforms.rot_inverse">
 <span class="sig-prename descclassname"><span class="pre">bosl2.transforms.</span></span><span class="sig-name descname"><span class="pre">rot_inverse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/transforms.html#rot_inverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.transforms.rot_inverse" title="Link to this definition">¶</a></dt>
-<dd><p>Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation, un-translate.</p>
+<dd><p>Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,
+un-translate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
@@ -209,9 +214,9 @@ back.</p>
 <dt class="sig sig-object py" id="bosl2.transforms.rot_decode">
 <span class="sig-prename descclassname"><span class="pre">bosl2.transforms.</span></span><span class="sig-name descname"><span class="pre">rot_decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/transforms.html#rot_decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.transforms.rot_decode" title="Link to this definition">¶</a></dt>
 <dd><p>Decode a rigid 4x4 transform into its screw motion (BOSL2 rot_decode()).</p>
-<p>Returns <code class="docutils literal notranslate"><span class="pre">[angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">cp,</span> <span class="pre">translation_along_axis]</span></code> – rotating by <em>angle</em> about the
-line through <em>cp</em> in direction <em>axis</em> then translating along the axis reproduces <em>m</em>. <em>axis</em>,
-<em>cp</em> and the axial translation are returned as <a class="reference internal" href="constants.html#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vec3</span></code></a>. With <em>long</em>, the
+<p>Returns <code class="docutils literal notranslate"><span class="pre">[angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">center,</span> <span class="pre">translation_along_axis]</span></code> – rotating by <em>angle</em> about the
+line through <em>center</em> in direction <em>axis</em> then translating along the axis reproduces <em>m</em>. <em>axis</em>,
+<em>center</em> and the axial translation are returned as <a class="reference internal" href="constants.html#bosl2.constants.Vec3" title="bosl2.constants.Vec3"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vec3</span></code></a>. With <em>long</em>, the
 complementary (&gt;180 degree) rotation about the reversed axis is chosen.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -276,25 +281,25 @@ cross the native FFI boundary.</p>
 
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
       |
       <a href="_sources/transforms.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

@@ -103,7 +103,7 @@ function load(uri) {
     const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
     const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
     geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--accent"), specular: 0x222222, shininess: 22 }));
+    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
     scene.add(mesh);
     const r = Math.max(s.x, s.y, s.z) || 1;
     camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);

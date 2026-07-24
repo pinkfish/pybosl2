@@ -74,7 +74,6 @@ Rainbow-colouring a list of parts to tell them apart:
 
 API reference
 -------------
-
 .. automodule:: bosl2.color
    :members:
    :undoc-members:

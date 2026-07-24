@@ -15,7 +15,6 @@ hinge), a functional interlocking :meth:`~bosl2.hinges.Hinges.knuckle_hinge` lea
 :meth:`~bosl2.hinges.Hinges.knuckle_hinge_pair` for both leaves meshed around one pin, at any fold
 angle), and simple :meth:`~bosl2.hinges.Hinges.snap_lock` / :meth:`~bosl2.hinges.Hinges.snap_socket`
 connectors.
-
 .. autoclass:: bosl2.hinges.Hinges
    :members:
 

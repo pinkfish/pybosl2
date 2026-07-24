@@ -12,8 +12,8 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.wiring import Wiring, _hex_offset_ring, _hex_offsets
 from bosl2.shapes3d import Bosl2Solid
+from bosl2.wiring import Wiring, _hex_offset_ring, _hex_offsets
 
 _PATH = [[50, 0, -50], [50, 50, -50], [0, 50, -50], [0, 0, -50], [0, 0, 0]]
 
@@ -39,9 +39,7 @@ def test_hex_offsets_fills_ring():
 def test_hex_offsets_min_spacing_is_d():
     pts = np.array(_hex_offsets(19, 2.0))
     dmin = min(np.linalg.norm(a - b) for a, b in itertools.combinations(pts, 2))
-    assert dmin == pytest.approx(
-        2.0, abs=1e-6
-    )  # nearest neighbours are exactly d apart
+    assert dmin == pytest.approx(2.0, abs=1e-6)  # nearest neighbours are exactly d apart
 
 
 def test_public_hex_offsets_matches_private():

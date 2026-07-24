@@ -11,10 +11,6 @@ import math
 import numpy as np
 
 from bosl2.shapes2d import (
-    keyhole,
-    ring,
-    squircle,
-    squircle_radius_fg,
     _arc_points,
     _circle_from_3pts,
     _circle_pts,
@@ -23,7 +19,11 @@ from bosl2.shapes2d import (
     _rotate2d,
     arc,
     circle,
+    keyhole,
     rect_path,
+    ring,
+    squircle,
+    squircle_radius_fg,
 )
 
 
@@ -59,9 +59,7 @@ def test_arc_points_span():
     assert len(pts) == 3
     np.testing.assert_allclose(pts[0], [1, 0], atol=1e-12)
     np.testing.assert_allclose(pts[-1], [0, 1], atol=1e-12)
-    np.testing.assert_allclose(
-        pts[1], [math.cos(math.radians(45)), math.sin(math.radians(45))], atol=1e-12
-    )
+    np.testing.assert_allclose(pts[1], [math.cos(math.radians(45)), math.sin(math.radians(45))], atol=1e-12)
 
 
 def test_arc_points_no_endpoint_drops_last():

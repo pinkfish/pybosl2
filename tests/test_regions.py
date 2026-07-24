@@ -31,9 +31,7 @@ def test_list_of_outlines():
 def test_with_holes():
     radius = Region.with_holes(SQUARE, HOLE)
     assert len(radius) == 2
-    np.testing.assert_allclose(
-        radius.outline, [[float(x), float(y)] for x, y in SQUARE]
-    )
+    np.testing.assert_allclose(radius.outline, [[float(x), float(y)] for x, y in SQUARE])
     assert len(radius.holes) == 1
     np.testing.assert_allclose(radius.holes[0], [[float(x), float(y)] for x, y in HOLE])
 

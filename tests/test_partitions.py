@@ -15,16 +15,15 @@ import numpy as np
 import pytest
 
 from bosl2.partitions import (
-    partition_path,
-    partition_mask,
-    partition_cut_mask,
-    _ptn_sect,
-    _partition_subpath,
     _partition_cutpath,
+    _partition_subpath,
+    _ptn_sect,
+    partition_cut_mask,
+    partition_mask,
+    partition_path,
 )
 from bosl2.paths import Path
 from bosl2.shapes3d import Bosl2Solid, cuboid, sphere
-
 
 # -- cut-path generators ------------------------------------------------------------------
 
@@ -57,17 +56,13 @@ def test_ptn_sect_numeric_is_flat_segment():
 def test_ptn_sect_yflip_negates_y():
     base = _ptn_sect("sawtooth")
     flipped = _ptn_sect("sawtooth yflip")
-    np.testing.assert_allclose(
-        [p[1] for p in flipped], [-p[1] for p in base], atol=1e-9
-    )
+    np.testing.assert_allclose([p[1] for p in flipped], [-p[1] for p in base], atol=1e-9)
 
 
 def test_ptn_sect_repeat_triples_width():
     one = _ptn_sect("sawtooth")
     three = _ptn_sect("sawtooth 3x")
-    assert math.isclose(
-        max(p[0] for p in three), 3 * max(p[0] for p in one), rel_tol=1e-9
-    )
+    assert math.isclose(max(p[0] for p in three), 3 * max(p[0] for p in one), rel_tol=1e-9)
 
 
 def test_ptn_sect_resize():
@@ -100,13 +95,9 @@ def test_partition_cutpath_repeats_to_length():
 
 
 def test_partition_mask_builds():
+    assert isinstance(partition_mask(length=60, w=30, height=20, cutpath="dovetail"), Bosl2Solid)
     assert isinstance(
-        partition_mask(length=60, w=30, height=20, cutpath="dovetail"), Bosl2Solid
-    )
-    assert isinstance(
-        partition_mask(
-            length=60, w=30, height=20, cutpath="jigsaw", inverse=True, fn=12
-        ),
+        partition_mask(length=60, w=30, height=20, cutpath="jigsaw", inverse=True, fn=12),
         Bosl2Solid,
     )
 
@@ -149,7 +140,5 @@ def test_partition_returns_two_pieces():
 
 
 def test_partition_accepts_cutsize_vector_and_spin():
-    pieces = cuboid([60, 40, 20]).partition(
-        spread=8, cutsize=[20, 15], cutpath="hammerhead", spin=90
-    )
+    pieces = cuboid([60, 40, 20]).partition(spread=8, cutsize=[20, 15], cutpath="hammerhead", spin=90)
     assert len(pieces) == 2

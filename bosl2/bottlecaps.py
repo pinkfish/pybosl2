@@ -29,7 +29,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from pythonscad import polygon as _opolygon, rotate_extrude as _orotate_extrude
+from pythonscad import polygon as _opolygon
+from pythonscad import rotate_extrude as _orotate_extrude
 
 from bosl2._helpers import union
 from bosl2.constants import BOTTOM, RIGHT
@@ -320,9 +321,7 @@ def _neck_thread(diameter: "BottleThreadSpec"):
         flank_angle=diameter.flank_angle,
         turns=turns,
     )
-    thread = thread.down(
-        turns * diameter.thread_pitch / 2
-    )  # BOSL2 anchor=TOP: top at z=0
+    thread = thread.down(turns * diameter.thread_pitch / 2)  # BOSL2 anchor=TOP: top at z=0
     top = 1.82 + 2 * math.sin(math.radians(29)) * thread_h
     cuts = []
     for m_out in zrot_copies(rots=[90, 270]):
@@ -348,9 +347,7 @@ def _build_neck(diameter: "BottleThreadSpec", profile, bottom_half: bool):
     if bottom_half:
         thread = thread.bottom_half()
     thread = thread.up(height - diameter.lip_h)
-    return Bosl2Solid(
-        (body | thread).shape, size=[diameter.support_d, diameter.support_d, height]
-    )
+    return Bosl2Solid((body | thread).shape, size=[diameter.support_d, diameter.support_d, height])
 
 
 def _build_cap(diameter: "BottleThreadSpec", wall: float, texture: str):

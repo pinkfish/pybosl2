@@ -8,21 +8,22 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pysidebar.css?v=dd122b57" />
     <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -98,9 +99,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -125,10 +126,10 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
+
   <h1>Source code for bosl2.color</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
@@ -151,8 +152,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;hsl&quot;</span><span class="p">,</span> <span class="s2">&quot;hsv&quot;</span><span class="p">,</span> <span class="s2">&quot;rainbow&quot;</span><span class="p">,</span> <span class="s2">&quot;rainbow_colors&quot;</span><span class="p">,</span> <span class="s2">&quot;Colorable&quot;</span><span class="p">]</span>
 
@@ -164,9 +165,7 @@
 
 <div class="viewcode-block" id="hsl">
 <a class="viewcode-back" href="../../color.html#bosl2.color.hsl">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span>
-    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert HSL to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsl().</span>
 
 <span class="sd">    Args:</span>
@@ -189,9 +188,7 @@
 
 <div class="viewcode-block" id="hsv">
 <a class="viewcode-back" href="../../color.html#bosl2.color.hsv">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">hsv</span><span class="p">(</span>
-    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hsv</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert HSV to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsv().</span>
 
 <span class="sd">    Args:</span>
@@ -286,9 +283,7 @@
 <span class="sd">        seed:    seed for the shuffle</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
-    <span class="n">colors</span> <span class="o">=</span> <span class="n">rainbow_colors</span><span class="p">(</span>
-        <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">maxhues</span><span class="o">=</span><span class="n">maxhues</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
-    <span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">rainbow_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">maxhues</span><span class="o">=</span><span class="n">maxhues</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">colors</span><span class="p">)]</span></div>
 
 
@@ -311,9 +306,7 @@
 <span class="sd">    already-coloured children keep their colour, matching OpenSCAD&#39;s ``color()`` semantics).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_color_native</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span>
-    <span class="p">):</span>  <span class="c1"># pragma: no cover - overridden by the host class</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_color_native</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pragma: no cover - overridden by the host class</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_highlight_native</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover - overridden by the host class</span>
@@ -385,22 +378,22 @@
 </pre></div>
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

@@ -56,10 +56,9 @@ class Walls:
     """FDM-optimised wall shapes (BOSL2 walls.scad)."""
 
     @staticmethod
-    def narrowing_strut(
-        w: float = 10, length: float = 100, wall: float = 5, angle: float = 30
-    ) -> Bosl2Solid:
-        """A strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2 narrowing_strut()).
+    def narrowing_strut(w: float = 10, length: float = 100, wall: float = 5, angle: float = 30) -> Bosl2Solid:
+        """A strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2
+        narrowing_strut()).
 
         The triangular top converges at *angle* so the strut can brace an overhang without needing
         support. *w* is the width (thickness), *length* the length, *wall* the height of the rectangular
@@ -73,11 +72,7 @@ class Walls:
         """
         height = wall + w / 2 / math.tan(math.radians(angle))
         profile = [[-w / 2, 0], [w / 2, 0], [w / 2, wall], [0, height], [-w / 2, wall]]
-        shape = (
-            _opolygon(profile)
-            .linear_extrude(height=length, center=True)
-            .rotate([90, 0, 0])
-        )
+        shape = _opolygon(profile).linear_extrude(height=length, center=True).rotate([90, 0, 0])
         return Bosl2Solid(shape, size=[w, length, height])
 
     @staticmethod
@@ -106,10 +101,10 @@ class Walls:
         return Bosl2Solid(shape, size=[thick, length, height])
 
     @staticmethod
-    def _sparse_wall2d(h, l, maxang, strut, max_bridge):
-        """The 2D cross-braced pattern, in the (X=h, Y=l) plane (BOSL2 sparse_wall2d())."""
+    def _sparse_wall2d(h, length, maxang, strut, max_bridge):
+        """The 2D cross-braced pattern, in the (X=h, Y=length) plane (BOSL2 sparse_wall2d())."""
         zoff = h / 2 - strut / 2
-        yoff = l / 2 - strut / 2
+        yoff = length / 2 - strut / 2
         maxa = math.radians(maxang)
         maxhyp = 1.5 * (max_bridge + strut) / 2 / math.sin(maxa)
         maxz = 2 * maxhyp * math.cos(maxa)
@@ -123,10 +118,10 @@ class Walls:
 
         # solid border, built as four bars so there is no polygon-with-hole
         parts = [
-            _rect(-h / 2, -h / 2 + strut, -l / 2, l / 2),
-            _rect(h / 2 - strut, h / 2, -l / 2, l / 2),
-            _rect(-h / 2, h / 2, -l / 2, -l / 2 + strut),
-            _rect(-h / 2, h / 2, l / 2 - strut, l / 2),
+            _rect(-h / 2, -h / 2 + strut, -length / 2, length / 2),
+            _rect(h / 2 - strut, h / 2, -length / 2, length / 2),
+            _rect(-h / 2, h / 2, -length / 2, -length / 2 + strut),
+            _rect(-h / 2, h / 2, length / 2 - strut, length / 2),
         ]
         wx = (h - strut) / zreps
         wy = strut / math.cos(angle)
@@ -161,23 +156,14 @@ class Walls:
         A drop-in for :func:`~bosl2.shapes3d.cuboid` when the part would benefit from the sparse
         lattice; *dir* is the axis the diagonal braces (and the through-gaps) run along.
         """
-        sx, sy, sz = (
-            float(v)
-            for v in (
-                size if not isinstance(size, (int, float)) else (size, size, size)
-            )
-        )
+        sx, sy, sz = (float(v) for v in (size if not isinstance(size, (int, float)) else (size, size, size)))
         diameter = str(dir).upper()
         if diameter == "X":
             braced = Walls.sparse_wall(sz, sy, sx, maxang, strut, max_bridge)
         elif diameter == "Y":
-            braced = Walls.sparse_wall(sz, sx, sy, maxang, strut, max_bridge).rotate(
-                [0, 0, 90]
-            )
+            braced = Walls.sparse_wall(sz, sx, sy, maxang, strut, max_bridge).rotate([0, 0, 90])
         elif diameter == "Z":
-            braced = Walls.sparse_wall(sx, sy, sz, maxang, strut, max_bridge).rotate(
-                [0, 90, 0]
-            )
+            braced = Walls.sparse_wall(sx, sy, sz, maxang, strut, max_bridge).rotate([0, 90, 0])
         else:
             raise ValueError('sparse_cuboid(): dir must be "X", "Y" or "Z".')
         return Bosl2Solid((braced & cuboid([sx, sy, sz])).shape, size=[sx, sy, sz])
@@ -207,28 +193,16 @@ class Walls:
         step = period / steps
         il = length - 2 * strut + 2 * step
         ys = [-il / 2 + i * step for i in range(int(il / step) + 1)]
-        pts = [
-            [amplitude * math.sin(math.radians(y / period * 360)) - wall / 2, y]
-            for y in ys
-        ]
-        pts += [
-            [amplitude * math.sin(math.radians(y / period * 360)) + wall / 2, y]
-            for y in reversed(ys)
-        ]
-        sheet = _opolygon(pts).linear_extrude(
-            height=height - 2 * strut + 0.1, center=True
-        )
-        frame = cuboid([thick, length, height]) - cuboid(
-            [thick + 0.5, length - 2 * strut, height - 2 * strut]
-        )
-        return Bosl2Solid(
-            (Bosl2Solid(sheet) | frame).shape, size=[thick, length, height]
-        )
+        pts = [[amplitude * math.sin(math.radians(y / period * 360)) - wall / 2, y] for y in ys]
+        pts += [[amplitude * math.sin(math.radians(y / period * 360)) + wall / 2, y] for y in reversed(ys)]
+        sheet = _opolygon(pts).linear_extrude(height=height - 2 * strut + 0.1, center=True)
+        frame = cuboid([thick, length, height]) - cuboid([thick + 0.5, length - 2 * strut, height - 2 * strut])
+        return Bosl2Solid((Bosl2Solid(sheet) | frame).shape, size=[thick, length, height])
 
     @staticmethod
     def thinning_wall(
         height: float = 50,
-        length=100,
+        length: float = 100,
         thick: float = 5,
         angle: float = 30,
         strut: float | None = None,
@@ -252,9 +226,7 @@ class Walls:
         wall = wall if wall is not None else thick / 2
 
         bevel_h = strut + (thick - wall) / 2 / math.tan(math.radians(angle))
-        cp1 = _circle_2tangents(
-            strut, [0, 0, height / 2], [l2 / 2, 0, height / 2], [l1 / 2, 0, -height / 2]
-        )
+        cp1 = _circle_2tangents(strut, [0, 0, height / 2], [l2 / 2, 0, height / 2], [l1 / 2, 0, -height / 2])
         cp2 = _circle_2tangents(
             bevel_h,
             [0, 0, height / 2],
@@ -382,29 +354,17 @@ class Walls:
         ns = Walls.narrowing_strut
         parts = []
         if not diagonly:
+            parts.append(ns(w=thick, length=length, wall=strut, angle=angle).down(height / 2))
             parts.append(
-                ns(w=thick, length=length, wall=strut, angle=angle).down(height / 2)
+                ns(w=thick, length=height - 0.1, wall=strut, angle=angle).rotate([-90, 0, 0]).forward(length / 2)
             )
-            parts.append(
-                ns(w=thick, length=height - 0.1, wall=strut, angle=angle)
-                .rotate([-90, 0, 0])
-                .forward(length / 2)
-            )
-        hyp = (
-            ns(w=thick, length=dlen * 1.2, wall=strut, angle=angle)
-            .rotate([0, 180, 0])
-            .rotate([-dang, 0, 0])
-        )
+        hyp = ns(w=thick, length=dlen * 1.2, wall=strut, angle=angle).rotate([0, 180, 0]).rotate([-dang, 0, 0])
         parts.append(cuboid([thick, length, height]) & hyp)
         parts.append(cuboid([wall, length - 0.1, height - 0.1]))
         body = parts[0]
         for p in parts[1:]:
             body = body | p
-        cutter = (
-            cuboid([thick + 0.1, length * 2, height])
-            .up(height / 2)
-            .rotate([-dang, 0, 0])
-        )
+        cutter = cuboid([thick + 0.1, length * 2, height]).up(height / 2).rotate([-dang, 0, 0])
         body = body - cutter
         if center is False:
             body = body.up(height / 2).back(length / 2)

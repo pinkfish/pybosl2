@@ -8,20 +8,17 @@
 dimensional helpers. The numeric helpers are checked against the values transcribed from BOSL2's
 screw_drive.scad; the mask builders are smoke-tested (they return a Bosl2Solid and compose via CSG)."""
 
-import math
-
 import pytest
 
 from bosl2.screw_drive import ScrewDrive as SD
 from bosl2.shapes3d import Bosl2Solid, cyl
-
 
 # ---- Torx dimensional info (verbatim from screw_drive.scad) ----
 
 
 def test_torx_info_values():
     t = SD.torx_info(6)
-    assert (t.od, t.id, t.depth, t.tip_rounding, t.inner_rounding) == (
+    assert (t.outer_diameter, t.inner_diameter, t.depth, t.tip_rounding, t.inner_rounding) == (
         1.75,
         1.27,
         0.775,
@@ -41,7 +38,7 @@ def test_torx_info_is_dataclass():
 def test_torx_diam_and_depth():
     assert SD.torx_diam(30) == 5.60
     assert SD.torx_depth(30) == 2.22
-    assert SD.torx_diam(8) == SD.torx_info(8).od
+    assert SD.torx_diam(8) == SD.torx_info(8).outer_diameter
     assert SD.torx_depth(8) == SD.torx_info(8).depth
 
 
@@ -69,9 +66,7 @@ def test_phillips_depth_diam_roundtrip():
     shafts = {"#0": 3, "#1": 4.5, "#2": 6, "#3": 8, "#4": 10}
     tips = {"#0": 0.81, "#1": 1.27, "#2": 2.29, "#3": 3.81, "#4": 5.08}
     for size in ("#0", "#1", "#2", "#3", "#4"):
-        diameter = (
-            tips[size] + shafts[size]
-        ) / 2  # midpoint is always in the valid range
+        diameter = (tips[size] + shafts[size]) / 2  # midpoint is always in the valid range
         depth = SD.phillips_depth(size, diameter)
         assert depth is not None
         assert SD.phillips_diam(size, depth) == pytest.approx(diameter)

@@ -22,7 +22,6 @@ Includes the involute :meth:`~bosl2.gears.Gears.spur_gear2d` / :meth:`~bosl2.gea
 :meth:`~bosl2.gears.Gears.worm` / :meth:`~bosl2.gears.Gears.worm_gear` pair, the dimension helpers,
 :meth:`~bosl2.gears.Gears.auto_profile_shift`, and :meth:`~bosl2.gears.Gears.gear_dist` for the
 meshing centre distance.
-
 .. autoclass:: bosl2.gears.Gears
    :members:
 

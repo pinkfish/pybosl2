@@ -14,14 +14,13 @@ import math
 import numpy as np
 import pytest
 
+from bosl2.shapes3d import Bosl2Solid
 from bosl2.threading import (
     Threading,
+    _buttress_profile,
     _iso_profile,
     _trapezoidal_profile,
-    _buttress_profile,
 )
-from bosl2.shapes3d import Bosl2Solid
-
 
 # -- thread profiles (in pitch units) -----------------------------------------------------
 
@@ -111,9 +110,7 @@ def test_rod_builders(call):
         lambda: Threading.acme_threaded_nut(24, 16, 12, 3, slop=0.1),
         lambda: Threading.square_threaded_nut(24, 16, 12, 3, slop=0.1),
         lambda: Threading.buttress_threaded_nut(24, 16, 12, 3, slop=0.1),
-        lambda: Threading.generic_threaded_nut(
-            18, 12, 10, 1.75, _iso_profile(), slop=0.1
-        ),
+        lambda: Threading.generic_threaded_nut(18, 12, 10, 1.75, _iso_profile(), slop=0.1),
     ],
 )
 def test_nut_builders(call):

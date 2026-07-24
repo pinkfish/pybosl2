@@ -11,9 +11,8 @@ tests/test_bosl2_reorient.py; here we check the method surface, dimensions, and 
 import numpy as np
 import pytest
 
-from bosl2.rounding import round_corners, smooth_path
 from bosl2.paths import Path, Path3D
-
+from bosl2.rounding import round_corners, smooth_path
 
 SQ = [[0, 0], [40, 0], [40, 30], [0, 30]]
 P3 = [[0, 0, 0], [40, 0, 0], [40, 40, 20], [0, 40, 20]]

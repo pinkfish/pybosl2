@@ -81,7 +81,6 @@ The level set of a custom field function:
 
 API reference
 -------------
-
 .. automodule:: bosl2.isosurface
    :members:
    :undoc-members:

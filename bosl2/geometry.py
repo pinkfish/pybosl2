@@ -41,10 +41,7 @@ def is_collinear(a, b=None, c=None, eps: float = EPSILON) -> bool:
             return True
         a, b, c = points[0], points[1], points[2]
         # BOSL2 checks every triple, not just the first three; match that.
-        return all(
-            is_collinear(points[i], points[i + 1], points[i + 2], eps)
-            for i in range(len(points) - 2)
-        )
+        return all(is_collinear(points[i], points[i + 1], points[i + 2], eps) for i in range(len(points) - 2))
     a, b, c = (
         np.asarray(a, dtype=float),
         np.asarray(b, dtype=float),
@@ -158,7 +155,7 @@ def circle_circle_tangents(
         sides = 0
     u = unit(cp2 - cp1)
     result = []
-    for i in range(n):
+    for i in range(sides):
         radius = r_vals[i]
         s = math.sqrt(max(0.0, 1 - radius * radius))
         k = k_vals[i]

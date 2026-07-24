@@ -74,42 +74,26 @@ def _tex_trunc_ribs(sides=None, **_):
 
 def _tex_wave_ribs(sides=None, **_):
     sides = max(6, int(sides if sides is not None else 8))
-    return [
-        [
-            (math.cos(math.radians(a)) + 1) / 2
-            for a in np.arange(0, 360 - 1e-9, 360 / sides)
-        ]
-    ]
+    return [[(math.cos(math.radians(a)) + 1) / 2 for a in np.arange(0, 360 - 1e-9, 360 / sides)]]
 
 
 def _tex_diamonds(sides=None, **_):
     sides = _quantup(sides if sides is not None else 2, 2)
     path = _lerpn(0, 1, sides // 2, False) + _lerpn(1, 0, sides // 2, False)
-    return [
-        [min(_sel(path, i + j), _sel(path, i - j)) for j in range(sides)]
-        for i in range(sides)
-    ]
+    return [[min(_sel(path, i + j), _sel(path, i - j)) for j in range(sides)] for i in range(sides)]
 
 
 def _tex_pyramids(sides=None, **_):
     sides = _quantup(sides if sides is not None else 2, 2)
     return [
-        [
-            1 - (max(abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2))
-            for j in range(sides)
-        ]
-        for i in range(sides)
+        [1 - (max(abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2)) for j in range(sides)] for i in range(sides)
     ]
 
 
 def _tex_trunc_pyramids(sides=None, **_):
     sides = _quantup(sides if sides is not None else 6, 3)
     return [
-        [
-            (1 - (max(sides / 6, abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2)))
-            * 1.5
-            for j in range(sides)
-        ]
+        [(1 - (max(sides / 6, abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2))) * 1.5 for j in range(sides)]
         for i in range(sides)
     ]
 
@@ -117,10 +101,7 @@ def _tex_trunc_pyramids(sides=None, **_):
 def _tex_hills(sides=None, **_):
     sides = int(sides if sides is not None else 12)
     angs = list(np.arange(0, 359.999, 360 / sides))
-    return [
-        [(math.cos(math.radians(a)) * math.cos(math.radians(b)) + 1) / 2 for b in angs]
-        for a in angs
-    ]
+    return [[(math.cos(math.radians(a)) * math.cos(math.radians(b)) + 1) / 2 for b in angs] for a in angs]
 
 
 def _tex_bricks(sides=None, roughness=None, **_):
@@ -170,7 +151,9 @@ def _mv(off, pts):
 
 
 def _sqr(size, z=0.0):
-    """path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``)."""
+    """
+    path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``).
+    """
     w, height = (size, size) if isinstance(size, (int, float)) else (size[0], size[1])
     return [[0.0, 0.0, z], [w, 0.0, z], [w, height, z], [0.0, height, z]]
 
@@ -178,10 +161,7 @@ def _sqr(size, z=0.0):
 def _zrot2(pts, deg):
     """Rotate points about Z by *deg* degrees, preserving z (BOSL2 zrot())."""
     c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
-    return [
-        [c * p[0] - s * p[1], s * p[0] + c * p[1], (p[2] if len(p) > 2 else 0.0)]
-        for p in pts
-    ]
+    return [[c * p[0] - s * p[1], s * p[0] + c * p[1], (p[2] if len(p) > 2 else 0.0)] for p in pts]
 
 
 def _tex_diamonds_vnf(**_):
@@ -219,9 +199,7 @@ def _tex_trunc_pyramids_vnf(border=None, **_):
     b = border if border is not None else 0.1
     assert 0 < b < 0.5, "trunc_pyramids_vnf texture requires border in (0, 0.5)."
     verts = _sq(1) + _mv([0.5, 0.5, 1], _rect(1 - 2 * b, 1 - 2 * b))
-    faces = [[i, (i + 1) % 4, (i + 1) % 4 + 4, i + 4] for i in range(4)] + [
-        [4, 5, 6, 7]
-    ]
+    faces = [[i, (i + 1) % 4, (i + 1) % 4 + 4, i + 4] for i in range(4)] + [[4, 5, 6, 7]]
     return verts, faces
 
 
@@ -261,11 +239,7 @@ def _tex_trunc_ribs_vnf(border=None, gap=None, **_):
     g = gap if gap is not None else 0.25
     assert b >= 0 and g >= 0, "trunc_ribs_vnf requires gap>=0 and border>=0."
     assert g + b <= 1, "trunc_ribs_vnf requires 2*border+gap <= 1."
-    verts = (
-        _mv([0.5, 0.5], _rect(1 - g, 1, 0))
-        + _mv([0.5, 0.5], _rect(1 - g - b, 1, 1))
-        + _sq(1)
-    )
+    verts = _mv([0.5, 0.5], _rect(1 - g, 1, 0)) + _mv([0.5, 0.5], _rect(1 - g - b, 1, 1)) + _sq(1)
     faces = [[4, 7, 3, 0], [1, 2, 6, 5]]
     if g + b < 1 - 1e-9:
         faces.append([4, 5, 6, 7])
@@ -277,9 +251,7 @@ def _tex_trunc_ribs_vnf(border=None, gap=None, **_):
 def _tex_bricks_vnf(border=None, gap=None, **_):
     b = border if border is not None else 0.05
     g = gap if gap is not None else 0.05
-    assert b >= 0 and g > 0 and g + b < 0.5, (
-        "bricks_vnf requires border>=0, gap>0, gap+border<0.5."
-    )
+    assert b >= 0 and g > 0 and g + b < 0.5, "bricks_vnf requires border>=0, gap>0, gap+border<0.5."
     verts = (
         _sqr(1)
         + _mv([g / 2, g / 2, 0], _sqr([1 - g, 0.5 - g]))
@@ -439,7 +411,10 @@ _TEX_FN_DEFAULT = 16  # BOSL2 _tex_fn_default()
 
 
 def _circle_xy(d, n):
-    """*n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2 circle())."""
+    """
+    *n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2
+    circle()).
+    """
     return [
         [
             d / 2 * math.cos(math.radians(360 * i / n)),
@@ -494,9 +469,7 @@ def _tex_cones_vnf(fn=None, border=None, **_):
     assert 0 < b < 0.5, "this port's cones texture requires border in (0, 0.5)."
     rim = [[0.5 + x, 0.5 + y, 0.0] for x, y in _circle_xy(1 - 2 * b, sides)]
     verts = rim + [[0.5, 0.5, 1.0]] + [[x, y, 0.0] for x, y in _square_pts(b)]
-    faces = [[i, (i + 1) % sides, sides] for i in range(sides)] + _base_faces(
-        sides, sides + 1, b
-    )
+    faces = [[i, (i + 1) % sides, sides] for i in range(sides)] + _base_faces(sides, sides + 1, b)
     return verts, faces
 
 
@@ -529,9 +502,7 @@ def _tex_dots_vnf(fn=None, border=None, **_):
                 ]
             )
     for i in range(sides):
-        faces.append(
-            [(rows - 1) * sides + i, (rows - 1) * sides + (i + 1) % sides, rows * sides]
-        )
+        faces.append([(rows - 1) * sides + i, (rows - 1) * sides + (i + 1) % sides, rows * sides])
     faces += _base_faces(sides, rows * sides + 1, b)
     return verts, faces
 
@@ -560,10 +531,10 @@ def _tex_hex_grid_vnf(border=None, **_):
         for i in range(6)
     ]
 
-    def cyl(rad, ang):  # yscale(sc, cylindrical_to_xyz(rad, ang, 1))
+    def cyl(rad: float, angle: float):  # yscale(sc, cylindrical_to_xyz(rad, angle, 1))
         return [
-            rad * math.cos(math.radians(ang)),
-            rad * math.sin(math.radians(ang)) * sc,
+            rad * math.cos(math.radians(angle)),
+            rad * math.sin(math.radians(angle)) * sc,
             1.0,
         ]
 
@@ -639,9 +610,7 @@ TEXTURES = {
 }
 
 
-def texture(
-    tex, sides=None, border=None, gap=None, roughness=None, inset=None, fn=None
-):
+def texture(tex, sides=None, border=None, gap: float | None = None, roughness=None, inset=None, fn: int | None = None):
     """The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
     *sides* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile
@@ -654,16 +623,15 @@ def texture(
         border = inset
     key = str(tex)
     if key not in TEXTURES:
-        raise ValueError(
-            f"Unrecognized (or unported) texture name: {tex!r}; "
-            f"available: {sorted(TEXTURES)}"
-        )
+        raise ValueError(f"Unrecognized (or unported) texture name: {tex!r}; available: {sorted(TEXTURES)}")
     builder, _kind = TEXTURES[key]
     return builder(sides=sides, border=border, gap=gap, roughness=roughness, fn=fn)
 
 
 def _weld(V, F, tol=1e-6):
-    """Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces."""
+    """
+    Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces.
+    """
     idx, newV, remap = {}, [], []
     for p in V:
         k = (round(p[0] / tol), round(p[1] / tol), round(p[2] / tol))
@@ -685,9 +653,7 @@ def _close_to_base(V, F, bottom):
     for f in F:
         for i in range(len(f)):
             halfedges.add((f[i], f[(i + 1) % len(f)]))
-    nxt = {
-        a: b for (a, b) in halfedges if (b, a) not in halfedges
-    }  # boundary half-edges, directed
+    nxt = {a: b for (a, b) in halfedges if (b, a) not in halfedges}  # boundary half-edges, directed
     visited = set()
     for start in list(nxt):
         if start in visited:
@@ -714,7 +680,9 @@ def _close_to_base(V, F, bottom):
 
 
 def is_watertight_topology(verts, faces) -> bool:
-    """True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold)."""
+    """
+    True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold).
+    """
     from collections import Counter
 
     e = Counter()
@@ -763,9 +731,7 @@ def vnf_tile_to_solid(verts, faces, size, reps, tex_depth=1.0, inset=0.0):
         for j in range(ny):
             off = len(V)
             for vx, vy, vz in verts:
-                V.append(
-                    [(i + vx) / nx * sx, (j + vy) / ny * sy, (vz - inset) * tex_depth]
-                )
+                V.append([(i + vx) / nx * sx, (j + vy) / ny * sy, (vz - inset) * tex_depth])
             for f in faces:
                 F.append([off + k for k in f])
     V, F = _weld(V, F)

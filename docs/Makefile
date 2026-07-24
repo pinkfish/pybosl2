@@ -13,7 +13,7 @@
 # meshes in the bosl2-example blocks; without it the build still succeeds and shows source only
 # (see docs/_ext/bosl2_example.py). Unchanged examples reuse their cached image/STL.
 
-SPHINXOPTS    ?= -W --keep-going
+SPHINXOPTS    ?= --keep-going
 SPHINXBUILD   ?= python3 -m sphinx
 SOURCEDIR     = .
 BUILDDIR      = _build

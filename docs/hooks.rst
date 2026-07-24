@@ -15,7 +15,6 @@ tangentially to a Y-axis cylinder — the "ring" — with an optional round, D-s
 through-hole. Give exactly two of ``or_/od``, ``ir/id`` and ``wall`` to size the ring wall (or a zero
 inner radius for a solid paddle). The base's vertical edges and the hole mouth can be rounded; the
 original's base weld ``fillet`` is a follow-up.
-
 .. autoclass:: bosl2.hooks.Hooks
    :members:
 

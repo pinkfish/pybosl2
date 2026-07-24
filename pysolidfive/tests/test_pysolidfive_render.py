@@ -73,17 +73,17 @@ SHAPES = [
         "cuboid_rounded_partial_edges",
         "pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, edges='Z')",
     ),
-    ("sphere", "pysolidfive.sphere(r=10)"),
-    ("cyl_rounded", "pysolidfive.cyl(h=20, r=8, rounding=2)"),
-    ("torus", "pysolidfive.torus(r_maj=15, r_min=5)"),
-    ("teardrop", "pysolidfive.teardrop(h=10, r=8)"),
+    ("sphere", "pysolidfive.sphere(radius=10)"),
+    ("cyl_rounded", "pysolidfive.cyl(height=20, radius=8, rounding=2)"),
+    ("torus", "pysolidfive.torus(major_radius=15, minor_radius=5)"),
+    ("teardrop", "pysolidfive.teardrop(height=10, radius=8)"),
     # A concave L-shaped outline (exact winding-number polygon SDF -- exercises concave-outline
     # sign correctness, which polygon_extrude()'s convex half-planes can't do), with a rounded
     # bottom rim and a flared top rim (both offset_sweep/os_circle-style end treatments).
     (
         "polygon_prism_concave_rims",
         "pysolidfive.polygon_prism([[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]], "
-        "h=12, rounding_bottom=2, rounding_top=-2)",
+        "height=12, rounding_bottom=2, rounding_top=-2)",
     ),
     # The named n-ary CSG combinators. union/difference/intersection are thin SDF min/max
     # composition (the operators |, &, - with list/varargs conventions); hull() is the
@@ -92,22 +92,22 @@ SHAPES = [
     (
         "op_union",
         "pysolidfive.union(pysolidfive.cuboid([20.0, 20.0, 10.0], rounding=3, res=10), "
-        "pysolidfive.sphere(r=8, res=10).translate([0.0, 0.0, 8.0]))",
+        "pysolidfive.sphere(radius=8, res=10).translate([0.0, 0.0, 8.0]))",
     ),
     (
         "op_intersection",
         "pysolidfive.intersection(pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, res=10), "
-        "pysolidfive.sphere(r=12, res=10))",
+        "pysolidfive.sphere(radius=12, res=10))",
     ),
     (
         "op_difference",
         "pysolidfive.difference(pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=3, res=10), "
-        "pysolidfive.zcyl(h=30, r=5, res=10), pysolidfive.xcyl(h=30, r=5, res=10))",
+        "pysolidfive.zcyl(height=30, radius=5, res=10), pysolidfive.xcyl(height=30, radius=5, res=10))",
     ),
     (
         "op_hull_spheres",
-        "pysolidfive.hull(pysolidfive.sphere(r=6, res=10), "
-        "pysolidfive.sphere(r=6, res=10).translate([18.0, 0.0, 0.0]), directions=96)",
+        "pysolidfive.hull(pysolidfive.sphere(radius=6, res=10), "
+        "pysolidfive.sphere(radius=6, res=10).translate([18.0, 0.0, 0.0]), directions=96)",
     ),
     (
         "op_hull_spike",
@@ -126,18 +126,14 @@ class RealRenderTestCase(unittest.TestCase):
 
     def _render_and_compare(self, name: str, expr: str) -> None:
         if self.binary is None:
-            self.skipTest(
-                "no real PythonSCAD binary found (set PYTHONSCAD_BIN to override)"
-            )
+            self.skipTest("no real PythonSCAD binary found (set PYTHONSCAD_BIN to override)")
 
         golden = GOLDEN_DIR / f"{name}.png"
         out_png = OUT_DIR / f"{name}.png"
 
         result = render_pysolidfive_shape(expr, out_png)
         if not result.ok:
-            self.skipTest(
-                f"real render did not produce geometry, skipping: {result.error}"
-            )
+            self.skipTest(f"real render did not produce geometry, skipping: {result.error}")
 
         if not golden.is_file():
             self.skipTest(

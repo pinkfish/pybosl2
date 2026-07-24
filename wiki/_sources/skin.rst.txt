@@ -66,7 +66,6 @@ Coverage of BOSL2 ``skin.scad``
 
 API reference
 -------------
-
 .. automodule:: bosl2.skin
    :members:
    :undoc-members:

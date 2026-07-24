@@ -6,15 +6,13 @@
 
 """Tests for bosl2.turtle3d (the Turtle class) and the debug_polygon/debug_region methods."""
 
-import math
-
 import numpy as np
 import pytest
 
-from bosl2.turtle3d import Turtle
 from bosl2.paths import Path
 from bosl2.regions import Region
 from bosl2.shapes3d import Bosl2Solid
+from bosl2.turtle3d import Turtle
 
 
 def test_square_path_closes():
@@ -132,9 +130,7 @@ def test_debug_polygon_builds_with_labels():
 
 
 def test_debug_region_builds():
-    radius = Region.with_holes(
-        [[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]]
-    )
+    radius = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]])
     assert isinstance(radius.debug_region(size=3), Bosl2Solid)
 
 

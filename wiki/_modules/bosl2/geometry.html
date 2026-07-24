@@ -8,21 +8,22 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pysidebar.css?v=dd122b57" />
     <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -98,9 +99,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -125,10 +126,10 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
+
   <h1>Source code for bosl2.geometry</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
@@ -178,10 +179,7 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
         <span class="c1"># BOSL2 checks every triple, not just the first three; match that.</span>
-        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
-            <span class="n">is_collinear</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="n">eps</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_collinear</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="n">eps</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
     <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
         <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
@@ -252,7 +250,7 @@
 <div class="viewcode-block" id="general_line_intersection">
 <a class="viewcode-back" href="../../geometry.html#bosl2.geometry.general_line_intersection">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">general_line_intersection</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Intersection of infinite lines through segments s1=(a,b), s2=(c,d).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Intersection of infinite lines through segments s1=(a,b), s2=(c,diameter).</span>
 
 <span class="sd">    Returns [point, t, u] where t/u are the parametric positions of the</span>
 <span class="sd">    intersection along s1/s2 (0 at the first point, 1 at the second), or</span>
@@ -261,7 +259,7 @@
     <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">s1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">s1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">c</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">s2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">s2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">v1</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span>
-    <span class="n">v2</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="n">d</span>
+    <span class="n">v2</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="n">diameter</span>
     <span class="n">denominator</span> <span class="o">=</span> <span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">denominator</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">eps</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -276,7 +274,12 @@
 <div class="viewcode-block" id="circle_circle_tangents">
 <a class="viewcode-back" href="../../geometry.html#bosl2.geometry.circle_circle_tangents">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">circle_circle_tangents</span><span class="p">(</span>
-    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cp1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cp2</span><span class="p">,</span> <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">cp1</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">cp2</span><span class="p">,</span>
+    <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tangent lines between two circles (radius1, cp1) and (radius2, cp2).</span>
 
@@ -305,7 +308,7 @@
         <span class="n">sides</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">u</span> <span class="o">=</span> <span class="n">unit</span><span class="p">(</span><span class="n">cp2</span> <span class="o">-</span> <span class="n">cp1</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">):</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">r_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">radius</span><span class="p">))</span>
         <span class="n">k</span> <span class="o">=</span> <span class="n">k_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -323,22 +326,22 @@
 </pre></div>
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

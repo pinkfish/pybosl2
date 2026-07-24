@@ -12,11 +12,10 @@
 # FileSummary: Internal helper functions shared across the bosl2 package.
 # FileGroup: BOSL2
 
-from functools import reduce
 import operator
+from functools import reduce
 
 import numpy as np
-
 
 # ---------------------------------------------------------------------------
 # Scalar/number predicates
@@ -25,9 +24,7 @@ import numpy as np
 
 def is_num(value) -> bool:
     """True if *value* is a numeric scalar (int, float, or numpy numeric), excluding bool."""
-    return isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(
-        value, bool
-    )
+    return isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, bool)
 
 
 # ---------------------------------------------------------------------------
@@ -89,7 +86,7 @@ def zrot4(angle_degrees: float) -> np.ndarray:
 
 def rot_from_to4(source, target) -> np.ndarray:
     """4x4 rotation matrix rotating direction *source* onto direction *target*."""
-    from bosl2.transforms import rot_from_to, axis_angle_matrix
+    from bosl2.transforms import axis_angle_matrix, rot_from_to
 
     angle, axis = rot_from_to(source, target)
     matrix = np.eye(4)
@@ -131,7 +128,9 @@ def frame_map4_yz(y_axis, z_axis):
 
 
 def union(shapes):
-    """Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``)."""
+    """
+    Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``).
+    """
     return reduce(operator.or_, shapes)
 
 

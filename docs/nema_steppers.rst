@@ -15,7 +15,6 @@ masks that cut their mounting-hole pattern into a plate.
 blind screw holes) for a NEMA size; :meth:`~bosl2.nema_steppers.NemaSteppers.nema_mount_mask` is the
 bolt-pattern-plus-plinth cutout; :meth:`~bosl2.nema_steppers.NemaSteppers.nema_motor_info` returns
 the standard dimensions as a :class:`~bosl2.nema_steppers.NemaSpec`.
-
 .. autoclass:: bosl2.nema_steppers.NemaSpec
    :members:
 

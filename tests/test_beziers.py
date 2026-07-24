@@ -21,9 +21,7 @@ PATCH = [
     [[-50, 16, 20], [-16, 16, -20], [16, 16, 20], [50, 16, 20]],
     [[-50, 50, 0], [-16, 50, -20], [16, 50, 20], [50, 50, 0]],
 ]
-CIRCLE = [
-    [math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)
-]
+CIRCLE = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
 
 
 def _valid(vnf):
@@ -52,9 +50,7 @@ def test_curve_point_count():
 def test_derivative_of_cubic_at_zero():
     # first derivative of a cubic at u=0 is 3*(P1-P0)
     diameter = Bezier(CUBIC).derivative(0, 1)
-    np.testing.assert_allclose(
-        diameter, 3 * (np.array([5, 35]) - np.array([0, 0])), atol=1e-9
-    )
+    np.testing.assert_allclose(diameter, 3 * (np.array([5, 35]) - np.array([0, 0])), atol=1e-9)
 
 
 def test_tangent_is_unit():
@@ -63,10 +59,7 @@ def test_tangent_is_unit():
 
 
 def test_curvature_scalar_and_list():
-    assert (
-        np.isscalar(Bezier(CUBIC).curvature(0.5))
-        or np.ndim(Bezier(CUBIC).curvature(0.5)) == 0
-    )
+    assert np.isscalar(Bezier(CUBIC).curvature(0.5)) or np.ndim(Bezier(CUBIC).curvature(0.5)) == 0
     assert np.asarray(Bezier(CUBIC).curvature([0.2, 0.8])).shape == (2,)
 
 
@@ -76,10 +69,7 @@ def test_closest_point():
     # the returned u really is near the closest sample
     pt = Bezier(CUBIC).points(u)
     diameter = float(np.linalg.norm(pt - np.array([40, 15])))
-    coarse = min(
-        float(np.linalg.norm(Bezier(CUBIC).points(x) - np.array([40, 15])))
-        for x in np.linspace(0, 1, 50)
-    )
+    coarse = min(float(np.linalg.norm(Bezier(CUBIC).points(x) - np.array([40, 15]))) for x in np.linspace(0, 1, 50))
     assert diameter <= coarse + 1e-6
 
 
@@ -249,9 +239,7 @@ def test_vnf_degenerate_return_edges():
 
 
 def test_bezier_sweep_valid():
-    v = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(
-        CIRCLE, splinesteps=6
-    )
+    v = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=6)
     assert isinstance(v, VNF) and _valid(v)
 
 
@@ -262,7 +250,5 @@ def test_bezpath_sweep_valid():
 
 
 def test_sweep_transforms_mode():
-    tl = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(
-        CIRCLE, splinesteps=4, transforms=True
-    )
+    tl = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=4, transforms=True)
     assert len(tl) == 5 and np.asarray(tl[0]).shape == (4, 4)

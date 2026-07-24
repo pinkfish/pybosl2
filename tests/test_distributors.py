@@ -10,8 +10,6 @@ tests/test_bosl2_reorient.py; here we check the object-level behaviour (what eac
 how the copies are placed). Native geometry is mocked, so Bosl2Solid tests assert type/union, not
 mesh geometry (that is covered in test_stl_render.py)."""
 
-import math
-
 import numpy as np
 import pytest
 
@@ -19,16 +17,13 @@ from bosl2 import distributors as D
 from bosl2.paths import Path, Path3D
 from bosl2.shapes3d import Bosl2Solid, cuboid
 
-
 # -- matrix generators --------------------------------------------------------------------
 
 
 def test_move_copies_matrices():
     mats = D.move_copies([[0, 0, 0], [10, 0, 0], [0, 5, 0]])
     assert len(mats) == 3
-    np.testing.assert_allclose(
-        mats[1][:3, 3], [10, 0, 0], atol=1e-9
-    )  # translation column
+    np.testing.assert_allclose(mats[1][:3, 3], [10, 0, 0], atol=1e-9)  # translation column
 
 
 def test_xcopies_centered_by_default():
@@ -68,9 +63,7 @@ def test_mirror_copy_is_original_plus_reflection():
     mats = D.mirror_copy([1, 0, 0])
     assert len(mats) == 2
     np.testing.assert_allclose(mats[0], np.eye(4), atol=1e-9)  # the original
-    np.testing.assert_allclose(
-        mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9
-    )  # X reflection
+    np.testing.assert_allclose(mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9)  # X reflection
 
 
 # -- Path (2-D) returns a list of Path copies ---------------------------------------------
@@ -137,9 +130,7 @@ def test_path3d_sphere_copies():
 
 
 def test_solid_grid_copies_returns_solid():
-    assert isinstance(
-        cuboid([10, 10, 10]).grid_copies(sides=[3, 3], spacing=20), Bosl2Solid
-    )
+    assert isinstance(cuboid([10, 10, 10]).grid_copies(sides=[3, 3], spacing=20), Bosl2Solid)
 
 
 def test_solid_ring_and_flip_return_solid():

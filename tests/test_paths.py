@@ -65,9 +65,7 @@ def test_is_clockwise():
 
 def test_perimeter_closed_vs_open():
     assert Path(SQUARE).perimeter() == 280
-    assert (
-        Path(SQUARE, closed=False).perimeter() == 220
-    )  # three segments, no closing edge
+    assert Path(SQUARE, closed=False).perimeter() == 220  # three segments, no closing edge
 
 
 def test_segment_lengths_and_fractions():
@@ -208,24 +206,16 @@ def test_directional_moves():
 
 
 def test_rot_and_rotate_alias():
-    np.testing.assert_allclose(
-        Path([[1, 0]], closed=False).rot(90)[0], [0, 1], atol=1e-9
-    )
-    np.testing.assert_allclose(
-        Path([[1, 0]], closed=False).rotate(90)[0], [0, 1], atol=1e-9
-    )
+    np.testing.assert_allclose(Path([[1, 0]], closed=False).rot(90)[0], [0, 1], atol=1e-9)
+    np.testing.assert_allclose(Path([[1, 0]], closed=False).rotate(90)[0], [0, 1], atol=1e-9)
 
 
 def test_mirror_across_y_axis():
-    np.testing.assert_allclose(
-        Path([[3, 2]], closed=False).mirror([1, 0])[0], [-3, 2], atol=1e-9
-    )
+    np.testing.assert_allclose(Path([[3, 2]], closed=False).mirror([1, 0])[0], [-3, 2], atol=1e-9)
 
 
 def test_yflip():
-    np.testing.assert_allclose(
-        Path([[3, 2]], closed=False).yflip()[0], [3, -2], atol=1e-9
-    )
+    np.testing.assert_allclose(Path([[3, 2]], closed=False).yflip()[0], [3, -2], atol=1e-9)
 
 
 # -- conversion ---------------------------------------------------------------------------

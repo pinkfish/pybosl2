@@ -9,7 +9,8 @@ ball_bearing() cartridge model."""
 
 import pytest
 
-from bosl2.ball_bearings import BallBearings as BB, BearingSpec
+from bosl2.ball_bearings import BallBearings as BB
+from bosl2.ball_bearings import BearingSpec
 from bosl2.shapes3d import Bosl2Solid
 
 
@@ -65,7 +66,7 @@ def test_ball_bearing_builds(kw):
 
 
 def test_envelope_matches_od_and_width():
-    b = BB.ball_bearing("6205")  # id 25, od 52, width 15
+    b = BB.ball_bearing("6205")  # inner_diameter 25, outer_diameter 52, width 15
     w, _wy, hgt = _size(b)
     assert w == pytest.approx(52, abs=0.5)
     assert hgt == pytest.approx(15, abs=0.01)

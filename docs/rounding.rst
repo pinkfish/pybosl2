@@ -68,7 +68,6 @@ A wiggly path smoothed into a flowing ribbon:
 
 API reference
 -------------
-
 .. automodule:: bosl2.rounding
    :members:
    :undoc-members:

@@ -30,10 +30,11 @@ def _count(sides: int, s: int = 0, reverse: bool = False) -> list:
     return radius[::-1] if reverse else radius
 
 
-def _lofttri(
-    p1, p2, i1off: int, i2off: int, n1: int, n2: int, reverse: bool, trimax
-) -> list:
-    """Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2 _lofttri)."""
+def _lofttri(p1, p2, i1off: int, i2off: int, n1: int, n2: int, reverse: bool, trimax) -> list:
+    """
+    Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2
+    _lofttri).
+    """
     a1 = np.asarray(p1, dtype=float)
     a2 = np.asarray(p2, dtype=float)
     tris: list = []
@@ -45,18 +46,12 @@ def _lofttri(
             t2 = i2 + 1 if i2 < n2 else n2
             d12 = 9e9 if t2 >= n2 else float(np.linalg.norm(a2[t2] - a1[i1]))
             d21 = 9e9 if t1 >= n1 else float(np.linalg.norm(a1[t1] - a2[i2]))
-            userow = (
-                (2 if tc1 < trimax else 1) if d12 < d21 else (1 if tc2 < trimax else 2)
-            )
+            userow = (2 if tc1 < trimax else 1) if d12 < d21 else (1 if tc2 < trimax else 2)
             newt = (t1 if t1 < n1 else i1) if userow == 1 else (t2 if t2 < n2 else i2)
             newofft = i2off + newt if userow == 2 else i1off + newt
             tc1n = tc1 + 1 if (d12 < d21 and tc1 < trimax) else 0
             tc2n = tc2 + 1 if (d21 < d12 and tc2 < trimax) else 0
-            triangle = (
-                [i1off + i1, i2off + i2, newofft]
-                if reverse
-                else [i2off + i2, i1off + i1, newofft]
-            )
+            triangle = [i1off + i1, i2off + i2, newofft] if reverse else [i2off + i2, i1off + i1, newofft]
             if t1 >= n1 and t2 >= n2:
                 break
             tris.append(triangle)
@@ -217,9 +212,7 @@ class VNF:
         if style == "quincunx":
             for r in range(rowcnt):
                 for c in range(colcnt):
-                    corners = parr[
-                        [idx(r, c), idx(r + 1, c), idx(r + 1, c + 1), idx(r, c + 1)]
-                    ]
+                    corners = parr[[idx(r, c), idx(r + 1, c), idx(r + 1, c + 1), idx(r, c + 1)]]
                     verts.append(corners.mean(axis=0).tolist())
 
         vertsarr = np.asarray(verts, dtype=float)
@@ -242,55 +235,31 @@ class VNF:
                     i5 = pcnt + r * colcnt + c
                     cell = [[i1, i5, i2], [i2, i5, i3], [i3, i5, i4], [i4, i5, i1]]
                 elif style == "min_area":
-                    area42 = np.linalg.norm(
-                        np.cross(p2 - p1, p4 - p1)
-                    ) + np.linalg.norm(np.cross(p4 - p3, p2 - p3))
-                    area13 = np.linalg.norm(
-                        np.cross(p1 - p4, p3 - p4)
-                    ) + np.linalg.norm(np.cross(p3 - p2, p1 - p2))
-                    cell = (
-                        [[i1, i4, i2], [i2, i4, i3]]
-                        if area42 < area13 + _EPS
-                        else [[i1, i3, i2], [i1, i4, i3]]
-                    )
+                    area42 = np.linalg.norm(np.cross(p2 - p1, p4 - p1)) + np.linalg.norm(np.cross(p4 - p3, p2 - p3))
+                    area13 = np.linalg.norm(np.cross(p1 - p4, p3 - p4)) + np.linalg.norm(np.cross(p3 - p2, p1 - p2))
+                    cell = [[i1, i4, i2], [i2, i4, i3]] if area42 < area13 + _EPS else [[i1, i3, i2], [i1, i4, i3]]
                 elif style == "min_edge":
                     d42 = np.linalg.norm(p4 - p2)
                     d13 = np.linalg.norm(p1 - p3)
-                    cell = (
-                        [[i1, i4, i2], [i2, i4, i3]]
-                        if d42 < d13 + _EPS
-                        else [[i1, i3, i2], [i1, i4, i3]]
-                    )
+                    cell = [[i1, i4, i2], [i2, i4, i3]] if d42 < d13 + _EPS else [[i1, i3, i2], [i1, i4, i3]]
                 elif style in ("convex", "concave"):
                     sides = (-1 if reverse else 1) * np.cross(p2 - p1, p3 - p1)
                     if not np.any(sides):
                         cell = [[i1, i4, i3]]
                     else:
-                        above = (
-                            (sides @ p4 > sides @ p1)
-                            if style == "convex"
-                            else (sides @ p4 <= sides @ p1)
-                        )
-                        cell = (
-                            [[i1, i4, i2], [i2, i4, i3]]
-                            if above
-                            else [[i1, i3, i2], [i1, i4, i3]]
-                        )
+                        above = (sides @ p4 > sides @ p1) if style == "convex" else (sides @ p4 <= sides @ p1)
+                        cell = [[i1, i4, i2], [i2, i4, i3]] if above else [[i1, i3, i2], [i1, i4, i3]]
                 elif style == "quad":
                     cell = [[i1, i2, i3, i4]]
                 elif (
-                    style == "alt"
-                    or (style == "flip1" and (r + c) % 2 == 0)
-                    or (style == "flip2" and (r + c) % 2 == 1)
+                    style == "alt" or (style == "flip1" and (r + c) % 2 == 0) or (style == "flip2" and (r + c) % 2 == 1)
                 ):
                     cell = [[i1, i4, i2], [i2, i4, i3]]
                 else:  # default
                     cell = [[i1, i3, i2], [i1, i4, i3]]
                 for face in cell:
                     a, b, cc = vertsarr[face[0]], vertsarr[face[1]], vertsarr[face[2]]
-                    if (
-                        np.linalg.norm(np.cross(b - a, cc - a)) > _EPS
-                    ):  # drop degenerate faces
+                    if np.linalg.norm(np.cross(b - a, cc - a)) > _EPS:  # drop degenerate faces
                         faces.append(face[::-1] if reverse else face)
         return cls(verts, faces)
 
@@ -330,17 +299,11 @@ class VNF:
 
         faces: list = []
         if capfirst:
-            rng = (
-                list(range(0, rowstarts[0] - addcol))
-                if reverse
-                else list(range(rowstarts[0] - 1 - addcol, -1, -1))
-            )
+            rng = list(range(0, rowstarts[0] - addcol)) if reverse else list(range(rowstarts[0] - 1 - addcol, -1, -1))
             faces.append(rng)
         for i in range(0, plen - 1 + (1 if row_wrap else 0)):
             j = (i + 1) % plen
-            trimax = (
-                max(1, abs(len(st[i]) - len(st[j]))) if limit_bunching else float("inf")
-            )
+            trimax = max(1, abs(len(st[i]) - len(st[j]))) if limit_bunching else float("inf")
             faces.extend(
                 _lofttri(
                     st[i],

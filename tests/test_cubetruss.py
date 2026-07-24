@@ -95,9 +95,7 @@ def test_support_envelope(extents, ex, ey, ez):
     assert isinstance(s, Bosl2Solid)
     w, length, height = _size(s)
     assert w == pytest.approx((30 - 3) * ex + 3, abs=0.5)  # width across the X copies
-    assert height == pytest.approx(
-        (30 - 3) * ez + 3, abs=0.5
-    )  # full height (before the diagonal)
+    assert height == pytest.approx((30 - 3) * ez + 3, abs=0.5)  # full height (before the diagonal)
 
 
 # -- clip accessories ---------------------------------------------------------
@@ -125,10 +123,7 @@ def test_foot_span_scales_with_w():
 
 
 def test_uclip_dual_wider_than_single():
-    assert (
-        _size(CT.cubetruss_uclip(dual=True))[0]
-        > _size(CT.cubetruss_uclip(dual=False))[0]
-    )
+    assert _size(CT.cubetruss_uclip(dual=True))[0] > _size(CT.cubetruss_uclip(dual=False))[0]
 
 
 def test_clips_add_material_on_the_named_face():
@@ -142,6 +137,4 @@ def test_clips_add_material_on_the_named_face():
 
 
 def test_clips_none_matches_plain():
-    assert _size(CT.cubetruss(extents=3, clips=None)) == pytest.approx(
-        _size(CT.cubetruss(extents=3))
-    )
+    assert _size(CT.cubetruss(extents=3, clips=None)) == pytest.approx(_size(CT.cubetruss(extents=3)))

@@ -67,7 +67,8 @@ _PREAMBLE = (
     "import bosl2.shapes3d as s3\n"
     "import bosl2.shapes2d as s2\n"
     "from bosl2.beziers import Bezier, BezierPatch\n"
-    "from bosl2.skin import path_sweep, path_sweep2d, sweep, skin, linear_sweep, rotate_sweep, spiral_sweep, rot_resample\n"
+    "from bosl2.skin import path_sweep, path_sweep2d, sweep, skin, linear_sweep, rotate_sweep, "
+    "spiral_sweep, rot_resample\n"
     "from bosl2.drawing import arc, catenary, helix, turtle, stroke, dashed_stroke\n"
     "from bosl2.distributors import distribute, xdistribute, ydistribute, zdistribute\n"
     "from bosl2.color import hsl, hsv, rainbow, rainbow_colors\n"
@@ -75,7 +76,8 @@ _PREAMBLE = (
     "from bosl2.miscellaneous import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
     "from bosl2.nurbs import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
     "from bosl2.rounding import round_corners, smooth_path\n"
-    "from bosl2.isosurface import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, mb_octahedron, mb_connector\n"
+    "from bosl2.isosurface import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, "
+    "mb_octahedron, mb_connector\n"
     "from bosl2.threading import Threading\n"
     "from bosl2.screws import Screws\n"
     # parts library classes, so examples can be terse (Gears.spur_gear(...).show())
@@ -116,9 +118,7 @@ def render_object(
     failure so callers can assert on ``.ok``. Only raises if no binary can be located at all.
     """
     body = _PREAMBLE + setup + f"obj = {expr}\n" + "obj.show()\n"
-    return render_stl_script(
-        body, out_stl, timeout=timeout, export_format=export_format
-    )
+    return render_stl_script(body, out_stl, timeout=timeout, export_format=export_format)
 
 
 def render_stl_script(
@@ -135,13 +135,9 @@ def render_stl_script(
     """
     binary = find_pythonscad_binary()
     if binary is None:
-        raise FileNotFoundError(
-            "no PythonSCAD binary found (set PYTHONSCAD_BIN or install to /Applications)"
-        )
+        raise FileNotFoundError("no PythonSCAD binary found (set PYTHONSCAD_BIN or install to /Applications)")
 
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, dir=tempfile.gettempdir()
-    ) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, dir=tempfile.gettempdir()) as f:
         f.write(script_source)
         script_path = Path(f.name)
 
@@ -182,9 +178,7 @@ def render_stl_script(
             (i for i, ln in enumerate(lines) if ln.startswith("Geometries in cache")),
             len(lines),
         )
-        last = next(
-            (ln for ln in reversed(lines[:cutoff]) if ln.strip()), "unknown error"
-        )
+        last = next((ln for ln in reversed(lines[:cutoff]) if ln.strip()), "unknown error")
         return StlResult(False, None, f"script raised: {last[:200]}", stderr)
     if proc.returncode != 0:
         return StlResult(False, None, f"PythonSCAD exited {proc.returncode}", stderr)
@@ -199,9 +193,7 @@ def parse_stl(path: Path) -> np.ndarray:
     if len(data) >= 84:
         sides = struct.unpack("<I", data[80:84])[0]
         if len(data) == 84 + 50 * sides:  # exact binary-STL size => binary
-            dt = np.dtype(
-                [("sides", "<f4", (3,)), ("v", "<f4", (3, 3)), ("attr", "<u2")]
-            )
+            dt = np.dtype([("sides", "<f4", (3,)), ("v", "<f4", (3, 3)), ("attr", "<u2")])
             arr = np.frombuffer(data, dtype=dt, offset=84, count=sides)
             return np.array(arr["v"], dtype=float)
     verts = []
@@ -227,7 +219,9 @@ class StlMetrics:
 
 
 def stl_metrics(path: Path) -> StlMetrics:
-    """Measure an STL: triangle count, bounding box, enclosed volume, surface area, watertightness."""
+    """
+    Measure an STL: triangle count, bounding box, enclosed volume, surface area, watertightness.
+    """
     tris = parse_stl(path)
     pts = tris.reshape(-1, 3)
     bbmin, bbmax = pts.min(axis=0), pts.max(axis=0)
@@ -279,6 +273,4 @@ def golden_ok(rendered: Path, golden: Path, tolerance: float = 1e-4) -> bool:
 
         shutil.copy2(rendered, golden)
         return True
-    return stl_normalized_hash(rendered, tolerance) == stl_normalized_hash(
-        golden, tolerance
-    )
+    return stl_normalized_hash(rendered, tolerance) == stl_normalized_hash(golden, tolerance)

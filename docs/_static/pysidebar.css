@@ -1,0 +1,54 @@
+.pysidebar {
+    position: fixed;
+    right: 20px;
+    top: 100px;
+    width: 200px;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    background: var(--color-sidebar-background, #f8f9fa);
+    border: 1px solid var(--color-sidebar-border, #dee2e6);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 0.82em;
+    z-index: 100;
+}
+.pysidebar-title {
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-sidebar-border, #dee2e6);
+    font-size: 0.95em;
+}
+.pysidebar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.pysidebar-list li {
+    margin: 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.pysidebar-list .ps-class {
+    font-weight: 600;
+    margin-top: 8px;
+    padding-top: 4px;
+    border-top: 1px solid var(--color-sidebar-border, #e9ecef);
+}
+.pysidebar-list .ps-meth {
+    padding-left: 14px;
+}
+.pysidebar-list .ps-func {
+    font-weight: 500;
+}
+.pysidebar-list a {
+    color: var(--color-link, #267CB9);
+    text-decoration: none;
+}
+.pysidebar-list a:hover {
+    text-decoration: underline;
+}
+@media (max-width: 1200px) {
+    .pysidebar { display: none; }
+}

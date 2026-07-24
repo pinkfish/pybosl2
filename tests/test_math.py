@@ -9,7 +9,7 @@
 import numpy as np
 import pytest
 
-from bosl2.math import EPSILON, lerp, lerpn, deriv, deriv2, deriv3
+from bosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 
 
 def test_epsilon_value():

@@ -7,10 +7,11 @@
 """Tests for bosl2.walls: FDM-optimised wall shapes."""
 
 import math
+
 import pytest
 
-from bosl2.walls import Walls as W
 from bosl2.shapes3d import Bosl2Solid
+from bosl2.walls import Walls as W
 
 
 def _size(s):
@@ -30,9 +31,7 @@ def test_sparse_wall_outer_dims():
     sz = _size(W.sparse_wall(height=50, length=100, thick=4))
     assert sz[0] == pytest.approx(4.0, abs=0.05)  # thickness
     assert sz[2] == pytest.approx(50.0, abs=0.05)  # height
-    assert sz[1] == pytest.approx(
-        100.0, abs=1.0
-    )  # length (struts skew slightly past the ends)
+    assert sz[1] == pytest.approx(100.0, abs=1.0)  # length (struts skew slightly past the ends)
 
 
 def test_sparse_wall_variants_build():
@@ -43,9 +42,7 @@ def test_sparse_wall_variants_build():
     )
 
 
-@pytest.mark.parametrize(
-    "d,exp", [("X", (10, 20, 30)), ("Y", (10, 20, 30)), ("Z", (10, 20, 30))]
-)
+@pytest.mark.parametrize("d,exp", [("X", (10, 20, 30)), ("Y", (10, 20, 30)), ("Z", (10, 20, 30))])
 def test_sparse_cuboid_clipped_to_box(d, exp):
     sz = _size(W.sparse_cuboid([10, 20, 30], dir=d, strut=1))
     assert tuple(round(v) for v in sz) == exp
@@ -83,6 +80,4 @@ def test_thinning_triangle_centered_and_offset():
 
 
 def test_thinning_triangle_diagonly_builds():
-    assert isinstance(
-        W.thinning_triangle(height=50, length=80, thick=4, diagonly=True), Bosl2Solid
-    )
+    assert isinstance(W.thinning_triangle(height=50, length=80, thick=4, diagonly=True), Bosl2Solid)

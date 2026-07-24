@@ -89,7 +89,6 @@ A sphere as a rational NURBS surface (weights + repeated knots):
 
 API reference
 -------------
-
 .. automodule:: bosl2.nurbs
    :members:
    :undoc-members:

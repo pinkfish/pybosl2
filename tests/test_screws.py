@@ -14,9 +14,8 @@ import math
 
 import pytest
 
-from bosl2.screws import Screws, _parse_spec, _lookup_pitch, _nut_dims
+from bosl2.screws import Screws, _lookup_pitch, _nut_dims, _parse_spec
 from bosl2.shapes3d import Bosl2Solid
-
 
 # -- spec parsing / pitch lookup ----------------------------------------------------------
 
@@ -166,9 +165,7 @@ def test_nut_thickness_classes_build():
         assert isinstance(Screws.nut("M6", thickness=t, fn=8), Bosl2Solid)
 
 
-@pytest.mark.parametrize(
-    "head,counterbore", [("none", 0), ("socket", 4), ("flat", 0), ("hex", 3)]
-)
+@pytest.mark.parametrize("head,counterbore", [("none", 0), ("socket", 4), ("flat", 0), ("hex", 3)])
 def test_screw_hole_builds(head, counterbore):
     assert isinstance(
         Screws.screw_hole("M6", 20, head=head, counterbore=counterbore, fn=8),
