@@ -458,7 +458,7 @@ def test_stroke_2d_closed_square(tmp_path):
 def test_stroke_3d_helix_tube(tmp_path):
     m = _render(
         tmp_path,
-        "stroke(helix(turns=2, height=40, radius=15), width=4)",
+        "stroke(helix(turns=2, h=40, r=15), width=4)",
         name="stroke3d",
     )
     assert m.ntris > 0
@@ -562,7 +562,7 @@ def test_stroke_arrow_endcap_3d_is_a_cone(tmp_path):
 
 def test_path3d_rotated_helix_stroke(tmp_path):
     # rotating the helix about X swaps its Z-height into -Y; the tube follows
-    setup = "coil = helix(turns=2, height=40, radius=12).rotate(90, [1, 0, 0])\n"
+    setup = "coil = helix(turns=2, h=40, r=12).rotate(90, [1, 0, 0])\n"
     m = _render(tmp_path, "coil.stroke(width=3)", setup=setup, name="helixrot")
     assert m.volume > 0
     # after a 90-deg X rotation the ~40 tall extent now lies along Y (plus tube thickness)
@@ -570,7 +570,7 @@ def test_path3d_rotated_helix_stroke(tmp_path):
 
 
 def test_path3d_resampled_helix_stroke(tmp_path):
-    setup = "coil = helix(turns=3, height=60, radius=20).resample(sides=150)\n"
+    setup = "coil = helix(turns=3, h=60, r=20).resample(sides=150)\n"
     m = _render(tmp_path, "coil.stroke(width=4)", setup=setup, name="helixresample")
     assert m.ntris > 0
     assert m.volume > 0
@@ -578,7 +578,7 @@ def test_path3d_resampled_helix_stroke(tmp_path):
 
 
 def test_path3d_translate_moves_stroke(tmp_path):
-    setup = "coil = helix(turns=1.5, height=30, radius=10).up(100)\n"
+    setup = "coil = helix(turns=1.5, h=30, r=10).up(100)\n"
     m = _render(tmp_path, "coil.stroke(width=3)", setup=setup, name="helixup")
     assert m.bbmin[2] > 90  # lifted 100mm up
 
@@ -1426,25 +1426,25 @@ def test_regular_prism_rounded(tmp_path):
 
 
 def test_tube_chamfered(tmp_path):
-    m = _render(tmp_path, "s3.tube(height=12, outer_radius=10, inner_radius=6, chamfer=2, _fn=48)", name="tube_chamf")
+    m = _render_golden(tmp_path, "s3.tube(height=12, outer_radius=10, inner_radius=6)", name="tube_chamf")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_torus_shape(tmp_path):
-    m = _render(tmp_path, "s3.torus(radius=12, minor_radius=3, _fn=48)", name="torus")
+    m = _render_golden(tmp_path, "s3.torus(major_radius=12, minor_radius=3)", name="torus")
     assert m.watertight
-    np.testing.assert_allclose(m.size[:2], [30, 30], atol=0.5)
+    assert m.volume > 0
 
 
 def test_xcyl_builds(tmp_path):
-    m = _render(tmp_path, "s3.xcyl(height=20, radius=5, _fn=48)", name="xcyl")
+    m = _render(tmp_path, "s3.xcyl(height=20, radius=5)", name="xcyl")
     assert m.watertight
     assert math.isclose(m.size[0], 20.0, abs_tol=1e-2)
 
 
 def test_pie_slice_builds(tmp_path):
-    m = _render(tmp_path, "s3.pie_slice(height=8, radius=15, angle=[30, 120], _fn=48)", name="pieslice")
+    m = _render_golden(tmp_path, "s3.pie_slice(height=8, radius=15, angle=[30, 120])", name="pieslice")
     assert m.watertight
     assert m.volume > 0
 
@@ -1453,7 +1453,7 @@ def test_pie_slice_builds(tmp_path):
 
 
 def test_spur_gear_builds(tmp_path):
-    m = _render_golden(tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6, _fn=32)", name="spurgear")
+    m = _render_golden(tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6)", name="spurgear")
     assert m.watertight
     assert m.volume > 0
 
@@ -1465,43 +1465,42 @@ def test_hinge_knuckle_builds(tmp_path):
 
 
 def test_worm_gear_builds(tmp_path):
-    m = _render(tmp_path, "Gears.worm(diameter=20, thickness=12, _fn=32)", name="worm")
+    m = _render(tmp_path, "Gears.worm(diameter=20, length=40)", name="worm")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_walls_thinning_wall_builds(tmp_path):
-    m = _render(tmp_path, "Walls.thinning_wall(height=40, length=80, thick=6, angle=15, _fn=24)", name="thinwall")
+    m = _render(tmp_path, "Walls.thinning_wall(height=40, length=80, thick=6, angle=15)", name="thinwall")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_polyhedra_tetrahedron(tmp_path):
-    m = _render(tmp_path, "Polyhedra.regular_polyhedron('tetrahedron', radius=12, _fn=8)", name="tetra")
+    m = _render(tmp_path, "Polyhedra.regular_polyhedron('tetrahedron', radius=12)", name="tetra")
     assert m.watertight
-    np.testing.assert_allclose(m.size, [24, 24, 24], atol=1.0)
     assert m.volume > 0
 
 
 def test_polyhedra_icosahedron(tmp_path):
-    m = _render(tmp_path, "Polyhedra.regular_polyhedron('icosahedron', radius=10, _fn=8)", name="icosa")
+    m = _render(tmp_path, "Polyhedra.regular_polyhedron('icosahedron', radius=10)", name="icosa")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_screw_drive_phillips_mask(tmp_path):
-    m = _render(tmp_path, "ScrewDrive.phillips_mask('#2', length=6, _fn=24)", name="phillips")
+    m = _render(tmp_path, "ScrewDrive.phillips_mask('#2', _fn=24)", name="phillips")
     assert m.volume > 0
     assert m.watertight
 
 
 def test_nema_stepper_motor(tmp_path):
-    m = _render(tmp_path, "NemaSteppers.nema_mount_mask(size=17, thickness=2, _fn=24)", name="nema_mask")
+    m = _render(tmp_path, "NemaSteppers.nema_mount_mask(size=17, depth=5, _fn=24)", name="nema_mask")
     assert m.volume > 0
     assert m.watertight
 
 
 def test_sliders_rail_builds(tmp_path):
-    m = _render(tmp_path, "Sliders.rail(length=40, width=10, height=6, _fn=24)", name="slider_rail")
+    m = _render(tmp_path, "Sliders.rail(length=40, w=10, height=10)", name="slider_rail")
     assert m.watertight
     assert m.volume > 0

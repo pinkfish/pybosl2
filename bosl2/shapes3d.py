@@ -2334,13 +2334,17 @@ def pie_slice(
         use_anchor = CENTER if center else BOTTOM
 
     base = _ocylinder(height=length, radius1=rad1, radius2=rad2, center=True)
-    ang_v = angle % 360 if (angle > 360 or angle < 0) else angle
+    if isinstance(angle, (list, tuple)):                  # [start, end] wedge
+        start, sweep = float(angle[0]), float(angle[1]) - float(angle[0])
+    else:
+        start, sweep = 0.0, float(angle)
+    ang_v = sweep % 360 if (sweep > 360 or sweep < 0) else sweep
     if ang_v <= 0 or ang_v >= 360:
         shape = base
     else:
         maxd = max(rad1, rad2) + 0.1
         sides = max(3, math.ceil(_frag_count(maxd, None, None, None) * ang_v / 360))
-        arc = _arc_points(sides, maxd, 0, ang_v)
+        arc = _arc_points(sides, maxd, start, ang_v)
         sector = _opolygon([[0.0, 0.0]] + arc).linear_extrude(
             height=length + 0.2, center=True
         )
