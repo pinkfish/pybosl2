@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -133,7 +133,13 @@
 
           <div class="body" role="main">
 
-  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-class"><strong>Joiners</strong></li><li class="ps-meth"><a href="#bosl2.joiners.Joiners.Joiners.dovetail">Joiners.dovetail</a></li><li class="ps-meth"><a href="#bosl2.joiners.Joiners.Joiners.snap_pin">Joiners.snap_pin</a></li><li class="ps-meth"><a href="#bosl2.joiners.Joiners.Joiners.snap_pin_socket">Joiners.snap_pin_socket</a></li></ul></div><section id="joiners">
+  <aside class="sidebar"><p class="sidebar-title">Navigation</p>
+<ul class="pysidebar-list">
+<li class="ps-class"><a href="#bosl2.joiners.Joiners.Joiners"><strong>Joiners</strong></a></li>
+<li class="ps-meth"><span>Joiners.dovetail</span></li>
+<li class="ps-meth"><span>Joiners.snap_pin</span></li>
+<li class="ps-meth"><span>Joiners.snap_pin_socket</span></li>
+</ul></aside><section id="joiners">
 <h1>Joiners<a class="headerlink" href="#joiners" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/joiners.html">Spec sheet &rarr;</a></b>
@@ -160,13 +166,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-de753c6aa2f748d28352ee4837a06eaa" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9e80e17ad19647df99b39b47cd42b649" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-de753c6aa2f748d28352ee4837a06eaa");
+const el = document.getElementById("stlviewer-9e80e17ad19647df99b39b47cd42b649");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -196,7 +202,7 @@ new STLLoader().load("_stl/c7795038d1e1b1c5.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -215,13 +221,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-81c4fcb6c0c64ae8bb0be93f9fb6ffa4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3725d2b96f34464d9891ffe56434a8bc" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-81c4fcb6c0c64ae8bb0be93f9fb6ffa4");
+const el = document.getElementById("stlviewer-3725d2b96f34464d9891ffe56434a8bc");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -251,7 +257,7 @@ new STLLoader().load("_stl/2c86392af50520ea.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -270,13 +276,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d3a57000a25a402898b093e264f3a232" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d2287032499d4d62b39421f330e18fe5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d3a57000a25a402898b093e264f3a232");
+const el = document.getElementById("stlviewer-d2287032499d4d62b39421f330e18fe5");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -306,7 +312,7 @@ new STLLoader().load("_stl/5cfdde103517323b.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -325,13 +331,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2e2a38f71c714b2480d0d78cc22f2e37" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-527c59f2e63d41998d6318a0f2c9b4c7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2e2a38f71c714b2480d0d78cc22f2e37");
+const el = document.getElementById("stlviewer-527c59f2e63d41998d6318a0f2c9b4c7");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -361,7 +367,7 @@ new STLLoader().load("_stl/edb3a515f8d47333.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -380,13 +386,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b44e9492004f4870b42c8e135764ed46" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-6e8b7fb070804c288f7bdeeffb78494a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b44e9492004f4870b42c8e135764ed46");
+const el = document.getElementById("stlviewer-6e8b7fb070804c288f7bdeeffb78494a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -416,7 +422,7 @@ new STLLoader().load("_stl/c878736dc9065cb5.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -435,13 +441,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-6b63fb34d6dc43b39bbfdc310ad8160a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9927d3a20ca34353a7530262812ffd1b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-6b63fb34d6dc43b39bbfdc310ad8160a");
+const el = document.getElementById("stlviewer-9927d3a20ca34353a7530262812ffd1b");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -471,7 +477,7 @@ new STLLoader().load("_stl/80a5e8d9cb639b2d.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -491,13 +497,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-ea4f2b17b3eb4d9db8fb34e32cfb31ac" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-b50e918734cb45f6bdbf1acd8e0b0306" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-ea4f2b17b3eb4d9db8fb34e32cfb31ac");
+const el = document.getElementById("stlviewer-b50e918734cb45f6bdbf1acd8e0b0306");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -527,7 +533,7 @@ new STLLoader().load("_stl/4105881884c1cd73.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -547,13 +553,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7499d206e27e48838517840e81518b58" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7fc5d837322e41819a7204c1298ba337" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7499d206e27e48838517840e81518b58");
+const el = document.getElementById("stlviewer-7fc5d837322e41819a7204c1298ba337");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -583,7 +589,7 @@ new STLLoader().load("_stl/b7f49035ebd21361.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;

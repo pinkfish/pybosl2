@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -133,7 +133,21 @@
 
           <div class="body" role="main">
 
-  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-func"><a href="#module-bosl2.partitions.partition_path">partition_path</a></li><li class="ps-func"><a href="#module-bosl2.partitions.partition_mask">partition_mask</a></li><li class="ps-func"><a href="#module-bosl2.partitions.partition_cut_mask">partition_cut_mask</a></li><li class="ps-class"><strong>Partitionable</strong></li><li class="ps-meth"><a href="#bosl2.partitions.Partitionable.half_of">Partitionable.half_of</a></li><li class="ps-meth"><a href="#bosl2.partitions.Partitionable.left_half">Partitionable.left_half</a></li><li class="ps-meth"><a href="#bosl2.partitions.Partitionable.right_half">Partitionable.right_half</a></li><li class="ps-meth"><a href="#bosl2.partitions.Partitionable.front_half">Partitionable.front_half</a></li><li class="ps-meth"><a href="#bosl2.partitions.Partitionable.back_half">Partitionable.back_half</a></li><li class="ps-meth"><a href="#bosl2.partitions.Partitionable.bottom_half">Partitionable.bottom_half</a></li><li class="ps-meth"><a href="#bosl2.partitions.Partitionable.top_half">Partitionable.top_half</a></li><li class="ps-meth"><a href="#bosl2.partitions.Partitionable.partition">Partitionable.partition</a></li></ul></div><section id="partitions-planar-cuts-interlocking-splits">
+  <aside class="sidebar"><p class="sidebar-title">Navigation</p>
+<ul class="pysidebar-list">
+<li class="ps-func"><span>partition_path</span></li>
+<li class="ps-func"><span>partition_mask</span></li>
+<li class="ps-func"><span>partition_cut_mask</span></li>
+<li class="ps-class"><a href="#bosl2.partitions.Partitionable"><strong>Partitionable</strong></a></li>
+<li class="ps-meth"><span>Partitionable.half_of</span></li>
+<li class="ps-meth"><span>Partitionable.left_half</span></li>
+<li class="ps-meth"><span>Partitionable.right_half</span></li>
+<li class="ps-meth"><span>Partitionable.front_half</span></li>
+<li class="ps-meth"><span>Partitionable.back_half</span></li>
+<li class="ps-meth"><span>Partitionable.bottom_half</span></li>
+<li class="ps-meth"><span>Partitionable.top_half</span></li>
+<li class="ps-meth"><span>Partitionable.partition</span></li>
+</ul></aside><section id="partitions-planar-cuts-interlocking-splits">
 <h1>Partitions: planar cuts &amp; interlocking splits<a class="headerlink" href="#partitions-planar-cuts-interlocking-splits" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code> – slice an object with a plane, or partition a
 large object into two interlocking pieces for printing. The cut operators are methods on
@@ -222,13 +236,13 @@ the <code class="docutils literal notranslate"><span class="pre">altpath</span><
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-cab6265a293c4ed9979954701a80126f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-94e4a4a2aa63492d89b31ad6e47395b0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-cab6265a293c4ed9979954701a80126f");
+const el = document.getElementById("stlviewer-94e4a4a2aa63492d89b31ad6e47395b0");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -258,7 +272,7 @@ new STLLoader().load("_stl/629f9d0e73f9a476.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -278,13 +292,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-55f3c91c2adb438fbb2178eab0112fc5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-400fc85769074965b09417707edbc966" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-55f3c91c2adb438fbb2178eab0112fc5");
+const el = document.getElementById("stlviewer-400fc85769074965b09417707edbc966");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -314,7 +328,7 @@ new STLLoader().load("_stl/69a3605fa9f19902.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -369,13 +383,13 @@ resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d5feec8f4f80473ea92869c751fe5925" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4cb922efb1174bc18944f44a71740e00" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d5feec8f4f80473ea92869c751fe5925");
+const el = document.getElementById("stlviewer-4cb922efb1174bc18944f44a71740e00");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -405,7 +419,7 @@ new STLLoader().load("_stl/0667b0225ab7f202.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;

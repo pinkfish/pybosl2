@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -133,7 +133,18 @@
 
           <div class="body" role="main">
 
-  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-class"><strong>VNF</strong></li><li class="ps-meth"><a href="#bosl2.vnf.VNF.bounds">VNF.bounds</a></li><li class="ps-meth"><a href="#bosl2.vnf.VNF.reverse">VNF.reverse</a></li><li class="ps-meth"><a href="#bosl2.vnf.VNF.volume">VNF.volume</a></li><li class="ps-meth"><a href="#bosl2.vnf.VNF.join">VNF.join</a></li><li class="ps-meth"><a href="#bosl2.vnf.VNF.vertex_array">VNF.vertex_array</a></li><li class="ps-meth"><a href="#bosl2.vnf.VNF.tri_array">VNF.tri_array</a></li><li class="ps-meth"><a href="#bosl2.vnf.VNF.polyhedron">VNF.polyhedron</a></li><li class="ps-meth"><a href="#bosl2.vnf.VNF.geometry">VNF.geometry</a></li></ul></div><section id="module-bosl2.vnf">
+  <aside class="sidebar"><p class="sidebar-title">Navigation</p>
+<ul class="pysidebar-list">
+<li class="ps-class"><a href="#bosl2.vnf.VNF"><strong>VNF</strong></a></li>
+<li class="ps-meth"><span>VNF.bounds</span></li>
+<li class="ps-meth"><span>VNF.reverse</span></li>
+<li class="ps-meth"><span>VNF.volume</span></li>
+<li class="ps-meth"><span>VNF.join</span></li>
+<li class="ps-meth"><span>VNF.vertex_array</span></li>
+<li class="ps-meth"><span>VNF.tri_array</span></li>
+<li class="ps-meth"><span>VNF.polyhedron</span></li>
+<li class="ps-meth"><span>VNF.geometry</span></li>
+</ul></aside><section id="module-bosl2.vnf">
 <span id="vnf-meshes"></span><h1>VNF meshes<a class="headerlink" href="#module-bosl2.vnf" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="bosl2.vnf.VNF">
@@ -159,13 +170,13 @@ rectangular grid of sample points with <a class="reference internal" href="#bosl
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b7eb885e15f64a96b2a884612a086011" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4f05a78b86d84d75882473aa5e6d06e1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b7eb885e15f64a96b2a884612a086011");
+const el = document.getElementById("stlviewer-4f05a78b86d84d75882473aa5e6d06e1");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -195,7 +206,7 @@ new STLLoader().load("_stl/9f1dd0e035307c58.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;

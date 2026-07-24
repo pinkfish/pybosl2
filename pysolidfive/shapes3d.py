@@ -75,7 +75,7 @@ def _axis_angle_matrix(deg: float, axis: list[float]) -> list[list[float]]:
     ]
 
 
-def _rotation_matrix(a, v: list[float] | None = None) -> list[list[float]]:
+def _rotation_matrix(a: float, v: list[float] | None = None) -> list[list[float]]:
     """3x3 rotation matrix matching the real rotate(obj, a, v)'s two calling conventions:
     `a` a lone angle (degrees) with an explicit axis `v`, or (v is None) `a` a 3-vector of Euler
     angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
@@ -89,7 +89,7 @@ def _rotation_matrix(a, v: list[float] | None = None) -> list[list[float]]:
     return _matmul3(_matmul3(rz, ry), rx)
 
 
-def _rounded_box_sdf(x, y, z, size: list[float], r: float):
+def _rounded_box_sdf(x: float, y: float, z: float, size: list[float], r: float):
     """Exact SDF for a box uniformly rounded on every edge and corner: the Minkowski sum of a
     box (shrunk by `r` on every side) with a sphere of radius `r` -- the same construction
     bosl2.shapes3d.cuboid() itself special-cases via a real minkowski() for edges="ALL". Unlike
@@ -242,7 +242,7 @@ class PyShape:
             self._mesh_cache = frep(self.sdf(), mn, mx, self.res)
         return self._mesh_cache
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         # Anything not defined on PyShape itself (color/show/... or any other real PyOpenSCAD
         # method) falls through to the meshed solid.
         return getattr(self.mesh(), name)
@@ -270,7 +270,7 @@ class PyShape:
             self.cuboid_edge_modes,
         )
 
-    def rotate(self, a, v: list[float] | None = None) -> PyShape:
+    def rotate(self, a: float | list[float], v: list[float] | None = None) -> PyShape:
         """Rotate the SDF itself (`f(p) -> f(R^-1 p)`), exact and free -- no meshing involved,
         so (like translate()) a shape can still be .round()ed/.chamfer()ed/composed afterward
         without forcing an early mesh. Matches the real rotate(obj, a, v)'s two calling
@@ -377,7 +377,7 @@ class PyShape:
 
     # ---- cuboid-only edge treatments ----
 
-    def _edge_treat(self, amount: float, edges, except_edges, mode: str) -> PyShape:
+    def _edge_treat(self, amount: float, edges: str | list, except_edges: str | list | None, mode: str) -> PyShape:
         assert self.cuboid_size is not None, f"{mode}() requires a cuboid-shaped PyShape (from pysolidfive.cuboid())"
         assert self.cuboid_edge_amounts is not None and self.cuboid_edge_modes is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
@@ -590,7 +590,7 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
     return planes
 
 
-def hull(*shapes, directions: int = 64, res: int | None = None) -> PyShape:
+def hull(*shapes: PyShape, directions: int = 64, res: int | None = None) -> PyShape:
     """The convex hull of the given PyShapes (and/or raw Nx3 point arrays), as a libfive SDF
     PyShape -- the named form of OpenSCAD's hull(){}.
 
@@ -842,7 +842,7 @@ def octahedron(size: float = 1, anchor: "Sequence[float]" = CENTER, res: int = 1
     return shape
 
 
-def convex_polyhedron(points, res: int = 10) -> PyShape:
+def convex_polyhedron(points: list[list[float]], res: int = 10) -> PyShape:
     """The convex hull of `points` as a libfive SDF: the max of the hull faces' signed
     half-space distances -- the 3-D analogue of polygon_extrude()'s half-plane form, with the
     same documented value tradeoff (exact perpendicular distance at faces, sign-correct
@@ -1608,7 +1608,7 @@ def rounding_edge_mask(
     return PyShape(sdf_fn, [-excess, -excess, -length / 2], [rad, rad, length / 2], res)
 
 
-def polygon_extrude(pts, length: float, res: int = 10) -> PyShape:
+def polygon_extrude(pts: list[list[float]], length: float, res: int = 10) -> PyShape:
     """Extrude an arbitrary CONVEX 2-D polygon `pts` (either winding order) along Z by
     `length`, centered -- for a custom edge-profile cutter with no simple closed form (like
     bosl2.shapes3d.Bosl2Solid.edge_profile_asym()'s `children=` path, but swept here by hand
@@ -1793,7 +1793,7 @@ def teardrop(
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = length / 2
 
-    def profile_sdf(u, v, radius):
+    def profile_sdf(u: float, v: float, radius: list[float]):
         circle = _lv_hypot(u, v) - radius
         right = u * sin_a + v * cos_a - radius
         left = -u * sin_a + v * cos_a - radius

@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -131,7 +131,22 @@
 
           <div class="body" role="main">
 
-  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-func"><a href="#module-bosl2.miscellaneous.extrude_from_to">extrude_from_to</a></li><li class="ps-func"><a href="#module-bosl2.miscellaneous.cylindrical_extrude">cylindrical_extrude</a></li><li class="ps-func"><a href="#module-bosl2.miscellaneous.chain_hull">chain_hull</a></li><li class="ps-func"><a href="#module-bosl2.miscellaneous.minkowski_difference">minkowski_difference</a></li><li class="ps-class"><strong>Extrudable</strong></li><li class="ps-meth"><a href="#bosl2.miscellaneous.Extrudable.path_extrude2d">Extrudable.path_extrude2d</a></li><li class="ps-meth"><a href="#bosl2.miscellaneous.Extrudable.path_extrude">Extrudable.path_extrude</a></li><li class="ps-class"><strong>Miscellaneous</strong></li><li class="ps-meth"><a href="#bosl2.miscellaneous.Miscellaneous.bounding_box">Miscellaneous.bounding_box</a></li><li class="ps-meth"><a href="#bosl2.miscellaneous.Miscellaneous.offset3d">Miscellaneous.offset3d</a></li><li class="ps-meth"><a href="#bosl2.miscellaneous.Miscellaneous.round3d">Miscellaneous.round3d</a></li><li class="ps-meth"><a href="#bosl2.miscellaneous.Miscellaneous.chain_hull">Miscellaneous.chain_hull</a></li><li class="ps-meth"><a href="#bosl2.miscellaneous.Miscellaneous.minkowski_difference">Miscellaneous.minkowski_difference</a></li></ul></div><section id="miscellaneous-extrusions-bbox-hull-minkowski">
+  <aside class="sidebar"><p class="sidebar-title">Navigation</p>
+<ul class="pysidebar-list">
+<li class="ps-func"><span>extrude_from_to</span></li>
+<li class="ps-func"><span>cylindrical_extrude</span></li>
+<li class="ps-func"><span>chain_hull</span></li>
+<li class="ps-func"><span>minkowski_difference</span></li>
+<li class="ps-class"><a href="#bosl2.miscellaneous.Extrudable"><strong>Extrudable</strong></a></li>
+<li class="ps-meth"><span>Extrudable.path_extrude2d</span></li>
+<li class="ps-meth"><span>Extrudable.path_extrude</span></li>
+<li class="ps-class"><a href="#bosl2.miscellaneous.Miscellaneous"><strong>Miscellaneous</strong></a></li>
+<li class="ps-meth"><span>Miscellaneous.bounding_box</span></li>
+<li class="ps-meth"><span>Miscellaneous.offset3d</span></li>
+<li class="ps-meth"><span>Miscellaneous.round3d</span></li>
+<li class="ps-meth"><span>Miscellaneous.chain_hull</span></li>
+<li class="ps-meth"><span>Miscellaneous.minkowski_difference</span></li>
+</ul></aside><section id="miscellaneous-extrusions-bbox-hull-minkowski">
 <h1>Miscellaneous: extrusions, bbox, hull &amp; minkowski<a class="headerlink" href="#miscellaneous-extrusions-bbox-hull-minkowski" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">miscellaneous.scad</span></code> – the extrusions (<code class="docutils literal notranslate"><span class="pre">extrude_from_to</span></code>,
 <code class="docutils literal notranslate"><span class="pre">path_extrude2d</span></code>, <code class="docutils literal notranslate"><span class="pre">path_extrude</span></code>, <code class="docutils literal notranslate"><span class="pre">cylindrical_extrude</span></code>), the bounding box, <code class="docutils literal notranslate"><span class="pre">chain_hull</span></code>,
@@ -213,13 +228,13 @@ method.</p></td>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d534acb32a244e0493e97dbb73244483" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-86267a5caf434bbea54107a47c3a6f5b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d534acb32a244e0493e97dbb73244483");
+const el = document.getElementById("stlviewer-86267a5caf434bbea54107a47c3a6f5b");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -249,7 +264,7 @@ new STLLoader().load("_stl/661602fbef787334.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -274,13 +289,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-bcaf59c4a05444cebb5ee75944143e23" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e305df533c7f4d75b440e2b71d7dd149" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-bcaf59c4a05444cebb5ee75944143e23");
+const el = document.getElementById("stlviewer-e305df533c7f4d75b440e2b71d7dd149");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -310,7 +325,7 @@ new STLLoader().load("_stl/068a97fc93f1ea0a.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -339,13 +354,13 @@ them. <em>profile</em> is a native 2-D shape, a Path/Region, a Bosl2Solid, or a 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2bf392b4126447f1a018252c386ea1e9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d6ea2d1fd9ef40ccab7eb8367e9d6a16" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2bf392b4126447f1a018252c386ea1e9");
+const el = document.getElementById("stlviewer-d6ea2d1fd9ef40ccab7eb8367e9d6a16");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -375,7 +390,7 @@ new STLLoader().load("_stl/bc2285a595ca38e6.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;

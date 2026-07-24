@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -133,7 +133,14 @@
 
           <div class="body" role="main">
 
-  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-func"><a href="#module-bosl2.rounding.round_corners">round_corners</a></li><li class="ps-func"><a href="#module-bosl2.rounding.smooth_path">smooth_path</a></li><li class="ps-class"><strong>Roundable</strong></li><li class="ps-meth"><a href="#bosl2.rounding.Roundable.round_corners">Roundable.round_corners</a></li><li class="ps-meth"><a href="#bosl2.rounding.Roundable.smooth_path">Roundable.smooth_path</a></li></ul></div><section id="rounding-round-corners-smooth-path">
+  <aside class="sidebar"><p class="sidebar-title">Navigation</p>
+<ul class="pysidebar-list">
+<li class="ps-func"><span>round_corners</span></li>
+<li class="ps-func"><span>smooth_path</span></li>
+<li class="ps-class"><a href="#bosl2.rounding.Roundable"><strong>Roundable</strong></a></li>
+<li class="ps-meth"><span>Roundable.round_corners</span></li>
+<li class="ps-meth"><span>Roundable.smooth_path</span></li>
+</ul></aside><section id="rounding-round-corners-smooth-path">
 <h1>Rounding: round_corners &amp; smooth_path<a class="headerlink" href="#rounding-round-corners-smooth-path" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of the path-rounding core of BOSL2’s <code class="docutils literal notranslate"><span class="pre">rounding.scad</span></code>:
 <a class="reference internal" href="#bosl2.rounding.round_corners" title="bosl2.rounding.round_corners"><code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code></a> rounds every corner of a path, and
@@ -202,13 +209,13 @@ toolkit’s original <code class="docutils literal notranslate"><span class="pre
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-5c77c0f173ca4ee89ff93ee6ceda9a8f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-91fb692b5f40489dae82d7eb592d09d3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-5c77c0f173ca4ee89ff93ee6ceda9a8f");
+const el = document.getElementById("stlviewer-91fb692b5f40489dae82d7eb592d09d3");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -238,7 +245,7 @@ new STLLoader().load("_stl/0357241daa2fbd11.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -258,13 +265,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9f1a2891f0494e749b9582a3ec3223e7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d10f3f644f5c443a86c58f1970e64e8d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9f1a2891f0494e749b9582a3ec3223e7");
+const el = document.getElementById("stlviewer-d10f3f644f5c443a86c58f1970e64e8d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -294,7 +301,7 @@ new STLLoader().load("_stl/0dc86732eb1d3d91.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -344,13 +351,13 @@ how tight the curvature match is. Works on 2-D and 3-D paths.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-aae971858cde400f9d5cc3dc33873b71" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-916ac81619294437861bf0e16fdc748d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-aae971858cde400f9d5cc3dc33873b71");
+const el = document.getElementById("stlviewer-916ac81619294437861bf0e16fdc748d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -380,7 +387,7 @@ new STLLoader().load("_stl/5bfc2b905cf8399e.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;
@@ -423,13 +430,13 @@ from the straight path (relsize is a fraction of each segment, default 0.1). The
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0b5b8302cd6e41a1ab6b55f4fb3367d3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-dcf9bb9eecd04893ae212c91389f64c1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0b5b8302cd6e41a1ab6b55f4fb3367d3");
+const el = document.getElementById("stlviewer-dcf9bb9eecd04893ae212c91389f64c1");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -459,7 +466,7 @@ new STLLoader().load("_stl/0dc86732eb1d3d91.stl", function (geo) {
   const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
   geo.translate(-center.x, -center.y, -center.z);
   const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
   }));
   scene.add(mesh);
   const r = Math.max(size.x, size.y, size.z) || 1;

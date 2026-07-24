@@ -91,7 +91,7 @@ class PyShape2D:
             [self.mx[0] + tx, self.mx[1] + ty],
         )
 
-    def rotate(self, a) -> PyShape2D:
+    def rotate(self, a: float | list[float]) -> PyShape2D:
         """Rotate by `a` degrees around the origin -- a plain scalar, or the native
         [0, 0, a] vector spelling (only z-rotation makes sense for a 2-D shape; the x/y
         components must be 0), so migrated call sites keep working unchanged."""
@@ -115,7 +115,7 @@ class PyShape2D:
             [max(p[0] for p in rot), max(p[1] for p in rot)],
         )
 
-    def scale(self, v) -> PyShape2D:
+    def scale(self, v: float | Sequence[float]) -> PyShape2D:
         s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 2
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
@@ -127,7 +127,7 @@ class PyShape2D:
             [self.mx[0] * s[0], self.mx[1] * s[1]],
         )
 
-    def mirror(self, v) -> PyShape2D:
+    def mirror(self, v: list[float]) -> PyShape2D:
         """Mirror across the line through the origin whose NORMAL is `v` (native convention)."""
         nx, ny = float(v[0]), float(v[1])
         nlen = math.hypot(nx, ny)
@@ -264,7 +264,7 @@ class PyShape2D:
         `.linear_extrude(height=...)` call sites."""
         return self.extrude(height, center=center)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         # Fall through to a thin extrusion's meshed solid -- an escape hatch for native-only
         # attributes (color/show/...); extrude explicitly whenever the height matters.
         return getattr(self.extrude(0.01).mesh(), name)
@@ -333,7 +333,7 @@ def supershape2d(
     )
 
 
-def polygon2d(paths, res: int = 10) -> PyShape2D:
+def polygon2d(paths: list[list[float]], res: int = 10) -> PyShape2D:
     """An arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
     Accepts any array-like path spelling (per the numpy-paths convention)."""
@@ -367,7 +367,7 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:
     for p in cleaned:
         assert len(p) >= 3, f"region2d(): every outline needs >= 3 points, got {len(p)}"
 
-    def contains(poly, pt) -> bool:
+    def contains(poly: list[list[float]], pt: Sequence[float]) -> bool:
         # Standard even-odd ray cast (+x direction).
         x, y = pt
         inside = False
@@ -415,7 +415,7 @@ def union2d(shapes: list[PyShape2D]) -> PyShape2D:
     return shapes[0]
 
 
-def stroke2d(path, width: float = 1, closed: bool = False, res: int = 10) -> PyShape2D:
+def stroke2d(path: list[list[float]], width: float = 1, closed: bool = False, res: int = 10) -> PyShape2D:
     """A path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
     the min over the segments' capsule SDFs (distance-to-segment minus width/2)."""
     pts = as_points(path)
@@ -502,7 +502,7 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
 # ---------------------------------------------------------------------------
 
 
-def square2d(size=10, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PyShape2D:
+def square2d(size: float | Sequence[float] = 10, anchor: Sequence[float] = CENTER, res: int = 10) -> PyShape2D:
     """A square of the given *size* (scalar or ``[w, h]``). Delegates to rect2d()."""
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else list(size)
     return rect2d(sz, anchor=anchor, res=res)
