@@ -63,6 +63,6 @@ def test_requires_r_or_d():
 
 
 def test_finer_fn_gives_more_points():
-    coarse = mask2d_roundover(radius=5, _fn=8)
-    fine = mask2d_roundover(radius=5, _fn=64)
+    coarse = mask2d_roundover(radius=5, fn=8)
+    fine = mask2d_roundover(radius=5, fn=64)
     assert len(fine) > len(coarse)

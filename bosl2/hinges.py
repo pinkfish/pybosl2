@@ -69,7 +69,9 @@ class Hinges:
         thick: float = 3,
         gap: float = 0.4,
         inner: bool = False,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """One leaf of an interlocking knuckle (butt) hinge, with a pin bore (BOSL2 knuckle_hinge()).
 
@@ -86,7 +88,7 @@ class Hinges:
                 continue
             x = -length / 2 + seglen / 2 + i * (seglen + gap)
             parts.append(
-                cyl(height=seglen, diameter=knuckle_diam, _fn=_fn)
+                cyl(height=seglen, diameter=knuckle_diam, fn=fn, fa=fa, fs=fs)
                 .rotate([0, 90, 0])
                 .right(x)
             )
@@ -95,7 +97,7 @@ class Hinges:
         plate_w = arm + knuckle_diam / 2
         parts.append(cuboid([length, plate_w, thick]).back(ydir * plate_w / 2))
         leaf = union(parts)
-        leaf = leaf - cyl(height=length + 1, diameter=pin_diam, _fn=_fn).rotate(
+        leaf = leaf - cyl(height=length + 1, diameter=pin_diam, fn=fn, fa=fa, fs=fs).rotate(
             [0, 90, 0]
         )  # pin bore
         return Bosl2Solid(
@@ -113,7 +115,9 @@ class Hinges:
         gap: float = 0.4,
         fold: float = 0,
         pin: bool = True,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """Both leaves of a knuckle hinge, meshed around one pin (a full, laid-flat or *fold*-degree hinge).
 
@@ -128,10 +132,10 @@ class Hinges:
                 Hinges.knuckle_hinge_pair(fold=90).show()
         """
         outer = Hinges.knuckle_hinge(
-            length, segs, knuckle_diam, pin_diam, arm, thick, gap, inner=False, _fn=_fn
+            length, segs, knuckle_diam, pin_diam, arm, thick, gap, inner=False, fn=fn, fa=fa, fs=fs
         )
         inner = Hinges.knuckle_hinge(
-            length, segs, knuckle_diam, pin_diam, arm, thick, gap, inner=True, _fn=_fn
+            length, segs, knuckle_diam, pin_diam, arm, thick, gap, inner=True, fn=fn, fa=fa, fs=fs
         )
         if fold:
             inner = inner.rotate(
@@ -140,7 +144,7 @@ class Hinges:
         hinge = outer | inner
         if pin:
             hinge = hinge | cyl(
-                height=length - gap, diameter=pin_diam - 0.1, _fn=_fn
+                height=length - gap, diameter=pin_diam - 0.1, fn=fn, fa=fa, fs=fs
             ).rotate([0, 90, 0])
         return Bosl2Solid(
             hinge.shape, size=[length, 2 * arm + knuckle_diam, knuckle_diam]
@@ -155,7 +159,9 @@ class Hinges:
         foldangle: float = 90,
         hingegap: float | None = None,
         slop: float = 0.0,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2 snap_lock())."""
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
@@ -166,7 +172,7 @@ class Hinges:
             (snapdiam / 2 + thick) / 2
         )
         ridge = (
-            cyl(height=snaplen, diameter=snapdiam, _fn=_fn)
+            cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs)
             .rotate([0, 90, 0])
             .up(snapdiam / 2 + thick)
         )
@@ -183,7 +189,9 @@ class Hinges:
         foldangle: float = 90,
         hingegap: float | None = None,
         slop: float = 0.0,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """The receiving socket for a :meth:`snap_lock` tab (BOSL2 snap_socket())."""
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
@@ -194,12 +202,12 @@ class Hinges:
             (snapdiam / 2 + thick) / 2
         )
         ridge = (
-            cyl(height=snaplen, diameter=snapdiam, _fn=_fn)
+            cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs)
             .rotate([0, 90, 0])
             .up(snapdiam / 2 + thick)
         )
         divot = (
-            sphere(diameter=snapdiam * 0.8, _fn=_fn)
+            sphere(diameter=snapdiam * 0.8, fn=fn, fa=fa, fs=fs)
             .scale([0.333, 1, 1])
             .left((snaplen + snapdiam / 12) / 2)
             .up(snapdiam / 2 + thick)

@@ -120,7 +120,7 @@ class Wiring:
         sides = max(_segs(wirediam / 2), 8)
         offsets = _hex_offsets(wires, wirediam)
         rounded_path = round_corners(
-            path, radius=rounding, closed=False, _fn=(corner_steps + 1) * 4
+            path, radius=rounding, closed=False, fn=(corner_steps + 1) * 4
         )
         radius = wirediam / 2
         profile = [

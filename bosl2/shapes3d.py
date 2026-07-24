@@ -263,11 +263,11 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         """Force the mesh watertight, healing gaps/non-manifold edges (native ``repair()``)."""
         return self._wrap(self.shape.repair())
 
-    def wrap(self, radius: float, _fn: float | None = None) -> "Bosl2Solid":
+    def wrap(self, radius: float, fn: int | None = None) -> "Bosl2Solid":
         """Wrap this solid around a cylinder of radius *radius*, bending +X into the cylinder's
-        circumference (native ``wrap()``). *_fn* sets the facet count of the bend."""
-        if _fn is not None:
-            return self._wrap(self.shape.wrap(r=float(radius), fn=float(_fn)))
+        circumference (native ``wrap()``). *fn* sets the facet count of the bend."""
+        if fn is not None:
+            return self._wrap(self.shape.wrap(r=float(radius), fn=float(fn)))
         return self._wrap(self.shape.wrap(r=float(radius)))
 
     def pull(
@@ -628,9 +628,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         diameter: float | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
-        _fn: float | None = None,
-        _fa: float | None = None,
-        _fs: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
         bbox=None,
     ) -> "Bosl2Solid":
         from . import masking
@@ -647,9 +647,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
                 children=children,
                 convexity=convexity,
                 center=center,
-                _fn=_fn,
-                _fa=_fa,
-                _fs=_fs,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
         )
 
@@ -660,9 +660,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         diameter: float | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
-        _fn: float | None = None,
-        _fa: float | None = None,
-        _fs: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
         bbox=None,
     ) -> "Bosl2Solid":
         from . import masking
@@ -678,9 +678,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
                 children=children,
                 convexity=convexity,
                 center=center,
-                _fn=_fn,
-                _fa=_fa,
-                _fs=_fs,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
         )
 
@@ -951,9 +951,9 @@ def _corner_shape(
     radius: float,
     is_chamfer: bool,
     trimcorners: bool,
-    _fn,
-    _fa,
-    _fs,
+    fn,
+    fa,
+    fs,
 ) -> PyOpenSCAD:
     e = _corner_edges(edges, corner)
     cnt = sum(e)
@@ -964,7 +964,7 @@ def _corner_shape(
     fn = (
         4
         if is_chamfer
-        else max(4, int(_quantup(_frag_count(radius, _fn, _fa, _fs), 4)))
+        else max(4, int(_quantup(_frag_count(radius, fn, fa, fs), 4)))
     )
     base_t = [corner[i] * (size[i] / 2 - c[i]) for i in range(3)]
 
@@ -1022,9 +1022,9 @@ def _edge_mask_negative(
     ard: float,
     is_chamfer: bool,
     trimcorners: bool,
-    _fn,
-    _fa,
-    _fs,
+    fn,
+    fa,
+    fs,
 ) -> PyOpenSCAD:
     assert edge_set == EDGES_ALL or edge_set[2] == [0, 0, 0, 0], (
         "Cannot use negative rounding/chamfer with Z aligned edges."
@@ -1047,7 +1047,7 @@ def _edge_mask_negative(
                         center=True,
                     ).rotate(45, [0, 0, 1])
                 else:
-                    fn = int(_quantup(_frag_count(ard, _fn, _fa, _fs), 4))
+                    fn = int(_quantup(_frag_count(ard, fn, fa, fs), 4))
                     cutter = _ocylinder(
                         height=sz[axis] + 2.1 * ard, radius=ard, center=True, fn=fn
                     )
@@ -1137,9 +1137,9 @@ def cuboid(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A cube/cuboid with optional chamfering or rounding of edges and corners.
 
@@ -1164,7 +1164,7 @@ def cuboid(
         anchor:       anchor point (default CENTER)
         spin:         Z-axis rotation in degrees (default 0)
         orient:       direction to rotate the top towards (default UP)
-        _fn/_fa/_fs:  arc smoothness overrides for rounded edges/corners
+        fn/fa/fs:  arc smoothness overrides for rounded edges/corners
 
     Examples:
         .. pythonscad-example::
@@ -1198,9 +1198,9 @@ def cuboid(
                 except_edges=except_edges,
                 trimcorners=trimcorners,
                 anchor=[-1, -1, -1],
-                _fn=_fn,
-                _fa=_fa,
-                _fs=_fs,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
             return shape.translate(mn)
         shape = cuboid(
@@ -1211,9 +1211,9 @@ def cuboid(
             except_edges=except_edges,
             trimcorners=trimcorners,
             anchor=[-1, -1, -1],
-            _fn=_fn,
-            _fa=_fa,
-            _fs=_fs,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
         return shape.translate(p1)
 
@@ -1231,7 +1231,7 @@ def cuboid(
         if edge_set == EDGES_ALL and trimcorners:
             if radius < 0:
                 shape = _edge_mask_negative(
-                    sz, edge_set, abs(radius), True, trimcorners, _fn, _fa, _fs
+                    sz, edge_set, abs(radius), True, trimcorners, fn, fa, fs
                 )
             else:
                 isize = [max(0.001, v - 2 * radius) for v in sz]
@@ -1242,7 +1242,7 @@ def cuboid(
                 )
         elif radius < 0:
             shape = _edge_mask_negative(
-                sz, edge_set, abs(radius), True, trimcorners, _fn, _fa, _fs
+                sz, edge_set, abs(radius), True, trimcorners, fn, fa, fs
             )
         else:
             # Intersected with the plain box: _corner_shape()'s per-corner treatment (for a
@@ -1255,7 +1255,7 @@ def cuboid(
             shape = _ohull(
                 *[
                     _corner_shape(
-                        c, sz, edge_set, radius, True, trimcorners, _fn, _fa, _fs
+                        c, sz, edge_set, radius, True, trimcorners, fn, fa, fs
                     )
                     for c in corners8
                 ]
@@ -1264,20 +1264,20 @@ def cuboid(
         radius = rounding_v
         if edge_set == EDGES_ALL and radius > 0:
             isize = [max(0.001, v - 2 * radius) for v in sz]
-            fn = int(_quantup(_frag_count(radius, _fn, _fa, _fs), 4))
+            fn = int(_quantup(_frag_count(radius, fn, fa, fs), 4))
             shape = _ominkowski(
                 _ocube(isize, center=True), _osphere(radius=radius, fn=fn)
             )
         elif radius < 0:
             shape = _edge_mask_negative(
-                sz, edge_set, abs(radius), False, trimcorners, _fn, _fa, _fs
+                sz, edge_set, abs(radius), False, trimcorners, fn, fa, fs
             )
         else:
             # See the chamfer branch above for why this needs clipping to the plain box.
             shape = _ohull(
                 *[
                     _corner_shape(
-                        c, sz, edge_set, radius, False, trimcorners, _fn, _fa, _fs
+                        c, sz, edge_set, radius, False, trimcorners, fn, fa, fs
                     )
                     for c in corners8
                 ]
@@ -1305,9 +1305,9 @@ def prismoid(
     anchor: Sequence[float] = BOTTOM,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A rectangular prismoid, built as the convex hull() of two (optionally rounded/chamfered) rects.
 
@@ -1326,7 +1326,7 @@ def prismoid(
         anchor:    anchor point (default BOTTOM)
         spin:      Z-axis rotation in degrees after anchor (default 0)
         orient:    direction to rotate the top towards, after spin (default UP)
-        _fn/_fa/_fs: arc smoothness overrides for rounded corners
+        fn/fa/fs: arc smoothness overrides for rounded corners
 
     Examples:
         .. pythonscad-example::
@@ -1355,8 +1355,8 @@ def prismoid(
     if center is not None:
         use_anchor = CENTER if center else BOTTOM
 
-    path1 = _rect_path(s1, rounding=radius1, chamfer=c1, _fn=_fn, _fa=_fa, _fs=_fs)
-    path2 = _rect_path(s2, rounding=radius2, chamfer=c2, _fn=_fn, _fa=_fa, _fs=_fs)
+    path1 = _rect_path(s1, rounding=radius1, chamfer=c1, fn=fn, fa=fa, fs=fs)
+    path2 = _rect_path(s2, rounding=radius2, chamfer=c2, fn=fn, fa=fa, fs=fs)
     bottom_pts = [[p[0], p[1], -height / 2] for p in path1]
     top_pts = [[p[0] + shift[0], p[1] + shift[1], height / 2] for p in path2]
     bottom = _opolyhedron(bottom_pts, [list(range(len(bottom_pts)))])
@@ -1675,6 +1675,9 @@ def cylinder(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A cylinder/cone, built with the builtin cylinder(), with BOSL2-style anchor/spin/orient support.
 
@@ -1690,6 +1693,7 @@ def cylinder(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs: arc smoothness overrides
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _pick_radius(
@@ -1701,7 +1705,15 @@ def cylinder(
     use_anchor = anchor
     if center is not None:
         use_anchor = CENTER if center else BOTTOM
-    shape = _ocylinder(height=length, radius1=rad1, radius2=rad2, center=True)
+    shape = _ocylinder(
+        height=length,
+        radius1=rad1,
+        radius2=rad2,
+        center=True,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
     offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
     return Bosl2Solid(
         _finish3(shape, offset, spin, orient), size=None, anchor=use_anchor
@@ -1745,9 +1757,9 @@ def cyl(
     anchor: Sequence[float] | None = None,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A cylinder with optional chamfering/rounding of its end rims, built with cube()/cylinder()/sphere()/rotate_extrude().
 
@@ -1772,7 +1784,7 @@ def cyl(
         anchor:      anchor point (default CENTER, or BOTTOM if center=False)
         spin:        Z-axis rotation in degrees after anchor (default 0)
         orient:      direction to rotate the top towards, after spin (default UP)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -1797,7 +1809,7 @@ def cyl(
         radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1
     )
     if circum:
-        sides = _frag_count(max(rad1, rad2), _fn, _fa, _fs)
+        sides = _frag_count(max(rad1, rad2), fn, fa, fs)
         sc = 1 / math.cos(math.pi / sides)
         rad1 *= sc
         rad2 *= sc
@@ -1827,29 +1839,29 @@ def cyl(
             radius1=rad1,
             radius2=rad2,
             center=True,
-            fn=_fn,
-            fa=_fa,
-            fs=_fs,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
     elif rad1 == rad2 and r1v == r2v and r1v > 0 and not c1v and not c2v:
         # Straight cylinder, uniform rounding on both ends: exact via minkowski(cylinder, sphere).
         inner_r = max(0.001, rad1 - r1v)
         inner_l = max(0.001, length - 2 * r1v)
-        sphere_fn = int(_quantup(_frag_count(r1v, _fn, _fa, _fs), 4))
+        sphere_fn = int(_quantup(_frag_count(r1v, fn, fa, fs), 4))
         shape = _ominkowski(
             _ocylinder(
-                height=inner_l, radius=inner_r, center=True, fn=_fn, fa=_fa, fs=_fs
+                height=inner_l, radius=inner_r, center=True, fn=fn, fa=fa, fs=fs
             ),
             _osphere(radius=r1v, fn=sphere_fn),
         )
     else:
-        profile = _cyl_profile(rad1, rad2, length, r1v, r2v, c1v, c2v, _fn, _fa, _fs)
+        profile = _cyl_profile(rad1, rad2, length, r1v, r2v, c1v, c2v, fn, fa, fs)
         from .shapes2d import _opolygon
 
-        shape = _orotate_extrude(_opolygon(profile), fn=_fn, fa=_fa, fs=_fs)
+        shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
 
     if realign:
-        sides = _frag_count(max(rad1, rad2), _fn, _fa, _fs)
+        sides = _frag_count(max(rad1, rad2), fn, fa, fs)
         shape = shape.rotate(180 / sides, [0, 0, 1])
     if shift[0] or shift[1]:
         shear = [
@@ -1873,15 +1885,15 @@ def _cyl_profile(
     rounding2: float = 0,
     chamfer1: float = 0,
     chamfer2: float = 0,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ) -> list[list[float]]:
     from .shapes2d import _arc_points
 
     path = [[0.0, -length / 2]]
     if rounding1:
-        sides = max(3, _frag_count(rounding1, _fn, _fa, _fs) // 4)
+        sides = max(3, _frag_count(rounding1, fn, fa, fs) // 4)
         center = [radius1 - rounding1, -length / 2 + rounding1]
         path.extend(_arc_points(sides, rounding1, 270, 90, center))
     elif chamfer1:
@@ -1890,7 +1902,7 @@ def _cyl_profile(
     else:
         path.append([radius1, -length / 2])
     if rounding2:
-        sides = max(3, _frag_count(rounding2, _fn, _fa, _fs) // 4)
+        sides = max(3, _frag_count(rounding2, fn, fa, fs) // 4)
         center = [radius2 - rounding2, length / 2 - rounding2]
         path.extend(_arc_points(sides, rounding2, 0, 90, center))
     elif chamfer2:
@@ -1926,9 +1938,9 @@ def regular_prism(
     anchor: Sequence[float] | None = None,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A regular sides-sided prism (or frustum) -- the sides-gon analogue of cyl(): a regular polygon
     cross-section extruded along Z, with optional per-end chamfer or rounding. Built the same
@@ -2024,7 +2036,7 @@ def regular_prism(
             height=prism_len, radius1=rad1, radius2=rad2, center=True, fn=sides
         )
     else:
-        profile = _cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, _fn, _fa, _fs)
+        profile = _cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, fn, fa, fs)
         from .shapes2d import _opolygon
 
         shape = _orotate_extrude(_opolygon(profile), fn=sides)
@@ -2067,9 +2079,9 @@ def xcyl(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A cylinder oriented along the X axis. See cyl() for argument details."""
     length = length if length is not None else (height if height is not None else 1)
@@ -2092,9 +2104,9 @@ def xcyl(
         circum=circum,
         realign=realign,
         anchor=CENTER,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     ).shape.rotate(90, [0, 1, 0])
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor, axis=0)
     return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
@@ -2120,9 +2132,9 @@ def ycyl(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A cylinder oriented along the Y axis. See cyl() for argument details."""
     length = length if length is not None else (height if height is not None else 1)
@@ -2145,9 +2157,9 @@ def ycyl(
         circum=circum,
         realign=realign,
         anchor=CENTER,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     ).shape.rotate(-90, [1, 0, 0])
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor, axis=1)
     return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
@@ -2173,9 +2185,9 @@ def zcyl(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for argument details."""
     return cyl(
@@ -2198,9 +2210,9 @@ def zcyl(
         anchor=anchor,
         spin=spin,
         orient=orient,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
 
 
@@ -2225,6 +2237,9 @@ def tube(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 tube() -- a hollow cylindrical tube.
 
@@ -2247,6 +2262,7 @@ def tube(
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         orient:   direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -2304,11 +2320,27 @@ def tube(
     if center is not None:
         use_anchor = CENTER if center else BOTTOM
 
-    outer = _ocylinder(height=height, radius1=rad1, radius2=rad2, center=True)
-    inner = _ocylinder(height=height + 0.02, radius1=irad1, radius2=irad2, center=True)
+    outer = _ocylinder(
+        height=height,
+        radius1=rad1,
+        radius2=rad2,
+        center=True,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
+    inner = _ocylinder(
+        height=height + 0.02,
+        radius1=irad1,
+        radius2=irad2,
+        center=True,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
     shape = outer - inner
     if realign:
-        sides = _frag_count(max(rad1, rad2), None, None, None)
+        sides = _frag_count(max(rad1, rad2), fn, fa, fs)
         shape = shape.rotate(180 / sides, [0, 0, 1])
     offset = _anchor_offset_cyl(rad1, rad2, height, use_anchor)
     return Bosl2Solid(
@@ -2330,6 +2362,9 @@ def pie_slice(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 pie_slice() -- a pie slice, wedge of a cylinder/cone.
 
@@ -2343,6 +2378,7 @@ def pie_slice(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs: arc smoothness overrides
     """
     from .shapes2d import _arc_points, _opolygon
 
@@ -2357,7 +2393,15 @@ def pie_slice(
     if center is not None:
         use_anchor = CENTER if center else BOTTOM
 
-    base = _ocylinder(height=length, radius1=rad1, radius2=rad2, center=True)
+    base = _ocylinder(
+        height=length,
+        radius1=rad1,
+        radius2=rad2,
+        center=True,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
     if isinstance(angle, (list, tuple)):  # [start, end] wedge
         start, sweep = float(angle[0]), float(angle[1]) - float(angle[0])
     else:
@@ -2367,7 +2411,7 @@ def pie_slice(
         shape = base
     else:
         maxd = max(rad1, rad2) + 0.1
-        sides = max(3, math.ceil(_frag_count(maxd, None, None, None) * ang_v / 360))
+        sides = max(3, math.ceil(_frag_count(maxd, fn, fa, fs) * ang_v / 360))
         arc = _arc_points(sides, maxd, start, ang_v)
         sector = _opolygon([[0.0, 0.0]] + arc).linear_extrude(
             height=length + 0.2, center=True
@@ -2393,9 +2437,9 @@ def sphere(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A sphere, built with the builtin sphere(), with BOSL2-style anchor/spin/orient support.
 
@@ -2408,7 +2452,7 @@ def sphere(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -2419,7 +2463,7 @@ def sphere(
     rad = (
         radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     )
-    shape = _osphere(radius=rad, fn=_fn, fa=_fa, fs=_fs)
+    shape = _osphere(radius=rad, fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_sphere(rad, anchor)
     return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
 
@@ -2433,9 +2477,9 @@ def spheroid(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """An approximate sphere; this pure-Python port just builds a plain sphere() (style/dual are ignored).
 
@@ -2445,7 +2489,7 @@ def spheroid(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     return sphere(
         radius=radius,
@@ -2453,9 +2497,9 @@ def spheroid(
         anchor=anchor,
         spin=spin,
         orient=orient,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
 
 
@@ -2545,6 +2589,9 @@ def torus(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 torus() -- a torus (donut) shape.
 
@@ -2563,6 +2610,7 @@ def torus(
         inner_diameter:     inside diameter of the torus (use with outer_radius or outer_diameter)
         anchor: anchor point (default CENTER)
         orient: direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -2601,9 +2649,9 @@ def torus(
     if center is not None:
         use_anchor = CENTER if center else DOWN
 
-    sides = _frag_count(min_rad)
+    sides = _frag_count(min_rad, fn, fa, fs)
     profile = _arc_points(sides, min_rad, 0, 360, [maj_rad, 0.0], endpoint=False)
-    shape = _orotate_extrude(_opolygon(profile))
+    shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_cyl(
         maj_rad + min_rad, maj_rad + min_rad, min_rad * 2, use_anchor
     )
@@ -2632,6 +2680,9 @@ def teardrop(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 teardrop() -- a teardrop shape, useful for 3D-printable horizontal holes.
 
@@ -2649,6 +2700,7 @@ def teardrop(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs: arc smoothness overrides
     """
     length = height if height is not None else 1.0
     rad1 = _pick_radius(
@@ -2661,7 +2713,7 @@ def teardrop(
     cap_h2v = cap_h2 if cap_h2 is not None else cap_height
     c1 = chamfer1 if chamfer1 else chamfer
     c2 = chamfer2 if chamfer2 else chamfer
-    sides = _frag_count(max(rad1, rad2))
+    sides = _frag_count(max(rad1, rad2), fn, fa, fs)
 
     def section(rad: float, cap_hv: float | None, y: float) -> list[list[float]]:
         path = _teardrop2d_path(rad, angle, cap_hv, circum, realign, sides)
@@ -2700,6 +2752,9 @@ def onion(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     orient: Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 onion() -- an onion-dome shape (a sphere with a conical cap).
 
@@ -2713,11 +2768,12 @@ def onion(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs: arc smoothness overrides
     """
     from .shapes2d import _arc_points, _opolygon
 
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
-    sides = _frag_count(rad)
+    sides = _frag_count(rad, fn, fa, fs)
     scaled = rad / math.cos(math.pi / sides) if circum else rad
     maxheight = scaled / math.sin(math.radians(angle))
     top_z = min(cap_height, maxheight) if cap_height is not None else maxheight
@@ -2732,7 +2788,7 @@ def onion(
         cap_x = (maxheight - top_z) * math.tan(math.radians(angle))
         profile = arc + [[cap_x, top_z], [0.0, top_z]]
 
-    shape = _orotate_extrude(_opolygon(profile))
+    shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
 
     a = list(anchor)
     off_z = 0.0 if a[2] == 0 else (scaled if a[2] < 0 else -top_z)
@@ -3655,9 +3711,9 @@ def fillet(
     diameter2: float | None = None,
     excess: float = 0.01,
     height=None,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """A concave edge-fillet mask of length *length* and radius *radius* (BOSL2 fillet()).
 
@@ -3699,9 +3755,9 @@ def fillet(
             diameter1=diameter1,
             diameter2=diameter2,
             excess=excess,
-            _fn=_fn,
-            _fa=_fa,
-            _fs=_fs,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
     )
 

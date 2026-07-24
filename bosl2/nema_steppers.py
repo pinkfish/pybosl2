@@ -70,7 +70,9 @@ class NemaSteppers:
         size: int = 17,
         height: float = 24,
         shaft_len: float = 20,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A model of a NEMA *size* stepper motor (BOSL2 nema_stepper_motor()).
 
@@ -100,15 +102,15 @@ class NemaSteppers:
         for sx in (-1, 1):
             for sy in (-1, 1):  # blind mounting holes at the corners
                 hole = (
-                    cyl(height=s.screw_depth * 2, diameter=s.screw_size, _fn=_fn)
+                    cyl(height=s.screw_depth * 2, diameter=s.screw_size, fn=fn, fa=fa, fs=fs)
                     .right(sx * s.screw_spacing / 2)
                     .back(sy * s.screw_spacing / 2)
                 )
                 body = body - hole
-        plinth = cyl(height=s.plinth_height, diameter=s.plinth_diam, _fn=_fn).up(
+        plinth = cyl(height=s.plinth_height, diameter=s.plinth_diam, fn=fn, fa=fa, fs=fs).up(
             s.plinth_height / 2
-        ) - cyl(height=s.plinth_height * 3, diameter=s.shaft_diam + 0.75, _fn=_fn)
-        shaft = cyl(height=shaft_len, diameter=s.shaft_diam, _fn=_fn).up(shaft_len / 2)
+        ) - cyl(height=s.plinth_height * 3, diameter=s.shaft_diam + 0.75, fn=fn, fa=fa, fs=fs)
+        shaft = cyl(height=shaft_len, diameter=s.shaft_diam, fn=fn, fa=fa, fs=fs).up(shaft_len / 2)
         return Bosl2Solid(
             (body | plinth | shaft).shape,
             size=[s.motor_width, s.motor_width, height + shaft_len],
@@ -121,7 +123,9 @@ class NemaSteppers:
         length: float = 5,
         atype: str = "full",
         slop: float = 0.0,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """The mounting cutout for a NEMA *size* motor -- difference it from a plate (BOSL2 nema_mount_mask()).
 
@@ -136,17 +140,17 @@ class NemaSteppers:
         def slotted(d, cx=0.0, cy=0.0):
             if length > 0:
                 return [
-                    cyl(height=depth, diameter=d, _fn=_fn)
+                    cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs)
                     .back(length / 2)
                     .right(cx)
                     .back(cy),
-                    cyl(height=depth, diameter=d, _fn=_fn)
+                    cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs)
                     .forward(length / 2)
                     .right(cx)
                     .back(cy),
                     cuboid([d, length, depth]).right(cx).back(cy),
                 ]
-            return [cyl(height=depth, diameter=d, _fn=_fn).right(cx).back(cy)]
+            return [cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)]
 
         parts = []
         for sx in (-1, 1):

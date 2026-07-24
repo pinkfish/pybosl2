@@ -148,22 +148,22 @@ def test_nut_thin_falls_back_when_undefined():
 @pytest.mark.parametrize("head", ["socket", "hex", "button", "pan", "flat", "none"])
 def test_screw_builds(head):
     drive = "hex" if head in ("socket", "button", "none") else "none"
-    assert isinstance(Screws.screw("M6", 20, head=head, drive=drive, _fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw("M6", 20, head=head, drive=drive, fn=8), Bosl2Solid)
 
 
 def test_screw_unthreaded_and_partly_threaded():
-    assert isinstance(Screws.screw("M6", 20, thread=False, _fn=8), Bosl2Solid)
-    assert isinstance(Screws.screw("M6", 20, thread_len=8, _fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw("M6", 20, thread=False, fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw("M6", 20, thread_len=8, fn=8), Bosl2Solid)
 
 
 @pytest.mark.parametrize("shape", ["hex", "square"])
 def test_nut_builds(shape):
-    assert isinstance(Screws.nut("M6", shape=shape, _fn=8), Bosl2Solid)
+    assert isinstance(Screws.nut("M6", shape=shape, fn=8), Bosl2Solid)
 
 
 def test_nut_thickness_classes_build():
     for t in ("normal", "thin", "thick", 4.0):
-        assert isinstance(Screws.nut("M6", thickness=t, _fn=8), Bosl2Solid)
+        assert isinstance(Screws.nut("M6", thickness=t, fn=8), Bosl2Solid)
 
 
 @pytest.mark.parametrize(
@@ -171,15 +171,15 @@ def test_nut_thickness_classes_build():
 )
 def test_screw_hole_builds(head, counterbore):
     assert isinstance(
-        Screws.screw_hole("M6", 20, head=head, counterbore=counterbore, _fn=8),
+        Screws.screw_hole("M6", 20, head=head, counterbore=counterbore, fn=8),
         Bosl2Solid,
     )
 
 
 def test_tapped_hole_builds():
-    assert isinstance(Screws.screw_hole("M6", 20, thread=True, _fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw_hole("M6", 20, thread=True, fn=8), Bosl2Solid)
 
 
 @pytest.mark.parametrize("fit", ["close", "normal", "loose"])
 def test_clearance_fits_build(fit):
-    assert isinstance(Screws.screw_hole("M6", 20, fit=fit, _fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw_hole("M6", 20, fit=fit, fn=8), Bosl2Solid)

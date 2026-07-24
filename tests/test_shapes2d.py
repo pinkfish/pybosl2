@@ -28,9 +28,9 @@ from bosl2.shapes2d import (
 
 
 def test_frag_count_fn_override():
-    assert _frag_count(10, _fn=8) == 8
-    assert _frag_count(10, _fn=3) == 3
-    assert _frag_count(10, _fn=2) != 2  # fn < 3 ignored, falls back to fa/fs
+    assert _frag_count(10, fn=8) == 8
+    assert _frag_count(10, fn=3) == 3
+    assert _frag_count(10, fn=2) != 2  # fn < 3 ignored, falls back to fa/fs
 
 
 def test_frag_count_default_fa_fs():

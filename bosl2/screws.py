@@ -405,9 +405,9 @@ class Screws:
         thread=True,
         thread_len=None,
         pitch=None,
-        _fn=None,
-        _fa=None,
-        _fs=None,
+        fn=None,
+        fa=None,
+        fs=None,
     ):
         """A metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.
 
@@ -433,16 +433,16 @@ class Screws:
             _, tp = _parse_spec(spec, thread_kind, pitch)
             tl = length if (thread_len is None or thread_len >= length) else thread_len
             shank_len = length - tl
-            shaft = Threading.threaded_rod(d, tl, tp, _fn=_fn, _fa=_fa, _fs=_fs).down(
+            shaft = Threading.threaded_rod(d, tl, tp, fn=fn, fa=fa, fs=fs).down(
                 shank_len + tl / 2
             )
             if shank_len > 1e-9:
                 shank = cyl(
-                    diameter=d, height=shank_len, _fn=_fn, _fa=_fa, _fs=_fs
+                    diameter=d, height=shank_len, fn=fn, fa=fa, fs=fs
                 ).down(shank_len / 2)
                 shaft = shaft | shank
         else:
-            shaft = cyl(diameter=d, height=length, _fn=_fn, _fa=_fa, _fs=_fs).down(
+            shaft = cyl(diameter=d, height=length, fn=fn, fa=fa, fs=fs).down(
                 length / 2
             )
 
@@ -450,17 +450,17 @@ class Screws:
         head_top = info[
             "head_height"
         ]  # top face of the head; 0 for a headless setscrew (recess into shaft)
-        headobj = Screws._make_head(info, _fn, _fa, _fs)
+        headobj = Screws._make_head(info, fn, fa, fs)
         if headobj is not None:
             result = result | headobj
 
-        recess = Screws._make_recess(info, head_top, _fn, _fa, _fs)
+        recess = Screws._make_recess(info, head_top, fn, fa, fs)
         if recess is not None:
             result = result - recess
         return result
 
     @staticmethod
-    def _make_head(info, _fn, _fa, _fs):
+    def _make_head(info, fn, fa, fs):
         from bosl2.shapes3d import cyl, regular_prism
 
         head = info["head"]
@@ -470,20 +470,20 @@ class Screws:
         hs = info["head_size"]
         if head == "hex":
             return regular_prism(
-                6, height=hh, inner_diameter=hs, _fn=_fn, _fa=_fa, _fs=_fs
+                6, height=hh, inner_diameter=hs, fn=fn, fa=fa, fs=fs
             ).up(hh / 2)
         if head in ("socket", "socket ribbed"):
             return cyl(
-                diameter=hs, height=hh, chamfer2=hs / 20, _fn=_fn, _fa=_fa, _fs=_fs
+                diameter=hs, height=hh, chamfer2=hs / 20, fn=fn, fa=fa, fs=fs
             ).up(hh / 2)
         if head == "button":
             rnd = min(hh * 0.9, hs / 2 * 0.9)
             return cyl(
-                diameter=hs, height=hh, rounding2=rnd, _fn=_fn, _fa=_fa, _fs=_fs
+                diameter=hs, height=hh, rounding2=rnd, fn=fn, fa=fa, fs=fs
             ).up(hh / 2)
         if head in ("pan", "round"):
             return cyl(
-                diameter=hs, height=hh, rounding2=0.2 * hs, _fn=_fn, _fa=_fa, _fs=_fs
+                diameter=hs, height=hh, rounding2=0.2 * hs, fn=fn, fa=fa, fs=fs
             ).up(hh / 2)
         if head == "flat":
             # 90-degree countersunk cone: shaft diameter at the bottom, head diameter at the surface.
@@ -491,14 +491,14 @@ class Screws:
                 diameter1=info["diameter"],
                 diameter2=hs,
                 height=hh,
-                _fn=_fn,
-                _fa=_fa,
-                _fs=_fs,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             ).up(hh / 2)
         return None
 
     @staticmethod
-    def _make_recess(info, head_top, _fn, _fa, _fs):
+    def _make_recess(info, head_top, fn, fa, fs):
         from bosl2.shapes3d import cuboid, regular_prism
 
         drive = info.get("drive")
@@ -509,7 +509,7 @@ class Screws:
         eps = 0.02
         if drive == "hex":
             rec = regular_prism(
-                6, height=depth + eps, inner_diameter=size, _fn=_fn, _fa=_fa, _fs=_fs
+                6, height=depth + eps, inner_diameter=size, fn=fn, fa=fa, fs=fs
             )
         elif drive == "slot":
             width = size if size else max(0.6, info["diameter"] / 6)
@@ -531,9 +531,9 @@ class Screws:
         nutwidth=None,
         slop=0.0,
         pitch=None,
-        _fn=None,
-        _fa=None,
-        _fs=None,
+        fn=None,
+        fa=None,
+        fs=None,
     ):
         """A hex or square nut with a threaded hole matching *spec* (BOSL2 nut()).
 
@@ -545,7 +545,7 @@ class Screws:
         d, p = _parse_spec(spec, thread, pitch)
         width, th = _nut_dims(d, thickness, nutwidth)
         return Threading.threaded_nut(
-            width, d, th, p, shape=shape, slop=slop, _fn=_fn, _fa=_fa, _fs=_fs
+            width, d, th, p, shape=shape, slop=slop, fn=fn, fa=fa, fs=fs
         )
 
     # -- clearance / countersink / counterbore hole cutter ---------------------------------
@@ -559,9 +559,9 @@ class Screws:
         fit="normal",
         thread=False,
         pitch=None,
-        _fn=None,
-        _fa=None,
-        _fs=None,
+        fn=None,
+        fa=None,
+        fs=None,
     ):
         """A hole cutter for a screw: clearance shaft, plus optional countersink (flat head) or
         counterbore.
@@ -578,12 +578,12 @@ class Screws:
 
             # a tapped hole: cut with the rod's thread tap (major + a touch of clearance)
             cutter = Threading.threaded_rod(
-                d + 0.0, length, p, _fn=_fn, _fa=_fa, _fs=_fs
+                d + 0.0, length, p, fn=fn, fa=fa, fs=fs
             ).down(length / 2)
         else:
             gap = _CLEARANCE.get(str(fit).lower(), 0.5)
             cutter = cyl(
-                diameter=d + 2 * gap, height=length, _fn=_fn, _fa=_fa, _fs=_fs
+                diameter=d + 2 * gap, height=length, fn=fn, fa=fa, fs=fs
             ).down(length / 2)
 
         if head == "flat":
@@ -594,9 +594,9 @@ class Screws:
                 diameter1=d,
                 diameter2=hs,
                 height=csk_h + 0.02,
-                _fn=_fn,
-                _fa=_fa,
-                _fs=_fs,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             ).up((csk_h + 0.02) / 2 - 0.01)
             cutter = cutter | csink
         elif counterbore and counterbore > 0:
@@ -607,7 +607,7 @@ class Screws:
             if head == "hex":
                 hd = 2 * hd / math.sqrt(3)  # across-corners for a hex head pocket
             cb = cyl(
-                diameter=hd, height=counterbore + 0.02, _fn=_fn, _fa=_fa, _fs=_fs
+                diameter=hd, height=counterbore + 0.02, fn=fn, fa=fa, fs=fs
             ).up((counterbore + 0.02) / 2 - 0.01)
             cutter = cutter | cb
         return cutter

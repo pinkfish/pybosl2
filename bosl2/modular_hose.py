@@ -287,7 +287,9 @@ class ModularHose:
         type: str = "segment",
         clearance: float | list = 0,
         waist_len: float | None = None,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A modular-hose ball end, socket end, or full segment (BOSL2 modular_hose()).
 
@@ -337,11 +339,7 @@ class ModularHose:
         (_mnx, mny), (mxx, mxy) = _bounds(shape)
         cy = (mny + mxy) / 2
         poly = [[x, y - cy] for x, y in shape]
-        solid = (
-            _orotate_extrude(_opolygon(poly), fn=_fn)
-            if _fn
-            else _orotate_extrude(_opolygon(poly))
-        )
+        solid = _orotate_extrude(_opolygon(poly), fn=fn, fa=fa, fs=fs)
         return Bosl2Solid(solid, size=[2 * mxx, 2 * mxx, mxy - mny])
 
     @staticmethod
