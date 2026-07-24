@@ -38,7 +38,10 @@ def test_rail_envelope():
 
 
 def test_rail_length_scales():
-    assert _size(S.rail(length=100, w=10, height=10))[1] > _size(S.rail(length=40, w=10, height=10))[1]
+    assert (
+        _size(S.rail(length=100, w=10, height=10))[1]
+        > _size(S.rail(length=40, w=10, height=10))[1]
+    )
 
 
 def test_slider_slop_widens_fit():

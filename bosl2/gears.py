@@ -608,7 +608,9 @@ class Gears:
         """Tip radius; the gear fits within this circle (BOSL2 outer_radius())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-        return _outer_radius_basic(center, teeth, clearance, internal, helical, ps, shorten)
+        return _outer_radius_basic(
+            center, teeth, clearance, internal, helical, ps, shorten
+        )
 
     @staticmethod
     def root_radius(
@@ -939,7 +941,10 @@ class Gears:
         """An internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2 ring_gear())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-        outer_radius = _outer_radius_basic(center, teeth, clearance, True, helical, ps, 0) + backing
+        outer_radius = (
+            _outer_radius_basic(center, teeth, clearance, True, helical, ps, 0)
+            + backing
+        )
         cavity = Gears.spur_gear(
             circ_pitch=center,
             teeth=teeth,
@@ -995,7 +1000,9 @@ class Gears:
         path = Gears._rack2d_path(
             center, teeth, height, pressure_angle, backlash, clearance
         )
-        return Bosl2Solid(_opolygon(path), size=[teeth * center, 2 * abs(a - height), 0])
+        return Bosl2Solid(
+            _opolygon(path), size=[teeth * center, 2 * abs(a - height), 0]
+        )
 
     @staticmethod
     def rack(
@@ -1169,7 +1176,9 @@ class Gears:
         vnf = VNF([[x, y, z - cpz] for x, y, z in vnf.vertices], vnf.faces)
         solid = Bosl2Solid(vnf.polyhedron(), size=[2 * pr, 2 * pr, thickness])
         if shaft_diam and shaft_diam > 0:
-            solid = solid - cylinder(height=2 * thickness + 1, diameter=shaft_diam, center=True)
+            solid = solid - cylinder(
+                height=2 * thickness + 1, diameter=shaft_diam, center=True
+            )
         return solid
 
     # -- worm & worm gear --------------------------------------------------
@@ -1190,9 +1199,9 @@ class Gears:
     ) -> Bosl2Solid:
         """A worm (a screw that meshes a worm gear) (BOSL2 worm())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        rack = Gears._rack2d_path(center, starts, diameter, pressure_angle, backlash, clearance)[
-            1:-1
-        ]
+        rack = Gears._rack2d_path(
+            center, starts, diameter, pressure_angle, backlash, clearance
+        )[1:-1]
         polars = [[360 * px / center / starts, py + diameter / 2] for px, py in rack]
         maxang = 360 / _frag_count(diameter / 2)
         refined = []

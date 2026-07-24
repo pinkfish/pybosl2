@@ -80,10 +80,15 @@ class Region(list):
         return list(self[1:])
 
     def offset(
-        self, radius: float | None = None, delta: float | None = None, chamfer: bool = False
+        self,
+        radius: float | None = None,
+        delta: float | None = None,
+        chamfer: bool = False,
     ) -> "Region":
         """Offset every path in the region."""
-        return Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self])
+        return Region(
+            [p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self]
+        )
 
     def round_corners(
         self, radius: float | list[float] | None = None, **kwargs: Any
@@ -130,7 +135,11 @@ class Region(list):
             return solid
         labels = [
             text3d(
-                f"{chr(97 + j)}{i}", size=size, height=0.02, halign="center", valign="center"
+                f"{chr(97 + j)}{i}",
+                size=size,
+                height=0.02,
+                halign="center",
+                valign="center",
             )
             .translate([float(x), float(y), 0.01])
             .color("red")

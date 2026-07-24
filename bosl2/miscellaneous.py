@@ -173,8 +173,16 @@ def cylindrical_extrude(
     from bosl2.shapes2d import _frag_count
     from bosl2.shapes3d import Bosl2Solid
 
-    irv = inner_radius if inner_radius is not None else (inner_diameter / 2 if inner_diameter is not None else None)
-    orv = outer_radius if outer_radius is not None else (outer_diameter / 2 if outer_diameter is not None else None)
+    irv = (
+        inner_radius
+        if inner_radius is not None
+        else (inner_diameter / 2 if inner_diameter is not None else None)
+    )
+    orv = (
+        outer_radius
+        if outer_radius is not None
+        else (outer_diameter / 2 if outer_diameter is not None else None)
+    )
     assert irv is not None and orv is not None and irv > 0 and orv > 0, (
         "cylindrical_extrude(): give positive inner and outer radius/diameter."
     )
@@ -467,11 +475,21 @@ class Miscellaneous:
         big2 = _cube([size] * 3, center=True)
         return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))
 
-    def round3d(self, radius=None, outer_radius=None, inner_radius=None, size: float = 1000):
+    def round3d(
+        self, radius=None, outer_radius=None, inner_radius=None, size: float = 1000
+    ):
         """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,
         *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow."""
-        orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
-        irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
+        orr = (
+            outer_radius
+            if outer_radius is not None
+            else (radius if radius is not None else 0)
+        )
+        irr = (
+            inner_radius
+            if inner_radius is not None
+            else (radius if radius is not None else 0)
+        )
         return (
             self.offset3d(orr, size=size)
             .offset3d(-irr - orr, size=size)

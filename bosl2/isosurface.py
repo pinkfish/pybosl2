@@ -307,7 +307,11 @@ class Metaball:
 
 
 def _radius(radius=None, diameter=None):
-    return radius if radius is not None else (diameter / 2 if diameter is not None else None)
+    return (
+        radius
+        if radius is not None
+        else (diameter / 2 if diameter is not None else None)
+    )
 
 
 def mb_sphere(radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
@@ -366,7 +370,9 @@ def mb_torus(
     return Metaball(field, neg)
 
 
-def mb_capsule(height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+def mb_capsule(
+    height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None
+):
     """A capsule (round-ended cylinder) metaball field, total length *h*, radius *radius* (BOSL2 mb_capsule())."""
     rr = _radius(radius, diameter)
     assert h and rr and h > 0 and rr > 0, "mb_capsule(): need positive h and radius."
@@ -386,7 +392,9 @@ def mb_capsule(height=None, radius=None, cutoff=INF, influence=1, negative=False
     return Metaball(field, neg)
 
 
-def mb_disk(height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+def mb_disk(
+    height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None
+):
     """A rounded-edge disk metaball field, thickness *h*, outer radius *radius* (BOSL2 mb_disk())."""
     rr = _radius(radius, diameter)
     assert h and rr and h > 0 and rr > 0, "mb_disk(): need positive h and radius."
@@ -434,7 +442,9 @@ def mb_octahedron(size, squareness=0.5, cutoff=INF, influence=1, negative=False)
     return Metaball(field, neg)
 
 
-def mb_connector(p1, p2, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+def mb_connector(
+    p1, p2, radius=None, cutoff=INF, influence=1, negative=False, diameter=None
+):
     """A capsule metaball field spanning from *p1* to *p2* with radius *radius* (BOSL2 mb_connector())."""
     from bosl2.transforms import rot_from_to, axis_angle_matrix
 

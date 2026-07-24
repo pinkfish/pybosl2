@@ -124,7 +124,12 @@ def general_line_intersection(s1, s2, eps: float = EPSILON):
 
 
 def circle_circle_tangents(
-    radius1: float, cp1, radius2: float, cp2, diameter1: float | None = None, diameter2: float | None = None
+    radius1: float,
+    cp1,
+    radius2: float,
+    cp2,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
 ) -> list[list[list[float]]]:
     """Tangent lines between two circles (radius1, cp1) and (radius2, cp2).
 

@@ -69,7 +69,9 @@ def test_phillips_depth_diam_roundtrip():
     shafts = {"#0": 3, "#1": 4.5, "#2": 6, "#3": 8, "#4": 10}
     tips = {"#0": 0.81, "#1": 1.27, "#2": 2.29, "#3": 3.81, "#4": 5.08}
     for size in ("#0", "#1", "#2", "#3", "#4"):
-        diameter = (tips[size] + shafts[size]) / 2  # midpoint is always in the valid range
+        diameter = (
+            tips[size] + shafts[size]
+        ) / 2  # midpoint is always in the valid range
         depth = SD.phillips_depth(size, diameter)
         assert depth is not None
         assert SD.phillips_diam(size, depth) == pytest.approx(diameter)

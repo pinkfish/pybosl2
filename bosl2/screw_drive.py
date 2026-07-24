@@ -223,7 +223,9 @@ class ScrewDrive:
         # One cutout wing: extruded profile, dropped 1mm, tilted by beta, raised to h3.
         wing = _opolygon(cut_path).linear_extrude(height=length + 2)
         wing = wing.translate([0, 0, -1]).rotate([0, beta, 0]).translate([0, 0, h3])
-        cutter = _union(wing.multmatrix(m.tolist()) for m in zrot_copies(sides=4, radius=b / 2))
+        cutter = _union(
+            wing.multmatrix(m.tolist()) for m in zrot_copies(sides=4, radius=b / 2)
+        )
         cutter = cutter.rotate([0, 0, 45])
 
         body = _orotate_extrude(
@@ -373,5 +375,10 @@ class ScrewDrive:
         m_top = m_slop + 2 * _adj_ang_to_opp(F + extra, angle)
         m_bot = m_slop - 2 * _adj_ang_to_opp(T - F, angle)
         tapered = prismoid([m_bot, m_bot], [m_top, m_top], height=height, anchor=BOTTOM)
-        cone = cyl(diameter1=0, diameter2=m_slop / (T - F) * math.sqrt(2) * height, height=height, anchor=BOTTOM)
+        cone = cyl(
+            diameter1=0,
+            diameter2=m_slop / (T - F) * math.sqrt(2) * height,
+            height=height,
+            anchor=BOTTOM,
+        )
         return (tapered & cone).down(T)

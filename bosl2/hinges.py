@@ -55,9 +55,9 @@ class Hinges:
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
         top = hingegap + 2 * thick / math.tan(math.radians(foldangle / 2))
-        return prismoid([length, hingegap], [length, top], height=thick, anchor=BOTTOM).up(
-            layerheight * 2
-        )
+        return prismoid(
+            [length, hingegap], [length, top], height=thick, anchor=BOTTOM
+        ).up(layerheight * 2)
 
     @staticmethod
     def knuckle_hinge(
@@ -86,7 +86,9 @@ class Hinges:
                 continue
             x = -length / 2 + seglen / 2 + i * (seglen + gap)
             parts.append(
-                cyl(height=seglen, diameter=knuckle_diam, _fn=_fn).rotate([0, 90, 0]).right(x)
+                cyl(height=seglen, diameter=knuckle_diam, _fn=_fn)
+                .rotate([0, 90, 0])
+                .right(x)
             )
         # the flat leaf plate, merging into the lower part of the knuckle line
         ydir = -1 if inner else 1
@@ -137,9 +139,9 @@ class Hinges:
             )  # rotate the inner leaf about the pin (X) axis
         hinge = outer | inner
         if pin:
-            hinge = hinge | cyl(height=length - gap, diameter=pin_diam - 0.1, _fn=_fn).rotate(
-                [0, 90, 0]
-            )
+            hinge = hinge | cyl(
+                height=length - gap, diameter=pin_diam - 0.1, _fn=_fn
+            ).rotate([0, 90, 0])
         return Bosl2Solid(
             hinge.shape, size=[length, 2 * arm + knuckle_diam, knuckle_diam]
         )

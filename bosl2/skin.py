@@ -636,7 +636,11 @@ def spiral_sweep(
         else (
             radius
             if radius is not None
-            else (diameter1 / 2 if diameter1 is not None else (diameter / 2 if diameter is not None else 1))
+            else (
+                diameter1 / 2
+                if diameter1 is not None
+                else (diameter / 2 if diameter is not None else 1)
+            )
         )
     )
     rr2 = (
@@ -645,7 +649,11 @@ def spiral_sweep(
         else (
             radius
             if radius is not None
-            else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else 1))
+            else (
+                diameter2 / 2
+                if diameter2 is not None
+                else (diameter / 2 if diameter is not None else 1)
+            )
         )
     )
     poly = [[float(p[0]), float(p[1])] for p in poly]

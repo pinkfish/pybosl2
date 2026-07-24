@@ -634,7 +634,9 @@ def partition_cut_mask(
         if isinstance(cutsize, (list, tuple, np.ndarray))
         else [cutsize * 2, cutsize]
     )
-    path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, _fn, _fa, _fs)
+    path = _partition_cutpath(
+        length, height, cs, cutpath, gap, cutpath_centered, _fn, _fa, _fs
+    )
     ribbon = _stroke(path, width=max(0.1, slop * 2))
     return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
 
@@ -778,7 +780,12 @@ class Partitionable:
     def top_half(self, z=0, s=None, cut_path=None, cut_angle=0, offset=0):
         """Keep the top (+Z) half, cut at ``Z=z`` (BOSL2 top_half())."""
         return self.half_of(
-            UP, center=[0, 0, z], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset
+            UP,
+            center=[0, 0, z],
+            s=s,
+            cut_path=cut_path,
+            cut_angle=cut_angle,
+            offset=offset,
         )
 
     def partition(

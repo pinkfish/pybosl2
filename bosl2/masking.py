@@ -130,7 +130,11 @@ def rounding_edge_mask(
         else (
             radius
             if radius is not None
-            else (diameter1 / 2 if diameter1 is not None else (diameter / 2 if diameter is not None else 1))
+            else (
+                diameter1 / 2
+                if diameter1 is not None
+                else (diameter / 2 if diameter is not None else 1)
+            )
         )
     )
     rad2 = (
@@ -139,7 +143,11 @@ def rounding_edge_mask(
         else (
             radius
             if radius is not None
-            else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else 1))
+            else (
+                diameter2 / 2
+                if diameter2 is not None
+                else (diameter / 2 if diameter is not None else 1)
+            )
         )
     )
     if rad1 < rad2:

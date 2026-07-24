@@ -806,7 +806,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         method = "length" if method is None else method
         assert method in ("length", "segment")
         if sides is None:
-            assert refine is not None, "Must give exactly one of sides, refine, and maxlen"
+            assert refine is not None, (
+                "Must give exactly one of sides, refine, and maxlen"
+            )
             sides = len(path) * refine
         assert (isinstance(sides, (int, float)) and sides > 0) or isinstance(
             sides, (list, tuple)
@@ -900,7 +902,9 @@ class Path(Distributable, Extrudable, Roundable, list):
             closed = False
         if not uniform:
             diameter = np.asarray(
-                deriv(path, closed=closed, height=Path._path_segment_lengths(path, closed)),
+                deriv(
+                    path, closed=closed, height=Path._path_segment_lengths(path, closed)
+                ),
                 dtype=float,
             )
         else:
@@ -1063,7 +1067,10 @@ class Path(Distributable, Extrudable, Roundable, list):
                 return [Path._select(path, ind), ind + 1]
             diameter = math.dist(path[ind], Path._select(path, ind + 1))
             if diameter > dist:
-                return [lerp(path[ind], Path._select(path, ind + 1), dist / diameter), ind + 1]
+                return [
+                    lerp(path[ind], Path._select(path, ind + 1), dist / diameter),
+                    ind + 1,
+                ]
             dist -= diameter
             ind += 1
 
@@ -1497,7 +1504,12 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _circlecorner(
-        points: list[list[float]], diameter: float, radius: float, _fn=None, _fa=None, _fs=None
+        points: list[list[float]],
+        diameter: float,
+        radius: float,
+        _fn=None,
+        _fa=None,
+        _fs=None,
     ) -> list[list[float]]:
         # local: shapes2d imports pythonscad, which paths.py must stay importable without
         from bosl2.shapes2d import _frag_count, _arc_points
@@ -1521,7 +1533,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         center = [
             radius / math.sin(math.radians(angle)) * bis[i] + p1[i] for i in range(dim)
         ]
-        sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, _fn, _fa, _fs)))
+        sides = max(
+            3, math.ceil((90 - angle) / 180 * _frag_count(radius, _fn, _fa, _fs))
+        )
         a0 = math.degrees(math.atan2(start[1] - center[1], start[0] - center[0]))
         a1 = math.degrees(math.atan2(end[1] - center[1], end[0] - center[0]))
         delta = (a1 - a0 + 180) % 360 - 180

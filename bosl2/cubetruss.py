@@ -81,9 +81,9 @@ def _clip_placement(vec, extents):
 def _octagon_tunnel(size, strut, h):
     """A long octagonal-prism cutter for the axial lightening tunnels (BOSL2 cylinder($fn=8))."""
     oct_d = (min(h, size) - 2 * strut) / math.cos(math.radians(180 / 8))
-    return regular_prism(8, diameter=oct_d, height=max(h, size) + 1, anchor=CENTER).rotate(
-        [0, 0, 180 / 8]
-    )
+    return regular_prism(
+        8, diameter=oct_d, height=max(h, size) + 1, anchor=CENTER
+    ).rotate([0, 0, 180 / 8])
 
 
 class CubeTruss:
@@ -141,7 +141,9 @@ class CubeTruss:
             for i in (-1, 1):
                 brace = cuboid([crossthick, (size - strut) * math.sqrt(2), height])
                 hole = (
-                    regular_prism(6, diameter=hex_d, height=crossthick + 1, anchor=CENTER)
+                    regular_prism(
+                        6, diameter=hex_d, height=crossthick + 1, anchor=CENTER
+                    )
                     .rotate([0, 0, 180 / 6])
                     .rotate([0, 90, 0])
                     .scale([1, 1.3, 1])
@@ -258,9 +260,9 @@ class CubeTruss:
 
         def octprism(length, rot):
             # cyl(diameter=octid, circum=true, realign=true, $fn=8): an octagon across-flats octid, +half facet.
-            p = regular_prism(8, inner_diameter=octid, height=length, anchor=CENTER).rotate(
-                [0, 0, 180 / 8]
-            )
+            p = regular_prism(
+                8, inner_diameter=octid, height=length, anchor=CENTER
+            ).rotate([0, 0, 180 / 8])
             return p.rotate(rot) if rot else p
 
         def hollow_cell():

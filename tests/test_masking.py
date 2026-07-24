@@ -52,7 +52,9 @@ def test_quarter_circle_bite_radius():
     path = mask2d_roundover(radius=radius, excess=0.01)
     arc_pts = np.asarray(path[3:])  # the first three points are the two flat legs
     for p in arc_pts:
-        assert math.isclose(math.hypot(p[0] - radius, p[1] - radius), radius, abs_tol=1e-9)
+        assert math.isclose(
+            math.hypot(p[0] - radius, p[1] - radius), radius, abs_tol=1e-9
+        )
 
 
 def test_requires_r_or_d():

@@ -220,7 +220,11 @@ def test_plot_revolution_taper_and_path():
     f = lambda a, z: 2 * math.sin(math.radians(a))
     assert isinstance(
         plot_revolution(
-            f, angle=list(range(0, 361, 20)), z=list(range(0, 21, 5)), radius1=10, radius2=6
+            f,
+            angle=list(range(0, 361, 20)),
+            z=list(range(0, 21, 5)),
+            radius1=10,
+            radius2=6,
         ),
         Bosl2Solid,
     )

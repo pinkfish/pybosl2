@@ -219,7 +219,9 @@ class Polyhedra:
         elif diameter is not None:
             scale = diameter / 2
         elif inner_radius is not None:
-            scale = inner_radius / _inradius_ratio(key)  # circumradius from the inradius
+            scale = inner_radius / _inradius_ratio(
+                key
+            )  # circumradius from the inradius
         elif radius is not None:
             scale = radius
         else:

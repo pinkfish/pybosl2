@@ -52,7 +52,9 @@ def test_curve_point_count():
 def test_derivative_of_cubic_at_zero():
     # first derivative of a cubic at u=0 is 3*(P1-P0)
     diameter = Bezier(CUBIC).derivative(0, 1)
-    np.testing.assert_allclose(diameter, 3 * (np.array([5, 35]) - np.array([0, 0])), atol=1e-9)
+    np.testing.assert_allclose(
+        diameter, 3 * (np.array([5, 35]) - np.array([0, 0])), atol=1e-9
+    )
 
 
 def test_tangent_is_unit():

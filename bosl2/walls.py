@@ -74,7 +74,9 @@ class Walls:
         height = wall + w / 2 / math.tan(math.radians(angle))
         profile = [[-w / 2, 0], [w / 2, 0], [w / 2, wall], [0, height], [-w / 2, wall]]
         shape = (
-            _opolygon(profile).linear_extrude(height=length, center=True).rotate([90, 0, 0])
+            _opolygon(profile)
+            .linear_extrude(height=length, center=True)
+            .rotate([90, 0, 0])
         )
         return Bosl2Solid(shape, size=[w, length, height])
 
@@ -213,11 +215,15 @@ class Walls:
             [amplitude * math.sin(math.radians(y / period * 360)) + wall / 2, y]
             for y in reversed(ys)
         ]
-        sheet = _opolygon(pts).linear_extrude(height=height - 2 * strut + 0.1, center=True)
+        sheet = _opolygon(pts).linear_extrude(
+            height=height - 2 * strut + 0.1, center=True
+        )
         frame = cuboid([thick, length, height]) - cuboid(
             [thick + 0.5, length - 2 * strut, height - 2 * strut]
         )
-        return Bosl2Solid((Bosl2Solid(sheet) | frame).shape, size=[thick, length, height])
+        return Bosl2Solid(
+            (Bosl2Solid(sheet) | frame).shape, size=[thick, length, height]
+        )
 
     @staticmethod
     def thinning_wall(
@@ -250,13 +256,22 @@ class Walls:
             strut, [0, 0, height / 2], [l2 / 2, 0, height / 2], [l1 / 2, 0, -height / 2]
         )
         cp2 = _circle_2tangents(
-            bevel_h, [0, 0, height / 2], [l2 / 2, 0, height / 2], [l1 / 2, 0, -height / 2]
+            bevel_h,
+            [0, 0, height / 2],
+            [l2 / 2, 0, height / 2],
+            [l1 / 2, 0, -height / 2],
         )
         cp3 = _circle_2tangents(
-            bevel_h, [0, 0, -height / 2], [l1 / 2, 0, -height / 2], [l2 / 2, 0, height / 2]
+            bevel_h,
+            [0, 0, -height / 2],
+            [l1 / 2, 0, -height / 2],
+            [l2 / 2, 0, height / 2],
         )
         cp4 = _circle_2tangents(
-            strut, [0, 0, -height / 2], [l1 / 2, 0, -height / 2], [l2 / 2, 0, height / 2]
+            strut,
+            [0, 0, -height / 2],
+            [l1 / 2, 0, -height / 2],
+            [l2 / 2, 0, height / 2],
         )
 
         z1, z2, z3 = height / 2, cp1[2], cp2[2]
@@ -367,7 +382,9 @@ class Walls:
         ns = Walls.narrowing_strut
         parts = []
         if not diagonly:
-            parts.append(ns(w=thick, length=length, wall=strut, angle=angle).down(height / 2))
+            parts.append(
+                ns(w=thick, length=length, wall=strut, angle=angle).down(height / 2)
+            )
             parts.append(
                 ns(w=thick, length=height - 0.1, wall=strut, angle=angle)
                 .rotate([-90, 0, 0])
@@ -383,7 +400,11 @@ class Walls:
         body = parts[0]
         for p in parts[1:]:
             body = body | p
-        cutter = cuboid([thick + 0.1, length * 2, height]).up(height / 2).rotate([-dang, 0, 0])
+        cutter = (
+            cuboid([thick + 0.1, length * 2, height])
+            .up(height / 2)
+            .rotate([-dang, 0, 0])
+        )
         body = body - cutter
         if center is False:
             body = body.up(height / 2).back(length / 2)

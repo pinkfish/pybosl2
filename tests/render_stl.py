@@ -198,7 +198,9 @@ def parse_stl(path: Path) -> np.ndarray:
     if len(data) >= 84:
         sides = struct.unpack("<I", data[80:84])[0]
         if len(data) == 84 + 50 * sides:  # exact binary-STL size => binary
-            dt = np.dtype([("sides", "<f4", (3,)), ("v", "<f4", (3, 3)), ("attr", "<u2")])
+            dt = np.dtype(
+                [("sides", "<f4", (3,)), ("v", "<f4", (3, 3)), ("attr", "<u2")]
+            )
             arr = np.frombuffer(data, dtype=dt, offset=84, count=sides)
             return np.array(arr["v"], dtype=float)
     verts = []

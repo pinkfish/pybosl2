@@ -54,9 +54,15 @@ def test_wall_and_od_id_forms_equivalent():
 @pytest.mark.parametrize(
     "kw",
     [
-        dict(base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=0),  # solid paddle
-        dict(base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=15, hole="D"),  # D hole
-        dict(base_size=[40, 10], hole_z=25, outer_radius=25, inner_radius=0),  # narrow base
+        dict(
+            base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=0
+        ),  # solid paddle
+        dict(
+            base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=15, hole="D"
+        ),  # D hole
+        dict(
+            base_size=[40, 10], hole_z=25, outer_radius=25, inner_radius=0
+        ),  # narrow base
     ],
 )
 def test_variants_build(kw):
@@ -71,7 +77,9 @@ def test_custom_hole_path_builds():
         ]
         for k in range(8)
     ]
-    assert isinstance(Hooks.ring_hook([50, 20], 30, outer_radius=25, hole=oct8), Bosl2Solid)
+    assert isinstance(
+        Hooks.ring_hook([50, 20], 30, outer_radius=25, hole=oct8), Bosl2Solid
+    )
 
 
 def test_must_define_exactly_two_of_or_ir_wall():
@@ -95,7 +103,13 @@ def test_circle_hole_must_fit_above_base():
 
 def test_custom_hole_rejects_ir_and_wall():
     with pytest.raises(ValueError):
-        Hooks.ring_hook([50, 20], 30, outer_radius=25, inner_radius=10, hole=[[1, 0], [0, 1], [-1, 0]])
+        Hooks.ring_hook(
+            [50, 20],
+            30,
+            outer_radius=25,
+            inner_radius=10,
+            hole=[[1, 0], [0, 1], [-1, 0]],
+        )
 
 
 def test_fillet_not_yet_supported():

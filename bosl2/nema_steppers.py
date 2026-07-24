@@ -67,7 +67,10 @@ class NemaSteppers:
 
     @staticmethod
     def nema_stepper_motor(
-        size: int = 17, height: float = 24, shaft_len: float = 20, _fn: int | None = None
+        size: int = 17,
+        height: float = 24,
+        shaft_len: float = 20,
+        _fn: int | None = None,
     ) -> Bosl2Solid:
         """A model of a NEMA *size* stepper motor (BOSL2 nema_stepper_motor()).
 
@@ -133,8 +136,14 @@ class NemaSteppers:
         def slotted(d, cx=0.0, cy=0.0):
             if length > 0:
                 return [
-                    cyl(height=depth, diameter=d, _fn=_fn).back(length / 2).right(cx).back(cy),
-                    cyl(height=depth, diameter=d, _fn=_fn).forward(length / 2).right(cx).back(cy),
+                    cyl(height=depth, diameter=d, _fn=_fn)
+                    .back(length / 2)
+                    .right(cx)
+                    .back(cy),
+                    cyl(height=depth, diameter=d, _fn=_fn)
+                    .forward(length / 2)
+                    .right(cx)
+                    .back(cy),
                     cuboid([d, length, depth]).right(cx).back(cy),
                 ]
             return [cyl(height=depth, diameter=d, _fn=_fn).right(cx).back(cy)]

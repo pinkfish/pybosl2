@@ -104,10 +104,14 @@ def test_extrude_from_to_same_point_raises():
 
 def test_cylindrical_extrude():
     assert isinstance(
-        M.cylindrical_extrude(s2.square([20, 8]), inner_radius=25, outer_radius=30), Bosl2Solid
+        M.cylindrical_extrude(s2.square([20, 8]), inner_radius=25, outer_radius=30),
+        Bosl2Solid,
     )
     assert isinstance(
-        M.cylindrical_extrude(s2.square([20, 8]), inner_diameter=50, outer_diameter=60, spin=45), Bosl2Solid
+        M.cylindrical_extrude(
+            s2.square([20, 8]), inner_diameter=50, outer_diameter=60, spin=45
+        ),
+        Bosl2Solid,
     )
 
 
@@ -121,7 +125,8 @@ def test_chain_hull():
         M.chain_hull(cuboid([5, 5, 5]), sphere(radius=4).right(20)), Bosl2Solid
     )
     assert isinstance(
-        M.chain_hull([cuboid([5, 5, 5]), sphere(radius=4), cuboid([3, 3, 3])]), Bosl2Solid
+        M.chain_hull([cuboid([5, 5, 5]), sphere(radius=4), cuboid([3, 3, 3])]),
+        Bosl2Solid,
     )
     # single object passes through
     assert isinstance(M.chain_hull(cuboid([5, 5, 5])), Bosl2Solid)

@@ -101,7 +101,7 @@ def test_catenary_requires_exactly_one_of_droop_angle():
 
 
 def test_helix_returns_path3d():
-    height=helix(turns=2, height=40, radius=10)
+    height = helix(turns=2, height=40, radius=10)
     assert isinstance(height, Path3D)  # the 3-D path object
     assert not isinstance(height, Path)
     assert len(height[0]) == 3
@@ -115,8 +115,10 @@ def test_helix_needs_exactly_two_params():
 
 
 def test_helix_flat_spiral():
-    height=helix(height=0, radius1=50, radius2=25, length=0, turns=4)
-    assert all(math.isclose(p[2], 0, abs_tol=1e-9) for p in height)  # flat: every z is 0
+    height = helix(height=0, radius1=50, radius2=25, length=0, turns=4)
+    assert all(
+        math.isclose(p[2], 0, abs_tol=1e-9) for p in height
+    )  # flat: every z is 0
 
 
 # -- turtle -------------------------------------------------------------------------------

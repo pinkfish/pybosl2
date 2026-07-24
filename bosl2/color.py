@@ -198,11 +198,15 @@ class Colorable:
             return self
         return self._color_native(c, alpha)
 
-    def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None):
+    def hsl(
+        self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None
+    ):
         """Colour this object from an HSL hue/saturation/lightness (BOSL2 hsl())."""
         return self._color_native(hsl(height, s, length), a)
 
-    def hsv(self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None):
+    def hsv(
+        self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None
+    ):
         """Colour this object from an HSV hue/saturation/value (BOSL2 hsv())."""
         return self._color_native(hsv(height, s, v), a)
 

@@ -158,7 +158,12 @@ class BallBearings:
         """
         if trade_size is not None:
             spec = BallBearings.ball_bearing_info(trade_size)
-            inner_diameter, outer_diameter, width, shield = spec.inner_diameter, spec.outer_diameter, spec.width, spec.shielded
+            inner_diameter, outer_diameter, width, shield = (
+                spec.inner_diameter,
+                spec.outer_diameter,
+                spec.width,
+                spec.shielded,
+            )
         assert None not in (inner_diameter, outer_diameter, width), (
             "ball_bearing(): give a trade_size or inner_diameter/outer_diameter/width."
         )
@@ -169,11 +174,17 @@ class BallBearings:
             result = (
                 tube(inner_diameter=inner_diameter, wall=wall, height=width)
                 | tube(outer_diameter=outer_diameter, wall=wall, height=width)
-                | tube(inner_diameter=inner_diameter + 0.1, outer_diameter=outer_diameter - 0.1, height=(wall * 2 + width) / 2)
+                | tube(
+                    inner_diameter=inner_diameter + 0.1,
+                    outer_diameter=outer_diameter - 0.1,
+                    height=(wall * 2 + width) / 2,
+                )
             )
         else:
             ball_cnt = int(math.floor(math.pi * mid_d * 0.95 / (wall * 2)))
-            races = tube(inner_diameter=inner_diameter, wall=wall, height=width) | tube(outer_diameter=outer_diameter, wall=wall, height=width)
+            races = tube(inner_diameter=inner_diameter, wall=wall, height=width) | tube(
+                outer_diameter=outer_diameter, wall=wall, height=width
+            )
             races = races - torus(major_radius=mid_d / 2, minor_radius=wall)
             balls = reduce(
                 operator.or_,

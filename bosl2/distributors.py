@@ -152,7 +152,6 @@ def move_copies(a=([0, 0, 0],)) -> list[np.ndarray]:
     """One translation matrix per offset in *a* (BOSL2 move_copies())."""
     return [translate4(pos) for pos in a]
 
-
     """Translation matrices evenly spread along a line (BOSL2 line_copies())."""
     if length is not None:
         ll = _scalar_vec3(length, 0.0)
@@ -220,7 +219,13 @@ def zcopies(spacing=None, sides=None, length=None, sp=None) -> list[np.ndarray]:
 
 
 def grid_copies(
-    spacing=None, sides=None, size=None, stagger=False, inside=None, nonzero=None, axes="xy"
+    spacing=None,
+    sides=None,
+    size=None,
+    stagger=False,
+    inside=None,
+    nonzero=None,
+    axes="xy",
 ) -> list[np.ndarray]:
     """Copies laid out in a square or staggered (hex) grid (BOSL2 grid_copies())."""
     assert stagger in (False, True, "alt"), (
@@ -349,52 +354,106 @@ def rot_copies(
 
 
 def xrot_copies(
-    rots=None, center=(0, 0, 0), sides=None, sa=0, radius=None, diameter=None, subrot=True
+    rots=None,
+    center=(0, 0, 0),
+    sides=None,
+    sa=0,
+    radius=None,
+    diameter=None,
+    subrot=True,
 ) -> list[np.ndarray]:
     """Rotated copies around the X axis, optionally into a ring of radius *radius* (BOSL2 xrot_copies())."""
     rr = _radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
-        rots=rots, v=RIGHT, center=center, sides=sides, sa=sa, delta=[0, rr, 0], subrot=subrot
+        rots=rots,
+        v=RIGHT,
+        center=center,
+        sides=sides,
+        sa=sa,
+        delta=[0, rr, 0],
+        subrot=subrot,
     )
 
 
 def yrot_copies(
-    rots=None, center=(0, 0, 0), sides=None, sa=0, radius=None, diameter=None, subrot=True
+    rots=None,
+    center=(0, 0, 0),
+    sides=None,
+    sa=0,
+    radius=None,
+    diameter=None,
+    subrot=True,
 ) -> list[np.ndarray]:
     """Rotated copies around the Y axis, optionally into a ring of radius *radius* (BOSL2 yrot_copies())."""
     rr = _radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
-        rots=rots, v=BACK, center=center, sides=sides, sa=sa, delta=[-rr, 0, 0], subrot=subrot
+        rots=rots,
+        v=BACK,
+        center=center,
+        sides=sides,
+        sa=sa,
+        delta=[-rr, 0, 0],
+        subrot=subrot,
     )
 
 
 def zrot_copies(
-    rots=None, center=(0, 0, 0), sides=None, sa=0, radius=None, diameter=None, subrot=True
+    rots=None,
+    center=(0, 0, 0),
+    sides=None,
+    sa=0,
+    radius=None,
+    diameter=None,
+    subrot=True,
 ) -> list[np.ndarray]:
     """Rotated copies around the Z axis, optionally into a ring of radius *radius* (BOSL2 zrot_copies())."""
     rr = _radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
-        rots=rots, v=UP, center=center, sides=sides, sa=sa, delta=[rr, 0, 0], subrot=subrot
+        rots=rots,
+        v=UP,
+        center=center,
+        sides=sides,
+        sa=sa,
+        delta=[rr, 0, 0],
+        subrot=subrot,
     )
 
 
 def arc_copies(
-    sides=6, radius=None, radius_x=None, radius_y=None, diameter=None, diameter_x=None, diameter_y=None, sa=0, ea=360, rot=True
+    sides=6,
+    radius=None,
+    radius_x=None,
+    radius_y=None,
+    diameter=None,
+    diameter_x=None,
+    diameter_y=None,
+    sa=0,
+    ea=360,
+    rot=True,
 ) -> list[np.ndarray]:
     """Copies spread along an (elliptical) arc in the XY plane (BOSL2 arc_copies())."""
-    rxv = _radius(radius1=radius_x, radius=radius, diameter1=diameter_x, diameter=diameter, dflt=1)
-    ryv = _radius(radius1=radius_y, radius=radius, diameter1=diameter_y, diameter=diameter, dflt=1)
+    rxv = _radius(
+        radius1=radius_x, radius=radius, diameter1=diameter_x, diameter=diameter, dflt=1
+    )
+    ryv = _radius(
+        radius1=radius_y, radius=radius, diameter1=diameter_y, diameter=diameter, dflt=1
+    )
     sa, ea = sa % 360, ea % 360
     extra_n = 1 if abs(ea - sa) < 0.01 else 0
     delt = ((360.0 if ea <= sa else 0) + ea - sa) / (sides - 1 + extra_n)
     mats = []
     for i in range(sides):
         angle = sa + i * delt
-        pos = [rxv * math.cos(math.radians(angle)), ryv * math.sin(math.radians(angle)), 0]
+        pos = [
+            rxv * math.cos(math.radians(angle)),
+            ryv * math.sin(math.radians(angle)),
+            0,
+        ]
         ang2 = (
             math.degrees(
                 math.atan2(
-                    ryv * math.sin(math.radians(angle)), rxv * math.cos(math.radians(angle))
+                    ryv * math.sin(math.radians(angle)),
+                    rxv * math.cos(math.radians(angle)),
                 )
             )
             if rot
@@ -423,7 +482,13 @@ def sphere_copies(
 
 
 def path_copies(
-    path, sides=None, spacing=None, sp=None, dist=None, rotate_children=True, closed=None
+    path,
+    sides=None,
+    spacing=None,
+    sp=None,
+    dist=None,
+    rotate_children=True,
+    closed=None,
 ) -> list[np.ndarray]:
     """Copies placed along *path*, oriented to it (BOSL2 path_copies())."""
     from bosl2.paths import Path
@@ -569,25 +634,54 @@ class Distributable:
         subrot=True,
     ):
         """Rotated copies about an axis (optionally into a ring via *delta*)."""
-        return self._distribute(rot_copies(rots, v, center, sides, sa, offset, delta, subrot))
+        return self._distribute(
+            rot_copies(rots, v, center, sides, sa, offset, delta, subrot)
+        )
 
     def xrot_copies(
-        self, rots=None, center=(0, 0, 0), sides=None, sa=0, radius=None, diameter=None, subrot=True
+        self,
+        rots=None,
+        center=(0, 0, 0),
+        sides=None,
+        sa=0,
+        radius=None,
+        diameter=None,
+        subrot=True,
     ):
         """Rotated copies around the X axis."""
-        return self._distribute(xrot_copies(rots, center, sides, sa, radius, diameter, subrot))
+        return self._distribute(
+            xrot_copies(rots, center, sides, sa, radius, diameter, subrot)
+        )
 
     def yrot_copies(
-        self, rots=None, center=(0, 0, 0), sides=None, sa=0, radius=None, diameter=None, subrot=True
+        self,
+        rots=None,
+        center=(0, 0, 0),
+        sides=None,
+        sa=0,
+        radius=None,
+        diameter=None,
+        subrot=True,
     ):
         """Rotated copies around the Y axis."""
-        return self._distribute(yrot_copies(rots, center, sides, sa, radius, diameter, subrot))
+        return self._distribute(
+            yrot_copies(rots, center, sides, sa, radius, diameter, subrot)
+        )
 
     def zrot_copies(
-        self, rots=None, center=(0, 0, 0), sides=None, sa=0, radius=None, diameter=None, subrot=True
+        self,
+        rots=None,
+        center=(0, 0, 0),
+        sides=None,
+        sa=0,
+        radius=None,
+        diameter=None,
+        subrot=True,
     ):
         """Rotated copies around the Z axis."""
-        return self._distribute(zrot_copies(rots, center, sides, sa, radius, diameter, subrot))
+        return self._distribute(
+            zrot_copies(rots, center, sides, sa, radius, diameter, subrot)
+        )
 
     def arc_copies(
         self,
@@ -603,13 +697,23 @@ class Distributable:
         rot=True,
     ):
         """Copies spread along an (elliptical) arc in the XY plane."""
-        return self._distribute(arc_copies(sides, radius, rx, ry, diameter, dx, dy, sa, ea, rot))
+        return self._distribute(
+            arc_copies(sides, radius, rx, ry, diameter, dx, dy, sa, ea, rot)
+        )
 
     def sphere_copies(
-        self, sides=100, radius=None, diameter=None, cone_ang=90, scale=(1, 1, 1), perp=True
+        self,
+        sides=100,
+        radius=None,
+        diameter=None,
+        cone_ang=90,
+        scale=(1, 1, 1),
+        perp=True,
     ):
         """Copies spread over a sphere/ellipsoid surface."""
-        return self._distribute(sphere_copies(sides, radius, diameter, cone_ang, scale, perp))
+        return self._distribute(
+            sphere_copies(sides, radius, diameter, cone_ang, scale, perp)
+        )
 
     def path_copies(
         self,

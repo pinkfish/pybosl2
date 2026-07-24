@@ -186,7 +186,9 @@ def round_corners(
         )
         if v is not None
     ]
-    assert len(given) == 1, "Must give exactly one of radius, radius, cut, joint or width."
+    assert len(given) == 1, (
+        "Must give exactly one of radius, radius, cut, joint or width."
+    )
     measure, size = given[0]
     pts = [[float(c) for c in p] for p in path]
     sides = len(pts)
@@ -262,7 +264,11 @@ def round_corners(
                 dk.append([cr / math.tan(ar), cr])
 
     lengths = [
-        float(np.linalg.norm(np.asarray(pts[i % sides]) - np.asarray(pts[(i - 1) % sides])))
+        float(
+            np.linalg.norm(
+                np.asarray(pts[i % sides]) - np.asarray(pts[(i - 1) % sides])
+            )
+        )
         for i in range(sides + 1)
     ]
     scale = []

@@ -222,7 +222,9 @@ def _nut_solid(
     if pitch == 0:
         from bosl2.shapes3d import cyl
 
-        return body - cyl(height=h + 2, radius=idia / 2 + slop, _fn=_fn, _fa=_fa, _fs=_fs)
+        return body - cyl(
+            height=h + 2, radius=idia / 2 + slop, _fn=_fn, _fa=_fa, _fs=_fs
+        )
     depth_abs = _profile_depth_abs(profile, pitch)
     tap = _rod_solid(
         idia + 2 * depth_abs + 2 * slop,
@@ -563,7 +565,11 @@ class Threading:
             sec = [[x, y + k * pitch] for x, y in section]
             piece = Bosl2Solid(
                 spiral_sweep(
-                    sec, height=height, radius=radius, turns=turns * (-1 if left_handed else 1), center=True
+                    sec,
+                    height=height,
+                    radius=radius,
+                    turns=turns * (-1 if left_handed else 1),
+                    center=True,
                 ).polyhedron()
             )
             if starts > 1:

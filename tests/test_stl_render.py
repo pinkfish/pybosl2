@@ -427,7 +427,9 @@ def test_stroke_2d_closed_square(tmp_path):
 
 def test_stroke_3d_helix_tube(tmp_path):
     m = _render(
-        tmp_path, "stroke(helix(turns=2, height=40, radius=15), width=4)", name="stroke3d"
+        tmp_path,
+        "stroke(helix(turns=2, height=40, radius=15), width=4)",
+        name="stroke3d",
     )
     assert m.ntris > 0
     assert m.volume > 0
@@ -567,14 +569,18 @@ def test_grid_copies_span_and_volume(tmp_path):
 
 
 def test_line_copies_volume(tmp_path):
-    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).xcopies(20, sides=4)", name="linecopies")
+    m = _render(
+        tmp_path, "s3.cuboid([6, 6, 6]).xcopies(20, sides=4)", name="linecopies"
+    )
     assert math.isclose(m.volume, 4 * 6**3, rel_tol=1e-3)
     np.testing.assert_allclose(m.size[0], 3 * 20 + 6, atol=0.5)  # span of 4 copies
 
 
 def test_zrot_copies_ring(tmp_path):
     # 6 cubes in a ring of radius 30 -> spread across a ~60mm-diameter footprint in X and Y
-    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)", name="ring")
+    m = _render(
+        tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)", name="ring"
+    )
     assert m.volume > 5 * 6**3  # roughly 6 cubes (minus any tiny overlap)
     assert 55 < m.size[0] < 70 and 55 < m.size[1] < 70
     assert math.isclose(m.size[2], 6.0, abs_tol=0.2)  # ring stays flat in Z
@@ -828,7 +834,9 @@ def test_extrude_from_to_diagonal_with_twist(tmp_path):
 
 def test_bounding_box_wraps_object(tmp_path):
     m = _render(tmp_path, "s3.sphere(radius=15).bounding_box(excess=2)", name="bbox")
-    np.testing.assert_allclose(m.size, [34, 34, 34], atol=0.4)  # diameter=30 + 2*2 excess
+    np.testing.assert_allclose(
+        m.size, [34, 34, 34], atol=0.4
+    )  # diameter=30 + 2*2 excess
     assert m.watertight
 
 

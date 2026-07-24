@@ -41,6 +41,7 @@ sys.path.insert(0, str(_DOCS_DIR / "_ext"))
 _have_pythonscad = False
 try:
     import pythonscad  # noqa: F401
+
     _have_pythonscad = True
 except ImportError:
     pass

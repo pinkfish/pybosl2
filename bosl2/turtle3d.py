@@ -247,7 +247,9 @@ def _command(command, parm, parm2, state, index):
         v = {"xmove": [1, 0, 0], "ymove": [0, 1, 0], "zmove": [0, 0, 1]}[command]
         diameter = (p if p is not None else 1) * step
         return _tupdate(
-            state, [_trans4([v[0] * diameter, v[1] * diameter, v[2] * diameter]) @ lastT], [lastPre]
+            state,
+            [_trans4([v[0] * diameter, v[1] * diameter, v[2] * diameter]) @ lastT],
+            [lastPre],
         )
     if command == "xyzmove":
         return _tupdate(state, [_trans4(parm) @ lastT], [lastPre])

@@ -73,7 +73,10 @@ class LinearBearings:
 
     @staticmethod
     def linear_bearing(
-        length: float = 24, outer_diameter: float = 15, inner_diameter: float = 8, color: str | None = "silver"
+        length: float = 24,
+        outer_diameter: float = 15,
+        inner_diameter: float = 8,
+        color: str | None = "silver",
     ) -> Bosl2Solid:
         """A generic linear ball-bearing cartridge, bore *inner_diameter* / outer *outer_diameter* / length *length* (BOSL2 linear_bearing()).
 
@@ -87,10 +90,26 @@ class LinearBearings:
         """
         body = _union(
             [
-                tube(inner_diameter=inner_diameter, outer_diameter=outer_diameter, height=length - 1),
-                tube(inner_diameter=outer_diameter - 1, outer_diameter=outer_diameter, height=length),
-                tube(inner_diameter=inner_diameter, outer_diameter=inner_diameter + 1, height=length),
-                tube(inner_diameter=inner_diameter + 2, outer_diameter=outer_diameter - 2, height=length),
+                tube(
+                    inner_diameter=inner_diameter,
+                    outer_diameter=outer_diameter,
+                    height=length - 1,
+                ),
+                tube(
+                    inner_diameter=outer_diameter - 1,
+                    outer_diameter=outer_diameter,
+                    height=length,
+                ),
+                tube(
+                    inner_diameter=inner_diameter,
+                    outer_diameter=inner_diameter + 1,
+                    height=length,
+                ),
+                tube(
+                    inner_diameter=inner_diameter + 2,
+                    outer_diameter=outer_diameter - 2,
+                    height=length,
+                ),
             ]
         )
         result = Bosl2Solid(body.shape, size=[outer_diameter, outer_diameter, length])
@@ -127,14 +146,18 @@ class LinearBearings:
         # teardrop bearing shell + base + clamp tabs, then the bore, split gap and screw hole removed.
         body = _union(
             [
-                teardrop(diameter=od, height=length).rotate([0, 90, 0]),  # teardrop shell, axis along X
+                teardrop(diameter=od, height=length).rotate(
+                    [0, 90, 0]
+                ),  # teardrop shell, axis along X
                 cuboid([length, od, od / 2]).down(od / 4),  # base
                 cuboid([length, ogap, od / 2 + tab / 2]).up(
                     (od / 2 + tab / 2) / 2
                 ),  # clamp tabs
             ]
         )
-        body = body - teardrop(diameter=diameter, height=length + 0.1).rotate([0, 90, 0])  # bearing bore
+        body = body - teardrop(diameter=diameter, height=length + 0.1).rotate(
+            [0, 90, 0]
+        )  # bearing bore
         body = body - cuboid([length + 0.1, gap, od])  # split gap
         # clamp screw across the tabs (a simple clearance hole)
         from bosl2.screws import Screws

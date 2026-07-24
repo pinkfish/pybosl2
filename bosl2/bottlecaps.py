@@ -320,13 +320,19 @@ def _neck_thread(diameter: "BottleThreadSpec"):
         flank_angle=diameter.flank_angle,
         turns=turns,
     )
-    thread = thread.down(turns * diameter.thread_pitch / 2)  # BOSL2 anchor=TOP: top at z=0
+    thread = thread.down(
+        turns * diameter.thread_pitch / 2
+    )  # BOSL2 anchor=TOP: top at z=0
     top = 1.82 + 2 * math.sin(math.radians(29)) * thread_h
     cuts = []
     for m_out in zrot_copies(rots=[90, 270]):
         for m_in in zrot_copies(rots=[-28, 28], radius=diameter.threadbase_d / 2):
             block = prismoid(
-                [20, 1.82], [20, top], height=thread_h + 0.1, anchor=BOTTOM, orient=RIGHT
+                [20, 1.82],
+                [20, top],
+                height=thread_h + 0.1,
+                anchor=BOTTOM,
+                orient=RIGHT,
             )
             cuts.append(block.multmatrix((m_out @ m_in).tolist()))
     return thread - union(cuts)
@@ -342,7 +348,9 @@ def _build_neck(diameter: "BottleThreadSpec", profile, bottom_half: bool):
     if bottom_half:
         thread = thread.bottom_half()
     thread = thread.up(height - diameter.lip_h)
-    return Bosl2Solid((body | thread).shape, size=[diameter.support_d, diameter.support_d, height])
+    return Bosl2Solid(
+        (body | thread).shape, size=[diameter.support_d, diameter.support_d, height]
+    )
 
 
 def _build_cap(diameter: "BottleThreadSpec", wall: float, texture: str):

@@ -75,7 +75,10 @@ def _tex_trunc_ribs(sides=None, **_):
 def _tex_wave_ribs(sides=None, **_):
     sides = max(6, int(sides if sides is not None else 8))
     return [
-        [(math.cos(math.radians(a)) + 1) / 2 for a in np.arange(0, 360 - 1e-9, 360 / sides)]
+        [
+            (math.cos(math.radians(a)) + 1) / 2
+            for a in np.arange(0, 360 - 1e-9, 360 / sides)
+        ]
     ]
 
 
@@ -83,14 +86,18 @@ def _tex_diamonds(sides=None, **_):
     sides = _quantup(sides if sides is not None else 2, 2)
     path = _lerpn(0, 1, sides // 2, False) + _lerpn(1, 0, sides // 2, False)
     return [
-        [min(_sel(path, i + j), _sel(path, i - j)) for j in range(sides)] for i in range(sides)
+        [min(_sel(path, i + j), _sel(path, i - j)) for j in range(sides)]
+        for i in range(sides)
     ]
 
 
 def _tex_pyramids(sides=None, **_):
     sides = _quantup(sides if sides is not None else 2, 2)
     return [
-        [1 - (max(abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2)) for j in range(sides)]
+        [
+            1 - (max(abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2))
+            for j in range(sides)
+        ]
         for i in range(sides)
     ]
 
@@ -99,7 +106,8 @@ def _tex_trunc_pyramids(sides=None, **_):
     sides = _quantup(sides if sides is not None else 6, 3)
     return [
         [
-            (1 - (max(sides / 6, abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2))) * 1.5
+            (1 - (max(sides / 6, abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2)))
+            * 1.5
             for j in range(sides)
         ]
         for i in range(sides)
@@ -486,7 +494,9 @@ def _tex_cones_vnf(fn=None, border=None, **_):
     assert 0 < b < 0.5, "this port's cones texture requires border in (0, 0.5)."
     rim = [[0.5 + x, 0.5 + y, 0.0] for x, y in _circle_xy(1 - 2 * b, sides)]
     verts = rim + [[0.5, 0.5, 1.0]] + [[x, y, 0.0] for x, y in _square_pts(b)]
-    faces = [[i, (i + 1) % sides, sides] for i in range(sides)] + _base_faces(sides, sides + 1, b)
+    faces = [[i, (i + 1) % sides, sides] for i in range(sides)] + _base_faces(
+        sides, sides + 1, b
+    )
     return verts, faces
 
 
@@ -519,7 +529,9 @@ def _tex_dots_vnf(fn=None, border=None, **_):
                 ]
             )
     for i in range(sides):
-        faces.append([(rows - 1) * sides + i, (rows - 1) * sides + (i + 1) % sides, rows * sides])
+        faces.append(
+            [(rows - 1) * sides + i, (rows - 1) * sides + (i + 1) % sides, rows * sides]
+        )
     faces += _base_faces(sides, rows * sides + 1, b)
     return verts, faces
 
@@ -627,7 +639,9 @@ TEXTURES = {
 }
 
 
-def texture(tex, sides=None, border=None, gap=None, roughness=None, inset=None, fn=None):
+def texture(
+    tex, sides=None, border=None, gap=None, roughness=None, inset=None, fn=None
+):
     """The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
     *sides* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile

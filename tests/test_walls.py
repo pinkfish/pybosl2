@@ -38,7 +38,8 @@ def test_sparse_wall_outer_dims():
 def test_sparse_wall_variants_build():
     assert isinstance(W.sparse_wall(height=40, length=60, thick=3, strut=2), Bosl2Solid)
     assert isinstance(
-        W.sparse_wall(height=50, length=100, thick=4, maxang=45, max_bridge=30), Bosl2Solid
+        W.sparse_wall(height=50, length=100, thick=4, maxang=45, max_bridge=30),
+        Bosl2Solid,
     )
 
 

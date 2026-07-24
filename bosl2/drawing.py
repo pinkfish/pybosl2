@@ -75,7 +75,10 @@ def _rot_pts(deg: float, pts):
 
 
 def catenary(
-    width: float, droop: float | None = None, sides: int = 100, angle: float | None = None
+    width: float,
+    droop: float | None = None,
+    sides: int = 100,
+    angle: float | None = None,
 ) -> Path:
     """The catenary (hanging-chain) curve of the given *width*, as a :class:`~bosl2.paths.Path`.
 
@@ -101,7 +104,9 @@ def catenary(
         "catenary() needs exactly one of droop= or angle="
     )
     assert width > 0, "catenary() needs width > 0."
-    assert isinstance(sides, int) and sides > 0, "catenary() needs a positive integer sides."
+    assert isinstance(sides, int) and sides > 0, (
+        "catenary() needs a positive integer sides."
+    )
     given = droop if droop is not None else angle
     assert given is not None
     sgn = int(math.copysign(1, given))
@@ -670,7 +675,11 @@ def _stroke3d(pts, width, closed, endcap1, endcap2):
         length = float(np.linalg.norm(diameter))
         if length < 1e-9:
             continue
-        seg = _oriented_to(_cyl(height=length, radius=radius).translate([0, 0, length / 2]), diameter, a)
+        seg = _oriented_to(
+            _cyl(height=length, radius=radius).translate([0, 0, length / 2]),
+            diameter,
+            a,
+        )
         shapes.append(seg)
     for i in range(sides) if closed else range(1, sides - 1):
         shapes.append(_sphere(radius=radius).translate([float(c) for c in pts[i]]))

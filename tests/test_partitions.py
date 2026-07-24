@@ -100,16 +100,21 @@ def test_partition_cutpath_repeats_to_length():
 
 
 def test_partition_mask_builds():
-    assert isinstance(partition_mask(length=60, w=30, height=20, cutpath="dovetail"), Bosl2Solid)
     assert isinstance(
-        partition_mask(length=60, w=30, height=20, cutpath="jigsaw", inverse=True, _fn=12),
+        partition_mask(length=60, w=30, height=20, cutpath="dovetail"), Bosl2Solid
+    )
+    assert isinstance(
+        partition_mask(
+            length=60, w=30, height=20, cutpath="jigsaw", inverse=True, _fn=12
+        ),
         Bosl2Solid,
     )
 
 
 def test_partition_cut_mask_builds():
     assert isinstance(
-        partition_cut_mask(length=60, height=20, cutpath="dovetail", slop=0.2), Bosl2Solid
+        partition_cut_mask(length=60, height=20, cutpath="dovetail", slop=0.2),
+        Bosl2Solid,
     )
 
 

@@ -214,7 +214,9 @@ class Bezier(list):
         """The *u* values where this 2-D curve crosses *line* (two points), each in [0, 1]."""
         a = Bezier._matrix(len(self) - 1) @ self.array  # bezier algebraic coefficients
         line = np.asarray(line, dtype=float)
-        sides = np.array([-line[1][1] + line[0][1], line[1][0] - line[0][0]])  # line normal
+        sides = np.array(
+            [-line[1][1] + line[0][1], line[1][0] - line[0][0]]
+        )  # line normal
         deg = len(a) - 1
         coeffs = [float(a[i] @ sides) for i in range(deg, 0, -1)] + [
             float((a[0] - line[0]) @ sides)
@@ -515,7 +517,11 @@ class Bezier(list):
 
     @staticmethod
     def tang(
-        pt, a, radius1: float | None = None, radius2: float | None = None, p: float | None = None
+        pt,
+        a,
+        radius1: float | None = None,
+        radius2: float | None = None,
+        p: float | None = None,
     ) -> np.ndarray:
         """A smooth joint (approaching cp, fixed point, departing cp) -- the two cps collinear with
         the fixed point -- in a cubic bezier path, as a (3, dim) ndarray."""
@@ -590,7 +596,11 @@ class Bezier(list):
         m = np.zeros((sides + 1, sides + 1))
         for i in range(sides + 1):
             for j in range(i + 1):
-                m[i][j] = math.comb(sides, j) * math.comb(sides - j, i - j) * ((-1) ** (i - j))
+                m[i][j] = (
+                    math.comb(sides, j)
+                    * math.comb(sides - j, i - j)
+                    * ((-1) ** (i - j))
+                )
         return m
 
     @staticmethod
@@ -991,7 +1001,10 @@ def _debug_tube(points, radius: float, sides: int = 8):
     from bosl2.skin import path_sweep
 
     circ = [
-        [radius * math.cos(2 * math.pi * k / sides), radius * math.sin(2 * math.pi * k / sides)]
+        [
+            radius * math.cos(2 * math.pi * k / sides),
+            radius * math.sin(2 * math.pi * k / sides),
+        ]
         for k in range(sides)
     ]
     pts = [list(p) for p in points]

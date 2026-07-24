@@ -75,7 +75,11 @@ class Sliders:
         bev_h = height / 2 * math.tan(math.radians(angle))
         for m in xflip_copy(offset=w / 2 + slop + 0.02):
             slid = prismoid(
-                [height, length], [0, length - w], height=bev_h + 0.01, orient=LEFT, anchor=BOTTOM
+                [height, length],
+                [0, length - w],
+                height=bev_h + 0.01,
+                orient=LEFT,
+                anchor=BOTTOM,
             )
             parts.append(slid.up(base + height / 2).multmatrix(m.tolist()))
         result = _union(parts).down(base + height / 2).rotate([0, 0, 90])
