@@ -24,11 +24,18 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
 import random
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
+from pythonscad import (
+    circle as _ocircle,
+)
+from pythonscad import (
+    polygon as _opolygon,
+)
 
 # Imported explicitly (rather than `from pythonscad import *`) so editors/type-checkers
 # can resolve these names -- this module immediately shadows all five with its own
@@ -36,19 +43,18 @@ import numpy as np
 # captured under private names first.
 from pythonscad import (
     square as _osquare,
-    circle as _ocircle,
-    polygon as _opolygon,
+)
+from pythonscad import (
     text as _otext,
 )
-from typing import TYPE_CHECKING, overload
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
-from .constants import *
-from bosl2.vectors import unit
 from bosl2.geometry import is_collinear
 from bosl2.paths import Path
+from bosl2.vectors import unit
 
+from .constants import *
 
 # ---------------------------------------------------------------------------
 # Internal helpers (not part of BOSL2's public API)
@@ -61,7 +67,10 @@ def _frag_count(
     fa: float | None = None,
     fs: float | None = None,
 ) -> int:
-    """Number of polygon segments to approximate a circle of radius *radius*, mirroring OpenSCAD's $fn/$fa/$fs rules."""
+    """
+        Number of polygon segments to approximate a circle of radius *radius*, mirroring OpenSCAD's
+        $fn/$fa/$fs rules.
+    """
     if fn is not None and fn >= 3:
         return int(math.floor(fn))
     fa = fa if fa else 12.0
@@ -96,7 +105,10 @@ def _arc_points(
     center: Sequence[float] = (0.0, 0.0),
     endpoint: bool = True,
 ) -> list[list[float]]:
-    """*count* points along an arc of radius *radius* centered at *center*, from angle *start* sweeping *angle* degrees."""
+    """
+        *count* points along an arc of radius *radius* centered at *center*, from angle *start*
+        sweeping *angle* degrees.
+    """
     if not endpoint:
         return _arc_points(count + 1, radius, start, angle, center, True)[:-1]
     if count <= 1:
@@ -146,7 +158,10 @@ def _arc_through_3(
     fa=None,
     fs=None,
 ) -> list[list[float]]:
-    """Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be the long way around)."""
+    """
+        Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be
+        the long way around).
+    """
     a0 = math.degrees(
         math.atan2(point_start[1] - center[1], point_start[0] - center[0])
     )
@@ -189,7 +204,10 @@ def _pick_radius(
     diameter=None,
     dflt=None,
 ):
-    """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) > dflt."""
+    """
+        Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) >
+        dflt.
+    """
     if radius1 is not None:
         return radius1
     if diameter1 is not None:
@@ -1621,7 +1639,10 @@ def _linearize_squareness(squareness: float) -> float:
 
 
 def squircle_radius_fg(squareness: float, radius: float, angle: float) -> float:
-    """The Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size *radius*."""
+    """
+        The Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size
+        *radius*.
+    """
     s2a = abs(squareness * math.sin(math.radians(2 * angle)))
     return (
         radius * math.sqrt(2) / s2a * math.sqrt(1 - math.sqrt(1 - s2a * s2a))

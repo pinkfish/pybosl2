@@ -28,7 +28,7 @@ import math
 
 import numpy as np
 
-from bosl2._mctable import TRI_TABLE, EDGE_CORNERS, CORNER_OFFSETS
+from bosl2._mctable import CORNER_OFFSETS, EDGE_CORNERS, TRI_TABLE
 
 __all__ = [
     "isosurface",
@@ -355,7 +355,9 @@ def mb_torus(
     major_diameter=None,
     minor_diameter=None,
 ):
-    """A torus metaball field, major radius *major_radius*, tube radius *r_min* (BOSL2 mb_torus())."""
+    """
+        A torus metaball field, major radius *major_radius*, tube radius *r_min* (BOSL2 mb_torus()).
+    """
     rmaj, rmin = (
         _radius(major_radius, major_diameter),
         _radius(minor_radius, minor_diameter),
@@ -376,7 +378,10 @@ def mb_torus(
 def mb_capsule(
     height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None
 ):
-    """A capsule (round-ended cylinder) metaball field, total length *height*, radius *radius* (BOSL2 mb_capsule())."""
+    """
+        A capsule (round-ended cylinder) metaball field, total length *height*, radius *radius*
+        (BOSL2 mb_capsule()).
+    """
     rr = _radius(radius, diameter)
     assert height and rr and height > 0 and rr > 0, (
         "mb_capsule(): need positive height and radius."
@@ -400,7 +405,10 @@ def mb_capsule(
 def mb_disk(
     height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None
 ):
-    """A rounded-edge disk metaball field, thickness *height*, outer radius *radius* (BOSL2 mb_disk())."""
+    """
+        A rounded-edge disk metaball field, thickness *height*, outer radius *radius* (BOSL2
+        mb_disk()).
+    """
     rr = _radius(radius, diameter)
     assert height and rr and height > 0 and rr > 0, (
         "mb_disk(): need positive height and radius."
@@ -452,8 +460,11 @@ def mb_octahedron(size, squareness=0.5, cutoff=INF, influence=1, negative=False)
 def mb_connector(
     p1, p2, radius=None, cutoff=INF, influence=1, negative=False, diameter=None
 ):
-    """A capsule metaball field spanning from *p1* to *p2* with radius *radius* (BOSL2 mb_connector())."""
-    from bosl2.transforms import rot_from_to, axis_angle_matrix
+    """
+        A capsule metaball field spanning from *p1* to *p2* with radius *radius* (BOSL2
+        mb_connector()).
+    """
+    from bosl2.transforms import axis_angle_matrix, rot_from_to
 
     rr = _radius(radius, diameter)
     a, b = np.asarray(p1, dtype=float), np.asarray(p2, dtype=float)

@@ -13,7 +13,7 @@ axis-aligned bounding box, so Bosl2Solid's bbox-backed anchoring math is numeric
 import numpy as np
 import pytest
 
-from bosl2.constants import BACK, BOTTOM, CENTER, FRONT, LEFT, RIGHT, TOP
+from bosl2.constants import BOTTOM, CENTER, FRONT, RIGHT, TOP
 from bosl2.shapes3d import (
     Bosl2Solid,
     _anchor_offset_hull3,
@@ -217,10 +217,12 @@ def test_fillet_rejects_non_right_angle():
 def test_plot_revolution_taper_and_path():
     import math
 
-    f = lambda a, z: 2 * math.sin(math.radians(a))
+    def _f(a, z):
+        return 2 * math.sin(math.radians(a))
+
     assert isinstance(
         plot_revolution(
-            f,
+            _f,
             angle=list(range(0, 361, 20)),
             z=list(range(0, 21, 5)),
             radius1=10,
@@ -230,7 +232,7 @@ def test_plot_revolution_taper_and_path():
     )
     prof = [[10, 0], [8, 10], [10, 20]]
     assert isinstance(
-        plot_revolution(f, angle=list(range(0, 361, 20)), path=prof), Bosl2Solid
+        plot_revolution(_f, angle=list(range(0, 361, 20)), path=prof), Bosl2Solid
     )
 
 

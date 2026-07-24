@@ -27,22 +27,29 @@ import math
 from dataclasses import dataclass
 
 from pythonscad import (
-    polygon as _opolygon,
-    rotate_extrude as _orotate_extrude,
     hull as _ohull,
+)
+from pythonscad import (
+    polygon as _opolygon,
+)
+from pythonscad import (
+    rotate_extrude as _orotate_extrude,
 )
 
 from bosl2._helpers import union
-from bosl2.constants import INCH, BOTTOM
+from bosl2.constants import BOTTOM, INCH
 from bosl2.distributors import zrot_copies
-from bosl2.shapes2d import circle, hexagon, _frag_count
-from bosl2.shapes3d import Bosl2Solid, cyl, prismoid, _quantup
+from bosl2.shapes2d import _frag_count, circle, hexagon
+from bosl2.shapes3d import Bosl2Solid, _quantup, cyl, prismoid
 
 __all__ = ["ScrewDrive", "PhillipsSpec", "TorxSpec", "RobertsonSpec"]
 
 
 def _adj_ang_to_opp(adj: float, angle: float) -> float:
-    """The opposite side of a right triangle given the adjacent side and angle (BOSL2 adj_ang_to_opp)."""
+    """
+        The opposite side of a right triangle given the adjacent side and angle (BOSL2
+        adj_ang_to_opp).
+    """
     return adj * math.tan(math.radians(angle))
 
 
@@ -58,7 +65,9 @@ def _union(shapes):
 
 @dataclass(frozen=True)
 class PhillipsSpec:
-    """Phillips recess geometry for one bit size (ISO 4757). See :func:`ScrewDrive.phillips_mask`."""
+    """
+        Phillips recess geometry for one bit size (ISO 4757). See :func:`ScrewDrive.phillips_mask`.
+    """
 
     shaft: float  # shaft/outer diameter
     b: float  # cutout wing spacing radius
@@ -247,7 +256,10 @@ class ScrewDrive:
 
     @staticmethod
     def phillips_depth(size, diameter: float):
-        """Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None`` (BOSL2 phillips_depth())."""
+        """
+            Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``
+            (BOSL2 phillips_depth()).
+        """
         spec = _PHILLIPS[_phillips_num(size)]
         shaft, g = spec.shaft, spec.g
         h1 = _adj_ang_to_opp(g / 2, _PH_BOT_ANGLE)
@@ -257,7 +269,10 @@ class ScrewDrive:
 
     @staticmethod
     def phillips_diam(size, depth: float):
-        """Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2 phillips_diam())."""
+        """
+            Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2
+            phillips_diam()).
+        """
         spec = _PHILLIPS[_phillips_num(size)]
         shaft, g = spec.shaft, spec.g
         h1 = _adj_ang_to_opp(g / 2, _PH_BOT_ANGLE)
@@ -289,7 +304,10 @@ class ScrewDrive:
 
     @staticmethod
     def torx_info(size: int) -> TorxSpec:
-        """The :class:`TorxSpec` (od/id/depth/tip_rounding/inner_rounding) for a Torx *size* (BOSL2 torx_info())."""
+        """
+            The :class:`TorxSpec` (od/id/depth/tip_rounding/inner_rounding) for a Torx *size* (BOSL2
+            torx_info()).
+        """
         try:
             return _TORX[int(size)]
         except (KeyError, ValueError):

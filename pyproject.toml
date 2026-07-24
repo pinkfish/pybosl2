@@ -67,12 +67,10 @@ testpaths = ["tests"]
 [tool.ruff]
 # Target Python version
 target-version = "py311"
-# Line length limit
-line-length = 88
+line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
-line-length = 88
 
 [tool.ruff.format]
 # Use double quotes for strings

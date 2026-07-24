@@ -29,9 +29,9 @@ import math
 
 import numpy as np
 
+from bosl2._helpers import is_num
 from bosl2.comparisons import approx
 from bosl2.vectors import unit
-from bosl2._helpers import is_num
 
 __all__ = ["round_corners", "smooth_path", "Roundable"]
 
@@ -83,7 +83,9 @@ def _chamfcorner(points, parm):
 
 
 def _arc3d(center, start, end, n):
-    """*n* points along the short arc from *start* to *end* about *center* (slerp, any dimension)."""
+    """
+        *n* points along the short arc from *start* to *end* about *center* (slerp, any dimension).
+    """
     c = np.asarray(center, dtype=float)
     v0, v1 = np.asarray(start, dtype=float) - c, np.asarray(end, dtype=float) - c
     angle = math.acos(
@@ -106,7 +108,7 @@ def _arc3d(center, start, end, n):
 
 def _circlecorner(points, parm, fn=None, fa=None, fs=None):
     """A circular-arc corner (BOSL2 _circlecorner())."""
-    from bosl2.shapes2d import arc, _frag_count
+    from bosl2.shapes2d import _frag_count, arc
 
     angle = _vector_angle3(points[0], points[1], points[2]) / 2
     d, radius = float(parm[0]), float(parm[1])

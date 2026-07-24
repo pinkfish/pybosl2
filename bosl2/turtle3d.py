@@ -394,7 +394,9 @@ def _vec_angle(a, b):
 
 
 def _compute_spin(anchor_dir, spin_dir):
-    """The roll angle that aligns the turtle's "up" with *spin_dir* (BOSL2 _compute_spin(), 2-arg)."""
+    """
+        The roll angle that aligns the turtle's "up" with *spin_dir* (BOSL2 _compute_spin(), 2-arg).
+    """
     native = _rotpart(rot_from_to4(UP, anchor_dir))[:3, :3] @ np.asarray(BACK, float)
     ad, sd = np.asarray(anchor_dir, float), np.asarray(spin_dir, float)
     perp = sd - np.dot(sd, ad) * ad
@@ -617,7 +619,10 @@ class Turtle:
         self.state = _init_state(state)
 
     def run(self, commands, repeat=1) -> "Turtle":
-        """Execute *commands* (optionally *repeat* times), advancing this turtle's state. Returns self."""
+        """
+            Execute *commands* (optionally *repeat* times), advancing this turtle's state. Returns
+            self.
+        """
         self.state = _run(list(commands), self.state, repeat)
         return self
 
@@ -626,7 +631,10 @@ class Turtle:
         return _dedup([_apply(T, [0, 0, 0]) for T in self.state[_TR]])
 
     def transforms(self) -> list:
-        """The list of 4x4 transforms (position + orientation) for sweeping a profile along the path."""
+        """
+            The list of 4x4 transforms (position + orientation) for sweeping a profile along the
+            path.
+        """
         return [
             self.state[_TR][i] @ self.state[_PRE][i]
             for i in range(len(self.state[_TR]))

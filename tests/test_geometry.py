@@ -11,13 +11,13 @@ import math
 import numpy as np
 
 from bosl2.geometry import (
+    _is_point_on_segment,
     cross,
     general_line_intersection,
     is_collinear,
     line_closest_point,
     line_normal,
     pointlist_bounds,
-    _is_point_on_segment,
 )
 
 

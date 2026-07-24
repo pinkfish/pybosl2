@@ -22,20 +22,33 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 import math
 import numbers
+from collections.abc import Sequence
 
 import numpy as np
-
 from pythonscad import (
     cube as _ocube,
+)
+from pythonscad import (
     cylinder as _ocylinder_native,
-    sphere as _osphere_native,
-    polyhedron as _opolyhedron,
+)
+from pythonscad import (
     hull as _ohull,
+)
+from pythonscad import (
     minkowski as _ominkowski,
+)
+from pythonscad import (
+    polyhedron as _opolyhedron,
+)
+from pythonscad import (
     rotate_extrude as _orotate_extrude,
+)
+from pythonscad import (
+    sphere as _osphere_native,
+)
+from pythonscad import (
     textmetrics as _otextmetrics,
 )
 
@@ -82,20 +95,21 @@ def _osphere(radius=None, center=None, fn=None, fa=None, fs=None):
     return _osphere_native(**kw)
 
 
-from typing import Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
-from .constants import *
-from .shapes2d import _frag_count, _pick_radius, text as _text2d
-from bosl2.geometry import cross
-from bosl2.vectors import unit, is_vector
-from bosl2.paths import Path
-from bosl2.distributors import Distributable
 from bosl2.color import Colorable
-from bosl2.partitions import Partitionable
+from bosl2.distributors import Distributable
+from bosl2.geometry import cross
 from bosl2.miscellaneous import Miscellaneous
+from bosl2.partitions import Partitionable
+from bosl2.paths import Path
+from bosl2.vectors import is_vector, unit
 
+from .constants import *
+from .shapes2d import _frag_count, _pick_radius
+from .shapes2d import text as _text2d
 
 # ---------------------------------------------------------------------------
 # Section: Base class
@@ -2185,7 +2199,10 @@ def zcyl(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """A cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for argument details."""
+    """
+        A cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for
+        argument details.
+    """
     return cyl(
         height=height,
         radius=radius,
@@ -3808,8 +3825,10 @@ def textured_tile(
         is_vnf_texture,
         is_watertight_topology,
         rasterize_vnf_texture,
-        texture as _texture,
         vnf_tile_to_solid,
+    )
+    from bosl2.texture import (
+        texture as _texture,
     )
     from bosl2.vnf import VNF
 

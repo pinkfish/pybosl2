@@ -29,7 +29,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-from pythonscad import polygon as _opolygon, rotate_extrude as _orotate_extrude
+from pythonscad import polygon as _opolygon
+from pythonscad import rotate_extrude as _orotate_extrude
 
 from bosl2._helpers import union
 from bosl2.constants import BOTTOM, RIGHT

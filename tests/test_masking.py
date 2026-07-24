@@ -11,7 +11,7 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.masking import mask2d_roundover, chamfer_edge_mask
+from bosl2.masking import chamfer_edge_mask, mask2d_roundover
 from bosl2.shapes3d import Bosl2Solid
 
 

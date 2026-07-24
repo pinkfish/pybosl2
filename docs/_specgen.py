@@ -155,10 +155,7 @@ footer .r{margin-left:auto}
 
 
 def _svg(body, w=460, h=240, label=""):
-    return (
-        f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{label}" '
-        f'xmlns="http://www.w3.org/2000/svg">{body}</svg>'
-    )
+    return f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{label}" xmlns="http://www.w3.org/2000/svg">{body}</svg>'
 
 
 def gear_svg(teeth=20):
@@ -241,9 +238,7 @@ def linear_bearing_svg():
         f'<text x="{cx}" y="{yo1 + 22}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">shell &amp; ball tracks · runs on a rod</text>'
     )
-    return _svg(
-        body, label="Longitudinal cutaway of a linear ball bearing running on a rod."
-    )
+    return _svg(body, label="Longitudinal cutaway of a linear ball bearing running on a rod.")
 
 
 def truss_svg(cubes=3):
@@ -290,10 +285,7 @@ def dovetail_svg():
     cx = 230
     bw, tw = 118, 176  # base / top widths (flare)
     yb, yt = 168, 66  # base / top y
-    male = (
-        f"M {cx - bw / 2:.0f},{yb} L {cx + bw / 2:.0f},{yb} "
-        f"L {cx + tw / 2:.0f},{yt} L {cx - tw / 2:.0f},{yt} Z"
-    )
+    male = f"M {cx - bw / 2:.0f},{yb} L {cx + bw / 2:.0f},{yb} L {cx + tw / 2:.0f},{yt} L {cx - tw / 2:.0f},{yt} Z"
     body = (
         # female block with the socket removed, drawn as a surrounding outline
         f'<path d="M 46,{yt - 14} H 414 V 210 H 46 Z '
@@ -453,9 +445,7 @@ def poly_svg():
     cx, cy, s = 230, 112, 92
     P = [(cx + s * p[0], cy - s * p[1]) for p in R]
     body = ""
-    for i in sorted(
-        range(len(F)), key=lambda i: sum(R[v][2] for v in F[i])
-    ):  # far first
+    for i in sorted(range(len(F)), key=lambda i: sum(R[v][2] for v in F[i])):  # far first
         f = F[i]
         depth = sum(R[v][2] for v in f) / 3  # -1 (back) .. 1 (front)
         pct = int(14 + (depth + 1) / 2 * 30)
@@ -468,9 +458,7 @@ def poly_svg():
         f'<text x="{cx}" y="{cy + 116}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">icosahedron · 12 v · 30 e · 20 f</text>'
     )
-    return _svg(
-        body, label="Isometric projection of a regular icosahedron, faces depth-shaded."
-    )
+    return _svg(body, label="Isometric projection of a regular icosahedron, faces depth-shaded.")
 
 
 def wall_svg():
@@ -480,10 +468,7 @@ def wall_svg():
     ix0, iy0, ix1, iy1 = x0 + fw, y0 + fw, x1 - fw, y1 - fw
     cols = 6
     cw = (ix1 - ix0) / cols
-    strut = (
-        'stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" '
-        'stroke-width="7" stroke-linecap="round"'
-    )
+    strut = 'stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"'
     braces = ""
     for i in range(cols):
         a, b = ix0 + i * cw, ix0 + (i + 1) * cw
@@ -531,10 +516,7 @@ def wire_svg(wires=13):
     def ring(lev):
         if lev == 0:
             return [(0.0, 0.0)]
-        cs = [
-            (lev * math.cos(math.radians(60 * k)), lev * math.sin(math.radians(60 * k)))
-            for k in range(6)
-        ]
+        cs = [(lev * math.cos(math.radians(60 * k)), lev * math.sin(math.radians(60 * k))) for k in range(6)]
         pts = []
         for k in range(6):
             x0, y0 = cs[k]
@@ -560,8 +542,7 @@ def wire_svg(wires=13):
             f'fill="{col}" stroke="var(--ink-dim)" stroke-width="1.1"/>'
         )
     body = (
-        dots
-        + f'<text x="{cx}" y="{cy + 108}" text-anchor="middle" fill="var(--ink-dim)" '
+        dots + f'<text x="{cx}" y="{cy + 108}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">{wires} wires · hex-packed · 17-colour table</text>'
     )
     return _svg(
@@ -1150,13 +1131,9 @@ def build_variant_stls(force: bool = False) -> dict:
                 continue
             if not have_app:
                 if vid not in cache[mod]:
-                    print(
-                        f"  ! no app and no cache for {mod}-{vid}; viewer will show the poster"
-                    )
+                    print(f"  ! no app and no cache for {mod}-{vid}; viewer will show the poster")
                 continue
-            res = render_object(
-                expr, stl, setup=SETUP[mod], timeout=240, export_format="binstl"
-            )
+            res = render_object(expr, stl, setup=SETUP[mod], timeout=240, export_format="binstl")
             if not res.ok:
                 print(f"  ! render FAILED {mod}-{vid}: {(res.error or '')[:120]}")
                 continue
@@ -1276,9 +1253,7 @@ def module_page(key, m, metrics):
     first = data[0]
     tris0 = f"{first['tris']:,}" if first["tris"] is not None else "—"
     pill = "" if first["wt"] else ' style="display:none"'
-    tags = "".join(
-        f'<button class="tag" type="button">{d["label"]}</button>' for d in data
-    )
+    tags = "".join(f'<button class="tag" type="button">{d["label"]}</button>' for d in data)
     proof = ""
     if m["proof"]:
         big, txt = m["proof"]
@@ -1400,11 +1375,7 @@ def _tagname(tok: str) -> str:
 
 def _is_block(tok: str) -> bool:
     """A markup token that forces a line break (a non-inline, non-declaration tag)."""
-    return (
-        tok.startswith("<")
-        and not tok.startswith("<!")
-        and _tagname(tok) not in _INLINE
-    )
+    return tok.startswith("<") and not tok.startswith("<!") and _tagname(tok) not in _INLINE
 
 
 def _closes_simple(toks: list[str], i: int) -> int:
@@ -1471,9 +1442,7 @@ def _format_html(html: str, indent: str = "  ") -> str:
             i += 1
 
     # Split off <script>...</script> so its JS is passed through untouched (odd chunks are scripts).
-    for idx, part in enumerate(
-        re.split(r"(<script\b[^>]*>.*?</script>)", html, flags=re.S | re.I)
-    ):
+    for idx, part in enumerate(re.split(r"(<script\b[^>]*>.*?</script>)", html, flags=re.S | re.I)):
         if not part:
             continue
         if idx % 2 == 1:
@@ -1500,9 +1469,7 @@ def main():
     }
     for name, raw in pages.items():
         pretty = _format_html(raw)
-        assert _norm(pretty) == _norm(raw), (
-            f"reindent changed the markup of {name}"
-        )  # render-safe check
+        assert _norm(pretty) == _norm(raw), f"reindent changed the markup of {name}"  # render-safe check
         (OUT / name).write_text(pretty)
     print("wrote", OUT)
 

@@ -82,7 +82,10 @@ def rot_about_axis(angle: float, axis, center=(0.0, 0.0, 0.0)) -> np.ndarray:
 
 
 def rot_inverse(t) -> np.ndarray:
-    """Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation, un-translate."""
+    """
+        Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,
+        un-translate.
+    """
     t = np.asarray(t, dtype=float)
     radius = t[:3, :3]
     inv = np.eye(4)

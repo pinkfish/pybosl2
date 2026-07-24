@@ -32,9 +32,9 @@ import math
 
 import numpy as np
 
+from bosl2._helpers import is_num, rot_from_to4, translate4
+from bosl2.constants import BACK, RIGHT, UP
 from bosl2.transforms import axis_angle_matrix
-from bosl2.constants import RIGHT, BACK, UP
-from bosl2._helpers import is_num, translate4, rot_from_to4
 
 __all__ = [
     "move_copies",
@@ -366,7 +366,10 @@ def xrot_copies(
     diameter=None,
     subrot=True,
 ) -> list[np.ndarray]:
-    """Rotated copies around the X axis, optionally into a ring of radius *radius* (BOSL2 xrot_copies())."""
+    """
+        Rotated copies around the X axis, optionally into a ring of radius *radius* (BOSL2
+        xrot_copies()).
+    """
     rr = _radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,
@@ -388,7 +391,10 @@ def yrot_copies(
     diameter=None,
     subrot=True,
 ) -> list[np.ndarray]:
-    """Rotated copies around the Y axis, optionally into a ring of radius *radius* (BOSL2 yrot_copies())."""
+    """
+        Rotated copies around the Y axis, optionally into a ring of radius *radius* (BOSL2
+        yrot_copies()).
+    """
     rr = _radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,
@@ -410,7 +416,10 @@ def zrot_copies(
     diameter=None,
     subrot=True,
 ) -> list[np.ndarray]:
-    """Rotated copies around the Z axis, optionally into a ring of radius *radius* (BOSL2 zrot_copies())."""
+    """
+        Rotated copies around the Z axis, optionally into a ring of radius *radius* (BOSL2
+        zrot_copies()).
+    """
     rr = _radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,

@@ -9,7 +9,8 @@ ball_bearing() cartridge model."""
 
 import pytest
 
-from bosl2.ball_bearings import BallBearings as BB, BearingSpec
+from bosl2.ball_bearings import BallBearings as BB
+from bosl2.ball_bearings import BearingSpec
 from bosl2.shapes3d import Bosl2Solid
 
 

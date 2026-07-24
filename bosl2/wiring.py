@@ -88,7 +88,10 @@ class Wiring:
 
     @staticmethod
     def hex_offsets(sides: int, diameter: float) -> list:
-        """The centre points for the optimal hexagonal packing of at least *sides* circles spaced *diameter* apart."""
+        """
+            The centre points for the optimal hexagonal packing of at least *sides* circles spaced
+            *diameter* apart.
+        """
         return _hex_offsets(sides, diameter)
 
     @staticmethod

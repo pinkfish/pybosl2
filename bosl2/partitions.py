@@ -28,11 +28,11 @@ import math
 
 import numpy as np
 
-from bosl2.transforms import axis_angle_matrix, rot_from_to, rot_about_axis
-from bosl2.constants import UP, DOWN, LEFT, RIGHT, FRONT, BACK
-from bosl2.vectors import unit
-from bosl2.geometry import pointlist_bounds
 from bosl2._helpers import is_num, zrot4
+from bosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
+from bosl2.geometry import pointlist_bounds
+from bosl2.transforms import axis_angle_matrix, rot_about_axis, rot_from_to
+from bosl2.vectors import unit
 
 __all__ = [
     "partition_path",
@@ -223,7 +223,7 @@ def _ptn_sect(
     fs=None,
 ):
     """One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect())."""
-    from bosl2.shapes2d import arc, _frag_count
+    from bosl2.shapes2d import _frag_count, arc
 
     if is_num(cptype):
         assert cptype > 0, "flat section length must be positive."
@@ -536,7 +536,8 @@ def _partition_mask_shape(
     fs=None,
 ):
     """Native geometry for a partition mask (removes half, leaving an interlocking edge)."""
-    from pythonscad import polygon as _polygon, square as _square
+    from pythonscad import polygon as _polygon
+    from pythonscad import square as _square
 
     cs = (
         list(cutsize)
@@ -619,9 +620,8 @@ def partition_cut_mask(
 
     Subtract it from a solid to split it along the cut path with a *slop*-wide kerf.
     """
-    from bosl2.shapes3d import Bosl2Solid
-
     from bosl2.drawing import stroke as _stroke
+    from bosl2.shapes3d import Bosl2Solid
 
     cs = (
         list(cutsize)

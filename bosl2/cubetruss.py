@@ -24,12 +24,11 @@
 from __future__ import annotations
 
 import math
-
 from collections.abc import Sequence
 
 from bosl2._helpers import union
-from bosl2.constants import CENTER, BOTTOM
-from bosl2.distributors import xcopies, ycopies, zcopies, xflip_copy, mirror_copy
+from bosl2.constants import BOTTOM, CENTER
+from bosl2.distributors import mirror_copy, xcopies, xflip_copy, ycopies, zcopies
 from bosl2.masking import chamfer_edge_mask
 from bosl2.shapes3d import Bosl2Solid, cuboid, prismoid, regular_prism
 
@@ -47,7 +46,9 @@ def _union(shapes):
 
 
 def _cmask(l, chamfer, orient=None):
-    """chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis)."""
+    """
+        chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis).
+    """
     m = Bosl2Solid(chamfer_edge_mask(length=l, chamfer=chamfer))
     if orient == "RIGHT":
         return m.rotate([0, 90, 0])
@@ -96,7 +97,10 @@ class CubeTruss:
         size: float | None = None,
         strut: float | None = None,
     ) -> float:
-        """The length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2 cubetruss_dist())."""
+        """
+            The length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2
+            cubetruss_dist()).
+        """
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
         return cubes * (size - strut) + gaps * strut

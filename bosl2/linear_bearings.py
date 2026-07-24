@@ -65,7 +65,10 @@ class LinearBearings:
 
     @staticmethod
     def lmXuu_info(size: int) -> LinearBearingSpec:
-        """The :class:`LinearBearingSpec` (od, length) for a standard LMxUU size (BOSL2 lmXuu_info())."""
+        """
+            The :class:`LinearBearingSpec` (od, length) for a standard LMxUU size (BOSL2
+            lmXuu_info()).
+        """
         try:
             return _LMXUU[int(size)]
         except (KeyError, ValueError):

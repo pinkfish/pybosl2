@@ -7,6 +7,7 @@
 """Tests for bosl2.hooks: the ring hook."""
 
 import math
+
 import pytest
 
 from bosl2.hooks import Hooks, _circle_point_tangents

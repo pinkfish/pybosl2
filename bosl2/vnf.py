@@ -33,7 +33,10 @@ def _count(sides: int, s: int = 0, reverse: bool = False) -> list:
 def _lofttri(
     p1, p2, i1off: int, i2off: int, n1: int, n2: int, reverse: bool, trimax
 ) -> list:
-    """Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2 _lofttri)."""
+    """
+        Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2
+        _lofttri).
+    """
     a1 = np.asarray(p1, dtype=float)
     a2 = np.asarray(p2, dtype=float)
     tris: list = []

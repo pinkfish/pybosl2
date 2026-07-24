@@ -13,21 +13,17 @@ checks run on the pure-Python VNF, and real geometry is verified in test_stl_ren
 import math
 
 import numpy as np
-import pytest
 
 from bosl2.isosurface import (
     isosurface,
-    metaballs,
-    mb_sphere,
-    mb_cuboid,
-    mb_torus,
     mb_capsule,
-    mb_disk,
-    mb_octahedron,
     mb_connector,
-    Metaball,
+    mb_cuboid,
+    mb_octahedron,
+    mb_sphere,
+    mb_torus,
+    metaballs,
 )
-
 
 # -- field primitives ---------------------------------------------------------------------
 

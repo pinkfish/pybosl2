@@ -59,7 +59,10 @@ class NemaSteppers:
 
     @staticmethod
     def nema_motor_info(size: int) -> NemaSpec:
-        """The :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2 nema_motor_info())."""
+        """
+            The :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2
+            nema_motor_info()).
+        """
         try:
             return _NEMA[int(size)]
         except (KeyError, ValueError):

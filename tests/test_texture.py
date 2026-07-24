@@ -9,16 +9,16 @@
 import numpy as np
 import pytest
 
+from bosl2.shapes3d import Bosl2Solid, textured_tile
 from bosl2.texture import (
     TEXTURES,
-    texture,
     is_heightfield_texture,
     is_vnf_texture,
     is_watertight_topology,
     rasterize_vnf_texture,
+    texture,
     vnf_tile_to_solid,
 )
-from bosl2.shapes3d import textured_tile, Bosl2Solid
 
 _HF = [n for n, (_b, k) in TEXTURES.items() if k == "heightfield"]
 _VNF = [n for n, (_b, k) in TEXTURES.items() if k == "vnf"]

@@ -183,7 +183,10 @@ class Hinges:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2 snap_lock())."""
+        """
+            A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2
+            snap_lock()).
+        """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(
             math.radians(foldangle / 2)

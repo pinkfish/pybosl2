@@ -26,12 +26,11 @@
 
 from __future__ import annotations
 
-
 import numpy as np
 
-from bosl2.math import lerpn
-from bosl2.comparisons import approx
 from bosl2._helpers import is_num
+from bosl2.comparisons import approx
+from bosl2.math import lerpn
 
 __all__ = [
     "nurbs_curve",
@@ -67,7 +66,9 @@ def _calc_mult(knots):
 
 
 def _extend_knot_mult(mult, nxt, length):
-    """Extend the multiplicity vector periodically to sum to *length* (BOSL2 _extend_knot_mult())."""
+    """
+        Extend the multiplicity vector periodically to sum to *length* (BOSL2 _extend_knot_mult()).
+    """
     mult = list(mult)
     while sum(mult) < length:
         mult.append(mult[nxt])
@@ -311,7 +312,10 @@ def nurbs_curve(
 
 
 def is_nurbs_patch(x) -> bool:
-    """True if *x* looks like a NURBS patch: a rectangular 2-D array of points (BOSL2 is_nurbs_patch())."""
+    """
+        True if *x* looks like a NURBS patch: a rectangular 2-D array of points (BOSL2
+        is_nurbs_patch()).
+    """
     return bool(
         isinstance(x, (list, tuple))
         and len(x)

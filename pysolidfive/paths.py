@@ -103,18 +103,14 @@ def _rect2d(u, v, bu: float, bv: float, amount: list[float], mode):
     """
     corner_modes = [mode] * 4 if isinstance(mode, str) else list(mode)
     candidates = []
-    for ci, (su, sv, a) in enumerate(
-        ((-1, -1, amount[0]), (1, -1, amount[1]), (-1, 1, amount[2]), (1, 1, amount[3]))
-    ):
+    for ci, (su, sv, a) in enumerate(((-1, -1, amount[0]), (1, -1, amount[1]), (-1, 1, amount[2]), (1, 1, amount[3]))):
         cmode = corner_modes[ci]
         if cmode == "round":
             # Rounding is a Minkowski sum: shrink the rect by r, then re-offset the corner
             # outward by r via the hypot() term -- qu/qv are shifted by +r accordingly.
             qu = lv.abs(u) - bu + a
             qv = lv.abs(v) - bv + a
-            base = (
-                lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
-            )
+            base = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
         else:
             assert cmode == "chamfer"
             # Chamfer is a plane cut: intersect the two plain axis-aligned half-planes with
@@ -125,9 +121,7 @@ def _rect2d(u, v, bu: float, bv: float, amount: list[float], mode):
             base = lv.max(lv.max(qu, qv), (qu + qv + a) / _SQRT2)
         mask = lv.max(0, -su * u) + lv.max(0, -sv * v)
         candidates.append(base + _PENALTY * mask)
-    return lv.min(
-        lv.min(candidates[0], candidates[1]), lv.min(candidates[2], candidates[3])
-    )
+    return lv.min(lv.min(candidates[0], candidates[1]), lv.min(candidates[2], candidates[3]))
 
 
 def _polygon_sdf_xy(x, y, pts: ArrayLike):
@@ -178,9 +172,7 @@ def _halfplane_max_sdf(x, y, ccw_pts: NDArray[np.float64]):
 
 def _convex_deficiency_sdf(x, y, ccw_pts: NDArray[np.float64], _depth: int = 0):
     """See _polygon_sdf_xy(): CCW polygon as (convex hull) minus (recursive pockets)."""
-    assert _depth < 16, (
-        "polygon decomposition recursed implausibly deep -- is the outline self-intersecting?"
-    )
+    assert _depth < 16, "polygon decomposition recursed implausibly deep -- is the outline self-intersecting?"
     if _is_convex(ccw_pts):
         return _halfplane_max_sdf(x, y, ccw_pts)
 
@@ -276,11 +268,7 @@ def _collinear(pts: ArrayLike) -> bool:
         return True
     ax, ay = arr[0]
     bx, by = arr[1]
-    return bool(
-        np.all(
-            np.abs((bx - ax) * (arr[2:, 1] - ay) - (by - ay) * (arr[2:, 0] - ax)) < 1e-9
-        )
-    )
+    return bool(np.all(np.abs((bx - ax) * (arr[2:, 1] - ay) - (by - ay) * (arr[2:, 0] - ax)) < 1e-9))
 
 
 def _hull2d_points(pts: ArrayLike) -> NDArray[np.float64]:
@@ -360,15 +348,11 @@ def bezier_points(curve: ArrayLike, u: float) -> NDArray[np.float64]:
     return pts[0]
 
 
-def bezpath_points(
-    bezpath: ArrayLike, splinesteps: int = 16, N: int = 3, endpoint: bool = True
-) -> NDArray[np.float64]:
+def bezpath_points(bezpath: ArrayLike, splinesteps: int = 16, N: int = 3, endpoint: bool = True) -> NDArray[np.float64]:
     """Sample a Bezier path (degree-N segments sharing endpoints, len % N == 1) into a point
     array -- same shape as the bosl2 port's bezpath_curve()."""
     bez = as_points(bezpath)
-    assert len(bez) % N == 1, (
-        f"A degree {N} bezier path should have a multiple of {N} points in it, plus 1."
-    )
+    assert len(bez) % N == 1, f"A degree {N} bezier path should have a multiple of {N} points in it, plus 1."
     segs = (len(bez) - 1) // N
     out = []
     for seg in range(segs):
@@ -380,9 +364,7 @@ def bezpath_points(
     return np.asarray(out, dtype=float)
 
 
-def egg_path(
-    length: float, r1: float, r2: float, R: float, n: int = 90
-) -> NDArray[np.float64]:
+def egg_path(length: float, r1: float, r2: float, R: float, n: int = 90) -> NDArray[np.float64]:
     """The BOSL2-style egg outline: two end circles of radius r1 (left) and r2 (right), a
     total length, and side arcs of radius R blending them -- as a closed point path.
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density."""
@@ -392,9 +374,7 @@ def egg_path(
     c1 = [-length / 2 + r1, 0.0]
     c2 = [length / 2 - r2, 0.0]
     m_pts = list(reversed(_circle_circle_intersection(R - r1, c1, R - r2, c2)))
-    assert len(m_pts) == 2, (
-        "egg_path(): circles do not intersect for the given length/r1/r2/R."
-    )
+    assert len(m_pts) == 2, "egg_path(): circles do not intersect for the given length/r1/r2/R."
     arcparms = []
     for m in m_pts:
         u1 = _unit2([c1[0] - m[0], c1[1] - m[1]])
@@ -420,9 +400,7 @@ def _unit2(v: list[float]) -> list[float]:
     return [v[0] / n, v[1] / n]
 
 
-def _circle_circle_intersection(
-    r1: float, c1: list[float], r2: float, c2: list[float]
-) -> list[list[float]]:
+def _circle_circle_intersection(r1: float, c1: list[float], r2: float, c2: list[float]) -> list[list[float]]:
     d = math.dist(c1, c2)
     if d == 0 or d > r1 + r2 or d < abs(r1 - r2):
         return []
@@ -436,23 +414,17 @@ def _circle_circle_intersection(
     return [[mx + ox, my - oy], [mx - ox, my + oy]]
 
 
-def _arc_points(
-    cp: list[float], radius: float, a0: float, delta: float, steps: int
-) -> list[list[float]]:
+def _arc_points(cp: list[float], radius: float, a0: float, delta: float, steps: int) -> list[list[float]]:
     return [
         [
             cp[0] + radius * math.cos(math.radians(a0 + delta * i / steps)),
             cp[1] + radius * math.sin(math.radians(a0 + delta * i / steps)),
         ]
-        for i in range(
-            steps
-        )  # endpoint deliberately excluded; the next arc supplies it
+        for i in range(steps)  # endpoint deliberately excluded; the next arc supplies it
     ]
 
 
-def _arc_between(
-    cp: list[float], p_start: list[float], p_end: list[float], n: int
-) -> list[list[float]]:
+def _arc_between(cp: list[float], p_start: list[float], p_end: list[float], n: int) -> list[list[float]]:
     """Arc around `cp` from p_start to p_end, sweeping the shorter way around."""
     radius = math.dist(cp, p_start)
     a0 = math.degrees(math.atan2(p_start[1] - cp[1], p_start[0] - cp[0]))
@@ -524,9 +496,7 @@ def line_normal(p1, p2) -> NDArray[np.float64]:
     return _v_unit([p1[1] - p2[1], p2[0] - p1[0]])
 
 
-def deriv(
-    data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False
-) -> NDArray[np.float64]:
+def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> NDArray[np.float64]:
     """BOSL2 deriv(): numerical first derivative of vector-valued samples, with either a
     scalar step or a per-segment step list (the non-uniform variant path_tangents() feeds
     with segment lengths)."""
@@ -537,11 +507,7 @@ def deriv(
         if closed:
             return (np.roll(pts, -1, axis=0) - np.roll(pts, 1, axis=0)) / (2 * h)
         first = pts[1] - pts[0] if L < 3 else 3 * (pts[1] - pts[0]) - (pts[2] - pts[1])
-        last = (
-            pts[L - 1] - pts[L - 2]
-            if L < 3
-            else (pts[L - 3] - pts[L - 2]) - 3 * (pts[L - 2] - pts[L - 1])
-        )
+        last = pts[L - 1] - pts[L - 2] if L < 3 else (pts[L - 3] - pts[L - 2]) - 3 * (pts[L - 2] - pts[L - 1])
         mid = (pts[2:] - pts[:-2]) / (2 * h) if L > 2 else np.empty((0, pts.shape[1]))
         return np.vstack([[first / (2 * h)], mid, [last / (2 * h)]])
 
@@ -550,9 +516,7 @@ def deriv(
     def dnu(f1, fc, f2, h1: float, h2: float) -> NDArray[np.float64]:
         g1 = _lerp_pt(fc, f1, h2 / h1) if h2 < h1 else f1
         g2 = _lerp_pt(fc, f2, h1 / h2) if h1 < h2 else f2
-        return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (
-            2 * min(h1, h2)
-        )
+        return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (2 * min(h1, h2))
 
     if closed:
         assert len(hs) == L
@@ -571,17 +535,12 @@ def deriv(
     assert len(hs) == L - 1
     return np.vstack(
         [[(pts[1] - pts[0]) / hs[0]]]
-        + [
-            [dnu(pts[i - 1], pts[i], pts[i + 1], hs[i - 1], hs[i])]
-            for i in range(1, L - 1)
-        ]
+        + [[dnu(pts[i - 1], pts[i], pts[i + 1], hs[i - 1], hs[i])] for i in range(1, L - 1)]
         + [[(pts[L - 1] - pts[L - 2]) / hs[L - 2]]]
     )
 
 
-def path_tangents(
-    path: ArrayLike, closed: bool = False, uniform: bool = True
-) -> NDArray[np.float64]:
+def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -> NDArray[np.float64]:
     """BOSL2 path_tangents(): unit tangent at each path point (uniform=False weights the
     derivative by segment lengths, which is what rabbit_clip() uses)."""
     pts = as_points(path)
@@ -650,9 +609,7 @@ def path_to_bezpath(
     curvesize = size if size is not None else (relsize if relsize is not None else 0.1)
     relative = size is None
     lastpt = len(path) - (0 if closed else 1)
-    sizevect = (
-        [curvesize] * lastpt if isinstance(curvesize, (int, float)) else list(curvesize)
-    )
+    sizevect = [curvesize] * lastpt if isinstance(curvesize, (int, float)) else list(curvesize)
     assert len(sizevect) == lastpt
     tang = (
         np.asarray([_v_unit(tv) for tv in np.asarray(tangents, dtype=float)])
@@ -689,9 +646,7 @@ def path_to_bezpath(
             uextreme = []
         else:
             uextreme = [r for r in _cubic_real_roots(poly) if 0 < r < 1]
-        ctrl = np.asarray(
-            [np.zeros_like(normal1), normal1, normal2, np.zeros_like(normal1)]
-        )
+        ctrl = np.asarray([np.zeros_like(normal1), normal1, normal2, np.zeros_like(normal1)])
         distlist = [_v_norm(bezier_points(ctrl, u)) for u in uextreme]
         if len(distlist) == 0:
             scale = 0.0
@@ -708,9 +663,7 @@ def path_to_bezpath(
     return np.asarray(out, dtype=float)
 
 
-def circle_circle_tangents(
-    r1: float, cp1: ArrayLike, r2: float, cp2: ArrayLike
-) -> NDArray[np.float64]:
+def circle_circle_tangents(r1: float, cp1: ArrayLike, r2: float, cp2: ArrayLike) -> NDArray[np.float64]:
     """Tangent lines between two circles, each returned as a [point_on_circle1,
     point_on_circle2] pair -- same construction and ORDERING as bosl2's port (rabbit_clip()
     indexes [0][1], so the ordering matters): 2 external tangents, then 2 internal ones if
@@ -773,9 +726,7 @@ def path_cut_points(path: ArrayLike, cutdist, closed: bool = False):
     path = as_points(path)
     if isinstance(cutdist, (int, float)):
         return path_cut_points(path, [cutdist], closed)[0]
-    assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), (
-        "Cut distances must be an increasing list"
-    )
+    assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
 
     def select(p, i):
         return p[i % len(p)]
@@ -796,9 +747,7 @@ def path_cut_points(path: ArrayLike, cutdist, closed: bool = False):
     dtotal = 0.0
     for dist in cutdist:
         lastpt = None if not result else result[-1][0]
-        dpartial = (
-            0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))
-        )
+        dpartial = 0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))
         if dist < dpartial + dtotal:
             t = (dist - dtotal) / dpartial
             nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]
@@ -816,9 +765,7 @@ def path_normals(path: ArrayLike, closed: bool = False) -> NDArray[np.float64]:
     return np.stack([tangents[:, 1], -tangents[:, 0]], axis=1)
 
 
-def _frag_count(
-    r: float, fn: float | None = None, fa: float | None = None, fs: float | None = None
-) -> int:
+def _frag_count(r: float, fn: float | None = None, fa: float | None = None, fs: float | None = None) -> int:
     """Number of segments approximating a circle of radius `r` (OpenSCAD's $fn/$fa/$fs rules)."""
     if fn is not None and fn >= 3:
         return int(math.floor(fn))
@@ -878,9 +825,7 @@ def round_corners(
             continue
         p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
         angle = _vector_angle3(p0, p1, p2) / 2
-        assert angle > 1e-9, (
-            f"Path turns back on itself at index {i} with nonzero rounding"
-        )
+        assert angle > 1e-9, f"Path turns back on itself at index {i} with nonzero rounding"
         dk.append([parm[i] / math.tan(math.radians(angle)), parm[i]])
 
     out: list = []

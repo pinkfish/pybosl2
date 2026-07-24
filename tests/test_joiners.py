@@ -6,7 +6,6 @@
 
 """Tests for bosl2.joiners: dovetail joints and snap-pin connectors."""
 
-import math
 import pytest
 
 from bosl2.joiners import Joiners as J

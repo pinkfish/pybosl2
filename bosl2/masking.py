@@ -43,15 +43,17 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from pythonscad import cube as _ocube, sphere as _osphere, polygon as _opolygon
 from typing import TYPE_CHECKING
+
+from pythonscad import cube as _ocube
+from pythonscad import polygon as _opolygon
+from pythonscad import sphere as _osphere
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
 from .constants import *
 from .shapes2d import _frag_count, _polar_to_xy
-from .shapes3d import _edges, EDGE_OFFSETS, _quantup, _anchor_offset_box3
-
+from .shapes3d import EDGE_OFFSETS, _anchor_offset_box3, _edges, _quantup
 
 CORNER_OFFSETS = [[xa, ya, za] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)]
 

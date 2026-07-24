@@ -40,10 +40,11 @@ import math
 
 import numpy as np
 
-from bosl2.transforms import apply as _apply, rot_about_axis, rot_decode, rot_inverse
-from bosl2.constants import Vec3
-from bosl2.vnf import VNF
 from bosl2._helpers import translate4, zrot4
+from bosl2.constants import Vec3
+from bosl2.transforms import apply as _apply
+from bosl2.transforms import rot_about_axis, rot_decode, rot_inverse
+from bosl2.vnf import VNF
 
 UP = Vec3([0.0, 0.0, 1.0])
 BACK = Vec3([0.0, 1.0, 0.0])
@@ -93,7 +94,9 @@ def _xrot4(a: float) -> np.ndarray:
 
 
 def _segs(radius: float) -> int:
-    """OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs())."""
+    """
+        OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs()).
+    """
     return max(5, int(math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(radius)) / 2.0))))
 
 

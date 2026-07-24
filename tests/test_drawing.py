@@ -15,11 +15,19 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.drawing import arc, catenary, dashed_stroke, helix, stroke, turtle
-from bosl2.drawing import _ENDCAP_DEFAULTS, _endcap_polys, _endcap_trim
+from bosl2.drawing import (
+    _ENDCAP_DEFAULTS,
+    _endcap_polys,
+    _endcap_trim,
+    arc,
+    catenary,
+    dashed_stroke,
+    helix,
+    stroke,
+    turtle,
+)
 from bosl2.paths import Path, Path3D
 from bosl2.regions import Region
-
 
 # -- arc returns a Path -------------------------------------------------------------------
 

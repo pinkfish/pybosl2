@@ -6,15 +6,14 @@
 
 """Tests for bosl2.turtle3d (the Turtle class) and the debug_polygon/debug_region methods."""
 
-import math
 
 import numpy as np
 import pytest
 
-from bosl2.turtle3d import Turtle
 from bosl2.paths import Path
 from bosl2.regions import Region
 from bosl2.shapes3d import Bosl2Solid
+from bosl2.turtle3d import Turtle
 
 
 def test_square_path_closes():

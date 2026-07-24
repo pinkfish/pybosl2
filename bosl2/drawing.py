@@ -24,19 +24,19 @@
 
 from __future__ import annotations
 
+import math
+import operator
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import reduce
-import math
-import operator
 
 import numpy as np
 
-from bosl2.math import lerp, lerpn
-from bosl2.vectors import unit
 from bosl2.geometry import general_line_intersection, line_normal
+from bosl2.math import lerp, lerpn
 from bosl2.paths import Path, Path3D
-from bosl2.shapes2d import arc, _frag_count, _pick_radius
+from bosl2.shapes2d import _frag_count, _pick_radius, arc
+from bosl2.vectors import unit
 
 __all__ = [
     "arc",
@@ -599,7 +599,8 @@ def _trim_ends(body, trim1: float, trim2: float):
 
 
 def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
-    from bosl2.shapes2d import circle as _circle, square as _square
+    from bosl2.shapes2d import circle as _circle
+    from bosl2.shapes2d import square as _square
 
     shapes = []
     sides = len(pts)
@@ -643,7 +644,7 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
 
 def _oriented_to(shape, outdir, at):
     """Rotate a Z-up native solid so +Z points along 3-D *outdir*, then translate it to *at*."""
-    from bosl2.transforms import rot_from_to, axis_angle_matrix
+    from bosl2.transforms import axis_angle_matrix, rot_from_to
 
     angle, axis = rot_from_to([0, 0, 1], outdir)
     m3 = np.asarray(axis_angle_matrix(angle, axis), dtype=float)
@@ -652,13 +653,20 @@ def _oriented_to(shape, outdir, at):
 
 
 def _endcap_geometry_3d(style, at, outdir, width: float):
-    """Native 3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid."""
-    from bosl2.shapes3d import sphere as _sphere
+    """
+        Native 3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid.
+    """
+    from pythonscad import (
+        polygon as _opolygon,
+    )
     from pythonscad import (
         rotate_extrude as _orotate_extrude,
-        polygon as _opolygon,
+    )
+    from pythonscad import (
         square as _osquare,
     )
+
+    from bosl2.shapes3d import sphere as _sphere
 
     if style in (False, "butt", None):
         return None
@@ -678,7 +686,8 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
 
 
 def _stroke3d(pts, width, closed, endcap1, endcap2):
-    from bosl2.shapes3d import sphere as _sphere, cyl as _cyl
+    from bosl2.shapes3d import cyl as _cyl
+    from bosl2.shapes3d import sphere as _sphere
 
     radius = width / 2
     shapes = []

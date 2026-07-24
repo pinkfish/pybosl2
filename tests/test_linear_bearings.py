@@ -8,7 +8,8 @@
 
 import pytest
 
-from bosl2.linear_bearings import LinearBearings as LB, LinearBearingSpec
+from bosl2.linear_bearings import LinearBearings as LB
+from bosl2.linear_bearings import LinearBearingSpec
 from bosl2.shapes3d import Bosl2Solid
 
 

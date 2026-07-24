@@ -12,8 +12,8 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.wiring import Wiring, _hex_offset_ring, _hex_offsets
 from bosl2.shapes3d import Bosl2Solid
+from bosl2.wiring import Wiring, _hex_offset_ring, _hex_offsets
 
 _PATH = [[50, 0, -50], [50, 50, -50], [0, 50, -50], [0, 0, -50], [0, 0, 0]]
 

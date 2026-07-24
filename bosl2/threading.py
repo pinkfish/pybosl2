@@ -23,8 +23,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 
 __all__ = ["Threading", "ThreadProfile"]
 
@@ -167,8 +167,8 @@ def _rod_solid(
     Each of the *starts* thread starts is one angular sector's vertex-array surface; the sectors are
     merged at the VNF level (not by CSG union, which Manifold cannot do on coaxial helical solids)
     into one polyhedron, then trimmed to length with an intersection."""
-    from bosl2.shapes3d import cyl, Bosl2Solid
     from bosl2.shapes2d import _frag_count
+    from bosl2.shapes3d import Bosl2Solid, cyl
     from bosl2.vnf import VNF
 
     radius = d / 2
@@ -211,7 +211,7 @@ def _nut_solid(
     fs=None,
 ):
     """A nut: a hex/square body with a threaded hole cut by a matching thread 'tap'."""
-    from bosl2.shapes3d import regular_prism, cuboid
+    from bosl2.shapes3d import cuboid, regular_prism
 
     if shape == "hex":
         body = regular_prism(6, height=h, inner_diameter=nutwidth)
@@ -302,7 +302,10 @@ class Threading:
     def threaded_rod(
         d, l, pitch, starts=1, left_handed=False, fn=None, fa=None, fs=None
     ):
-        """An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2 threaded_rod())."""
+        """
+            An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2
+            threaded_rod()).
+        """
         return _rod_solid(d, l, pitch, _iso_profile(), starts, left_handed, fn, fa, fs)
 
     @staticmethod
@@ -350,7 +353,10 @@ class Threading:
         fa=None,
         fs=None,
     ):
-        """A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2 trapezoidal_threaded_rod())."""
+        """
+            A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2
+            trapezoidal_threaded_rod()).
+        """
         prof = _trapezoidal_profile(pitch, thread_angle, thread_depth)
         return _rod_solid(d, l, pitch, prof, starts, left_handed, fn, fa, fs)
 

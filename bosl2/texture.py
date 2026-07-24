@@ -170,7 +170,9 @@ def _mv(off, pts):
 
 
 def _sqr(size, z=0.0):
-    """path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``)."""
+    """
+        path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``).
+    """
     w, height = (size, size) if isinstance(size, (int, float)) else (size[0], size[1])
     return [[0.0, 0.0, z], [w, 0.0, z], [w, height, z], [0.0, height, z]]
 
@@ -439,7 +441,10 @@ _TEX_FN_DEFAULT = 16  # BOSL2 _tex_fn_default()
 
 
 def _circle_xy(d, n):
-    """*n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2 circle())."""
+    """
+        *n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2
+        circle()).
+    """
     return [
         [
             d / 2 * math.cos(math.radians(360 * i / n)),
@@ -663,7 +668,9 @@ def texture(
 
 
 def _weld(V, F, tol=1e-6):
-    """Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces."""
+    """
+        Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces.
+    """
     idx, newV, remap = {}, [], []
     for p in V:
         k = (round(p[0] / tol), round(p[1] / tol), round(p[2] / tol))
@@ -714,7 +721,9 @@ def _close_to_base(V, F, bottom):
 
 
 def is_watertight_topology(verts, faces) -> bool:
-    """True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold)."""
+    """
+        True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold).
+    """
     from collections import Counter
 
     e = Counter()

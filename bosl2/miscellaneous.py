@@ -25,17 +25,17 @@
 
 from __future__ import annotations
 
-from functools import reduce
 import math
 import operator
+from functools import reduce
 
 import numpy as np
 
-from bosl2.transforms import axis_angle_matrix, rot_from_to
-from bosl2.constants import UP, BACK
-from bosl2.vectors import unit
+from bosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
+from bosl2.constants import BACK, UP
 from bosl2.geometry import pointlist_bounds
-from bosl2._helpers import vec3, rot_from_to4, frame_map4_yz, unwrap
+from bosl2.transforms import axis_angle_matrix, rot_from_to
+from bosl2.vectors import unit
 
 __all__ = [
     "extrude_from_to",
@@ -170,6 +170,7 @@ def cylindrical_extrude(
     onto a curved wall. The profile's X spans one revolution by default (override with *size*).
     """
     from pythonscad import square as _square
+
     from bosl2.shapes2d import _frag_count
     from bosl2.shapes3d import Bosl2Solid
 
@@ -228,6 +229,7 @@ def cylindrical_extrude(
 def chain_hull(*objects):
     """Union the hulls of each consecutive pair of *objects* (BOSL2 chain_hull())."""
     from pythonscad import hull as _hull
+
     from bosl2.shapes3d import Bosl2Solid
 
     objs = (
@@ -245,7 +247,9 @@ def chain_hull(*objects):
 
 def minkowski_difference(base, *diffs, size: float = 1000, convexity: int = 10):
     """Carve *diffs* out of the surface of *base* (BOSL2 minkowski_difference())."""
-    from pythonscad import minkowski as _mink, cube as _cube
+    from pythonscad import cube as _cube
+    from pythonscad import minkowski as _mink
+
     from bosl2.shapes3d import Bosl2Solid
 
     b = unwrap(base)
@@ -379,9 +383,10 @@ class Extrudable:
         :func:`~bosl2.skin.path_sweep` is faster and cleaner; this exists for extruding an arbitrary
         native 2-D object (text, multi-part shapes) that is not a single polygon.
         """
-        from bosl2.skin import rot_resample
-        from bosl2.shapes3d import Bosl2Solid
         from pythonscad import cube as _cube
+
+        from bosl2.shapes3d import Bosl2Solid
+        from bosl2.skin import rot_resample
 
         dim = len(self[0])
         path = [
@@ -462,7 +467,10 @@ class Miscellaneous:
         """Expand (or, for negative *radius*, contract) the surface of this solid by *radius* (BOSL2 offset3d()).
 
         Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly."""
-        from pythonscad import cube as _cube, sphere as _sphere, minkowski as _mink
+        from pythonscad import cube as _cube
+        from pythonscad import minkowski as _mink
+        from pythonscad import sphere as _sphere
+
         from bosl2.shapes2d import _frag_count
 
         if radius == 0:

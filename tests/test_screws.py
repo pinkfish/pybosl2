@@ -14,9 +14,8 @@ import math
 
 import pytest
 
-from bosl2.screws import Screws, _parse_spec, _lookup_pitch, _nut_dims
+from bosl2.screws import Screws, _lookup_pitch, _nut_dims, _parse_spec
 from bosl2.shapes3d import Bosl2Solid
-
 
 # -- spec parsing / pitch lookup ----------------------------------------------------------
 

@@ -10,7 +10,6 @@ tests/test_bosl2_reorient.py; here we check the object-level behaviour (what eac
 how the copies are placed). Native geometry is mocked, so Bosl2Solid tests assert type/union, not
 mesh geometry (that is covered in test_stl_render.py)."""
 
-import math
 
 import numpy as np
 import pytest
@@ -18,7 +17,6 @@ import pytest
 from bosl2 import distributors as D
 from bosl2.paths import Path, Path3D
 from bosl2.shapes3d import Bosl2Solid, cuboid
-
 
 # -- matrix generators --------------------------------------------------------------------
 

@@ -7,6 +7,7 @@
 """Tests for bosl2.polyhedra: the five Platonic solids."""
 
 import math
+
 import pytest
 
 from bosl2.polyhedra import Polyhedra as P

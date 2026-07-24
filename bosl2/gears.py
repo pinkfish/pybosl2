@@ -30,7 +30,6 @@ from __future__ import annotations
 import math
 
 import numpy as np
-
 from pythonscad import polygon as _opolygon
 
 from bosl2.constants import INCH
@@ -531,7 +530,9 @@ def _simple_tooth(
     interior=False,
     center=False,
 ):
-    """A simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms."""
+    """
+        A simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms.
+    """
     p = _pitch_radius(circ_pitch, teeth)
     c = _outer_radius_basic(circ_pitch, teeth, clearance, interior, 0, 0, 0)
     radius = _root_radius_basic(circ_pitch, teeth, clearance, interior, 0, 0)
@@ -691,7 +692,8 @@ class Gears:
         pa = math.radians(pressure_angle)
         pa_transv = math.atan(math.tan(pa) / math.cos(math.radians(helical)))
         # working pressure angle from the involute equation
-        inv = lambda a: math.tan(a) - a
+        def inv(a):
+            return math.tan(a) - a
         target = inv(pa_transv) + 2 * (ps1 + ps2) / (t1 + t2) * math.tan(pa)
         lo, hi = 1e-4, math.radians(89)
         for _ in range(60):
@@ -731,7 +733,10 @@ class Gears:
         pitch=None,
         diam_pitch=None,
     ) -> list[list[float]]:
-        """The 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2 _gear_tooth_profile())."""
+        """
+            The 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2
+            _gear_tooth_profile()).
+        """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         return _gear_tooth_profile(
@@ -902,7 +907,9 @@ class Gears:
         pitch=None,
         diam_pitch=None,
     ) -> Bosl2Solid:
-        """A herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``."""
+        """
+            A herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``.
+        """
         return Gears.spur_gear(
             circ_pitch=circ_pitch,
             teeth=teeth,
@@ -938,7 +945,10 @@ class Gears:
         pitch=None,
         diam_pitch=None,
     ) -> Bosl2Solid:
-        """An internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2 ring_gear())."""
+        """
+            An internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2
+            ring_gear()).
+        """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         outer_radius = (

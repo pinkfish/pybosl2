@@ -126,18 +126,14 @@ class RealRenderTestCase(unittest.TestCase):
 
     def _render_and_compare(self, name: str, expr: str) -> None:
         if self.binary is None:
-            self.skipTest(
-                "no real PythonSCAD binary found (set PYTHONSCAD_BIN to override)"
-            )
+            self.skipTest("no real PythonSCAD binary found (set PYTHONSCAD_BIN to override)")
 
         golden = GOLDEN_DIR / f"{name}.png"
         out_png = OUT_DIR / f"{name}.png"
 
         result = render_pysolidfive_shape(expr, out_png)
         if not result.ok:
-            self.skipTest(
-                f"real render did not produce geometry, skipping: {result.error}"
-            )
+            self.skipTest(f"real render did not produce geometry, skipping: {result.error}")
 
         if not golden.is_file():
             self.skipTest(

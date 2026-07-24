@@ -7,10 +7,11 @@
 """Tests for bosl2.walls: FDM-optimised wall shapes."""
 
 import math
+
 import pytest
 
-from bosl2.walls import Walls as W
 from bosl2.shapes3d import Bosl2Solid
+from bosl2.walls import Walls as W
 
 
 def _size(s):

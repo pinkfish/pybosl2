@@ -173,10 +173,7 @@ class _FrepResult:
         n = int(self.res)
         n = 16 if n > 16 else (2 if n < 2 else n)
         points = []
-        steps = [
-            [self.mn[i] + (self.mx[i] - self.mn[i]) * k / n for k in range(n + 1)]
-            for i in range(3)
-        ]
+        steps = [[self.mn[i] + (self.mx[i] - self.mn[i]) * k / n for k in range(n + 1)] for i in range(3)]
         for px in steps[0]:
             for py in steps[1]:
                 for pz in steps[2]:
@@ -235,9 +232,7 @@ class _AabbSolid:
         if mn is None or mx is None:
             return _AabbSolid()
         v = list(v) + [0.0] * (3 - len(v))
-        return _AabbSolid(
-            [mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)]
-        )
+        return _AabbSolid([mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)])
 
     def rotate(self, a, v=None):
         mn, mx = self.mn, self.mx
@@ -252,9 +247,7 @@ class _AabbSolid:
             ]
             for i in range(8)
         ]
-        rot = [
-            [sum(m[r][k] * c[k] for k in range(3)) for r in range(3)] for c in corners
-        ]
+        rot = [[sum(m[r][k] * c[k] for k in range(3)) for r in range(3)] for c in corners]
         return _AabbSolid(
             [_bmin(c[i] for c in rot) for i in range(3)],
             [_bmax(c[i] for c in rot) for i in range(3)],
@@ -344,10 +337,7 @@ def _rot_matrix(a, v=None):
         mz = [[cz, -sz, 0], [sz, cz, 0], [0, 0, 1]]
 
         def mm(p, q):
-            return [
-                [sum(p[i][k] * q[k][j] for k in range(3)) for j in range(3)]
-                for i in range(3)
-            ]
+            return [[sum(p[i][k] * q[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
 
         return mm(mz, mm(my, mx))
     ang = math.radians(a)
@@ -370,9 +360,7 @@ def _mock_cube(size: "float | Sequence[float]" = 1, center=None, dim=None, **k) 
     return _AabbSolid([0.0, 0.0, 0.0], sv)
 
 
-def _mock_cylinder(
-    h: float = 1, r=None, r1=None, r2=None, d=None, d1=None, d2=None, center=None, **k
-) -> Any:
+def _mock_cylinder(h: float = 1, r=None, r1=None, r2=None, d=None, d1=None, d2=None, center=None, **k) -> Any:
     rr = [
         v
         for v in (

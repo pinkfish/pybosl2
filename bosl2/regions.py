@@ -149,7 +149,10 @@ class Region(list):
         return reduce(operator.or_, [solid, *labels])
 
     def stroke(self, width: float = 1, **kwargs: Any):
-        """Draw every path in this region as a closed solid line (see :func:`bosl2.drawing.stroke`)."""
+        """
+            Draw every path in this region as a closed solid line (see
+            :func:`bosl2.drawing.stroke`).
+        """
         from bosl2.drawing import stroke as _stroke
 
         return _stroke(self, width=width, **kwargs)
@@ -157,7 +160,10 @@ class Region(list):
     def dashed_stroke(
         self, dashpat: Sequence[float] = (3, 3), **kwargs: Any
     ) -> list[Path]:
-        """Break every path in this region into dash sub-paths (see :func:`bosl2.drawing.dashed_stroke`)."""
+        """
+            Break every path in this region into dash sub-paths (see
+            :func:`bosl2.drawing.dashed_stroke`).
+        """
         from bosl2.drawing import dashed_stroke as _dashed
 
         return _dashed(self, dashpat=dashpat, **kwargs)

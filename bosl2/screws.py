@@ -62,7 +62,10 @@ _THREAD_ALIAS = {
 
 @dataclass(frozen=True)
 class ThreadPitches:
-    """ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is undefined."""
+    """
+        ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is
+        undefined.
+    """
 
     coarse: float
     fine: float | None = None
@@ -88,7 +91,9 @@ class HexHead:
 
 @dataclass(frozen=True)
 class SocketHead:
-    """Socket cap head (ISO 4762). Head height == nominal diameter; hex-drive depth == diameter/2."""
+    """
+        Socket cap head (ISO 4762). Head height == nominal diameter; hex-drive depth == diameter/2.
+    """
 
     head_d: float
     hex_drive: float  # hex drive across-flats
@@ -625,7 +630,9 @@ def _closest(table, diam):
 
 
 def _nut_dims(diam, thickness, nutwidth):
-    """Resolve a nut's ``(across-flats width, thickness)`` for the given size and thickness class."""
+    """
+        Resolve a nut's ``(across-flats width, thickness)`` for the given size and thickness class.
+    """
     spec = _closest(_NUT, diam)
     width = float(nutwidth) if nutwidth is not None else spec.width
     if isinstance(thickness, (int, float)):

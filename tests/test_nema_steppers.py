@@ -8,7 +8,8 @@
 
 import pytest
 
-from bosl2.nema_steppers import NemaSteppers as N, NemaSpec
+from bosl2.nema_steppers import NemaSpec
+from bosl2.nema_steppers import NemaSteppers as N
 from bosl2.shapes3d import Bosl2Solid, cuboid
 
 

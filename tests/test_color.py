@@ -15,7 +15,6 @@ import pytest
 from bosl2.color import hsl, hsv, rainbow, rainbow_colors
 from bosl2.shapes3d import Bosl2Solid, cuboid
 
-
 # -- HSV / HSL primaries ------------------------------------------------------------------
 
 

@@ -17,7 +17,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
 from render_stl import find_pythonscad_binary, golden_ok, render_object, stl_metrics
 
 pytestmark = pytest.mark.skipif(

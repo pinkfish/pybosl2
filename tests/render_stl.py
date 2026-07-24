@@ -227,7 +227,9 @@ class StlMetrics:
 
 
 def stl_metrics(path: Path) -> StlMetrics:
-    """Measure an STL: triangle count, bounding box, enclosed volume, surface area, watertightness."""
+    """
+        Measure an STL: triangle count, bounding box, enclosed volume, surface area, watertightness.
+    """
     tris = parse_stl(path)
     pts = tris.reshape(-1, 3)
     bbmin, bbmax = pts.min(axis=0), pts.max(axis=0)

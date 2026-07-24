@@ -40,31 +40,30 @@
 # FileSummary: Operations on paths: length, resampling, tangents, splitting into subpaths.
 # FileGroup: BOSL2
 
+import math
 from collections.abc import Sequence
 from typing import Any
-import math
 
 import numpy as np
 
-from bosl2.math import EPSILON, lerp, lerpn, deriv, deriv2, deriv3
-from bosl2.vectors import add_scalar, unit
 from bosl2.comparisons import approx
-from bosl2.geometry import (
-    line_normal,
-    line_closest_point,
-    pointlist_bounds,
-    _is_point_on_segment,
-    is_collinear,
-    cross,
-    general_line_intersection,
-)
 from bosl2.distributors import (
     Distributable,
     _apply4,
 )  # the distributors.scad copiers, as methods
+from bosl2.geometry import (
+    _is_point_on_segment,
+    cross,
+    general_line_intersection,
+    is_collinear,
+    line_closest_point,
+    line_normal,
+    pointlist_bounds,
+)
+from bosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 from bosl2.miscellaneous import Extrudable  # path_extrude / path_extrude2d, as methods
 from bosl2.rounding import Roundable  # round_corners / smooth_path, as methods
-
+from bosl2.vectors import add_scalar, unit
 
 # ---------------------------------------------------------------------------
 # Section: Path object
@@ -406,7 +405,9 @@ class Path(Distributable, Extrudable, Roundable, list):
     # -- drawing (bosl2/drawing.py) --------------------------------------------------------
 
     def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any):
-        """Draw this path as a solid line of the given *width* (see :func:`bosl2.drawing.stroke`)."""
+        """
+            Draw this path as a solid line of the given *width* (see :func:`bosl2.drawing.stroke`).
+        """
         from bosl2.drawing import stroke as _stroke
 
         return _stroke(
@@ -521,7 +522,10 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _slice(lst, start: int = 0, end: int = -1) -> list:
-        """``lst[start..end]`` inclusive, negative indices from the end, clamped (BOSL2 Path._slice())."""
+        """
+            ``lst[start..end]`` inclusive, negative indices from the end, clamped (BOSL2
+            Path._slice()).
+        """
         if not lst:
             return []
         length = len(lst)
@@ -711,7 +715,9 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _path_length_fractions(path, closed: bool | None = None) -> np.ndarray:
-        """Distance fraction of each point in *path* along the path (0 at the start, 1 at the end)."""
+        """
+            Distance fraction of each point in *path* along the path (0 at the start, 1 at the end).
+        """
         if closed is None:
             closed = False
         lengths = np.concatenate(([0.0], Path._path_segment_lengths(path, closed)))
@@ -723,7 +729,10 @@ class Path(Distributable, Extrudable, Roundable, list):
     def _path_self_intersections(
         path, closed: bool = True, eps: float = EPSILON
     ) -> list:
-        """All self-intersection points of *path*: list of [POINT, SEGNUM1, PROPORTION1, SEGNUM2, PROPORTION2]."""
+        """
+            All self-intersection points of *path*: list of [POINT, SEGNUM1, PROPORTION1, SEGNUM2,
+            PROPORTION2].
+        """
         p = Path._close_path(path, eps=eps) if closed else path
         arr = np.asarray(p, dtype=float)
         plen = len(arr)
@@ -761,12 +770,18 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _scad_round(x: float) -> float:
-        """Round half away from zero, matching OpenSCAD's round() (unlike Python's round-half-to-even)."""
+        """
+            Round half away from zero, matching OpenSCAD's round() (unlike Python's
+            round-half-to-even).
+        """
         return math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
 
     @staticmethod
     def _sum_preserving_round(data: Sequence[float]) -> list[float]:
-        """Round every entry to an integer, carrying the rounding error forward so the sum is preserved."""
+        """
+            Round every entry to an integer, carrying the rounding error forward so the sum is
+            preserved.
+        """
         out = list(data)
         error = 0.0
         for i in range(len(out) - 1):
@@ -786,7 +801,10 @@ class Path(Distributable, Extrudable, Roundable, list):
         exact: bool | None = None,
         method: str | None = None,
     ) -> list:
-        """Subdivide *path* to produce a more finely sampled path; see BOSL2 subdivide_path() for the full option set."""
+        """
+            Subdivide *path* to produce a more finely sampled path; see BOSL2 subdivide_path() for
+            the full option set.
+        """
         assert sum(x is not None for x in (sides, refine, maxlen)) == 1, (
             "Must give exactly one of sides, refine, and maxlen"
         )
@@ -869,7 +887,10 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _is_path_simple(path, closed: bool | None = None, eps: float = EPSILON) -> bool:
-        """True if the 2D *path* has no self-intersections (repeated points are not considered intersections)."""
+        """
+            True if the 2D *path* has no self-intersections (repeated points are not considered
+            intersections).
+        """
         if closed is None:
             closed = False
         arr = np.asarray(path, dtype=float)
@@ -885,7 +906,10 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _path_closest_point(path, pt: Sequence[float], closed: bool = True) -> list:
-        """[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point (an ndarray) on it."""
+        """
+            [SEGNUM, POINT]: the closest path segment to *pt*, and the closest point (an ndarray) on
+            it.
+        """
         pts = [line_closest_point(seg, pt) for seg in Path._pair(path, closed)]
         dists = np.linalg.norm(
             np.asarray(pts, dtype=float) - np.asarray(pt, dtype=float), axis=1
@@ -915,7 +939,10 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _path_normals(path, tangents=None, closed: bool | None = None) -> np.ndarray:
-        """Normal vector (perpendicular to the tangent, in the plane of the curve) at each point of *path*, as an ndarray."""
+        """
+            Normal vector (perpendicular to the tangent, in the plane of the curve) at each point of
+            *path*, as an ndarray.
+        """
         if closed is None:
             closed = False
         if tangents is None:
@@ -969,7 +996,10 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _path_cut(path, cutdist, closed: bool | None = None) -> list:
-        """Cut *path* into subpaths at the given ascending list of distances (or a single distance)."""
+        """
+            Cut *path* into subpaths at the given ascending list of distances (or a single
+            distance).
+        """
         if isinstance(cutdist, (int, float)):
             return Path._path_cut(path, [cutdist], closed)
         if closed is None:
@@ -1013,7 +1043,10 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _path_cut_points(path, cutdist, closed: bool = False, direction: bool = False):
-        """Cut *path* at the given distance(s) from the start; returns [[point, next_index], ...] (or a single entry if *cutdist* is a scalar)."""
+        """
+            Cut *path* at the given distance(s) from the start; returns [[point, next_index], ...]
+            (or a single entry if *cutdist* is a scalar).
+        """
         long_enough = len(path) >= (3 if closed else 2)
         assert long_enough, (
             "Two points needed to define a path"
@@ -1255,7 +1288,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         startfrag: int = 0,
         eps: float = EPSILON,
     ) -> list:
-        """Assemble *fragments* into one closed polygon path; returns [path, remaining_fragments]."""
+        """
+            Assemble *fragments* into one closed polygon path; returns [path, remaining_fragments].
+        """
         if len(fragments) == 0:
             return [[], []]
         if len(fragments) == 1:
@@ -1288,7 +1323,9 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _assemble_path_fragments(fragments: list, eps: float = EPSILON) -> list:
-        """Assemble *fragments* into complete closed polygon paths, discarding any with area < eps."""
+        """
+            Assemble *fragments* into complete closed polygon paths, discarding any with area < eps.
+        """
         finished = []
         frags = fragments
         while len(frags) > 0:
@@ -1512,7 +1549,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         fs=None,
     ) -> list[list[float]]:
         # local: shapes2d imports pythonscad, which paths.py must stay importable without
-        from bosl2.shapes2d import _frag_count, _arc_points
+        from bosl2.shapes2d import _arc_points, _frag_count
 
         p0, p1, p2 = points
         dim = len(p1)
@@ -1810,7 +1847,10 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         return Path(self.array[:, :2], closed=self.closed)
 
     def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any):
-        """Draw this 3-D path as a solid tube of the given *width* (see :func:`bosl2.drawing.stroke`)."""
+        """
+            Draw this 3-D path as a solid tube of the given *width* (see
+            :func:`bosl2.drawing.stroke`).
+        """
         from bosl2.drawing import stroke as _stroke
 
         return _stroke(

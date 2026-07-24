@@ -11,10 +11,6 @@ import math
 import numpy as np
 
 from bosl2.shapes2d import (
-    keyhole,
-    ring,
-    squircle,
-    squircle_radius_fg,
     _arc_points,
     _circle_from_3pts,
     _circle_pts,
@@ -23,7 +19,11 @@ from bosl2.shapes2d import (
     _rotate2d,
     arc,
     circle,
+    keyhole,
     rect_path,
+    ring,
+    squircle,
+    squircle_radius_fg,
 )
 
 

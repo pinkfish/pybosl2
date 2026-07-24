@@ -15,16 +15,15 @@ import numpy as np
 import pytest
 
 from bosl2.partitions import (
-    partition_path,
-    partition_mask,
-    partition_cut_mask,
-    _ptn_sect,
-    _partition_subpath,
     _partition_cutpath,
+    _partition_subpath,
+    _ptn_sect,
+    partition_cut_mask,
+    partition_mask,
+    partition_path,
 )
 from bosl2.paths import Path
 from bosl2.shapes3d import Bosl2Solid, cuboid, sphere
-
 
 # -- cut-path generators ------------------------------------------------------------------
 

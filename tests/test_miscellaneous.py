@@ -16,7 +16,6 @@ from bosl2 import miscellaneous as M
 from bosl2.paths import Path, Path3D
 from bosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
-
 L_PATH = Path([[0, 0], [40, 0], [40, 40]], closed=False)
 PATH3 = Path3D([[0, 0, 0], [20, 0, 10], [20, 20, 20]], closed=False)
 

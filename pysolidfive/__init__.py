@@ -110,7 +110,8 @@
 #
 #    Shapes covered, mirroring bosl2.shapes3d.py: cube, cuboid, octahedron,
 #    wedge, sphere, spheroid, torus, cylinder, cyl (+xcyl/ycyl/zcyl), tube,
-#    pie_slice, prismoid, rect_tube, interior_fillet, teardrop, onion,
+#    pie_slice, prismoid, rect_tube, regular_prism (n-gon prism),
+#    interior_fillet, teardrop, onion,
 #    heightfield (callable-data only), plus convex_polyhedron() (the hull of
 #    a 3-D point set as a max of face half-spaces -- dice-style solids
 #    without BOSL2's polyhedra.scad) and PyShape.scale(). And a 2-D layer:
@@ -167,6 +168,10 @@ from pysolidfive._constants import (  # noqa: F401
     UP,
     Vec3,
 )
+from pysolidfive.joiners import (  # noqa: F401
+    knuckle_hinge,
+    rabbit_clip,
+)
 from pysolidfive.paths import (  # noqa: F401
     bezier_points,
     bezpath_points,
@@ -183,9 +188,22 @@ from pysolidfive.paths import (  # noqa: F401
     round_corners,
     supershape_path,
 )
-from pysolidfive.joiners import (  # noqa: F401
-    knuckle_hinge,
-    rabbit_clip,
+from pysolidfive.shapes2d import (  # noqa: F401
+    PyShape2D,
+    circle2d,
+    ellipse2d,
+    hull2d_discs,
+    keyhole2d,
+    polygon2d,
+    rect2d,
+    region2d,
+    regular_ngon2d,
+    square2d,
+    star2d,
+    stroke2d,
+    supershape2d,
+    trapezoid2d,
+    union2d,
 )
 from pysolidfive.shapes3d import (  # noqa: F401
     PyShape,
@@ -206,6 +224,7 @@ from pysolidfive.shapes3d import (  # noqa: F401
     polygon_prism,
     prismoid,
     rect_tube,
+    regular_prism,
     rounding_edge_mask,
     sphere,
     spheroid,
@@ -218,16 +237,11 @@ from pysolidfive.shapes3d import (  # noqa: F401
     ycyl,
     zcyl,
 )
-from pysolidfive.shapes2d import (  # noqa: F401
-    PyShape2D,
-    circle2d,
-    hull2d_discs,
-    polygon2d,
-    rect2d,
-    region2d,
-    union2d,
-    stroke2d,
-    supershape2d,
+from pysolidfive.skin import (  # noqa: F401
+    linear_sweep_sdf,
+    mesh_to_vnf,
+    revolve_sdf,
+    skin_sdf,
 )
 
 __all__ = [
@@ -262,6 +276,10 @@ __all__ = [
     "supershape_path",
     "knuckle_hinge",
     "rabbit_clip",
+    "linear_sweep_sdf",
+    "mesh_to_vnf",
+    "revolve_sdf",
+    "skin_sdf",
     "PyShape",
     "convex_polyhedron",
     "cube",
@@ -280,6 +298,7 @@ __all__ = [
     "polygon_prism",
     "prismoid",
     "rect_tube",
+    "regular_prism",
     "rounding_edge_mask",
     "sphere",
     "spheroid",
@@ -293,11 +312,17 @@ __all__ = [
     "zcyl",
     "PyShape2D",
     "circle2d",
+    "ellipse2d",
     "hull2d_discs",
+    "keyhole2d",
     "polygon2d",
     "rect2d",
+    "regular_ngon2d",
     "region2d",
+    "square2d",
+    "star2d",
     "stroke2d",
     "supershape2d",
+    "trapezoid2d",
     "union2d",
 ]

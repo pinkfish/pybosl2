@@ -122,7 +122,10 @@ def deriv(
 
 
 def deriv2(data, height: float = 1, closed: bool = False) -> np.ndarray:
-    """Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray."""
+    """
+        Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an
+        ndarray.
+    """
     arr = np.asarray(data, dtype=float)
     length = len(arr)
     if closed:

@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from functools import reduce
 
 from bosl2.constants import INCH
-from bosl2.shapes3d import Bosl2Solid, tube, torus, sphere
+from bosl2.shapes3d import Bosl2Solid, sphere, torus, tube
 
 __all__ = ["BallBearings", "BearingSpec"]
 
@@ -125,7 +125,10 @@ class BallBearings:
 
     @staticmethod
     def ball_bearing_info(trade_size: str) -> BearingSpec:
-        """The :class:`BearingSpec` for a standard trade size, e.g. ``"608"`` / ``"6902ZZ"`` / ``"R8"``."""
+        """
+            The :class:`BearingSpec` for a standard trade size, e.g. ``"608"`` / ``"6902ZZ"`` /
+            ``"R8"``.
+        """
         try:
             return _BEARINGS[str(trade_size)]
         except KeyError:

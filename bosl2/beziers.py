@@ -46,8 +46,9 @@ import math
 import numpy as np
 
 from bosl2.math import EPSILON, lerp, lerpn
+from bosl2.transforms import apply as _apply
+from bosl2.transforms import reorient
 from bosl2.vectors import unit as _unit
-from bosl2.transforms import reorient, apply as _apply
 from bosl2.vnf import VNF
 
 UP = [0.0, 0.0, 1.0]
@@ -288,7 +289,10 @@ class Bezier(list):
         )
 
     def close_to_axis(self, axis: str = "X", N: int = 3) -> "Bezier":
-        """Close this 2-D bezier PATH down to the given axis (\"X\" or \"Y\"), returning a new Bezier."""
+        """
+            Close this 2-D bezier PATH down to the given axis (\"X\" or \"Y\"), returning a new
+            Bezier.
+        """
         arr = self.array
         assert arr.shape[1] == 2, "close_to_axis() works only on 2-D bezier paths."
         sp, ep = arr[0], arr[-1]
@@ -311,7 +315,10 @@ class Bezier(list):
         )
 
     def path_offset(self, offset, N: int = 3) -> "Bezier":
-        """Close this 2-D bezier PATH with a reversed copy offset by *offset* [x, y], returning a Bezier."""
+        """
+            Close this 2-D bezier PATH with a reversed copy offset by *offset* [x, y], returning a
+            Bezier.
+        """
         arr = self.array
         assert arr.shape[1] == 2, "path_offset() works only on 2-D bezier paths."
         off = np.asarray(offset, dtype=float)
@@ -558,7 +565,10 @@ class Bezier(list):
 
     @staticmethod
     def end(pt, a, radius: float | None = None, p: float | None = None) -> np.ndarray:
-        """The approaching control point and endpoint of a cubic bezier path, as a (2, dim) ndarray."""
+        """
+            The approaching control point and endpoint of a cubic bezier path, as a (2, dim)
+            ndarray.
+        """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or p is None, "p= requires a 3-D point"
         return np.stack([pt + Bezier._ctrl_offset(len(pt), a, radius, p), pt])
@@ -581,7 +591,9 @@ class Bezier(list):
 
     @staticmethod
     def flatten(groups) -> "Bezier":
-        """Concatenate a list of control-point groups (from begin/tang/joint/end) into one Bezier."""
+        """
+            Concatenate a list of control-point groups (from begin/tang/joint/end) into one Bezier.
+        """
         if len(groups) > 0 and isinstance(groups[0], np.ndarray):
             return Bezier(np.concatenate(groups, axis=0))
         out = []
@@ -810,7 +822,10 @@ class BezierPatch(list):
     def flat(
         size, N: int = 1, spin: float = 0.0, orient=UP, trans=(0.0, 0.0, 0.0)
     ) -> "BezierPatch":
-        """A flat rectangular degree-*N* patch of the given *size*, centered on XY, then reoriented."""
+        """
+            A flat rectangular degree-*N* patch of the given *size*, centered on XY, then
+            reoriented.
+        """
         assert N > 0
         sz = (
             [float(size), float(size)]
@@ -984,7 +999,10 @@ class BezierPatch(list):
         size=None,
         style: str = "default",
     ):
-        """Native geometry visualizing this patch: the surface plus control points/lines (BOSL2 debug_bezier_patches())."""
+        """
+            Native geometry visualizing this patch: the surface plus control points/lines (BOSL2
+            debug_bezier_patches()).
+        """
         return debug_bezier_patches(
             [self],
             size=size,

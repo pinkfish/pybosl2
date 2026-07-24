@@ -18,7 +18,8 @@ from __future__ import annotations
 
 import math
 
-from pythonscad import polygon as _opolygon, rotate_extrude as _orotate_extrude
+from pythonscad import polygon as _opolygon
+from pythonscad import rotate_extrude as _orotate_extrude
 
 from bosl2.drawing import turtle
 from bosl2.shapes3d import Bosl2Solid
@@ -344,6 +345,9 @@ class ModularHose:
 
     @staticmethod
     def modular_hose_radius(size: float, outer: bool = False) -> float:
-        """The inner (bore) or *outer* radius of a modular hose of *size* (BOSL2 modular_hose_radius())."""
+        """
+            The inner (bore) or *outer* radius of a modular hose of *size* (BOSL2
+            modular_hose_radius()).
+        """
         big = _BIG[_size_index(size)]
         return big[-1][0] if outer else big[0][0]

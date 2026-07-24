@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,7 +14,6 @@ from collections.abc import Sequence
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
 # LibFile: pysolidfive/_edges.py
 #    The cuboid() edge-selector mini-language (`_edges()`, `EDGES_ALL`, edge vectors like
 #    `TOP+LEFT`) and the anchor-offset helpers for each primitive family (box/cylinder/
@@ -27,8 +25,8 @@ from collections.abc import Sequence
 #    algorithm so both libraries still accept identical edge selectors.
 #
 # FileGroup: pysolidfive
-
 import math
+from collections.abc import Sequence
 
 # ---------------------------------------------------------------------------
 # Radius/diameter resolution
@@ -71,11 +69,7 @@ _MAJOR_AXIS_VALID = ["X", "Y", "Z", "ALL", "NONE"]
 
 
 def _is_edge_array(x) -> bool:
-    return (
-        isinstance(x, list)
-        and len(x) == 3
-        and all(isinstance(row, list) and len(row) == 4 for row in x)
-    )
+    return isinstance(x, list) and len(x) == 3 and all(isinstance(row, list) and len(row) == 4 for row in x)
 
 
 def _edge_set(v) -> list[list[int]]:
@@ -99,9 +93,7 @@ def _edge_set(v) -> list[list[int]]:
                     elif v == "NONE":
                         matched = False
                     else:
-                        raise ValueError(
-                            f"{v} must be a vector, edge array, or one of {_MAJOR_AXIS_VALID}"
-                        )
+                        raise ValueError(f"{v} must be a vector, edge array, or one of {_MAJOR_AXIS_VALID}")
                 else:
                     nonz = sum(abs(x) for x in v)
                     if nonz == 2:
@@ -116,9 +108,7 @@ def _edge_set(v) -> list[list[int]]:
 
 def _is_plain_vector(v) -> bool:
     return (
-        isinstance(v, list)
-        and len(v) > 0
-        and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
+        isinstance(v, list) and len(v) > 0 and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
     )
 
 
@@ -146,13 +136,7 @@ def _edges(v, except_: list | None = None) -> list[list[int]]:
         for ax in range(3):
             for i in range(4):
                 exc[ax][i] += es[ax][i]
-    return [
-        [
-            1 if (normed[ax][i] - (1 if exc[ax][i] > 0 else 0)) > 0 else 0
-            for i in range(4)
-        ]
-        for ax in range(3)
-    ]
+    return [[1 if (normed[ax][i] - (1 if exc[ax][i] > 0 else 0)) > 0 else 0 for i in range(4)] for ax in range(3)]
 
 
 # ---------------------------------------------------------------------------
@@ -160,16 +144,12 @@ def _edges(v, except_: list | None = None) -> list[list[int]]:
 # ---------------------------------------------------------------------------
 
 
-def _anchor_offset_box3(
-    size: "Sequence[float]", anchor: "Sequence[float]"
-) -> list[float]:
+def _anchor_offset_box3(size: "Sequence[float]", anchor: "Sequence[float]") -> list[float]:
     a = list(anchor)
     return [-a[i] * size[i] / 2 for i in range(3)]
 
 
-def _anchor_offset_hull3(
-    points: "Sequence[Sequence[float]]", anchor: "Sequence[float]"
-) -> list[float]:
+def _anchor_offset_hull3(points: "Sequence[Sequence[float]]", anchor: "Sequence[float]") -> list[float]:
     a = list(anchor)
     if a[0] == 0 and a[1] == 0 and a[2] == 0:
         return [0.0, 0.0, 0.0]
@@ -177,9 +157,7 @@ def _anchor_offset_hull3(
     return [-best[0], -best[1], -best[2]]
 
 
-def _anchor_offset_cyl(
-    r1: float, r2: float, length: float, anchor: "Sequence[float]", axis: int = 2
-) -> list[float]:
+def _anchor_offset_cyl(r1: float, r2: float, length: float, anchor: "Sequence[float]", axis: int = 2) -> list[float]:
     a = list(anchor)
     az = a[axis]
     r_at = r1 if az < 0 else (r2 if az > 0 else (r1 + r2) / 2)

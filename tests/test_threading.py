@@ -14,14 +14,13 @@ import math
 import numpy as np
 import pytest
 
+from bosl2.shapes3d import Bosl2Solid
 from bosl2.threading import (
     Threading,
+    _buttress_profile,
     _iso_profile,
     _trapezoidal_profile,
-    _buttress_profile,
 )
-from bosl2.shapes3d import Bosl2Solid
-
 
 # -- thread profiles (in pitch units) -----------------------------------------------------
 

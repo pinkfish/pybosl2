@@ -16,7 +16,6 @@ import pytest
 
 from bosl2.paths import Path, Path3D
 
-
 SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 
 
