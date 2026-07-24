@@ -40,12 +40,28 @@ from pythonscad import (
 )
 
 
-def _ocylinder(height=None, radius=None, radius1=None, radius2=None, center=None,
-               fn=None, fa=None, fs=None):
+def _ocylinder(
+    height=None,
+    radius=None,
+    radius1=None,
+    radius2=None,
+    center=None,
+    fn=None,
+    fa=None,
+    fs=None,
+):
     """The native cylinder, accepting this file's full-word kwargs (native wants h/r/r1/r2)."""
     kw = {}
-    for full, nat in ((height, "h"), (radius, "r"), (radius1, "r1"), (radius2, "r2"),
-                      (center, "center"), (fn, "fn"), (fa, "fa"), (fs, "fs")):
+    for full, nat in (
+        (height, "h"),
+        (radius, "r"),
+        (radius1, "r1"),
+        (radius2, "r2"),
+        (center, "center"),
+        (fn, "fn"),
+        (fa, "fa"),
+        (fs, "fs"),
+    ):
         if full is not None:
             kw[nat] = full
     return _ocylinder_native(**kw)
@@ -54,10 +70,18 @@ def _ocylinder(height=None, radius=None, radius1=None, radius2=None, center=None
 def _osphere(radius=None, center=None, fn=None, fa=None, fs=None):
     """The native sphere, accepting this file's full-word kwargs (native wants r)."""
     kw = {}
-    for full, nat in ((radius, "r"), (center, "center"), (fn, "fn"), (fa, "fa"), (fs, "fs")):
+    for full, nat in (
+        (radius, "r"),
+        (center, "center"),
+        (fn, "fn"),
+        (fa, "fa"),
+        (fs, "fs"),
+    ):
         if full is not None:
             kw[nat] = full
     return _osphere_native(**kw)
+
+
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -2334,7 +2358,7 @@ def pie_slice(
         use_anchor = CENTER if center else BOTTOM
 
     base = _ocylinder(height=length, radius1=rad1, radius2=rad2, center=True)
-    if isinstance(angle, (list, tuple)):                  # [start, end] wedge
+    if isinstance(angle, (list, tuple)):  # [start, end] wedge
         start, sweep = float(angle[0]), float(angle[1]) - float(angle[0])
     else:
         start, sweep = 0.0, float(angle)

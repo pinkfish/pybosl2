@@ -276,6 +276,9 @@ def golden_ok(rendered: Path, golden: Path, tolerance: float = 1e-4) -> bool:
     if not golden.exists():
         golden.parent.mkdir(parents=True, exist_ok=True)
         import shutil
+
         shutil.copy2(rendered, golden)
         return True
-    return stl_normalized_hash(rendered, tolerance) == stl_normalized_hash(golden, tolerance)
+    return stl_normalized_hash(rendered, tolerance) == stl_normalized_hash(
+        golden, tolerance
+    )

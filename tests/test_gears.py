@@ -267,7 +267,9 @@ def test_profile_shift_grows_the_tooth():
     # a positive profile shift moves the tooth outward -- the tooth profile is centred on the pitch
     # point, so the tip (its largest y) moves further out.
     tip0 = max(y for _x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0))
-    tip_shifted = max(y for _x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0.5))
+    tip_shifted = max(
+        y for _x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0.5)
+    )
     assert tip_shifted > tip0
 
 
