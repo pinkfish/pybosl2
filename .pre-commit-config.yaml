@@ -1,0 +1,11 @@
+repos:
+  - repo: https://github.com/pinkfish/pybosl2
+    rev: v0.5.3
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      # Runs the linter and auto-fixes safe errors
+      - id: ruff-check
+        args: [ --fix ]
+      # Runs the formatter and auto-formats the code
+      - id: ruff-format
