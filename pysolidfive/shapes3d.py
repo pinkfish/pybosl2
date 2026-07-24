@@ -177,14 +177,14 @@ class PyShape:
 
     def __init__(
         self,
-        sdf_fn: "Callable",
-        mn: "Sequence[float]",
-        mx: "Sequence[float]",
+        sdf_fn: Callable,
+        mn: Sequence[float],
+        mx: Sequence[float],
         res: int = 10,
-        cuboid_size: "Sequence[float] | None" = None,
-        cuboid_center: "Sequence[float]" = (0.0, 0.0, 0.0),
-        cuboid_edge_amounts: "list[list[float]] | None" = None,
-        cuboid_edge_modes: "list[list[str]] | None" = None,
+        cuboid_size: Sequence[float] | None = None,
+        cuboid_center: Sequence[float] = (0.0, 0.0, 0.0),
+        cuboid_edge_amounts: list[list[float]] | None = None,
+        cuboid_edge_modes: list[list[str]] | None = None,
     ):
         self._sdf_fn = sdf_fn
         self.mn = list(mn)
@@ -201,14 +201,14 @@ class PyShape:
 
     def _wrap(
         self,
-        sdf_fn: "Callable",
-        mn: "Sequence[float]",
-        mx: "Sequence[float]",
-        cuboid_size: "Sequence[float] | None" = None,
-        cuboid_center: "Sequence[float]" = (0.0, 0.0, 0.0),
-        cuboid_edge_amounts: "list[list[float]] | None" = None,
-        cuboid_edge_modes: "list[list[str]] | None" = None,
-    ) -> "PyShape":
+        sdf_fn: Callable,
+        mn: Sequence[float],
+        mx: Sequence[float],
+        cuboid_size: Sequence[float] | None = None,
+        cuboid_center: Sequence[float] = (0.0, 0.0, 0.0),
+        cuboid_edge_amounts: list[list[float]] | None = None,
+        cuboid_edge_modes: list[list[str]] | None = None,
+    ) -> PyShape:
         return PyShape(
             sdf_fn,
             mn,
@@ -249,7 +249,7 @@ class PyShape:
 
     # ---- SDF-level composition ----
 
-    def translate(self, v: "Sequence[float]") -> "PyShape":
+    def translate(self, v: Sequence[float]) -> PyShape:
         tx, ty, tz = (list(v) + [0.0, 0.0, 0.0])[:3]
         fn = self._sdf_fn
         new_fn = lambda x, y, z: fn(x - tx, y - ty, z - tz)  # noqa: E731
@@ -270,7 +270,7 @@ class PyShape:
             self.cuboid_edge_modes,
         )
 
-    def rotate(self, a, v: list[float] | None = None) -> "PyShape":
+    def rotate(self, a, v: list[float] | None = None) -> PyShape:
         """Rotate the SDF itself (`f(p) -> f(R^-1 p)`), exact and free -- no meshing involved,
         so (like translate()) a shape can still be .round()ed/.chamfer()ed/composed afterward
         without forcing an early mesh. Matches the real rotate(obj, a, v)'s two calling
@@ -302,7 +302,7 @@ class PyShape:
         new_mx = [max(c[i] for c in rotated) for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
 
-    def scale(self, v: "float | Sequence[float]") -> "PyShape":
+    def scale(self, v: float | Sequence[float]) -> PyShape:
         """Scale the SDF (`f(p) -> s_min * f(p / s)`), exact zero set, no meshing involved --
         `v` a single factor or a per-axis [sx, sy, sz], matching the real scale(). The value is
         renormalized by the smallest factor so it stays a conservative (never-overestimating)
@@ -319,7 +319,7 @@ class PyShape:
         new_mx = [self.mx[i] * s[i] for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
 
-    def mirror(self, v: list[float]) -> "PyShape":
+    def mirror(self, v: list[float]) -> PyShape:
         """Reflect across the plane through the origin with normal `v` (`f(p) -> f(Mp)`, with
         M the Householder reflection), exact and free, matching the real mirror(). Drops
         cuboid_size/cuboid_center metadata, same rationale as rotate(): edge selectors are
@@ -353,14 +353,14 @@ class PyShape:
         new_mx = [max(c[i] for c in refl) for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
 
-    def __or__(self, other: "PyShape") -> "PyShape":
+    def __or__(self, other: "PyShape") -> PyShape:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y, z: lv.min(fa(x, y, z), fb(x, y, z))  # noqa: E731
         mn = [min(self.mn[i], other.mn[i]) for i in range(3)]
         mx = [max(self.mx[i], other.mx[i]) for i in range(3)]
         return self._wrap(new_fn, mn, mx)
 
-    def __and__(self, other: "PyShape") -> "PyShape":
+    def __and__(self, other: "PyShape") -> PyShape:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y, z: lv.max(fa(x, y, z), fb(x, y, z))  # noqa: E731
         # The intersection can only live where BOTH boxes overlap -- so the meshing region
@@ -370,14 +370,14 @@ class PyShape:
         mx = [min(self.mx[i], other.mx[i]) for i in range(3)]
         return self._wrap(new_fn, mn, mx)
 
-    def __sub__(self, other: "PyShape") -> "PyShape":
+    def __sub__(self, other: "PyShape") -> PyShape:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y, z: lv.max(fa(x, y, z), -fb(x, y, z))  # noqa: E731
         return self._wrap(new_fn, list(self.mn), list(self.mx))
 
     # ---- cuboid-only edge treatments ----
 
-    def _edge_treat(self, amount: float, edges, except_edges, mode: str) -> "PyShape":
+    def _edge_treat(self, amount: float, edges, except_edges, mode: str) -> PyShape:
         assert self.cuboid_size is not None, f"{mode}() requires a cuboid-shaped PyShape (from pysolidfive.cuboid())"
         assert self.cuboid_edge_amounts is not None and self.cuboid_edge_modes is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
@@ -405,11 +405,11 @@ class PyShape:
             modes,
         )
 
-    def round(self, radius: float, edges: str | list = "ALL", except_edges: list | None = None) -> "PyShape":
+    def round(self, radius: float, edges: str | list = "ALL", except_edges: list | None = None) -> PyShape:
         """Round the selected edges by `radius`, in addition to any existing edge treatment."""
         return self._edge_treat(radius, edges, except_edges, "round")
 
-    def chamfer(self, size: float, edges: str | list = "ALL", except_edges: list | None = None) -> "PyShape":
+    def chamfer(self, size: float, edges: str | list = "ALL", except_edges: list | None = None) -> PyShape:
         """Chamfer the selected edges by `size`, in addition to any existing edge treatment."""
         return self._edge_treat(size, edges, except_edges, "chamfer")
 

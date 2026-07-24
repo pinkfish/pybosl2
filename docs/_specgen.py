@@ -39,7 +39,7 @@ CSS = """
 :root{
   --ground:#14171a; --panel:#1c2024; --panel-2:#21262b; --line:#2c3238;
   --ink:#e6ebef; --ink-dim:#8b959d; --ink-faint:#5b656d;
-  --accent:#38bdf0; --pass:#57d9a3; --warn:#e6b45e;
+  --accent:#38bdf0; --pass:#57d9a3; --warn:#e6b45e; --model:#aecbe8;
   --mono:ui-monospace,"SF Mono","SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
@@ -47,7 +47,7 @@ CSS = """
   :root{
     --ground:#eaeef1; --panel:#ffffff; --panel-2:#f4f7f9; --line:#d2dade;
     --ink:#171c21; --ink-dim:#586269; --ink-faint:#8b959c;
-    --accent:#0d7ba6; --pass:#158a5e; --warn:#9c6612;
+    --accent:#0d7ba6; --pass:#158a5e; --warn:#9c6612; --model:#6f9ac9;
   }
 }
 *{box-sizing:border-box}
@@ -1206,7 +1206,7 @@ function load(uri) {
     const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
     const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
     geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--accent"), specular: 0x222222, shininess: 22 }));
+    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
     scene.add(mesh);
     const r = Math.max(s.x, s.y, s.z) || 1;
     camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);

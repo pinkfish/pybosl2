@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
+from typing import Callable
 
 import libfive as lv
 
@@ -69,18 +70,18 @@ class PyShape2D:
     which is almost never what you want, so extrude explicitly.
     """
 
-    def __init__(self, sdf_fn, mn, mx, res: int = 10):
+    def __init__(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float], res: int = 10):
         self._sdf_fn = sdf_fn
         self.mn = [float(mn[0]), float(mn[1])]
         self.mx = [float(mx[0]), float(mx[1])]
         self.res = res
 
-    def _wrap(self, sdf_fn, mn, mx) -> "PyShape2D":
+    def _wrap(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float]) -> PyShape2D:
         return PyShape2D(sdf_fn, mn, mx, self.res)
 
     # ---- transforms ----
 
-    def translate(self, v) -> "PyShape2D":
+    def translate(self, v: Sequence[float]) -> PyShape2D:
         tx, ty = float(v[0]), float(v[1])
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(x - tx, y - ty)  # noqa: E731
@@ -90,7 +91,7 @@ class PyShape2D:
             [self.mx[0] + tx, self.mx[1] + ty],
         )
 
-    def rotate(self, a) -> "PyShape2D":
+    def rotate(self, a) -> PyShape2D:
         """Rotate by `a` degrees around the origin -- a plain scalar, or the native
         [0, 0, a] vector spelling (only z-rotation makes sense for a 2-D shape; the x/y
         components must be 0), so migrated call sites keep working unchanged."""
@@ -114,7 +115,7 @@ class PyShape2D:
             [max(p[0] for p in rot), max(p[1] for p in rot)],
         )
 
-    def scale(self, v) -> "PyShape2D":
+    def scale(self, v) -> PyShape2D:
         s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 2
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
@@ -126,7 +127,7 @@ class PyShape2D:
             [self.mx[0] * s[0], self.mx[1] * s[1]],
         )
 
-    def mirror(self, v) -> "PyShape2D":
+    def mirror(self, v) -> PyShape2D:
         """Mirror across the line through the origin whose NORMAL is `v` (native convention)."""
         nx, ny = float(v[0]), float(v[1])
         nlen = math.hypot(nx, ny)
@@ -155,7 +156,7 @@ class PyShape2D:
 
     # ---- booleans ----
 
-    def __or__(self, other: "PyShape2D") -> "PyShape2D":
+    def __or__(self, other: "PyShape2D") -> PyShape2D:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y: lv.min(fa(x, y), fb(x, y))  # noqa: E731
         return self._wrap(
@@ -164,7 +165,7 @@ class PyShape2D:
             [max(self.mx[i], other.mx[i]) for i in range(2)],
         )
 
-    def __and__(self, other: "PyShape2D") -> "PyShape2D":
+    def __and__(self, other: "PyShape2D") -> PyShape2D:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y: lv.max(fa(x, y), fb(x, y))  # noqa: E731
         # The intersection can only live where BOTH boxes overlap -- so the meshing region
@@ -176,14 +177,14 @@ class PyShape2D:
             [min(self.mx[i], other.mx[i]) for i in range(2)],
         )
 
-    def __sub__(self, other: "PyShape2D") -> "PyShape2D":
+    def __sub__(self, other: "PyShape2D") -> PyShape2D:
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y: lv.max(fa(x, y), -fb(x, y))  # noqa: E731
         return self._wrap(new_fn, list(self.mn), list(self.mx))
 
     # ---- the ops SDFs are uniquely good at ----
 
-    def offset(self, delta: float = 0, radius: float | None = None) -> "PyShape2D":
+    def offset(self, delta: float = 0, radius: float | None = None) -> PyShape2D:
         """Grow (positive) or shrink (negative) by a distance -- one subtraction on the SDF, no
         polygon offsetting/self-intersection cleanup. Growth is round-style (matching native
         offset(radius=...)); accepts either the delta= or radius= spelling since they coincide here.
@@ -194,7 +195,7 @@ class PyShape2D:
         g = max(amount, 0.0)
         return self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
 
-    def outline(self, width: float) -> "PyShape2D":
+    def outline(self, width: float) -> PyShape2D:
         """The centered outline strip of this shape's boundary: |d| - width/2."""
         fn = self._sdf_fn
         new_fn = lambda x, y: lv.abs(fn(x, y)) - width / 2  # noqa: E731
