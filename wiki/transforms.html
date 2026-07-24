@@ -136,12 +136,12 @@
 <span id="transforms-affine-reorient"></span><h1>Transforms (affine / reorient)<a class="headerlink" href="#module-bosl2.transforms" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.transforms.polar_to_xy">
-<span class="sig-prename descclassname"><span class="pre">bosl2.transforms.</span></span><span class="sig-name descname"><span class="pre">polar_to_xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/transforms.html#polar_to_xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.transforms.polar_to_xy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bosl2.transforms.</span></span><span class="sig-name descname"><span class="pre">polar_to_xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/transforms.html#polar_to_xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.transforms.polar_to_xy" title="Link to this definition">¶</a></dt>
 <dd><p>Convert polar coordinates (radius, angle in degrees) to a 2-D [x, y] point.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>float</em>)</p></li>
+<li><p><strong>radius</strong> (<em>float</em>)</p></li>
 <li><p><strong>angle</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
@@ -180,9 +180,9 @@ degrees about a perpendicular axis).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.transforms.rot_about_axis">
-<span class="sig-prename descclassname"><span class="pre">bosl2.transforms.</span></span><span class="sig-name descname"><span class="pre">rot_about_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/transforms.html#rot_about_axis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.transforms.rot_about_axis" title="Link to this definition">¶</a></dt>
-<dd><p>4x4 matrix rotating <em>angle</em> degrees about the line through <em>cp</em> in direction <em>axis</em>.</p>
-<p>The 4x4 form of BOSL2’s <code class="docutils literal notranslate"><span class="pre">rot(a=,</span> <span class="pre">v=,</span> <span class="pre">cp=)</span></code>: translate <em>cp</em> to the origin, rotate, translate
+<span class="sig-prename descclassname"><span class="pre">bosl2.transforms.</span></span><span class="sig-name descname"><span class="pre">rot_about_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/transforms.html#rot_about_axis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.transforms.rot_about_axis" title="Link to this definition">¶</a></dt>
+<dd><p>4x4 matrix rotating <em>angle</em> degrees about the line through <em>center</em> in direction <em>axis</em>.</p>
+<p>The 4x4 form of BOSL2’s <code class="docutils literal notranslate"><span class="pre">rot(a=,</span> <span class="pre">v=,</span> <span class="pre">center=)</span></code>: translate <em>center</em> to the origin, rotate, translate
 back.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

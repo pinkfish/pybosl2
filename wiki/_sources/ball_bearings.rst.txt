@@ -52,4 +52,4 @@ A custom open bearing by dimensions:
 
 .. pythonscad-example::
 
-   BallBearings.ball_bearing(id=12, od=32, width=10, shield=False).show()
+   BallBearings.ball_bearing(inner_diameter=12, outer_diameter=32, width=10, shield=False).show()

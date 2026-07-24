@@ -36,25 +36,25 @@ NEMA 8:
 
 .. pythonscad-example::
 
-   NemaSteppers.nema_stepper_motor(size=8, h=24, shaft_len=15).show()
+   NemaSteppers.nema_stepper_motor(size=8, height=24, shaft_len=15).show()
 
 NEMA 11:
 
 .. pythonscad-example::
 
-   NemaSteppers.nema_stepper_motor(size=11, h=24, shaft_len=20).show()
+   NemaSteppers.nema_stepper_motor(size=11, height=24, shaft_len=20).show()
 
 NEMA 17:
 
 .. pythonscad-example::
 
-   NemaSteppers.nema_stepper_motor(size=17, h=40, shaft_len=30).show()
+   NemaSteppers.nema_stepper_motor(size=17, height=40, shaft_len=30).show()
 
 NEMA 23:
 
 .. pythonscad-example::
 
-   NemaSteppers.nema_stepper_motor(size=23, h=50, shaft_len=40).show()
+   NemaSteppers.nema_stepper_motor(size=23, height=50, shaft_len=40).show()
 
 .. rubric:: ``nema_mount_mask``
 
@@ -62,16 +62,16 @@ Bolt-pattern mask for a NEMA 14:
 
 .. pythonscad-example::
 
-   NemaSteppers.nema_mount_mask(size=14, depth=5, l=5).show()
+   NemaSteppers.nema_mount_mask(size=14, depth=5, length=5).show()
 
 NEMA 17 with slotted holes:
 
 .. pythonscad-example::
 
-   NemaSteppers.nema_mount_mask(size=17, depth=5, l=5).show()
+   NemaSteppers.nema_mount_mask(size=17, depth=5, length=5).show()
 
-NEMA 17 with round holes (l=0):
+NEMA 17 with round holes (length=0):
 
 .. pythonscad-example::
 
-   NemaSteppers.nema_mount_mask(size=17, depth=5, l=0).show()
+   NemaSteppers.nema_mount_mask(size=17, depth=5, length=0).show()

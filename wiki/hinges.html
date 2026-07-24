@@ -150,24 +150,24 @@ connectors.</p>
 <p>Folding/knuckle hinges and snap connectors (BOSL2 hinges.scad).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.hinges.Hinges.living_hinge_mask">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">living_hinge_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerheight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foldangle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hingegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/hinges.html#Hinges.living_hinge_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.hinges.Hinges.living_hinge_mask" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">living_hinge_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerheight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foldangle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hingegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/hinges.html#Hinges.living_hinge_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.hinges.Hinges.living_hinge_mask" title="Link to this definition">¶</a></dt>
 <dd><p>A wedge mask to difference out of a plate to make a print-in-place living hinge (BOSL2 living_hinge_mask()).</p>
 <p>Centre it on the bottom of a plate of thickness <em>thick</em>; it leaves <code class="docutils literal notranslate"><span class="pre">2*layerheight</span></code> of
 material as the flexible hinge, and a V-groove wide enough to fold <em>foldangle</em> degrees.</p>
 <p class="rubric">Examples</p>
 <p>A living hinge cut into a 100x40 plate:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.hinges</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hinges</span>
-<span class="p">(</span><span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">-</span> <span class="n">Hinges</span><span class="o">.</span><span class="n">living_hinge_mask</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foldangle</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="mf">1.5</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="p">(</span><span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">-</span> <span class="n">Hinges</span><span class="o">.</span><span class="n">living_hinge_mask</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foldangle</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="mf">1.5</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-40f5eca835284a2184307e0bc5163474" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d6a68d8e73e648a784573148cf7b3e47" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-40f5eca835284a2184307e0bc5163474");
+const el = document.getElementById("stlviewer-d6a68d8e73e648a784573148cf7b3e47");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -190,7 +190,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/bdd8d199b8bbf7d1.stl", function (geo) {
+new STLLoader().load("_stl/29dbf0097e0790a7.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -210,11 +210,11 @@ new STLLoader().load("_stl/bdd8d199b8bbf7d1.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/bdd8d199b8bbf7d1.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/29dbf0097e0790a7.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>l</strong> (<em>float</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em>)</p></li>
 <li><p><strong>thick</strong> (<em>float</em>)</p></li>
 <li><p><strong>layerheight</strong> (<em>float</em>)</p></li>
 <li><p><strong>foldangle</strong> (<em>float</em>)</p></li>
@@ -268,13 +268,13 @@ two mesh. Pair with <a class="reference internal" href="#bosl2.hinges.Hinges.knu
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d95912a6ca6c42b092a08385cd4b79a2" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-77a12fed062f41b2903ed74c05ad3f30" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d95912a6ca6c42b092a08385cd4b79a2");
+const el = document.getElementById("stlviewer-77a12fed062f41b2903ed74c05ad3f30");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -397,13 +397,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-1ee168b9fecf4db0ae6ce317dafa3f3d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-b6c9bcf4f4924a258278eada73037b70" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-1ee168b9fecf4db0ae6ce317dafa3f3d");
+const el = document.getElementById("stlviewer-b6c9bcf4f4924a258278eada73037b70");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -453,13 +453,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0f2982702454406f97f1d57a84c2aa9c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ef8bc06ece764e3eb080e1a774284793" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0f2982702454406f97f1d57a84c2aa9c");
+const el = document.getElementById("stlviewer-ef8bc06ece764e3eb080e1a774284793");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -505,17 +505,17 @@ window.addEventListener("resize", resize);
 <p><a class="reference external" href="_stl/739c96221f1e14dc.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">living_hinge_mask</span></code></p>
 <p>A living-hinge groove mask:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Hinges</span><span class="o">.</span><span class="n">living_hinge_mask</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foldangle</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Hinges</span><span class="o">.</span><span class="n">living_hinge_mask</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foldangle</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9aa7aee12cae45f78af9dd7e63819846" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-6a61dd71d0ed423097c6461949ef8c8f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9aa7aee12cae45f78af9dd7e63819846");
+const el = document.getElementById("stlviewer-6a61dd71d0ed423097c6461949ef8c8f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -538,7 +538,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/bec507e22a4c2833.stl", function (geo) {
+new STLLoader().load("_stl/4125ffefbafd9123.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -558,20 +558,20 @@ new STLLoader().load("_stl/bec507e22a4c2833.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/bec507e22a4c2833.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/4125ffefbafd9123.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">snap_lock</span></code></p>
 <p>A snap lock:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Hinges</span><span class="o">.</span><span class="n">snap_lock</span><span class="p">(</span><span class="n">thick</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foldangle</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-91e2a17853f14957b4b33e06f31c8af3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ec77233ed5034571a456f443e804e8a6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-91e2a17853f14957b4b33e06f31c8af3");
+const el = document.getElementById("stlviewer-ec77233ed5034571a456f443e804e8a6");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -621,13 +621,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-fa35868bcdf24062a9b47492120c893f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-88e75fe51aaa4bd1a030e9eac8634470" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-fa35868bcdf24062a9b47492120c893f");
+const el = document.getElementById("stlviewer-88e75fe51aaa4bd1a030e9eac8634470");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

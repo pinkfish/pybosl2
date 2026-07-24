@@ -200,12 +200,12 @@
 <span class="sd">    ValueError (matching BOSL2&#39;s default assert-on-zero-vector behavior).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arr</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
+    <span class="n">sides</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arr</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">sides</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot normalize a zero vector&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">arr</span> <span class="o">/</span> <span class="n">n</span></div>
+    <span class="k">return</span> <span class="n">arr</span> <span class="o">/</span> <span class="n">sides</span></div>
 
 </pre></div>
 

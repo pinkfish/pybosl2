@@ -17,6 +17,7 @@ to /Applications) -- these tests need the app, they are not part of the pure-Pyt
 
 from __future__ import annotations
 
+import math
 import os
 import struct
 import subprocess
@@ -34,6 +35,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _CANDIDATE_BINARIES = [
     "/Applications/PythonSCAD-dev.app/Contents/MacOS/PythonSCAD",
     "/Applications/PythonSCAD.app/Contents/MacOS/PythonSCAD",
+    # AppImage extracted by CI (see .github/workflows/docs.yml)
+    "/usr/local/bin/pythonscad",
+    "squashfs-root/AppRun",
 ]
 
 
@@ -193,10 +197,12 @@ def parse_stl(path: Path) -> np.ndarray:
     """Load an STL (binary or ASCII) as an (N, 3, 3) array of triangle vertices."""
     data = Path(path).read_bytes()
     if len(data) >= 84:
-        n = struct.unpack("<I", data[80:84])[0]
-        if len(data) == 84 + 50 * n:  # exact binary-STL size => binary
-            dt = np.dtype([("n", "<f4", (3,)), ("v", "<f4", (3, 3)), ("attr", "<u2")])
-            arr = np.frombuffer(data, dtype=dt, offset=84, count=n)
+        sides = struct.unpack("<I", data[80:84])[0]
+        if len(data) == 84 + 50 * sides:  # exact binary-STL size => binary
+            dt = np.dtype(
+                [("sides", "<f4", (3,)), ("v", "<f4", (3, 3)), ("attr", "<u2")]
+            )
+            arr = np.frombuffer(data, dtype=dt, offset=84, count=sides)
             return np.array(arr["v"], dtype=float)
     verts = []
     for line in data.decode("ascii", errors="replace").splitlines():
@@ -238,3 +244,41 @@ def stl_metrics(path: Path) -> StlMetrics:
             edges[e] = edges.get(e, 0) + 1
     watertight = bool(edges) and all(c == 2 for c in edges.values())
     return StlMetrics(len(tris), bbmin, bbmax, bbmax - bbmin, volume, area, watertight)
+
+
+def stl_normalized_hash(path: Path, tolerance: float = 1e-4) -> str:
+    """Return a stable SHA256 hash of the STL geometry, tolerant of vertex
+    ordering differences and sub-*tolerance* floating-point drift.
+
+    Vertices are rounded to *tolerance*, triangles are sorted by centroid,
+    and the result is hashed so two STLs that represent the same shape
+    (within tolerance) produce the same hash.
+    """
+    import hashlib
+
+    tris = parse_stl(path)
+    rounded = np.round(tris, decimals=int(-math.log10(tolerance)))
+    centroids = np.round(rounded.mean(axis=1), decimals=int(-math.log10(tolerance)))
+    order = np.lexsort((centroids[:, 2], centroids[:, 1], centroids[:, 0]))
+    sorted_tris = rounded[order]
+    flat = sorted_tris.ravel().astype(np.float32).tobytes()
+    return hashlib.sha256(flat).hexdigest()[:16]
+
+
+def golden_ok(rendered: Path, golden: Path, tolerance: float = 1e-4) -> bool:
+    """True when the *rendered* STL matches the *golden* STL geometry within tolerance.
+
+    Both files are loaded, vertices rounded, triangles sorted by centroid, and
+    a stable hash compared.  When the golden file does not exist the first time
+    (e.g. a fresh checkout), the rendered STL is copied in as the golden and
+    the comparison is considered a pass.
+    """
+    if not golden.exists():
+        golden.parent.mkdir(parents=True, exist_ok=True)
+        import shutil
+
+        shutil.copy2(rendered, golden)
+        return True
+    return stl_normalized_hash(rendered, tolerance) == stl_normalized_hash(
+        golden, tolerance
+    )

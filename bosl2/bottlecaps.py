@@ -158,212 +158,220 @@ def _turtle_start(x, y=0.0):
     return [[[float(x), float(y)]], [1.0, 0.0], 90.0, 0.0]
 
 
-def _pco1810_profile(d: "BottleThreadSpec"):
-    h = d.support_h + d.neck_h
+def _pco1810_profile(diameter: "BottleThreadSpec"):
+    height = diameter.support_h + diameter.neck_h
     return turtle(
         [
             "untilx",
-            d.neck_d / 2,
+            diameter.neck_d / 2,
             "left",
             90,
             "move",
-            d.neck_h - 1,
+            diameter.neck_h - 1,
             "arcright",
             1,
             90,
             "untilx",
-            d.support_d / 2 - d.support_rad,
+            diameter.support_d / 2 - diameter.support_rad,
             "arcleft",
-            d.support_rad,
+            diameter.support_rad,
             90,
             "move",
-            d.support_width,
+            diameter.support_width,
             "arcleft",
-            d.support_rad,
-            90 - d.support_ang,
+            diameter.support_rad,
+            90 - diameter.support_ang,
             "untilx",
-            d.tamper_base_d / 2,
+            diameter.tamper_base_d / 2,
             "right",
-            90 - d.support_ang,
+            90 - diameter.support_ang,
             "untily",
-            h - d.tamper_base_h,
+            height - diameter.tamper_base_h,
             "right",
             90,
             "untilx",
-            d.tamper_ring_d / 2,
+            diameter.tamper_ring_d / 2,
             "left",
             90,
             "move",
-            d.tamper_ring_width,
+            diameter.tamper_ring_width,
             "arcleft",
-            d.tamper_ring_r,
+            diameter.tamper_ring_r,
             90,
             "untilx",
-            d.threadbase_d / 2,
+            diameter.threadbase_d / 2,
             "right",
             90,
             "untily",
-            h - d.lip_h - d.lip_leadin_r,
+            height - diameter.lip_h - diameter.lip_leadin_r,
             "arcright",
-            d.lip_leadin_r,
+            diameter.lip_leadin_r,
             90,
             "untilx",
-            d.lip_d / 2,
+            diameter.lip_d / 2,
             "left",
             90,
             "untily",
-            h - d.lip_recess_h,
+            height - diameter.lip_recess_h,
             "left",
             90,
             "untilx",
-            d.lip_recess_d / 2,
+            diameter.lip_recess_d / 2,
             "right",
             90,
             "untily",
-            h - d.lip_roundover_r,
+            height - diameter.lip_roundover_r,
             "arcleft",
-            d.lip_roundover_r,
+            diameter.lip_roundover_r,
             90,
             "untilx",
-            d.inner_d / 2,
+            diameter.inner_d / 2,
         ],
-        state=_turtle_start(d.inner_d / 2),
+        state=_turtle_start(diameter.inner_d / 2),
     )
 
 
-def _pco1881_profile(d: "BottleThreadSpec"):
-    h = d.support_h + d.neck_h
+def _pco1881_profile(diameter: "BottleThreadSpec"):
+    height = diameter.support_h + diameter.neck_h
     return turtle(
         [
             "untilx",
-            d.neck_d / 2,
+            diameter.neck_d / 2,
             "left",
             90,
             "move",
-            d.neck_h - 1,
+            diameter.neck_h - 1,
             "arcright",
             1,
             90,
             "untilx",
-            d.support_d / 2 - d.support_rad,
+            diameter.support_d / 2 - diameter.support_rad,
             "arcleft",
-            d.support_rad,
+            diameter.support_rad,
             90,
             "move",
-            d.support_width,
+            diameter.support_width,
             "arcleft",
-            d.support_rad,
-            90 - d.support_ang,
+            diameter.support_rad,
+            90 - diameter.support_ang,
             "untilx",
-            d.tamper_base_d / 2,
+            diameter.tamper_base_d / 2,
             "arcright",
-            d.tamper_divot_r,
-            180 - d.support_ang * 2,
+            diameter.tamper_divot_r,
+            180 - diameter.support_ang * 2,
             "left",
-            90 - d.support_ang,
+            90 - diameter.support_ang,
             "untily",
-            h - d.tamper_base_h,
+            height - diameter.tamper_base_h,
             "right",
             90,
             "untilx",
-            d.tamper_ring_d / 2,
+            diameter.tamper_ring_d / 2,
             "left",
             90,
             "move",
-            d.tamper_ring_width,
+            diameter.tamper_ring_width,
             "left",
-            d.tamper_ring_ang,
+            diameter.tamper_ring_ang,
             "untilx",
-            d.threadbase_d / 2,
+            diameter.threadbase_d / 2,
             "right",
-            d.tamper_ring_ang,
+            diameter.tamper_ring_ang,
             "untily",
-            h - d.lip_h - d.lip_leadin_r,
+            height - diameter.lip_h - diameter.lip_leadin_r,
             "arcright",
-            d.lip_leadin_r,
+            diameter.lip_leadin_r,
             90,
             "untilx",
-            d.lip_d / 2,
+            diameter.lip_d / 2,
             "left",
             90,
             "untily",
-            h - d.lip_recess_h,
+            height - diameter.lip_recess_h,
             "left",
             90,
             "untilx",
-            d.lip_recess_d / 2,
+            diameter.lip_recess_d / 2,
             "right",
             90,
             "untily",
-            h - d.lip_roundover_r,
+            height - diameter.lip_roundover_r,
             "arcleft",
-            d.lip_roundover_r,
+            diameter.lip_roundover_r,
             90,
             "untilx",
-            d.inner_d / 2,
+            diameter.inner_d / 2,
         ],
-        state=_turtle_start(d.inner_d / 2),
+        state=_turtle_start(diameter.inner_d / 2),
     )
 
 
-def _neck_thread(d: "BottleThreadSpec"):
+def _neck_thread(diameter: "BottleThreadSpec"):
     """The neck's external thread ridge with its two thread breaks (BOSL2 thread_helix + prismoids).
 
     The lead-in ``taper`` BOSL2 applies is not reproduced (this port's thread_helix has no taper).
     """
-    thread_h = (d.thread_od - d.threadbase_d) / 2
-    turns = d.neck_turns / 360
+    thread_h = (diameter.thread_od - diameter.threadbase_d) / 2
+    turns = diameter.neck_turns / 360
     thread = Threading.thread_helix(
-        d=d.threadbase_d - 0.1,
-        pitch=d.thread_pitch,
+        d=diameter.threadbase_d - 0.1,
+        pitch=diameter.thread_pitch,
         thread_depth=thread_h + 0.1,
-        flank_angle=d.flank_angle,
+        flank_angle=diameter.flank_angle,
         turns=turns,
     )
-    thread = thread.down(turns * d.thread_pitch / 2)  # BOSL2 anchor=TOP: top at z=0
+    thread = thread.down(
+        turns * diameter.thread_pitch / 2
+    )  # BOSL2 anchor=TOP: top at z=0
     top = 1.82 + 2 * math.sin(math.radians(29)) * thread_h
     cuts = []
     for m_out in zrot_copies(rots=[90, 270]):
-        for m_in in zrot_copies(rots=[-28, 28], r=d.threadbase_d / 2):
+        for m_in in zrot_copies(rots=[-28, 28], radius=diameter.threadbase_d / 2):
             block = prismoid(
-                [20, 1.82], [20, top], h=thread_h + 0.1, anchor=BOTTOM, orient=RIGHT
+                [20, 1.82],
+                [20, top],
+                height=thread_h + 0.1,
+                anchor=BOTTOM,
+                orient=RIGHT,
             )
             cuts.append(block.multmatrix((m_out @ m_in).tolist()))
     return thread - union(cuts)
 
 
-def _build_neck(d: "BottleThreadSpec", profile, bottom_half: bool):
-    h = d.support_h + d.neck_h
+def _build_neck(diameter: "BottleThreadSpec", profile, bottom_half: bool):
+    height = diameter.support_h + diameter.neck_h
     body = Bosl2Solid(
         _orotate_extrude(_opolygon([[float(x), float(y)] for x, y in profile])),
-        size=[d.support_d, d.support_d, h],
+        size=[diameter.support_d, diameter.support_d, height],
     )
-    thread = _neck_thread(d)
+    thread = _neck_thread(diameter)
     if bottom_half:
         thread = thread.bottom_half()
-    thread = thread.up(h - d.lip_h)
-    return Bosl2Solid((body | thread).shape, size=[d.support_d, d.support_d, h])
+    thread = thread.up(height - diameter.lip_h)
+    return Bosl2Solid(
+        (body | thread).shape, size=[diameter.support_d, diameter.support_d, height]
+    )
 
 
-def _build_cap(d: "BottleThreadSpec", wall: float, texture: str):
-    w = d.cap_id + 2 * wall
-    h = d.cap_tamper_ring_h + wall
-    outer = cyl(d=w, l=h, anchor=BOTTOM)
-    bore = cyl(d=d.cap_id, h=h, anchor=BOTTOM).up(wall)
+def _build_cap(diameter: "BottleThreadSpec", wall: float, texture: str):
+    w = diameter.cap_id + 2 * wall
+    height = diameter.cap_tamper_ring_h + wall
+    outer = cyl(diameter=w, length=height, anchor=BOTTOM)
+    bore = cyl(diameter=diameter.cap_id, height=height, anchor=BOTTOM).up(wall)
     shell = outer - bore
-    turns = d.cap_turns / 360
-    H = turns * d.cap_thread_pitch
+    turns = diameter.cap_turns / 360
+    H = turns * diameter.cap_thread_pitch
     # internal thread (this port's thread_helix has no internal= flank flip -- approximate).
     thread = Threading.thread_helix(
-        d=d.cap_thread_od - d.cap_thread_depth * 2,
-        pitch=d.cap_thread_pitch,
-        thread_depth=d.cap_thread_depth,
-        flank_angle=d.cap_flank_angle,
+        d=diameter.cap_thread_od - diameter.cap_thread_depth * 2,
+        pitch=diameter.cap_thread_pitch,
+        thread_depth=diameter.cap_thread_depth,
+        flank_angle=diameter.cap_flank_angle,
         turns=turns,
     )
     thread = thread.up(H / 2 + wall + 2)  # BOSL2 anchor=BOTTOM, then up(wall+2)
     cap = (shell | thread).rotate([0, 0, 45])
-    return Bosl2Solid(cap.shape, size=[w, w, h])
+    return Bosl2Solid(cap.shape, size=[w, w, height])
 
 
 class BottleCaps:

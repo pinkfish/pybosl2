@@ -91,10 +91,10 @@ def test_spur_gear_builds(kw):
 
 def test_spur_gear_envelope_matches_outer_radius():
     g = G.spur_gear(pitch=5, teeth=20, thickness=8)
-    w, l, h = _size(g)
+    w, l, height = _size(g)
     expect = 2 * G.outer_radius(5, 20)
     assert w == pytest.approx(expect, abs=0.5)
-    assert h == pytest.approx(8, abs=0.01)
+    assert height == pytest.approx(8, abs=0.01)
 
 
 def test_teeth_count_scales_radius():
@@ -109,8 +109,8 @@ def test_rack2d_builds():
 
 
 def test_rack_length_and_thickness():
-    r = G.rack(pitch=5, teeth=10, thickness=5, height=5, pressure_angle=20)
-    length, thick, hgt = _size(r)
+    radius = G.rack(pitch=5, teeth=10, thickness=5, height=5, pressure_angle=20)
+    length, thick, hgt = _size(radius)
     assert length == pytest.approx(10 * 5, abs=0.5)  # teeth * pitch
     assert thick == pytest.approx(5, abs=0.01)
     assert hgt == pytest.approx(5, abs=0.5)
@@ -133,10 +133,10 @@ def test_rack_height_too_small_raises():
 def test_ring_gear_builds_as_annulus():
     ring = G.ring_gear(pitch=5, teeth=20, thickness=6, backing=3)
     assert isinstance(ring, Bosl2Solid)
-    w, l, h = _size(ring)
+    w, l, height = _size(ring)
     expect = 2 * (G.outer_radius(circ_pitch=5, teeth=20, internal=True) + 3)
     assert w == pytest.approx(expect, abs=0.6)
-    assert h == pytest.approx(6, abs=0.01)
+    assert height == pytest.approx(6, abs=0.01)
 
 
 # -- bevel gear ---------------------------------------------------------------
@@ -171,9 +171,9 @@ def test_bevel_gear_builds(kw):
 def test_bevel_gear_envelope():
     # diameter is near the pitch diameter (cone tapers, teeth add a little); thickness > 0.
     g = G.bevel_gear(pitch=5, teeth=20, face_width=10, pitch_angle=45, cutter_radius=0)
-    w, l, h = _size(g)
+    w, l, height = _size(g)
     assert w == pytest.approx(2 * G.pitch_radius(5, 20), abs=3)
-    assert h > 1
+    assert height > 1
 
 
 def test_bevel_mate_teeth_sets_pitch_angle():
@@ -189,9 +189,9 @@ def test_bevel_mate_teeth_sets_pitch_angle():
 @pytest.mark.parametrize(
     "kw",
     [
-        {"pitch": 8, "d": 30, "l": 50},
-        {"pitch": 8, "d": 30, "l": 50, "starts": 3},
-        {"pitch": 8, "d": 30, "l": 50, "starts": 3, "left_handed": True},
+        {"pitch": 8, "diameter": 30, "length": 50},
+        {"pitch": 8, "diameter": 30, "length": 50, "starts": 3},
+        {"pitch": 8, "diameter": 30, "length": 50, "starts": 3, "left_handed": True},
     ],
 )
 def test_worm_builds(kw):
@@ -199,7 +199,7 @@ def test_worm_builds(kw):
 
 
 def test_worm_length():
-    w, l, hgt = _size(G.worm(pitch=8, d=30, l=50))
+    w, l, hgt = _size(G.worm(pitch=8, diameter=30, length=50))
     assert hgt == pytest.approx(50, abs=0.5)
 
 
@@ -243,10 +243,10 @@ def test_herringbone_builds(kw):
 
 
 def test_herringbone_envelope_matches_spur():
-    h = G.herringbone_gear(
+    height = G.herringbone_gear(
         mod=5, teeth=20, thickness=10
     )  # no helical -> matches the spur envelope
-    w, l, hgt = _size(h)
+    w, l, hgt = _size(height)
     assert w == pytest.approx(2 * G.outer_radius(mod=5, teeth=20), abs=1.5)
     assert hgt == pytest.approx(10, abs=0.01)
 
@@ -264,16 +264,13 @@ def test_auto_profile_shift_formula():
 
 
 def test_profile_shift_grows_the_tooth():
-    # a positive profile shift moves the tooth outward (larger tip radius)
-    r0 = max(
-        math.hypot(x, y)
-        for x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0)
+    # a positive profile shift moves the tooth outward -- the tooth profile is centred on the pitch
+    # point, so the tip (its largest y) moves further out.
+    tip0 = max(y for _x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0))
+    tip_shifted = max(
+        y for _x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0.5)
     )
-    r1 = max(
-        math.hypot(x, y)
-        for x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0.5)
-    )
-    assert r1 > r0
+    assert tip_shifted > tip0
 
 
 # -- new-API sizing (circ_pitch / mod / diam_pitch) & gear_dist ---------------
@@ -288,16 +285,16 @@ def test_pitch_inputs_agree():
 
 
 def test_gear_dist_no_shift_is_sum_of_pitch_radii():
-    d = G.gear_dist(30, 15, mod=5, profile_shift1=0, profile_shift2=0)
-    assert d == pytest.approx(
+    diameter = G.gear_dist(30, 15, mod=5, profile_shift1=0, profile_shift2=0)
+    assert diameter == pytest.approx(
         G.pitch_radius(mod=5, teeth=30) + G.pitch_radius(mod=5, teeth=15)
     )
 
 
 def test_gear_dist_rack_uses_pitch_radius():
     # teeth2=0 is a rack; distance is the gear's pitch radius (+ shift)
-    d = G.gear_dist(20, 0, mod=5, profile_shift1=0, profile_shift2=0)
-    assert d == pytest.approx(G.pitch_radius(mod=5, teeth=20))
+    diameter = G.gear_dist(20, 0, mod=5, profile_shift1=0, profile_shift2=0)
+    assert diameter == pytest.approx(G.pitch_radius(mod=5, teeth=20))
 
 
 def test_spur_gear_new_api_builds():

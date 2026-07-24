@@ -13,19 +13,24 @@
 # meshes in the bosl2-example blocks; without it the build still succeeds and shows source only
 # (see docs/_ext/bosl2_example.py). Unchanged examples reuse their cached image/STL.
 
-SPHINXOPTS    ?=
+SPHINXOPTS    ?= -W --keep-going
 SPHINXBUILD   ?= python3 -m sphinx
 SOURCEDIR     = .
 BUILDDIR      = _build
 WIKIDIR       = ../wiki
 
-.PHONY: help clean html
+.PHONY: help clean html specs
 help:
 	@echo "make html   -- build the docs into $(WIKIDIR) (checked in)"
+	@echo "make specs  -- (re)generate the visual spec sheets in _extra/specs/"
 	@echo "make clean  -- remove $(WIKIDIR), the doctree cache, and the render caches"
 
 clean:
-	rm -rf "$(BUILDDIR)" "$(WIKIDIR)" _generated _extra
+	rm -rf "$(BUILDDIR)" "$(WIKIDIR)" _generated
 
-html:
+specs:
+	@python3 _specgen.py
+
+html: specs
+	@mkdir -p _generated
 	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(WIKIDIR)" -d "$(BUILDDIR)/doctrees" $(SPHINXOPTS) $(O)

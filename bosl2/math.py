@@ -32,19 +32,19 @@ def lerp(a, b, t: float):
     return a + (b - a) * t
 
 
-def lerpn(a, b, n: int, endpoint: bool = True) -> np.ndarray:
-    """Return *n* points linearly interpolated between *a* and *b*, as an (n, dim) ndarray
-    (or a length-n 1-D ndarray for scalar *a*/*b*).
+def lerpn(a, b, sides: int, endpoint: bool = True) -> np.ndarray:
+    """Return *sides* points linearly interpolated between *a* and *b*, as an (sides, dim) ndarray
+    (or a length-sides 1-D ndarray for scalar *a*/*b*).
 
     If endpoint is True, the last returned point equals *b*; otherwise the
-    range is divided into *n* equal steps without reaching *b*.
+    range is divided into *sides* equal steps without reaching *b*.
     """
-    if n <= 0:
+    if sides <= 0:
         return np.empty(0)
-    if n == 1:
+    if sides == 1:
         return np.asarray([a], dtype=float)
-    denom = (n - 1) if endpoint else n
-    return np.asarray([lerp(a, b, i / denom) for i in range(n)], dtype=float)
+    denom = (sides - 1) if endpoint else sides
+    return np.asarray([lerp(a, b, i / denom) for i in range(sides)], dtype=float)
 
 
 def _dnu_calc(f1, fc, f2, h1, h2):
@@ -87,22 +87,22 @@ def _deriv_nonuniform(data, h, closed: bool) -> np.ndarray:
 
 
 def deriv(
-    data, h: "float | Sequence[float] | np.ndarray" = 1, closed: bool = False
+    data, height: "float | Sequence[float] | np.ndarray" = 1, closed: bool = False
 ) -> np.ndarray:
     """Numeric first-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.
 
     Uses a symmetric derivative approximation for internal points and a
-    two-point method at the endpoints of an open path. If *h* is a list it
+    two-point method at the endpoints of an open path. If *height* is a list it
     is treated as the (possibly non-uniform) per-segment sampling distance.
     """
-    if not isinstance(h, (int, float)):
-        return _deriv_nonuniform(data, h, closed)
+    if not isinstance(height, (int, float)):
+        return _deriv_nonuniform(data, height, closed)
     arr = np.asarray(data, dtype=float)
     length = len(arr)
     if closed:
         return np.asarray(
             [
-                (arr[(i + 1) % length] - arr[(length + i - 1) % length]) / (2 * h)
+                (arr[(i + 1) % length] - arr[(length + i - 1) % length]) / (2 * height)
                 for i in range(length)
             ]
         )
@@ -114,14 +114,14 @@ def deriv(
         last = (arr[length - 3] - arr[length - 2]) - 3 * (
             arr[length - 2] - arr[length - 1]
         )
-    out = [first / (2 * h)]
+    out = [first / (2 * height)]
     for i in range(1, length - 1):
-        out.append((arr[i + 1] - arr[i - 1]) / (2 * h))
-    out.append(last / (2 * h))
+        out.append((arr[i + 1] - arr[i - 1]) / (2 * height))
+    out.append(last / (2 * height))
     return np.asarray(out)
 
 
-def deriv2(data, h: float = 1, closed: bool = False) -> np.ndarray:
+def deriv2(data, height: float = 1, closed: bool = False) -> np.ndarray:
     """Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray."""
     arr = np.asarray(data, dtype=float)
     length = len(arr)
@@ -129,7 +129,7 @@ def deriv2(data, h: float = 1, closed: bool = False) -> np.ndarray:
         return np.asarray(
             [
                 (arr[(i + 1) % length] - 2 * arr[i] + arr[(length + i - 1) % length])
-                / (h * h)
+                / (height * height)
                 for i in range(length)
             ]
         )
@@ -155,21 +155,21 @@ def deriv2(data, h: float = 1, closed: bool = False) -> np.ndarray:
             - 56 * arr[length - 4]
             + 11 * arr[length - 5]
         ) / 12
-    out = [first / (h * h)]
+    out = [first / (height * height)]
     for i in range(1, length - 1):
-        out.append((arr[i + 1] - 2 * arr[i] + arr[i - 1]) / (h * h))
-    out.append(last / (h * h))
+        out.append((arr[i + 1] - 2 * arr[i] + arr[i - 1]) / (height * height))
+    out.append(last / (height * height))
     return np.asarray(out)
 
 
-def deriv3(data, h: float = 1, closed: bool = False) -> np.ndarray:
+def deriv3(data, height: float = 1, closed: bool = False) -> np.ndarray:
     """Numeric third-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.
 
     Requires at least 5 points.
     """
     arr = np.asarray(data, dtype=float)
     length = len(arr)
-    h3 = h * h * h
+    h3 = height * height * height
     if closed:
         return np.asarray(
             [

@@ -69,37 +69,37 @@ def _bezcorner(points, parm, _fn=0, _fs=2.0):
     else:
         ctrl = _smooth_bez_fill(points, float(parm))
     bez = Bezier([[float(c) for c in p] for p in ctrl])
-    n = max(3, _fn if _fn and _fn > 0 else math.ceil(bez.length() / _fs))
-    return [[float(c) for c in p] for p in bez.curve(n, endpoint=True)]
+    sides = max(3, _fn if _fn and _fn > 0 else math.ceil(bez.length() / _fs))
+    return [[float(c) for c in p] for p in bez.curve(sides, endpoint=True)]
 
 
 def _chamfcorner(points, parm):
     """A straight chamfer across a corner (BOSL2 _chamfcorner())."""
-    d = float(parm[0])
+    diameter = float(parm[0])
     p1 = np.asarray(points[1], dtype=float)
     prev = unit(np.asarray(points[0], dtype=float) - p1)
     nxt = unit(np.asarray(points[2], dtype=float) - p1)
-    return [list(p1 + prev * d), list(p1 + nxt * d)]
+    return [list(p1 + prev * diameter), list(p1 + nxt * diameter)]
 
 
 def _arc3d(center, start, end, n):
     """*n* points along the short arc from *start* to *end* about *center* (slerp, any dimension)."""
     c = np.asarray(center, dtype=float)
     v0, v1 = np.asarray(start, dtype=float) - c, np.asarray(end, dtype=float) - c
-    ang = math.acos(
+    angle = math.acos(
         max(
             -1.0,
             min(1.0, float(np.dot(v0, v1)) / (np.linalg.norm(v0) * np.linalg.norm(v1))),
         )
     )
-    if ang < 1e-12:
+    if angle < 1e-12:
         return [
             list(np.asarray(start, dtype=float)),
             list(np.asarray(end, dtype=float)),
         ]
-    s = math.sin(ang)
+    s = math.sin(angle)
     return [
-        list(c + (math.sin((1 - t) * ang) * v0 + math.sin(t * ang) * v1) / s)
+        list(c + (math.sin((1 - t) * angle) * v0 + math.sin(t * angle) * v1) / s)
         for t in np.linspace(0, 1, n)
     ]
 
@@ -109,20 +109,20 @@ def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
     from bosl2.shapes2d import arc, _frag_count
 
     angle = _vector_angle3(points[0], points[1], points[2]) / 2
-    d, r = float(parm[0]), float(parm[1])
+    d, radius = float(parm[0]), float(parm[1])
     p1 = np.asarray(points[1], dtype=float)
     prev = unit(np.asarray(points[0], dtype=float) - p1)
     nxt = unit(np.asarray(points[2], dtype=float) - p1)
     start, end = p1 + prev * d, p1 + nxt * d
     if approx(angle, 90):
         return [list(start), list(end)]
-    center = r / math.sin(math.radians(angle)) * unit(prev + nxt) + p1
-    n = max(3, math.ceil((90 - angle) / 180 * _frag_count(r, _fn, _fa, _fs)))
+    center = radius / math.sin(math.radians(angle)) * unit(prev + nxt) + p1
+    sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, _fn, _fa, _fs)))
     if len(points[1]) == 2:
         return [
             [float(c) for c in p]
             for p in arc(
-                n,
+                sides,
                 center=[float(center[0]), float(center[1])],
                 points=[
                     [float(start[0]), float(start[1])],
@@ -130,7 +130,7 @@ def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
                 ],
             )
         ]
-    return _arc3d(center, start, end, n)
+    return _arc3d(center, start, end, sides)
 
 
 # ---------------------------------------------------------------------------
@@ -142,7 +142,6 @@ def round_corners(
     path,
     method="circle",
     radius=None,
-    r=None,
     cut=None,
     joint=None,
     width=None,
@@ -155,7 +154,7 @@ def round_corners(
     """Round every corner of *path* (BOSL2 round_corners()).
 
     *method* is ``"circle"`` (a constant-radius arc), ``"smooth"`` (a continuous-curvature bezier),
-    or ``"chamfer"`` (a straight bevel). Size the roundover with exactly one of *radius*/*r* (circle
+    or ``"chamfer"`` (a straight bevel). Size the roundover with exactly one of *radius*/*radius* (circle
     only), *cut* (depth toward the corner), *joint* (distance back from the corner along each edge),
     or *width* (chamfer only) -- each a scalar or a per-corner list. *k* (smooth only, 0..1) tunes
     how tight the curvature match is. Works on 2-D and 3-D paths.
@@ -180,18 +179,17 @@ def round_corners(
         (m, v)
         for m, v in (
             ("radius", radius),
-            ("radius", r),
             ("cut", cut),
             ("joint", joint),
             ("width", width),
         )
         if v is not None
     ]
-    assert len(given) == 1, "Must give exactly one of radius, r, cut, joint or width."
+    assert len(given) == 1, "Must give exactly one of radius, cut, joint or width."
     measure, size = given[0]
     pts = [[float(c) for c in p] for p in path]
-    n = len(pts)
-    assert n > 2, f"Path has length {n}. Length must be 3 or more."
+    sides = len(pts)
+    assert sides > 2, f"Path has length {sides}. Length must be 3 or more."
     assert method == "circle" or measure != "radius", (
         'radius is allowed only with method="circle".'
     )
@@ -200,21 +198,21 @@ def round_corners(
     )
 
     if is_num(size):
-        parm = [float(size)] * n
-    elif len(size) < n:
+        parm = [float(size)] * sides
+    elif len(size) < sides:
         parm = [0.0] + [float(v) for v in size] + [0.0]
     else:
         parm = [float(v) for v in size]
     if k is None:
-        kv = [0.5] * n
+        kv = [0.5] * sides
     elif is_num(k):
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = [float(k)] * n
+        kv = [float(k)] * sides
     else:
         assert method == "smooth", 'k is only allowed with method="smooth".'
         kv = (
             ([0.0] + [float(v) for v in k] + [0.0])
-            if len(k) < n
+            if len(k) < sides
             else [float(v) for v in k]
         )
     assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
@@ -222,9 +220,9 @@ def round_corners(
 
     # dk[i] = [joint distance, shape param] per corner (chamfer has just [distance])
     dk = []
-    for i in range(n):
-        p0, p1, p2 = pts[(i - 1) % n], pts[i], pts[(i + 1) % n]
-        if (not closed and (i == 0 or i == n - 1)) or parm[i] == 0:
+    for i in range(sides):
+        p0, p1, p2 = pts[(i - 1) % sides], pts[i], pts[(i + 1) % sides]
+        if (not closed and (i == 0 or i == sides - 1)) or parm[i] == 0:
             dk.append([0.0])
             continue
         assert not (approx(p0, p1) or approx(p1, p2)), (
@@ -263,20 +261,24 @@ def round_corners(
                 dk.append([cr / math.tan(ar), cr])
 
     lengths = [
-        float(np.linalg.norm(np.asarray(pts[i % n]) - np.asarray(pts[(i - 1) % n])))
-        for i in range(n + 1)
+        float(
+            np.linalg.norm(
+                np.asarray(pts[i % sides]) - np.asarray(pts[(i - 1) % sides])
+            )
+        )
+        for i in range(sides + 1)
     ]
     scale = []
-    for i in range(n):
-        if closed or (i != 0 and i != n - 1):
+    for i in range(sides):
+        if closed or (i != 0 and i != sides - 1):
             a = (
-                lengths[i] / (dk[(i - 1) % n][0] + dk[i][0])
-                if (dk[(i - 1) % n][0] + dk[i][0])
+                lengths[i] / (dk[(i - 1) % sides][0] + dk[i][0])
+                if (dk[(i - 1) % sides][0] + dk[i][0])
                 else math.inf
             )
             b = (
-                lengths[i + 1] / (dk[i][0] + dk[(i + 1) % n][0])
-                if (dk[i][0] + dk[(i + 1) % n][0])
+                lengths[i + 1] / (dk[i][0] + dk[(i + 1) % sides][0])
+                if (dk[i][0] + dk[(i + 1) % sides][0])
                 else math.inf
             )
             scale.append(min(a, b))
@@ -285,8 +287,8 @@ def round_corners(
     )
 
     out = []
-    for i in range(n):
-        corner = [pts[(i - 1) % n], pts[i], pts[(i + 1) % n]]
+    for i in range(sides):
+        corner = [pts[(i - 1) % sides], pts[i], pts[(i + 1) % sides]]
         if dk[i][0] == 0:
             out.append(pts[i])
         elif method == "smooth":
@@ -373,7 +375,6 @@ class Roundable:
     def round_corners(
         self,
         radius=None,
-        r=None,
         method="circle",
         cut=None,
         joint=None,
@@ -387,7 +388,6 @@ class Roundable:
             self,
             method=method,
             radius=radius,
-            r=r,
             cut=cut,
             joint=joint,
             width=width,

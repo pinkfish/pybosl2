@@ -163,8 +163,8 @@ icosahedron. The Archimedean, Catalan and stellated families are a follow-up.</p
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.polyhedra.Polyhedra.regular_polyhedron">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">regular_polyhedron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cube'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/polyhedra.html#Polyhedra.regular_polyhedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.polyhedra.Polyhedra.regular_polyhedron" title="Link to this definition">¶</a></dt>
-<dd><p>A Platonic solid, sized by circumradius <em>r</em>, diameter <em>d</em>, inradius <em>ir</em>, or <em>side</em> (BOSL2 regular_polyhedron()).</p>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">regular_polyhedron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cube'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/polyhedra.html#Polyhedra.regular_polyhedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.polyhedra.Polyhedra.regular_polyhedron" title="Link to this definition">¶</a></dt>
+<dd><p>A Platonic solid, sized by circumradius <em>radius</em>, diameter <em>diameter</em>, inradius <em>inner_radius</em>, or <em>side</em> (BOSL2 regular_polyhedron()).</p>
 <p><em>name</em> is <code class="docutils literal notranslate"><span class="pre">tetrahedron</span></code> / <code class="docutils literal notranslate"><span class="pre">cube</span></code> / <code class="docutils literal notranslate"><span class="pre">octahedron</span></code> / <code class="docutils literal notranslate"><span class="pre">dodecahedron</span></code> / <code class="docutils literal notranslate"><span class="pre">icosahedron</span></code>
 (short aliases accepted). Defaults to circumradius 1.</p>
 <p class="rubric">Examples</p>
@@ -174,13 +174,13 @@ icosahedron. The Archimedean, Catalan and stellated families are a follow-up.</p
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-daba087d7b544ff3a63d1ef2c5bf128a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-271c5064992a4843b0585237c49017de" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-daba087d7b544ff3a63d1ef2c5bf128a");
+const el = document.getElementById("stlviewer-271c5064992a4843b0585237c49017de");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -228,9 +228,9 @@ window.addEventListener("resize", resize);
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>)</p></li>
-<li><p><strong>r</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>d</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>ir</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>diameter</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>inner_radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>side</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
@@ -303,17 +303,17 @@ window.addEventListener("resize", resize);
 Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">regular_polyhedron</span></code></p>
 <p>Tetrahedron:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;tetrahedron&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;tetrahedron&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-6613b67c5d5b41c7a3823d545c72758a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d768ca6597ff4b018a0fe66e7a63252e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-6613b67c5d5b41c7a3823d545c72758a");
+const el = document.getElementById("stlviewer-d768ca6597ff4b018a0fe66e7a63252e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -336,7 +336,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/9948a73f9ba68650.stl", function (geo) {
+new STLLoader().load("_stl/e332aa578606f061.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -356,19 +356,19 @@ new STLLoader().load("_stl/9948a73f9ba68650.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/9948a73f9ba68650.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/e332aa578606f061.stl">⬇ Download STL mesh</a></p>
 <p>Cube:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;cube&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;cube&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2f01b69b2a7b4096997e2e191791f8ab" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-27895d50b1714d7da7ffa9d7a8a03c77" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2f01b69b2a7b4096997e2e191791f8ab");
+const el = document.getElementById("stlviewer-27895d50b1714d7da7ffa9d7a8a03c77");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -391,7 +391,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/65cb20d30db6ebdc.stl", function (geo) {
+new STLLoader().load("_stl/7cc14c02b67e24d1.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -411,19 +411,19 @@ new STLLoader().load("_stl/65cb20d30db6ebdc.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/65cb20d30db6ebdc.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/7cc14c02b67e24d1.stl">⬇ Download STL mesh</a></p>
 <p>Octahedron:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;octahedron&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;octahedron&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7a293299abc4424aa53f1cc24cf20460" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-cc8b4adaa0a244d2933d44fd433e30bc" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7a293299abc4424aa53f1cc24cf20460");
+const el = document.getElementById("stlviewer-cc8b4adaa0a244d2933d44fd433e30bc");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -446,7 +446,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/01d052d6dee871eb.stl", function (geo) {
+new STLLoader().load("_stl/e7865f325b59b334.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -466,19 +466,19 @@ new STLLoader().load("_stl/01d052d6dee871eb.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/01d052d6dee871eb.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/e7865f325b59b334.stl">⬇ Download STL mesh</a></p>
 <p>Dodecahedron:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;dodecahedron&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;dodecahedron&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0a47e82ba4524ac1b12a2ef6182b1d8a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9faef7384da647e7a47cf570223d47ea" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0a47e82ba4524ac1b12a2ef6182b1d8a");
+const el = document.getElementById("stlviewer-9faef7384da647e7a47cf570223d47ea");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -501,7 +501,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/950e17ecb55d9436.stl", function (geo) {
+new STLLoader().load("_stl/36732c8667e134b6.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -521,19 +521,19 @@ new STLLoader().load("_stl/950e17ecb55d9436.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/950e17ecb55d9436.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/36732c8667e134b6.stl">⬇ Download STL mesh</a></p>
 <p>Icosahedron:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;icosahedron&quot;</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Polyhedra</span><span class="o">.</span><span class="n">regular_polyhedron</span><span class="p">(</span><span class="s2">&quot;icosahedron&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-08888d9e9bd34b3aa15c3c2b0cee511e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d964aa2251864b449d8b40da90e9b769" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-08888d9e9bd34b3aa15c3c2b0cee511e");
+const el = document.getElementById("stlviewer-d964aa2251864b449d8b40da90e9b769");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -556,7 +556,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/1a9a97ae3edf9218.stl", function (geo) {
+new STLLoader().load("_stl/94f4b5fa0f42e9d4.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -576,7 +576,7 @@ new STLLoader().load("_stl/1a9a97ae3edf9218.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/1a9a97ae3edf9218.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/94f4b5fa0f42e9d4.stl">⬇ Download STL mesh</a></p>
 </section>
 </section>
 

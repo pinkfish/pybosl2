@@ -61,7 +61,7 @@ def _frag_count(
     _fa: float | None = None,
     _fs: float | None = None,
 ) -> int:
-    """Number of polygon segments to approximate a circle of radius *r*, mirroring OpenSCAD's $fn/$fa/$fs rules."""
+    """Number of polygon segments to approximate a circle of radius *radius*, mirroring OpenSCAD's $fn/$fa/$fs rules."""
     if _fn is not None and _fn >= 3:
         return int(math.floor(_fn))
     fa = _fa if _fa else 12.0
@@ -1377,19 +1377,19 @@ def egg(
         spin:         Z-axis rotation in degrees after anchor (default 0)
         _fn/_fa/_fs:  arc smoothness overrides
     """
-    r1 = (
+    radius1 = (
         radius1
         if radius1 is not None
         else (diameter1 / 2 if diameter1 is not None else None)
     )
-    if r1 is None:
+    if radius1 is None:
         raise ValueError("egg(): must give radius1 or diameter1")
-    r2 = (
+    radius2 = (
         radius2
         if radius2 is not None
         else (diameter2 / 2 if diameter2 is not None else None)
     )
-    if r2 is None:
+    if radius2 is None:
         raise ValueError("egg(): must give radius2 or diameter2")
     R = (
         arc_radius
@@ -1399,7 +1399,7 @@ def egg(
     if R is None:
         raise ValueError("egg(): must give arc_radius or arc_diameter")
     assert length is not None, "egg(): must give length"
-    path = _egg_path(length, r1, r2, R, _fn, _fa, _fs)
+    path = _egg_path(length, radius1, radius2, R, _fn, _fa, _fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)
@@ -1977,7 +1977,7 @@ def round2d(
     assert children is not None, "round2d(): must give children"
     shape = children.offset(delta=irad, chamfer=True)
     shape = shape.offset(delta=-(irad + orad))
-    shape = shape.offset(r=orad, _fn=_fn, _fa=_fa, _fs=_fs)
+    shape = shape.offset(radius=orad, _fn=_fn, _fa=_fa, _fs=_fs)
     return shape
 
 

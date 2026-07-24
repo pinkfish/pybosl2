@@ -49,7 +49,7 @@ A living-hinge groove mask:
 
 .. pythonscad-example::
 
-   Hinges.living_hinge_mask(l=100, thick=3, foldangle=60).show()
+   Hinges.living_hinge_mask(length=100, thick=3, foldangle=60).show()
 
 .. rubric:: ``snap_lock``
 

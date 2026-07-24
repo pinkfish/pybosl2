@@ -126,19 +126,19 @@ A single-start worm:
 
 .. pythonscad-example::
 
-   Gears.worm(circ_pitch=8, d=30, l=50).show()
+   Gears.worm(circ_pitch=8, diameter=30, length=50).show()
 
 A 3-start worm:
 
 .. pythonscad-example::
 
-   Gears.worm(circ_pitch=8, d=30, l=50, starts=3).show()
+   Gears.worm(circ_pitch=8, diameter=30, length=50, starts=3).show()
 
 A left-handed 3-start worm:
 
 .. pythonscad-example::
 
-   Gears.worm(circ_pitch=8, d=30, l=50, starts=3, left_handed=True).show()
+   Gears.worm(circ_pitch=8, diameter=30, length=50, starts=3, left_handed=True).show()
 
 .. rubric:: ``worm_gear``
 

@@ -105,8 +105,8 @@ def test_isosurface_sphere_volume():
 
 def test_isosurface_from_array():
     # a small precomputed field: a filled ball inside a grid
-    n = 12
-    xs = np.linspace(-6, 6, n)
+    sides = 12
+    xs = np.linspace(-6, 6, sides)
     gx, gy, gz = np.meshgrid(xs, xs, xs, indexing="ij")
     field = 4.0 / np.sqrt(gx**2 + gy**2 + gz**2 + 1e-9)
     vnf = isosurface(field, 1, bounding_box=[[-6, -6, -6], [6, 6, 6]])

@@ -302,20 +302,26 @@ def _parse_spec(spec, thread="coarse", pitch=None):
     nominal diameter), or a mapping already carrying ``diameter``/``pitch``.
     """
     if isinstance(spec, dict):
-        d = float(spec["diameter"])
+        diameter = float(spec["diameter"])
         sp = spec.get("pitch")
-        return d, float(sp) if sp is not None else _lookup_pitch(d, thread)
+        return diameter, float(sp) if sp is not None else _lookup_pitch(
+            diameter, thread
+        )
     if isinstance(spec, (int, float)):
-        d = float(spec)
-        return d, float(pitch) if pitch is not None else _lookup_pitch(d, thread)
+        diameter = float(spec)
+        return diameter, float(pitch) if pitch is not None else _lookup_pitch(
+            diameter, thread
+        )
     s = str(spec).strip().upper()
     if s.startswith("M"):
         s = s[1:]
     if "X" in s:
         dpart, ppart = s.split("X", 1)
         return float(dpart), float(ppart)
-    d = float(s)
-    return d, float(pitch) if pitch is not None else _lookup_pitch(d, thread)
+    diameter = float(s)
+    return diameter, float(pitch) if pitch is not None else _lookup_pitch(
+        diameter, thread
+    )
 
 
 def _lookup_pitch(diam, thread):
@@ -431,12 +437,14 @@ class Screws:
                 shank_len + tl / 2
             )
             if shank_len > 1e-9:
-                shank = cyl(d=d, h=shank_len, _fn=_fn, _fa=_fa, _fs=_fs).down(
-                    shank_len / 2
-                )
+                shank = cyl(
+                    diameter=d, height=shank_len, _fn=_fn, _fa=_fa, _fs=_fs
+                ).down(shank_len / 2)
                 shaft = shaft | shank
         else:
-            shaft = cyl(d=d, h=length, _fn=_fn, _fa=_fa, _fs=_fs).down(length / 2)
+            shaft = cyl(diameter=d, height=length, _fn=_fn, _fa=_fa, _fs=_fs).down(
+                length / 2
+            )
 
         result = shaft
         head_top = info[
@@ -461,23 +469,32 @@ class Screws:
         hh = info["head_height"]
         hs = info["head_size"]
         if head == "hex":
-            return regular_prism(6, h=hh, id=hs, _fn=_fn, _fa=_fa, _fs=_fs).up(hh / 2)
+            return regular_prism(
+                6, height=hh, inner_diameter=hs, _fn=_fn, _fa=_fa, _fs=_fs
+            ).up(hh / 2)
         if head in ("socket", "socket ribbed"):
-            return cyl(d=hs, h=hh, chamfer2=hs / 20, _fn=_fn, _fa=_fa, _fs=_fs).up(
-                hh / 2
-            )
+            return cyl(
+                diameter=hs, height=hh, chamfer2=hs / 20, _fn=_fn, _fa=_fa, _fs=_fs
+            ).up(hh / 2)
         if head == "button":
             rnd = min(hh * 0.9, hs / 2 * 0.9)
-            return cyl(d=hs, h=hh, rounding2=rnd, _fn=_fn, _fa=_fa, _fs=_fs).up(hh / 2)
+            return cyl(
+                diameter=hs, height=hh, rounding2=rnd, _fn=_fn, _fa=_fa, _fs=_fs
+            ).up(hh / 2)
         if head in ("pan", "round"):
-            return cyl(d=hs, h=hh, rounding2=0.2 * hs, _fn=_fn, _fa=_fa, _fs=_fs).up(
-                hh / 2
-            )
+            return cyl(
+                diameter=hs, height=hh, rounding2=0.2 * hs, _fn=_fn, _fa=_fa, _fs=_fs
+            ).up(hh / 2)
         if head == "flat":
             # 90-degree countersunk cone: shaft diameter at the bottom, head diameter at the surface.
-            return cyl(d1=info["diameter"], d2=hs, h=hh, _fn=_fn, _fa=_fa, _fs=_fs).up(
-                hh / 2
-            )
+            return cyl(
+                diameter1=info["diameter"],
+                diameter2=hs,
+                height=hh,
+                _fn=_fn,
+                _fa=_fa,
+                _fs=_fs,
+            ).up(hh / 2)
         return None
 
     @staticmethod
@@ -491,7 +508,9 @@ class Screws:
             return None
         eps = 0.02
         if drive == "hex":
-            rec = regular_prism(6, h=depth + eps, id=size, _fn=_fn, _fa=_fa, _fs=_fs)
+            rec = regular_prism(
+                6, height=depth + eps, inner_diameter=size, _fn=_fn, _fa=_fa, _fs=_fs
+            )
         elif drive == "slot":
             width = size if size else max(0.6, info["diameter"] / 6)
             length = (info["head_size"] or info["diameter"]) + 2
@@ -563,17 +582,22 @@ class Screws:
             ).down(length / 2)
         else:
             gap = _CLEARANCE.get(str(fit).lower(), 0.5)
-            cutter = cyl(d=d + 2 * gap, h=length, _fn=_fn, _fa=_fa, _fs=_fs).down(
-                length / 2
-            )
+            cutter = cyl(
+                diameter=d + 2 * gap, height=length, _fn=_fn, _fa=_fa, _fs=_fs
+            ).down(length / 2)
 
         if head == "flat":
             info = Screws.screw_info(spec, head="flat", pitch=pitch)
             hs = info["head_size"]
             csk_h = (hs - d) / 2
-            csink = cyl(d1=d, d2=hs, h=csk_h + 0.02, _fn=_fn, _fa=_fa, _fs=_fs).up(
-                (csk_h + 0.02) / 2 - 0.01
-            )
+            csink = cyl(
+                diameter1=d,
+                diameter2=hs,
+                height=csk_h + 0.02,
+                _fn=_fn,
+                _fa=_fa,
+                _fs=_fs,
+            ).up((csk_h + 0.02) / 2 - 0.01)
             cutter = cutter | csink
         elif counterbore and counterbore > 0:
             info = Screws.screw_info(
@@ -582,9 +606,9 @@ class Screws:
             hd = info["head_size"] if head == "hex" else (info["head_size"] or 2 * d)
             if head == "hex":
                 hd = 2 * hd / math.sqrt(3)  # across-corners for a hex head pocket
-            cb = cyl(d=hd, h=counterbore + 0.02, _fn=_fn, _fa=_fa, _fs=_fs).up(
-                (counterbore + 0.02) / 2 - 0.01
-            )
+            cb = cyl(
+                diameter=hd, height=counterbore + 0.02, _fn=_fn, _fa=_fa, _fs=_fs
+            ).up((counterbore + 0.02) / 2 - 0.01)
             cutter = cutter | cb
         return cutter
 

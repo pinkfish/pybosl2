@@ -24,16 +24,16 @@ import math
 import numpy as np
 
 
-def polar_to_xy(r: float, angle: float) -> list[float]:
+def polar_to_xy(radius: float, angle: float) -> list[float]:
     """Convert polar coordinates (radius, angle in degrees) to a 2-D [x, y] point."""
     rad = math.radians(angle)
-    return [r * math.cos(rad), r * math.sin(rad)]
+    return [radius * math.cos(rad), radius * math.sin(rad)]
 
 
 def _unit(v) -> np.ndarray:
     arr = np.asarray(v, dtype=float)
-    n = float(np.linalg.norm(arr))
-    return arr / n if n else arr
+    sides = float(np.linalg.norm(arr))
+    return arr / sides if sides else arr
 
 
 def rot_from_to(a, b) -> "tuple[float, np.ndarray]":
@@ -69,14 +69,14 @@ def axis_angle_matrix(angle: float, axis) -> np.ndarray:
     )
 
 
-def rot_about_axis(angle: float, axis, cp=(0.0, 0.0, 0.0)) -> np.ndarray:
-    """4x4 matrix rotating *angle* degrees about the line through *cp* in direction *axis*.
+def rot_about_axis(angle: float, axis, center=(0.0, 0.0, 0.0)) -> np.ndarray:
+    """4x4 matrix rotating *angle* degrees about the line through *center* in direction *axis*.
 
-    The 4x4 form of BOSL2's ``rot(a=, v=, cp=)``: translate *cp* to the origin, rotate, translate
+    The 4x4 form of BOSL2's ``rot(a=, v=, center=)``: translate *center* to the origin, rotate, translate
     back."""
     m = np.eye(4)
     m[:3, :3] = axis_angle_matrix(angle, axis)
-    cpv = np.asarray(cp, dtype=float)
+    cpv = np.asarray(center, dtype=float)
     m[:3, 3] = cpv - m[:3, :3] @ cpv
     return m
 
@@ -84,10 +84,10 @@ def rot_about_axis(angle: float, axis, cp=(0.0, 0.0, 0.0)) -> np.ndarray:
 def rot_inverse(t) -> np.ndarray:
     """Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation, un-translate."""
     t = np.asarray(t, dtype=float)
-    r = t[:3, :3]
+    radius = t[:3, :3]
     inv = np.eye(4)
-    inv[:3, :3] = r.T
-    inv[:3, 3] = -r.T @ t[:3, 3]
+    inv[:3, :3] = radius.T
+    inv[:3, 3] = -radius.T @ t[:3, 3]
     return inv
 
 
@@ -103,14 +103,14 @@ def rot_decode(m, long: bool = False) -> list:
     )  # local: constants is lightweight, avoid a load-order cycle
 
     m = np.asarray(m, dtype=float)
-    r = m[:3, :3]
+    radius = m[:3, :3]
     translation = m[:3, 3]
-    largest = int(np.argmax([r[0, 0], r[1, 1], r[2, 2]]))
-    axis_matrix = r + r.T - (np.trace(r) - 1) * np.eye(3)
+    largest = int(np.argmax([radius[0, 0], radius[1, 1], radius[2, 2]]))
+    axis_matrix = radius + radius.T - (np.trace(radius) - 1) * np.eye(3)
     q_im = axis_matrix[largest]
     q_re = (
-        r[(largest + 2) % 3][(largest + 1) % 3]
-        - r[(largest + 1) % 3][(largest + 2) % 3]
+        radius[(largest + 2) % 3][(largest + 1) % 3]
+        - radius[(largest + 1) % 3][(largest + 2) % 3]
     )
     c_sin = float(np.linalg.norm(q_im))
     c_cos = abs(float(q_re))
@@ -124,12 +124,12 @@ def rot_decode(m, long: bool = False) -> list:
     angle = math.degrees(2 * math.atan2(c_sin, c_cos))
     axis = (1.0 if q_re >= 0 else -1.0) * q_im / c_sin
     tproj = translation - (translation @ axis) * axis
-    cp = (tproj + np.cross(axis, tproj) * c_cos / c_sin) / 2
+    center = (tproj + np.cross(axis, tproj) * c_cos / c_sin) / 2
     axial = (translation @ axis) * axis
     return [
         360 - angle if long else angle,
         Vec3([float(v) for v in (-axis if long else axis)]),
-        Vec3([float(v) for v in cp]),
+        Vec3([float(v) for v in center]),
         Vec3([float(v) for v in axial]),
     ]
 

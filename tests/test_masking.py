@@ -16,7 +16,7 @@ from bosl2.shapes3d import Bosl2Solid
 
 
 def test_chamfer_edge_mask_builds():
-    m = chamfer_edge_mask(l=10, chamfer=2)
+    m = chamfer_edge_mask(length=10, chamfer=2)
     # a diamond bar: spans +-chamfer on X and Y, length l (+excess) on Z
     assert m is not None
     # Wrap in a Bosl2Solid with known size to verify dimension via bounds
@@ -28,19 +28,19 @@ def test_chamfer_edge_mask_builds():
 
 
 def test_returns_a_point_path():
-    path = mask2d_roundover(r=3)
+    path = mask2d_roundover(radius=3)
     assert isinstance(path, list)
     assert len(path) > 3
     assert all(len(p) == 2 for p in path)
 
 
 def test_diameter_matches_radius():
-    np.testing.assert_allclose(mask2d_roundover(r=3), mask2d_roundover(d=6))
+    np.testing.assert_allclose(mask2d_roundover(radius=3), mask2d_roundover(diameter=6))
 
 
 def test_corner_and_skirt_geometry():
     # the L-shape starts along +X and +Y with the given excess skirt past the origin
-    path = mask2d_roundover(r=4, excess=0.1)
+    path = mask2d_roundover(radius=4, excess=0.1)
     arr = np.asarray(path)
     assert arr[:, 0].min() == pytest.approx(-0.1)  # x skirt
     assert arr[:, 1].min() == pytest.approx(-0.1)  # y skirt
@@ -48,11 +48,13 @@ def test_corner_and_skirt_geometry():
 
 def test_quarter_circle_bite_radius():
     # the rounded far corner points all sit radius r from the rounding center [r, r]
-    r = 5.0
-    path = mask2d_roundover(r=r, excess=0.01)
+    radius = 5.0
+    path = mask2d_roundover(radius=radius, excess=0.01)
     arc_pts = np.asarray(path[3:])  # the first three points are the two flat legs
     for p in arc_pts:
-        assert math.isclose(math.hypot(p[0] - r, p[1] - r), r, abs_tol=1e-9)
+        assert math.isclose(
+            math.hypot(p[0] - radius, p[1] - radius), radius, abs_tol=1e-9
+        )
 
 
 def test_requires_r_or_d():
@@ -61,6 +63,6 @@ def test_requires_r_or_d():
 
 
 def test_finer_fn_gives_more_points():
-    coarse = mask2d_roundover(r=5, _fn=8)
-    fine = mask2d_roundover(r=5, _fn=64)
+    coarse = mask2d_roundover(radius=5, _fn=8)
+    fine = mask2d_roundover(radius=5, _fn=64)
     assert len(fine) > len(coarse)

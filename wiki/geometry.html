@@ -203,18 +203,18 @@ None if the lines are parallel or coincident.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.geometry.circle_circle_tangents">
-<span class="sig-prename descclassname"><span class="pre">bosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">circle_circle_tangents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/geometry.html#circle_circle_tangents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.geometry.circle_circle_tangents" title="Link to this definition">¶</a></dt>
-<dd><p>Tangent lines between two circles (r1, cp1) and (r2, cp2).</p>
+<span class="sig-prename descclassname"><span class="pre">bosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">circle_circle_tangents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/geometry.html#circle_circle_tangents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.geometry.circle_circle_tangents" title="Link to this definition">¶</a></dt>
+<dd><p>Tangent lines between two circles (radius1, cp1) and (radius2, cp2).</p>
 <p>Returns a list of up to 4 tangent lines, each a [point_on_circle1, point_on_circle2]
 pair: 2 external tangents plus 2 internal (crossing) tangents if the circles don’t
 overlap, or just the 2 external tangents if they do.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r1</strong> (<em>float</em>)</p></li>
-<li><p><strong>r2</strong> (<em>float</em>)</p></li>
-<li><p><strong>d1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>d2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>radius1</strong> (<em>float</em>)</p></li>
+<li><p><strong>radius2</strong> (<em>float</em>)</p></li>
+<li><p><strong>diameter1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>diameter2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

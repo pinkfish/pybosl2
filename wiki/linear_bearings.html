@@ -189,71 +189,20 @@ along a rod, and the pillow-block housings that clamp them to a plate.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.linear_bearings.LinearBearings.linear_bearing">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">linear_bearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">od</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'silver'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/linear_bearings.html#LinearBearings.linear_bearing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.linear_bearings.LinearBearings.linear_bearing" title="Link to this definition">¶</a></dt>
-<dd><p>A generic linear ball-bearing cartridge, bore <em>id</em> / outer <em>od</em> / length <em>l</em> (BOSL2 linear_bearing()).</p>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">linear_bearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'silver'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/linear_bearings.html#LinearBearings.linear_bearing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.linear_bearings.LinearBearings.linear_bearing" title="Link to this definition">¶</a></dt>
+<dd><p>A generic linear ball-bearing cartridge, bore <em>inner_diameter</em> / outer <em>outer_diameter</em> / length <em>length</em> (BOSL2 linear_bearing()).</p>
 <p class="rubric">Examples</p>
 <p>An LM8UU-sized bearing:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.linear_bearings</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearBearings</span>
-<span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-b8ce3cc94355420f914c045c4ab319ec" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-b8ce3cc94355420f914c045c4ab319ec");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/afd18bd7767d75e3.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/afd18bd7767d75e3.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>l</strong> (<em>float</em>)</p></li>
-<li><p><strong>od</strong> (<em>float</em>)</p></li>
-<li><p><strong>id</strong> (<em>float</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em>)</p></li>
+<li><p><strong>outer_diameter</strong> (<em>float</em>)</p></li>
+<li><p><strong>inner_diameter</strong> (<em>float</em>)</p></li>
 <li><p><strong>color</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
@@ -282,15 +231,15 @@ window.addEventListener("resize", resize);
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.linear_bearings.LinearBearings.linear_bearing_housing">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">linear_bearing_housing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tabwall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screwsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/linear_bearings.html#LinearBearings.linear_bearing_housing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.linear_bearings.LinearBearings.linear_bearing_housing" title="Link to this definition">¶</a></dt>
-<dd><p>A pillow-block housing that clamps a linear bearing (bore <em>d</em>, length <em>l</em>) to a plate (BOSL2 linear_bearing_housing()).</p>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">linear_bearing_housing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tabwall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screwsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/linear_bearings.html#LinearBearings.linear_bearing_housing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.linear_bearings.LinearBearings.linear_bearing_housing" title="Link to this definition">¶</a></dt>
+<dd><p>A pillow-block housing that clamps a linear bearing (bore <em>diameter</em>, length <em>length</em>) to a plate (BOSL2 linear_bearing_housing()).</p>
 <p>The teardrop bore prints without support; the split <em>gap</em> and a <em>screwsize</em> clamp screw
 through the tabs let it grip the bearing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>d</strong> (<em>float</em>)</p></li>
-<li><p><strong>l</strong> (<em>float</em>)</p></li>
+<li><p><strong>diameter</strong> (<em>float</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em>)</p></li>
 <li><p><strong>tab</strong> (<em>float</em>)</p></li>
 <li><p><strong>gap</strong> (<em>float</em>)</p></li>
 <li><p><strong>wall</strong> (<em>float</em>)</p></li>
@@ -335,73 +284,22 @@ through the tabs let it grip the bearing.</p>
 Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">linear_bearing</span></code></p>
 <p>A generic cartridge:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-3a9168031f67431cbf5471e47a295237" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-3a9168031f67431cbf5471e47a295237");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/f707145850aa3f1b.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/f707145850aa3f1b.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">lmXuu_bearing</span></code></p>
 <p>A standard LM10UU:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LinearBearings</span><span class="o">.</span><span class="n">lmXuu_bearing</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-520e1e72db8a4287a1c81ec6fffe45a1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-f5a5e48edf8f4f59987184986ea396a4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-520e1e72db8a4287a1c81ec6fffe45a1");
+const el = document.getElementById("stlviewer-f5a5e48edf8f4f59987184986ea396a4");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -447,73 +345,22 @@ window.addEventListener("resize", resize);
 <p><a class="reference external" href="_stl/85958ddddb624d7b.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">linear_bearing_housing</span></code></p>
 <p>A pillow-block housing:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing_housing</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="mi">19</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">29</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tab</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">screwsize</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing_housing</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">19</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">29</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tab</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">screwsize</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-e888619de5a14dd49aec92fd9f750a86" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-e888619de5a14dd49aec92fd9f750a86");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/d8168cfbd2f14571.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/d8168cfbd2f14571.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">lmXuu_housing</span></code></p>
 <p>A housing sized for an LM10UU:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">LinearBearings</span><span class="o">.</span><span class="n">lmXuu_housing</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tab</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">screwsize</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-292542892a6343e7b3ea197669c30529" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-642c96007f354d80b58076881e487795" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-292542892a6343e7b3ea197669c30529");
+const el = document.getElementById("stlviewer-642c96007f354d80b58076881e487795");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

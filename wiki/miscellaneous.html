@@ -139,7 +139,7 @@ and the minkowski-based transforms (<code class="docutils literal notranslate"><
 and – unlike BOSL2, which extrudes its <em>children</em> – they take the 2-D cross-section as a
 <strong>profile argument</strong>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Path</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">]])</span><span class="o">.</span><span class="n">path_extrude2d</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">square</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-<span class="n">Path3D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">]])</span><span class="o">.</span><span class="n">path_extrude</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">Path3D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">]])</span><span class="o">.</span><span class="n">path_extrude</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>The <em>profile</em> can be a native 2-D shape, a <a class="reference internal" href="paths.html#bosl2.paths.Path" title="bosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, a
@@ -212,13 +212,13 @@ method.</p></td>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b29d03bcb47e42ee85d755eca9ed4ad8" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-a0f912bc48c14c1e9a4c2b1a9da7720f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b29d03bcb47e42ee85d755eca9ed4ad8");
+const el = document.getElementById("stlviewer-a0f912bc48c14c1e9a4c2b1a9da7720f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -264,72 +264,21 @@ window.addEventListener("resize", resize);
 <p><a class="reference external" href="_stl/661602fbef787334.stl">⬇ Download STL mesh</a></p>
 <p>A profile swept along a rising 3-D path:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">route</span> <span class="o">=</span> <span class="n">Path3D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">]],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">route</span><span class="o">.</span><span class="n">path_extrude</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="mi">16</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">route</span><span class="o">.</span><span class="n">path_extrude</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="mi">16</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-d81f2cb52a5d4c169333a0d1342e2c09" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-d81f2cb52a5d4c169333a0d1342e2c09");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/868b87fb0bd84384.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/868b87fb0bd84384.stl">⬇ Download STL mesh</a></p>
 <p>A twisting, tapering column between two points:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extrude_from_to</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">square</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="n">twist</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e6ce76b8bdf04f6ca9d092a671da5c71" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-f21c2ccd017244a9a7d976e68c596e2a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e6ce76b8bdf04f6ca9d092a671da5c71");
+const el = document.getElementById("stlviewer-f21c2ccd017244a9a7d976e68c596e2a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -388,13 +337,13 @@ them. <em>profile</em> is a native 2-D shape, a Path/Region, a Bosl2Solid, or a 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c41215c03bc1473dac8b4dc5da09fa36" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e3033831f526428ab2f0c199853e0cc9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c41215c03bc1473dac8b4dc5da09fa36");
+const el = document.getElementById("stlviewer-e3033831f526428ab2f0c199853e0cc9");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -451,8 +400,8 @@ window.addEventListener("resize", resize);
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.miscellaneous.cylindrical_extrude">
-<span class="sig-prename descclassname"><span class="pre">bosl2.miscellaneous.</span></span><span class="sig-name descname"><span class="pre">cylindrical_extrude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">or_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">od</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/miscellaneous.html#cylindrical_extrude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.miscellaneous.cylindrical_extrude" title="Link to this definition">¶</a></dt>
-<dd><p>Wrap a 2-D <em>profile</em> around a cylinder, from radius <em>ir</em> out to <em>or_</em> (BOSL2 cylindrical_extrude()).</p>
+<span class="sig-prename descclassname"><span class="pre">bosl2.miscellaneous.</span></span><span class="sig-name descname"><span class="pre">cylindrical_extrude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/miscellaneous.html#cylindrical_extrude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.miscellaneous.cylindrical_extrude" title="Link to this definition">¶</a></dt>
+<dd><p>Wrap a 2-D <em>profile</em> around a cylinder, from radius <em>inner_radius</em> out to <em>outer_radius</em> (BOSL2 cylindrical_extrude()).</p>
 <p>Chops the profile into vertical facets and extrudes each radially. Handy for embossing text
 onto a curved wall. The profile’s X spans one revolution by default (override with <em>size</em>).</p>
 <dl class="field-list simple">
@@ -551,13 +500,13 @@ not needed here).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.miscellaneous.Miscellaneous.offset3d">
-<span class="sig-name descname"><span class="pre">offset3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/miscellaneous.html#Miscellaneous.offset3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.miscellaneous.Miscellaneous.offset3d" title="Link to this definition">¶</a></dt>
-<dd><p>Expand (or, for negative <em>r</em>, contract) the surface of this solid by <em>r</em> (BOSL2 offset3d()).</p>
+<span class="sig-name descname"><span class="pre">offset3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/miscellaneous.html#Miscellaneous.offset3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.miscellaneous.Miscellaneous.offset3d" title="Link to this definition">¶</a></dt>
+<dd><p>Expand (or, for negative <em>radius</em>, contract) the surface of this solid by <em>radius</em> (BOSL2 offset3d()).</p>
 <p>Uses <code class="docutils literal notranslate"><span class="pre">minkowski()</span></code> with a sphere and is <em>very</em> slow; use sparingly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>float</em>)</p></li>
+<li><p><strong>radius</strong> (<em>float</em>)</p></li>
 <li><p><strong>size</strong> (<em>float</em>)</p></li>
 <li><p><strong>convexity</strong> (<em>int</em>)</p></li>
 </ul>
@@ -567,9 +516,9 @@ not needed here).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.miscellaneous.Miscellaneous.round3d">
-<span class="sig-name descname"><span class="pre">round3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">or_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/miscellaneous.html#Miscellaneous.round3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.miscellaneous.Miscellaneous.round3d" title="Link to this definition">¶</a></dt>
-<dd><p>Round the corners of this solid (BOSL2 round3d()): <em>r</em> rounds all, <em>or_</em> only convex,
-<em>ir</em> only concave. Uses <code class="docutils literal notranslate"><span class="pre">offset3d</span></code> three times and is extremely slow.</p>
+<span class="sig-name descname"><span class="pre">round3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/miscellaneous.html#Miscellaneous.round3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.miscellaneous.Miscellaneous.round3d" title="Link to this definition">¶</a></dt>
+<dd><p>Round the corners of this solid (BOSL2 round3d()): <em>radius</em> rounds all, <em>outer_radius</em> only convex,
+<em>inner_radius</em> only concave. Uses <code class="docutils literal notranslate"><span class="pre">offset3d</span></code> three times and is extremely slow.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>size</strong> (<em>float</em>)</p>

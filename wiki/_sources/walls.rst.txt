@@ -35,25 +35,25 @@ Typical shape:
 
 .. pythonscad-example::
 
-   Walls.sparse_wall(h=40, l=100, thick=3).show()
+   Walls.sparse_wall(height=40, length=100, thick=3).show()
 
 Thinner strut:
 
 .. pythonscad-example::
 
-   Walls.sparse_wall(h=40, l=100, thick=3, strut=2).show()
+   Walls.sparse_wall(height=40, length=100, thick=3, strut=2).show()
 
 Larger maxang:
 
 .. pythonscad-example::
 
-   Walls.sparse_wall(h=40, l=100, thick=3, strut=2, maxang=45).show()
+   Walls.sparse_wall(height=40, length=100, thick=3, strut=2, maxang=45).show()
 
 Longer max_bridge:
 
 .. pythonscad-example::
 
-   Walls.sparse_wall(h=40, l=100, thick=3, strut=2, maxang=45, max_bridge=30).show()
+   Walls.sparse_wall(height=40, length=100, thick=3, strut=2, maxang=45, max_bridge=30).show()
 
 .. rubric:: ``sparse_cuboid``
 
@@ -81,19 +81,19 @@ Typical shape:
 
 .. pythonscad-example::
 
-   Walls.corrugated_wall(h=50, l=100).show()
+   Walls.corrugated_wall(height=50, length=100).show()
 
 Wider strut border:
 
 .. pythonscad-example::
 
-   Walls.corrugated_wall(h=50, l=100, strut=8).show()
+   Walls.corrugated_wall(height=50, length=100, strut=8).show()
 
 Thicker corrugation:
 
 .. pythonscad-example::
 
-   Walls.corrugated_wall(h=50, l=100, strut=8, wall=3).show()
+   Walls.corrugated_wall(height=50, length=100, strut=8, wall=3).show()
 
 .. rubric:: ``thinning_wall``
 
@@ -101,13 +101,13 @@ Typical shape:
 
 .. pythonscad-example::
 
-   Walls.thinning_wall(h=50, l=80, thick=4).show()
+   Walls.thinning_wall(height=50, length=80, thick=4).show()
 
 Trapezoidal:
 
 .. pythonscad-example::
 
-   Walls.thinning_wall(h=50, l=[80, 50], thick=4).show()
+   Walls.thinning_wall(height=50, l=[80, 50], thick=4).show()
 
 .. rubric:: ``thinning_triangle``
 
@@ -115,19 +115,19 @@ Centered:
 
 .. pythonscad-example::
 
-   Walls.thinning_triangle(h=50, l=80, thick=4, ang=30, strut=5, wall=2, center=True).show()
+   Walls.thinning_triangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, center=True).show()
 
 Resting on the ground plane:
 
 .. pythonscad-example::
 
-   Walls.thinning_triangle(h=50, l=80, thick=4, ang=30, strut=5, wall=2, center=False).show()
+   Walls.thinning_triangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, center=False).show()
 
 Only the diagonal edge thickened:
 
 .. pythonscad-example::
 
-   Walls.thinning_triangle(h=50, l=80, thick=4, ang=30, strut=5, wall=2, diagonly=True, center=False).show()
+   Walls.thinning_triangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, diagonly=True, center=False).show()
 
 .. rubric:: ``narrowing_strut``
 
@@ -135,4 +135,4 @@ A support-free strut:
 
 .. pythonscad-example::
 
-   Walls.narrowing_strut(w=10, l=100, wall=5, ang=30).show()
+   Walls.narrowing_strut(w=10, length=100, wall=5, angle=30).show()

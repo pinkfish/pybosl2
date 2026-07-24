@@ -48,7 +48,7 @@ def _union(shapes):
 
 def _cmask(l, chamfer, orient=None):
     """chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis)."""
-    m = Bosl2Solid(chamfer_edge_mask(l=l, chamfer=chamfer))
+    m = Bosl2Solid(chamfer_edge_mask(length=l, chamfer=chamfer))
     if orient == "RIGHT":
         return m.rotate([0, 90, 0])
     if orient == "BACK":
@@ -81,9 +81,9 @@ def _clip_placement(vec, extents):
 def _octagon_tunnel(size, strut, h):
     """A long octagonal-prism cutter for the axial lightening tunnels (BOSL2 cylinder($fn=8))."""
     oct_d = (min(h, size) - 2 * strut) / math.cos(math.radians(180 / 8))
-    return regular_prism(8, d=oct_d, h=max(h, size) + 1, anchor=CENTER).rotate(
-        [0, 0, 180 / 8]
-    )
+    return regular_prism(
+        8, diameter=oct_d, height=max(h, size) + 1, anchor=CENTER
+    ).rotate([0, 0, 180 / 8])
 
 
 class CubeTruss:
@@ -120,28 +120,30 @@ class CubeTruss:
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
         bracing = CUBETRUSS_BRACING if bracing is None else bracing
-        h = size
+        height = size
         crossthick = strut / math.sqrt(2)
         voffset = 0.333
 
-        body = cuboid([size, size, h]) - cuboid(
-            [size - 2 * strut, size - 2 * strut, h - 2 * strut]
+        body = cuboid([size, size, height]) - cuboid(
+            [size - 2 * strut, size - 2 * strut, height - 2 * strut]
         )
         # Octagonal tunnels through the X, Y and Z axes.
-        body = body - _octagon_tunnel(size, strut, h).rotate([90, 0, 0])  # along Y
-        body = body - _octagon_tunnel(size, strut, h).rotate([90, 0, 0]).rotate(
+        body = body - _octagon_tunnel(size, strut, height).rotate([90, 0, 0])  # along Y
+        body = body - _octagon_tunnel(size, strut, height).rotate([90, 0, 0]).rotate(
             [0, 0, 90]
         )  # along X
-        body = body - _octagon_tunnel(size, strut, h)  # along Z
+        body = body - _octagon_tunnel(size, strut, height)  # along Z
 
         if bracing:
-            hex_d = (min(h, size) - 2 * strut) / math.cos(
+            hex_d = (min(height, size) - 2 * strut) / math.cos(
                 math.radians(180 / 6)
             ) - 2 * voffset
             for i in (-1, 1):
-                brace = cuboid([crossthick, (size - strut) * math.sqrt(2), h])
+                brace = cuboid([crossthick, (size - strut) * math.sqrt(2), height])
                 hole = (
-                    regular_prism(6, d=hex_d, h=crossthick + 1, anchor=CENTER)
+                    regular_prism(
+                        6, diameter=hex_d, height=crossthick + 1, anchor=CENTER
+                    )
                     .rotate([0, 0, 180 / 6])
                     .rotate([0, 90, 0])
                     .scale([1, 1.3, 1])
@@ -251,16 +253,16 @@ class CubeTruss:
             e = [int(x) for x in (list(extents) + [1, 1, 1])[:3]]
             ex, ey, ez = e
         step = size - strut
-        w, l, h = step * ex + strut, step * ey + strut, step * ez + strut
+        w, l, height = step * ex + strut, step * ey + strut, step * ez + strut
         v = [0.0, 1.0 / ey, 1.0 / ez]  # BACK/ey + UP/ez diagonal cut normal
         smax = size * (max(ex, ey, ez) + 1)
         octid = size - 2 * strut
 
         def octprism(length, rot):
-            # cyl(d=octid, circum=true, realign=true, $fn=8): an octagon across-flats octid, +half facet.
-            p = regular_prism(8, id=octid, h=length, anchor=CENTER).rotate(
-                [0, 0, 180 / 8]
-            )
+            # cyl(diameter=octid, circum=true, realign=true, $fn=8): an octagon across-flats octid, +half facet.
+            p = regular_prism(
+                8, inner_diameter=octid, height=length, anchor=CENTER
+            ).rotate([0, 0, 180 / 8])
             return p.rotate(rot) if rot else p
 
         def hollow_cell():
@@ -271,26 +273,26 @@ class CubeTruss:
             )  # central cube
 
         pieces = []
-        for mx in xcopies(step, n=ex):
-            base = cuboid([size, l, h]).half_of(v=v, s=smax)
+        for mx in xcopies(step, sides=ex):
+            base = cuboid([size, l, height]).half_of(v=v, s=smax)
             cells = [
                 hollow_cell().multmatrix((my @ mz).tolist())
-                for my in ycopies(step, n=ey)
-                for mz in zcopies(step, n=ez)
+                for my in ycopies(step, sides=ey)
+                for mz in zcopies(step, sides=ez)
             ]
-            holes = _union(cells).half_of(v=v, cp=strut, s=smax)
+            holes = _union(cells).half_of(v=v, center=strut, s=smax)
             ytun = _union(
                 [
                     octprism(ey * size + 1, [90, 0, 0]).multmatrix(mz.tolist())
-                    for mz in zcopies(step, n=ez)
+                    for mz in zcopies(step, sides=ez)
                 ]
             )
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
-        return Bosl2Solid(_union(pieces).shape, size=[w, l, h])
+        return Bosl2Solid(_union(pieces).shape, size=[w, l, height])
 
     @staticmethod
     def cubetruss_corner(
-        h: int = 1,
+        height: int = 1,
         extents: int | Sequence[int] = 1,
         bracing: bool | None = None,
         size: float | None = None,
@@ -298,7 +300,7 @@ class CubeTruss:
     ) -> Bosl2Solid:
         """A corner truss with arms jutting out in one or more directions (BOSL2 cubetruss_corner()).
 
-        *h* is the central column height in cubes. *extents* is a scalar (equal arms in +X, +Y and
+        *height* is the central column height in cubes. *extents* is a scalar (equal arms in +X, +Y and
         +Z) or a length-<=5 vector giving the arm lengths in the +X, +Y, -X, -Y and +Z directions.
         End clips are not added (the clip accessory is not ported).
 
@@ -312,7 +314,7 @@ class CubeTruss:
         """
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
-        h = int(h)
+        height = int(height)
         if isinstance(extents, (int, float)):
             exts = [int(extents), int(extents), 0, 0, int(extents)]
         else:
@@ -322,9 +324,9 @@ class CubeTruss:
         def seg():
             return CubeTruss.cubetruss_segment(size=size, strut=strut, bracing=bracing)
 
-        segs = [seg().up(step * zcol) for zcol in range(h)]  # central column
+        segs = [seg().up(step * zcol) for zcol in range(height)]  # central column
         for d in range(4):  # +X, +Y, -X, -Y arms
-            for zcol in range(h):
+            for zcol in range(height):
                 for i in range(1, exts[d] + 1):
                     segs.append(
                         seg()
@@ -333,13 +335,13 @@ class CubeTruss:
                         .rotate([0, 0, d * 90])
                     )
         for i in range(1, exts[4] + 1):  # +Z arm
-            segs.append(seg().up((step + 0.01) * (i + h - 1)))
+            segs.append(seg().up((step + 0.01) * (i + height - 1)))
 
         result = _union(segs)
         s = [
             CubeTruss.cubetruss_dist(exts[0] + 1 + exts[2], 1, size, strut),
             CubeTruss.cubetruss_dist(exts[1] + 1 + exts[3], 1, size, strut),
-            CubeTruss.cubetruss_dist(h + exts[4], 1, size, strut),
+            CubeTruss.cubetruss_dist(height + exts[4], 1, size, strut),
         ]
         return Bosl2Solid(result.shape, size=s)
 
@@ -365,7 +367,7 @@ class CubeTruss:
             hook = prismoid(
                 [clipthick, clipheight],
                 [clipthick, clipheight - cliplen * 2],
-                h=cliplen,
+                height=cliplen,
             ).rotate([90, 0, 0])
             hook = hook - _cmask(clipheight + 0.1, clipthick).right(clipthick / 2)
             hook = hook.back(strut).right(clipthick / 2 - 0.01)
@@ -375,7 +377,7 @@ class CubeTruss:
                 prismoid(
                     [clipheight - cliplen * 2, strut / 2],
                     [clipheight - cliplen * 2 - 2 * clipsize, strut / 2],
-                    h=clipsize + 0.01,
+                    height=clipsize + 0.01,
                 )
                 .rotate([0, -90, 0])
                 .forward(strut * 1.25 + slop)
@@ -385,11 +387,11 @@ class CubeTruss:
             clip = clip - _cmask(size + 1, clipsize + clipthick / 3).scale(
                 [1, 1.5, 1]
             ).left(clipsize).forward(strut * 1.6)
-            for mz in zcopies(clipheight - strut, n=2):
+            for mz in zcopies(clipheight - strut, sides=2):
                 clip = clip - cuboid([clipthick * 3, cliplen * 2, strut]).multmatrix(
                     mz.tolist()
                 )
-            for mz in zcopies(clipheight - 2 * strut, n=2):
+            for mz in zcopies(clipheight - 2 * strut, sides=2):
                 clip = clip - _cmask(cliplen * 2, clipthick, orient="BACK").right(
                     clipthick
                 ).multmatrix(mz.tolist())
@@ -431,23 +433,23 @@ class CubeTruss:
             edges="Z",
         ).up(clipthick / 2)
         parts.append(base)
-        for mx in xcopies(span + clipthick, n=2):
+        for mx in xcopies(span + clipthick, sides=2):
             parts.append(
                 prismoid(
                     [clipthick, size - 4 * strut],
                     [clipthick, size / 3.5],
-                    h=wall_h,
+                    height=wall_h,
                     anchor=BOTTOM,
                 )
                 .up(clipthick - 0.01)
                 .multmatrix(mx.tolist())
             )
-        for mx in xcopies(span, n=2):
+        for mx in xcopies(span, sides=2):
             parts.append(
                 prismoid(
                     [clipsize * 2, size / 3.5],
                     [0.1, size / 3.5],
-                    h=clipsize * 3,
+                    height=clipsize * 3,
                     anchor=BOTTOM,
                 )
                 .up(clipthick + strut + slop * 2)
@@ -457,15 +459,15 @@ class CubeTruss:
             plug = (
                 regular_prism(
                     8,
-                    r1=(cyld - 4 * slop) / 2,
-                    r2=(cyld - 4 * slop - 1) / 2,
-                    h=strut,
+                    radius1=(cyld - 4 * slop) / 2,
+                    radius2=(cyld - 4 * slop - 1) / 2,
+                    height=strut,
                     anchor=BOTTOM,
                 )
                 .rotate([0, 0, 180 / 8])
                 .up(clipthick - 0.01)
             )
-            for my in ycopies(size - 2 * strut - 4 * slop, n=2):
+            for my in ycopies(size - 2 * strut - 4 * slop, sides=2):
                 plug = plug - _cmask(size - strut, strut * 2 / 3, orient="RIGHT").up(
                     clipthick + strut
                 ).multmatrix(my.tolist())
@@ -500,7 +502,7 @@ class CubeTruss:
             prismoid(
                 [size / 3.5, clipthick * 1.87],
                 [size / 3.5, 0.1],
-                h=clipsize,
+                height=clipsize,
                 anchor=BOTTOM,
             )
             .back_half()
@@ -530,13 +532,13 @@ class CubeTruss:
         clipsize = 0.5
         span = w * (size - strut) + strut
         parts = [cuboid([span + 2 * clipthick, size, clipthick]).up(clipthick / 2)]
-        for mx in xcopies(span + clipthick, n=2):
+        for mx in xcopies(span + clipthick, sides=2):
             parts.append(
                 cuboid([clipthick, size, clipthick + strut * 3 / 4])
                 .up((clipthick + strut * 3 / 4) / 2)
                 .multmatrix(mx.tolist())
             )
-        for my in ycopies(size, n=2):
+        for my in ycopies(size, sides=2):
             parts.append(
                 CubeTruss.cubetruss_foot(
                     w=w, size=size, strut=strut, clipthick=clipthick, slop=slop
@@ -545,12 +547,12 @@ class CubeTruss:
                 .multmatrix(my.tolist())
             )
         if vert:
-            for mx in xcopies(span + clipthick, n=2):
+            for mx in xcopies(span + clipthick, sides=2):
                 parts.append(
                     prismoid(
                         [clipthick, size],
                         [clipthick, 2 * strut + 2 * clipthick],
-                        h=size * 0.6,
+                        height=size * 0.6,
                         anchor=BOTTOM,
                     )
                     .up(clipthick - 0.01)
@@ -560,7 +562,7 @@ class CubeTruss:
                 prismoid(
                     [size / 3.5, clipthick * 2],
                     [size / 3.5 - 4 * 2 * clipsize, 0.1],
-                    h=2 * clipsize,
+                    height=2 * clipsize,
                     anchor=BOTTOM,
                 )
                 .back_half()

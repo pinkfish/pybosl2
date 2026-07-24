@@ -29,7 +29,8 @@ jobs:
           cache: pip
 
       # autodoc imports the bosl2 modules, which import the pythonscad C extension;
-      # it dlopens these system libraries at import time.
+      # it dlopens these system libraries at import time.  The same libraries are
+      # needed by the PythonSCAD AppImage for headless STL rendering.
       - name: Install system libraries for the pythonscad wheel
         run: |
           sudo apt-get update
@@ -38,13 +39,38 @@ jobs:
             libfontconfig1 libfreetype6 libharfbuzz0b \
             libxkbcommon0 libx11-6 libxext6 libxrender1
 
-      - name: Install package with docs extras
+      - name: Install pythonscad Python package
         run: |
           python -m pip install --upgrade pip
+          pip install pythonscad
+
+      - name: Install PythonSCAD binary
+        run: |
+          gh release download --repo pythonscad/pythonscad \
+            --pattern 'PythonSCAD-x86_64.AppImage' \
+            --dir /tmp
+          chmod +x /tmp/PythonSCAD-x86_64.AppImage
+          /tmp/PythonSCAD-x86_64.AppImage --appimage-extract
+          sudo cp squashfs-root/AppRun /usr/local/bin/pythonscad
+          pythonscad --version || echo "PythonSCAD binary installed (version check may fail headless)"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Install package and remaining docs dependencies
+        run: |
           pip install -e '.[docs]'
 
       - name: Build HTML
-        run: make -C docs html
+        run: make -C docs html 2>&1 | tee sphinx.log
+
+      - name: Verify output is not empty
+        run: |
+          PAGE_COUNT=$(find wiki -name '*.html' | wc -l)
+          echo "Generated ${PAGE_COUNT} HTML pages"
+          if [ "$PAGE_COUNT" -lt 10 ]; then
+            echo "ERROR: Too few pages (${PAGE_COUNT}). Check sphinx.log for import failures."
+            exit 1
+          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

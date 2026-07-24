@@ -26,7 +26,6 @@
 
 from __future__ import annotations
 
-import importlib.util
 import sys
 from pathlib import Path
 
@@ -36,9 +35,18 @@ _REPO_ROOT = _DOCS_DIR.parent
 sys.path.insert(0, str(_REPO_ROOT))
 sys.path.insert(0, str(_DOCS_DIR / "_ext"))
 
-# Prefer the real pythonscad wheel; otherwise install the numeric mock if it sits beside the
-# checkout, so `make html` still works without PythonSCAD installed at all.
-if importlib.util.find_spec("pythonscad") is None:
+# Try to import the real pythonscad wheel; if the C extension cannot load on this platform
+# (e.g. missing system libraries on a headless CI runner), fall back to the numeric mock.
+# ``find_spec`` alone is not enough -- the wheel may be installed but fail to dlopen.
+_have_pythonscad = False
+try:
+    import pythonscad  # noqa: F401
+
+    _have_pythonscad = True
+except ImportError:
+    pass
+
+if not _have_pythonscad:
     _mock_dir = _REPO_ROOT / "pysolidfive" / "tests"
     if (_mock_dir / "mock_libfive.py").is_file():
         sys.path.insert(0, str(_mock_dir))

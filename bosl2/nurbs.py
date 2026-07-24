@@ -113,14 +113,14 @@ def _findspan(u, p, knot, nctrl):
 
 def _deboor(knot, ctrl, u, p, k):
     """The de Boor evaluation of the spline at parameter *u* in span *k* (== BOSL2 _nurbs_pt())."""
-    d = [np.array(ctrl[k - p + j], dtype=float) for j in range(p + 1)]
+    diameter = [np.array(ctrl[k - p + j], dtype=float) for j in range(p + 1)]
     for r in range(1, p + 1):
         for j in range(p, r - 1, -1):
             i = k - p + j
             denom = knot[i + p - r + 1] - knot[i]
             alpha = 0.0 if abs(denom) < 1e-15 else (u - knot[i]) / denom
-            d[j] = (1 - alpha) * d[j - 1] + alpha * d[j]
-    return d[p]
+            diameter[j] = (1 - alpha) * diameter[j - 1] + alpha * diameter[j]
+    return diameter[p]
 
 
 # ---------------------------------------------------------------------------
@@ -189,21 +189,21 @@ def _nurbs_curve_pts(
     ctrl = [np.asarray(p, dtype=float) for p in control]
     if type == "closed":
         ctrl = ctrl + ctrl[:degree]
-    n = len(ctrl)  # control count (extended, for closed)
+    sides = len(ctrl)  # control count (extended, for closed)
 
     # -- multiplicity vector ---------------------------------------------------------------
     if not uniform:
         pass
     elif type == "clamped":
-        base = list(mult) if mult is not None else [1] * (n - degree + 1)
+        base = list(mult) if mult is not None else [1] * (sides - degree + 1)
         mult = [degree + 1] + base[1:-1] + [degree + 1]
     elif mult is None:
-        mult = [1] * (n + degree + 1)
+        mult = [1] * (sides + degree + 1)
     elif type == "open":
         pass
     else:  # closed with explicit mult
         lastmult = mult[-1] + mult[0] - 1
-        mult = _extend_knot_mult(list(mult[:-1]) + [lastmult], 1, n + degree + 1)
+        mult = _extend_knot_mult(list(mult[:-1]) + [lastmult], 1, sides + degree + 1)
 
     # -- knot vector -----------------------------------------------------------------------
     if uniform:
@@ -218,9 +218,9 @@ def _nurbs_curve_pts(
         elif type == "clamped":
             knot = [xknots[0]] * degree + list(xknots) + [xknots[-1]] * degree
         else:  # closed
-            knot = _extend_knot_vector(list(xknots), 0, n + degree + 1)
+            knot = _extend_knot_vector(list(xknots), 0, sides + degree + 1)
 
-    bound = None if type == "clamped" else [knot[degree], knot[n]]
+    bound = None if type == "clamped" else [knot[degree], knot[sides]]
 
     # -- parameter samples -----------------------------------------------------------------
     if splinesteps is not None:
@@ -228,14 +228,14 @@ def _nurbs_curve_pts(
             "splinesteps must be a positive integer."
         )
         adjusted_u = []
-        for i in range(degree, n):
+        for i in range(degree, sides):
             if not approx(knot[i], knot[i + 1]):
                 adjusted_u += [
                     float(x)
                     for x in lerpn(knot[i], knot[i + 1], splinesteps, endpoint=False)
                 ]
         if type != "closed":
-            adjusted_u.append(knot[n])
+            adjusted_u.append(knot[sides])
     else:
         uu = [float(x) for x in u]
         assert all(-1e-12 <= x <= 1 + 1e-12 for x in uu), "u must lie in [0, 1]."
@@ -244,7 +244,7 @@ def _nurbs_curve_pts(
         )
 
     return [
-        _deboor(knot, ctrl, val, degree, _findspan(val, degree, knot, n))
+        _deboor(knot, ctrl, val, degree, _findspan(val, degree, knot, sides))
         for val in adjusted_u
     ]
 
@@ -586,8 +586,8 @@ def _nip(i, p, u, U):
 
 
 def _greville(U, p):
-    n = len(U) - p - 2
-    return [sum(U[i + 1 : i + p + 1]) / p for i in range(n + 1)]
+    sides = len(U) - p - 2
+    return [sum(U[i + 1 : i + p + 1]) / p for i in range(sides + 1)]
 
 
 def _increment_knot_mults(U):
@@ -662,23 +662,23 @@ def nurbs_elevate_degree(
             list(np.asarray(control[i], dtype=float) * weights[i]) + [float(weights[i])]
             for i in range(len(control))
         ]
-        r = nurbs_elevate_degree(
+        radius = nurbs_elevate_degree(
             homo, degree, knots=knots, type=type, times=times, mult=mult
         )
-        new_w = [pt[-1] for pt in r[2]]
-        new_ctrl = [list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in r[2]]
-        return [r[0], r[1], new_ctrl, r[3], None, new_w]
+        new_w = [pt[-1] for pt in radius[2]]
+        new_ctrl = [list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in radius[2]]
+        return [radius[0], radius[1], new_ctrl, radius[3], None, new_w]
 
     assert type in ("clamped", "open"), (
         'nurbs_elevate_degree: type must be "clamped" or "open".'
     )
     assert is_num(times) and times >= 1, "times must be a positive integer."
-    n = len(control)
+    sides = len(control)
     if knots is None and mult is None:
         xknots = (
-            [float(x) for x in lerpn(0, 1, n - degree + 1)]
+            [float(x) for x in lerpn(0, 1, sides - degree + 1)]
             if type == "clamped"
-            else [float(x) for x in lerpn(0, 1, n + degree + 1)]
+            else [float(x) for x in lerpn(0, 1, sides + degree + 1)]
         )
     elif mult is None:
         xknots = list(knots)

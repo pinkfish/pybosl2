@@ -32,13 +32,15 @@ def test_unknown_size_raises():
 @pytest.mark.parametrize("size,od,length", [(8, 15, 24), (12, 21, 30), (20, 32, 42)])
 def test_lmXuu_bearing_envelope(size, od, length):
     b = LB.lmXuu_bearing(size)
-    w, _wy, h = _size(b)
+    w, _wy, height = _size(b)
     assert w == pytest.approx(od, abs=0.5)
-    assert h == pytest.approx(length, abs=0.05)
+    assert height == pytest.approx(length, abs=0.05)
 
 
 def test_generic_bearing_builds():
-    assert isinstance(LB.linear_bearing(l=24, od=15, id=8), Bosl2Solid)
+    assert isinstance(
+        LB.linear_bearing(length=24, outer_diameter=15, inner_diameter=8), Bosl2Solid
+    )
 
 
 @pytest.mark.parametrize("kw", [{}, {"size": 12}, {"size": 20}])

@@ -87,9 +87,9 @@ class Wiring:
     """Routed bundles of wires (BOSL2 wiring.scad)."""
 
     @staticmethod
-    def hex_offsets(n: int, d: float) -> list:
-        """The centre points for the optimal hexagonal packing of at least *n* circles spaced *d* apart."""
-        return _hex_offsets(n, d)
+    def hex_offsets(sides: int, diameter: float) -> list:
+        """The centre points for the optimal hexagonal packing of at least *sides* circles spaced *diameter* apart."""
+        return _hex_offsets(sides, diameter)
 
     @staticmethod
     def wire_bundle(
@@ -122,11 +122,11 @@ class Wiring:
         rounded_path = round_corners(
             path, radius=rounding, closed=False, _fn=(corner_steps + 1) * 4
         )
-        r = wirediam / 2
+        radius = wirediam / 2
         profile = [
             [
-                r * math.cos(2 * math.pi * k / sides),
-                r * math.sin(2 * math.pi * k / sides),
+                radius * math.cos(2 * math.pi * k / sides),
+                radius * math.sin(2 * math.pi * k / sides),
             ]
             for k in range(sides)
         ]

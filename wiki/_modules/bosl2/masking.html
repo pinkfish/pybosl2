@@ -191,31 +191,31 @@
 <div class="viewcode-block" id="mask2d_roundover">
 <a class="viewcode-back" href="../../masking.html#bosl2.masking.mask2d_roundover">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mask2d_roundover</span><span class="p">(</span>
-    <span class="n">r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
-    <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">_fn</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">_fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">_fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *r*.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *radius*.</span>
 
 <span class="sd">    The origin is the sharp corner to be rounded; the shape extends along +X and +Y (with a</span>
 <span class="sd">    small `excess` skirt past 0 on each) into the material being cut, with a quarter-circle</span>
-<span class="sd">    bite of radius *r* taken out of the far corner.</span>
+<span class="sd">    bite of radius *radius* taken out of the far corner.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        r:      rounding radius</span>
+<span class="sd">        radius:      rounding radius</span>
 <span class="sd">        inset:  scalar or [x,y] inset of the rounding center from the corner (default 0)</span>
 <span class="sd">        excess: amount the flat sides extend past the origin, for a clean boolean cut (default 0.01)</span>
-<span class="sd">        d:      rounding diameter (alternative to r)</span>
+<span class="sd">        diameter:      rounding diameter (alternative to radius)</span>
 <span class="sd">        _fn/_fa/_fs: arc smoothness overrides</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;mask2d_roundover(): must give r or d&quot;</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">rad</span> <span class="o">=</span> <span class="n">r</span>
+    <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;mask2d_roundover(): must give radius or diameter&quot;</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span>
     <span class="n">inset_l</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">inset</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inset</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">inset</span><span class="p">,</span> <span class="n">inset</span><span class="p">]</span>
     <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">_quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">))</span>
     <span class="n">step</span> <span class="o">=</span> <span class="mf">90.0</span> <span class="o">/</span> <span class="n">steps</span>
@@ -234,49 +234,49 @@
 <div class="viewcode-block" id="rounding_edge_mask">
 <a class="viewcode-back" href="../../masking.html#bosl2.masking.rounding_edge_mask">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rounding_edge_mask</span><span class="p">(</span>
-    <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">r1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">r2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">d1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">d2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">h</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
     <span class="n">_fn</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">_fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">_fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyOpenSCAD</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A standalone 3-D edge-rounding cutter of length *l*, for manual positioning (matching</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A standalone 3-D edge-rounding cutter of length *length*, for manual positioning (matching</span>
 <span class="sd">    this project&#39;s existing `.rotate(...).translate(...)` usage rather than going through</span>
 <span class="sd">    edge_mask()). Uses the same local-frame convention as mask2d_roundover(): origin at the</span>
-<span class="sd">    sharp edge, +X/+Y extending into the material, centered along its own Z axis over length *l*.</span>
+<span class="sd">    sharp edge, +X/+Y extending into the material, centered along its own Z axis over length *length*.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        l/h:    length of the cutter along its axis (default 1)</span>
-<span class="sd">        r:      rounding radius (both ends)</span>
-<span class="sd">        r1/r2:  rounding radius at each end, for a tapered cutter</span>
-<span class="sd">        d/d1/d2: rounding diameter (both ends) / each end</span>
+<span class="sd">        length/height:    length of the cutter along its axis (default 1)</span>
+<span class="sd">        radius:      rounding radius (both ends)</span>
+<span class="sd">        radius1/radius2:  rounding radius at each end, for a tapered cutter</span>
+<span class="sd">        diameter/diameter1/diameter2: rounding diameter (both ends) / each end</span>
 <span class="sd">        excess: amount the flat sides extend past the origin (default 0.1)</span>
 <span class="sd">        _fn/_fa/_fs: arc smoothness overrides</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="n">l</span> <span class="k">if</span> <span class="n">l</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">h</span> <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">length</span> <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">rad1</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">r1</span>
-        <span class="k">if</span> <span class="n">r1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">radius1</span>
+        <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">else</span> <span class="p">(</span>
-            <span class="n">r</span>
-            <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="p">(</span><span class="n">d1</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">d1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">radius</span>
+            <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">(</span><span class="n">diameter1</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">))</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="n">rad2</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">r2</span>
-        <span class="k">if</span> <span class="n">r2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">radius2</span>
+        <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">else</span> <span class="p">(</span>
-            <span class="n">r</span>
-            <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="p">(</span><span class="n">d2</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">d2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">radius</span>
+            <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">(</span><span class="n">diameter2</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">))</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">rad1</span> <span class="o">&lt;</span> <span class="n">rad2</span><span class="p">:</span>
@@ -294,21 +294,21 @@
 <div class="viewcode-block" id="chamfer_edge_mask">
 <a class="viewcode-back" href="../../masking.html#bosl2.masking.chamfer_edge_mask">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">chamfer_edge_mask</span><span class="p">(</span>
-    <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyOpenSCAD</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A standalone 3-D edge-chamfer cutter of length *l* (BOSL2 chamfer_edge_mask()).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A standalone 3-D edge-chamfer cutter of length *length* (BOSL2 chamfer_edge_mask()).</span>
 
 <span class="sd">    A diamond bar (a square prism rotated 45 degrees, with its vertices *chamfer* out along each</span>
-<span class="sd">    axis -- i.e. ``cylinder(r=chamfer, $fn=4)``), centered on its own Z axis. Position it along a</span>
+<span class="sd">    axis -- i.e. ``cylinder(radius=chamfer, $fn=4)``), centered on its own Z axis. Position it along a</span>
 <span class="sd">    sharp edge and subtract it to bevel the edge by *chamfer*.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        l:       length of the cutter along its axis (default 1)</span>
+<span class="sd">        length:       length of the cutter along its axis (default 1)</span>
 <span class="sd">        chamfer: chamfer size -- the diamond&#39;s half-diagonal along each axis (default 1)</span>
-<span class="sd">        excess:  extra length past *l* so the cut clears the surface (default 0.1)</span>
+<span class="sd">        excess:  extra length past *length* so the cut clears the surface (default 0.1)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">diamond</span> <span class="o">=</span> <span class="p">[[</span><span class="n">chamfer</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">chamfer</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">chamfer</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">diamond</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">l</span> <span class="o">+</span> <span class="n">excess</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">diamond</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span> <span class="o">+</span> <span class="n">excess</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
@@ -491,15 +491,15 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_corner_cutter</span><span class="p">(</span>
     <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">corner_vec</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
-    <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">_fa</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">_fs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyOpenSCAD</span><span class="p">:</span>
-    <span class="n">cube_center</span> <span class="o">=</span> <span class="p">[</span><span class="n">corner_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">r</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-    <span class="n">sphere_center</span> <span class="o">=</span> <span class="p">[</span><span class="n">corner_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-    <span class="n">cube_shape</span> <span class="o">=</span> <span class="n">_ocube</span><span class="p">([</span><span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">cube_center</span><span class="p">)</span>
-    <span class="n">sphere_shape</span> <span class="o">=</span> <span class="n">_osphere</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">sphere_center</span><span class="p">)</span>
+    <span class="n">cube_center</span> <span class="o">=</span> <span class="p">[</span><span class="n">corner_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">radius</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+    <span class="n">sphere_center</span> <span class="o">=</span> <span class="p">[</span><span class="n">corner_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">radius</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+    <span class="n">cube_shape</span> <span class="o">=</span> <span class="n">_ocube</span><span class="p">([</span><span class="n">radius</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">radius</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">cube_center</span><span class="p">)</span>
+    <span class="n">sphere_shape</span> <span class="o">=</span> <span class="n">_osphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">_fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">_fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">_fs</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">sphere_center</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cube_shape</span> <span class="o">-</span> <span class="n">sphere_shape</span>
 
 
@@ -509,8 +509,8 @@
     <span class="n">body</span><span class="p">:</span> <span class="n">PyOpenSCAD</span><span class="p">,</span>
     <span class="n">corners</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="s2">&quot;ALL&quot;</span><span class="p">,</span>
     <span class="n">except_corners</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">children</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -520,15 +520,15 @@
     <span class="n">_fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">_fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyOpenSCAD</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Round each selected corner of the box-shaped *body* to radius *r* (cube-octant-minus-sphere).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Round each selected corner of the box-shaped *body* to radius *radius* (cube-octant-minus-sphere).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        body:           the box solid to cut</span>
 <span class="sd">        corners:        corners to mask -- &quot;ALL&quot;/&quot;NONE&quot;, a face vector (all corners on that face),</span>
 <span class="sd">                         or a corner vector (default &quot;ALL&quot;)</span>
 <span class="sd">        except_corners: corners to explicitly not mask</span>
-<span class="sd">        r:              rounding radius</span>
-<span class="sd">        d:              rounding diameter (alternative to r)</span>
+<span class="sd">        radius:              rounding radius</span>
+<span class="sd">        diameter:              rounding diameter (alternative to radius)</span>
 <span class="sd">        size:           the box&#39;s [x,y,z] size</span>
 <span class="sd">        children:       accepted for call-site compatibility with BOSL2&#39;s `_children=`; unused</span>
 <span class="sd">                         (this port always uses the cube-minus-sphere construction, which is only</span>
@@ -539,10 +539,10 @@
 <span class="sd">        center:         the box center in body&#39;s current frame; when given it&#39;s used directly</span>
 <span class="sd">        _fn/_fa/_fs:    arc smoothness overrides</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;corner_profile(): must give r or d&quot;</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">rad</span> <span class="o">=</span> <span class="n">r</span>
+    <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;corner_profile(): must give radius or diameter&quot;</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span>
     <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;size= (the box&#39;s size) must be given&quot;</span>
     <span class="n">corner_set</span> <span class="o">=</span> <span class="n">_corners</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="n">except_corners</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="n">cutter</span> <span class="o">=</span> <span class="kc">None</span>
@@ -564,8 +564,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">face_profile</span><span class="p">(</span>
     <span class="n">body</span><span class="p">:</span> <span class="n">PyOpenSCAD</span><span class="p">,</span>
     <span class="n">faces</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="s2">&quot;ALL&quot;</span><span class="p">,</span>
-    <span class="n">r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">children</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -575,28 +575,28 @@
     <span class="n">_fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">_fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyOpenSCAD</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Round all edges and corners bounding the given face(s) of the box-shaped *body* to radius *r*.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Round all edges and corners bounding the given face(s) of the box-shaped *body* to radius *radius*.</span>
 
-<span class="sd">    Equivalent to edge_profile(faces) followed by corner_profile(faces, r).</span>
+<span class="sd">    Equivalent to edge_profile(faces) followed by corner_profile(faces, radius).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        body:      the box solid to cut</span>
 <span class="sd">        faces:     face(s) to round the border of, e.g. TOP, or &quot;ALL&quot; (default &quot;ALL&quot;)</span>
-<span class="sd">        r:         rounding radius</span>
-<span class="sd">        d:         rounding diameter (alternative to r)</span>
+<span class="sd">        radius:         rounding radius</span>
+<span class="sd">        diameter:         rounding diameter (alternative to radius)</span>
 <span class="sd">        size:      the box&#39;s [x,y,z] size</span>
 <span class="sd">        children:  the 2-D mask cross-section path used for the edges (BOSL2&#39;s `_children=`);</span>
-<span class="sd">                   defaults to mask2d_roundover(r) if not given</span>
+<span class="sd">                   defaults to mask2d_roundover(radius) if not given</span>
 <span class="sd">        convexity: accepted for signature compatibility; unused</span>
 <span class="sd">        anchor:    the anchor *body* was built with (default CENTER); used only when `center`</span>
 <span class="sd">                   isn&#39;t given</span>
 <span class="sd">        center:    the box center in body&#39;s current frame; when given it&#39;s used directly</span>
 <span class="sd">        _fn/_fa/_fs: arc smoothness overrides</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;face_profile(): must give r or d&quot;</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">rad</span> <span class="o">=</span> <span class="n">r</span>
+    <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;face_profile(): must give radius or diameter&quot;</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">children</span>
         <span class="k">if</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -614,7 +614,7 @@
     <span class="k">return</span> <span class="n">corner_profile</span><span class="p">(</span>
         <span class="n">body</span><span class="p">,</span>
         <span class="n">faces</span><span class="p">,</span>
-        <span class="n">r</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span>
+        <span class="n">radius</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span>
         <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
         <span class="n">convexity</span><span class="o">=</span><span class="n">convexity</span><span class="p">,</span>
         <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>

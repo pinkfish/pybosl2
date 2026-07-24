@@ -35,26 +35,26 @@ def test_cubetruss_dist():
 def test_segment_is_a_cube(kw, expect):
     seg = CT.cubetruss_segment(**kw)
     assert isinstance(seg, Bosl2Solid)
-    w, l, h = _size(seg)
+    w, length, height = _size(seg)
     assert w == pytest.approx(expect, abs=0.01)
-    assert l == pytest.approx(expect, abs=0.01)
-    assert h == pytest.approx(expect, abs=0.01)
+    assert length == pytest.approx(expect, abs=0.01)
+    assert height == pytest.approx(expect, abs=0.01)
 
 
 def test_cubetruss_length_matches_dist():
     truss = CT.cubetruss(extents=3)
     assert isinstance(truss, Bosl2Solid)
-    w, l, h = _size(truss)
-    assert l == pytest.approx(CT.cubetruss_dist(3, 1), abs=0.5)
+    w, length, height = _size(truss)
+    assert length == pytest.approx(CT.cubetruss_dist(3, 1), abs=0.5)
     assert w == pytest.approx(30, abs=0.5)
 
 
 def test_cubetruss_3d_extents():
     truss = CT.cubetruss(extents=[2, 3, 2])
-    w, l, h = _size(truss)
+    w, length, height = _size(truss)
     assert w == pytest.approx(CT.cubetruss_dist(2, 1), abs=0.5)
-    assert l == pytest.approx(CT.cubetruss_dist(3, 1), abs=0.5)
-    assert h == pytest.approx(CT.cubetruss_dist(2, 1), abs=0.5)
+    assert length == pytest.approx(CT.cubetruss_dist(3, 1), abs=0.5)
+    assert height == pytest.approx(CT.cubetruss_dist(2, 1), abs=0.5)
 
 
 def test_bracing_adds_material():
@@ -66,19 +66,19 @@ def test_bracing_adds_material():
 
 def test_corner_symmetric_extents():
     c = CT.cubetruss_corner(extents=2)
-    w, l, h = _size(c)
+    w, length, height = _size(c)
     expect = CT.cubetruss_dist(3, 1)  # arm 2 + central 1
-    for v in (w, l, h):
+    for v in (w, length, height):
         assert v == pytest.approx(expect, abs=0.5)
 
 
 def test_corner_asymmetric_extents():
     # [+X, +Y, -X, -Y, +Z] arm counts
     c = CT.cubetruss_corner(extents=[2, 3, 0, 0, 1])
-    w, l, h = _size(c)
+    w, length, height = _size(c)
     assert w == pytest.approx(CT.cubetruss_dist(2 + 1 + 0, 1), abs=0.5)
-    assert l == pytest.approx(CT.cubetruss_dist(3 + 1 + 0, 1), abs=0.5)
-    assert h == pytest.approx(CT.cubetruss_dist(1 + 1, 1), abs=0.5)
+    assert length == pytest.approx(CT.cubetruss_dist(3 + 1 + 0, 1), abs=0.5)
+    assert height == pytest.approx(CT.cubetruss_dist(1 + 1, 1), abs=0.5)
 
 
 @pytest.mark.parametrize(
@@ -93,9 +93,9 @@ def test_corner_asymmetric_extents():
 def test_support_envelope(extents, ex, ey, ez):
     s = CT.cubetruss_support(extents=extents)
     assert isinstance(s, Bosl2Solid)
-    w, l, h = _size(s)
+    w, length, height = _size(s)
     assert w == pytest.approx((30 - 3) * ex + 3, abs=0.5)  # width across the X copies
-    assert h == pytest.approx(
+    assert height == pytest.approx(
         (30 - 3) * ez + 3, abs=0.5
     )  # full height (before the diagonal)
 

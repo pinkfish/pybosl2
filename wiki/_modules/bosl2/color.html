@@ -165,24 +165,24 @@
 <div class="viewcode-block" id="hsl">
 <a class="viewcode-back" href="../../color.html#bosl2.color.hsl">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span>
-    <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert HSL to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsl().</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        h: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)</span>
+<span class="sd">        height: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)</span>
 <span class="sd">        s: saturation 0..1 (0 = grey, 1 = vivid). Default 1</span>
-<span class="sd">        l: lightness 0..1 (0 = black, 0.5 = bright, 1 = white). Default 0.5</span>
+<span class="sd">        length: lightness 0..1 (0 = black, 0.5 = bright, 1 = white). Default 0.5</span>
 <span class="sd">        a: optional alpha 0..1; when given the result is ``[R, G, B, A]``</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``[R, G, B]`` (each 0..1), or ``[R, G, B, A]`` when *a* is given.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">hm</span> <span class="o">=</span> <span class="n">h</span> <span class="o">%</span> <span class="mi">360</span>
+    <span class="n">hm</span> <span class="o">=</span> <span class="n">height</span> <span class="o">%</span> <span class="mi">360</span>
     <span class="n">rgb</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
         <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="n">hm</span> <span class="o">/</span> <span class="mi">30</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span>
-        <span class="n">rgb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span> <span class="o">-</span> <span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">rgb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">length</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">9</span> <span class="o">-</span> <span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">rgb</span> <span class="o">+</span> <span class="p">([</span><span class="n">a</span><span class="p">]</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[])</span></div>
 
 
@@ -190,12 +190,12 @@
 <div class="viewcode-block" id="hsv">
 <a class="viewcode-back" href="../../color.html#bosl2.color.hsv">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">hsv</span><span class="p">(</span>
-    <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert HSV to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsv().</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        h: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)</span>
+<span class="sd">        height: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)</span>
 <span class="sd">        s: saturation 0..1 (0 = grey, 1 = vivid). Default 1</span>
 <span class="sd">        v: value 0..1 (0 = black, 1 = bright). Default 1</span>
 <span class="sd">        a: optional alpha 0..1; when given the result is ``[R, G, B, A]``</span>
@@ -206,7 +206,7 @@
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">s</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;hsv(): saturation must be in 0..1.&quot;</span>
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;hsv(): value must be in 0..1.&quot;</span>
     <span class="k">assert</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">a</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;hsv(): alpha must be in 0..1.&quot;</span>
-    <span class="n">hm</span> <span class="o">=</span> <span class="n">h</span> <span class="o">%</span> <span class="mi">360</span>
+    <span class="n">hm</span> <span class="o">=</span> <span class="n">height</span> <span class="o">%</span> <span class="mi">360</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">s</span>
     <span class="n">hp</span> <span class="o">=</span> <span class="n">hm</span> <span class="o">/</span> <span class="mi">60</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">hp</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
@@ -238,29 +238,29 @@
 <div class="viewcode-block" id="rainbow_colors">
 <a class="viewcode-back" href="../../color.html#bosl2.color.rainbow_colors">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rainbow_colors</span><span class="p">(</span>
-    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">maxhues</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of ``n`` ``[R, G, B]`` colours stepped around the ROYGBIV wheel (BOSL2 rainbow()).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The list of ``sides`` ``[R, G, B]`` colours stepped around the ROYGBIV wheel (BOSL2 rainbow()).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        n:       how many colours to generate</span>
+<span class="sd">        sides:       how many colours to generate</span>
 <span class="sd">        stride:  consecutive colours stride this many steps around the wheel</span>
-<span class="sd">        maxhues: cap the number of distinct hues (default: *n*)</span>
+<span class="sd">        maxhues: cap the number of distinct hues (default: *sides*)</span>
 <span class="sd">        shuffle: shuffle the hue order</span>
 <span class="sd">        seed:    seed for the shuffle</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">sides</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
-    <span class="n">mh</span> <span class="o">=</span> <span class="n">maxhues</span> <span class="k">if</span> <span class="n">maxhues</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">n</span>
+    <span class="n">mh</span> <span class="o">=</span> <span class="n">maxhues</span> <span class="k">if</span> <span class="n">maxhues</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sides</span>
     <span class="n">huestep</span> <span class="o">=</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">mh</span>
-    <span class="n">hues</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span> <span class="o">*</span> <span class="n">huestep</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">stride</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">hues</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span> <span class="o">*</span> <span class="n">huestep</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">stride</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
         <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">hues</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">hsv</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="n">hue</span><span class="p">)</span> <span class="k">for</span> <span class="n">hue</span> <span class="ow">in</span> <span class="n">hues</span><span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">hsv</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">hue</span><span class="p">)</span> <span class="k">for</span> <span class="n">hue</span> <span class="ow">in</span> <span class="n">hues</span><span class="p">]</span></div>
 
 
 
@@ -355,16 +355,16 @@
 
 <div class="viewcode-block" id="Colorable.hsl">
 <a class="viewcode-back" href="../../color.html#bosl2.color.Colorable.hsl">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">l</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Colour this object from an HSL hue/saturation/lightness (BOSL2 hsl()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">hsl</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">l</span><span class="p">),</span> <span class="n">a</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">hsl</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">length</span><span class="p">),</span> <span class="n">a</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Colorable.hsv">
 <a class="viewcode-back" href="../../color.html#bosl2.color.Colorable.hsv">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">hsv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hsv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Colour this object from an HSV hue/saturation/value (BOSL2 hsv()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">hsv</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">a</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">hsv</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">),</span> <span class="n">a</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Colorable.highlight">

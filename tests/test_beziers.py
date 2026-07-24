@@ -51,8 +51,10 @@ def test_curve_point_count():
 
 def test_derivative_of_cubic_at_zero():
     # first derivative of a cubic at u=0 is 3*(P1-P0)
-    d = Bezier(CUBIC).derivative(0, 1)
-    np.testing.assert_allclose(d, 3 * (np.array([5, 35]) - np.array([0, 0])), atol=1e-9)
+    diameter = Bezier(CUBIC).derivative(0, 1)
+    np.testing.assert_allclose(
+        diameter, 3 * (np.array([5, 35]) - np.array([0, 0])), atol=1e-9
+    )
 
 
 def test_tangent_is_unit():
@@ -73,12 +75,12 @@ def test_closest_point():
     assert 0.0 <= u <= 1.0
     # the returned u really is near the closest sample
     pt = Bezier(CUBIC).points(u)
-    d = float(np.linalg.norm(pt - np.array([40, 15])))
+    diameter = float(np.linalg.norm(pt - np.array([40, 15])))
     coarse = min(
         float(np.linalg.norm(Bezier(CUBIC).points(x) - np.array([40, 15])))
         for x in np.linspace(0, 1, 50)
     )
-    assert d <= coarse + 1e-6
+    assert diameter <= coarse + 1e-6
 
 
 def test_length_positive_and_ge_chord():
@@ -136,7 +138,7 @@ def test_begin_tang_end_2d():
 
 
 def test_tang_collinear_control_points():
-    t = Bezier.tang([1, 1], 0, 2, 4)  # dir +X, r1=2 back, r2=4 forward
+    t = Bezier.tang([1, 1], 0, 2, 4)  # dir +X, radius1=2 back, radius2=4 forward
     np.testing.assert_allclose(t, [[-1, 1], [1, 1], [5, 1]], atol=1e-9)
 
 
@@ -186,8 +188,8 @@ def test_patch_points_scalar_and_grid():
 
 
 def test_patch_normals_are_unit():
-    n = BezierPatch(PATCH).normals(0.5, 0.5)
-    assert math.isclose(float(np.linalg.norm(n)), 1.0)
+    sides = BezierPatch(PATCH).normals(0.5, 0.5)
+    assert math.isclose(float(np.linalg.norm(sides)), 1.0)
 
 
 def test_patch_vnf_counts_and_validity():
@@ -231,10 +233,10 @@ def test_vnf_degenerate_has_fewer_faces_than_naive():
         [[0, 10, 8.75], [0, 5, 8.75], [0, 0, 8.75], [-5, 0, 8.75], [-10, 0, 8.75]],
         [[0, 10, 2.5], [0, 5, 2.5], [0, 0, 2.5], [-5, 0, 2.5], [-10, 0, 2.5]],
     ]
-    d = BezierPatch(deg).vnf_degenerate(splinesteps=8)
+    diameter = BezierPatch(deg).vnf_degenerate(splinesteps=8)
     naive = BezierPatch(deg).vnf(splinesteps=8)
-    assert _valid(d)
-    assert len(d.faces) < len(naive.faces)
+    assert _valid(diameter)
+    assert len(diameter.faces) < len(naive.faces)
 
 
 def test_vnf_degenerate_return_edges():

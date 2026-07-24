@@ -25,9 +25,9 @@ import numpy as np
 _EPS = 1e-9
 
 
-def _count(n: int, s: int = 0, reverse: bool = False) -> list:
-    r = list(range(s, s + n))
-    return r[::-1] if reverse else r
+def _count(sides: int, s: int = 0, reverse: bool = False) -> list:
+    radius = list(range(s, s + sides))
+    return radius[::-1] if reverse else radius
 
 
 def _lofttri(
@@ -66,11 +66,11 @@ def _lofttri(
                 i2 = i2 if t2 >= n2 else t2
             tc1, tc2 = tc1n, tc2n
     else:
-        n = n1
+        sides = n1
         i = 0
         while True:
-            t = i + 1 if i < n else n
-            if t >= n:
+            t = i + 1 if i < sides else sides
+            if t >= sides:
                 break
             d12 = float(np.linalg.norm(a2[t] - a1[i]))
             d21 = float(np.linalg.norm(a1[t] - a2[i]))
@@ -262,14 +262,14 @@ class VNF:
                         else [[i1, i3, i2], [i1, i4, i3]]
                     )
                 elif style in ("convex", "concave"):
-                    n = (-1 if reverse else 1) * np.cross(p2 - p1, p3 - p1)
-                    if not np.any(n):
+                    sides = (-1 if reverse else 1) * np.cross(p2 - p1, p3 - p1)
+                    if not np.any(sides):
                         cell = [[i1, i4, i3]]
                     else:
                         above = (
-                            (n @ p4 > n @ p1)
+                            (sides @ p4 > sides @ p1)
                             if style == "convex"
-                            else (n @ p4 <= n @ p1)
+                            else (sides @ p4 <= sides @ p1)
                         )
                         cell = (
                             [[i1, i4, i2], [i2, i4, i3]]

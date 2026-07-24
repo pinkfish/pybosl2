@@ -45,10 +45,10 @@ def test_square_path_closes():
 
 
 def test_right_and_left_are_opposite():
-    r = Turtle().run(["move", 5, "right", 90, "move", 5]).points()[-1]
+    radius = Turtle().run(["move", 5, "right", 90, "move", 5]).points()[-1]
     left = Turtle().run(["move", 5, "left", 90, "move", 5]).points()[-1]
-    assert r[1] == pytest.approx(-left[1])  # mirror across the X axis
-    assert r[0] == pytest.approx(left[0])
+    assert radius[1] == pytest.approx(-left[1])  # mirror across the X axis
+    assert radius[0] == pytest.approx(left[0])
 
 
 def test_up_climbs_in_z():
@@ -132,10 +132,10 @@ def test_debug_polygon_builds_with_labels():
 
 
 def test_debug_region_builds():
-    r = Region.with_holes(
+    radius = Region.with_holes(
         [[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]]
     )
-    assert isinstance(r.debug_region(size=3), Bosl2Solid)
+    assert isinstance(radius.debug_region(size=3), Bosl2Solid)
 
 
 def test_debug_region_single_path_defers_to_polygon():

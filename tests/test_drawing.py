@@ -78,7 +78,7 @@ def test_arc_collinear_points_raise():
 
 
 def test_catenary_droop_hits_endpoints_and_midpoint():
-    c = catenary(width=80, droop=30, n=21)
+    c = catenary(width=80, droop=30, sides=21)
     assert isinstance(c, Path) and c.closed is False
     np.testing.assert_allclose(c[0], [-40, 0], atol=1e-6)
     np.testing.assert_allclose(c[-1], [40, 0], atol=1e-6)
@@ -86,7 +86,7 @@ def test_catenary_droop_hits_endpoints_and_midpoint():
 
 
 def test_catenary_sign_flips_with_negative_droop():
-    up = catenary(width=50, droop=-15, n=15)
+    up = catenary(width=50, droop=-15, sides=15)
     assert up[len(up) // 2][1] > 0  # negative droop hangs upward
 
 
@@ -101,12 +101,12 @@ def test_catenary_requires_exactly_one_of_droop_angle():
 
 
 def test_helix_returns_path3d():
-    h = helix(turns=2, h=40, r=10)
-    assert isinstance(h, Path3D)  # the 3-D path object
-    assert not isinstance(h, Path)
-    assert len(h[0]) == 3
-    np.testing.assert_allclose(h[0], [10, 0, 0], atol=1e-9)
-    assert math.isclose(h[-1][2], 40, abs_tol=1e-9)  # ends at the full height
+    height = helix(turns=2, h=40, r=10)
+    assert isinstance(height, Path3D)  # the 3-D path object
+    assert not isinstance(height, Path)
+    assert len(height[0]) == 3
+    np.testing.assert_allclose(height[0], [10, 0, 0], atol=1e-9)
+    assert math.isclose(height[-1][2], 40, abs_tol=1e-9)  # ends at the full height
 
 
 def test_helix_needs_exactly_two_params():
@@ -115,8 +115,10 @@ def test_helix_needs_exactly_two_params():
 
 
 def test_helix_flat_spiral():
-    h = helix(h=0, r1=50, r2=25, l=0, turns=4)
-    assert all(math.isclose(p[2], 0, abs_tol=1e-9) for p in h)  # flat: every z is 0
+    height = helix(h=0, r1=50, r2=25, length=0, turns=4)
+    assert all(
+        math.isclose(p[2], 0, abs_tol=1e-9) for p in height
+    )  # flat: every z is 0
 
 
 # -- turtle -------------------------------------------------------------------------------

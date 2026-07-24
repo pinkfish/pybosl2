@@ -69,10 +69,12 @@ def test_phillips_depth_diam_roundtrip():
     shafts = {"#0": 3, "#1": 4.5, "#2": 6, "#3": 8, "#4": 10}
     tips = {"#0": 0.81, "#1": 1.27, "#2": 2.29, "#3": 3.81, "#4": 5.08}
     for size in ("#0", "#1", "#2", "#3", "#4"):
-        d = (tips[size] + shafts[size]) / 2  # midpoint is always in the valid range
-        depth = SD.phillips_depth(size, d)
+        diameter = (
+            tips[size] + shafts[size]
+        ) / 2  # midpoint is always in the valid range
+        depth = SD.phillips_depth(size, diameter)
         assert depth is not None
-        assert SD.phillips_diam(size, depth) == pytest.approx(d)
+        assert SD.phillips_diam(size, depth) == pytest.approx(diameter)
 
 
 def test_phillips_depth_out_of_range():
@@ -101,7 +103,7 @@ def test_phillips_diam_out_of_range():
         SD.torx_mask(30, 10),
         SD.torx_mask(8, 5, center=True),
         SD.robertson_mask(2),
-        SD.robertson_mask(0, extra=2, ang=3.0),
+        SD.robertson_mask(0, extra=2, angle=3.0),
     ],
 )
 def test_masks_return_solid(obj):
@@ -110,7 +112,7 @@ def test_masks_return_solid(obj):
 
 def test_mask_composes_with_head():
     # A recess subtracts cleanly from a head.
-    head = cyl(d1=2, d2=8, h=4).down(2)
+    head = cyl(diameter1=2, diameter2=8, height=4).down(2)
     assert isinstance(head - SD.phillips_mask("#2"), Bosl2Solid)
     assert isinstance(head - SD.torx_mask(30, 4), Bosl2Solid)
 

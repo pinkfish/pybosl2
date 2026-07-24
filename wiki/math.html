@@ -147,15 +147,15 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.math.lerpn">
-<span class="sig-prename descclassname"><span class="pre">bosl2.math.</span></span><span class="sig-name descname"><span class="pre">lerpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/math.html#lerpn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.math.lerpn" title="Link to this definition">¶</a></dt>
-<dd><p>Return <em>n</em> points linearly interpolated between <em>a</em> and <em>b</em>, as an (n, dim) ndarray
-(or a length-n 1-D ndarray for scalar <em>a</em>/<em>b</em>).</p>
+<span class="sig-prename descclassname"><span class="pre">bosl2.math.</span></span><span class="sig-name descname"><span class="pre">lerpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sides</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/math.html#lerpn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.math.lerpn" title="Link to this definition">¶</a></dt>
+<dd><p>Return <em>sides</em> points linearly interpolated between <em>a</em> and <em>b</em>, as an (sides, dim) ndarray
+(or a length-sides 1-D ndarray for scalar <em>a</em>/<em>b</em>).</p>
 <p>If endpoint is True, the last returned point equals <em>b</em>; otherwise the
-range is divided into <em>n</em> equal steps without reaching <em>b</em>.</p>
+range is divided into <em>sides</em> equal steps without reaching <em>b</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n</strong> (<em>int</em>)</p></li>
+<li><p><strong>sides</strong> (<em>int</em>)</p></li>
 <li><p><strong>endpoint</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -167,15 +167,15 @@ range is divided into <em>n</em> equal steps without reaching <em>b</em>.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.math.deriv">
-<span class="sig-prename descclassname"><span class="pre">bosl2.math.</span></span><span class="sig-name descname"><span class="pre">deriv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/math.html#deriv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.math.deriv" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bosl2.math.</span></span><span class="sig-name descname"><span class="pre">deriv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/math.html#deriv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.math.deriv" title="Link to this definition">¶</a></dt>
 <dd><p>Numeric first-derivative estimate of <em>data</em> (scalar- or vector-valued points), as an ndarray.</p>
 <p>Uses a symmetric derivative approximation for internal points and a
-two-point method at the endpoints of an open path. If <em>h</em> is a list it
+two-point method at the endpoints of an open path. If <em>height</em> is a list it
 is treated as the (possibly non-uniform) per-segment sampling distance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>h</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>height</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a>)</p></li>
 <li><p><strong>closed</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -187,12 +187,12 @@ is treated as the (possibly non-uniform) per-segment sampling distance.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.math.deriv2">
-<span class="sig-prename descclassname"><span class="pre">bosl2.math.</span></span><span class="sig-name descname"><span class="pre">deriv2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/math.html#deriv2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.math.deriv2" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bosl2.math.</span></span><span class="sig-name descname"><span class="pre">deriv2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/math.html#deriv2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.math.deriv2" title="Link to this definition">¶</a></dt>
 <dd><p>Numeric second-derivative estimate of <em>data</em> (scalar- or vector-valued points), as an ndarray.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>h</strong> (<em>float</em>)</p></li>
+<li><p><strong>height</strong> (<em>float</em>)</p></li>
 <li><p><strong>closed</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>
@@ -204,13 +204,13 @@ is treated as the (possibly non-uniform) per-segment sampling distance.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.math.deriv3">
-<span class="sig-prename descclassname"><span class="pre">bosl2.math.</span></span><span class="sig-name descname"><span class="pre">deriv3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/math.html#deriv3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.math.deriv3" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bosl2.math.</span></span><span class="sig-name descname"><span class="pre">deriv3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/math.html#deriv3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.math.deriv3" title="Link to this definition">¶</a></dt>
 <dd><p>Numeric third-derivative estimate of <em>data</em> (scalar- or vector-valued points), as an ndarray.</p>
 <p>Requires at least 5 points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>h</strong> (<em>float</em>)</p></li>
+<li><p><strong>height</strong> (<em>float</em>)</p></li>
 <li><p><strong>closed</strong> (<em>bool</em>)</p></li>
 </ul>
 </dd>

@@ -7,7 +7,7 @@
 # LibFile: bosl2/regions.py
 #    Path and Region: object wrappers over the 2-D point maths in paths.py/rounding.py/
 #    transforms.py, so a polygon can be built once and then chained
-#    (`Path(pts).offset(r=-2).round_corners(radius=1).polygon()`) instead of threading raw
+#    (`Path(pts).offset(radius=-2).round_corners(radius=1).polygon()`) instead of threading raw
 #    point lists through free functions.
 #
 # FileSummary: Object API for 2-D paths and regions.
@@ -80,10 +80,15 @@ class Region(list):
         return list(self[1:])
 
     def offset(
-        self, r: float | None = None, delta: float | None = None, chamfer: bool = False
+        self,
+        radius: float | None = None,
+        delta: float | None = None,
+        chamfer: bool = False,
     ) -> "Region":
         """Offset every path in the region."""
-        return Region([p.offset(r=r, delta=delta, chamfer=chamfer) for p in self])
+        return Region(
+            [p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self]
+        )
 
     def round_corners(
         self, radius: float | list[float] | None = None, **kwargs: Any
@@ -130,7 +135,11 @@ class Region(list):
             return solid
         labels = [
             text3d(
-                f"{chr(97 + j)}{i}", size=size, h=0.02, halign="center", valign="center"
+                f"{chr(97 + j)}{i}",
+                size=size,
+                height=0.02,
+                halign="center",
+                valign="center",
             )
             .translate([float(x), float(y), 0.01])
             .color("red")

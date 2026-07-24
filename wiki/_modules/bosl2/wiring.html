@@ -223,9 +223,9 @@
 <div class="viewcode-block" id="Wiring.hex_offsets">
 <a class="viewcode-back" href="../../wiring.html#bosl2.wiring.Wiring.hex_offsets">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">hex_offsets</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The centre points for the optimal hexagonal packing of at least *n* circles spaced *d* apart.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_hex_offsets</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hex_offsets</span><span class="p">(</span><span class="n">sides</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The centre points for the optimal hexagonal packing of at least *sides* circles spaced *diameter* apart.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_hex_offsets</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="n">diameter</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Wiring.wire_bundle">
@@ -261,11 +261,11 @@
         <span class="n">rounded_path</span> <span class="o">=</span> <span class="n">round_corners</span><span class="p">(</span>
             <span class="n">path</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">_fn</span><span class="o">=</span><span class="p">(</span><span class="n">corner_steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span>
         <span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">wirediam</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">wirediam</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">[</span>
-                <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">k</span> <span class="o">/</span> <span class="n">sides</span><span class="p">),</span>
-                <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">k</span> <span class="o">/</span> <span class="n">sides</span><span class="p">),</span>
+                <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">k</span> <span class="o">/</span> <span class="n">sides</span><span class="p">),</span>
+                <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">k</span> <span class="o">/</span> <span class="n">sides</span><span class="p">),</span>
             <span class="p">]</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
         <span class="p">]</span>

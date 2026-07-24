@@ -100,16 +100,21 @@ def test_partition_cutpath_repeats_to_length():
 
 
 def test_partition_mask_builds():
-    assert isinstance(partition_mask(l=60, w=30, h=20, cutpath="dovetail"), Bosl2Solid)
     assert isinstance(
-        partition_mask(l=60, w=30, h=20, cutpath="jigsaw", inverse=True, _fn=12),
+        partition_mask(length=60, w=30, height=20, cutpath="dovetail"), Bosl2Solid
+    )
+    assert isinstance(
+        partition_mask(
+            length=60, w=30, height=20, cutpath="jigsaw", inverse=True, _fn=12
+        ),
         Bosl2Solid,
     )
 
 
 def test_partition_cut_mask_builds():
     assert isinstance(
-        partition_cut_mask(l=60, h=20, cutpath="dovetail", slop=0.2), Bosl2Solid
+        partition_cut_mask(length=60, height=20, cutpath="dovetail", slop=0.2),
+        Bosl2Solid,
     )
 
 
@@ -129,12 +134,12 @@ def test_axis_half_methods_return_solid():
 
 def test_half_of_general_normal():
     assert isinstance(BOX.half_of([0, 1, 1]), Bosl2Solid)
-    assert isinstance(sphere(r=20).half_of([1, 0, 0], cp=5), Bosl2Solid)
+    assert isinstance(sphere(radius=20).half_of([1, 0, 0], center=5), Bosl2Solid)
 
 
 def test_half_of_with_cut_path():
-    cp = partition_path([40, "jigsaw", 40], _fn=12)
-    assert isinstance(BOX.back_half(cut_path=cp), Bosl2Solid)
+    center = partition_path([40, "jigsaw", 40], _fn=12)
+    assert isinstance(BOX.back_half(cut_path=center), Bosl2Solid)
 
 
 def test_partition_returns_two_pieces():

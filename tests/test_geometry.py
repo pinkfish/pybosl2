@@ -40,9 +40,9 @@ def test_is_collinear_false():
 
 
 def test_line_normal_is_unit_and_perpendicular():
-    n = line_normal([0, 0], [10, 0])
-    assert math.isclose(float(np.linalg.norm(n)), 1.0)
-    assert abs(float(np.dot(n, [1, 0]))) < 1e-9
+    sides = line_normal([0, 0], [10, 0])
+    assert math.isclose(float(np.linalg.norm(sides)), 1.0)
+    assert abs(float(np.dot(sides, [1, 0]))) < 1e-9
 
 
 def test_line_closest_point_clamps_to_segment():

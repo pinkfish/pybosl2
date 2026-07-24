@@ -111,9 +111,9 @@ def test_tangents_are_unit():
 
 def test_normals_perpendicular_to_tangents():
     p = Path(SQUARE)
-    t, n = p.tangents(), p.normals()
+    t, sides = p.tangents(), p.normals()
     for i in range(len(p)):
-        assert abs(float(np.dot(t[i], n[i]))) < 1e-9
+        assert abs(float(np.dot(t[i], sides[i]))) < 1e-9
 
 
 def test_curvature_of_straightish_polygon():
@@ -125,19 +125,19 @@ def test_curvature_of_straightish_polygon():
 
 
 def test_offset_shrinks_area():
-    assert math.isclose(Path(UNIT).offset(r=-1).area(), 64.0, abs_tol=1e-6)
+    assert math.isclose(Path(UNIT).offset(radius=-1).area(), 64.0, abs_tol=1e-6)
     assert math.isclose(Path(UNIT).offset(delta=-1).area(), 64.0, abs_tol=1e-6)
 
 
 def test_offset_returns_path():
-    assert isinstance(Path(UNIT).offset(r=-1), Path)
+    assert isinstance(Path(UNIT).offset(radius=-1), Path)
 
 
 def test_offset_needs_exactly_one_of_r_delta():
     with pytest.raises(AssertionError):
         Path(UNIT).offset()
     with pytest.raises(AssertionError):
-        Path(UNIT).offset(r=1, delta=1)
+        Path(UNIT).offset(radius=1, delta=1)
 
 
 def test_round_corners_inserts_points():
@@ -170,12 +170,12 @@ def test_close_and_cleanup():
 
 
 def test_subdivide_adds_points():
-    out = Path(SQUARE).subdivide(n=8)
+    out = Path(SQUARE).subdivide(sides=8)
     assert len(out) == 8
 
 
 def test_resample_to_n_points():
-    out = Path(SQUARE).resample(n=12)
+    out = Path(SQUARE).resample(sides=12)
     assert len(out) == 12
 
 
@@ -234,8 +234,8 @@ def test_yflip():
 def test_to_region():
     from bosl2.regions import Region
 
-    r = Path(SQUARE).to_region()
-    assert isinstance(r, Region) and len(r) == 1
+    radius = Path(SQUARE).to_region()
+    assert isinstance(radius, Region) and len(radius) == 1
 
 
 def test_polygon_and_geometry_use_mock():

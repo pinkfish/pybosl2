@@ -34,7 +34,7 @@ def test_frag_count_fn_override():
 
 
 def test_frag_count_default_fa_fs():
-    # min(360/12, 2*pi*r/2) with r=10 -> min(30, ~31.4) -> 30
+    # min(360/12, 2*pi*r/2) with radius=10 -> min(30, ~31.4) -> 30
     assert _frag_count(10) == 30
     assert _frag_count(0.001) == 5  # floor is 5
 
