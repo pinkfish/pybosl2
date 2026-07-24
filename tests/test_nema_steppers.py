@@ -31,7 +31,7 @@ def test_unknown_size_raises():
 @pytest.mark.parametrize("size,width", [(8, 20.3), (17, 42.3), (23, 57.0), (42, 110.0)])
 def test_motor_body_width(size, width):
     m = N.nema_stepper_motor(size)
-    w, l, _h = _size(m)
+    w, length, _h = _size(m)
     assert w == pytest.approx(width, abs=0.1)
     assert length == pytest.approx(width, abs=0.1)
 
@@ -41,7 +41,7 @@ def test_motor_height_is_body_plus_shaft():
     assert _size(m)[2] == pytest.approx(44, abs=0.2)
 
 
-@pytest.mark.parametrize("kw", [{}, {"atype": "screws"}, {"l": 8}, {"slop": 0.2}])
+@pytest.mark.parametrize("kw", [{}, {"atype": "screws"}, {"length": 8}, {"slop": 0.2}])
 def test_mount_mask_builds(kw):
     assert isinstance(N.nema_mount_mask(17, **kw), Bosl2Solid)
 

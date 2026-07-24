@@ -243,8 +243,8 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         """Wrap this solid around a cylinder of radius *radius*, bending +X into the cylinder's
         circumference (native ``wrap()``). *_fn* sets the facet count of the bend."""
         if _fn is not None:
-            return self._wrap(self.shape.wrap(radius=float(radius), fn=float(_fn)))
-        return self._wrap(self.shape.wrap(radius=float(radius)))
+            return self._wrap(self.shape.wrap(r=float(radius), fn=float(_fn)))
+        return self._wrap(self.shape.wrap(r=float(radius)))
 
     def pull(
         self, direction: "Sequence[float] | np.ndarray", distance: float
@@ -1960,9 +1960,9 @@ def regular_prism(
         if inner_radius is not None:
             return inner_radius / cos_half
         if diameter is not None:
-            return d / 2
-        if r is not None:
-            return r
+            return diameter / 2
+        if radius is not None:
+            return radius
         return 1.0
 
     rad1 = circumradius(radius1)
@@ -2636,7 +2636,7 @@ def teardrop(
     sides = _frag_count(max(rad1, rad2))
 
     def section(rad: float, cap_hv: float | None, y: float) -> list[list[float]]:
-        path = _teardrop2d_path(rad, angle, cap_hv, circum, realign, n)
+        path = _teardrop2d_path(rad, angle, cap_hv, circum, realign, sides)
         return [[p[0], y, p[1]] for p in path]
 
     front_y, back_y = -length / 2, length / 2

@@ -113,7 +113,7 @@ def test_normals_perpendicular_to_tangents():
     p = Path(SQUARE)
     t, sides = p.tangents(), p.normals()
     for i in range(len(p)):
-        assert abs(float(np.dot(t[i], n[i]))) < 1e-9
+        assert abs(float(np.dot(t[i], sides[i]))) < 1e-9
 
 
 def test_curvature_of_straightish_polygon():

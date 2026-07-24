@@ -17,6 +17,7 @@ to /Applications) -- these tests need the app, they are not part of the pure-Pyt
 
 from __future__ import annotations
 
+import math
 import os
 import struct
 import subprocess
@@ -243,3 +244,38 @@ def stl_metrics(path: Path) -> StlMetrics:
             edges[e] = edges.get(e, 0) + 1
     watertight = bool(edges) and all(c == 2 for c in edges.values())
     return StlMetrics(len(tris), bbmin, bbmax, bbmax - bbmin, volume, area, watertight)
+
+
+def stl_normalized_hash(path: Path, tolerance: float = 1e-4) -> str:
+    """Return a stable SHA256 hash of the STL geometry, tolerant of vertex
+    ordering differences and sub-*tolerance* floating-point drift.
+
+    Vertices are rounded to *tolerance*, triangles are sorted by centroid,
+    and the result is hashed so two STLs that represent the same shape
+    (within tolerance) produce the same hash.
+    """
+    import hashlib
+
+    tris = parse_stl(path)
+    rounded = np.round(tris, decimals=int(-math.log10(tolerance)))
+    centroids = np.round(rounded.mean(axis=1), decimals=int(-math.log10(tolerance)))
+    order = np.lexsort((centroids[:, 2], centroids[:, 1], centroids[:, 0]))
+    sorted_tris = rounded[order]
+    flat = sorted_tris.ravel().astype(np.float32).tobytes()
+    return hashlib.sha256(flat).hexdigest()[:16]
+
+
+def golden_ok(rendered: Path, golden: Path, tolerance: float = 1e-4) -> bool:
+    """True when the *rendered* STL matches the *golden* STL geometry within tolerance.
+
+    Both files are loaded, vertices rounded, triangles sorted by centroid, and
+    a stable hash compared.  When the golden file does not exist the first time
+    (e.g. a fresh checkout), the rendered STL is copied in as the golden and
+    the comparison is considered a pass.
+    """
+    if not golden.exists():
+        golden.parent.mkdir(parents=True, exist_ok=True)
+        import shutil
+        shutil.copy2(rendered, golden)
+        return True
+    return stl_normalized_hash(rendered, tolerance) == stl_normalized_hash(golden, tolerance)

@@ -20,8 +20,8 @@ def _size(solid):
 @pytest.mark.parametrize(
     "kw",
     [
-        {"l": 30, "base": 10, "wall": 4, "slop": 0.2},
-        {"l": 40, "w": 14, "h": 12, "base": 8, "wall": 5},
+        {"length": 30, "base": 10, "wall": 4, "slop": 0.2},
+        {"length": 40, "w": 14, "height": 12, "base": 8, "wall": 5},
     ],
 )
 def test_slider_builds(kw):
@@ -31,7 +31,7 @@ def test_slider_builds(kw):
 def test_rail_envelope():
     radius = S.rail(length=100, w=10, height=10)
     assert isinstance(radius, Bosl2Solid)
-    w, l, height = _size(radius)
+    w, length, height = _size(radius)
     assert w == pytest.approx(10, abs=0.1)
     assert length == pytest.approx(100, abs=0.1)
     assert height == pytest.approx(10, abs=0.2)

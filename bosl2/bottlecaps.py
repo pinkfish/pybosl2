@@ -314,7 +314,7 @@ def _neck_thread(diameter: "BottleThreadSpec"):
     thread_h = (diameter.thread_od - diameter.threadbase_d) / 2
     turns = diameter.neck_turns / 360
     thread = Threading.thread_helix(
-        diameter=diameter.threadbase_d - 0.1,
+        d=diameter.threadbase_d - 0.1,
         pitch=diameter.thread_pitch,
         thread_depth=thread_h + 0.1,
         flank_angle=diameter.flank_angle,
@@ -363,7 +363,7 @@ def _build_cap(diameter: "BottleThreadSpec", wall: float, texture: str):
     H = turns * diameter.cap_thread_pitch
     # internal thread (this port's thread_helix has no internal= flank flip -- approximate).
     thread = Threading.thread_helix(
-        diameter=diameter.cap_thread_od - diameter.cap_thread_depth * 2,
+        d=diameter.cap_thread_od - diameter.cap_thread_depth * 2,
         pitch=diameter.cap_thread_pitch,
         thread_depth=diameter.cap_thread_depth,
         flank_angle=diameter.cap_flank_angle,

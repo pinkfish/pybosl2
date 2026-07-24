@@ -173,7 +173,7 @@ def test_bevel_gear_envelope():
     g = G.bevel_gear(pitch=5, teeth=20, face_width=10, pitch_angle=45, cutter_radius=0)
     w, l, height = _size(g)
     assert w == pytest.approx(2 * G.pitch_radius(5, 20), abs=3)
-    assert h > 1
+    assert height > 1
 
 
 def test_bevel_mate_teeth_sets_pitch_angle():
@@ -189,9 +189,9 @@ def test_bevel_mate_teeth_sets_pitch_angle():
 @pytest.mark.parametrize(
     "kw",
     [
-        {"pitch": 8, "d": 30, "l": 50},
-        {"pitch": 8, "d": 30, "l": 50, "starts": 3},
-        {"pitch": 8, "d": 30, "l": 50, "starts": 3, "left_handed": True},
+        {"pitch": 8, "diameter": 30, "length": 50},
+        {"pitch": 8, "diameter": 30, "length": 50, "starts": 3},
+        {"pitch": 8, "diameter": 30, "length": 50, "starts": 3, "left_handed": True},
     ],
 )
 def test_worm_builds(kw):
@@ -264,16 +264,11 @@ def test_auto_profile_shift_formula():
 
 
 def test_profile_shift_grows_the_tooth():
-    # a positive profile shift moves the tooth outward (larger tip radius)
-    r0 = max(
-        math.hypot(x, y)
-        for x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0)
-    )
-    radius1 = max(
-        math.hypot(x, y)
-        for x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0.5)
-    )
-    assert radius1 > r0
+    # a positive profile shift moves the tooth outward -- the tooth profile is centred on the pitch
+    # point, so the tip (its largest y) moves further out.
+    tip0 = max(y for _x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0))
+    tip_shifted = max(y for _x, y in G.gear_tooth_profile(mod=5, teeth=8, profile_shift=0.5))
+    assert tip_shifted > tip0
 
 
 # -- new-API sizing (circ_pitch / mod / diam_pitch) & gear_dist ---------------

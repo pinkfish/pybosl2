@@ -21,14 +21,14 @@ def _size(solid):
 def test_info_returns_dataclass():
     spec = BB.ball_bearing_info("608")
     assert isinstance(spec, BearingSpec)
-    assert (spec.id, spec.od, spec.width, spec.shielded) == (8, 22, 7, False)
+    assert (spec.inner_diameter, spec.outer_diameter, spec.width, spec.shielded) == (8, 22, 7, False)
 
 
 def test_zz_variant_is_shielded_same_dims():
     open_ = BB.ball_bearing_info("6902")
     zz = BB.ball_bearing_info("6902ZZ")
     assert not open_.shielded and zz.shielded
-    assert (zz.id, zz.od, zz.width) == (open_.id, open_.od, open_.width)
+    assert (zz.inner_diameter, zz.outer_diameter, zz.width) == (open_.inner_diameter, open_.outer_diameter, open_.width)
 
 
 def test_imperial_size_uses_inches():
@@ -48,7 +48,7 @@ def test_unknown_size_raises():
         {"trade_size": "608"},
         {"trade_size": "608", "shield": False},
         {"trade_size": "6902ZZ"},
-        {"id": 12, "od": 32, "width": 10, "shield": False},
+        {"inner_diameter": 12, "outer_diameter": 32, "width": 10, "shield": False},
     ],
 )
 def test_ball_bearing_builds(kw):

@@ -274,7 +274,7 @@ class CubeTruss:
 
         pieces = []
         for mx in xcopies(step, sides=ex):
-            base = cuboid([size, l, h]).half_of(v=v, s=smax)
+            base = cuboid([size, l, height]).half_of(v=v, s=smax)
             cells = [
                 hollow_cell().multmatrix((my @ mz).tolist())
                 for my in ycopies(step, sides=ey)
@@ -288,7 +288,7 @@ class CubeTruss:
                 ]
             )
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
-        return Bosl2Solid(_union(pieces).shape, size=[w, l, h])
+        return Bosl2Solid(_union(pieces).shape, size=[w, l, height])
 
     @staticmethod
     def cubetruss_corner(

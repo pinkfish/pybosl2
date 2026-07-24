@@ -179,7 +179,6 @@ def round_corners(
         (m, v)
         for m, v in (
             ("radius", radius),
-            ("radius", radius),
             ("cut", cut),
             ("joint", joint),
             ("width", width),

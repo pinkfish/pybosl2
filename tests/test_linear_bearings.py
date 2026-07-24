@@ -21,7 +21,7 @@ def test_info_returns_dataclass():
     spec = LB.lmXuu_info(8)
     assert isinstance(spec, LinearBearingSpec)
     assert (spec.od, spec.length) == (15, 24)
-    assert LB.lmXuu_info(12).outer_diameter == 21
+    assert LB.lmXuu_info(12).od == 21
 
 
 def test_unknown_size_raises():
