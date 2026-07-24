@@ -1533,9 +1533,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         center = [
             radius / math.sin(math.radians(angle)) * bis[i] + p1[i] for i in range(dim)
         ]
-        sides = max(
-            3, math.ceil((90 - angle) / 180 * _frag_count(radius, fn, fa, fs))
-        )
+        sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, fn, fa, fs)))
         a0 = math.degrees(math.atan2(start[1] - center[1], start[0] - center[0]))
         a1 = math.degrees(math.atan2(end[1] - center[1], end[0] - center[0]))
         delta = (a1 - a0 + 180) % 360 - 180
@@ -1586,9 +1584,7 @@ class Path(Distributable, Extrudable, Roundable, list):
                 out.append(path[i])
                 continue
             p0, p1, p2 = path[(i - 1) % sides], path[i], path[(i + 1) % sides]
-            out.extend(
-                Path._circlecorner([p0, p1, p2], dk[i][0], dk[i][1], fn, fa, fs)
-            )
+            out.extend(Path._circlecorner([p0, p1, p2], dk[i][0], dk[i][1], fn, fa, fs))
         return Path._deduplicate(out, closed=closed)
 
 

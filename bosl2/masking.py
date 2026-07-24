@@ -360,9 +360,7 @@ def _corner_cutter(
     cube_center = [corner_vec[i] * (size[i] / 2 - radius / 2) for i in range(3)]
     sphere_center = [corner_vec[i] * (size[i] / 2 - radius) for i in range(3)]
     cube_shape = _ocube([radius, radius, radius], center=True).translate(cube_center)
-    sphere_shape = _osphere(radius=radius, fn=fn, fa=fa, fs=fs).translate(
-        sphere_center
-    )
+    sphere_shape = _osphere(radius=radius, fn=fn, fa=fa, fs=fs).translate(sphere_center)
     return cube_shape - sphere_shape
 
 
@@ -456,9 +454,7 @@ def face_profile(
         radius = diameter / 2
     rad = radius
     mask = (
-        children
-        if children is not None
-        else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)
+        children if children is not None else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)
     )
     body = edge_profile(
         body,

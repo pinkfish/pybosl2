@@ -102,15 +102,29 @@ class NemaSteppers:
         for sx in (-1, 1):
             for sy in (-1, 1):  # blind mounting holes at the corners
                 hole = (
-                    cyl(height=s.screw_depth * 2, diameter=s.screw_size, fn=fn, fa=fa, fs=fs)
+                    cyl(
+                        height=s.screw_depth * 2,
+                        diameter=s.screw_size,
+                        fn=fn,
+                        fa=fa,
+                        fs=fs,
+                    )
                     .right(sx * s.screw_spacing / 2)
                     .back(sy * s.screw_spacing / 2)
                 )
                 body = body - hole
-        plinth = cyl(height=s.plinth_height, diameter=s.plinth_diam, fn=fn, fa=fa, fs=fs).up(
-            s.plinth_height / 2
-        ) - cyl(height=s.plinth_height * 3, diameter=s.shaft_diam + 0.75, fn=fn, fa=fa, fs=fs)
-        shaft = cyl(height=shaft_len, diameter=s.shaft_diam, fn=fn, fa=fa, fs=fs).up(shaft_len / 2)
+        plinth = cyl(
+            height=s.plinth_height, diameter=s.plinth_diam, fn=fn, fa=fa, fs=fs
+        ).up(s.plinth_height / 2) - cyl(
+            height=s.plinth_height * 3,
+            diameter=s.shaft_diam + 0.75,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+        )
+        shaft = cyl(height=shaft_len, diameter=s.shaft_diam, fn=fn, fa=fa, fs=fs).up(
+            shaft_len / 2
+        )
         return Bosl2Solid(
             (body | plinth | shaft).shape,
             size=[s.motor_width, s.motor_width, height + shaft_len],
@@ -150,7 +164,9 @@ class NemaSteppers:
                     .back(cy),
                     cuboid([d, length, depth]).right(cx).back(cy),
                 ]
-            return [cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)]
+            return [
+                cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)
+            ]
 
         parts = []
         for sx in (-1, 1):

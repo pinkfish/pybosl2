@@ -961,11 +961,7 @@ def _corner_shape(
     m = 0.01
     c2 = [corner[i] * c[i] / 2 for i in range(3)]
     c3 = [corner[i] * (c[i] - m / 2) for i in range(3)]
-    fn = (
-        4
-        if is_chamfer
-        else max(4, int(_quantup(_frag_count(radius, fn, fa, fs), 4)))
-    )
+    fn = 4 if is_chamfer else max(4, int(_quantup(_frag_count(radius, fn, fa, fs), 4)))
     base_t = [corner[i] * (size[i] / 2 - c[i]) for i in range(3)]
 
     def xtcyl(length, radius):

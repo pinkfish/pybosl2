@@ -222,9 +222,7 @@ def _nut_solid(
     if pitch == 0:
         from bosl2.shapes3d import cyl
 
-        return body - cyl(
-            height=h + 2, radius=idia / 2 + slop, fn=fn, fa=fa, fs=fs
-        )
+        return body - cyl(height=h + 2, radius=idia / 2 + slop, fn=fn, fa=fa, fs=fs)
     depth_abs = _profile_depth_abs(profile, pitch)
     tap = _rod_solid(
         idia + 2 * depth_abs + 2 * slop,
@@ -305,9 +303,7 @@ class Threading:
         d, l, pitch, starts=1, left_handed=False, fn=None, fa=None, fs=None
     ):
         """An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2 threaded_rod())."""
-        return _rod_solid(
-            d, l, pitch, _iso_profile(), starts, left_handed, fn, fa, fs
-        )
+        return _rod_solid(d, l, pitch, _iso_profile(), starts, left_handed, fn, fa, fs)
 
     @staticmethod
     def threaded_nut(

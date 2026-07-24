@@ -113,7 +113,12 @@ class Joiners:
         shaft = cyl(height=length, diameter=diameter, fn=fn, fa=fa, fs=fs)
         # barb: a downward-facing ratchet lip at the tip (wide at its base, tapering to the shaft).
         barb = cyl(
-            height=snap, diameter1=diameter + 2 * nub_depth, diameter2=diameter, fn=fn, fa=fa, fs=fs
+            height=snap,
+            diameter1=diameter + 2 * nub_depth,
+            diameter2=diameter,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         ).up(length / 2 - snap / 2)
         tip = sphere(diameter=diameter, fn=fn, fa=fa, fs=fs).up(length / 2)
         pin = shaft | barb | tip
@@ -139,11 +144,15 @@ class Joiners:
 
         A clearance bore with a relief groove that the pin's barb clicks into.
         """
-        bore = cyl(height=length + 1, diameter=diameter + 2 * clearance, fn=fn, fa=fa, fs=fs)
+        bore = cyl(
+            height=length + 1, diameter=diameter + 2 * clearance, fn=fn, fa=fa, fs=fs
+        )
         relief = cyl(
             height=snap + clearance,
             diameter=diameter + 2 * nub_depth + 2 * clearance,
-            fn=fn, fa=fa, fs=fs,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         ).up(length / 2 - snap / 2)
         return Bosl2Solid(
             (bore | relief).shape,

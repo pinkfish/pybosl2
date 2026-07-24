@@ -683,8 +683,7 @@ def arc(
     point_count = (
         count
         if count is not None
-        else math.ceil(_frag_count(arc_radius, fn, fa, fs) * abs(calc_angle) / 360)
-        + 1
+        else math.ceil(_frag_count(arc_radius, fn, fa, fs) * abs(calc_angle) / 360) + 1
     )
     out = _arc_points(
         point_count, arc_radius, calc_start, calc_angle, calc_center, endpoint=endpoint

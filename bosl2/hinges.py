@@ -97,9 +97,9 @@ class Hinges:
         plate_w = arm + knuckle_diam / 2
         parts.append(cuboid([length, plate_w, thick]).back(ydir * plate_w / 2))
         leaf = union(parts)
-        leaf = leaf - cyl(height=length + 1, diameter=pin_diam, fn=fn, fa=fa, fs=fs).rotate(
-            [0, 90, 0]
-        )  # pin bore
+        leaf = leaf - cyl(
+            height=length + 1, diameter=pin_diam, fn=fn, fa=fa, fs=fs
+        ).rotate([0, 90, 0])  # pin bore
         return Bosl2Solid(
             leaf.shape, size=[length, plate_w + knuckle_diam / 2, knuckle_diam]
         )
@@ -132,10 +132,30 @@ class Hinges:
                 Hinges.knuckle_hinge_pair(fold=90).show()
         """
         outer = Hinges.knuckle_hinge(
-            length, segs, knuckle_diam, pin_diam, arm, thick, gap, inner=False, fn=fn, fa=fa, fs=fs
+            length,
+            segs,
+            knuckle_diam,
+            pin_diam,
+            arm,
+            thick,
+            gap,
+            inner=False,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
         inner = Hinges.knuckle_hinge(
-            length, segs, knuckle_diam, pin_diam, arm, thick, gap, inner=True, fn=fn, fa=fa, fs=fs
+            length,
+            segs,
+            knuckle_diam,
+            pin_diam,
+            arm,
+            thick,
+            gap,
+            inner=True,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
         if fold:
             inner = inner.rotate(

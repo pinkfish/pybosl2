@@ -236,9 +236,7 @@ def _ptn_sect(
         opt = cptype[pos + 1 :]
         base = cptype[:pos]
         if opt == "yflip":
-            return _yscale(
-                -1, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
-            )
+            return _yscale(-1, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs))
         if opt == "xflip":
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             b = pointlist_bounds(sect)
@@ -246,9 +244,7 @@ def _ptn_sect(
             return _xflip(xpos, sect)[::-1]
         if opt in ("addflip", "wave"):
             sect1 = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
-            sect2 = _ptn_sect(
-                base + " yflip xflip", length, width, fn=fn, fa=fa, fs=fs
-            )
+            sect2 = _ptn_sect(base + " yflip xflip", length, width, fn=fn, fa=fa, fs=fs)
             b1, b2 = pointlist_bounds(sect1), pointlist_bounds(sect2)
             osect1 = _scale2(0.5, 0.5, _left(b1[0][0], sect1))
             osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2[0][0], sect2)))
@@ -273,9 +269,7 @@ def _ptn_sect(
         if opt.startswith("skew:"):
             angle = float(opt[5:])
             assert -45 <= angle <= 45, "skew angle must be between -45 and 45."
-            return _skew(
-                angle, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
-            )
+            return _skew(angle, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs))
         if opt.startswith("pinch:"):
             val_str = opt[6:]
             is_deg = val_str.endswith("deg")

@@ -437,14 +437,12 @@ class Screws:
                 shank_len + tl / 2
             )
             if shank_len > 1e-9:
-                shank = cyl(
-                    diameter=d, height=shank_len, fn=fn, fa=fa, fs=fs
-                ).down(shank_len / 2)
+                shank = cyl(diameter=d, height=shank_len, fn=fn, fa=fa, fs=fs).down(
+                    shank_len / 2
+                )
                 shaft = shaft | shank
         else:
-            shaft = cyl(diameter=d, height=length, fn=fn, fa=fa, fs=fs).down(
-                length / 2
-            )
+            shaft = cyl(diameter=d, height=length, fn=fn, fa=fa, fs=fs).down(length / 2)
 
         result = shaft
         head_top = info[
@@ -478,9 +476,9 @@ class Screws:
             ).up(hh / 2)
         if head == "button":
             rnd = min(hh * 0.9, hs / 2 * 0.9)
-            return cyl(
-                diameter=hs, height=hh, rounding2=rnd, fn=fn, fa=fa, fs=fs
-            ).up(hh / 2)
+            return cyl(diameter=hs, height=hh, rounding2=rnd, fn=fn, fa=fa, fs=fs).up(
+                hh / 2
+            )
         if head in ("pan", "round"):
             return cyl(
                 diameter=hs, height=hh, rounding2=0.2 * hs, fn=fn, fa=fa, fs=fs
@@ -582,9 +580,9 @@ class Screws:
             ).down(length / 2)
         else:
             gap = _CLEARANCE.get(str(fit).lower(), 0.5)
-            cutter = cyl(
-                diameter=d + 2 * gap, height=length, fn=fn, fa=fa, fs=fs
-            ).down(length / 2)
+            cutter = cyl(diameter=d + 2 * gap, height=length, fn=fn, fa=fa, fs=fs).down(
+                length / 2
+            )
 
         if head == "flat":
             info = Screws.screw_info(spec, head="flat", pitch=pitch)
@@ -606,9 +604,9 @@ class Screws:
             hd = info["head_size"] if head == "hex" else (info["head_size"] or 2 * d)
             if head == "hex":
                 hd = 2 * hd / math.sqrt(3)  # across-corners for a hex head pocket
-            cb = cyl(
-                diameter=hd, height=counterbore + 0.02, fn=fn, fa=fa, fs=fs
-            ).up((counterbore + 0.02) / 2 - 0.01)
+            cb = cyl(diameter=hd, height=counterbore + 0.02, fn=fn, fa=fa, fs=fs).up(
+                (counterbore + 0.02) / 2 - 0.01
+            )
             cutter = cutter | cb
         return cutter
 

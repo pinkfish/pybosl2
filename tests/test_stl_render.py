@@ -1460,9 +1460,7 @@ def test_cylinder_rounded(tmp_path):
 
 
 def test_cylinder_cone(tmp_path):
-    m = _render(
-        tmp_path, "s3.cyl(height=20, radius1=8, radius2=3, fn=64)", name="cone"
-    )
+    m = _render(tmp_path, "s3.cyl(height=20, radius1=8, radius2=3, fn=64)", name="cone")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [16, 16], atol=0.2)
     assert math.isclose(m.size[2], 20.0, abs_tol=1e-3)
