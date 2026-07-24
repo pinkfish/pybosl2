@@ -152,6 +152,8 @@ def move_copies(a=([0, 0, 0],)) -> list[np.ndarray]:
     """One translation matrix per offset in *a* (BOSL2 move_copies())."""
     return [translate4(pos) for pos in a]
 
+
+def line_copies(spacing=None, sides=None, length=None, p1=None, p2=None) -> list[np.ndarray]:
     """Translation matrices evenly spread along a line (BOSL2 line_copies())."""
     if length is not None:
         ll = _scalar_vec3(length, 0.0)

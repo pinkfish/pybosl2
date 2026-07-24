@@ -30,14 +30,34 @@ import numpy as np
 
 from pythonscad import (
     cube as _ocube,
-    cylinder as _ocylinder,
-    sphere as _osphere,
+    cylinder as _ocylinder_native,
+    sphere as _osphere_native,
     polyhedron as _opolyhedron,
     hull as _ohull,
     minkowski as _ominkowski,
     rotate_extrude as _orotate_extrude,
     textmetrics as _otextmetrics,
 )
+
+
+def _ocylinder(height=None, radius=None, radius1=None, radius2=None, center=None,
+               fn=None, fa=None, fs=None):
+    """The native cylinder, accepting this file's full-word kwargs (native wants h/r/r1/r2)."""
+    kw = {}
+    for full, nat in ((height, "h"), (radius, "r"), (radius1, "r1"), (radius2, "r2"),
+                      (center, "center"), (fn, "fn"), (fa, "fa"), (fs, "fs")):
+        if full is not None:
+            kw[nat] = full
+    return _ocylinder_native(**kw)
+
+
+def _osphere(radius=None, center=None, fn=None, fa=None, fs=None):
+    """The native sphere, accepting this file's full-word kwargs (native wants r)."""
+    kw = {}
+    for full, nat in ((radius, "r"), (center, "center"), (fn, "fn"), (fa, "fa"), (fs, "fs")):
+        if full is not None:
+            kw[nat] = full
+    return _osphere_native(**kw)
 from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:

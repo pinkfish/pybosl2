@@ -86,7 +86,7 @@ def test_regular_prism_height_and_solid(tmp_path):
 
 def test_tube_is_hollow(tmp_path):
     # a tube encloses less than the solid outer cylinder of the same radius/height
-    m = _render(tmp_path, "s3.tube(height=10, outer_r=10, inner_radius=6)", name="tube")
+    m = _render(tmp_path, "s3.tube(height=10, outer_radius=10, inner_radius=6)", name="tube")
     assert math.isclose(m.size[2], 10.0, abs_tol=1e-3)
     solid_outer = math.pi * 10**2 * 10
     assert 0 < m.volume < solid_outer
@@ -328,7 +328,7 @@ def test_plot_revolution_makes_a_revolved_solid(tmp_path):
     )
     m = _render(
         tmp_path,
-        "s3.plot_revolution(f, angle=ang, z=zs, radius1=12, radius2=8)",
+        "s3.plot_revolution(f, angle=angle, z=zs, radius1=12, radius2=8)",
         setup=setup,
         name="plotrev",
     )
@@ -713,7 +713,7 @@ def test_jigsaw_cut_path_half(tmp_path):
     setup = "center = partition_path([60, 'jigsaw', 60], _fn=16)\n"
     m = _render(
         tmp_path,
-        "s3.cuboid([120, 40, 20]).back_half(cut_path=cp)",
+        "s3.cuboid([120, 40, 20]).back_half(cut_path=center)",
         setup=setup,
         name="jigsawcut",
     )
@@ -1268,3 +1268,225 @@ def test_separate_extracts_one_lump(tmp_path):
     assert part.watertight
     np.testing.assert_allclose(part.size, [8, 8, 8], atol=0.1)  # one lump
     assert whole.size[0] > 30  # the pair spanned far
+
+
+# -- shapes2d extruded shapes -------------------------------------------------------------
+
+
+def test_circle_extruded(tmp_path):
+    m = _render(tmp_path, "s2.circle(radius=10, _fn=48).linear_extrude(height=5)", name="circle")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [20, 20], atol=0.3)
+    assert math.isclose(m.size[2], 5.0, abs_tol=1e-2)
+    assert m.volume > 0
+
+
+def test_square_extruded(tmp_path):
+    m = _render(tmp_path, "s2.square([20, 15], center=True).linear_extrude(height=5)", name="square")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [20, 15], atol=0.1)
+    assert math.isclose(m.size[2], 5.0, abs_tol=1e-2)
+
+
+def test_rect_rounded_extruded(tmp_path):
+    m = _render(tmp_path, "s2.rect([30, 20], rounding=4, _fn=32).linear_extrude(height=5)", name="rect_round")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [30, 20], atol=0.3)
+    assert m.volume > 0
+
+
+def test_ellipse_extruded(tmp_path):
+    m = _render(tmp_path, "s2.ellipse(radius=[15, 10], _fn=48).linear_extrude(height=5)", name="ellipse")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [30, 20], atol=0.5)
+    assert math.isclose(m.size[2], 5.0, abs_tol=1e-2)
+
+
+def test_regular_ngon_extruded(tmp_path):
+    m = _render(tmp_path, "s2.regular_ngon(6, radius=10).linear_extrude(height=6)", name="hex2d")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [20, 20], atol=0.3)
+    assert math.isclose(m.size[2], 6.0, abs_tol=1e-2)
+
+
+def test_regular_ngon_rounded_extruded(tmp_path):
+    m = _render(tmp_path, "s2.regular_ngon(5, radius=10, rounding=3, _fn=36).linear_extrude(height=6)", name="pent_round")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_star_extruded(tmp_path):
+    m = _render(tmp_path, "s2.star(tips=5, radius=12, inner_radius=5).linear_extrude(height=5)", name="star")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [24, 24], atol=0.5)
+    assert m.volume > 0
+
+
+def test_trapezoid_extruded(tmp_path):
+    m = _render(tmp_path, "s2.trapezoid(height=20, width1=15, width2=8, rounding=2, _fn=24).linear_extrude(height=5)", name="trap")
+    assert m.watertight
+    assert m.volume > 0
+    assert math.isclose(m.size[1], 20.0, abs_tol=0.5)
+
+
+def test_teardrop2d_extruded(tmp_path):
+    m = _render(tmp_path, "s2.teardrop2d(radius=10, angle=45, _fn=32).linear_extrude(height=5)", name="teardrop2d")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_egg_extruded(tmp_path):
+    m = _render(tmp_path, "s2.egg(length=50, radius1=10, radius2=6, arc_radius=30, _fn=32).linear_extrude(height=5)", name="egg")
+    assert m.watertight
+    assert m.volume > 0
+    assert m.size[0] > 40
+
+
+def test_glued_circles_extruded(tmp_path):
+    m = _render(tmp_path, "s2.glued_circles(radius=10, spread=30, tangent=30, _fn=32).linear_extrude(height=5)", name="glued")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_reuleaux_polygon_extruded(tmp_path):
+    m = _render(tmp_path, "s2.reuleaux_polygon(3, radius=10, _fn=48).linear_extrude(height=5)", name="reuleaux")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [20, 20], atol=0.5)
+    assert m.volume > 0
+
+
+# -- shapes3d rounding/chamfer variants ---------------------------------------------------
+
+
+def test_cuboid_rounding_watertight(tmp_path):
+    m = _render(tmp_path, "s3.cuboid([40, 30, 20], rounding=5, _fn=32)", name="cuboid_round")
+    assert m.watertight
+    assert m.volume > 0
+    np.testing.assert_allclose(m.size, [40, 30, 20], atol=0.5)
+
+
+def test_cuboid_chamfer_watertight(tmp_path):
+    m = _render(tmp_path, "s3.cuboid([40, 30, 20], chamfer=5)", name="cuboid_chamf")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_cuboid_edges_rounding(tmp_path):
+    m = _render(tmp_path, "s3.cuboid([40, 30, 20], rounding=3, edges=TOP, _fn=24)", name="cuboid_topround")
+    assert m.watertight
+    np.testing.assert_allclose(m.size, [40, 30, 20], atol=0.5)
+
+
+def test_cylinder_chamfered(tmp_path):
+    true_vol = math.pi * 25 * 20
+    m = _render(tmp_path, "s3.cyl(height=20, radius=5, chamfer=2, _fn=64)", name="cyl_chamf")
+    assert m.watertight
+    assert 0 < m.volume < true_vol
+
+
+def test_cylinder_rounded(tmp_path):
+    m = _render(tmp_path, "s3.cyl(height=20, radius=5, rounding=2, _fn=64)", name="cyl_round")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_cylinder_cone(tmp_path):
+    m = _render(tmp_path, "s3.cyl(height=20, radius1=8, radius2=3, _fn=64)", name="cone")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [16, 16], atol=0.2)
+    assert math.isclose(m.size[2], 20.0, abs_tol=1e-3)
+
+
+def test_spheroid_shape(tmp_path):
+    m = _render(tmp_path, "s3.spheroid(radius=[15, 10], _fn=48)", name="spheroid")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [30, 30], atol=0.5)
+    assert math.isclose(m.size[2], 20.0, abs_tol=0.5)
+
+
+def test_regular_prism_rounded(tmp_path):
+    m = _render(tmp_path, "s3.regular_prism(5, height=12, radius=10, rounding=2, _fn=32)", name="pentprism_round")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_tube_chamfered(tmp_path):
+    m = _render(tmp_path, "s3.tube(height=12, outer_radius=10, inner_radius=6, chamfer=2, _fn=48)", name="tube_chamf")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_torus_shape(tmp_path):
+    m = _render(tmp_path, "s3.torus(radius=12, minor_radius=3, _fn=48)", name="torus")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [30, 30], atol=0.5)
+
+
+def test_xcyl_builds(tmp_path):
+    m = _render(tmp_path, "s3.xcyl(height=20, radius=5, _fn=48)", name="xcyl")
+    assert m.watertight
+    assert math.isclose(m.size[0], 20.0, abs_tol=1e-2)
+
+
+def test_pie_slice_builds(tmp_path):
+    m = _render(tmp_path, "s3.pie_slice(height=8, radius=15, angle=[30, 120], _fn=48)", name="pieslice")
+    assert m.watertight
+    assert m.volume > 0
+
+
+# -- parts library shapes -----------------------------------------------------------------
+
+
+def test_spur_gear_builds(tmp_path):
+    m = _render(tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6, _fn=32)", name="spurgear")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_spur_gear_with_shaft(tmp_path):
+    m = _render(tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6, shaft_diam=6, _fn=32)", name="spurgear_shaft")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_worm_gear_builds(tmp_path):
+    m = _render(tmp_path, "Gears.worm(diameter=20, thickness=12, _fn=32)", name="worm")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_walls_thinning_wall_builds(tmp_path):
+    m = _render(tmp_path, "Walls.thinning_wall(height=40, length=80, thick=6, angle=15, _fn=24)", name="thinwall")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_polyhedra_tetrahedron(tmp_path):
+    m = _render(tmp_path, "Polyhedra.regular_polyhedron('tetrahedron', radius=12, _fn=8)", name="tetra")
+    assert m.watertight
+    np.testing.assert_allclose(m.size, [24, 24, 24], atol=1.0)
+    assert m.volume > 0
+
+
+def test_polyhedra_icosahedron(tmp_path):
+    m = _render(tmp_path, "Polyhedra.regular_polyhedron('icosahedron', radius=10, _fn=8)", name="icosa")
+    assert m.watertight
+    assert m.volume > 0
+
+
+def test_screw_drive_phillips_mask(tmp_path):
+    m = _render(tmp_path, "ScrewDrive.phillips_mask('#2', length=6, _fn=24)", name="phillips")
+    assert m.volume > 0
+    assert m.watertight
+
+
+def test_nema_stepper_motor(tmp_path):
+    m = _render(tmp_path, "NemaSteppers.nema_mount_mask(size=17, thickness=2, _fn=24)", name="nema_mask")
+    assert m.volume > 0
+    assert m.watertight
+
+
+def test_sliders_rail_builds(tmp_path):
+    m = _render(tmp_path, "Sliders.rail(length=40, width=10, height=6, _fn=24)", name="slider_rail")
+    assert m.watertight
+    assert m.volume > 0
