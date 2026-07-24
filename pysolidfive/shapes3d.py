@@ -64,10 +64,10 @@ def _matmul3(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
 
 def _axis_angle_matrix(deg: float, axis: list[float]) -> list[list[float]]:
     """Standard Rodrigues' rotation matrix for `deg` degrees around `axis` (need not be unit)."""
-    ang = math.radians(deg)
+    angle = math.radians(deg)
     n = math.sqrt(sum(a * a for a in axis))
     ax, ay, az = (a / n for a in axis)
-    c, s, t = math.cos(ang), math.sin(ang), 1 - math.cos(ang)
+    c, s, t = math.cos(angle), math.sin(angle), 1 - math.cos(angle)
     return [
         [t * ax * ax + c, t * ax * ay - s * az, t * ax * az + s * ay],
         [t * ax * ay + s * az, t * ay * ay + c, t * ay * az - s * ax],
@@ -1008,18 +1008,18 @@ def torus(
 # ---------------------------------------------------------------------------
 
 
-def _wall_line_sdf(rxy, z, r1: float, r2: float, hb: float):
-    """Signed distance to the infinite line through `(r1, -hb)` and `(r2, hb)` in the
+def _wall_line_sdf(rxy, z, radius1: float, radius2: float, hb: float):
+    """Signed distance to the infinite line through `(radius1, -hb)` and `(radius2, hb)` in the
     `(rxy, z)` half-plane -- the slanted wall of a cylinder/cone, exact for the wall itself;
     intersecting (max()) with the top/bottom slabs (see _cylinder_sdf()) caps it off, with the
     same corner-region approximation already documented for cuboid()'s per-axis composition.
     """
-    dr, dz = r2 - r1, 2 * hb
+    dr, dz = radius2 - radius1, 2 * hb
     nlen = math.hypot(dr, dz)
-    return ((rxy - r1) * dz - (z + hb) * dr) / nlen
+    return ((rxy - radius1) * dz - (z + hb) * dr) / nlen
 
 
-def _cylinder_sdf(x, y, z, h: float, r1: float, r2: float, shift: list[float] | None = None):
+def _cylinder_sdf(x, y, z, h: float, radius1: float, radius2: float, shift: list[float] | None = None):
     hb = h / 2
     if shift and (shift[0] or shift[1]):
         # Oblique cone (BOSL2 cyl(shift=)): the section center slides linearly from [0, 0]
@@ -1029,20 +1029,20 @@ def _cylinder_sdf(x, y, z, h: float, r1: float, r2: float, shift: list[float] | 
         x = x - shift[0] * t
         y = y - shift[1] * t
     rxy = _lv_hypot(x, y)
-    wall = _wall_line_sdf(rxy, z, r1, r2, hb)
+    wall = _wall_line_sdf(rxy, z, radius1, radius2, hb)
     slab = lv.abs(z) - hb
     return lv.max(wall, slab)
 
 
-def _cyl_edge_sdf(axial, radial, h: float, r1: float, r2: float, amt1: float, amt2: float, mode: str):
+def _cyl_edge_sdf(axial, radial, h: float, radius1: float, radius2: float, amt1: float, amt2: float, mode: str):
     """_cylinder_sdf(), plus independent rounding/chamfer treatment of the bottom (amt1) and
     top (amt2) rim, using the same per-candidate-quadrant masking technique as
     bosl2.shapes3d.cuboid() (but only 2 candidates -- top/bottom -- since the radial
     coordinate has no sign ambiguity to select between, unlike a rectangle's 4 corners)."""
     hb = h / 2
-    wall = _wall_line_sdf(radial, axial, r1, r2, hb)
+    wall = _wall_line_sdf(radial, axial, radius1, radius2, hb)
     candidates = []
-    for sz, r_ref, a in ((-1, r1, amt1), (1, r2, amt2)):
+    for sz, r_ref, a in ((-1, radius1, amt1), (1, radius2, amt2)):
         if mode == "round":
             qu = radial - r_ref + a
             qv = lv.abs(axial) - hb + a
@@ -1160,11 +1160,11 @@ def _cyl_axis(
     h: float | None,
     r: float | None,
     l: float | None,
-    r1: float | None,
-    r2: float | None,
+    radius1: float | None,
+    radius2: float | None,
     d: float | None,
-    d1: float | None,
-    d2: float | None,
+    diameter1: float | None,
+    diameter2: float | None,
     chamfer: float | None,
     chamfer1: float | None,
     chamfer2: float | None,
@@ -1175,8 +1175,8 @@ def _cyl_axis(
     res: int,
 ) -> PyShape:
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = _radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    rad1 = _radius(radius1=radius1, diameter1=diameter1, r=r, d=d, dflt=1)
+    rad2 = _radius(radius1=radius2, diameter1=diameter2, r=r, d=d, dflt=1)
     r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0)
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
@@ -1346,10 +1346,10 @@ def tube(
     `outer_radius`/`outer_r1`/`outer_r2` since `or` is a Python keyword.
     """
     length = l if l is not None else (h if h is not None else 1)
-    orr1 = _pick_radius(r1=outer_r1, d1=od1, r=outer_radius, d=outer_diameter, dflt=None)
-    orr2 = _pick_radius(r1=outer_r2, d1=od2, r=outer_radius, d=outer_diameter, dflt=None)
-    irr1 = _pick_radius(r1=ir1, d1=id1, r=inner_radius, d=inner_diameter, dflt=None)
-    irr2 = _pick_radius(r1=ir2, d1=id2, r=inner_radius, d=inner_diameter, dflt=None)
+    orr1 = _pick_radius(radius1=outer_r1, diameter1=od1, r=outer_radius, d=outer_diameter, dflt=None)
+    orr2 = _pick_radius(radius1=outer_r2, diameter1=od2, r=outer_radius, d=outer_diameter, dflt=None)
+    irr1 = _pick_radius(radius1=ir1, diameter1=id1, r=inner_radius, d=inner_diameter, dflt=None)
+    irr2 = _pick_radius(radius1=ir2, diameter1=id2, r=inner_radius, d=inner_diameter, dflt=None)
     wall_v = wall if wall is not None else 1
     rad1 = orr1 if orr1 is not None else (irr1 + wall_v if irr1 is not None else None)
     rad2 = orr2 if orr2 is not None else (irr2 + wall_v if irr2 is not None else None)
@@ -1478,7 +1478,7 @@ def rect_tube(
     isize: float | list[float] | None = None,
     wall: float | None = None,
     rounding: float = 0,
-    irounding: float | None = None,
+    inner_rounding: float | None = None,
     l: float | None = None,
     anchor: "Sequence[float]" = BOTTOM,
     res: int = 10,
@@ -1496,7 +1496,7 @@ def rect_tube(
         isize:     inner [X,Y] size of the tube
         wall:      wall thickness (used with `size` if `isize` isn't given, or vice versa)
         rounding:  outer vertical-edge rounding radius (default: no rounding)
-        irounding: inner vertical-edge rounding radius (default: same as `rounding`)
+        inner_rounding: inner vertical-edge rounding radius (default: same as `rounding`)
         anchor:    anchor point (default BOTTOM)
         res:       libfive meshing resolution passed to frep() (default 10)
     """
@@ -1508,7 +1508,7 @@ def rect_tube(
     else:
         assert wall is not None, "rect_tube(): must give isize or wall."
         isz = [sz[0] - 2 * wall, sz[1] - 2 * wall]
-    irounding_v = irounding if irounding is not None else rounding
+    irounding_v = inner_rounding if inner_rounding is not None else rounding
     edge_set_z = _edges("Z", [])
     o_amounts, o_modes = _edge_matrices(rounding, edge_set_z, "round")
     i_amounts, i_modes = _edge_matrices(irounding_v, edge_set_z, "round")
@@ -1926,7 +1926,7 @@ def regular_prism(
     built on polygon_prism(). Mirrors bosl2.shapes3d.regular_prism().
 
     Size is controlled by one of the radius/diameter/side parameters, in BOSL2 priority order:
-    inner_radius/inner_diameter > outer_radius/outer_diameter > r/d > side.  The ``or``/``or_`` keyword collision with the Python
+    inner_radius/inner_diameter > outer_radius/outer_diameter > r/d > side.  The ``or``/``outer_radius`` keyword collision with the Python
     keyword ``or`` is resolved as ``outer_radius`` here.
 
     Args:
@@ -1947,9 +1947,13 @@ def regular_prism(
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / _m.sin(_m.radians(180.0 / n)) if side is not None else None
-    rad = _pick_radius(radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, r=r, d=d, dflt=side_s)
+    rad = _pick_radius(
+        radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, r=r, d=d, dflt=side_s
+    )
     if rad is None:
-        raise ValueError("regular_prism(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side.")
+        raise ValueError(
+            "regular_prism(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
+        )
 
     pts = [[_m.cos(2 * _m.pi * i / n) * rad, _m.sin(2 * _m.pi * i / n) * rad] for i in range(n)]
     if realign:

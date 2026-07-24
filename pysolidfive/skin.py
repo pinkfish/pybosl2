@@ -277,7 +277,7 @@ def skin_sdf(
 
         # Find the two profiles to blend between.
         # Build a piecewise blend using min/max: for each segment i, the contribution is
-        #   (z_clamped - zs[i]) * (d1 - d0) / (zs[i+1] - zs[i]) + d0
+        #   (z_clamped - zs[i]) * (diameter1 - d0) / (zs[i+1] - zs[i]) + d0
         # We take the result from the segment that z_clamped falls into by using
         # a weighted combination that collapses to the right segment.
         d_result = None
@@ -287,8 +287,8 @@ def skin_sdf(
             # Clamp t to [0, 1] for this segment
             t = lv.max(0, lv.min(1, t))
             d0 = sfs[i](x, y)
-            d1 = sfs[i + 1](x, y)
-            d_seg = d0 + t * (d1 - d0)
+            diameter1 = sfs[i + 1](x, y)
+            d_seg = d0 + t * (diameter1 - d0)
             # Only this segment contributes where z is actually in [zs[i], zs[i+1]]
             in_seg = -lv.max(zs[i] - z_val, z_val - zs[i + 1])
             d_seg = lv.max(d_seg, in_seg)

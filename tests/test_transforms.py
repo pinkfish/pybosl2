@@ -30,19 +30,19 @@ def test_polar_to_xy():
 
 
 def test_rot_from_to_perpendicular():
-    ang, axis = rot_from_to([1, 0, 0], [0, 1, 0])
-    assert math.isclose(ang, 90.0)
+    angle, axis = rot_from_to([1, 0, 0], [0, 1, 0])
+    assert math.isclose(angle, 90.0)
     np.testing.assert_allclose(np.abs(axis), [0, 0, 1], atol=1e-9)
 
 
 def test_rot_from_to_parallel_is_zero():
-    ang, _ = rot_from_to([0, 0, 1], [0, 0, 5])
-    assert math.isclose(ang, 0.0, abs_tol=1e-9)
+    angle, _ = rot_from_to([0, 0, 1], [0, 0, 5])
+    assert math.isclose(angle, 0.0, abs_tol=1e-9)
 
 
 def test_rot_from_to_antiparallel_is_180():
-    ang, axis = rot_from_to([0, 0, 1], [0, 0, -1])
-    assert math.isclose(ang, 180.0)
+    angle, axis = rot_from_to([0, 0, 1], [0, 0, -1])
+    assert math.isclose(angle, 180.0)
     assert math.isclose(float(np.linalg.norm(axis)), 1.0)
 
 
@@ -70,9 +70,7 @@ def test_apply_single_point_vs_list():
     m = np.eye(4)
     m[:3, 3] = [10, 20, 30]  # pure translation
     np.testing.assert_allclose(apply(m, [1, 1, 1]), [11, 21, 31])
-    np.testing.assert_allclose(
-        apply(m, [[0, 0, 0], [1, 2, 3]]), [[10, 20, 30], [11, 22, 33]]
-    )
+    np.testing.assert_allclose(apply(m, [[0, 0, 0], [1, 2, 3]]), [[10, 20, 30], [11, 22, 33]])
 
 
 def test_apply_returns_plain_lists():
@@ -81,12 +79,8 @@ def test_apply_returns_plain_lists():
 
 
 def test_rot_about_axis_through_point():
-    m = rot_about_axis(
-        90, [0, 0, 1], center=[5, 0, 0]
-    )  # rotate 90 about the vertical line at x=5
-    np.testing.assert_allclose(
-        apply(m, [5, 0, 0]), [5, 0, 0], atol=1e-9
-    )  # the axis point is fixed
+    m = rot_about_axis(90, [0, 0, 1], center=[5, 0, 0])  # rotate 90 about the vertical line at x=5
+    np.testing.assert_allclose(apply(m, [5, 0, 0]), [5, 0, 0], atol=1e-9)  # the axis point is fixed
     np.testing.assert_allclose(apply(m, [6, 0, 0]), [5, 1, 0], atol=1e-9)
 
 
@@ -97,20 +91,20 @@ def test_rot_inverse_undoes_transform():
 
 def test_rot_decode_round_trip():
     m = rot_about_axis(40, [0, 0, 1], center=[5, 0, 0])
-    angle, axis, cp, axial = rot_decode(m)
+    angle, axis, center, axial = rot_decode(m)
     assert math.isclose(angle, 40.0, abs_tol=1e-6)
     np.testing.assert_allclose(axis, [0, 0, 1], atol=1e-9)
-    np.testing.assert_allclose(cp[:2], [5, 0], atol=1e-6)
+    np.testing.assert_allclose(center[:2], [5, 0], atol=1e-6)
     np.testing.assert_allclose(axial, [0, 0, 0], atol=1e-9)
 
 
 def test_rot_decode_identity_is_zero_angle():
-    angle, axis, cp, axial = rot_decode(np.eye(4))
+    angle, axis, center, axial = rot_decode(np.eye(4))
     assert math.isclose(angle, 0.0, abs_tol=1e-9)
 
 
 def test_rot_decode_axis_is_vec3():
     from bosl2.constants import Vec3
 
-    _, axis, cp, axial = rot_decode(rot_about_axis(30, [1, 0, 0], center=[0, 2, 0]))
-    assert isinstance(axis, Vec3) and isinstance(cp, Vec3) and isinstance(axial, Vec3)
+    _, axis, center, axial = rot_decode(rot_about_axis(30, [1, 0, 0], center=[0, 2, 0]))
+    assert isinstance(axis, Vec3) and isinstance(center, Vec3) and isinstance(axial, Vec3)

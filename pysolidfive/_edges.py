@@ -157,7 +157,9 @@ def _anchor_offset_hull3(points: "Sequence[Sequence[float]]", anchor: "Sequence[
     return [-best[0], -best[1], -best[2]]
 
 
-def _anchor_offset_cyl(radius1: float, radius2: float, length: float, anchor: "Sequence[float]", axis: int = 2) -> list[float]:
+def _anchor_offset_cyl(
+    radius1: float, radius2: float, length: float, anchor: "Sequence[float]", axis: int = 2
+) -> list[float]:
     a = list(anchor)
     az = a[axis]
     r_at = radius1 if az < 0 else (radius2 if az > 0 else (radius1 + radius2) / 2)

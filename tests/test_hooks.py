@@ -85,7 +85,9 @@ def test_base_corners_must_be_outside_cylinder():
 
 def test_circle_hole_must_fit_above_base():
     with pytest.raises(ValueError):
-        Hooks.ring_hook([50, 10], 10, outer_radius=25, inner_radius=20)  # ir >= hole_z: hole pokes out the base
+        Hooks.ring_hook(
+            [50, 10], 10, outer_radius=25, inner_radius=20
+        )  # inner_radius >= hole_z: hole pokes out the base
 
 
 def test_custom_hole_rejects_ir_and_wall():

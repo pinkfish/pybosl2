@@ -139,8 +139,8 @@ def _arc_between_points(
     a0 = math.degrees(math.atan2(point_start[1] - center[1], point_start[0] - center[0]))
     a1 = math.degrees(math.atan2(point_end[1] - center[1], point_end[0] - center[0]))
     delta = (a1 - a0 + 180) % 360 - 180
-    num = max(3, math.ceil(_frag_count(radius, fn, fa, fs) * abs(delta) / 360))
-    return _arc_points(num, radius, a0, delta, center, endpoint=endpoint)
+    count = max(3, math.ceil(_frag_count(radius, fn, fa, fs) * abs(delta) / 360))
+    return _arc_points(count, radius, a0, delta, center, endpoint=endpoint)
 
 
 def _arc_through_3(
@@ -164,8 +164,8 @@ def _arc_through_3(
     d_mid = (am - a0) % 360
     d_end = (a1 - a0) % 360
     delta = d_end if d_mid <= d_end else d_end - 360
-    num = max(3, math.ceil(_frag_count(radius, fn, fa, fs) * abs(delta) / 360))
-    return _arc_points(num, radius, a0, delta, center, endpoint=endpoint)
+    count = max(3, math.ceil(_frag_count(radius, fn, fa, fs) * abs(delta) / 360))
+    return _arc_points(count, radius, a0, delta, center, endpoint=endpoint)
 
 
 @overload
@@ -380,7 +380,7 @@ def _rect_path(
         qround = rounding_l[quad]
         cverts = int(_quant(_frag_count(abs(qinset), fn, fa, fs), 4) / 4) if abs(qinset) >= eps else 0
         step = 90.0 / cverts if cverts else 0.0
-        cp = [(sx / 2 - qinset) * qpos[0], (sy / 2 - abs(qinset)) * qpos[1]]
+        center = [(sx / 2 - qinset) * qpos[0], (sy / 2 - abs(qinset)) * qpos[1]]
         if abs(qchamf) >= eps:
             qpts = [[0, abs(qinset)], [qinset, 0]]
         elif abs(qround) >= eps:
@@ -395,7 +395,7 @@ def _rect_path(
         qfpts = [[p[0] * qpos[0], p[1] * qpos[1]] for p in qpts]
         qrpts = list(reversed(qfpts)) if qpos[0] * qpos[1] < 0 else qfpts
         for p in qrpts:
-            path.append([p[0] + cp[0], p[1] + cp[1]])
+            path.append([p[0] + center[0], p[1] + center[1]])
     return path
 
 
@@ -1049,7 +1049,7 @@ def _trapezoid_path(
         a = [xoff * qdirs[i][1] * sign_a, -rads[i] * qdirs[i][1] * sign_a]
         sign_b = 1 if (srads[i] < 0 and not flip) else -1
         b = [a[0] + hyp * qdirs[i][0] * sign_b, a[1]]
-        cp = [base[i][0] + b[0], base[i][1] + b[1]]
+        center = [base[i][0] + b[0], base[i][1] + b[1]]
         if srads[i] > 0:
             a0, a1 = angle_pairs[i]["pos"]
         elif flip:
@@ -1057,7 +1057,7 @@ def _trapezoid_path(
         else:
             a0, a1 = angle_pairs[i]["neg"]
         point_count = max(3, math.ceil(_frag_count(rads[i], fn, fa, fs) * abs(a1 - a0) / 360)) if rounds[i] else 2
-        cpath.extend(_arc_points(point_count, rads[i], a0, a1 - a0, cp))
+        cpath.extend(_arc_points(point_count, rads[i], a0, a1 - a0, center))
     return list(reversed(cpath))
 
 
@@ -1363,26 +1363,26 @@ def glued_circles(
     lobearc = ea1 - sa1
     lobesegs = math.ceil(_frag_count(rad, fn, fa, fs) * lobearc / 360)
     if tangent == 0:
-        # r2/cp2 (the inner waist arc) are undefined and unused in this case: the two end
+        # radius2/cp2 (the inner waist arc) are undefined and unused in this case: the two end
         # circles' own arcs already meet with no separate waist curve needed.
         path = _arc_points(lobesegs + 1, rad, sa1, ea1 - sa1, [-cp1[0], -cp1[1]]) + _arc_points(
             lobesegs + 1, rad, sa1 + 180, ea1 - sa1, cp1
         )
     else:
-        r2 = (spread / 2 / math.sin(math.radians(tangent))) - rad
-        cp2 = [0.0, (rad + r2) * math.cos(math.radians(tangent))]
+        radius2 = (spread / 2 / math.sin(math.radians(tangent))) - rad
+        cp2 = [0.0, (rad + radius2) * math.cos(math.radians(tangent))]
         sa2 = 270 - tangent
         ea2 = 270 + tangent
         subarc = ea2 - sa2
-        arcsegs = math.ceil(_frag_count(r2, fn, fa, fs) * abs(subarc) / 360)
+        arcsegs = math.ceil(_frag_count(radius2, fn, fa, fs) * abs(subarc) / 360)
         part1 = _arc_points(lobesegs, rad, sa1, ea1 - sa1, [-cp1[0], -cp1[1]], endpoint=False)
         part2 = []
         for k in range(arcsegs):
             theta = (ea2 + 180) + k * ((ea2 - subarc + 180) - (ea2 + 180)) / arcsegs
             part2.append(
                 [
-                    r2 * math.cos(math.radians(theta)) - cp2[0],
-                    r2 * math.sin(math.radians(theta)) - cp2[1],
+                    radius2 * math.cos(math.radians(theta)) - cp2[0],
+                    radius2 * math.sin(math.radians(theta)) - cp2[1],
                 ]
             )
         part3 = _arc_points(lobesegs, rad, sa1 + 180, ea1 - sa1, cp1, endpoint=False)
@@ -1391,8 +1391,8 @@ def glued_circles(
             theta = ea2 + k * ((ea2 - subarc) - ea2) / arcsegs
             part4.append(
                 [
-                    r2 * math.cos(math.radians(theta)) + cp2[0],
-                    r2 * math.sin(math.radians(theta)) + cp2[1],
+                    radius2 * math.cos(math.radians(theta)) + cp2[0],
+                    radius2 * math.sin(math.radians(theta)) + cp2[1],
                 ]
             )
         path = part1 + part2 + part3 + part4
@@ -1579,9 +1579,9 @@ def keyhole(
     r1v = float(radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5))
     r2v = float(radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10))
     assert lv > 0 and lv >= max(r1v, r2v), "keyhole(): length must be positive and at least max(radius1, radius2)."
-    shoulder_r = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
+    shoulder_radius = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
     cp1, cp2 = [0.0, 0.0], [0.0, -lv]
-    minr, maxr = min(r1v, r2v) + shoulder_r, max(r1v, r2v) + shoulder_r
+    minr, maxr = min(r1v, r2v) + shoulder_radius, max(r1v, r2v) + shoulder_radius
     dy = math.sqrt(maxr * maxr - minr * minr)
     spt1 = [cp1[0] + minr, cp1[1] - dy] if r1v > r2v else [cp2[0] + minr, cp2[1] + dy]
     spt2 = [-spt1[0], spt1[1]]
@@ -1594,14 +1594,22 @@ def keyhole(
 
     path = []
     if r1v > r2v:
-        path += [spt1] if shoulder_r <= 0 else _arc(radius=shoulder_r, center=spt1, start=180 - angle, angle=angle)
+        path += (
+            [spt1]
+            if shoulder_radius <= 0
+            else _arc(radius=shoulder_radius, center=spt1, start=180 - angle, angle=angle)
+        )
         path += _arc(radius=r2v, center=cp2, start=0, angle=-180)
-        path += [spt2] if shoulder_r <= 0 else _arc(radius=shoulder_r, center=spt2, start=0, angle=angle)
+        path += [spt2] if shoulder_radius <= 0 else _arc(radius=shoulder_radius, center=spt2, start=0, angle=angle)
         path += _arc(radius=r1v, center=cp1, start=180 + angle, angle=-180 - 2 * angle)
     else:
-        path += [spt1] if shoulder_r <= 0 else _arc(radius=shoulder_r, center=spt1, start=180, angle=angle)
+        path += [spt1] if shoulder_radius <= 0 else _arc(radius=shoulder_radius, center=spt1, start=180, angle=angle)
         path += _arc(radius=r2v, center=cp2, start=angle, angle=-180 - 2 * angle)
-        path += [spt2] if shoulder_r <= 0 else _arc(radius=shoulder_r, center=spt2, start=360 - angle, angle=angle)
+        path += (
+            [spt2]
+            if shoulder_radius <= 0
+            else _arc(radius=shoulder_radius, center=spt2, start=360 - angle, angle=angle)
+        )
         path += _arc(radius=r1v, center=cp1, start=180, angle=-180)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
@@ -1688,8 +1696,8 @@ def reuleaux_polygon(
         ca = 180 - (i + 0.5) * 360.0 / sides
         sa = ca + 180 + 90.0 / sides
         ea = ca + 180 - 90.0 / sides
-        cp = _polar_to_xy(rad, ca)
-        path += _arc_points(ssegs - 1, slen, sa, ea - sa, cp, endpoint=False)
+        center = _polar_to_xy(rad, ca)
+        path += _arc_points(ssegs - 1, slen, sa, ea - sa, center, endpoint=False)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)

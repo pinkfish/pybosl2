@@ -85,7 +85,9 @@ def _radius(
     even when a caller always passes a concrete `dflt`. Not for callers that genuinely need to
     tell "not specified" apart from a real radius (see torus()/tube(), which call
     _pick_radius() directly with `dflt=None`)."""
-    result = _pick_radius(radius1=radius1, diameter1=diameter1, radius2=radius2, diameter2=diameter2, r=r, d=d, dflt=dflt)
+    result = _pick_radius(
+        radius1=radius1, diameter1=diameter1, radius2=radius2, diameter2=diameter2, r=r, d=d, dflt=dflt
+    )
     assert result is not None
     return result
 
@@ -238,8 +240,8 @@ def _polygon_dist2_xy(x, y, pts: ArrayLike):
         px, py = x - ax, y - ay
         t = lv.max(0, lv.min(1, (px * ex + py * ey) / elen2))
         dx, dy = px - t * ex, py - t * ey
-        d2 = dx * dx + dy * dy
-        dist2_min = d2 if dist2_min is None else lv.min(dist2_min, d2)
+        diameter2 = dx * dx + dy * dy
+        dist2_min = diameter2 if dist2_min is None else lv.min(dist2_min, diameter2)
     return dist2_min
 
 
@@ -435,22 +437,22 @@ def _arc_between(center: list[float], p_start: list[float], p_end: list[float], 
 
 
 def _arc_through(
-    cp: list[float],
+    center: list[float],
     p_start: list[float],
     p_mid: list[float],
     p_end: list[float],
     n: int,
 ) -> list[list[float]]:
-    """Arc around `cp` from p_start to p_end, sweeping through p_mid (maybe the long way)."""
-    radius = math.dist(cp, p_start)
-    a0 = math.degrees(math.atan2(p_start[1] - cp[1], p_start[0] - cp[0]))
-    am = math.degrees(math.atan2(p_mid[1] - cp[1], p_mid[0] - cp[0]))
-    a1 = math.degrees(math.atan2(p_end[1] - cp[1], p_end[0] - cp[0]))
+    """Arc around `center` from p_start to p_end, sweeping through p_mid (maybe the long way)."""
+    radius = math.dist(center, p_start)
+    a0 = math.degrees(math.atan2(p_start[1] - center[1], p_start[0] - center[0]))
+    am = math.degrees(math.atan2(p_mid[1] - center[1], p_mid[0] - center[0]))
+    a1 = math.degrees(math.atan2(p_end[1] - center[1], p_end[0] - center[0]))
     d_mid = (am - a0) % 360
     d_end = (a1 - a0) % 360
     delta = d_end if d_mid <= d_end else d_end - 360
     steps = max(3, math.ceil(n * abs(delta) / 360))
-    return _arc_points(cp, radius, a0, delta, steps)
+    return _arc_points(center, radius, a0, delta, steps)
 
 
 # ---------------------------------------------------------------------------
@@ -671,7 +673,12 @@ def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: 
     cp1 = np.asarray(cp1, dtype=float)
     cp2 = np.asarray(cp2, dtype=float)
     dist = float(np.linalg.norm(cp2 - cp1))
-    r_vals = [(radius2 - radius1) / dist, (radius2 - radius1) / dist, (-radius2 - radius1) / dist, (-radius2 - radius1) / dist]
+    r_vals = [
+        (radius2 - radius1) / dist,
+        (radius2 - radius1) / dist,
+        (-radius2 - radius1) / dist,
+        (-radius2 - radius1) / dist,
+    ]
     k_vals = [-1, 1, -1, 1]
     ext = [1, 1, -1, -1]
     if 1 - r_vals[2] ** 2 >= 0:

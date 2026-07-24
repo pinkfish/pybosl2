@@ -74,14 +74,14 @@ class ThreadProfile:
 
 def _iso_profile() -> ThreadProfile:
     depth = math.cos(math.radians(30)) * 5 / 8
-    cw = 1 / 8
+    clockwise = 1 / 8
     return ThreadProfile(
         "ISO",
         (
-            (-depth / math.sqrt(3) - cw / 2, -depth),
-            (-cw / 2, 0),
-            (cw / 2, 0),
-            (depth / math.sqrt(3) + cw / 2, -depth),
+            (-depth / math.sqrt(3) - clockwise / 2, -depth),
+            (-clockwise / 2, 0),
+            (clockwise / 2, 0),
+            (depth / math.sqrt(3) + clockwise / 2, -depth),
         ),
     )
 
@@ -252,7 +252,7 @@ class Threading:
     @staticmethod
     def generic_threaded_nut(
         nutwidth,
-        id,
+        inner_diameter,
         h,
         pitch,
         profile,
@@ -267,7 +267,7 @@ class Threading:
         """A nut from an explicit thread *profile* (BOSL2 generic_threaded_nut())."""
         return _nut_solid(
             nutwidth,
-            id,
+            inner_diameter,
             h,
             pitch,
             profile,
@@ -293,7 +293,7 @@ class Threading:
     @staticmethod
     def threaded_nut(
         nutwidth,
-        id,
+        inner_diameter,
         h,
         pitch,
         shape="hex",
@@ -307,7 +307,7 @@ class Threading:
         """A hex/square nut for an ISO/UTS threaded rod (BOSL2 threaded_nut())."""
         return _nut_solid(
             nutwidth,
-            id,
+            inner_diameter,
             h,
             pitch,
             _iso_profile(),
@@ -345,7 +345,7 @@ class Threading:
     @staticmethod
     def trapezoidal_threaded_nut(
         nutwidth,
-        id,
+        inner_diameter,
         h,
         pitch,
         thread_angle=30,
@@ -362,7 +362,7 @@ class Threading:
         prof = _trapezoidal_profile(pitch, thread_angle, thread_depth)
         return _nut_solid(
             nutwidth,
-            id,
+            inner_diameter,
             h,
             pitch,
             prof,
@@ -396,7 +396,7 @@ class Threading:
     @staticmethod
     def acme_threaded_nut(
         nutwidth,
-        id,
+        inner_diameter,
         h,
         pitch,
         thread_depth=None,
@@ -412,7 +412,7 @@ class Threading:
         prof = _trapezoidal_profile(pitch, 29, thread_depth if thread_depth is not None else pitch / 2)
         return _nut_solid(
             nutwidth,
-            id,
+            inner_diameter,
             h,
             pitch,
             prof,
@@ -436,7 +436,7 @@ class Threading:
     @staticmethod
     def square_threaded_nut(
         nutwidth,
-        id,
+        inner_diameter,
         h,
         pitch,
         shape="hex",
@@ -451,7 +451,7 @@ class Threading:
         prof = _trapezoidal_profile(pitch, 0.1)
         return _nut_solid(
             nutwidth,
-            id,
+            inner_diameter,
             h,
             pitch,
             prof,
@@ -474,7 +474,7 @@ class Threading:
     @staticmethod
     def buttress_threaded_nut(
         nutwidth,
-        id,
+        inner_diameter,
         h,
         pitch,
         shape="hex",
@@ -488,7 +488,7 @@ class Threading:
         """A nut for a buttress threaded rod (BOSL2 buttress_threaded_nut())."""
         return _nut_solid(
             nutwidth,
-            id,
+            inner_diameter,
             h,
             pitch,
             _buttress_profile(),

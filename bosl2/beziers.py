@@ -485,7 +485,7 @@ class Bezier(list):
         radius2: float | None = None,
         p: float | None = None,
     ) -> np.ndarray:
-        """A smooth joint (approaching cp, fixed point, departing cp) -- the two cps collinear with
+        """A smooth joint (approaching center, fixed point, departing center) -- the two cps collinear with
         the fixed point -- in a cubic bezier path, as a (3, dim) ndarray."""
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or p is None, "p= requires a 3-D point"
@@ -504,7 +504,7 @@ class Bezier(list):
         p1: float | None = None,
         p2: float | None = None,
     ) -> np.ndarray:
-        """A disjoint corner joint (approaching cp, fixed point, departing cp) with the two cps in
+        """A disjoint corner joint (approaching center, fixed point, departing center) with the two cps in
         independent directions, in a cubic bezier path, as a (3, dim) ndarray."""
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or (p1 is None and p2 is None), "p1=/p2= require a 3-D point"
@@ -748,7 +748,7 @@ class BezierPatch(list):
     def sheet(self, delta, splinesteps=16, style: str = "default") -> VNF:
         """A thin sheet from this patch, offsetting along the surface normals by *delta* (BOSL2 bezier_sheet()).
 
-        *delta* is a 2-vector [d0, d1] of the two offset distances (a scalar d means [0, -d])."""
+        *delta* is a 2-vector [d0, diameter1] of the two offset distances (a scalar d means [0, -d])."""
         diameter = [0.0, -float(delta)] if isinstance(delta, (int, float)) else [float(delta[0]), float(delta[1])]
         ss = splinesteps if isinstance(splinesteps, (list, tuple, np.ndarray)) else (splinesteps, splinesteps)
         uvals = list(lerpn(0, 1, int(ss[0]) + 1))

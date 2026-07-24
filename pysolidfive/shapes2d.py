@@ -97,8 +97,8 @@ class PyShape2D:
         if isinstance(a, (list, tuple)):
             assert len(a) == 3 and not a[0] and not a[1], f"2-D rotate only supports [0, 0, angle], got {a}"
             a = a[2]
-        ang = math.radians(a)
-        c, s = math.cos(ang), math.sin(ang)
+        angle = math.radians(a)
+        c, s = math.cos(angle), math.sin(angle)
         fn = self._sdf_fn
         new_fn = lambda x, y: fn(c * x + s * y, -s * x + c * y)  # noqa: E731
         corners = [
@@ -422,7 +422,7 @@ def stroke2d(path, width: float = 1, closed: bool = False, res: int = 10) -> PyS
     segs = pts if closed else pts[:-1]
 
     def sdf_fn(x, y):
-        d2 = None
+        diameter2 = None
         n = len(pts)
         for i in range(len(segs)):
             ax, ay = pts[i]
@@ -435,8 +435,8 @@ def stroke2d(path, width: float = 1, closed: bool = False, res: int = 10) -> PyS
             t = lv.max(0, lv.min(1, (px * ex + py * ey) / elen2))
             dx, dy = px - t * ex, py - t * ey
             seg_d2 = dx * dx + dy * dy
-            d2 = seg_d2 if d2 is None else lv.min(d2, seg_d2)
-        return lv.sqrt(d2) - width / 2
+            diameter2 = seg_d2 if diameter2 is None else lv.min(diameter2, seg_d2)
+        return lv.sqrt(diameter2) - width / 2
 
     xs = [p[0] for p in pts]
     ys = [p[1] for p in pts]
@@ -465,7 +465,7 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
     def sdf_fn(x, y):
         if len(centers) == 2 or _collinear(centers):
             # Degenerate hull: distance to the segment chain between extreme centers.
-            d2 = None
+            diameter2 = None
             for i in range(len(centers) - 1):
                 ax, ay = centers[i]
                 bx, by = centers[i + 1]
@@ -477,8 +477,8 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
                 t = lv.max(0, lv.min(1, (px * ex + py * ey) / elen2))
                 dx, dy = px - t * ex, py - t * ey
                 sd2 = dx * dx + dy * dy
-                d2 = sd2 if d2 is None else lv.min(d2, sd2)
-            body = lv.sqrt(d2) - rmax
+                diameter2 = sd2 if diameter2 is None else lv.min(diameter2, sd2)
+            body = lv.sqrt(diameter2) - rmax
         else:
             hull_pts = _hull2d_points(centers)
             halfmax = _halfplane_max_sdf(x, y, hull_pts)
@@ -562,9 +562,11 @@ def regular_ngon2d(
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / _m.sin(_m.radians(180.0 / n)) if side is not None else None
-    rad = _radius(r1=ir_s, d1=id_s, r2=outer_radius, d2=outer_diameter, r=r, d=d, dflt=side_s)
+    rad = _radius(radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, r=r, d=d, dflt=side_s)
     if rad is None:
-        raise ValueError("regular_ngon2d(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side.")
+        raise ValueError(
+            "regular_ngon2d(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
+        )
 
     pts = [[_m.cos(2 * _m.pi * i / n) * rad, _m.sin(2 * _m.pi * i / n) * rad] for i in range(n)]
     if realign:
@@ -605,7 +607,7 @@ def star2d(
     """
     import math as _m
 
-    rad = _radius(r1=outer_radius, d1=outer_diameter, r=r, d=d, dflt=1)
+    rad = _radius(radius1=outer_radius, diameter1=outer_diameter, r=r, d=d, dflt=1)
     if step is not None:
         stepr = rad * _m.cos(_m.radians(180 * step / n)) / _m.cos(_m.radians(180 * (step - 1) / n))
     else:

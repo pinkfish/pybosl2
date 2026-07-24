@@ -52,11 +52,11 @@ def _dual(verts, faces):
         t = t / np.linalg.norm(t)
         b = np.cross(sides, t)
 
-        def ang(fi):
+        def angle(fi):
             diameter = centroids[fi] - sides * float(np.dot(centroids[fi], sides))
             return math.atan2(float(np.dot(diameter, b)), float(np.dot(diameter, t)))
 
-        newfaces.append(sorted(adj, key=ang))
+        newfaces.append(sorted(adj, key=angle))
     return centroids.tolist(), newfaces
 
 
@@ -86,9 +86,7 @@ _CUBE_F = [
     [3, 7, 4, 0],
 ]
 
-_OCTA_V = _normalize(
-    [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]
-)
+_OCTA_V = _normalize([(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)])
 _OCTA_F = [
     [4, 0, 2],
     [4, 2, 1],
@@ -173,9 +171,7 @@ class Polyhedra:
     def _resolve(name):
         key = _ALIASES.get(str(name).lower(), str(name).lower())
         if key not in _SOLIDS:
-            raise ValueError(
-                f"unknown polyhedron {name!r}; expected one of {sorted(_SOLIDS)}"
-            )
+            raise ValueError(f"unknown polyhedron {name!r}; expected one of {sorted(_SOLIDS)}")
         return key
 
     @staticmethod
@@ -219,9 +215,7 @@ class Polyhedra:
         elif diameter is not None:
             scale = diameter / 2
         elif inner_radius is not None:
-            scale = inner_radius / _inradius_ratio(
-                key
-            )  # circumradius from the inradius
+            scale = inner_radius / _inradius_ratio(key)  # circumradius from the inradius
         elif radius is not None:
             scale = radius
         else:

@@ -18,7 +18,7 @@ from bosl2.shapes3d import Bosl2Solid, cyl
 
 def test_torx_info_values():
     t = SD.torx_info(6)
-    assert (t.od, t.id, t.depth, t.tip_rounding, t.inner_rounding) == (
+    assert (t.outer_diameter, t.inner_diameter, t.depth, t.tip_rounding, t.inner_rounding) == (
         1.75,
         1.27,
         0.775,
@@ -38,7 +38,7 @@ def test_torx_info_is_dataclass():
 def test_torx_diam_and_depth():
     assert SD.torx_diam(30) == 5.60
     assert SD.torx_depth(30) == 2.22
-    assert SD.torx_diam(8) == SD.torx_info(8).od
+    assert SD.torx_diam(8) == SD.torx_info(8).outer_diameter
     assert SD.torx_depth(8) == SD.torx_info(8).depth
 
 

@@ -332,13 +332,13 @@ def mb_torus(
     minor_diameter=None,
 ):
     """
-    A torus metaball field, major radius *major_radius*, tube radius *r_min* (BOSL2 mb_torus()).
+    A torus metaball field, major radius *major_radius*, tube radius *minor_radius* (BOSL2 mb_torus()).
     """
     rmaj, rmin = (
         _radius(major_radius, major_diameter),
         _radius(minor_radius, minor_diameter),
     )
-    assert rmaj and rmin and rmaj > 0 and rmin > 0, "mb_torus(): need positive major_radius and r_min."
+    assert rmaj and rmin and rmaj > 0 and rmin > 0, "mb_torus(): need positive major_radius and minor_radius."
     neg = -1 if negative else 1
 
     def field(pts):
@@ -430,8 +430,8 @@ def mb_connector(p1, p2, radius=None, cutoff=INF, influence=1, negative=False, d
     neg = -1 if negative else 1
     dc = b - a
     height = float(np.linalg.norm(dc)) / 2
-    ang, axis = rot_from_to(dc, [0, 0, 1])  # rotate the axis onto +Z
-    m3 = np.asarray(axis_angle_matrix(ang, axis), dtype=float)
+    angle, axis = rot_from_to(dc, [0, 0, 1])  # rotate the axis onto +Z
+    m3 = np.asarray(axis_angle_matrix(angle, axis), dtype=float)
 
     def field(pts):
         local = (pts - (a + b) / 2) @ m3.T  # center on the midpoint, align to +Z

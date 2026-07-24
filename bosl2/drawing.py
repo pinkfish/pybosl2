@@ -152,11 +152,11 @@ def helix(
     turns: float | None = None,
     angle: float | None = None,
     r: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
     d: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
 ) -> Path3D:
     """A 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
 
@@ -171,8 +171,8 @@ def helix(
         turns:   number of turns (positive = right-handed)
         angle:   helix angle in degrees (measured at the base radius)
         r/d:     radius / diameter (constant helix)
-        r1/d1:   bottom radius / diameter
-        r2/d2:   top radius / diameter
+        radius1/diameter1:   bottom radius / diameter
+        radius2/diameter2:   top radius / diameter
 
     Examples:
         A 2.5-turn helix drawn as a tube:
@@ -181,8 +181,8 @@ def helix(
 
             stroke(helix(turns=2.5, height=100, radius=30), width=3).show()
     """
-    r1v = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
-    r2v = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
+    r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=r, diameter=d, dflt=1)
+    r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=r, diameter=d, dflt=1)
     length = length if length is not None else h
     assert sum(v is not None for v in (length, turns, angle)) == 2, (
         "helix() needs exactly two of length/h, turns, and angle."

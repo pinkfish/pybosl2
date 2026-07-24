@@ -97,9 +97,9 @@ def rot_inverse(t) -> np.ndarray:
 def rot_decode(m, long: bool = False) -> list:
     """Decode a rigid 4x4 transform into its screw motion (BOSL2 rot_decode()).
 
-    Returns ``[angle_degrees, axis, cp, translation_along_axis]`` -- rotating by *angle* about the
-    line through *cp* in direction *axis* then translating along the axis reproduces *m*. *axis*,
-    *cp* and the axial translation are returned as :class:`~bosl2.constants.Vec3`. With *long*, the
+    Returns ``[angle_degrees, axis, center, translation_along_axis]`` -- rotating by *angle* about the
+    line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,
+    *center* and the axial translation are returned as :class:`~bosl2.constants.Vec3`. With *long*, the
     complementary (>180 degree) rotation about the reversed axis is chosen."""
     from bosl2.constants import (
         Vec3,

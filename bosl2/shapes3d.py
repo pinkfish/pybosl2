@@ -63,7 +63,7 @@ def _ocylinder(
     fa=None,
     fs=None,
 ):
-    """The native cylinder, accepting this file's full-word kwargs (native wants h/r/r1/r2)."""
+    """The native cylinder, accepting this file's full-word kwargs (native wants h/r/radius1/radius2)."""
     kw = {}
     for full, nat in (
         (height, "h"),

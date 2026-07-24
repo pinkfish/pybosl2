@@ -33,7 +33,7 @@ def _union(shapes):
 class LinearBearingSpec:
     """Dimensions of a standard LMxUU linear bearing (BOSL2 lmXuu_info())."""
 
-    od: float  # outer diameter
+    outer_diameter: float  # outer diameter
     length: float  # axial length
     # the bore (shaft) diameter equals the nominal size, which keys the table.
 
@@ -66,7 +66,7 @@ class LinearBearings:
     @staticmethod
     def lmXuu_info(size: int) -> LinearBearingSpec:
         """
-        The :class:`LinearBearingSpec` (od, length) for a standard LMxUU size (BOSL2
+        The :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2
         lmXuu_info()).
         """
         try:
@@ -123,7 +123,7 @@ class LinearBearings:
         """A standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmXuu_bearing())."""
         spec = LinearBearings.lmXuu_info(size)
         return LinearBearings.linear_bearing(
-            length=spec.length, inner_diameter=size, outer_diameter=spec.od, color=color
+            length=spec.length, inner_diameter=size, outer_diameter=spec.outer_diameter, color=color
         )
 
     @staticmethod
@@ -188,7 +188,7 @@ class LinearBearings:
         """A pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmXuu_housing())."""
         spec = LinearBearings.lmXuu_info(size)
         return LinearBearings.linear_bearing_housing(
-            diameter=spec.od,
+            diameter=spec.outer_diameter,
             length=spec.length,
             tab=tab,
             gap=gap,

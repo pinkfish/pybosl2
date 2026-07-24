@@ -41,10 +41,7 @@ def is_collinear(a, b=None, c=None, eps: float = EPSILON) -> bool:
             return True
         a, b, c = points[0], points[1], points[2]
         # BOSL2 checks every triple, not just the first three; match that.
-        return all(
-            is_collinear(points[i], points[i + 1], points[i + 2], eps)
-            for i in range(len(points) - 2)
-        )
+        return all(is_collinear(points[i], points[i + 1], points[i + 2], eps) for i in range(len(points) - 2))
     a, b, c = (
         np.asarray(a, dtype=float),
         np.asarray(b, dtype=float),

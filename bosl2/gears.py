@@ -138,8 +138,8 @@ def _xy_to_polar(xy):
     return [math.hypot(xy[0], xy[1]), math.degrees(math.atan2(xy[1], xy[0]))]
 
 
-def _p2xy(r, ang):
-    a = math.radians(ang)
+def _p2xy(r, angle):
+    a = math.radians(angle)
     return [r * math.cos(a), r * math.sin(a)]
 
 
@@ -155,8 +155,8 @@ def _v_theta(v):
     return math.degrees(math.atan2(v[1], v[0]))
 
 
-def _zrot_pts(pts, ang):
-    a = math.radians(ang)
+def _zrot_pts(pts, angle):
+    a = math.radians(angle)
     c, s = math.cos(a), math.sin(a)
     return [[x * c - y * s, x * s + y * c] for x, y in pts]
 
@@ -387,16 +387,16 @@ def _polar(r, t_deg):
     return [r * math.sin(a), r * math.cos(a)]
 
 
-def _iang(r1, r2):
-    return math.degrees(math.sqrt((r2 / r1) ** 2 - 1) - math.acos(r1 / r2))
+def _iang(radius1, radius2):
+    return math.degrees(math.sqrt((radius2 / radius1) ** 2 - 1) - math.acos(radius1 / radius2))
 
 
 def _q6(b, s, t, d):
     return _polar(d, s * (_iang(b, d) + t))
 
 
-def _q7(f, r, b, r2, t, s):
-    return _q6(b, s, t, (1 - f) * max(b, r) + f * r2)
+def _q7(f, r, b, radius2, t, s):
+    return _q6(b, s, t, (1 - f) * max(b, r) + f * radius2)
 
 
 def _rot2d(pts, ang_deg):
@@ -405,8 +405,8 @@ def _rot2d(pts, ang_deg):
     return [[x * c - y * s, x * s + y * c] for x, y in pts]
 
 
-def _polar_xy(r, ang):
-    a = math.radians(ang)
+def _polar_xy(r, angle):
+    a = math.radians(angle)
     return np.array([r * math.cos(a), r * math.sin(a)])
 
 
@@ -414,8 +414,8 @@ def _law_of_cosines(a, b, c):
     return math.degrees(math.acos(max(-1.0, min(1.0, (a * a + b * b - c * c) / (2 * a * b)))))
 
 
-def _opp_ang_to_hyp(opp, ang):
-    return opp / math.sin(math.radians(ang))
+def _opp_ang_to_hyp(opp, angle):
+    return opp / math.sin(math.radians(angle))
 
 
 def _m_up(z):
@@ -913,22 +913,22 @@ class Gears:
     # -- rack --------------------------------------------------------------
 
     @staticmethod
-    def _rack2d_path(cp, teeth, height, pressure_angle, backlash, clearance):
-        a = _adendum(cp)
-        diameter = _dedendum(cp, clearance)
+    def _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance):
+        a = _adendum(center)
+        diameter = _dedendum(center, clearance)
         assert a + diameter < height, "rack(): height must exceed adendum + dedendum."
         xa = a * math.sin(math.radians(pressure_angle))
         xd = diameter * math.sin(math.radians(pressure_angle))
-        left = -(teeth - 1) / 2 * cp - 0.5 * cp
-        right = (teeth - 1) / 2 * cp + 0.5 * cp
+        left = -(teeth - 1) / 2 * center - 0.5 * center
+        right = (teeth - 1) / 2 * center + 0.5 * center
         path = [[left, a - height], [left, -diameter]]
         for i in range(teeth):
-            off = (i - (teeth - 1) / 2) * cp
+            off = (i - (teeth - 1) / 2) * center
             path += [
-                [off - 0.25 * cp + backlash - xd, -diameter],
-                [off - 0.25 * cp + backlash + xa, a],
-                [off + 0.25 * cp - backlash - xa, a],
-                [off + 0.25 * cp - backlash + xd, -diameter],
+                [off - 0.25 * center + backlash - xd, -diameter],
+                [off - 0.25 * center + backlash + xa, a],
+                [off + 0.25 * center - backlash - xa, a],
+                [off + 0.25 * center - backlash + xd, -diameter],
             ]
         path += [[right, -diameter], [right, a - height]]
         return path

@@ -35,10 +35,7 @@ def _valid(vnf):
 
 
 def _circle(r, sides=24):
-    return [
-        [r * math.cos(t), r * math.sin(t)]
-        for t in np.linspace(0, 2 * math.pi, sides, endpoint=False)
-    ]
+    return [[r * math.cos(t), r * math.sin(t)] for t in np.linspace(0, 2 * math.pi, sides, endpoint=False)]
 
 
 def test_path3d_pads_z():
@@ -47,10 +44,10 @@ def test_path3d_pads_z():
 
 
 def test_clockwise_polygon():
-    ccw = [[0, 0], [1, 0], [1, 1], [0, 1]]
-    assert clockwise_polygon(ccw) == list(reversed(ccw))  # ccw gets reversed
-    cw = list(reversed(ccw))
-    assert clockwise_polygon(cw) == cw  # already clockwise, unchanged
+    counterclockwise = [[0, 0], [1, 0], [1, 1], [0, 1]]
+    assert clockwise_polygon(counterclockwise) == list(reversed(counterclockwise))  # counterclockwise gets reversed
+    clockwise = list(reversed(counterclockwise))
+    assert clockwise_polygon(clockwise) == clockwise  # already clockwise, unchanged
 
 
 def test_frame_map_orthonormal():
@@ -80,9 +77,7 @@ def test_sweep_open_has_caps_closed_does_not():
 
 @pytest.mark.parametrize("method", ["incremental", "natural"])
 def test_curved_sweep_methods(method):
-    curve = [
-        [math.cos(t) * 10, math.sin(t) * 10, t * 2] for t in np.linspace(0, math.pi, 10)
-    ]
+    curve = [[math.cos(t) * 10, math.sin(t) * 10, t * 2] for t in np.linspace(0, math.pi, 10)]
     vnf = path_sweep(SQUARE, curve, method=method)
     assert len(vnf.vertices) == 40
     assert _valid(vnf)
@@ -96,10 +91,7 @@ def test_manual_method_with_normals():
 
 
 def test_closed_sweep_has_no_caps():
-    circ = [
-        [math.cos(t) * 20, math.sin(t) * 20, 0]
-        for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)
-    ]
+    circ = [[math.cos(t) * 20, math.sin(t) * 20, 0] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
     vnf = path_sweep(SQUARE, circ, closed=True)
     assert _valid(vnf)
     # 25 profiles (closed adds the wrap) x 4 verts
@@ -206,12 +198,8 @@ def test_linear_sweep_center_vs_base():
     centered = linear_sweep(sq, height=10, center=True)
     bz = [v[2] for v in base.vertices]
     cz = [v[2] for v in centered.vertices]
-    assert math.isclose(min(bz), 0.0, abs_tol=1e-9) and math.isclose(
-        max(bz), 10.0, abs_tol=1e-9
-    )
-    assert math.isclose(min(cz), -5.0, abs_tol=1e-9) and math.isclose(
-        max(cz), 5.0, abs_tol=1e-9
-    )
+    assert math.isclose(min(bz), 0.0, abs_tol=1e-9) and math.isclose(max(bz), 10.0, abs_tol=1e-9)
+    assert math.isclose(min(cz), -5.0, abs_tol=1e-9) and math.isclose(max(cz), 5.0, abs_tol=1e-9)
 
 
 # -- rotate_sweep -------------------------------------------------------------------------
@@ -261,10 +249,7 @@ def test_path_sweep2d_open():
 
 def test_path_sweep2d_closed_loop():
     shape = [[-1, -2], [1, -2], [1, 2], [-1, 2]]
-    ring = [
-        [20 * math.cos(t), 20 * math.sin(t)]
-        for t in np.linspace(0, 2 * math.pi, 32, endpoint=False)
-    ]
+    ring = [[20 * math.cos(t), 20 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 32, endpoint=False)]
     vnf = path_sweep2d(shape, ring, closed=True)
     assert _valid(vnf) and vnf.volume() > 0
 
@@ -273,9 +258,7 @@ def test_path_sweep2d_closed_loop():
 
 
 def test_subdivide_and_slice_equalizes_and_slices():
-    profs = subdivide_and_slice(
-        [[[0, 0], [1, 0], [1, 1]], [[0, 2], [2, 2], [2, 3]]], slices=3, numpoints=6
-    )
+    profs = subdivide_and_slice([[[0, 0], [1, 0], [1, 1]], [[0, 2], [2, 2], [2, 3]]], slices=3, numpoints=6)
     assert len(profs) == 5  # 3 interpolated + 2 endpoints
     assert all(len(p) == 6 for p in profs)
 
@@ -301,8 +284,6 @@ def test_rot_resample_count_method():
 
 
 def test_rot_resample_rejects_even_smoothlen():
-    tl = path_sweep(
-        [[-1, -1], [1, -1], [1, 1], [-1, 1]], [[0, 0, 0], [0, 0, 10]], transforms=True
-    )
+    tl = path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], [[0, 0, 0], [0, 0, 10]], transforms=True)
     with pytest.raises(AssertionError):
         rot_resample(tl, sides=6, smoothlen=2)

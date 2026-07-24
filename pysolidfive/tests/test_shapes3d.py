@@ -588,7 +588,7 @@ class TestTubes(unittest.TestCase):
         self.assertGreater(shape.sample(1, 0, 0), 0, msg="inside the hollow bore")
 
     def test_tube_requires_enough_parameters(self):
-        # outer_r alone *does* work (wall defaults to 1, giving an inner radius),
+        # outer_radius alone *does* work (wall defaults to 1, giving an inner radius),
         # matching
         # bosl2.shapes3d.tube()'s own default -- but no radius/diameter/wall at all
         # can't
@@ -789,10 +789,10 @@ class TestPolygonPrism(unittest.TestCase):
 class TestTeardropAndOnion(unittest.TestCase):
     def test_teardrop(self):
         r, angle = 3, 45
-        shape = pysolidfive.teardrop(h=6, r=r, angle=ang, anchor=CENTER).mesh()
+        shape = pysolidfive.teardrop(h=6, r=r, angle=angle, anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(r, 0, 0), 0, msg="equator")
         self.assertLess(shape.sample(0, 0, 0), 0, msg="center")
-        apex = r / math.sin(math.radians(ang))
+        apex = r / math.sin(math.radians(angle))
         self.assertAlmostEqual(shape.sample(0, 0, apex), 0, places=3, msg="apex")
         self.assertGreater(shape.sample(0, 0, apex + 1), 0)
 
@@ -802,21 +802,21 @@ class TestTeardropAndOnion(unittest.TestCase):
         # also read ~0 -- this is the region that had a masking-threshold bug during
         # development (roof was incorrectly masked at v=0 instead of the true tangent
         # height
-        # rad*cos(ang)), so it's worth checking explicitly rather than just the two
+        # rad*cos(angle)), so it's worth checking explicitly rather than just the two
         # endpoints.
         r, angle = 3, 45
-        shape = pysolidfive.teardrop(h=6, r=r, angle=ang, anchor=CENTER).mesh()
-        apex = r / math.sin(math.radians(ang))
+        shape = pysolidfive.teardrop(h=6, r=r, angle=angle, anchor=CENTER).mesh()
+        apex = r / math.sin(math.radians(angle))
         v = apex * 0.7
-        u = (r - v * math.cos(math.radians(ang))) / math.sin(math.radians(ang))
+        u = (r - v * math.cos(math.radians(angle))) / math.sin(math.radians(angle))
         self.assertAlmostEqual(shape.sample(u, 0, v), 0, places=3)
 
     def test_onion(self):
         r, angle = 3, 45
-        shape = pysolidfive.onion(r=r, angle=ang, anchor=CENTER).mesh()
+        shape = pysolidfive.onion(r=r, angle=angle, anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(r, 0, 0), 0)
         self.assertLess(shape.sample(0, 0, 0), 0)
-        apex = r / math.sin(math.radians(ang))
+        apex = r / math.sin(math.radians(angle))
         self.assertAlmostEqual(shape.sample(0, 0, apex), 0, places=3)
 
 

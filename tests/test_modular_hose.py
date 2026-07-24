@@ -43,10 +43,7 @@ def test_builds(size, type):
 
 
 def test_bigger_size_bigger_hose():
-    assert (
-        _size(MH.modular_hose(0.75, "segment"))[0]
-        > _size(MH.modular_hose(0.25, "segment"))[0]
-    )
+    assert _size(MH.modular_hose(0.75, "segment"))[0] > _size(MH.modular_hose(0.25, "segment"))[0]
 
 
 def test_clearance_widens_socket():

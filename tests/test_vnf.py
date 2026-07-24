@@ -13,10 +13,7 @@ from bosl2.vnf import VNF
 
 
 def _grid(rows, cols, warp=False):
-    return [
-        [[float(i), float(j), (float(i * j) if warp else 0.0)] for j in range(cols)]
-        for i in range(rows)
-    ]
+    return [[[float(i), float(j), (float(i * j) if warp else 0.0)] for j in range(cols)] for i in range(rows)]
 
 
 def _valid(vnf):

@@ -126,12 +126,12 @@ def _init_state(state):
         z = FWD if np.isclose(np.linalg.norm(updir), 0) else updir
         return [[_frame_map(s, z)], [_yrot4(90)], 1.0, 90.0, 0]
     # already a full state list
-    tr, pre, step, ang, arcn = state
+    tr, pre, step, angle, arcn = state
     return [
         [np.asarray(m, float) for m in tr],
         [np.asarray(m, float) for m in pre],
         float(step),
-        float(ang),
+        float(angle),
         int(arcn),
     ]
 
@@ -227,7 +227,7 @@ def _command(command, parm, parm2, state, index):
     lastT = state[_TR][-1]
     lastPre = state[_PRE][-1]
     lastpt = _apply(lastT, [0, 0, 0])
-    step, ang, arcn = state[_STEP], state[_ANG], state[_ARCN]
+    step, angle, arcn = state[_STEP], state[_ANG], state[_ARCN]
 
     if command == "move":
         diameter = (p if p is not None else 1) * step
@@ -270,14 +270,14 @@ def _command(command, parm, parm2, state, index):
         return _set(
             state,
             _TR,
-            state[_TR][:-1] + [lastT @ _xrot4(parm if p is not None else ang)],
+            state[_TR][:-1] + [lastT @ _xrot4(parm if p is not None else angle)],
         )
     if command in ("right", "left", "up", "down"):
-        rot = _turtle_rotation(command, p if p is not None else ang)
+        rot = _turtle_rotation(command, p if p is not None else angle)
         return _set(state, _TR, state[_TR][:-1] + [lastT @ rot])
     if command in ("xrot", "yrot", "zrot"):
         Trot, shift = _rotpart(lastT), _transpart(lastT)
-        rot = _turtle_rotation(command, p if p is not None else ang)
+        rot = _turtle_rotation(command, p if p is not None else angle)
         return _set(state, _TR, state[_TR][:-1] + [_trans4(shift) @ rot @ Trot])
     if command == "rot":
         Trot, shift = _rotpart(lastT), _transpart(lastT)
@@ -296,7 +296,7 @@ def _command(command, parm, parm2, state, index):
         )
     if command in ("arcleft", "arcright", "arcup", "arcdown"):
         radius = step * parm
-        myangle = parm2 if _num(parm2) is not None else ang
+        myangle = parm2 if _num(parm2) is not None else angle
         length = 2 * math.pi * radius * abs(myangle) / 360
         center = [
             0.0,
@@ -308,7 +308,7 @@ def _command(command, parm, parm2, state, index):
         return _tupdate(state, tran, [lastPre] * steps)
     if command in ("arcxrot", "arcyrot", "arczrot"):
         radius = step * parm
-        myangle = parm2 if _num(parm2) is not None else ang
+        myangle = parm2 if _num(parm2) is not None else angle
         length = 2 * math.pi * radius * abs(myangle) / 360
         steps = _segs(abs(radius)) if arcn == 0 else arcn
         Trot, shift = _rotpart(lastT), _transpart(lastT)

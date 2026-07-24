@@ -1640,7 +1640,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         return self._like(self.array * s)
 
     def rotate(self, a: "float | Sequence[float]", v: Sequence[float] | None = None) -> "Path3D":
-        """Rotate the points. ``rotate(ang, axis)`` spins about *axis*; ``rotate(ang)`` about +Z;
+        """Rotate the points. ``rotate(angle, axis)`` spins about *axis*; ``rotate(angle)`` about +Z;
         ``rotate([rx, ry, rz])`` applies the OpenSCAD X-then-Y-then-Z Euler rotation."""
         from bosl2.transforms import axis_angle_matrix
 

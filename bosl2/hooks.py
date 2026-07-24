@@ -25,10 +25,10 @@ from bosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid
 __all__ = ["Hooks"]
 
 
-def _circle_point_tangents(r, cp, pt):
-    """The two tangent points on a circle (centre *cp*, radius *r*) from external point *pt* (BOSL2
+def _circle_point_tangents(r, center, pt):
+    """The two tangent points on a circle (centre *center*, radius *r*) from external point *pt* (BOSL2
     circle_point_tangents()). Points are 2-vectors ``[x, height]``."""
-    center = np.asarray(cp, dtype=float)
+    center = np.asarray(center, dtype=float)
     pt = np.asarray(pt, dtype=float)
     diameter = float(np.linalg.norm(pt - center))
     if diameter <= r:
@@ -93,9 +93,7 @@ class Hooks:
                 Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=20).show()
         """
         if fillet:
-            raise NotImplementedError(
-                "ring_hook(): the base fillet is not yet ported; use fillet=0."
-            )
+            raise NotImplementedError("ring_hook(): the base fillet is not yet ported; use fillet=0.")
         bx, w = float(base_size[0]), float(base_size[1])
         custom = not isinstance(hole, str)
 
@@ -120,18 +118,12 @@ class Hooks:
             if ri > ro:
                 raise ValueError("ring_hook(): hole doesn't fit, or wall is negative.")
             if hole not in ("circle", "D"):
-                raise ValueError(
-                    'ring_hook(): hole must be "circle", "D" or a 2-D path.'
-                )
+                raise ValueError('ring_hook(): hole must be "circle", "D" or a 2-D path.')
             if hole == "circle" and ri > 0 and ri + hole_rounding >= hole_z:
-                raise ValueError(
-                    f"ring_hook(): inner_radius + hole_rounding must be less than hole_z ({hole_z})."
-                )
+                raise ValueError(f"ring_hook(): inner_radius + hole_rounding must be less than hole_z ({hole_z}).")
 
         if math.hypot(bx / 2, hole_z) <= ro:
-            raise ValueError(
-                "ring_hook(): base corners must be outside the cylinder (need a tangent)."
-            )
+            raise ValueError("ring_hook(): base corners must be outside the cylinder (need a tangent).")
 
         # tangent point where a base corner's flare meets the cylinder (take the higher one)
         tangents = _circle_point_tangents(ro, [0, hole_z], [bx / 2, 0])
@@ -154,9 +146,7 @@ class Hooks:
         body = base | ring
 
         if ri > 0 or custom:
-            body = body - _hole_cutter(
-                hole, ri, w, hole_z, hole_rounding, custom, fn, fa, fs
-            )
+            body = body - _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, fn, fa, fs)
         return Bosl2Solid(body.shape, size=[bx, w, hole_z + ro])
 
 
@@ -168,11 +158,7 @@ def _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, fn, fa=None, fs=Non
         cut = _opolygon(pts).linear_extrude(height=L, center=True)
         return Bosl2Solid(cut).rotate([90, 0, 0]).up(hole_z)
     rnd = hole_rounding if hole_rounding else None
-    bore = (
-        cyl(height=L, radius=ri, rounding=rnd, fn=fn, fa=fa, fs=fs)
-        .rotate([90, 0, 0])
-        .up(hole_z)
-    )
+    bore = cyl(height=L, radius=ri, rounding=rnd, fn=fn, fa=fa, fs=fs).rotate([90, 0, 0]).up(hole_z)
     if hole == "D":  # keep the upper half -> flat-bottomed D-hole
         upper = cuboid([2 * ri + 2, L + 2, 2 * ri]).up(hole_z + ri)
         bore = bore & upper

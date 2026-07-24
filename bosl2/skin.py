@@ -795,8 +795,8 @@ def rot_resample(
         for i in range(tcount):
             remainder = cumlen[i] % stepsize
             offset = 0.0 if remainder == 0 else stepsize - remainder
-            num = math.ceil((length[i] - offset) / stepsize)
-            samples.append([(offset + k * stepsize) / length[i] for k in range(num)])
+            n = math.ceil((length[i] - offset) / stepsize)
+            samples.append([(offset + k * stepsize) / length[i] for k in range(n)])
 
     twist_v = 0 if twist is None else twist
     scale_v = 1 if scale is None else scale

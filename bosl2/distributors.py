@@ -320,12 +320,12 @@ def rot_copies(
         angs = []
     cen, deltav = _scalar_vec3(center, 0.0), _scalar_vec3(delta, 0.0)
     mats = []
-    for ang in angs:
+    for angle in angs:
         m = (
             translate4(cen)
-            @ _rot4(ang, v)
+            @ _rot4(angle, v)
             @ translate4(deltav)
-            @ _rot4(0 if subrot else ang, v, reverse=True)
+            @ _rot4(0 if subrot else angle, v, reverse=True)
             @ translate4(-cen)
         )
         mats.append(m)

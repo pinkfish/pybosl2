@@ -21,8 +21,8 @@ def _size(s):
 def test_info_returns_dataclass():
     spec = LB.lmXuu_info(8)
     assert isinstance(spec, LinearBearingSpec)
-    assert (spec.od, spec.length) == (15, 24)
-    assert LB.lmXuu_info(12).od == 21
+    assert (spec.outer_diameter, spec.length) == (15, 24)
+    assert LB.lmXuu_info(12).outer_diameter == 21
 
 
 def test_unknown_size_raises():
@@ -30,11 +30,11 @@ def test_unknown_size_raises():
         LB.lmXuu_info(7)
 
 
-@pytest.mark.parametrize("size,od,length", [(8, 15, 24), (12, 21, 30), (20, 32, 42)])
-def test_lmXuu_bearing_envelope(size, od, length):
+@pytest.mark.parametrize("size,outer_diameter,length", [(8, 15, 24), (12, 21, 30), (20, 32, 42)])
+def test_lmXuu_bearing_envelope(size, outer_diameter, length):
     b = LB.lmXuu_bearing(size)
     w, _wy, height = _size(b)
-    assert w == pytest.approx(od, abs=0.5)
+    assert w == pytest.approx(outer_diameter, abs=0.5)
     assert height == pytest.approx(length, abs=0.05)
 
 

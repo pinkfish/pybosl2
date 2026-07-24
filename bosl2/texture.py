@@ -531,10 +531,10 @@ def _tex_hex_grid_vnf(border=None, **_):
         for i in range(6)
     ]
 
-    def cyl(rad, ang):  # yscale(sc, cylindrical_to_xyz(rad, ang, 1))
+    def cyl(rad, angle):  # yscale(sc, cylindrical_to_xyz(rad, angle, 1))
         return [
-            rad * math.cos(math.radians(ang)),
-            rad * math.sin(math.radians(ang)) * sc,
+            rad * math.cos(math.radians(angle)),
+            rad * math.sin(math.radians(angle)) * sc,
             1.0,
         ]
 

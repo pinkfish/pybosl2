@@ -123,7 +123,7 @@ def test_helix_needs_exactly_two_params():
 
 
 def test_helix_flat_spiral():
-    height = helix(h=0, r1=50, r2=25, length=0, turns=4)
+    height = helix(h=0, radius1=50, radius2=25, length=0, turns=4)
     assert all(math.isclose(p[2], 0, abs_tol=1e-9) for p in height)  # flat: every z is 0
 
 

@@ -344,7 +344,7 @@ def _rot_matrix(a, v=None):
     ax = list(v) if v is not None else [0, 0, 1]
     n = math.sqrt(sum(x * x for x in ax)) or 1.0
     x, y, z = (c / n for c in ax)
-    c, s, t = math.cos(ang), math.sin(ang), 1 - math.cos(ang)
+    c, s, t = math.cos(angle), math.sin(angle), 1 - math.cos(angle)
     return [
         [t * x * x + c, t * x * y - s * z, t * x * z + s * y],
         [t * x * y + s * z, t * y * y + c, t * y * z - s * x],
@@ -360,16 +360,18 @@ def _mock_cube(size: "float | Sequence[float]" = 1, center=None, dim=None, **k) 
     return _AabbSolid([0.0, 0.0, 0.0], sv)
 
 
-def _mock_cylinder(h: float = 1, r=None, radius1=None, radius2=None, d=None, diameter1=None, diameter2=None, center=None, **k) -> Any:
+def _mock_cylinder(
+    h: float = 1, r=None, radius1=None, radius2=None, d=None, diameter1=None, diameter2=None, center=None, **k
+) -> Any:
     rr = [
         v
         for v in (
             r,
-            r1,
-            r2,
+            radius1,
+            radius2,
             (d / 2 if d else None),
-            (d1 / 2 if d1 else None),
-            (d2 / 2 if d2 else None),
+            (diameter1 / 2 if diameter1 else None),
+            (diameter2 / 2 if diameter2 else None),
         )
         if v is not None
     ]

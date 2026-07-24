@@ -196,9 +196,9 @@ def cylindrical_extrude(
         wedge = wedge.rotate([0, 0, 360 * x / circumf])
         facets.append(wedge)
     solid = reduce(operator.or_, facets)
-    ang, axis = rot_from_to(UP, orient)
+    angle, axis = rot_from_to(UP, orient)
     m = np.eye(4)
-    m[:3, :3] = axis_angle_matrix(ang, axis)
+    m[:3, :3] = axis_angle_matrix(angle, axis)
     solid = solid.rotate([0, 0, spin]).multmatrix(m.tolist())
     return Bosl2Solid(solid)
 

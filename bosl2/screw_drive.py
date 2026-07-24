@@ -81,15 +81,15 @@ class PhillipsSpec:
 class TorxSpec:
     """Torx driver dimensions for one size (ISO 14583). See :func:`ScrewDrive.torx_info`."""
 
-    od: float  # outer diameter
-    id: float  # inner diameter
+    outer_diameter: float  # outer diameter
+    inner_diameter: float  # inner diameter
     depth: float  # drive-hole depth
     tip_rounding: float  # external tip rounding radius
     inner_rounding: float  # inner rounding radius
 
     def as_tuple(self) -> tuple[float, float, float, float, float]:
-        """``(od, id, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info`` list."""
-        return (self.od, self.id, self.depth, self.tip_rounding, self.inner_rounding)
+        """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info`` list."""
+        return (self.outer_diameter, self.inner_diameter, self.depth, self.tip_rounding, self.inner_rounding)
 
 
 @dataclass(frozen=True)
@@ -175,12 +175,12 @@ _ROBERTSON = {
 def _phillips_num(size) -> int:
     """Parse a Phillips size (int 0..4 or a string like ``"#2"``) into its integer number."""
     if isinstance(size, str):
-        num = int(size.lstrip("#"))
+        count = int(size.lstrip("#"))
     else:
-        num = int(size)
-    if num < 0 or num > 4:
+        count = int(size)
+    if count < 0 or count > 4:
         raise ValueError(f"phillips size must be #0..#4, got {size!r}")
-    return num
+    return count
 
 
 class ScrewDrive:
@@ -295,7 +295,7 @@ class ScrewDrive:
     @staticmethod
     def torx_info(size: int) -> TorxSpec:
         """
-        The :class:`TorxSpec` (od/id/depth/tip_rounding/inner_rounding) for a Torx *size* (BOSL2
+        The :class:`TorxSpec` (outer_diameter/inner_diameter/depth/tip_rounding/inner_rounding) for a Torx *size* (BOSL2
         torx_info()).
         """
         try:
@@ -306,7 +306,7 @@ class ScrewDrive:
     @staticmethod
     def torx_diam(size: int) -> float:
         """Outer diameter of a Torx *size* profile (BOSL2 torx_diam())."""
-        return ScrewDrive.torx_info(size).od
+        return ScrewDrive.torx_info(size).outer_diameter
 
     @staticmethod
     def torx_depth(size: int) -> float:
@@ -321,14 +321,14 @@ class ScrewDrive:
     @staticmethod
     def _torx_profile(size: int):
         spec = ScrewDrive.torx_info(size)
-        od, id_, tip, rounding = (
-            spec.od,
-            spec.id,
+        outer_diameter, id_, tip, rounding = (
+            spec.outer_diameter,
+            spec.inner_diameter,
             spec.tip_rounding,
             spec.inner_rounding,
         )
-        base = od - 2 * tip
-        fn = int(_quantup(_frag_count(od / 2), 12))
+        base = outer_diameter - 2 * tip
+        fn = int(_quantup(_frag_count(outer_diameter / 2), 12))
 
         # Six outward lobes: two rotated copies of a hull of three tip circles, plus the base circle.
         tip_circles = [
