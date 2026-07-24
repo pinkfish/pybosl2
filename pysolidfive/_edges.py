@@ -33,7 +33,7 @@ from collections.abc import Sequence
 # ---------------------------------------------------------------------------
 
 
-def _pick_radius(radius1=None, diameter1=None, radius2=None, diameter2=None, r=None, d=None, dflt=None):
+def _pick_radius(radius1=None, diameter1=None, radius2=None, diameter2=None, radus=None, diameter=None, dflt=None):
     """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (r,d) > dflt."""
     if radius1 is not None:
         return radius1
@@ -43,10 +43,10 @@ def _pick_radius(radius1=None, diameter1=None, radius2=None, diameter2=None, r=N
         return radius2
     if diameter2 is not None:
         return diameter2 / 2
-    if r is not None:
-        return r
-    if d is not None:
-        return d / 2
+    if radius is not None:
+        return radius
+    if diameter is not None:
+        return diameter / 2
     return dflt
 
 
