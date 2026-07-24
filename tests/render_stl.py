@@ -34,6 +34,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _CANDIDATE_BINARIES = [
     "/Applications/PythonSCAD-dev.app/Contents/MacOS/PythonSCAD",
     "/Applications/PythonSCAD.app/Contents/MacOS/PythonSCAD",
+    # AppImage extracted by CI (see .github/workflows/docs.yml)
+    "/usr/local/bin/pythonscad",
+    "squashfs-root/AppRun",
 ]
 
 
