@@ -595,7 +595,7 @@ def rotate_sweep(
 
 def spiral_sweep(
     poly,
-    h,
+    height,
     radius=None,
     turns: float = 1.0,
     radius1=None,
@@ -613,7 +613,7 @@ def spiral_sweep(
 
     Args:
         poly:  the 2-D wire cross-section (closed path)
-        h:     total height of the spiral
+        height:     total height of the spiral
         radius/diameter:   helix radius/diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
         turns: number of turns (default 1)
         center: center the spiral on Z (default True)
@@ -627,7 +627,7 @@ def spiral_sweep(
             section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
             spiral_sweep(section, height=40, radius=12, turns=5).polyhedron().show()
     """
-    assert h > 0 and turns != 0, (
+    assert height > 0 and turns != 0, (
         "spiral_sweep(): need positive height and nonzero turns."
     )
     rr1 = (
@@ -663,12 +663,12 @@ def spiral_sweep(
     total = 360.0 * nturns
     steps = int(math.ceil(total / ang_step))
     angs = [total * i / steps for i in range(steps + 1)]
-    z0 = -h / 2 if center else 0.0
+    z0 = -height / 2 if center else 0.0
     transforms = []
     for a in angs:
         frac = a / total
         rad = rr1 + (rr2 - rr1) * frac
-        z = z0 + h * frac
+        z = z0 + height * frac
         transforms.append(
             translate4([0, 0, z])
             @ zrot4(a * math.copysign(1, turns))
@@ -825,7 +825,7 @@ def _smooth(data, length: int, closed: bool = False, angle: bool = False) -> lis
 
 def rot_resample(
     rotlist,
-    n,
+    sides,
     twist=None,
     scale=None,
     smoothlen: int = 1,
@@ -842,7 +842,7 @@ def rot_resample(
 
     Args:
         rotlist: list of 4x4 transform matrices
-        n:       number of output samples (method="length") or samples per gap (method="count")
+        sides:       number of output samples (method="length") or samples per gap (method="count")
         twist:   extra twist in degrees (scalar or per-gap list)
         scale:   extra scale (scalar or per-gap list, multiplied cumulatively)
         smoothlen: odd window length for smoothing the twist/scale (default 1 = none)
@@ -859,9 +859,9 @@ def rot_resample(
     m = len(rotlist)
     tcount = m + (0 if closed else -1)
     if method == "length":
-        count = (n + 1) if closed else n
+        count = (sides + 1) if closed else sides
     else:
-        count = (sum(n) if isinstance(n, (list, tuple)) else tcount * n) + 1
+        count = (sum(sides) if isinstance(sides, (list, tuple)) else tcount * sides) + 1
     long_l = list(long) if isinstance(long, (list, tuple)) else [long] * tcount
     turns_l = list(turns) if isinstance(turns, (list, tuple)) else [turns] * tcount
 
@@ -899,7 +899,7 @@ def rot_resample(
     stepsize = totlen / (count - 1) if count > 1 else totlen
 
     if method == "count":
-        nlist = list(n) if isinstance(n, (list, tuple)) else [n] * tcount
+        nlist = list(sides) if isinstance(sides, (list, tuple)) else [sides] * tcount
         samples = [
             [k / N for k in range(N)] for N in nlist
         ]  # lerpn(0,1,N,endpoint=False)

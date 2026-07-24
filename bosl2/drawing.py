@@ -495,7 +495,14 @@ def _endcap_polys(style, lw: float):
     elif style == "dot":  # circle(diameter=w)
         polys = [circle_poly(w / 2, w / 2, max(8, _frag_count(w * lw)))]
     elif style in ("square", "block", "line"):
-        polys = [[[-w / 2, -length / 2], [w / 2, -length / 2], [w / 2, length / 2], [-w / 2, length / 2]]]
+        polys = [
+            [
+                [-w / 2, -length / 2],
+                [w / 2, -length / 2],
+                [w / 2, length / 2],
+                [-w / 2, length / 2],
+            ]
+        ]
     elif style == "x":
         tri = [
             [(w + length / 2) / 2, (w - length / 2) / 2],
@@ -533,7 +540,15 @@ def _endcap_polys(style, lw: float):
             ]
         ]
     elif style == "tail2":
-        polys = [[[w / 2, 0], [w / 2, -length], [0, -length - l2], [-w / 2, -length], [-w / 2, 0]]]
+        polys = [
+            [
+                [w / 2, 0],
+                [w / 2, -length],
+                [0, -length - l2],
+                [-w / 2, -length],
+                [-w / 2, 0],
+            ]
+        ]
     else:  # pragma: no cover - table and branches are kept in sync
         raise AssertionError(f"stroke(): unhandled endcap style {style!r}")
     return [[[p[0] * lw, p[1] * lw] for p in poly] for poly in polys]

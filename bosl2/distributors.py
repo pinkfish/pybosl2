@@ -698,7 +698,18 @@ class Distributable:
     ):
         """Copies spread along an (elliptical) arc in the XY plane."""
         return self._distribute(
-            arc_copies(sides, radius, radius_x, radius_y, diameter, dx, dy, sa, ea, rot)
+            arc_copies(
+                sides,
+                radius,
+                radius_x,
+                radius_y,
+                diameter,
+                diameter_x,
+                diameter_y,
+                sa,
+                ea,
+                rot,
+            )
         )
 
     def sphere_copies(

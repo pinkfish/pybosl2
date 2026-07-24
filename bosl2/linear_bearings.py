@@ -149,7 +149,9 @@ class LinearBearings:
                 teardrop(diameter=outer_diameter, height=length).rotate(
                     [0, 90, 0]
                 ),  # teardrop shell, axis along X
-                cuboid([length, outer_diameter, outer_diameter / 2]).down(outer_diameter / 4),  # base
+                cuboid([length, outer_diameter, outer_diameter / 2]).down(
+                    outer_diameter / 4
+                ),  # base
                 cuboid([length, ogap, outer_diameter / 2 + tab / 2]).up(
                     (outer_diameter / 2 + tab / 2) / 2
                 ),  # clamp tabs
@@ -168,7 +170,9 @@ class LinearBearings:
             .up(tabh)
         )
         body = body - screw
-        return Bosl2Solid(body.shape, size=[length, outer_diameter, outer_diameter + tab / 2])
+        return Bosl2Solid(
+            body.shape, size=[length, outer_diameter, outer_diameter + tab / 2]
+        )
 
     @staticmethod
     def lmXuu_housing(

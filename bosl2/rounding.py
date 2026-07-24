@@ -186,9 +186,7 @@ def round_corners(
         )
         if v is not None
     ]
-    assert len(given) == 1, (
-        "Must give exactly one of radius, radius, cut, joint or width."
-    )
+    assert len(given) == 1, "Must give exactly one of radius, cut, joint or width."
     measure, size = given[0]
     pts = [[float(c) for c in p] for p in path]
     sides = len(pts)

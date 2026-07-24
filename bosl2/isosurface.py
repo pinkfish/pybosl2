@@ -356,7 +356,10 @@ def mb_torus(
     minor_diameter=None,
 ):
     """A torus metaball field, major radius *major_radius*, tube radius *r_min* (BOSL2 mb_torus())."""
-    rmaj, rmin = _radius(major_radius, d_maj), _radius(r_min, d_min)
+    rmaj, rmin = (
+        _radius(major_radius, major_diameter),
+        _radius(minor_radius, minor_diameter),
+    )
     assert rmaj and rmin and rmaj > 0 and rmin > 0, (
         "mb_torus(): need positive major_radius and r_min."
     )
@@ -375,7 +378,9 @@ def mb_capsule(
 ):
     """A capsule (round-ended cylinder) metaball field, total length *height*, radius *radius* (BOSL2 mb_capsule())."""
     rr = _radius(radius, diameter)
-    assert height and rr and height > 0 and rr > 0, "mb_capsule(): need positive height and radius."
+    assert height and rr and height > 0 and rr > 0, (
+        "mb_capsule(): need positive height and radius."
+    )
     hl = (height - 2 * rr) / 2
     assert hl > 0, "mb_capsule(): total length must exceed the two rounded ends."
     neg = -1 if negative else 1
@@ -397,7 +402,9 @@ def mb_disk(
 ):
     """A rounded-edge disk metaball field, thickness *height*, outer radius *radius* (BOSL2 mb_disk())."""
     rr = _radius(radius, diameter)
-    assert height and rr and height > 0 and rr > 0, "mb_disk(): need positive height and radius."
+    assert height and rr and height > 0 and rr > 0, (
+        "mb_disk(): need positive height and radius."
+    )
     hl = height / 2
     ri = rr - hl
     assert ri > 0, "mb_disk(): diameter must exceed the thickness."
@@ -465,7 +472,9 @@ def mb_connector(
         rxy = np.hypot(local[:, 0], local[:, 1])
         below, above = z < -height, z > height
         dist = np.where(
-            below, np.hypot(rxy, z + height), np.where(above, np.hypot(rxy, z - height), rxy)
+            below,
+            np.hypot(rxy, z + height),
+            np.where(above, np.hypot(rxy, z - height), rxy),
         )
         return _mb_field(dist, rr, influence, cutoff, neg)
 

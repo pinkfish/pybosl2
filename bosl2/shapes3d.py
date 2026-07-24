@@ -1934,7 +1934,7 @@ def regular_prism(
         if spec_r is not None:
             return spec_r
         if side is not None:
-            return side / (2 * math.sin(math.pi / n))
+            return side / (2 * math.sin(math.pi / sides))
         if inner_diameter is not None:
             return (inner_diameter / 2) / cos_half
         if inner_radius is not None:
@@ -1977,18 +1977,18 @@ def regular_prism(
 
     if not (r1v or r2v or c1v or c2v):
         shape = _ocylinder(
-            height=prism_len, radius1=rad1, radius2=rad2, center=True, fn=n
+            height=prism_len, radius1=rad1, radius2=rad2, center=True, fn=sides
         )
     else:
         profile = _cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, _fn, _fa, _fs)
         from .shapes2d import _opolygon
 
-        shape = _orotate_extrude(_opolygon(profile), fn=n)
+        shape = _orotate_extrude(_opolygon(profile), fn=sides)
 
     # OpenSCAD's cylinder(fn=n) puts a vertex on +X; realign rotates half a facet so a face
     # centre faces +X instead (BOSL2's realign convention).
     if realign:
-        shape = shape.rotate(180 / n, [0, 0, 1])
+        shape = shape.rotate(180 / sides, [0, 0, 1])
     if shift[0] or shift[1]:
         shear = [
             [1, 0, shift[0] / prism_len, 0],

@@ -33,8 +33,8 @@ __all__ = ["BallBearings", "BearingSpec"]
 class BearingSpec:
     """Dimensions of a standard ball-bearing cartridge (BOSL2 ball_bearing_info())."""
 
-    id: float  # inner (shaft) diameter
-    od: float  # outer diameter
+    inner_diameter: float  # inner (shaft) diameter
+    outer_diameter: float  # outer diameter
     width: float  # axial width
     shielded: bool  # True for a sealed/shielded (ZZ) cartridge
 
@@ -114,7 +114,7 @@ _BEARINGS = {
 # The "...ZZ" shielded variants share the open variant's dimensions.
 _BEARINGS.update(
     {
-        name + "ZZ": BearingSpec(s.id, s.od, s.width, True)
+        name + "ZZ": BearingSpec(s.inner_diameter, s.outer_diameter, s.width, True)
         for name, s in list(_BEARINGS.items())
     }
 )

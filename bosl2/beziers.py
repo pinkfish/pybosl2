@@ -143,9 +143,9 @@ class Bezier(list):
         for i in range(len(us)):
             n1 = float(np.linalg.norm(diameter1[i]))
             n2 = float(np.linalg.norm(diameter2[i]))
-            val = math.sqrt(max((n1 * n2) ** 2 - float(diameter1[i] @ diameter2[i]) ** 2, 0.0)) / (
-                n1**3
-            )
+            val = math.sqrt(
+                max((n1 * n2) ** 2 - float(diameter1[i] @ diameter2[i]) ** 2, 0.0)
+            ) / (n1**3)
             out.append(val)
         return out[0] if scalar else np.array(out)
 
