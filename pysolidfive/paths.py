@@ -72,10 +72,10 @@ _SQRT2 = math.sqrt(2)
 
 
 def _radius(
-    r1: float | None = None,
-    d1: float | None = None,
-    r2: float | None = None,
-    d2: float | None = None,
+    radius1: float | None = None,
+    diameter1: float | None = None,
+    radius2: float | None = None,
+    diameter2: float | None = None,
     r: float | None = None,
     d: float | None = None,
     dflt: float = 1,
@@ -85,7 +85,7 @@ def _radius(
     even when a caller always passes a concrete `dflt`. Not for callers that genuinely need to
     tell "not specified" apart from a real radius (see torus()/tube(), which call
     _pick_radius() directly with `dflt=None`)."""
-    result = _pick_radius(r1=r1, d1=d1, r2=r2, d2=d2, r=r, d=d, dflt=dflt)
+    result = _pick_radius(radius1=radius1, diameter1=diameter1, radius2=radius2, diameter2=diameter2, r=r, d=d, dflt=dflt)
     assert result is not None
     return result
 
@@ -364,17 +364,17 @@ def bezpath_points(bezpath: ArrayLike, splinesteps: int = 16, N: int = 3, endpoi
     return np.asarray(out, dtype=float)
 
 
-def egg_path(length: float, r1: float, r2: float, R: float, n: int = 90) -> NDArray[np.float64]:
-    """The BOSL2-style egg outline: two end circles of radius r1 (left) and r2 (right), a
+def egg_path(length: float, radius1: float, radius2: float, R: float, n: int = 90) -> NDArray[np.float64]:
+    """The BOSL2-style egg outline: two end circles of radius radius1 (left) and radius2 (right), a
     total length, and side arcs of radius R blending them -- as a closed point path.
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density."""
     assert length > 0
     assert R > length / 2, "Side radius R must be larger than length/2"
-    assert length > r1 + r2, "Length must be longer than r1+r2"
-    c1 = [-length / 2 + r1, 0.0]
-    c2 = [length / 2 - r2, 0.0]
-    m_pts = list(reversed(_circle_circle_intersection(R - r1, c1, R - r2, c2)))
-    assert len(m_pts) == 2, "egg_path(): circles do not intersect for the given length/r1/r2/R."
+    assert length > radius1 + radius2, "Length must be longer than radius1+radius2"
+    c1 = [-length / 2 + radius1, 0.0]
+    c2 = [length / 2 - radius2, 0.0]
+    m_pts = list(reversed(_circle_circle_intersection(R - radius1, c1, R - radius2, c2)))
+    assert len(m_pts) == 2, "egg_path(): circles do not intersect for the given length/radius1/radius2/R."
     arcparms = []
     for m in m_pts:
         u1 = _unit2([c1[0] - m[0], c1[1] - m[1]])
@@ -382,8 +382,8 @@ def egg_path(length: float, r1: float, r2: float, R: float, n: int = 90) -> NDAr
         arcparms.append(
             [
                 m,
-                [c1[0] + r1 * u1[0], c1[1] + r1 * u1[1]],
-                [c2[0] + r2 * u2[0], c2[1] + r2 * u2[1]],
+                [c1[0] + radius1 * u1[0], c1[1] + radius1 * u1[1]],
+                [c2[0] + radius2 * u2[0], c2[1] + radius2 * u2[1]],
             ]
         )
     path: list[list[float]] = []
@@ -400,12 +400,12 @@ def _unit2(v: list[float]) -> list[float]:
     return [v[0] / n, v[1] / n]
 
 
-def _circle_circle_intersection(r1: float, c1: list[float], r2: float, c2: list[float]) -> list[list[float]]:
+def _circle_circle_intersection(radius1: float, c1: list[float], radius2: float, c2: list[float]) -> list[list[float]]:
     d = math.dist(c1, c2)
-    if d == 0 or d > r1 + r2 or d < abs(r1 - r2):
+    if d == 0 or d > radius1 + radius2 or d < abs(radius1 - radius2):
         return []
-    a = (r1**2 - r2**2 + d**2) / (2 * d)
-    h_sq = r1**2 - a**2
+    a = (radius1**2 - radius2**2 + d**2) / (2 * d)
+    h_sq = radius1**2 - a**2
     h = math.sqrt(max(0.0, h_sq))
     mx = c1[0] + a * (c2[0] - c1[0]) / d
     my = c1[1] + a * (c2[1] - c1[1]) / d
@@ -414,24 +414,24 @@ def _circle_circle_intersection(r1: float, c1: list[float], r2: float, c2: list[
     return [[mx + ox, my - oy], [mx - ox, my + oy]]
 
 
-def _arc_points(cp: list[float], radius: float, a0: float, delta: float, steps: int) -> list[list[float]]:
+def _arc_points(center: list[float], radius: float, a0: float, delta: float, steps: int) -> list[list[float]]:
     return [
         [
-            cp[0] + radius * math.cos(math.radians(a0 + delta * i / steps)),
-            cp[1] + radius * math.sin(math.radians(a0 + delta * i / steps)),
+            center[0] + radius * math.cos(math.radians(a0 + delta * i / steps)),
+            center[1] + radius * math.sin(math.radians(a0 + delta * i / steps)),
         ]
         for i in range(steps)  # endpoint deliberately excluded; the next arc supplies it
     ]
 
 
-def _arc_between(cp: list[float], p_start: list[float], p_end: list[float], n: int) -> list[list[float]]:
-    """Arc around `cp` from p_start to p_end, sweeping the shorter way around."""
-    radius = math.dist(cp, p_start)
-    a0 = math.degrees(math.atan2(p_start[1] - cp[1], p_start[0] - cp[0]))
-    a1 = math.degrees(math.atan2(p_end[1] - cp[1], p_end[0] - cp[0]))
+def _arc_between(center: list[float], p_start: list[float], p_end: list[float], n: int) -> list[list[float]]:
+    """Arc around `center` from p_start to p_end, sweeping the shorter way around."""
+    radius = math.dist(center, p_start)
+    a0 = math.degrees(math.atan2(p_start[1] - center[1], p_start[0] - center[0]))
+    a1 = math.degrees(math.atan2(p_end[1] - center[1], p_end[0] - center[0]))
     delta = (a1 - a0 + 180) % 360 - 180
     steps = max(3, math.ceil(n * abs(delta) / 360))
-    return _arc_points(cp, radius, a0, delta, steps)
+    return _arc_points(center, radius, a0, delta, steps)
 
 
 def _arc_through(
@@ -663,7 +663,7 @@ def path_to_bezpath(
     return np.asarray(out, dtype=float)
 
 
-def circle_circle_tangents(r1: float, cp1: ArrayLike, r2: float, cp2: ArrayLike) -> NDArray[np.float64]:
+def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: ArrayLike) -> NDArray[np.float64]:
     """Tangent lines between two circles, each returned as a [point_on_circle1,
     point_on_circle2] pair -- same construction and ORDERING as bosl2's port (rabbit_clip()
     indexes [0][1], so the ordering matters): 2 external tangents, then 2 internal ones if
@@ -671,7 +671,7 @@ def circle_circle_tangents(r1: float, cp1: ArrayLike, r2: float, cp2: ArrayLike)
     cp1 = np.asarray(cp1, dtype=float)
     cp2 = np.asarray(cp2, dtype=float)
     dist = float(np.linalg.norm(cp2 - cp1))
-    r_vals = [(r2 - r1) / dist, (r2 - r1) / dist, (-r2 - r1) / dist, (-r2 - r1) / dist]
+    r_vals = [(radius2 - radius1) / dist, (radius2 - radius1) / dist, (-radius2 - radius1) / dist, (-radius2 - radius1) / dist]
     k_vals = [-1, 1, -1, 1]
     ext = [1, 1, -1, -1]
     if 1 - r_vals[2] ** 2 >= 0:
@@ -687,8 +687,8 @@ def circle_circle_tangents(r1: float, cp1: ArrayLike, r2: float, cp2: ArrayLike)
         s = math.sqrt(max(0.0, 1 - r * r))
         k = k_vals[i]
         coef = np.asarray([r * u[0] - k * s * u[1], k * s * u[0] + r * u[1]])
-        p1 = cp1 - r1 * coef
-        p2 = cp2 - ext[i] * r2 * coef
+        p1 = cp1 - radius1 * coef
+        p2 = cp2 - ext[i] * radius2 * coef
         if not np.array_equal(p1, p2):
             result.append([p1, p2])
     return np.asarray(result, dtype=float)

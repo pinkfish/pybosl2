@@ -33,16 +33,16 @@ from collections.abc import Sequence
 # ---------------------------------------------------------------------------
 
 
-def _pick_radius(r1=None, d1=None, r2=None, d2=None, r=None, d=None, dflt=None):
-    """Mirror BOSL2's get_radius(): (r1,d1) > (r2,d2) > (r,d) > dflt."""
-    if r1 is not None:
-        return r1
-    if d1 is not None:
-        return d1 / 2
-    if r2 is not None:
-        return r2
-    if d2 is not None:
-        return d2 / 2
+def _pick_radius(radius1=None, diameter1=None, radius2=None, diameter2=None, r=None, d=None, dflt=None):
+    """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (r,d) > dflt."""
+    if radius1 is not None:
+        return radius1
+    if diameter1 is not None:
+        return diameter1 / 2
+    if radius2 is not None:
+        return radius2
+    if diameter2 is not None:
+        return diameter2 / 2
     if r is not None:
         return r
     if d is not None:
@@ -157,10 +157,10 @@ def _anchor_offset_hull3(points: "Sequence[Sequence[float]]", anchor: "Sequence[
     return [-best[0], -best[1], -best[2]]
 
 
-def _anchor_offset_cyl(r1: float, r2: float, length: float, anchor: "Sequence[float]", axis: int = 2) -> list[float]:
+def _anchor_offset_cyl(radius1: float, radius2: float, length: float, anchor: "Sequence[float]", axis: int = 2) -> list[float]:
     a = list(anchor)
     az = a[axis]
-    r_at = r1 if az < 0 else (r2 if az > 0 else (r1 + r2) / 2)
+    r_at = radius1 if az < 0 else (radius2 if az > 0 else (radius1 + radius2) / 2)
     radial_axes = [i for i in range(3) if i != axis]
     radial = [a[i] for i in radial_axes]
     rn = math.hypot(*radial)

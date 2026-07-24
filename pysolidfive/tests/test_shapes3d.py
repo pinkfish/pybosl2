@@ -497,7 +497,7 @@ class TestSphere(unittest.TestCase):
 
 class TestTorus(unittest.TestCase):
     def test_torus(self):
-        shape = pysolidfive.torus(r_maj=10, r_min=2).mesh()
+        shape = pysolidfive.torus(major_radius=10, minor_radius=2).mesh()
         self.assertAlmostEqual(shape.sample(10, 0, 0), -2, msg="center of the tube ring")
         self.assertAlmostEqual(shape.sample(12, 0, 0), 0, msg="outer equator")
         self.assertAlmostEqual(shape.sample(8, 0, 0), 0, msg="inner equator")
@@ -512,7 +512,7 @@ class TestCylinders(unittest.TestCase):
         self.assertLess(shape.sample(0, 0, 0), 0)
 
     def test_tapered_cylinder(self):
-        shape = pysolidfive.cylinder(h=10, r1=5, r2=2).mesh()
+        shape = pysolidfive.cylinder(h=10, radius1=5, radius2=2).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, -5), 0, places=3, msg="bottom rim")
         self.assertAlmostEqual(shape.sample(2, 0, 5), 0, places=3, msg="top rim")
 
@@ -549,7 +549,7 @@ class TestCylinders(unittest.TestCase):
 class TestMirror(unittest.TestCase):
     def test_mirror_z_flips_a_cone(self):
         # A bottom-anchored cone (wide base at z=0, apex at z=8) mirrored across z=0.
-        cone = pysolidfive.cylinder(h=8, r1=4, r2=0.01, center=False)
+        cone = pysolidfive.cylinder(h=8, radius1=4, radius2=0.01, center=False)
         flipped = cone.mirror([0, 0, 1]).mesh()
         self.assertLess(flipped.sample(3, 0, -0.5), 0, msg="wide base now just below z=0")
         self.assertGreater(flipped.sample(3, 0, 0.5), 0, msg="nothing above z=0 at r=3")
@@ -567,8 +567,8 @@ class TestCylShift(unittest.TestCase):
     def test_oblique_cone_top_lands_at_shift(self):
         # cyl(shift=) slides the section center linearly from [0,0] at the bottom to
         # `shift`
-        # at the top (BOSL2's oblique cone). h=10 centered, r1=4, r2=2, shift=[6, 0].
-        shape = pysolidfive.cyl(h=10, r1=4, r2=2, shift=[6, 0]).mesh()
+        # at the top (BOSL2's oblique cone). h=10 centered, radius1=4, radius2=2, shift=[6, 0].
+        shape = pysolidfive.cyl(h=10, radius1=4, radius2=2, shift=[6, 0]).mesh()
         self.assertLess(shape.sample(0, 0, -4.9), 0, msg="bottom center solid")
         self.assertLess(shape.sample(6, 0, 4.9), 0, msg="top center slid to x=6")
         self.assertGreater(shape.sample(0, 0, 4.9), 0, msg="original top center now empty")
@@ -581,7 +581,7 @@ class TestCylShift(unittest.TestCase):
 
 class TestTubes(unittest.TestCase):
     def test_tube(self):
-        shape = pysolidfive.tube(h=10, outer_r=5, ir=3).mesh()
+        shape = pysolidfive.tube(h=10, outer_radius=5, inner_radius=3).mesh()
         self.assertAlmostEqual(shape.sample(5, 0, 0), 0, msg="outer wall")
         self.assertAlmostEqual(shape.sample(3, 0, 0), 0, msg="inner wall")
         self.assertLess(shape.sample(4, 0, 0), 0, msg="inside the wall material")
@@ -606,13 +606,13 @@ class TestTubes(unittest.TestCase):
 
 class TestPieSlice(unittest.TestCase):
     def test_acute_sector(self):
-        shape = pysolidfive.pie_slice(h=10, r=5, ang=90).mesh()
+        shape = pysolidfive.pie_slice(h=10, r=5, angle=90).mesh()
         self.assertLess(shape.sample(3, 3, 0), 0, msg="inside the 90deg wedge (Q1)")
         self.assertGreater(shape.sample(-3, 3, 0), 0, msg="Q2 excluded")
         self.assertGreater(shape.sample(3, -3, 0), 0, msg="Q4 excluded")
 
     def test_reflex_sector(self):
-        shape = pysolidfive.pie_slice(h=10, r=5, ang=270).mesh()
+        shape = pysolidfive.pie_slice(h=10, r=5, angle=270).mesh()
         self.assertLess(shape.sample(3, 3, 0), 0, msg="Q1 included")
         self.assertLess(shape.sample(-3, 3, 0), 0, msg="Q2 included")
         self.assertLess(shape.sample(-3, -3, 0), 0, msg="Q3 included")
@@ -788,8 +788,8 @@ class TestPolygonPrism(unittest.TestCase):
 
 class TestTeardropAndOnion(unittest.TestCase):
     def test_teardrop(self):
-        r, ang = 3, 45
-        shape = pysolidfive.teardrop(h=6, r=r, ang=ang, anchor=CENTER).mesh()
+        r, angle = 3, 45
+        shape = pysolidfive.teardrop(h=6, r=r, angle=ang, anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(r, 0, 0), 0, msg="equator")
         self.assertLess(shape.sample(0, 0, 0), 0, msg="center")
         apex = r / math.sin(math.radians(ang))
@@ -804,16 +804,16 @@ class TestTeardropAndOnion(unittest.TestCase):
         # height
         # rad*cos(ang)), so it's worth checking explicitly rather than just the two
         # endpoints.
-        r, ang = 3, 45
-        shape = pysolidfive.teardrop(h=6, r=r, ang=ang, anchor=CENTER).mesh()
+        r, angle = 3, 45
+        shape = pysolidfive.teardrop(h=6, r=r, angle=ang, anchor=CENTER).mesh()
         apex = r / math.sin(math.radians(ang))
         v = apex * 0.7
         u = (r - v * math.cos(math.radians(ang))) / math.sin(math.radians(ang))
         self.assertAlmostEqual(shape.sample(u, 0, v), 0, places=3)
 
     def test_onion(self):
-        r, ang = 3, 45
-        shape = pysolidfive.onion(r=r, ang=ang, anchor=CENTER).mesh()
+        r, angle = 3, 45
+        shape = pysolidfive.onion(r=r, angle=ang, anchor=CENTER).mesh()
         self.assertAlmostEqual(shape.sample(r, 0, 0), 0)
         self.assertLess(shape.sample(0, 0, 0), 0)
         apex = r / math.sin(math.radians(ang))
@@ -864,7 +864,7 @@ class TestRegularPrism(unittest.TestCase):
         self.assertLess(shape.sample(0, 0, 3), 0, msg="interior is inside")
 
     def test_pentagon_with_inner_radius(self):
-        shape = pysolidfive.regular_prism(n=5, h=5, ir=6).mesh()
+        shape = pysolidfive.regular_prism(n=5, h=5, inner_radius=6).mesh()
         self.assertLess(shape.sample(0, 0, 2.5), 0, msg="interior is inside")
 
     def test_realign_rotates_half_a_facet(self):

@@ -289,7 +289,7 @@ class TestStar2D(unittest.TestCase):
     """star2d -- n-pointed star SDF via polygon2d()."""
 
     def test_five_point_star_builds(self):
-        shape = pysolidfive.star2d(n=5, r=12, ir=5).extrude(4).mesh()
+        shape = pysolidfive.star2d(n=5, r=12, inner_radius=5).extrude(4).mesh()
         self.assertAlmostEqual(shape.sample(12, 0, 2), 0, places=6, msg="tip on surface")
         self.assertLess(shape.sample(0, 0, 2), 0, msg="interior is inside")
 
@@ -298,7 +298,7 @@ class TestStar2D(unittest.TestCase):
         self.assertLess(shape.sample(0, 0, 1.5), 0)
 
     def test_eight_point_star(self):
-        shape = pysolidfive.star2d(n=8, r=10, ir=4).extrude(2).mesh()
+        shape = pysolidfive.star2d(n=8, r=10, inner_radius=4).extrude(2).mesh()
         self.assertAlmostEqual(shape.sample(10, 0, 1), 0, places=6)
 
 
@@ -336,16 +336,16 @@ class TestTrapezoid2D(unittest.TestCase):
     """trapezoid2d -- trapezoid SDF via polygon2d()."""
 
     def test_symmetric_trapezoid(self):
-        shape = pysolidfive.trapezoid2d(h=12, w1=10, w2=6).extrude(3).mesh()
+        shape = pysolidfive.trapezoid2d(h=12, width1=10, width2=6).extrude(3).mesh()
         self.assertAlmostEqual(shape.sample(5, -6, 1.5), 0, places=6, msg="front bottom")
         self.assertAlmostEqual(shape.sample(3, 6, 1.5), 0, places=6, msg="back top")
 
     def test_auto_derive_from_angle(self):
-        shape = pysolidfive.trapezoid2d(w1=10, w2=6, ang=15).extrude(2).mesh()
+        shape = pysolidfive.trapezoid2d(width1=10, width2=6, angle=15).extrude(2).mesh()
         self.assertLess(shape.sample(0, 0, 1), 0, msg="interior is inside")
 
     def test_shifted_trapezoid(self):
-        shape = pysolidfive.trapezoid2d(h=10, w1=8, w2=4, shift=2).extrude(2).mesh()
+        shape = pysolidfive.trapezoid2d(h=10, width1=8, width2=4, shift=2).extrude(2).mesh()
         self.assertLess(shape.sample(0, 0, 1), 0)
 
 
@@ -354,7 +354,7 @@ class TestKeyhole2D(unittest.TestCase):
 
     @unittest.skip("keyhole polygon self-intersects with the current outline generator")
     def test_keyhole_builds(self):
-        shape = pysolidfive.keyhole2d(length=20, r1=5, r2=10).extrude(4).mesh()
+        shape = pysolidfive.keyhole2d(length=20, radius1=5, radius2=10).extrude(4).mesh()
         self.assertLess(shape.sample(0, 0, 2), 0, msg="inside the large circle")
 
     def test_keyhole_short_length_rejected(self):

@@ -534,10 +534,10 @@ def regular_ngon2d(
     n: int = 6,
     r: float | None = None,
     d: float | None = None,
-    outer_r: float | None = None,
-    od: float | None = None,
-    ir: float | None = None,
-    id: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_radius: float | None = None,
+    inner_diameter: float | None = None,
     side: float | None = None,
     realign: bool = False,
     res: int = 10,
@@ -545,13 +545,13 @@ def regular_ngon2d(
     """A regular n-gon (triangle, square, pentagon, hexagon, ...) as a signed-distance field.
 
     Size is controlled by one of the radius/diameter/side parameters:
-    ``ir``/``id`` > ``outer_r``/``od`` > ``r``/``d`` > ``side``.
+    ``inner_radius``/``inner_diameter`` > ``outer_radius``/``outer_diameter`` > ``r``/``d`` > ``side``.
 
     Args:
         n:       number of sides (default 6)
         r/d:     radius/diameter to the vertices
-        outer_r/od: outer radius/diameter (BOSL2 ``or``)
-        ir/id:   inner radius/diameter (apothem to face centres)
+        outer_radius/outer_diameter: outer radius/diameter (BOSL2 ``or``)
+        inner_radius/inner_diameter:   inner radius/diameter (apothem to face centres)
         side:    length of each side
         realign: rotate so a face centre faces +X (default: vertex at +X)
         res:     meshing resolution (default 10)
@@ -559,12 +559,12 @@ def regular_ngon2d(
     import math as _m
 
     sc = 1 / _m.cos(_m.radians(180.0 / n))
-    ir_s = ir * sc if ir is not None else None
-    id_s = id * sc if id is not None else None
+    ir_s = inner_radius * sc if inner_radius is not None else None
+    id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / _m.sin(_m.radians(180.0 / n)) if side is not None else None
-    rad = _radius(r1=ir_s, d1=id_s, r2=outer_r, d2=od, r=r, d=d, dflt=side_s)
+    rad = _radius(r1=ir_s, d1=id_s, r2=outer_radius, d2=outer_diameter, r=r, d=d, dflt=side_s)
     if rad is None:
-        raise ValueError("regular_ngon2d(): need one of r, d, outer_r, od, ir, id, or side.")
+        raise ValueError("regular_ngon2d(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side.")
 
     pts = [[_m.cos(2 * _m.pi * i / n) * rad, _m.sin(2 * _m.pi * i / n) * rad] for i in range(n)]
     if realign:
@@ -582,11 +582,11 @@ def regular_ngon2d(
 def star2d(
     n: int = 5,
     r: float | None = None,
-    ir: float | None = None,
+    inner_radius: float | None = None,
     d: float | None = None,
-    outer_r: float | None = None,
-    od: float | None = None,
-    id: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_diameter: float | None = None,
     step: int | None = None,
     realign: bool = False,
     res: int = 10,
@@ -595,22 +595,22 @@ def star2d(
 
     Args:
         n:       number of stellate tips (default 5)
-        r/outer_r: radius to the tips (BOSL2 ``or``)
-        ir:      radius to the inner corners
-        d/od:    diameter to the tips
-        id:      diameter to the inner corners
+        r/outer_radius: radius to the tips (BOSL2 ``or``)
+        inner_radius:      radius to the inner corners
+        d/outer_diameter:    diameter to the tips
+        inner_diameter:      diameter to the inner corners
         step:    compute inner radius by drawing a line ``step`` tips around
         realign: put edge midpoint on +X instead of tip (default False)
         res:     meshing resolution (default 10)
     """
     import math as _m
 
-    rad = _radius(r1=outer_r, d1=od, r=r, d=d, dflt=1)
+    rad = _radius(r1=outer_radius, d1=outer_diameter, r=r, d=d, dflt=1)
     if step is not None:
         stepr = rad * _m.cos(_m.radians(180 * step / n)) / _m.cos(_m.radians(180 * (step - 1) / n))
     else:
         stepr = rad
-    inner_r = _radius(r=ir, d=id, dflt=stepr)
+    inner_r = _radius(r=inner_radius, d=inner_diameter, dflt=stepr)
 
     pts = []
     for i in range(2 * n, 0, -1):
@@ -631,9 +631,9 @@ def star2d(
 
 def trapezoid2d(
     h: float | None = None,
-    w1: float | None = None,
-    w2: float | None = None,
-    ang: float | None = None,
+    width1: float | None = None,
+    width2: float | None = None,
+    angle: float | None = None,
     shift: float = 0,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
@@ -642,42 +642,42 @@ def trapezoid2d(
 
     Args:
         h:    Y-axis height
-        w1:   X-axis width of the front end
-        w2:   X-axis width of the back end
-        ang:  if given in place of h/w1/w2, the missing value is derived
+        width1:   X-axis width of the front end
+        width2:   X-axis width of the back end
+        angle:  if given in place of h/width1/width2, the missing value is derived
         shift: X-axis shift of the back (default 0)
         anchor: anchor point (default CENTER)
         res:  meshing resolution (default 10)
     """
     import math as _m
 
-    defined = sum(x is not None for x in (h, w1, w2, ang))
-    assert defined == 3, "Must give exactly 3 of h, w1, w2, and ang."
+    defined = sum(x is not None for x in (h, width1, width2, angle))
+    assert defined == 3, "Must give exactly 3 of h, width1, width2, and angle."
 
     if h is None:
-        h = abs(w2 - w1) / 2 / _m.tan(_m.radians(abs(ang)))
-    if w1 is None:
-        w1 = w2 + 2 * (h * _m.tan(_m.radians(ang)) + shift)
-    if w2 is None:
-        w2 = w1 - 2 * (h * _m.tan(_m.radians(ang)) + shift)
-    assert w1 >= 0 and w2 >= 0 and h > 0, "Degenerate trapezoid geometry."
+        h = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))
+    if width1 is None:
+        width1 = width2 + 2 * (h * _m.tan(_m.radians(angle)) + shift)
+    if width2 is None:
+        width2 = width1 - 2 * (h * _m.tan(_m.radians(angle)) + shift)
+    assert width1 >= 0 and width2 >= 0 and h > 0, "Degenerate trapezoid geometry."
 
     pts = [
-        [w2 / 2 + shift, h / 2],
-        [-w2 / 2 + shift, h / 2],
-        [-w1 / 2, -h / 2],
-        [w1 / 2, -h / 2],
+        [width2 / 2 + shift, h / 2],
+        [-width2 / 2 + shift, h / 2],
+        [-width1 / 2, -h / 2],
+        [width1 / 2, -h / 2],
     ]
     return polygon2d(pts, res=res)
 
 
 def keyhole2d(
     length: float = 15,
-    r1: float = 5,
-    r2: float = 10,
-    shoulder_r: float = 0,
-    d1: float | None = None,
-    d2: float | None = None,
+    radius1: float = 5,
+    radius2: float = 10,
+    shoulder_radius: float = 0,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     res: int = 10,
 ) -> PyShape2D:
     """A keyhole slot -- a small circle joined to a larger one by tangent shoulders, as an
@@ -685,19 +685,19 @@ def keyhole2d(
 
     Args:
         length:     overall length between the two circle centres (default 15)
-        r1/d1:      radius/diameter of the small circle (default 5)
-        r2/d2:      radius/diameter of the large circle (default 10)
-        shoulder_r: fillet radius at the shoulder junctions (default 0)
+        radius1/diameter1:      radius/diameter of the small circle (default 5)
+        radius2/diameter2:      radius/diameter of the large circle (default 10)
+        shoulder_radius: fillet radius at the shoulder junctions (default 0)
         res:        meshing resolution (default 10)
     """
     import math as _m
 
-    r1v = r1 if r1 is not None else (d1 / 2 if d1 is not None else 5)
-    r2v = r2 if r2 is not None else (d2 / 2 if d2 is not None else 10)
+    r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5)
+    r2v = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10)
     assert length > 0 and length >= max(r1v, r2v), "keyhole2d(): length must be positive."
 
     # Build profile: two circles connected by tangent lines (shoulders)
-    sh = float(shoulder_r) if shoulder_r is not None else min(r1v, r2v) / 2
+    sh = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
     cp1, cp2 = [0.0, 0.0], [0.0, -length]
     minr, maxr = min(r1v, r2v) + sh, max(r1v, r2v) + sh
     dy = _m.sqrt(max(maxr * maxr - minr * minr, 0))

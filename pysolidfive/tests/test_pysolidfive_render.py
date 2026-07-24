@@ -75,7 +75,7 @@ SHAPES = [
     ),
     ("sphere", "pysolidfive.sphere(r=10)"),
     ("cyl_rounded", "pysolidfive.cyl(h=20, r=8, rounding=2)"),
-    ("torus", "pysolidfive.torus(r_maj=15, r_min=5)"),
+    ("torus", "pysolidfive.torus(major_radius=15, minor_radius=5)"),
     ("teardrop", "pysolidfive.teardrop(h=10, r=8)"),
     # A concave L-shaped outline (exact winding-number polygon SDF -- exercises concave-outline
     # sign correctness, which polygon_extrude()'s convex half-planes can't do), with a rounded

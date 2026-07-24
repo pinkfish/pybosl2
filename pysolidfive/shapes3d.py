@@ -948,33 +948,33 @@ def spheroid(
 
 
 def torus(
-    r_maj: float | None = None,
-    r_min: float | None = None,
-    d_maj: float | None = None,
-    d_min: float | None = None,
-    outer_r: float | None = None,
-    ir: float | None = None,
-    od: float | None = None,
-    id: float | None = None,
+    major_radius: float | None = None,
+    minor_radius: float | None = None,
+    major_diameter: float | None = None,
+    minor_diameter: float | None = None,
+    outer_radius: float | None = None,
+    inner_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_diameter: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A torus (donut) shape, as a libfive SDF (`length(vec2(length(p.xy)-r_maj, p.z)) - r_min`).
+    """A torus (donut) shape, as a libfive SDF (`length(vec2(length(p.xy)-major_radius, p.z)) - minor_radius`).
 
     Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python
-    keyword `or`; it is exposed here as `outer_r` instead. See bosl2.shapes3d.torus() for
+    keyword `or`; it is exposed here as `outer_radius` instead. See bosl2.shapes3d.torus() for
     the full parameter set this mirrors.
 
     Examples:
         .. pythonscad-example::
 
-            shape = pysolidfive.torus(r_maj=15, r_min=5)
+            shape = pysolidfive.torus(major_radius=15, minor_radius=5)
             shape.show()
     """
-    _or = _pick_radius(r=outer_r, d=od, dflt=None)
-    _ir = _pick_radius(r=ir, d=id, dflt=None)
-    _r_maj = _pick_radius(r=r_maj, d=d_maj, dflt=None)
-    _r_min = _pick_radius(r=r_min, d=d_min, dflt=None)
+    _or = _pick_radius(r=outer_radius, d=outer_diameter, dflt=None)
+    _ir = _pick_radius(r=inner_radius, d=inner_diameter, dflt=None)
+    _r_maj = _pick_radius(r=major_radius, d=major_diameter, dflt=None)
+    _r_min = _pick_radius(r=minor_radius, d=minor_diameter, dflt=None)
     if _r_maj is not None:
         maj = _r_maj
     elif _ir is not None and _or is not None:
@@ -1060,21 +1060,21 @@ def _cyl_edge_sdf(axial, radial, h: float, r1: float, r2: float, amt1: float, am
 
 def cylinder(
     h: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
     center: bool | None = None,
     l: float | None = None,
     r: float | None = None,
     d: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
     """A cylinder/cone (no rounding) as a libfive SDF -- see cyl() for rounding/chamfering."""
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = _radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    rad1 = _radius(radius1=radius1, diameter1=diameter1, r=r, d=d, dflt=1)
+    rad2 = _radius(radius1=radius2, diameter1=diameter2, r=r, d=d, dflt=1)
     use_anchor = anchor
     if center is not None:
         use_anchor = CENTER if center else BOTTOM
@@ -1092,11 +1092,11 @@ def cyl(
     r: float | None = None,
     center: bool | None = None,
     l: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
     d: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
@@ -1122,8 +1122,8 @@ def cyl(
             shape.show()
     """
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = _radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
+    rad1 = _radius(radius1=radius1, diameter1=diameter1, r=r, d=d, dflt=1)
+    rad2 = _radius(radius1=radius2, diameter1=diameter2, r=r, d=d, dflt=1)
     use_anchor = anchor
     if use_anchor is None:
         use_anchor = CENTER if center is None or center else BOTTOM
@@ -1205,10 +1205,10 @@ def xcyl(
     h: float | None = None,
     r: float | None = None,
     d: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     l: float | None = None,
     chamfer: float | None = None,
     chamfer1: float | None = None,
@@ -1225,11 +1225,11 @@ def xcyl(
         h,
         r,
         l,
-        r1,
-        r2,
+        radius1,
+        radius2,
         d,
-        d1,
-        d2,
+        diameter1,
+        diameter2,
         chamfer,
         chamfer1,
         chamfer2,
@@ -1245,10 +1245,10 @@ def ycyl(
     h: float | None = None,
     r: float | None = None,
     d: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     l: float | None = None,
     chamfer: float | None = None,
     chamfer1: float | None = None,
@@ -1265,11 +1265,11 @@ def ycyl(
         h,
         r,
         l,
-        r1,
-        r2,
+        radius1,
+        radius2,
         d,
-        d1,
-        d2,
+        diameter1,
+        diameter2,
         chamfer,
         chamfer1,
         chamfer2,
@@ -1285,10 +1285,10 @@ def zcyl(
     h: float | None = None,
     r: float | None = None,
     d: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     l: float | None = None,
     chamfer: float | None = None,
     chamfer1: float | None = None,
@@ -1305,11 +1305,11 @@ def zcyl(
         h,
         r,
         l,
-        r1,
-        r2,
+        radius1,
+        radius2,
         d,
-        d1,
-        d2,
+        diameter1,
+        diameter2,
         chamfer,
         chamfer1,
         chamfer2,
@@ -1323,10 +1323,10 @@ def zcyl(
 
 def tube(
     h: float | None = None,
-    outer_r: float | None = None,
-    ir: float | None = None,
-    od: float | None = None,
-    id: float | None = None,
+    outer_radius: float | None = None,
+    inner_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_diameter: float | None = None,
     wall: float | None = None,
     outer_r1: float | None = None,
     outer_r2: float | None = None,
@@ -1343,13 +1343,13 @@ def tube(
     """A hollow cylindrical tube (outer cylinder minus inner cylinder), as a libfive SDF.
 
     Note: BOSL2's outer-radius parameters are named `or`/`or1`/`or2`; exposed here as
-    `outer_r`/`outer_r1`/`outer_r2` since `or` is a Python keyword.
+    `outer_radius`/`outer_r1`/`outer_r2` since `or` is a Python keyword.
     """
     length = l if l is not None else (h if h is not None else 1)
-    orr1 = _pick_radius(r1=outer_r1, d1=od1, r=outer_r, d=od, dflt=None)
-    orr2 = _pick_radius(r1=outer_r2, d1=od2, r=outer_r, d=od, dflt=None)
-    irr1 = _pick_radius(r1=ir1, d1=id1, r=ir, d=id, dflt=None)
-    irr2 = _pick_radius(r1=ir2, d1=id2, r=ir, d=id, dflt=None)
+    orr1 = _pick_radius(r1=outer_r1, d1=od1, r=outer_radius, d=outer_diameter, dflt=None)
+    orr2 = _pick_radius(r1=outer_r2, d1=od2, r=outer_radius, d=outer_diameter, dflt=None)
+    irr1 = _pick_radius(r1=ir1, d1=id1, r=inner_radius, d=inner_diameter, dflt=None)
+    irr2 = _pick_radius(r1=ir2, d1=id2, r=inner_radius, d=inner_diameter, dflt=None)
     wall_v = wall if wall is not None else 1
     rad1 = orr1 if orr1 is not None else (irr1 + wall_v if irr1 is not None else None)
     rad2 = orr2 if orr2 is not None else (irr2 + wall_v if irr2 is not None else None)
@@ -1374,24 +1374,24 @@ def tube(
 def pie_slice(
     h: float | None = None,
     r: float | None = None,
-    ang: float = 30,
-    r1: float | None = None,
-    r2: float | None = None,
+    angle: float = 30,
+    radius1: float | None = None,
+    radius2: float | None = None,
     d: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     l: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
     """A pie slice (wedge of a cylinder/cone), as a libfive SDF: a cylinder intersected with
-    an angular sector (built from 1-2 half-planes -- `ang` is a plain Python float fixed at
+    an angular sector (built from 1-2 half-planes -- `angle` is a plain Python float fixed at
     construction time, so choosing intersection vs union of the two half-planes based on
-    `ang <= 180` is an ordinary Python conditional, not a per-point SDF branch)."""
+    `angle <= 180` is an ordinary Python conditional, not a per-point SDF branch)."""
     length = l if l is not None else (h if h is not None else 1)
-    rad1 = _radius(r1=r1, d1=d1, r=r, d=d, dflt=10)
-    rad2 = _radius(r1=r2, d1=d2, r=r, d=d, dflt=10)
-    ang_v = ang % 360 if (ang > 360 or ang < 0) else ang
+    rad1 = _radius(radius1=radius1, diameter1=diameter1, r=r, d=d, dflt=10)
+    rad2 = _radius(radius1=radius2, diameter1=diameter2, r=r, d=d, dflt=10)
+    ang_v = angle % 360 if (angle > 360 or angle < 0) else angle
     ang_rad = math.radians(ang_v)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
 
@@ -1534,12 +1534,12 @@ def rect_tube(
 def interior_fillet(
     l: float = 1.0,
     r: float | None = None,
-    ang: float = 90,
+    angle: float = 90,
     d: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A shape to fillet an interior corner between two faces meeting at `ang` degrees, as a
+    """A shape to fillet an interior corner between two faces meeting at `angle` degrees, as a
     libfive SDF: the wedge between the two faces, minus a cylindrical arc of radius `r`
     positioned so it's tangent to both. Extruded along Y for length `l`.
 
@@ -1549,10 +1549,10 @@ def interior_fillet(
     bosl2.shapes3d.interior_fillet() for the exact BOSL2-compatible anchor/orientation.
     """
     rad = _radius(r=r, d=d, dflt=1)
-    half = math.radians(ang / 2)
+    half = math.radians(angle / 2)
     dist = rad / math.sin(half)
     cx, cz = dist * math.cos(half), dist * math.sin(half)
-    ang_rad = math.radians(ang)
+    ang_rad = math.radians(angle)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = l / 2
 
@@ -1593,7 +1593,7 @@ def rounding_edge_mask(
     (`box`) minus a circle tangent to both its flat sides.
 
     CAVEAT: simplified relative to bosl2.masking.rounding_edge_mask() -- one radius for the
-    whole length (no r1/r2 taper).
+    whole length (no radius1/radius2 taper).
     """
     length = l if l is not None else (h if h is not None else 1)
     rad = _radius(r=r, d=d, dflt=1)
@@ -1727,8 +1727,8 @@ def polygon_prism(
         if rounding_top < 0 or rounding_bottom < 0:
             u2 = None
             for p in path_list:
-                d2 = _polygon_dist2_xy(x, y, p)
-                u2 = d2 if u2 is None else lv.min(u2, d2)
+                diameter2 = _polygon_dist2_xy(x, y, p)
+                u2 = diameter2 if u2 is None else lv.min(u2, diameter2)
             u_d = lv.sqrt(u2)
         if rounding_top < 0:
             assert u_d is not None
@@ -1760,13 +1760,13 @@ def polygon_prism(
 def teardrop(
     h: float | None = None,
     r: float | None = None,
-    ang: float = 45,
-    cap_h: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
+    angle: float = 45,
+    cap_height: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
     d: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
@@ -1775,7 +1775,7 @@ def teardrop(
     extruded along Y for thickness `h`.
 
     CAVEAT: simplified relative to bosl2.shapes3d.teardrop() -- no `chamfer=`/`circum=`/
-    `realign=` support. `cap_h` (truncation height) is supported since it's a plain top-slab
+    `realign=` support. `cap_height` (truncation height) is supported since it's a plain top-slab
     intersection.
 
     Examples:
@@ -1785,9 +1785,9 @@ def teardrop(
             shape.show()
     """
     length = h if h is not None else 1
-    rad1 = _radius(r1=r1, d1=d1, r=r, d=d, dflt=1)
-    rad2 = _radius(r1=r2, d1=d2, r=r, d=d, dflt=1)
-    ang_rad = math.radians(ang)
+    rad1 = _radius(radius1=radius1, diameter1=diameter1, r=r, d=d, dflt=1)
+    rad2 = _radius(radius1=radius2, diameter1=diameter2, r=r, d=d, dflt=1)
+    ang_rad = math.radians(angle)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = length / 2
 
@@ -1801,8 +1801,8 @@ def teardrop(
         v_tangent = rad * cos_a
         roof = lv.max(right, left) + _PENALTY * lv.max(0, v_tangent - v)
         d = lv.min(circle, roof)
-        if cap_h is not None:
-            d = lv.max(d, v - cap_h)
+        if cap_height is not None:
+            d = lv.max(d, v - cap_height)
         return d
 
     def sdf_fn(x, y, z):
@@ -1813,7 +1813,7 @@ def teardrop(
         return lv.max(prof, slab)
 
     maxr = max(rad1, rad2)
-    maxheight = maxr / sin_a if cap_h is None else min(cap_h, maxr / sin_a)
+    maxheight = maxr / sin_a if cap_height is None else min(cap_height, maxr / sin_a)
     shape = PyShape(sdf_fn, [-maxr, -hb, -maxr], [maxr, hb, maxheight], res)
     if any(anchor):
         offset = [
@@ -1827,8 +1827,8 @@ def teardrop(
 
 def onion(
     r: float | None = None,
-    ang: float = 45,
-    cap_h: float | None = None,
+    angle: float = 45,
+    cap_height: float | None = None,
     d: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
@@ -1839,7 +1839,7 @@ def onion(
     CAVEAT: simplified relative to bosl2.shapes3d.onion() -- no `circum=`/`realign=` support.
     """
     rad = _radius(r=r, d=d, dflt=1)
-    ang_rad = math.radians(ang)
+    ang_rad = math.radians(angle)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     v_tangent = rad * cos_a
 
@@ -1849,11 +1849,11 @@ def onion(
         roof = rxy * sin_a + z * cos_a - rad
         roof = roof + _PENALTY * lv.max(0, v_tangent - z)
         d = lv.min(sphere_sdf, roof)
-        if cap_h is not None:
-            d = lv.max(d, z - cap_h)
+        if cap_height is not None:
+            d = lv.max(d, z - cap_height)
         return d
 
-    maxheight = rad / sin_a if cap_h is None else min(cap_h, rad / sin_a)
+    maxheight = rad / sin_a if cap_height is None else min(cap_height, rad / sin_a)
     shape = PyShape(sdf_fn, [-rad, -rad, -rad], [rad, rad, maxheight], res)
     if any(anchor):
         offset = [
@@ -1912,10 +1912,10 @@ def regular_prism(
     h: float | None = None,
     r: float | None = None,
     d: float | None = None,
-    outer_r: float | None = None,
-    od: float | None = None,
-    ir: float | None = None,
-    id: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_radius: float | None = None,
+    inner_diameter: float | None = None,
     side: float | None = None,
     l: float | None = None,
     realign: bool = False,
@@ -1926,15 +1926,15 @@ def regular_prism(
     built on polygon_prism(). Mirrors bosl2.shapes3d.regular_prism().
 
     Size is controlled by one of the radius/diameter/side parameters, in BOSL2 priority order:
-    ir/id > outer_r/od > r/d > side.  The ``or``/``or_`` keyword collision with the Python
-    keyword ``or`` is resolved as ``outer_r`` here.
+    inner_radius/inner_diameter > outer_radius/outer_diameter > r/d > side.  The ``or``/``or_`` keyword collision with the Python
+    keyword ``or`` is resolved as ``outer_radius`` here.
 
     Args:
         n:       number of sides (default 6)
         h/l:     prism height (default 1)
         r/d:     radius/diameter to the vertices
-        outer_r/od: outer radius/diameter (BOSL2 ``or``)
-        ir/id:   inner radius/diameter (apothem to face centres)
+        outer_radius/outer_diameter: outer radius/diameter (BOSL2 ``or``)
+        inner_radius/inner_diameter:   inner radius/diameter (apothem to face centres)
         side:    length of each side
         realign: rotate so a face centre (not vertex) faces +X (default False)
         anchor:  anchor point (default CENTER)
@@ -1944,12 +1944,12 @@ def regular_prism(
 
     length = l if l is not None else (h if h is not None else 1)
     sc = 1 / _m.cos(_m.radians(180.0 / n))
-    ir_s = ir * sc if ir is not None else None
-    id_s = id * sc if id is not None else None
+    ir_s = inner_radius * sc if inner_radius is not None else None
+    id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / _m.sin(_m.radians(180.0 / n)) if side is not None else None
-    rad = _pick_radius(r1=ir_s, d1=id_s, r2=outer_r, d2=od, r=r, d=d, dflt=side_s)
+    rad = _pick_radius(radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, r=r, d=d, dflt=side_s)
     if rad is None:
-        raise ValueError("regular_prism(): need one of r, d, outer_r, od, ir, id, or side.")
+        raise ValueError("regular_prism(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side.")
 
     pts = [[_m.cos(2 * _m.pi * i / n) * rad, _m.sin(2 * _m.pi * i / n) * rad] for i in range(n)]
     if realign:
