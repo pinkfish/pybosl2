@@ -18,16 +18,16 @@ def _size(s):
 
 
 def test_narrowing_strut_builds_and_height():
-    s = W.narrowing_strut(w=10, l=60, wall=5, ang=30)
+    s = W.narrowing_strut(w=10, length=60, wall=5, angle=30)
     assert isinstance(s, Bosl2Solid)
-    h = 5 + 10 / 2 / math.tan(math.radians(30))
+    height = 5 + 10 / 2 / math.tan(math.radians(30))
     sz = _size(s)
     assert (sz[0], sz[1]) == pytest.approx((10.0, 60.0), abs=0.05)
-    assert sz[2] == pytest.approx(h, abs=0.05)
+    assert sz[2] == pytest.approx(height, abs=0.05)
 
 
 def test_sparse_wall_outer_dims():
-    sz = _size(W.sparse_wall(h=50, l=100, thick=4))
+    sz = _size(W.sparse_wall(height=50, length=100, thick=4))
     assert sz[0] == pytest.approx(4.0, abs=0.05)  # thickness
     assert sz[2] == pytest.approx(50.0, abs=0.05)  # height
     assert sz[1] == pytest.approx(
@@ -36,9 +36,9 @@ def test_sparse_wall_outer_dims():
 
 
 def test_sparse_wall_variants_build():
-    assert isinstance(W.sparse_wall(h=40, l=60, thick=3, strut=2), Bosl2Solid)
+    assert isinstance(W.sparse_wall(height=40, length=60, thick=3, strut=2), Bosl2Solid)
     assert isinstance(
-        W.sparse_wall(h=50, l=100, thick=4, maxang=45, max_bridge=30), Bosl2Solid
+        W.sparse_wall(height=50, length=100, thick=4, maxang=45, max_bridge=30), Bosl2Solid
     )
 
 
@@ -56,24 +56,24 @@ def test_sparse_cuboid_bad_dir():
 
 
 def test_corrugated_wall_dims():
-    sz = _size(W.corrugated_wall(h=50, l=100, thick=5))
+    sz = _size(W.corrugated_wall(height=50, length=100, thick=5))
     assert tuple(round(v) for v in sz) == (5, 100, 50)
 
 
 def test_thinning_wall_dims_and_defaults():
-    s = W.thinning_wall(h=50, l=80, thick=4)  # strut/wall default from thick
+    s = W.thinning_wall(height=50, length=80, thick=4)  # strut/wall default from thick
     assert isinstance(s, Bosl2Solid)
     assert tuple(round(v) for v in _size(s)) == (4, 80, 50)
 
 
 def test_thinning_wall_trapezoidal():
-    sz = _size(W.thinning_wall(h=50, l=[80, 50], thick=4))
+    sz = _size(W.thinning_wall(height=50, length=[80, 50], thick=4))
     assert sz[1] == pytest.approx(80.0, abs=0.1)  # bounding length is the wider bottom
 
 
 def test_thinning_triangle_centered_and_offset():
-    a = W.thinning_triangle(h=50, l=80, thick=4, center=True)
-    b = W.thinning_triangle(h=50, l=80, thick=4, center=False)
+    a = W.thinning_triangle(height=50, length=80, thick=4, center=True)
+    b = W.thinning_triangle(height=50, length=80, thick=4, center=False)
     assert tuple(round(v) for v in _size(a)) == (4, 80, 50)
     lo_a = a._native_bounds()[0]
     lo_b = b._native_bounds()[0]
@@ -83,5 +83,5 @@ def test_thinning_triangle_centered_and_offset():
 
 def test_thinning_triangle_diagonly_builds():
     assert isinstance(
-        W.thinning_triangle(h=50, l=80, thick=4, diagonly=True), Bosl2Solid
+        W.thinning_triangle(height=50, length=80, thick=4, diagonly=True), Bosl2Solid
     )

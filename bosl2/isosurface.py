@@ -86,8 +86,8 @@ def _resolve_grid(bbox, voxel_size, voxel_count, exact_bounds):
 
 def _grid_axes(bbox, voxsize):
     def axis(lo, hi, step):
-        n = int(math.floor((hi - lo) / step + 0.5)) + 1
-        return lo + step * np.arange(n)
+        sides = int(math.floor((hi - lo) / step + 0.5)) + 1
+        return lo + step * np.arange(sides)
 
     return (
         axis(bbox[0][0], bbox[1][0], voxsize[0]),
@@ -306,14 +306,14 @@ class Metaball:
         return float(self.field(np.atleast_2d(np.asarray(pt, dtype=float)))[0])
 
 
-def _radius(r=None, d=None):
-    return r if r is not None else (d / 2 if d is not None else None)
+def _radius(radius=None, diameter=None):
+    return radius if radius is not None else (diameter / 2 if diameter is not None else None)
 
 
-def mb_sphere(r=None, cutoff=INF, influence=1, negative=False, d=None):
-    """A spherical metaball field of radius *r* (BOSL2 mb_sphere())."""
-    rr = _radius(r, d)
-    assert rr and rr > 0, "mb_sphere(): need a positive r or d."
+def mb_sphere(radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+    """A spherical metaball field of radius *radius* (BOSL2 mb_sphere())."""
+    rr = _radius(radius, diameter)
+    assert rr and rr > 0, "mb_sphere(): need a positive radius or diameter."
     neg = -1 if negative else 1
 
     def field(pts):
@@ -343,13 +343,13 @@ def mb_cuboid(size, squareness=0.5, cutoff=INF, influence=1, negative=False):
 
 
 def mb_torus(
-    r_maj=None,
-    r_min=None,
+    major_radius=None,
+    minor_radius=None,
     cutoff=INF,
     influence=1,
     negative=False,
-    d_maj=None,
-    d_min=None,
+    major_diameter=None,
+    minor_diameter=None,
 ):
     """A torus metaball field, major radius *r_maj*, tube radius *r_min* (BOSL2 mb_torus())."""
     rmaj, rmin = _radius(r_maj, d_maj), _radius(r_min, d_min)
@@ -366,10 +366,10 @@ def mb_torus(
     return Metaball(field, neg)
 
 
-def mb_capsule(h=None, r=None, cutoff=INF, influence=1, negative=False, d=None):
-    """A capsule (round-ended cylinder) metaball field, total length *h*, radius *r* (BOSL2 mb_capsule())."""
-    rr = _radius(r, d)
-    assert h and rr and h > 0 and rr > 0, "mb_capsule(): need positive h and r."
+def mb_capsule(height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+    """A capsule (round-ended cylinder) metaball field, total length *h*, radius *radius* (BOSL2 mb_capsule())."""
+    rr = _radius(radius, diameter)
+    assert h and rr and h > 0 and rr > 0, "mb_capsule(): need positive h and radius."
     hl = (h - 2 * rr) / 2
     assert hl > 0, "mb_capsule(): total length must exceed the two rounded ends."
     neg = -1 if negative else 1
@@ -386,10 +386,10 @@ def mb_capsule(h=None, r=None, cutoff=INF, influence=1, negative=False, d=None):
     return Metaball(field, neg)
 
 
-def mb_disk(h=None, r=None, cutoff=INF, influence=1, negative=False, d=None):
-    """A rounded-edge disk metaball field, thickness *h*, outer radius *r* (BOSL2 mb_disk())."""
-    rr = _radius(r, d)
-    assert h and rr and h > 0 and rr > 0, "mb_disk(): need positive h and r."
+def mb_disk(height=None, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+    """A rounded-edge disk metaball field, thickness *h*, outer radius *radius* (BOSL2 mb_disk())."""
+    rr = _radius(radius, diameter)
+    assert h and rr and h > 0 and rr > 0, "mb_disk(): need positive h and radius."
     hl = h / 2
     ri = rr - hl
     assert ri > 0, "mb_disk(): diameter must exceed the thickness."
@@ -434,18 +434,18 @@ def mb_octahedron(size, squareness=0.5, cutoff=INF, influence=1, negative=False)
     return Metaball(field, neg)
 
 
-def mb_connector(p1, p2, r=None, cutoff=INF, influence=1, negative=False, d=None):
-    """A capsule metaball field spanning from *p1* to *p2* with radius *r* (BOSL2 mb_connector())."""
+def mb_connector(p1, p2, radius=None, cutoff=INF, influence=1, negative=False, diameter=None):
+    """A capsule metaball field spanning from *p1* to *p2* with radius *radius* (BOSL2 mb_connector())."""
     from bosl2.transforms import rot_from_to, axis_angle_matrix
 
-    rr = _radius(r, d)
+    rr = _radius(radius, diameter)
     a, b = np.asarray(p1, dtype=float), np.asarray(p2, dtype=float)
     assert rr and rr > 0 and not np.array_equal(a, b), (
-        "mb_connector(): need distinct points and positive r."
+        "mb_connector(): need distinct points and positive radius."
     )
     neg = -1 if negative else 1
     dc = b - a
-    h = float(np.linalg.norm(dc)) / 2
+    height = float(np.linalg.norm(dc)) / 2
     ang, axis = rot_from_to(dc, [0, 0, 1])  # rotate the axis onto +Z
     m3 = np.asarray(axis_angle_matrix(ang, axis), dtype=float)
 

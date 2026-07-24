@@ -50,26 +50,26 @@ def test_lerpn_degenerate_counts():
 
 def test_deriv_of_straight_line_is_constant():
     path = [[0, 0], [1, 0], [2, 0], [3, 0]]
-    d = deriv(path)
-    np.testing.assert_allclose(d, [[1, 0]] * 4, atol=1e-12)
+    diameter = deriv(path)
+    np.testing.assert_allclose(diameter, [[1, 0]] * 4, atol=1e-12)
 
 
 def test_deriv_scales_with_h():
     path = [[0, 0], [1, 0], [2, 0], [3, 0]]
-    np.testing.assert_allclose(deriv(path, h=2), [[0.5, 0]] * 4, atol=1e-12)
+    np.testing.assert_allclose(deriv(path, height=2), [[0.5, 0]] * 4, atol=1e-12)
 
 
 def test_deriv_nonuniform_h_list():
     path = [[0, 0], [1, 0], [3, 0]]
-    d = deriv(path, h=[1.0, 2.0])
-    assert d.shape == (3, 2)
+    diameter = deriv(path, height=[1.0, 2.0])
+    assert diameter.shape == (3, 2)
 
 
 def test_deriv2_of_parabola_is_constant():
     # y = x^2 sampled at x=0..4 -> second derivative ~ 2 everywhere (uniform spacing)
     xs = list(range(5))
     path = [[x, x * x] for x in xs]
-    d2 = deriv2(path)
+    diameter2 = deriv2(path)
     np.testing.assert_allclose(d2[:, 1], [2, 2, 2, 2, 2], atol=1e-9)
 
 
@@ -82,8 +82,8 @@ def test_deriv3_requires_five_points_and_zero_for_quadratic():
 
 def test_deriv_closed_wraps():
     square = [[0, 0], [1, 0], [1, 1], [0, 1]]
-    d = deriv(square, closed=True)
-    assert d.shape == (4, 2)
+    diameter = deriv(square, closed=True)
+    assert diameter.shape == (4, 2)
 
 
 @pytest.mark.parametrize("fn", [deriv, deriv2, deriv3])

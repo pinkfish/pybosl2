@@ -204,13 +204,13 @@ BOSL2 flat form).</p></td>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-548941823b34463eafd651724c6b558a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-dd86a174c86742838aee2788e95fde85" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-548941823b34463eafd651724c6b558a");
+const el = document.getElementById("stlviewer-dd86a174c86742838aee2788e95fde85");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -260,13 +260,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c2b81d16e3bd486eb73326a34b61c190" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c83753ef1f1446a59eaf2164658460fa" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c2b81d16e3bd486eb73326a34b61c190");
+const el = document.getElementById("stlviewer-c83753ef1f1446a59eaf2164658460fa");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -313,62 +313,11 @@ window.addEventListener("resize", resize);
 <p>The level set of a custom field function:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">field</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">diameter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span> <span class="mi">18</span> <span class="o">/</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
 <span class="n">isosurface</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-05eda37a9cc841ada64949aab5f5fc4f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-05eda37a9cc841ada64949aab5f5fc4f");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/d81db235dfd7e332.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/d81db235dfd7e332.stl">⬇ Download STL mesh</a></p>
 </section>
 <section id="module-bosl2.isosurface">
 <span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-bosl2.isosurface" title="Link to this heading">¶</a></h2>
@@ -396,13 +345,13 @@ resolution; the bounding box grows to whole voxels unless <em>exact_bounds</em>.
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-db680d2429ee4d7193c221dfd1dcec65" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7dcb15a2fd56408c80b40651b6f11d9c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-db680d2429ee4d7193c221dfd1dcec65");
+const el = document.getElementById("stlviewer-7dcb15a2fd56408c80b40651b6f11d9c");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -469,13 +418,13 @@ where the total reaches <em>isovalue</em>.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-8751bbfdabb944c088f4bbd81093bdc4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-1f9da5138f314c9e80531a8c7224ba02" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-8751bbfdabb944c088f4bbd81093bdc4");
+const el = document.getElementById("stlviewer-1f9da5138f314c9e80531a8c7224ba02");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -523,8 +472,8 @@ window.addEventListener("resize", resize);
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.isosurface.mb_sphere">
-<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_sphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_sphere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_sphere" title="Link to this definition">¶</a></dt>
-<dd><p>A spherical metaball field of radius <em>r</em> (BOSL2 mb_sphere()).</p>
+<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_sphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_sphere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_sphere" title="Link to this definition">¶</a></dt>
+<dd><p>A spherical metaball field of radius <em>radius</em> (BOSL2 mb_sphere()).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -535,20 +484,20 @@ window.addEventListener("resize", resize);
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.isosurface.mb_torus">
-<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_torus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_maj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_maj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_torus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_torus" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_torus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">major_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minor_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">major_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minor_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_torus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_torus" title="Link to this definition">¶</a></dt>
 <dd><p>A torus metaball field, major radius <em>r_maj</em>, tube radius <em>r_min</em> (BOSL2 mb_torus()).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.isosurface.mb_capsule">
-<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_capsule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_capsule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_capsule" title="Link to this definition">¶</a></dt>
-<dd><p>A capsule (round-ended cylinder) metaball field, total length <em>h</em>, radius <em>r</em> (BOSL2 mb_capsule()).</p>
+<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_capsule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_capsule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_capsule" title="Link to this definition">¶</a></dt>
+<dd><p>A capsule (round-ended cylinder) metaball field, total length <em>h</em>, radius <em>radius</em> (BOSL2 mb_capsule()).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.isosurface.mb_disk">
-<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_disk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_disk" title="Link to this definition">¶</a></dt>
-<dd><p>A rounded-edge disk metaball field, thickness <em>h</em>, outer radius <em>r</em> (BOSL2 mb_disk()).</p>
+<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_disk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_disk" title="Link to this definition">¶</a></dt>
+<dd><p>A rounded-edge disk metaball field, thickness <em>h</em>, outer radius <em>radius</em> (BOSL2 mb_disk()).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -559,8 +508,8 @@ window.addEventListener("resize", resize);
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.isosurface.mb_connector">
-<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_connector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_connector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_connector" title="Link to this definition">¶</a></dt>
-<dd><p>A capsule metaball field spanning from <em>p1</em> to <em>p2</em> with radius <em>r</em> (BOSL2 mb_connector()).</p>
+<span class="sig-prename descclassname"><span class="pre">bosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_connector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/isosurface.html#mb_connector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.isosurface.mb_connector" title="Link to this definition">¶</a></dt>
+<dd><p>A capsule metaball field spanning from <em>p1</em> to <em>p2</em> with radius <em>radius</em> (BOSL2 mb_connector()).</p>
 </dd></dl>
 
 <dl class="py class">

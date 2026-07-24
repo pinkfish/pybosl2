@@ -17,7 +17,7 @@ the solid with a half-space mask **auto-sized from the object's own bounding box
 
     cuboid([40, 30, 20]).left_half()          # keep the -X half
     cuboid([40, 30, 20]).bottom_half(z=5)      # cut at Z=5, keep below
-    sphere(r=20).half_of([0, 1, 1])            # cut on an arbitrary plane through the centre
+    sphere(radius=20).half_of([0, 1, 1])            # cut on an arbitrary plane through the centre
 
 Passing ``cut_path=`` (a 2-D :func:`~bosl2.partitions.partition_path`) makes the cut face follow an
 interlocking profile instead of a flat plane; ``cut_angle`` spins that face about the normal and

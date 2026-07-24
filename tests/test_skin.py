@@ -34,10 +34,10 @@ def _valid(vnf):
     return not vnf.faces or max(i for f in vnf.faces for i in f) < len(vnf.vertices)
 
 
-def _circle(r, n=24):
+def _circle(r, sides=24):
     return [
         [r * math.cos(t), r * math.sin(t)]
-        for t in np.linspace(0, 2 * math.pi, n, endpoint=False)
+        for t in np.linspace(0, 2 * math.pi, sides, endpoint=False)
     ]
 
 
@@ -55,9 +55,9 @@ def test_clockwise_polygon():
 
 def test_frame_map_orthonormal():
     m = frame_map(y=[0, 1, 0], z=[0, 0, 1])
-    r = m[:3, :3]
-    np.testing.assert_allclose(r @ r.T, np.eye(3), atol=1e-9)
-    assert math.isclose(float(np.linalg.det(r)), 1.0)
+    radius = m[:3, :3]
+    np.testing.assert_allclose(radius @ radius.T, np.eye(3), atol=1e-9)
+    assert math.isclose(float(np.linalg.det(radius)), 1.0)
 
 
 def test_frame_map_fills_third_axis():
@@ -239,13 +239,13 @@ def test_rotate_sweep_rejects_bad_angle():
 
 def test_spiral_sweep_coil():
     section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
-    vnf = spiral_sweep(section, h=40, r=12, turns=5)
+    vnf = spiral_sweep(section, height=40, radius=12, turns=5)
     assert _valid(vnf) and vnf.volume() > 0
 
 
 def test_spiral_sweep_conical_taper():
     section = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
-    vnf = spiral_sweep(section, h=30, r1=15, r2=5, turns=4)
+    vnf = spiral_sweep(section, height=30, radius1=15, radius2=5, turns=4)
     assert _valid(vnf) and vnf.volume() > 0
 
 
@@ -287,7 +287,7 @@ def test_rot_resample_changes_count_and_sweeps():
     sq = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
     curve = [[0, 0, 0], [10, 0, 5], [10, 10, 10], [0, 10, 15]]
     tl = path_sweep(sq, curve, transforms=True)
-    out = rot_resample(tl, n=20)
+    out = rot_resample(tl, sides=20)
     assert len(out) == 20
     assert np.asarray(out[0]).shape == (4, 4)
     assert _valid(sweep(sq, out))
@@ -296,7 +296,7 @@ def test_rot_resample_changes_count_and_sweeps():
 def test_rot_resample_count_method():
     sq = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
     tl = path_sweep(sq, [[0, 0, 0], [0, 0, 10], [0, 0, 20]], transforms=True)
-    out = rot_resample(tl, n=5, method="count")
+    out = rot_resample(tl, sides=5, method="count")
     assert len(out) == 5 * 2 + 1  # samples-per-gap * gaps + 1
 
 
@@ -305,4 +305,4 @@ def test_rot_resample_rejects_even_smoothlen():
         [[-1, -1], [1, -1], [1, 1], [-1, 1]], [[0, 0, 0], [0, 0, 10]], transforms=True
     )
     with pytest.raises(AssertionError):
-        rot_resample(tl, n=6, smoothlen=2)
+        rot_resample(tl, sides=6, smoothlen=2)

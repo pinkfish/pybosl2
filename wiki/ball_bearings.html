@@ -199,9 +199,9 @@ dimensions as a <a class="reference internal" href="#bosl2.ball_bearings.Bearing
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.ball_bearings.BallBearings.ball_bearing">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ball_bearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trade_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">od</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shield</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'silver'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/ball_bearings.html#BallBearings.ball_bearing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.ball_bearings.BallBearings.ball_bearing" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ball_bearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trade_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shield</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'silver'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/ball_bearings.html#BallBearings.ball_bearing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.ball_bearings.BallBearings.ball_bearing" title="Link to this definition">¶</a></dt>
 <dd><p>A ball-bearing cartridge model (BOSL2 ball_bearing()).</p>
-<p>Give a <em>trade_size</em> name, or explicit <em>id</em>/<em>od</em>/<em>width</em> (with <em>shield</em>). Returns a
+<p>Give a <em>trade_size</em> name, or explicit <em>inner_diameter</em>/<em>outer_diameter</em>/<em>width</em> (with <em>shield</em>). Returns a
 <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> centered on the origin.</p>
 <p class="rubric">Examples</p>
 <p>A common 608 skate bearing:</p>
@@ -210,13 +210,13 @@ dimensions as a <a class="reference internal" href="#bosl2.ball_bearings.Bearing
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0f651e16b82a47d795dc60f86e5a32e7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-cdccfa601fe54470abd5b4f545ff6d00" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0f651e16b82a47d795dc60f86e5a32e7");
+const el = document.getElementById("stlviewer-cdccfa601fe54470abd5b4f545ff6d00");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -264,8 +264,8 @@ window.addEventListener("resize", resize);
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>trade_size</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>id</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>od</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>inner_diameter</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>outer_diameter</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>width</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>shield</strong> (<em>bool</em>)</p></li>
 <li><p><strong>color</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
@@ -289,13 +289,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-ba5e7bf4875945daad0a496198cd30d0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-84aee644fc084a8a837172f7100d2167" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-ba5e7bf4875945daad0a496198cd30d0");
+const el = document.getElementById("stlviewer-84aee644fc084a8a837172f7100d2167");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -344,13 +344,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-8681b5429d78413190a05e7cb9d6375d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-2ae56bd844434fe7825817ed3a310448" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-8681b5429d78413190a05e7cb9d6375d");
+const el = document.getElementById("stlviewer-2ae56bd844434fe7825817ed3a310448");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -399,13 +399,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d4255a511ce24ff0ab138e800c63c376" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4b9eba5723954a39ba5300ceffa2239d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d4255a511ce24ff0ab138e800c63c376");
+const el = document.getElementById("stlviewer-4b9eba5723954a39ba5300ceffa2239d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -450,60 +450,9 @@ window.addEventListener("resize", resize);
 </script>
 <p><a class="reference external" href="_stl/4c11a67dbee10e28.stl">⬇ Download STL mesh</a></p>
 <p>A custom open bearing by dimensions:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BallBearings</span><span class="o">.</span><span class="n">ball_bearing</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">od</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">shield</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BallBearings</span><span class="o">.</span><span class="n">ball_bearing</span><span class="p">(</span><span class="n">inner_diameter</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">shield</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-cd8915e530ff46bea62048090bfca7e9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-cd8915e530ff46bea62048090bfca7e9");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/9dbc7968f1378e46.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/9dbc7968f1378e46.stl">⬇ Download STL mesh</a></p>
 </section>
 </section>
 

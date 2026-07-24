@@ -36,7 +36,7 @@ A generic cartridge:
 
 .. pythonscad-example::
 
-   LinearBearings.linear_bearing(l=24, od=15, id=8).show()
+   LinearBearings.linear_bearing(length=24, outer_diameter=15, inner_diameter=8).show()
 
 .. rubric:: ``lmXuu_bearing``
 
@@ -52,7 +52,7 @@ A pillow-block housing:
 
 .. pythonscad-example::
 
-   LinearBearings.linear_bearing_housing(d=19, l=29, wall=2, tab=8, screwsize=2.5).show()
+   LinearBearings.linear_bearing_housing(diameter=19, length=29, wall=2, tab=8, screwsize=2.5).show()
 
 .. rubric:: ``lmXuu_housing``
 

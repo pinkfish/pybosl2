@@ -18,7 +18,7 @@ def _size(s):
 
 
 def test_living_hinge_mask_and_plate():
-    mask = H.living_hinge_mask(l=100, thick=3, foldangle=60)
+    mask = H.living_hinge_mask(length=100, thick=3, foldangle=60)
     assert isinstance(mask, Bosl2Solid)
     assert _size(mask)[0] == pytest.approx(100, abs=0.1)  # spans the plate length
     plate = cuboid([100, 40, 3]) - mask.down(1.5)
@@ -27,8 +27,8 @@ def test_living_hinge_mask_and_plate():
 
 def test_sharper_fold_needs_wider_groove():
     # foldangle is the interior angle: a sharper fold (smaller angle) needs a wider V-groove
-    sharp = _size(H.living_hinge_mask(l=100, thick=3, foldangle=30))[1]
-    shallow = _size(H.living_hinge_mask(l=100, thick=3, foldangle=120))[1]
+    sharp = _size(H.living_hinge_mask(length=100, thick=3, foldangle=30))[1]
+    shallow = _size(H.living_hinge_mask(length=100, thick=3, foldangle=120))[1]
     assert sharp > shallow
 
 

@@ -108,13 +108,13 @@ An ISO/UTS threaded rod:
 
 .. pythonscad-example::
 
-   Threading.threaded_rod(d=25, l=20, pitch=2).show()
+   Threading.threaded_rod(diameter=25, length=20, pitch=2).show()
 
 Left-handed:
 
 .. pythonscad-example::
 
-   Threading.threaded_rod(d=10, l=20, pitch=1.25, left_handed=True).show()
+   Threading.threaded_rod(diameter=10, length=20, pitch=1.25, left_handed=True).show()
 
 .. rubric:: ``threaded_nut``
 
@@ -122,7 +122,7 @@ A hex nut:
 
 .. pythonscad-example::
 
-   Threading.threaded_nut(nutwidth=16, id=8, h=8, pitch=1.25).show()
+   Threading.threaded_nut(nutwidth=16, inner_diameter=8, height=8, pitch=1.25).show()
 
 .. rubric:: ``trapezoidal_threaded_rod``
 
@@ -130,7 +130,7 @@ A trapezoidal-thread rod:
 
 .. pythonscad-example::
 
-   Threading.trapezoidal_threaded_rod(d=10, l=40, pitch=2).show()
+   Threading.trapezoidal_threaded_rod(diameter=10, length=40, pitch=2).show()
 
 .. rubric:: ``trapezoidal_threaded_nut``
 
@@ -138,7 +138,7 @@ Its nut:
 
 .. pythonscad-example::
 
-   Threading.trapezoidal_threaded_nut(nutwidth=16, id=8, h=8, pitch=2).show()
+   Threading.trapezoidal_threaded_nut(nutwidth=16, inner_diameter=8, height=8, pitch=2).show()
 
 .. rubric:: ``acme_threaded_rod``
 
@@ -146,7 +146,7 @@ An Acme lead screw:
 
 .. pythonscad-example::
 
-   Threading.acme_threaded_rod(d=10, l=30, pitch=2, starts=3).show()
+   Threading.acme_threaded_rod(diameter=10, length=30, pitch=2, starts=3).show()
 
 .. rubric:: ``acme_threaded_nut``
 
@@ -154,7 +154,7 @@ An Acme nut:
 
 .. pythonscad-example::
 
-   Threading.acme_threaded_nut(nutwidth=16, id=10, h=10, pitch=2).show()
+   Threading.acme_threaded_nut(nutwidth=16, inner_diameter=10, height=10, pitch=2).show()
 
 .. rubric:: ``buttress_threaded_rod``
 
@@ -162,7 +162,7 @@ A buttress-thread rod:
 
 .. pythonscad-example::
 
-   Threading.buttress_threaded_rod(d=10, l=20, pitch=1.25).show()
+   Threading.buttress_threaded_rod(diameter=10, length=20, pitch=1.25).show()
 
 .. rubric:: ``buttress_threaded_nut``
 
@@ -170,7 +170,7 @@ Its nut:
 
 .. pythonscad-example::
 
-   Threading.buttress_threaded_nut(nutwidth=16, id=8, h=8, pitch=1.25).show()
+   Threading.buttress_threaded_nut(nutwidth=16, inner_diameter=8, height=8, pitch=1.25).show()
 
 .. rubric:: ``square_threaded_rod``
 
@@ -178,7 +178,7 @@ A square-thread rod:
 
 .. pythonscad-example::
 
-   Threading.square_threaded_rod(d=10, l=20, pitch=2, starts=2).show()
+   Threading.square_threaded_rod(diameter=10, length=20, pitch=2, starts=2).show()
 
 .. rubric:: ``square_threaded_nut``
 
@@ -186,7 +186,7 @@ Its nut:
 
 .. pythonscad-example::
 
-   Threading.square_threaded_nut(nutwidth=16, id=10, h=10, pitch=2, starts=2).show()
+   Threading.square_threaded_nut(nutwidth=16, inner_diameter=10, height=10, pitch=2, starts=2).show()
 
 .. rubric:: ``thread_helix``
 
@@ -194,4 +194,4 @@ A single thread ridge, swept as a helix:
 
 .. pythonscad-example::
 
-   Threading.thread_helix(d=10, pitch=2, thread_depth=0.75, flank_angle=15, turns=2.5).show()
+   Threading.thread_helix(diameter=10, pitch=2, thread_depth=0.75, flank_angle=15, turns=2.5).show()

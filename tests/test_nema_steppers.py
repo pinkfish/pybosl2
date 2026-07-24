@@ -33,11 +33,11 @@ def test_motor_body_width(size, width):
     m = N.nema_stepper_motor(size)
     w, l, _h = _size(m)
     assert w == pytest.approx(width, abs=0.1)
-    assert l == pytest.approx(width, abs=0.1)
+    assert length == pytest.approx(width, abs=0.1)
 
 
 def test_motor_height_is_body_plus_shaft():
-    m = N.nema_stepper_motor(17, h=24, shaft_len=20)
+    m = N.nema_stepper_motor(17, height=24, shaft_len=20)
     assert _size(m)[2] == pytest.approx(44, abs=0.2)
 
 

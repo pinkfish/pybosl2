@@ -82,7 +82,7 @@ def test_apply_returns_plain_lists():
 
 def test_rot_about_axis_through_point():
     m = rot_about_axis(
-        90, [0, 0, 1], cp=[5, 0, 0]
+        90, [0, 0, 1], center=[5, 0, 0]
     )  # rotate 90 about the vertical line at x=5
     np.testing.assert_allclose(
         apply(m, [5, 0, 0]), [5, 0, 0], atol=1e-9
@@ -91,12 +91,12 @@ def test_rot_about_axis_through_point():
 
 
 def test_rot_inverse_undoes_transform():
-    m = rot_about_axis(37, [0.3, 0.5, 0.8], cp=[2, -1, 4])
+    m = rot_about_axis(37, [0.3, 0.5, 0.8], center=[2, -1, 4])
     np.testing.assert_allclose(rot_inverse(m) @ m, np.eye(4), atol=1e-9)
 
 
 def test_rot_decode_round_trip():
-    m = rot_about_axis(40, [0, 0, 1], cp=[5, 0, 0])
+    m = rot_about_axis(40, [0, 0, 1], center=[5, 0, 0])
     angle, axis, cp, axial = rot_decode(m)
     assert math.isclose(angle, 40.0, abs_tol=1e-6)
     np.testing.assert_allclose(axis, [0, 0, 1], atol=1e-9)
@@ -112,5 +112,5 @@ def test_rot_decode_identity_is_zero_angle():
 def test_rot_decode_axis_is_vec3():
     from bosl2.constants import Vec3
 
-    _, axis, cp, axial = rot_decode(rot_about_axis(30, [1, 0, 0], cp=[0, 2, 0]))
+    _, axis, cp, axial = rot_decode(rot_about_axis(30, [1, 0, 0], center=[0, 2, 0]))
     assert isinstance(axis, Vec3) and isinstance(cp, Vec3) and isinstance(axial, Vec3)

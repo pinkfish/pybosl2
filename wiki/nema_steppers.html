@@ -219,7 +219,7 @@ the standard dimensions as a <a class="reference internal" href="#bosl2.nema_ste
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.nema_steppers.NemaSteppers.nema_stepper_motor">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_stepper_motor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">17</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shaft_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/nema_steppers.html#NemaSteppers.nema_stepper_motor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.nema_steppers.NemaSteppers.nema_stepper_motor" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_stepper_motor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">17</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shaft_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/nema_steppers.html#NemaSteppers.nema_stepper_motor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.nema_steppers.NemaSteppers.nema_stepper_motor" title="Link to this definition">¶</a></dt>
 <dd><p>A model of a NEMA <em>size</em> stepper motor (BOSL2 nema_stepper_motor()).</p>
 <p>The motor’s mounting face is at <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">0</span></code> with the body below it and the plinth and <em>shaft_len</em>
 shaft projecting up; the four mounting holes are drilled into the face.</p>
@@ -230,13 +230,13 @@ shaft projecting up; the four mounting holes are drilled into the face.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-99f8ba440624485bbad0d4edc1c4f8f3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3506dae9c4924163adce5ec93bb3e0f9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-99f8ba440624485bbad0d4edc1c4f8f3");
+const el = document.getElementById("stlviewer-3506dae9c4924163adce5ec93bb3e0f9");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -284,7 +284,7 @@ window.addEventListener("resize", resize);
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>size</strong> (<em>int</em>)</p></li>
-<li><p><strong>h</strong> (<em>float</em>)</p></li>
+<li><p><strong>height</strong> (<em>float</em>)</p></li>
 <li><p><strong>shaft_len</strong> (<em>float</em>)</p></li>
 <li><p><strong>_fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 </ul>
@@ -297,16 +297,16 @@ window.addEventListener("resize", resize);
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.nema_steppers.NemaSteppers.nema_mount_mask">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_mount_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/nema_steppers.html#NemaSteppers.nema_mount_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.nema_steppers.NemaSteppers.nema_mount_mask" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_mount_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/nema_steppers.html#NemaSteppers.nema_mount_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.nema_steppers.NemaSteppers.nema_mount_mask" title="Link to this definition">¶</a></dt>
 <dd><p>The mounting cutout for a NEMA <em>size</em> motor – difference it from a plate (BOSL2 nema_mount_mask()).</p>
 <p>Cuts the four screw holes and (<code class="docutils literal notranslate"><span class="pre">atype=&quot;full&quot;</span></code>) the central plinth clearance. A slot length
-<em>l</em> &gt; 0 elongates each hole so the motor can be positioned (e.g. to tension a belt).</p>
+<em>length</em> &gt; 0 elongates each hole so the motor can be positioned (e.g. to tension a belt).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>size</strong> (<em>int</em>)</p></li>
 <li><p><strong>depth</strong> (<em>float</em>)</p></li>
-<li><p><strong>l</strong> (<em>float</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em>)</p></li>
 <li><p><strong>atype</strong> (<em>str</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
 <li><p><strong>_fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
@@ -326,391 +326,34 @@ window.addEventListener("resize", resize);
 Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">nema_stepper_motor</span></code></p>
 <p>NEMA 8:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">shaft_len</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">shaft_len</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-c626e264cda348d49b12b48a7fe74e83" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-c626e264cda348d49b12b48a7fe74e83");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/4025d4ded5a17d4f.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/4025d4ded5a17d4f.stl">⬇ Download STL mesh</a></p>
 <p>NEMA 11:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">shaft_len</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">shaft_len</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-09b25f907c8f4e76bb0b4dcd0621ecaf" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-09b25f907c8f4e76bb0b4dcd0621ecaf");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/dc59c874f48c7fba.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/dc59c874f48c7fba.stl">⬇ Download STL mesh</a></p>
 <p>NEMA 17:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">shaft_len</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">shaft_len</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-2e3f405d699c4896878a59e2820f3c09" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-2e3f405d699c4896878a59e2820f3c09");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/f1aa39c98b2abc5e.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/f1aa39c98b2abc5e.stl">⬇ Download STL mesh</a></p>
 <p>NEMA 23:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">shaft_len</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">23</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">shaft_len</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-aa73e91e085c4d16a8c64b8537e9b909" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-aa73e91e085c4d16a8c64b8537e9b909");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/bcae836ada62add6.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/bcae836ada62add6.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">nema_mount_mask</span></code></p>
 <p>Bolt-pattern mask for a NEMA 14:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_mount_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_mount_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-36d788ca51444d6fa4ec6b5052b04dd9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-36d788ca51444d6fa4ec6b5052b04dd9");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/4c2171753d7a6190.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/4c2171753d7a6190.stl">⬇ Download STL mesh</a></p>
 <p>NEMA 17 with slotted holes:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_mount_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_mount_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-9c96a8a46280407ab215e675e1bde2d4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-9c96a8a46280407ab215e675e1bde2d4");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/1939034c863976ad.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/1939034c863976ad.stl">⬇ Download STL mesh</a></p>
-<p>NEMA 17 with round holes (l=0):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_mount_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<p>NEMA 17 with round holes (length=0):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_mount_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-94bd92b442e9403fb970cba1111e12c2" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-94bd92b442e9403fb970cba1111e12c2");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/49ad9b79115c71bd.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/49ad9b79115c71bd.stl">⬇ Download STL mesh</a></p>
 </section>
 </section>
 

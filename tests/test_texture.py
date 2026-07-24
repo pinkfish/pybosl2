@@ -49,8 +49,8 @@ def test_unknown_texture_raises():
 
 
 def test_resolution_parameter():
-    assert len(texture("ribs", n=8)[0]) == 8
-    assert np.array(texture("pyramids", n=6)).shape == (6, 6)
+    assert len(texture("ribs", sides=8)[0]) == 8
+    assert np.array(texture("pyramids", sides=6)).shape == (6, 6)
 
 
 @pytest.mark.parametrize("name", _VNF)

@@ -134,8 +134,8 @@ class BallBearings:
     @staticmethod
     def ball_bearing(
         trade_size: str | None = None,
-        id: float | None = None,
-        od: float | None = None,
+        inner_diameter: float | None = None,
+        outer_diameter: float | None = None,
         width: float | None = None,
         shield: bool = True,
         color: str | None = "silver",
@@ -145,7 +145,7 @@ class BallBearings:
     ) -> Bosl2Solid:
         """A ball-bearing cartridge model (BOSL2 ball_bearing()).
 
-        Give a *trade_size* name, or explicit *id*/*od*/*width* (with *shield*). Returns a
+        Give a *trade_size* name, or explicit *inner_diameter*/*outer_diameter*/*width* (with *shield*). Returns a
         :class:`~bosl2.shapes3d.Bosl2Solid` centered on the origin.
 
         Examples:
@@ -158,32 +158,32 @@ class BallBearings:
         """
         if trade_size is not None:
             spec = BallBearings.ball_bearing_info(trade_size)
-            id, od, width, shield = spec.id, spec.od, spec.width, spec.shielded
-        assert None not in (id, od, width), (
-            "ball_bearing(): give a trade_size or id/od/width."
+            inner_diameter, outer_diameter, width, shield = spec.inner_diameter, spec.outer_diameter, spec.width, spec.shielded
+        assert None not in (inner_diameter, outer_diameter, width), (
+            "ball_bearing(): give a trade_size or inner_diameter/outer_diameter/width."
         )
 
-        mid_d = (id + od) / 2
-        wall = (od - id) / 2 / 3
+        mid_d = (inner_diameter + outer_diameter) / 2
+        wall = (outer_diameter - inner_diameter) / 2 / 3
         if shield:
             result = (
-                tube(id=id, wall=wall, h=width)
-                | tube(od=od, wall=wall, h=width)
-                | tube(id=id + 0.1, od=od - 0.1, h=(wall * 2 + width) / 2)
+                tube(inner_diameter=inner_diameter, wall=wall, height=width)
+                | tube(outer_diameter=outer_diameter, wall=wall, height=width)
+                | tube(inner_diameter=inner_diameter + 0.1, outer_diameter=outer_diameter - 0.1, height=(wall * 2 + width) / 2)
             )
         else:
             ball_cnt = int(math.floor(math.pi * mid_d * 0.95 / (wall * 2)))
-            races = tube(id=id, wall=wall, h=width) | tube(od=od, wall=wall, h=width)
-            races = races - torus(r_maj=mid_d / 2, r_min=wall)
+            races = tube(inner_diameter=inner_diameter, wall=wall, height=width) | tube(outer_diameter=outer_diameter, wall=wall, height=width)
+            races = races - torus(major_radius=mid_d / 2, minor_radius=wall)
             balls = reduce(
                 operator.or_,
                 (
-                    sphere(d=wall * 2, _fn=_fn, _fa=_fa, _fs=_fs)
+                    sphere(diameter=wall * 2, _fn=_fn, _fa=_fa, _fs=_fs)
                     .right(mid_d / 2)
                     .rotate([0, 0, i * 360 / ball_cnt])
                     for i in range(ball_cnt)
                 ),
             )
             result = races | balls
-        result = Bosl2Solid(result.shape, size=[od, od, width])
+        result = Bosl2Solid(result.shape, size=[outer_diameter, outer_diameter, width])
         return result.color(color) if color else result

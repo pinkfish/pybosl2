@@ -193,10 +193,10 @@ def parse_stl(path: Path) -> np.ndarray:
     """Load an STL (binary or ASCII) as an (N, 3, 3) array of triangle vertices."""
     data = Path(path).read_bytes()
     if len(data) >= 84:
-        n = struct.unpack("<I", data[80:84])[0]
-        if len(data) == 84 + 50 * n:  # exact binary-STL size => binary
-            dt = np.dtype([("n", "<f4", (3,)), ("v", "<f4", (3, 3)), ("attr", "<u2")])
-            arr = np.frombuffer(data, dtype=dt, offset=84, count=n)
+        sides = struct.unpack("<I", data[80:84])[0]
+        if len(data) == 84 + 50 * sides:  # exact binary-STL size => binary
+            dt = np.dtype([("sides", "<f4", (3,)), ("v", "<f4", (3, 3)), ("attr", "<u2")])
+            arr = np.frombuffer(data, dtype=dt, offset=84, count=sides)
             return np.array(arr["v"], dtype=float)
     verts = []
     for line in data.decode("ascii", errors="replace").splitlines():

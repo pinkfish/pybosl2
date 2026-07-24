@@ -139,9 +139,9 @@ def _thread_grid(profile, pitch, r, l, starts, left_handed, sides):
     turns2 = int(math.ceil(len2 / pitch)) + 1
     grid = []
     for step in range(start_steps + 1):
-        ang = math.radians(360 * step / sides * direction)
+        angle = math.radians(360 * step / sides * direction)
         dz = step / start_steps
-        ca, sa = math.cos(ang), math.sin(ang)
+        ca, sa = math.cos(angle), math.sin(angle)
         col = [[0.0, 0.0, len1]]
         for turn in range(turns1, turns2 + 1):
             for px, py in prof:
@@ -171,11 +171,11 @@ def _rod_solid(
     from bosl2.shapes2d import _frag_count
     from bosl2.vnf import VNF
 
-    r = d / 2
-    sides = _quantup(_frag_count(r, _fn, _fa, _fs), starts)
+    radius = d / 2
+    sides = _quantup(_frag_count(radius, _fn, _fa, _fs), starts)
     verts, faces = [], []
     for k in range(starts):
-        grid = _thread_grid(profile, pitch, r, l, starts, left_handed, sides)
+        grid = _thread_grid(profile, pitch, radius, l, starts, left_handed, sides)
         vnf = VNF.vertex_array(grid, col_wrap=False, style="convex")
         rv = (
             _rot_z(list(vnf.vertices), k * 360 / starts)
@@ -186,7 +186,7 @@ def _rod_solid(
         verts += [list(v) for v in rv]
         faces += [[i + off for i in f] for f in vnf.faces]
     thread = Bosl2Solid(VNF(verts, faces).polyhedron())
-    return thread & cyl(h=l, r=r + 1, _fn=_fn, _fa=_fa, _fs=_fs)
+    return thread & cyl(height=l, radius=radius + 1, _fn=_fn, _fa=_fa, _fs=_fs)
 
 
 def _profile_depth_abs(profile, pitch):
@@ -214,7 +214,7 @@ def _nut_solid(
     from bosl2.shapes3d import regular_prism, cuboid
 
     if shape == "hex":
-        body = regular_prism(6, h=h, id=nutwidth)
+        body = regular_prism(6, height=h, inner_diameter=nutwidth)
     elif shape == "square":
         body = cuboid([nutwidth, nutwidth, h])
     else:
@@ -222,7 +222,7 @@ def _nut_solid(
     if pitch == 0:
         from bosl2.shapes3d import cyl
 
-        return body - cyl(h=h + 2, r=idia / 2 + slop, _fn=_fn, _fa=_fa, _fs=_fs)
+        return body - cyl(height=h + 2, radius=idia / 2 + slop, _fn=_fn, _fa=_fa, _fs=_fs)
     depth_abs = _profile_depth_abs(profile, pitch)
     tap = _rod_solid(
         idia + 2 * depth_abs + 2 * slop,
@@ -554,16 +554,16 @@ class Threading:
         prof = [[float(x), float(y)] for x, y in profile]
         ys = [p[1] for p in prof]
         pmax = max(ys)
-        r = d / 2
+        radius = d / 2
         section = [[(py - pmax) * pitch, px * pitch] for px, py in prof]
         lead = starts * pitch
-        h = turns * lead
+        height = turns * lead
         thread = None
         for k in range(starts):
             sec = [[x, y + k * pitch] for x, y in section]
             piece = Bosl2Solid(
                 spiral_sweep(
-                    sec, h=h, r=r, turns=turns * (-1 if left_handed else 1), center=True
+                    sec, height=height, radius=radius, turns=turns * (-1 if left_handed else 1), center=True
                 ).polyhedron()
             )
             if starts > 1:

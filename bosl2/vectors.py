@@ -60,9 +60,9 @@ def unit(v, error=None) -> np.ndarray:
     ValueError (matching BOSL2's default assert-on-zero-vector behavior).
     """
     arr = np.asarray(v, dtype=float)
-    n = float(np.linalg.norm(arr))
-    if n < EPSILON:
+    sides = float(np.linalg.norm(arr))
+    if sides < EPSILON:
         if error is not None:
             return np.asarray(error, dtype=float)
         raise ValueError("Cannot normalize a zero vector")
-    return arr / n
+    return arr / sides

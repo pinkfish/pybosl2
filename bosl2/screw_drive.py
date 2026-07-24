@@ -41,9 +41,9 @@ from bosl2.shapes3d import Bosl2Solid, cyl, prismoid, _quantup
 __all__ = ["ScrewDrive", "PhillipsSpec", "TorxSpec", "RobertsonSpec"]
 
 
-def _adj_ang_to_opp(adj: float, ang: float) -> float:
+def _adj_ang_to_opp(adj: float, angle: float) -> float:
     """The opposite side of a right triangle given the adjacent side and angle (BOSL2 adj_ang_to_opp)."""
-    return adj * math.tan(math.radians(ang))
+    return adj * math.tan(math.radians(angle))
 
 
 def _union(shapes):
@@ -199,7 +199,7 @@ class ScrewDrive:
             .. pythonscad-example::
 
                 from bosl2.screw_drive import ScrewDrive
-                (s3.cyl(d1=2, d2=8, h=4).down(2) - ScrewDrive.phillips_mask(size="#2")).show()
+                (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask(size="#2")).show()
         """
         spec = _PHILLIPS[_phillips_num(size)]
         shaft, b, e, g = spec.shaft, spec.b, spec.e, spec.g
@@ -223,7 +223,7 @@ class ScrewDrive:
         # One cutout wing: extruded profile, dropped 1mm, tilted by beta, raised to h3.
         wing = _opolygon(cut_path).linear_extrude(height=length + 2)
         wing = wing.translate([0, 0, -1]).rotate([0, beta, 0]).translate([0, 0, h3])
-        cutter = _union(wing.multmatrix(m.tolist()) for m in zrot_copies(n=4, r=b / 2))
+        cutter = _union(wing.multmatrix(m.tolist()) for m in zrot_copies(sides=4, radius=b / 2))
         cutter = cutter.rotate([0, 0, 45])
 
         body = _orotate_extrude(
@@ -233,14 +233,14 @@ class ScrewDrive:
         return mask.down(length / 2) if center else mask
 
     @staticmethod
-    def phillips_depth(size, d: float):
-        """Recess depth needed to reach diameter *d* for a Phillips *size*, or ``None`` (BOSL2 phillips_depth())."""
+    def phillips_depth(size, diameter: float):
+        """Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None`` (BOSL2 phillips_depth())."""
         spec = _PHILLIPS[_phillips_num(size)]
         shaft, g = spec.shaft, spec.g
         h1 = _adj_ang_to_opp(g / 2, _PH_BOT_ANGLE)
-        if d >= shaft or d < g:
+        if diameter >= shaft or diameter < g:
             return None
-        return (d - g) / 2 / math.tan(math.radians(_PH_SIDE_ANGLE)) + h1
+        return (diameter - g) / 2 / math.tan(math.radians(_PH_SIDE_ANGLE)) + h1
 
     @staticmethod
     def phillips_diam(size, depth: float):
@@ -314,10 +314,10 @@ class ScrewDrive:
             circle(radius=tip, _fn=fn // 2)
             .translate([base / 2, 0])
             .multmatrix(m.tolist())
-            for m in zrot_copies(n=3)
+            for m in zrot_copies(sides=3)
         ]
         tri = _ohull(*tip_circles)
-        lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(n=2))
+        lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(sides=2))
         solid = circle(diameter=base, _fn=fn) | lobes
 
         # Six inner rounding cutouts.
@@ -326,7 +326,7 @@ class ScrewDrive:
             .translate([id_ / 2 + rounding, 0])
             .rotate([0, 0, 180 / 6])
             .multmatrix(m.tolist())
-            for m in zrot_copies(n=6)
+            for m in zrot_copies(sides=6)
         )
         return solid - cut
 
@@ -342,24 +342,24 @@ class ScrewDrive:
                 from bosl2.screw_drive import ScrewDrive
                 ScrewDrive.torx_mask(size=30, length=10).show()
         """
-        od = ScrewDrive.torx_diam(size)
+        outer_diameter = ScrewDrive.torx_diam(size)
         solid = ScrewDrive._torx_profile(size).linear_extrude(
             height=length, center=center
         )
-        return Bosl2Solid(solid, size=[od, od, length])
+        return Bosl2Solid(solid, size=[outer_diameter, outer_diameter, length])
 
     # ---- Robertson / square ---------------------------------------------
 
     @staticmethod
     def robertson_mask(
-        size: int, extra: float = 1.0, ang: float = 2.5, slop: float = 0.0
+        size: int, extra: float = 1.0, angle: float = 2.5, slop: float = 0.0
     ) -> Bosl2Solid:
         """A Robertson/square driver-recess mask for square-drive *size* ``0``..``4`` (BOSL2 robertson_mask()).
 
         Args:
             size: square-drive size, an integer ``0``..``4``.
             extra: extra length of drive mask beyond the nominal depth.
-            ang: taper angle of each face (default 2.5, from BOSL2's print tests).
+            angle: taper angle of each face (default 2.5, from BOSL2's print tests).
             slop: enlarge the recess by ``2 * slop``.
         """
         if not (isinstance(size, int) and 0 <= size <= 4):
@@ -368,10 +368,10 @@ class ScrewDrive:
         M = spec.m * INCH  # across flats
         T = spec.t * INCH  # depth
         F = spec.f * INCH  # flat-to-taper transition
-        h = T + extra
+        height = T + extra
         m_slop = M + 2 * slop
-        m_top = m_slop + 2 * _adj_ang_to_opp(F + extra, ang)
-        m_bot = m_slop - 2 * _adj_ang_to_opp(T - F, ang)
-        tapered = prismoid([m_bot, m_bot], [m_top, m_top], h=h, anchor=BOTTOM)
-        cone = cyl(d1=0, d2=m_slop / (T - F) * math.sqrt(2) * h, h=h, anchor=BOTTOM)
+        m_top = m_slop + 2 * _adj_ang_to_opp(F + extra, angle)
+        m_bot = m_slop - 2 * _adj_ang_to_opp(T - F, angle)
+        tapered = prismoid([m_bot, m_bot], [m_top, m_top], height=height, anchor=BOTTOM)
+        cone = cyl(diameter1=0, diameter2=m_slop / (T - F) * math.sqrt(2) * height, height=height, anchor=BOTTOM)
         return (tapered & cone).down(T)

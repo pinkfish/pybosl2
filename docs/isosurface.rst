@@ -75,7 +75,7 @@ The level set of a custom field function:
 
     def field(p):
         import numpy as np
-        d = np.sqrt(p[:, 0]**2 + p[:, 1]**2 + p[:, 2]**2)
+        diameter=np.sqrt(p[:, 0]**2 + p[:, 1]**2 + p[:, 2]**2)
         return 18 / d + 3 * np.sin(p[:, 0] / 3) * np.cos(p[:, 1] / 3)
     isosurface(field, 1, bounding_box=70, voxel_size=2.5).polyhedron().show()
 

@@ -85,7 +85,7 @@ class Path(Distributable, Extrudable, Roundable, list):
     this is a drop-in for the raw lists the toolkit passes around, while giving the chained
     object form for new code::
 
-        Path([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(r=-2).round_corners(radius=1).polygon()
+        Path([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(radius=-2).round_corners(radius=1).polygon()
 
     Because it IS a list, ``isinstance(x, Path)`` is the type check that replaced the old
     ``is_path()``/``is_region()`` guards. Every method returns a NEW Path (or list/array) --
@@ -108,7 +108,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         .. pythonscad-example::
 
             outline = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
-            plate = outline.offset(r=-3).round_corners(radius=5).polygon().linear_extrude(height=4)
+            plate = outline.offset(radius=-3).round_corners(radius=5).polygon().linear_extrude(height=4)
             plate.show()
     """
 
@@ -219,14 +219,14 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     def offset(
         self,
-        r: float | None = None,
+        radius: float | None = None,
         delta: float | None = None,
         chamfer: bool = False,
         _fn: float | None = None,
         _fa: float | None = None,
         _fs: float | None = None,
     ) -> "Path":
-        """Offset by *r* (rounded joins) or *delta* (sharp/chamfered). See :meth:`_offset`.
+        """Offset by *radius* (rounded joins) or *delta* (sharp/chamfered). See :meth:`_offset`.
 
         Prefer ``.polygon().offset(...)`` (native, Manifold-side) when you only need geometry;
         this is for when the result is needed as points.
@@ -234,7 +234,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         return self._like(
             Path._offset(
                 self,
-                r=r,
+                radius=radius,
                 delta=delta,
                 chamfer=chamfer,
                 closed=self.closed,
@@ -331,11 +331,11 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     def mirror(self, v: Sequence[float]) -> "Path":
         """Reflect every point across the line through the origin with normal *v*."""
-        n = np.asarray(v, dtype=float)
-        n = n / np.linalg.norm(n)
+        sides = np.asarray(v, dtype=float)
+        sides = sides / np.linalg.norm(sides)
         pts = self.array
-        d = pts @ n
-        return self._like(pts - 2 * np.outer(d, n))
+        diameter = pts @ sides
+        return self._like(pts - 2 * np.outer(diameter, sides))
 
     def yflip(self, y: float = 0.0) -> "Path":
         """Reflect every point across the horizontal line Y=*y* (default: the X axis)."""
@@ -396,7 +396,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         if not vertices:
             return solid
         labels = [
-            text3d(str(i), size=size, h=0.02, halign="center", valign="center")
+            text3d(str(i), size=size, height=0.02, halign="center", valign="center")
             .translate([float(x), float(y), 0.01])
             .color("red")
             for i, (x, y) in enumerate(self)
@@ -476,19 +476,19 @@ class Path(Distributable, Extrudable, Roundable, list):
         returns the wrapped elements; ``_select(lst, s, e)`` returns the inclusive circular slice
         from s to e, wrapping past the end when s > e.
         """
-        n = len(lst)
-        if n == 0:
+        sides = len(lst)
+        if sides == 0:
             return []
         if end is None:
             if isinstance(start, (list, tuple)):
-                return [lst[i % n] for i in start]
-            return lst[start % n]
+                return [lst[i % sides] for i in start]
+            return lst[start % sides]
         assert isinstance(start, int), "_select(): slice form needs integer start"
-        s = start % n
-        e = end % n
+        s = start % sides
+        e = end % sides
         if s <= e:
             return [lst[i] for i in range(s, e + 1)]
-        return [lst[i] for i in range(s, n)] + [lst[i] for i in range(0, e + 1)]
+        return [lst[i] for i in range(s, sides)] + [lst[i] for i in range(0, e + 1)]
 
     @staticmethod
     def _pair(lst, wrap: bool = False) -> list:
@@ -532,9 +532,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         return lst[s : e + 1]
 
     @staticmethod
-    def _repeat(val, n: int) -> list:
-        """*val* repeated *n* times."""
-        return [val for _ in range(n)]
+    def _repeat(val, sides: int) -> list:
+        """*val* repeated *sides* times."""
+        return [val for _ in range(sides)]
 
     @staticmethod
     def _deduplicate(lst, closed: bool = False, eps: float = EPSILON) -> list:
@@ -568,8 +568,8 @@ class Path(Distributable, Extrudable, Roundable, list):
     def _polygon_area(poly, signed: bool = False) -> float:
         """Area of a 2-D polygon (shoelace formula). Only 2-D polygons are supported."""
         arr = np.asarray(poly, dtype=float)
-        n = len(arr)
-        if n < 3:
+        sides = len(arr)
+        if sides < 3:
             return 0.0
         p0 = arr[0]
         rest = arr[1:] - p0
@@ -594,8 +594,8 @@ class Path(Distributable, Extrudable, Roundable, list):
             return -1
 
         poly = np.asarray(poly, dtype=float)
-        n = len(poly)
-        segs = [(poly[i], poly[(i + 1) % n]) for i in range(n)]
+        sides = len(poly)
+        segs = [(poly[i], poly[(i + 1) % sides]) for i in range(sides)]
 
         for seg in segs:
             if float(np.linalg.norm(seg[1] - seg[0])) > eps and _is_point_on_segment(
@@ -730,8 +730,8 @@ class Path(Distributable, Extrudable, Roundable, list):
         result = []
         for i in range(0, plen - 2):
             a1, a2 = arr[i], arr[i + 1]
-            d = a2 - a1
-            seg_normal = np.asarray(unit([-d[1], d[0]], [0.0, 0.0]))
+            diameter = a2 - a1
+            seg_normal = np.asarray(unit([-diameter[1], diameter[0]], [0.0, 0.0]))
             vals = arr @ seg_normal
             ref = float(a1 @ seg_normal)
             upper = plen - (2 if (i == 0 and closed) else 1)
@@ -779,7 +779,7 @@ class Path(Distributable, Extrudable, Roundable, list):
     @staticmethod
     def _subdivide_path(
         path,
-        n=None,
+        sides=None,
         refine=None,
         maxlen=None,
         closed: bool = True,
@@ -787,10 +787,10 @@ class Path(Distributable, Extrudable, Roundable, list):
         method: str | None = None,
     ) -> list:
         """Subdivide *path* to produce a more finely sampled path; see BOSL2 subdivide_path() for the full option set."""
-        assert sum(x is not None for x in (n, refine, maxlen)) == 1, (
-            "Must give exactly one of n, refine, and maxlen"
+        assert sum(x is not None for x in (sides, refine, maxlen)) == 1, (
+            "Must give exactly one of sides, refine, and maxlen"
         )
-        if refine == 1 or n == len(path):
+        if refine == 1 or sides == len(path):
             return path
         if maxlen is not None:
             assert method is None, "Cannot give method with maxlen"
@@ -805,27 +805,27 @@ class Path(Distributable, Extrudable, Roundable, list):
         exact = True if exact is None else exact
         method = "length" if method is None else method
         assert method in ("length", "segment")
-        if n is None:
-            assert refine is not None, "Must give exactly one of n, refine, and maxlen"
-            n = len(path) * refine
-        assert (isinstance(n, (int, float)) and n > 0) or isinstance(
-            n, (list, tuple)
-        ), "Parameter n to subdivide_path must be positive number or vector"
+        if sides is None:
+            assert refine is not None, "Must give exactly one of sides, refine, and maxlen"
+            sides = len(path) * refine
+        assert (isinstance(sides, (int, float)) and sides > 0) or isinstance(
+            sides, (list, tuple)
+        ), "Parameter sides to subdivide_path must be positive number or vector"
         count = len(path) - (0 if closed else 1)
         if method == "segment":
-            if isinstance(n, (list, tuple)):
-                assert len(n) == count, (
-                    "Vector parameter n to subdivide_path has the wrong length"
+            if isinstance(sides, (list, tuple)):
+                assert len(sides) == count, (
+                    "Vector parameter sides to subdivide_path has the wrong length"
                 )
-                add_guess = add_scalar(list(n), -1)
+                add_guess = add_scalar(list(sides), -1)
             else:
-                add_guess = Path._repeat((n - len(path)) / count, count)
+                add_guess = Path._repeat((sides - len(path)) / count, count)
         else:
-            assert isinstance(n, (int, float)), (
-                'Parameter n to subdivide path must be a number when method="length"'
+            assert isinstance(sides, (int, float)), (
+                'Parameter sides to subdivide path must be a number when method="length"'
             )
             path_lens = Path._path_segment_lengths(path, closed)
-            add_density = (n - len(path)) / sum(path_lens)
+            add_density = (sides - len(path)) / sum(path_lens)
             add_guess = [ln * add_density for ln in path_lens]
         add_list = [float(v) for v in add_guess]
         add = (
@@ -845,14 +845,14 @@ class Path(Distributable, Extrudable, Roundable, list):
         return out
 
     @staticmethod
-    def _resample_path(path, n=None, spacing=None, closed: bool = True) -> list:
-        """Uniformly resample *path* to *n* points, or to a spacing near *spacing*."""
-        assert (n is None) != (spacing is None), (
-            "Must define exactly one of n and spacing"
+    def _resample_path(path, sides=None, spacing=None, closed: bool = True) -> list:
+        """Uniformly resample *path* to *sides* points, or to a spacing near *spacing*."""
+        assert (sides is None) != (spacing is None), (
+            "Must define exactly one of sides and spacing"
         )
         length = Path._path_length(path, closed)
-        if n is not None:
-            n_use = n - (0 if closed else 1)
+        if sides is not None:
+            n_use = sides - (0 if closed else 1)
         else:
             assert spacing is not None
             n_use = round(length / spacing)
@@ -871,11 +871,11 @@ class Path(Distributable, Extrudable, Roundable, list):
         if closed is None:
             closed = False
         arr = np.asarray(path, dtype=float)
-        n = len(arr)
-        end = n - (2 if closed else 3)
+        sides = len(arr)
+        end = sides - (2 if closed else 3)
         for i in range(0, end + 1):
             v1 = arr[i + 1] - arr[i]
-            v2 = arr[(i + 2) % n] - arr[i + 1]
+            v2 = arr[(i + 2) % sides] - arr[i + 1]
             n1, n2 = float(np.hypot(*v1)), float(np.hypot(*v2))
             if n1 > 0 and n2 > 0 and approx(float(v1 @ v2) / (n1 * n2), -1):
                 return False
@@ -899,15 +899,15 @@ class Path(Distributable, Extrudable, Roundable, list):
         if closed is None:
             closed = False
         if not uniform:
-            d = np.asarray(
-                deriv(path, closed=closed, h=Path._path_segment_lengths(path, closed)),
+            diameter = np.asarray(
+                deriv(path, closed=closed, height=Path._path_segment_lengths(path, closed)),
                 dtype=float,
             )
         else:
-            d = np.asarray(deriv(path, closed=closed), dtype=float)
-        norms = np.linalg.norm(d, axis=1, keepdims=True)
+            diameter = np.asarray(deriv(path, closed=closed), dtype=float)
+        norms = np.linalg.norm(diameter, axis=1, keepdims=True)
         assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
-        return d / norms
+        return diameter / norms
 
     @staticmethod
     def _path_normals(path, tangents=None, closed: bool | None = None) -> np.ndarray:
@@ -920,14 +920,14 @@ class Path(Distributable, Extrudable, Roundable, list):
         tarr = np.asarray(tangents, dtype=float)
         if dim == 2:
             return np.stack([tarr[:, 1], -tarr[:, 0]], axis=1)
-        n = len(path)
+        sides = len(path)
         parr = np.asarray(path, dtype=float)
         out = []
-        for i in range(n):
+        for i in range(sides):
             if i == 0:
                 idx = [-1, 0, 1] if closed else [0, 1, 2]
-            elif i == n - 1:
-                idx = [i - 1, i, (i + 1) % n] if closed else [i - 2, i - 1, i]
+            elif i == sides - 1:
+                idx = [i - 1, i, (i + 1) % sides] if closed else [i - 2, i - 1, i]
             else:
                 idx = [i - 1, i, i + 1]
             pts = parr[idx]
@@ -942,8 +942,8 @@ class Path(Distributable, Extrudable, Roundable, list):
         """Numeric curvature estimate of *path* at each point, as an ndarray."""
         if closed is None:
             closed = False
-        d1 = np.asarray(deriv(path, closed=closed), dtype=float)
-        d2 = np.asarray(deriv2(path, closed=closed), dtype=float)
+        diameter1 = np.asarray(deriv(path, closed=closed), dtype=float)
+        diameter2 = np.asarray(deriv2(path, closed=closed), dtype=float)
         n1 = np.linalg.norm(d1, axis=1)
         n2 = np.linalg.norm(d2, axis=1)
         dot = np.einsum("ij,ij->i", d1, d2)
@@ -953,8 +953,8 @@ class Path(Distributable, Extrudable, Roundable, list):
     @staticmethod
     def _path_torsion(path, closed: bool = False) -> np.ndarray:
         """Numeric torsion estimate of a 3D *path* at each point, as an ndarray."""
-        d1 = np.asarray(deriv(path, closed=closed), dtype=float)
-        d2 = np.asarray(deriv2(path, closed=closed), dtype=float)
+        diameter1 = np.asarray(deriv(path, closed=closed), dtype=float)
+        diameter2 = np.asarray(deriv2(path, closed=closed), dtype=float)
         d3 = np.asarray(deriv3(path, closed=closed), dtype=float)
         crossterm = np.cross(d1, d2)
         dot = np.einsum("ij,ij->i", crossterm, d3)
@@ -1061,10 +1061,10 @@ class Path(Distributable, Extrudable, Roundable, list):
             if ind == len(path) - (0 if closed else 1):
                 assert dist < eps, "Path is too short for specified cut distance"
                 return [Path._select(path, ind), ind + 1]
-            d = math.dist(path[ind], Path._select(path, ind + 1))
-            if d > dist:
-                return [lerp(path[ind], Path._select(path, ind + 1), dist / d), ind + 1]
-            dist -= d
+            diameter = math.dist(path[ind], Path._select(path, ind + 1))
+            if diameter > dist:
+                return [lerp(path[ind], Path._select(path, ind + 1), dist / diameter), ind + 1]
+            dist -= diameter
             ind += 1
 
     @staticmethod
@@ -1198,9 +1198,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         for subpath in subpaths:
             seg = Path._select(subpath, 0, 1)
             mp = np.asarray(seg, dtype=float).mean(axis=0)
-            n = [x / 2048 for x in line_normal(seg[0], seg[1])]
-            p1 = [mp[0] + n[0], mp[1] + n[1]]
-            p2 = [mp[0] - n[0], mp[1] - n[1]]
+            sides = [x / 2048 for x in line_normal(seg[0], seg[1])]
+            p1 = [mp[0] + sides[0], mp[1] + sides[1]]
+            p2 = [mp[0] - sides[0], mp[1] - sides[1]]
             p1in = Path._point_in_polygon(p1, path, nonzero=nonzero) >= 0
             p2in = Path._point_in_polygon(p2, path, nonzero=nonzero) >= 0
             tag = "I" if (p1in and p2in) else "O"
@@ -1307,22 +1307,22 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _offset_segs(
-        r: float,
+        radius: float,
         _fn: float | None = None,
         _fa: float | None = None,
         _fs: float | None = None,
     ) -> int:
-        """OpenSCAD's $fn/$fa/$fs segment count for a circle of radius *r* (BOSL2's segs())."""
+        """OpenSCAD's $fn/$fa/$fs segment count for a circle of radius *radius* (BOSL2's segs())."""
         if _fn is not None and _fn >= 3:
             return int(math.floor(_fn))
         fa = _fa if _fa else 12.0
         fs = _fs if _fs else 2.0
-        return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(r)) / fs))))
+        return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(radius)) / fs))))
 
     @staticmethod
     def _offset(
         path,
-        r: float | None = None,
+        radius: float | None = None,
         delta: float | None = None,
         chamfer: bool = False,
         closed: bool = True,
@@ -1330,16 +1330,16 @@ class Path(Distributable, Extrudable, Roundable, list):
         _fa: float | None = None,
         _fs: float | None = None,
     ) -> list[list[float]]:
-        """Offset a closed polygon by *r* (rounded joins) or *delta* (sharp/chamfered joins).
+        """Offset a closed polygon by *radius* (rounded joins) or *delta* (sharp/chamfered joins).
 
         The pure-Python/numpy equivalent of BOSL2's ``offset()``, returning POINTS. Verified to
         match the real BOSL2 exactly over every path shape and variant the toolkit uses -- square,
-        concave, hexagon, a 6-point box outline and a triangle, crossed with r/delta, inward and
+        concave, hexagon, a 6-point box outline and a triangle, crossed with radius/delta, inward and
         outward, chamfered and not (see tests/test_bosl2_offset.py, 45 cases).
 
         Positive grows the polygon, negative shrinks it, for either winding (the signed area picks
         the sign convention). At each vertex the two offset edges either overlap -- and are simply
-        intersected (a mitre) -- or open a gap, which is filled with an arc (``r=``), a sharp mitre
+        intersected (a mitre) -- or open a gap, which is filled with an arc (``radius=``), a sharp mitre
         (``delta=``) or a flat cut (``delta=`` + ``chamfer=True``, the cut sitting \\|delta\\| from
         the original vertex, square to the corner bisector).
 
@@ -1349,11 +1349,11 @@ class Path(Distributable, Extrudable, Roundable, list):
 
         Usage::
 
-            Path([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(r=-2)
+            Path([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(radius=-2)
             path.offset(delta=2, chamfer=True)
 
         Args:
-            r:       offset distance with rounded joins (mutually exclusive with *delta*)
+            radius:       offset distance with rounded joins (mutually exclusive with *delta*)
             delta:   offset distance with sharp joins
             chamfer: with *delta*, flatten the corner instead of mitring it (default False)
             closed:  the path is a closed polygon (default True; open paths are not supported)
@@ -1364,15 +1364,15 @@ class Path(Distributable, Extrudable, Roundable, list):
             wall-thickness insets this is used for, but it is why geometry work should use the
             native offset() instead.
         """
-        assert (r is None) != (delta is None), (
-            f"offset() needs exactly one of r= or delta=, r={r} delta={delta}"
+        assert (radius is None) != (delta is None), (
+            f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}"
         )
         assert closed, "offset() only supports closed polygons"
         pts = np.asarray(path, dtype=float)
         assert len(pts) >= 3, f"offset() needs at least 3 points, got {len(pts)}"
 
-        amount = float(r if r is not None else delta)
-        use_round = r is not None
+        amount = float(radius if radius is not None else delta)
+        use_round = radius is not None
         if amount == 0:
             return [[float(x), float(y)] for x, y in pts]
 
@@ -1466,12 +1466,12 @@ class Path(Distributable, Extrudable, Roundable, list):
                         (pt_in[i], u_in[i]),
                         (pt_out[i], u_out[i]),
                     ):
-                        d = float(direction @ bisector)
-                        if abs(d) < EPSILON:
+                        diameter = float(direction @ bisector)
+                        if abs(diameter) < EPSILON:
                             out.append([float(point[0]), float(point[1])])
                         else:
                             hit = point + direction * (
-                                float((cut - point) @ bisector) / d
+                                float((cut - point) @ bisector) / diameter
                             )
                             out.append([float(hit[0]), float(hit[1])])
             else:
@@ -1497,7 +1497,7 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _circlecorner(
-        points: list[list[float]], d: float, r: float, _fn=None, _fa=None, _fs=None
+        points: list[list[float]], diameter: float, radius: float, _fn=None, _fa=None, _fs=None
     ) -> list[list[float]]:
         # local: shapes2d imports pythonscad, which paths.py must stay importable without
         from bosl2.shapes2d import _frag_count, _arc_points
@@ -1511,27 +1511,26 @@ class Path(Distributable, Extrudable, Roundable, list):
         nxt = [x / n2 for x in v2]
         cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2)) / (n1 * n2)))
         angle = math.degrees(math.acos(cosang)) / 2
-        start = [p1[i] + prev[i] * d for i in range(dim)]
-        end = [p1[i] + nxt[i] * d for i in range(dim)]
+        start = [p1[i] + prev[i] * diameter for i in range(dim)]
+        end = [p1[i] + nxt[i] * diameter for i in range(dim)]
         if approx(angle, 90):
             return [start, end]
         bis = [prev[i] + nxt[i] for i in range(dim)]
         bislen = math.hypot(*bis)
         bis = [x / bislen for x in bis]
         center = [
-            r / math.sin(math.radians(angle)) * bis[i] + p1[i] for i in range(dim)
+            radius / math.sin(math.radians(angle)) * bis[i] + p1[i] for i in range(dim)
         ]
-        n = max(3, math.ceil((90 - angle) / 180 * _frag_count(r, _fn, _fa, _fs)))
+        sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, _fn, _fa, _fs)))
         a0 = math.degrees(math.atan2(start[1] - center[1], start[0] - center[0]))
         a1 = math.degrees(math.atan2(end[1] - center[1], end[0] - center[0]))
         delta = (a1 - a0 + 180) % 360 - 180
-        return _arc_points(n, r, a0, delta, center)
+        return _arc_points(sides, radius, a0, delta, center)
 
     @staticmethod
     def _round_corners(
         path: list[list[float]],
         radius: float | list[float] | None = None,
-        r: float | list[float] | None = None,
         closed: bool = True,
         _fn: float | None = None,
         _fa: float | None = None,
@@ -1542,25 +1541,25 @@ class Path(Distributable, Extrudable, Roundable, list):
         Args:
             path:   2-D path to round the corners of
             radius: rounding radius, a scalar (applied to every corner) or a per-vertex list
-            r:      synonym for radius
+            radius:      synonym for radius
             closed: if True, treat path as a closed polygon (default True)
             _fn/_fa/_fs: arc smoothness overrides
         """
-        n = len(path)
-        assert n > 2, f"Path has length {n}. Length must be 3 or more."
-        size = radius if radius is not None else r
+        sides = len(path)
+        assert sides > 2, f"Path has length {sides}. Length must be 3 or more."
+        size = radius if radius is not None else radius
         assert size is not None, "Must specify radius"
         if isinstance(size, (list, tuple)):
-            parm = ([0] + list(size) + [0]) if len(size) < n else list(size)
+            parm = ([0] + list(size) + [0]) if len(size) < sides else list(size)
         else:
-            parm = [size] * n
+            parm = [size] * sides
 
         dk = []
-        for i in range(n):
-            if (not closed and (i == 0 or i == n - 1)) or parm[i] == 0:
+        for i in range(sides):
+            if (not closed and (i == 0 or i == sides - 1)) or parm[i] == 0:
                 dk.append([0.0, 0.0])
                 continue
-            p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
+            p0, p1, p2 = path[(i - 1) % sides], path[i], path[(i + 1) % sides]
             angle = Path._vector_angle3(p0, p1, p2) / 2
             assert not approx(angle, 0), (
                 f"Path turns back on itself at index {i} with nonzero rounding"
@@ -1568,11 +1567,11 @@ class Path(Distributable, Extrudable, Roundable, list):
             dk.append([parm[i] / math.tan(math.radians(angle)), parm[i]])
 
         out = []
-        for i in range(n):
+        for i in range(sides):
             if dk[i][0] == 0:
                 out.append(path[i])
                 continue
-            p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
+            p0, p1, p2 = path[(i - 1) % sides], path[i], path[(i + 1) % sides]
             out.extend(
                 Path._circlecorner([p0, p1, p2], dk[i][0], dk[i][1], _fn, _fa, _fs)
             )
@@ -1612,7 +1611,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
 
         .. pythonscad-example::
 
-            coil = helix(turns=3, h=60, r=20).resample(n=120)
+            coil = helix(turns=3, height=60, radius=20).resample(sides=120)
             coil.stroke(width=4).show()
     """
 
@@ -1763,10 +1762,10 @@ class Path3D(Distributable, Extrudable, Roundable, list):
 
     def mirror(self, v: Sequence[float]) -> "Path3D":
         """Reflect every point across the plane through the origin with normal *v*."""
-        n = np.asarray(v, dtype=float)
-        n = n / np.linalg.norm(n)
+        sides = np.asarray(v, dtype=float)
+        sides = sides / np.linalg.norm(sides)
         pts = self.array
-        return self._like(pts - 2 * np.outer(pts @ n, n))
+        return self._like(pts - 2 * np.outer(pts @ sides, sides))
 
     def right(self, x: float) -> "Path3D":
         """Translate by *x* along +X."""

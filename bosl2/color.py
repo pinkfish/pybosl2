@@ -31,34 +31,34 @@ __all__ = ["hsl", "hsv", "rainbow", "rainbow_colors", "Colorable"]
 
 
 def hsl(
-    h: float, s: float = 1.0, l: float = 0.5, a: float | None = None
+    height: float, s: float = 1.0, length: float = 0.5, a: float | None = None
 ) -> list[float]:
     """Convert HSL to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsl().
 
     Args:
-        h: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)
+        height: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)
         s: saturation 0..1 (0 = grey, 1 = vivid). Default 1
-        l: lightness 0..1 (0 = black, 0.5 = bright, 1 = white). Default 0.5
+        length: lightness 0..1 (0 = black, 0.5 = bright, 1 = white). Default 0.5
         a: optional alpha 0..1; when given the result is ``[R, G, B, A]``
 
     Returns:
         ``[R, G, B]`` (each 0..1), or ``[R, G, B, A]`` when *a* is given.
     """
-    hm = h % 360
+    hm = height % 360
     rgb = []
     for n in (0, 8, 4):
         k = (n + hm / 30) % 12
-        rgb.append(l - s * min(l, 1 - l) * max(min(k - 3, 9 - k, 1), -1))
+        rgb.append(length - s * min(length, 1 - length) * max(min(k - 3, 9 - k, 1), -1))
     return rgb + ([a] if a is not None else [])
 
 
 def hsv(
-    h: float, s: float = 1.0, v: float = 1.0, a: float | None = None
+    height: float, s: float = 1.0, v: float = 1.0, a: float | None = None
 ) -> list[float]:
     """Convert HSV to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsv().
 
     Args:
-        h: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)
+        height: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)
         s: saturation 0..1 (0 = grey, 1 = vivid). Default 1
         v: value 0..1 (0 = black, 1 = bright). Default 1
         a: optional alpha 0..1; when given the result is ``[R, G, B, A]``
@@ -69,7 +69,7 @@ def hsv(
     assert 0 <= s <= 1, "hsv(): saturation must be in 0..1."
     assert 0 <= v <= 1, "hsv(): value must be in 0..1."
     assert a is None or 0 <= a <= 1, "hsv(): alpha must be in 0..1."
-    hm = h % 360
+    hm = height % 360
     c = v * s
     hp = hm / 60
     x = c * (1 - abs(hp % 2 - 1))
@@ -98,29 +98,29 @@ def hsv(
 
 
 def rainbow_colors(
-    n: int,
+    sides: int,
     stride: int = 1,
     maxhues: int | None = None,
     shuffle: bool = False,
     seed=None,
 ) -> list[list[float]]:
-    """The list of ``n`` ``[R, G, B]`` colours stepped around the ROYGBIV wheel (BOSL2 rainbow()).
+    """The list of ``sides`` ``[R, G, B]`` colours stepped around the ROYGBIV wheel (BOSL2 rainbow()).
 
     Args:
-        n:       how many colours to generate
+        sides:       how many colours to generate
         stride:  consecutive colours stride this many steps around the wheel
-        maxhues: cap the number of distinct hues (default: *n*)
+        maxhues: cap the number of distinct hues (default: *sides*)
         shuffle: shuffle the hue order
         seed:    seed for the shuffle
     """
-    if n <= 0:
+    if sides <= 0:
         return []
-    mh = maxhues if maxhues is not None else n
+    mh = maxhues if maxhues is not None else sides
     huestep = 360 / mh
-    hues = [(i * huestep + i * 360 / stride) % 360 for i in range(n)]
+    hues = [(i * huestep + i * 360 / stride) % 360 for i in range(sides)]
     if shuffle:
         random.Random(seed).shuffle(hues)
-    return [hsv(h=hue) for hue in hues]
+    return [hsv(height=hue) for hue in hues]
 
 
 def rainbow(
@@ -198,13 +198,13 @@ class Colorable:
             return self
         return self._color_native(c, alpha)
 
-    def hsl(self, h: float, s: float = 1.0, l: float = 0.5, a: float | None = None):
+    def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None):
         """Colour this object from an HSL hue/saturation/lightness (BOSL2 hsl())."""
-        return self._color_native(hsl(h, s, l), a)
+        return self._color_native(hsl(height, s, length), a)
 
-    def hsv(self, h: float, s: float = 1.0, v: float = 1.0, a: float | None = None):
+    def hsv(self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None):
         """Colour this object from an HSV hue/saturation/value (BOSL2 hsv())."""
-        return self._color_native(hsv(h, s, v), a)
+        return self._color_native(hsv(height, s, v), a)
 
     def highlight(self, highlight: bool = True):
         """Apply the ``#`` debug modifier (BOSL2 highlight()); ``False`` leaves it unmodified."""

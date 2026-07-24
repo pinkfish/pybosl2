@@ -51,8 +51,8 @@ BACK = Vec3([0.0, 1.0, 0.0])
 
 def _u(v) -> np.ndarray:
     a = np.asarray(v, dtype=float)
-    n = float(np.linalg.norm(a))
-    return a / n if n else a
+    sides = float(np.linalg.norm(a))
+    return a / sides if sides else a
 
 
 def path3d(path) -> list:
@@ -85,16 +85,16 @@ def _scale4(s) -> np.ndarray:
 
 
 def _xrot4(a: float) -> np.ndarray:
-    r = math.radians(a)
-    c, s = math.cos(r), math.sin(r)
+    radius = math.radians(a)
+    c, s = math.cos(radius), math.sin(radius)
     m = np.eye(4)
     m[1, 1], m[1, 2], m[2, 1], m[2, 2] = c, -s, s, c
     return m
 
 
-def _segs(r: float) -> int:
-    """OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *r* (BOSL2 segs())."""
-    return max(5, int(math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(r)) / 2.0))))
+def _segs(radius: float) -> int:
+    """OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs())."""
+    return max(5, int(math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(radius)) / 2.0))))
 
 
 def frame_map(x=None, y=None, z=None) -> np.ndarray:
@@ -265,20 +265,20 @@ def path_sweep(
 
     if method == "incremental":
         t0 = tangents[0]
-        r = normal_single - (normal_single @ t0) * t0
-        cur = frame_map(y=r, z=t0)
+        radius = normal_single - (normal_single @ t0) * t0
+        cur = frame_map(y=radius, z=t0)
         rotations = []
         for i in range(nprofiles):
             rotations.append(cur)
             if i < nprofiles - 1:
                 v1 = patharr[(i + 1) % L] - patharr[i % L]
                 c1 = float(v1 @ v1)
-                rL = r - 2 * (v1 @ r) / c1 * v1
+                rL = radius - 2 * (v1 @ radius) / c1 * v1
                 tL = tangents[i % L] - 2 * (v1 @ tangents[i % L]) / c1 * v1
                 v2 = tangents[(i + 1) % L] - tL
                 c2 = float(v2 @ v2)
-                r = rL - (2 / c2) * (v2 @ rL) * v2
-                cur = frame_map(y=r, z=tangents[(i + 1) % L])
+                radius = rL - (2 / c2) * (v2 @ rL) * v2
+                cur = frame_map(y=radius, z=tangents[(i + 1) % L])
         if closed:
             reference = rotations[0]
         elif last_normal is None:
@@ -349,9 +349,9 @@ def _reindex_polygon(reference, poly) -> list:
     distance. Winding is not adjusted here (the profiles skin() feeds in are already 3-D)."""
     ref = np.asarray(reference, dtype=float)
     p = np.asarray(poly, dtype=float)
-    n = len(ref)
+    sides = len(ref)
     best_k, best_val = 0, None
-    for k in range(n):
+    for k in range(sides):
         val = float(np.sum(np.linalg.norm(ref - np.roll(p, -k, axis=0), axis=1)))
         if best_val is None or val < best_val:
             best_val, best_k = val, k
@@ -363,8 +363,8 @@ def slice_profiles(profiles, slices, closed: bool = False) -> list:
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
     lists; the interpolation is vertex-by-vertex."""
-    n = len(profiles)
-    nseg = n - (0 if closed else 1)
+    sides = len(profiles)
+    nseg = sides - (0 if closed else 1)
     count = (
         list(slices)
         if isinstance(slices, (list, tuple, np.ndarray))
@@ -373,7 +373,7 @@ def slice_profiles(profiles, slices, closed: bool = False) -> list:
     out = []
     for i in range(nseg):
         a = np.asarray(profiles[i], dtype=float)
-        b = np.asarray(profiles[(i + 1) % n], dtype=float)
+        b = np.asarray(profiles[(i + 1) % sides], dtype=float)
         steps = int(count[i]) + 1
         for k in range(steps):  # lerpn(..., endpoint=False)
             out.append((a + (b - a) * (k / steps)).tolist())
@@ -422,9 +422,9 @@ def skin(
             skin([circle, square], slices=20, method="reindex", z=[0, 25]).polyhedron().show()
     """
     profiles = [list(p) for p in profiles]
-    n = len(profiles)
-    assert n > 1, "skin() needs at least two profiles."
-    profcount = n - (0 if closed else 1)
+    sides = len(profiles)
+    assert sides > 1, "skin() needs at least two profiles."
+    profcount = sides - (0 if closed else 1)
     if caps is None:
         caps = False if closed else True
     fullcaps = (
@@ -434,7 +434,7 @@ def skin(
             [caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])]
         )
     )
-    refine = list(refine) if isinstance(refine, (list, tuple)) else [refine] * n
+    refine = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method:
         assert m in ("direct", "reindex"), (
@@ -444,23 +444,23 @@ def skin(
 
     dim = len(profiles[0][0])
     if dim == 2:
-        assert z is not None and len(z) == n, (
+        assert z is not None and len(z) == sides, (
             "skin(): 2-D profiles need a matching-length z list."
         )
         profiles = [
             [[float(pt[0]), float(pt[1]), float(z[i])] for pt in profiles[i]]
-            for i in range(n)
+            for i in range(sides)
         ]
 
     from bosl2.paths import Path  # local: keep the import graph acyclic
 
-    maxlen = max(refine[i] * len(profiles[i]) for i in range(n))
+    maxlen = max(refine[i] * len(profiles[i]) for i in range(sides))
     resampled = [
-        Path._subdivide_path(profiles[i], n=maxlen, closed=True, method=sampling)
-        for i in range(n)
+        Path._subdivide_path(profiles[i], sides=maxlen, closed=True, method=sampling)
+        for i in range(sides)
     ]
     fixedprof = [resampled[0]]
-    for i in range(1, n):
+    for i in range(1, sides):
         if method[i - 1] == "direct":
             fixedprof.append(resampled[i])
         else:
@@ -488,7 +488,6 @@ def linear_sweep(
     caps=True,
     style: str = "default",
     center: bool | None = None,
-    h=None,
 ) -> VNF:
     """Extrude a 2-D outline to *height* with optional twist / scale / shift (BOSL2 linear_sweep()).
 
@@ -497,7 +496,7 @@ def linear_sweep(
 
     Args:
         region: the 2-D outline to extrude (a closed path)
-        height: extrusion height (aliases: *h*; default 1)
+        height: extrusion height (aliases: *height*; default 1)
         twist:  total twist over the height, in degrees (default 0)
         scale:  scale of the top relative to the bottom (scalar or [x, y]; default 1)
         shift:  [x, y] offset of the top relative to the bottom (default [0, 0])
@@ -514,7 +513,7 @@ def linear_sweep(
             square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
             linear_sweep(square, height=40, twist=120, scale=0.4).polyhedron().show()
     """
-    hh = float(h if h is not None else (height if height is not None else 1))
+    hh = float(height if height is not None else (height if height is not None else 1))
     path = [[float(p[0]), float(p[1])] for p in region]
     if slices is None:
         slices = max(1, math.ceil(abs(twist) / 5))
@@ -597,13 +596,13 @@ def rotate_sweep(
 def spiral_sweep(
     poly,
     h,
-    r=None,
+    radius=None,
     turns: float = 1.0,
-    r1=None,
-    r2=None,
-    d=None,
-    d1=None,
-    d2=None,
+    radius1=None,
+    radius2=None,
+    diameter=None,
+    diameter1=None,
+    diameter2=None,
     center: bool = True,
     style: str = "min_edge",
 ) -> VNF:
@@ -615,7 +614,7 @@ def spiral_sweep(
     Args:
         poly:  the 2-D wire cross-section (closed path)
         h:     total height of the spiral
-        r/d:   helix radius/diameter (or per-end r1/r2 / d1/d2 for a conical spiral)
+        radius/diameter:   helix radius/diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
         turns: number of turns (default 1)
         center: center the spiral on Z (default True)
         style: vnf_vertex_array quad-subdivision style
@@ -626,27 +625,27 @@ def spiral_sweep(
         .. pythonscad-example::
 
             section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
-            spiral_sweep(section, h=40, r=12, turns=5).polyhedron().show()
+            spiral_sweep(section, height=40, radius=12, turns=5).polyhedron().show()
     """
     assert h > 0 and turns != 0, (
         "spiral_sweep(): need positive height and nonzero turns."
     )
     rr1 = (
-        r1
-        if r1 is not None
+        radius1
+        if radius1 is not None
         else (
-            r
-            if r is not None
-            else (d1 / 2 if d1 is not None else (d / 2 if d is not None else 1))
+            radius
+            if radius is not None
+            else (diameter1 / 2 if diameter1 is not None else (diameter / 2 if diameter is not None else 1))
         )
     )
     rr2 = (
-        r2
-        if r2 is not None
+        radius2
+        if radius2 is not None
         else (
-            r
-            if r is not None
-            else (d2 / 2 if d2 is not None else (d / 2 if d is not None else 1))
+            radius
+            if radius is not None
+            else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else 1))
         )
     )
     poly = [[float(p[0]), float(p[1])] for p in poly]
@@ -695,7 +694,7 @@ def subdivide_and_slice(
         "subdivide_and_slice(): numpoints is smaller than the largest profile."
     )
     fixed = [
-        Path._subdivide_path(p, n=numpoints, closed=True, method=method)
+        Path._subdivide_path(p, sides=numpoints, closed=True, method=method)
         for p in profiles
     ]
     return slice_profiles(fixed, slices, closed)
@@ -799,17 +798,17 @@ def _smooth(data, length: int, closed: bool = False, angle: bool = False) -> lis
     With *angle*, values are unwrapped to the nearest congruent angle before averaging so the mean
     does not jump across the +/-180 boundary. Ends are padded with the edge value (open case)."""
     halfwidth = length // 2
-    n = len(data)
+    sides = len(data)
     out = []
     if closed:
-        for i in range(n):
-            window = [data[(i + k) % n] for k in range(-halfwidth, halfwidth + 1)]
+        for i in range(sides):
+            window = [data[(i + k) % sides] for k in range(-halfwidth, halfwidth + 1)]
             if angle:
                 window = _closest_angle(data[i], window)
             out.append(sum(window) / len(window))
     else:
-        for i in range(n):
-            lo, hi = max(i - halfwidth, 0), min(i + halfwidth, n - 1)
+        for i in range(sides):
+            lo, hi = max(i - halfwidth, 0), min(i + halfwidth, sides - 1)
             window = list(data[lo : hi + 1])
             pad = data[0] if (i - halfwidth) < 0 else data[-1]
             out.append((sum(window) + pad * (length - len(window))) / length)

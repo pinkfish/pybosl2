@@ -55,12 +55,12 @@ def test_aliases_and_named_methods():
 
 def test_cube_circumradius_gives_expected_side():
     # cube circumradius r -> side = 2r/sqrt(3); the axis-aligned bbox equals the side
-    assert _size(P.cube(r=10))[0] == pytest.approx(2 * 10 / math.sqrt(3), abs=0.1)
+    assert _size(P.cube(radius=10))[0] == pytest.approx(2 * 10 / math.sqrt(3), abs=0.1)
 
 
 def test_octahedron_inradius():
-    # octahedron vertices sit on the axes at +/- circumradius; ir=8 -> R = 8*sqrt(3)
-    w = _size(P.octahedron(ir=8))[0]
+    # octahedron vertices sit on the axes at +/- circumradius; inner_radius=8 -> R = 8*sqrt(3)
+    w = _size(P.octahedron(inner_radius=8))[0]
     assert w == pytest.approx(2 * 8 * math.sqrt(3), abs=0.2)
 
 

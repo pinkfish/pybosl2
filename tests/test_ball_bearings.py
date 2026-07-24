@@ -33,8 +33,8 @@ def test_zz_variant_is_shielded_same_dims():
 
 def test_imperial_size_uses_inches():
     r8 = BB.ball_bearing_info("R8")
-    assert r8.id == pytest.approx(0.5 * 25.4)
-    assert r8.od == pytest.approx(9 / 8 * 25.4)
+    assert r8.inner_diameter == pytest.approx(0.5 * 25.4)
+    assert r8.outer_diameter == pytest.approx(9 / 8 * 25.4)
 
 
 def test_unknown_size_raises():

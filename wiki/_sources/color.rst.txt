@@ -69,7 +69,7 @@ Rainbow-colouring a list of parts to tell them apart:
 
 .. pythonscad-example::
 
-    parts = [s3.cyl(h=20, r=4).right(i * 12) for i in range(6)]
+    parts = [s3.cyl(height=20, radius=4).right(i * 12) for i in range(6)]
     reduce(lambda a, b: a | b, rainbow(parts)).show()
 
 API reference

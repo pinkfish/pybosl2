@@ -73,9 +73,9 @@ class LinearBearings:
 
     @staticmethod
     def linear_bearing(
-        l: float = 24, od: float = 15, id: float = 8, color: str | None = "silver"
+        length: float = 24, outer_diameter: float = 15, inner_diameter: float = 8, color: str | None = "silver"
     ) -> Bosl2Solid:
-        """A generic linear ball-bearing cartridge, bore *id* / outer *od* / length *l* (BOSL2 linear_bearing()).
+        """A generic linear ball-bearing cartridge, bore *inner_diameter* / outer *outer_diameter* / length *length* (BOSL2 linear_bearing()).
 
         Examples:
             An LM8UU-sized bearing:
@@ -83,17 +83,17 @@ class LinearBearings:
             .. pythonscad-example::
 
                 from bosl2.linear_bearings import LinearBearings
-                LinearBearings.linear_bearing(l=24, od=15, id=8).show()
+                LinearBearings.linear_bearing(length=24, outer_diameter=15, inner_diameter=8).show()
         """
         body = _union(
             [
-                tube(id=id, od=od, h=l - 1),
-                tube(id=od - 1, od=od, h=l),
-                tube(id=id, od=id + 1, h=l),
-                tube(id=id + 2, od=od - 2, h=l),
+                tube(inner_diameter=inner_diameter, outer_diameter=outer_diameter, height=length - 1),
+                tube(inner_diameter=outer_diameter - 1, outer_diameter=outer_diameter, height=length),
+                tube(inner_diameter=inner_diameter, outer_diameter=inner_diameter + 1, height=length),
+                tube(inner_diameter=inner_diameter + 2, outer_diameter=outer_diameter - 2, height=length),
             ]
         )
-        result = Bosl2Solid(body.shape, size=[od, od, l])
+        result = Bosl2Solid(body.shape, size=[outer_diameter, outer_diameter, length])
         return result.color(color) if color else result
 
     @staticmethod
@@ -101,13 +101,13 @@ class LinearBearings:
         """A standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmXuu_bearing())."""
         spec = LinearBearings.lmXuu_info(size)
         return LinearBearings.linear_bearing(
-            l=spec.length, id=size, od=spec.od, color=color
+            length=spec.length, inner_diameter=size, outer_diameter=spec.od, color=color
         )
 
     @staticmethod
     def linear_bearing_housing(
-        d: float = 15,
-        l: float = 24,
+        diameter: float = 15,
+        length: float = 24,
         tab: float = 8,
         gap: float = 5,
         wall: float = 3,
@@ -115,27 +115,27 @@ class LinearBearings:
         screwsize: float = 3,
         _fn: int | None = None,
     ) -> Bosl2Solid:
-        """A pillow-block housing that clamps a linear bearing (bore *d*, length *l*) to a plate (BOSL2 linear_bearing_housing()).
+        """A pillow-block housing that clamps a linear bearing (bore *diameter*, length *length*) to a plate (BOSL2 linear_bearing_housing()).
 
         The teardrop bore prints without support; the split *gap* and a *screwsize* clamp screw
         through the tabs let it grip the bearing.
         """
-        od = d + 2 * wall
+        outer_diameter = diameter + 2 * wall
         ogap = gap + 2 * tabwall
         tabh = tab / 2 + od / 2 * math.sqrt(2) - ogap / 2 - 1
 
         # teardrop bearing shell + base + clamp tabs, then the bore, split gap and screw hole removed.
         body = _union(
             [
-                teardrop(d=od, h=l).rotate([0, 90, 0]),  # teardrop shell, axis along X
-                cuboid([l, od, od / 2]).down(od / 4),  # base
-                cuboid([l, ogap, od / 2 + tab / 2]).up(
+                teardrop(diameter=od, height=length).rotate([0, 90, 0]),  # teardrop shell, axis along X
+                cuboid([length, od, od / 2]).down(od / 4),  # base
+                cuboid([length, ogap, od / 2 + tab / 2]).up(
                     (od / 2 + tab / 2) / 2
                 ),  # clamp tabs
             ]
         )
-        body = body - teardrop(d=d, h=l + 0.1).rotate([0, 90, 0])  # bearing bore
-        body = body - cuboid([l + 0.1, gap, od])  # split gap
+        body = body - teardrop(diameter=diameter, height=length + 0.1).rotate([0, 90, 0])  # bearing bore
+        body = body - cuboid([length + 0.1, gap, od])  # split gap
         # clamp screw across the tabs (a simple clearance hole)
         from bosl2.screws import Screws
 
@@ -145,7 +145,7 @@ class LinearBearings:
             .up(tabh)
         )
         body = body - screw
-        return Bosl2Solid(body.shape, size=[l, od, od + tab / 2])
+        return Bosl2Solid(body.shape, size=[length, od, od + tab / 2])
 
     @staticmethod
     def lmXuu_housing(
@@ -160,8 +160,8 @@ class LinearBearings:
         """A pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmXuu_housing())."""
         spec = LinearBearings.lmXuu_info(size)
         return LinearBearings.linear_bearing_housing(
-            d=spec.od,
-            l=spec.length,
+            diameter=spec.od,
+            length=spec.length,
             tab=tab,
             gap=gap,
             wall=wall,

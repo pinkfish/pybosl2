@@ -76,7 +76,7 @@ A taller corner:
 
 .. pythonscad-example::
 
-   CubeTruss.cubetruss_corner(extents=2, h=2).show()
+   CubeTruss.cubetruss_corner(extents=2, height=2).show()
 
 .. rubric:: ``cubetruss_support``
 

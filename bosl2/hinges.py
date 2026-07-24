@@ -33,7 +33,7 @@ class Hinges:
 
     @staticmethod
     def living_hinge_mask(
-        l: float,
+        length: float,
         thick: float,
         layerheight: float = 0.2,
         foldangle: float = 90,
@@ -51,11 +51,11 @@ class Hinges:
             .. pythonscad-example::
 
                 from bosl2.hinges import Hinges
-                (s3.cuboid([100, 40, 3]) - Hinges.living_hinge_mask(l=100, thick=3, foldangle=60).down(1.5)).show()
+                (s3.cuboid([100, 40, 3]) - Hinges.living_hinge_mask(length=100, thick=3, foldangle=60).down(1.5)).show()
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
         top = hingegap + 2 * thick / math.tan(math.radians(foldangle / 2))
-        return prismoid([l, hingegap], [l, top], h=thick, anchor=BOTTOM).up(
+        return prismoid([length, hingegap], [length, top], height=thick, anchor=BOTTOM).up(
             layerheight * 2
         )
 
@@ -86,14 +86,14 @@ class Hinges:
                 continue
             x = -length / 2 + seglen / 2 + i * (seglen + gap)
             parts.append(
-                cyl(h=seglen, d=knuckle_diam, _fn=_fn).rotate([0, 90, 0]).right(x)
+                cyl(height=seglen, diameter=knuckle_diam, _fn=_fn).rotate([0, 90, 0]).right(x)
             )
         # the flat leaf plate, merging into the lower part of the knuckle line
         ydir = -1 if inner else 1
         plate_w = arm + knuckle_diam / 2
         parts.append(cuboid([length, plate_w, thick]).back(ydir * plate_w / 2))
         leaf = union(parts)
-        leaf = leaf - cyl(h=length + 1, d=pin_diam, _fn=_fn).rotate(
+        leaf = leaf - cyl(height=length + 1, diameter=pin_diam, _fn=_fn).rotate(
             [0, 90, 0]
         )  # pin bore
         return Bosl2Solid(
@@ -137,7 +137,7 @@ class Hinges:
             )  # rotate the inner leaf about the pin (X) axis
         hinge = outer | inner
         if pin:
-            hinge = hinge | cyl(h=length - gap, d=pin_diam - 0.1, _fn=_fn).rotate(
+            hinge = hinge | cyl(height=length - gap, diameter=pin_diam - 0.1, _fn=_fn).rotate(
                 [0, 90, 0]
             )
         return Bosl2Solid(
@@ -164,7 +164,7 @@ class Hinges:
             (snapdiam / 2 + thick) / 2
         )
         ridge = (
-            cyl(h=snaplen, d=snapdiam, _fn=_fn)
+            cyl(height=snaplen, diameter=snapdiam, _fn=_fn)
             .rotate([0, 90, 0])
             .up(snapdiam / 2 + thick)
         )
@@ -192,12 +192,12 @@ class Hinges:
             (snapdiam / 2 + thick) / 2
         )
         ridge = (
-            cyl(h=snaplen, d=snapdiam, _fn=_fn)
+            cyl(height=snaplen, diameter=snapdiam, _fn=_fn)
             .rotate([0, 90, 0])
             .up(snapdiam / 2 + thick)
         )
         divot = (
-            sphere(d=snapdiam * 0.8, _fn=_fn)
+            sphere(diameter=snapdiam * 0.8, _fn=_fn)
             .scale([0.333, 1, 1])
             .left((snaplen + snapdiam / 12) / 2)
             .up(snapdiam / 2 + thick)

@@ -17,23 +17,23 @@ HOLE = [[20, 20], [60, 20], [60, 40], [20, 40]]
 
 
 def test_single_outline_is_one_path():
-    r = Region(SQUARE)
-    assert len(r) == 1
-    assert isinstance(r[0], Path)
+    radius = Region(SQUARE)
+    assert len(radius) == 1
+    assert isinstance(radius[0], Path)
 
 
 def test_list_of_outlines():
-    r = Region([SQUARE, HOLE])
-    assert len(r) == 2
-    assert all(isinstance(p, Path) for p in r)
+    radius = Region([SQUARE, HOLE])
+    assert len(radius) == 2
+    assert all(isinstance(p, Path) for p in radius)
 
 
 def test_with_holes():
-    r = Region.with_holes(SQUARE, HOLE)
-    assert len(r) == 2
-    np.testing.assert_allclose(r.outline, [[float(x), float(y)] for x, y in SQUARE])
-    assert len(r.holes) == 1
-    np.testing.assert_allclose(r.holes[0], [[float(x), float(y)] for x, y in HOLE])
+    radius = Region.with_holes(SQUARE, HOLE)
+    assert len(radius) == 2
+    np.testing.assert_allclose(radius.outline, [[float(x), float(y)] for x, y in SQUARE])
+    assert len(radius.holes) == 1
+    np.testing.assert_allclose(radius.holes[0], [[float(x), float(y)] for x, y in HOLE])
 
 
 def test_rejects_non_path_items():
@@ -46,14 +46,14 @@ def test_is_a_list():
 
 
 def test_offset_applies_to_every_path():
-    r = Region.with_holes(SQUARE, HOLE).offset(delta=-1)
-    assert len(r) == 2
-    assert all(isinstance(p, Path) for p in r)
+    radius = Region.with_holes(SQUARE, HOLE).offset(delta=-1)
+    assert len(radius) == 2
+    assert all(isinstance(p, Path) for p in radius)
 
 
 def test_translate_moves_all():
-    r = Region.with_holes(SQUARE, HOLE).translate([5, 7])
-    np.testing.assert_allclose(r.outline[0], [5, 7])
+    radius = Region.with_holes(SQUARE, HOLE).translate([5, 7])
+    np.testing.assert_allclose(radius.outline[0], [5, 7])
 
 
 def test_bounds():
@@ -62,8 +62,8 @@ def test_bounds():
 
 
 def test_round_corners_returns_region():
-    r = Region(SQUARE).round_corners(radius=2)
-    assert isinstance(r, Region)
+    radius = Region(SQUARE).round_corners(radius=2)
+    assert isinstance(radius, Region)
 
 
 def test_geometry_returns_a_solid():

@@ -13,7 +13,7 @@ and feed straight into ``path_sweep`` / ``linear_extrude`` / ``stroke``. ``strok
 ``dashed_stroke`` are also methods on :class:`~bosl2.paths.Path` and
 :class:`~bosl2.regions.Region`, so a built outline can be drawn directly::
 
-    arc(r=30, angle=200).stroke(width=3)
+    arc(radius=30, angle=200).stroke(width=3)
     turtle(["move", 40, "arcleft", 8, "move", 40, "arcleft", 8]).stroke(width=2, closed=True)
     Region.with_holes(outline, hole).stroke(width=1)
 

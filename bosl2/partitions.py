@@ -560,9 +560,9 @@ def _partition_mask_shape(
 
 
 def partition_mask(
-    l=100,
+    length=100,
     w=100,
-    h=100,
+    height=100,
     cutsize=10,
     cutpath="jigsaw",
     gap=0,
@@ -579,9 +579,9 @@ def partition_mask(
     Pair a plain mask with an ``inverse=True`` one to split a part into two mating pieces.
 
     Args:
-        l: length of the cut axis
+        length: length of the cut axis
         w: width of the kept part, back from the cut plane
-        h: height of the part
+        height: height of the part
         cutsize: cut-pattern width (scalar, or ``[length, width]``)
         cutpath: named cut pattern or an explicit 2-D path
         gap: empty gaps between pattern iterations
@@ -593,9 +593,9 @@ def partition_mask(
 
     return Bosl2Solid(
         _partition_mask_shape(
-            l,
+            length,
             w,
-            h,
+            height,
             cutsize,
             cutpath,
             gap,
@@ -610,8 +610,8 @@ def partition_mask(
 
 
 def partition_cut_mask(
-    l=100,
-    h=100,
+    length=100,
+    height=100,
     cutsize=10,
     cutpath="jigsaw",
     gap=0,
@@ -634,9 +634,9 @@ def partition_cut_mask(
         if isinstance(cutsize, (list, tuple, np.ndarray))
         else [cutsize * 2, cutsize]
     )
-    path = _partition_cutpath(l, h, cs, cutpath, gap, cutpath_centered, _fn, _fa, _fs)
+    path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, _fn, _fa, _fs)
     ribbon = _stroke(path, width=max(0.1, slop * 2))
-    return Bosl2Solid(ribbon.linear_extrude(height=h, center=True))
+    return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
 
 
 # ---------------------------------------------------------------------------
@@ -680,7 +680,7 @@ class Partitionable:
         )
         poly = _polygon([[float(x), float(y)] for x, y in poly_pts])
         if offset:
-            poly = poly.offset(r=offset)
+            poly = poly.offset(radius=offset)
         mask = poly.linear_extrude(height=s, center=True)
         if bool(np.allclose(vu, UP)):
             xyv = np.asarray(FRONT, dtype=float)
@@ -688,28 +688,28 @@ class Partitionable:
             xyv = np.asarray(BACK, dtype=float)
         else:
             xyv = np.array([v3[0], v3[1], 0.0])
-        ang = math.degrees(math.atan2(xyv[1], xyv[0])) - 90
-        m = rot_about_axis(cut_angle, v3) @ _rot4(rot_from_to(xyv, v3)) @ zrot4(ang)
+        angle = math.degrees(math.atan2(xyv[1], xyv[0])) - 90
+        m = rot_about_axis(cut_angle, v3) @ _rot4(rot_from_to(xyv, v3)) @ zrot4(angle)
         mask = mask.multmatrix(m.tolist())
         if not np.allclose(cpv, 0):
             mask = mask.translate([float(c) for c in cpv])
         return mask
 
-    def half_of(self, v=UP, cp=None, s=None, cut_path=None, cut_angle=0, offset=0):
+    def half_of(self, v=UP, center=None, s=None, cut_path=None, cut_angle=0, offset=0):
         """Keep the half of this solid on the side the normal *v* points to (BOSL2 half_of()).
 
-        *cp* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*
+        *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*
         (the mask size) defaults to twice the object's bounding-box reach, so it rarely needs
         setting. *cut_path* follows a 2-D :func:`partition_path` for an interlocking cut face;
         *cut_angle* spins that face about *v*; *offset* grows the mask.
         """
         v3 = _as_vec3(v)
-        if cp is None:
+        if center is None:
             cpv = np.zeros(3)
-        elif is_num(cp):
-            cpv = float(cp) * unit(v3)
+        elif is_num(center):
+            cpv = float(center) * unit(v3)
         else:
-            cpv = _as_vec3(cp)
+            cpv = _as_vec3(center)
         if s is None:
             center, size = self.bounds()
             reach = float(np.linalg.norm(size)) + float(
@@ -724,7 +724,7 @@ class Partitionable:
         """Keep the left (-X) half, cut at ``X=x`` (BOSL2 left_half())."""
         return self.half_of(
             LEFT,
-            cp=[x, 0, 0],
+            center=[x, 0, 0],
             s=s,
             cut_path=cut_path,
             cut_angle=cut_angle,
@@ -735,7 +735,7 @@ class Partitionable:
         """Keep the right (+X) half, cut at ``X=x`` (BOSL2 right_half())."""
         return self.half_of(
             RIGHT,
-            cp=[x, 0, 0],
+            center=[x, 0, 0],
             s=s,
             cut_path=cut_path,
             cut_angle=cut_angle,
@@ -746,7 +746,7 @@ class Partitionable:
         """Keep the front (-Y) half, cut at ``Y=y`` (BOSL2 front_half())."""
         return self.half_of(
             FRONT,
-            cp=[0, y, 0],
+            center=[0, y, 0],
             s=s,
             cut_path=cut_path,
             cut_angle=cut_angle,
@@ -757,7 +757,7 @@ class Partitionable:
         """Keep the back (+Y) half, cut at ``Y=y`` (BOSL2 back_half())."""
         return self.half_of(
             BACK,
-            cp=[0, y, 0],
+            center=[0, y, 0],
             s=s,
             cut_path=cut_path,
             cut_angle=cut_angle,
@@ -768,7 +768,7 @@ class Partitionable:
         """Keep the bottom (-Z) half, cut at ``Z=z`` (BOSL2 bottom_half())."""
         return self.half_of(
             DOWN,
-            cp=[0, 0, z],
+            center=[0, 0, z],
             s=s,
             cut_path=cut_path,
             cut_angle=cut_angle,
@@ -778,7 +778,7 @@ class Partitionable:
     def top_half(self, z=0, s=None, cut_path=None, cut_angle=0, offset=0):
         """Keep the top (+Z) half, cut at ``Z=z`` (BOSL2 top_half())."""
         return self.half_of(
-            UP, cp=[0, 0, z], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset
+            UP, center=[0, 0, z], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset
         )
 
     def partition(

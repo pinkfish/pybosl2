@@ -697,9 +697,9 @@
 <div class="viewcode-block" id="partition_mask">
 <a class="viewcode-back" href="../../partitions.html#bosl2.partitions.partition_mask">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partition_mask</span><span class="p">(</span>
-    <span class="n">l</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="n">w</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-    <span class="n">h</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="n">cutsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span>
     <span class="n">gap</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -716,9 +716,9 @@
 <span class="sd">    Pair a plain mask with an ``inverse=True`` one to split a part into two mating pieces.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        l: length of the cut axis</span>
+<span class="sd">        length: length of the cut axis</span>
 <span class="sd">        w: width of the kept part, back from the cut plane</span>
-<span class="sd">        h: height of the part</span>
+<span class="sd">        height: height of the part</span>
 <span class="sd">        cutsize: cut-pattern width (scalar, or ``[length, width]``)</span>
 <span class="sd">        cutpath: named cut pattern or an explicit 2-D path</span>
 <span class="sd">        gap: empty gaps between pattern iterations</span>
@@ -730,9 +730,9 @@
 
     <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
         <span class="n">_partition_mask_shape</span><span class="p">(</span>
-            <span class="n">l</span><span class="p">,</span>
+            <span class="n">length</span><span class="p">,</span>
             <span class="n">w</span><span class="p">,</span>
-            <span class="n">h</span><span class="p">,</span>
+            <span class="n">height</span><span class="p">,</span>
             <span class="n">cutsize</span><span class="p">,</span>
             <span class="n">cutpath</span><span class="p">,</span>
             <span class="n">gap</span><span class="p">,</span>
@@ -750,8 +750,8 @@
 <div class="viewcode-block" id="partition_cut_mask">
 <a class="viewcode-back" href="../../partitions.html#bosl2.partitions.partition_cut_mask">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partition_cut_mask</span><span class="p">(</span>
-    <span class="n">l</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-    <span class="n">h</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="n">cutsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span>
     <span class="n">gap</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -774,9 +774,9 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
         <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">_partition_cutpath</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">cs</span><span class="p">,</span> <span class="n">cutpath</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">cutpath_centered</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">_partition_cutpath</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">cs</span><span class="p">,</span> <span class="n">cutpath</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">cutpath_centered</span><span class="p">,</span> <span class="n">_fn</span><span class="p">,</span> <span class="n">_fa</span><span class="p">,</span> <span class="n">_fs</span><span class="p">)</span>
     <span class="n">ribbon</span> <span class="o">=</span> <span class="n">_stroke</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">slop</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
 
 
 
@@ -823,7 +823,7 @@
         <span class="p">)</span>
         <span class="n">poly</span> <span class="o">=</span> <span class="n">_polygon</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">poly_pts</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">offset</span><span class="p">:</span>
-            <span class="n">poly</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span>
+            <span class="n">poly</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">vu</span><span class="p">,</span> <span class="n">UP</span><span class="p">)):</span>
             <span class="n">xyv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">FRONT</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -831,8 +831,8 @@
             <span class="n">xyv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">BACK</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">xyv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v3</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v3</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
-        <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">xyv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xyv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">-</span> <span class="mi">90</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">rot_about_axis</span><span class="p">(</span><span class="n">cut_angle</span><span class="p">,</span> <span class="n">v3</span><span class="p">)</span> <span class="o">@</span> <span class="n">_rot4</span><span class="p">(</span><span class="n">rot_from_to</span><span class="p">(</span><span class="n">xyv</span><span class="p">,</span> <span class="n">v3</span><span class="p">))</span> <span class="o">@</span> <span class="n">zrot4</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">xyv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xyv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">-</span> <span class="mi">90</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">rot_about_axis</span><span class="p">(</span><span class="n">cut_angle</span><span class="p">,</span> <span class="n">v3</span><span class="p">)</span> <span class="o">@</span> <span class="n">_rot4</span><span class="p">(</span><span class="n">rot_from_to</span><span class="p">(</span><span class="n">xyv</span><span class="p">,</span> <span class="n">v3</span><span class="p">))</span> <span class="o">@</span> <span class="n">zrot4</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">cpv</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cpv</span><span class="p">])</span>
@@ -840,21 +840,21 @@
 
 <div class="viewcode-block" id="Partitionable.half_of">
 <a class="viewcode-back" href="../../partitions.html#bosl2.partitions.Partitionable.half_of">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">half_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="n">UP</span><span class="p">,</span> <span class="n">cp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">half_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="n">UP</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep the half of this solid on the side the normal *v* points to (BOSL2 half_of()).</span>
 
-<span class="sd">        *cp* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*</span>
+<span class="sd">        *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*</span>
 <span class="sd">        (the mask size) defaults to twice the object&#39;s bounding-box reach, so it rarely needs</span>
 <span class="sd">        setting. *cut_path* follows a 2-D :func:`partition_path` for an interlocking cut face;</span>
 <span class="sd">        *cut_angle* spins that face about *v*; *offset* grows the mask.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v3</span> <span class="o">=</span> <span class="n">_as_vec3</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cpv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">is_num</span><span class="p">(</span><span class="n">cp</span><span class="p">):</span>
-            <span class="n">cpv</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span> <span class="o">*</span> <span class="n">unit</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_num</span><span class="p">(</span><span class="n">center</span><span class="p">):</span>
+            <span class="n">cpv</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">center</span><span class="p">)</span> <span class="o">*</span> <span class="n">unit</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">cpv</span> <span class="o">=</span> <span class="n">_as_vec3</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
+            <span class="n">cpv</span> <span class="o">=</span> <span class="n">_as_vec3</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">center</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span>
             <span class="n">reach</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">size</span><span class="p">))</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span>
@@ -872,7 +872,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep the left (-X) half, cut at ``X=x`` (BOSL2 left_half()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_of</span><span class="p">(</span>
             <span class="n">LEFT</span><span class="p">,</span>
-            <span class="n">cp</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
             <span class="n">cut_path</span><span class="o">=</span><span class="n">cut_path</span><span class="p">,</span>
             <span class="n">cut_angle</span><span class="o">=</span><span class="n">cut_angle</span><span class="p">,</span>
@@ -886,7 +886,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep the right (+X) half, cut at ``X=x`` (BOSL2 right_half()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_of</span><span class="p">(</span>
             <span class="n">RIGHT</span><span class="p">,</span>
-            <span class="n">cp</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
             <span class="n">cut_path</span><span class="o">=</span><span class="n">cut_path</span><span class="p">,</span>
             <span class="n">cut_angle</span><span class="o">=</span><span class="n">cut_angle</span><span class="p">,</span>
@@ -900,7 +900,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep the front (-Y) half, cut at ``Y=y`` (BOSL2 front_half()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_of</span><span class="p">(</span>
             <span class="n">FRONT</span><span class="p">,</span>
-            <span class="n">cp</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
             <span class="n">cut_path</span><span class="o">=</span><span class="n">cut_path</span><span class="p">,</span>
             <span class="n">cut_angle</span><span class="o">=</span><span class="n">cut_angle</span><span class="p">,</span>
@@ -914,7 +914,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep the back (+Y) half, cut at ``Y=y`` (BOSL2 back_half()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_of</span><span class="p">(</span>
             <span class="n">BACK</span><span class="p">,</span>
-            <span class="n">cp</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
             <span class="n">cut_path</span><span class="o">=</span><span class="n">cut_path</span><span class="p">,</span>
             <span class="n">cut_angle</span><span class="o">=</span><span class="n">cut_angle</span><span class="p">,</span>
@@ -928,7 +928,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep the bottom (-Z) half, cut at ``Z=z`` (BOSL2 bottom_half()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_of</span><span class="p">(</span>
             <span class="n">DOWN</span><span class="p">,</span>
-            <span class="n">cp</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
+            <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span>
             <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span>
             <span class="n">cut_path</span><span class="o">=</span><span class="n">cut_path</span><span class="p">,</span>
             <span class="n">cut_angle</span><span class="o">=</span><span class="n">cut_angle</span><span class="p">,</span>
@@ -941,7 +941,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">top_half</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Keep the top (+Z) half, cut at ``Z=z`` (BOSL2 top_half()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">half_of</span><span class="p">(</span>
-            <span class="n">UP</span><span class="p">,</span> <span class="n">cp</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">cut_path</span><span class="o">=</span><span class="n">cut_path</span><span class="p">,</span> <span class="n">cut_angle</span><span class="o">=</span><span class="n">cut_angle</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span>
+            <span class="n">UP</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">cut_path</span><span class="o">=</span><span class="n">cut_path</span><span class="p">,</span> <span class="n">cut_angle</span><span class="o">=</span><span class="n">cut_angle</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span>
         <span class="p">)</span></div>
 
 

@@ -29,20 +29,20 @@ def test_slider_builds(kw):
 
 
 def test_rail_envelope():
-    r = S.rail(l=100, w=10, h=10)
-    assert isinstance(r, Bosl2Solid)
-    w, l, h = _size(r)
+    radius = S.rail(length=100, w=10, height=10)
+    assert isinstance(radius, Bosl2Solid)
+    w, l, height = _size(radius)
     assert w == pytest.approx(10, abs=0.1)
-    assert l == pytest.approx(100, abs=0.1)
-    assert h == pytest.approx(10, abs=0.2)
+    assert length == pytest.approx(100, abs=0.1)
+    assert height == pytest.approx(10, abs=0.2)
 
 
 def test_rail_length_scales():
-    assert _size(S.rail(l=100, w=10, h=10))[1] > _size(S.rail(l=40, w=10, h=10))[1]
+    assert _size(S.rail(length=100, w=10, height=10))[1] > _size(S.rail(length=40, w=10, height=10))[1]
 
 
 def test_slider_slop_widens_fit():
     # more slop -> a slightly larger slider footprint
-    tight = _size(S.slider(l=30, slop=0.0))
-    loose = _size(S.slider(l=30, slop=0.4))
+    tight = _size(S.slider(length=30, slop=0.0))
+    loose = _size(S.slider(length=30, slop=0.4))
     assert loose[1] >= tight[1]

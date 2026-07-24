@@ -34,12 +34,12 @@ class Sliders:
 
     @staticmethod
     def slider(
-        l: float = 30,
+        length: float = 30,
         w: float = 10,
-        h: float = 10,
+        height: float = 10,
         base: float = 10,
         wall: float = 5,
-        ang: float = 30,
+        angle: float = 30,
         slop: float = 0.0,
     ) -> Bosl2Solid:
         """A slider that rides in a matching :meth:`rail` V-groove (BOSL2 slider()).
@@ -50,13 +50,13 @@ class Sliders:
             .. pythonscad-example::
 
                 from bosl2.sliders import Sliders
-                Sliders.slider(l=30, base=10, wall=4, slop=0.2).show()
+                Sliders.slider(length=30, base=10, wall=4, slop=0.2).show()
         """
         full_width = w + 2 * wall
-        full_height = h + base
+        full_height = height + base
         parts = [
             cuboid(
-                [full_width, l, base - slop],
+                [full_width, length, base - slop],
                 chamfer=2,
                 edges=[FRONT, BACK],
                 except_edges=[BOTTOM],
@@ -65,31 +65,31 @@ class Sliders:
         ]
         for m in xflip_copy(offset=w / 2 + slop):
             wallcube = cuboid(
-                [wall, l, full_height],
+                [wall, length, full_height],
                 chamfer=2,
                 edges=[RIGHT],
                 except_edges=[BOTTOM],
                 anchor=[b + le for b, le in zip(BOTTOM, LEFT)],
             )
             parts.append(wallcube.multmatrix(m.tolist()))
-        bev_h = h / 2 * math.tan(math.radians(ang))
+        bev_h = height / 2 * math.tan(math.radians(angle))
         for m in xflip_copy(offset=w / 2 + slop + 0.02):
             slid = prismoid(
-                [h, l], [0, l - w], h=bev_h + 0.01, orient=LEFT, anchor=BOTTOM
+                [height, length], [0, length - w], height=bev_h + 0.01, orient=LEFT, anchor=BOTTOM
             )
-            parts.append(slid.up(base + h / 2).multmatrix(m.tolist()))
-        result = _union(parts).down(base + h / 2).rotate([0, 0, 90])
+            parts.append(slid.up(base + height / 2).multmatrix(m.tolist()))
+        result = _union(parts).down(base + height / 2).rotate([0, 0, 90])
         nb = result._native_bounds()
-        size = nb[1] if nb else [l, full_width, h + 2 * base]
+        size = nb[1] if nb else [length, full_width, height + 2 * base]
         return Bosl2Solid(result.shape, size=size)
 
     @staticmethod
     def rail(
-        l: float = 30,
+        length: float = 30,
         w: float = 10,
-        h: float = 10,
+        height: float = 10,
         chamfer: float = 1.0,
-        ang: float = 30,
+        angle: float = 30,
     ) -> Bosl2Solid:
         """A V-groove rail for a :meth:`slider` (BOSL2 rail()).
 
@@ -99,17 +99,17 @@ class Sliders:
             .. pythonscad-example::
 
                 from bosl2.sliders import Sliders
-                Sliders.rail(l=100, w=10, h=10).show()
+                Sliders.rail(length=100, w=10, height=10).show()
         """
         attack_ang, attack_len = 30, 2
         fudge = 1.177
         chamf = math.sqrt(2) * chamfer
-        cosa = math.cos(math.radians(ang * fudge))
-        sina = math.sin(math.radians(ang * fudge))
+        cosa = math.cos(math.radians(angle * fudge))
+        sina = math.sin(math.radians(angle * fudge))
         saa = math.sin(math.radians(attack_ang))
         caa = math.cos(math.radians(attack_ang))
 
-        z1 = h / 2
+        z1 = height / 2
         z2 = z1 - chamf * cosa
         z3 = z1 - attack_len * saa
         z4 = 0.0
@@ -120,7 +120,7 @@ class Sliders:
         x5 = x2 - attack_len * saa
         x6 = x1 - z1 * sina
         x7 = x4 - z1 * sina
-        y1 = l / 2
+        y1 = length / 2
         y2 = y1 - attack_len * caa
 
         pts = [
@@ -207,4 +207,4 @@ class Sliders:
             [13, 22, 21],
             [13, 21, 6],
         ]
-        return Bosl2Solid(VNF(pts, faces).polyhedron(), size=[w, l, h])
+        return Bosl2Solid(VNF(pts, faces).polyhedron(), size=[w, length, height])

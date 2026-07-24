@@ -73,13 +73,13 @@ def line_closest_point(segment, pt) -> np.ndarray:
     a = np.asarray(segment[0], dtype=float)
     b = np.asarray(segment[1], dtype=float)
     pt = np.asarray(pt, dtype=float)
-    d = b - a
-    dd = float(d @ d)
+    diameter = b - a
+    dd = float(diameter @ diameter)
     if dd < EPSILON:
         return a.copy()
-    t = float((pt - a) @ d) / dd
+    t = float((pt - a) @ diameter) / dd
     t = max(0.0, min(1.0, t))
-    return a + t * d
+    return a + t * diameter
 
 
 def pointlist_bounds(pts) -> np.ndarray:
@@ -110,7 +110,7 @@ def general_line_intersection(s1, s2, eps: float = EPSILON):
     None if the lines are parallel or coincident.
     """
     a, b = np.asarray(s1[0], dtype=float), np.asarray(s1[1], dtype=float)
-    c, d = np.asarray(s2[0], dtype=float), np.asarray(s2[1], dtype=float)
+    c, diameter = np.asarray(s2[0], dtype=float), np.asarray(s2[1], dtype=float)
     v1 = a - b
     v2 = c - d
     denominator = cross(v1, v2)
@@ -124,16 +124,16 @@ def general_line_intersection(s1, s2, eps: float = EPSILON):
 
 
 def circle_circle_tangents(
-    r1: float, cp1, r2: float, cp2, d1: float | None = None, d2: float | None = None
+    radius1: float, cp1, radius2: float, cp2, diameter1: float | None = None, diameter2: float | None = None
 ) -> list[list[list[float]]]:
-    """Tangent lines between two circles (r1, cp1) and (r2, cp2).
+    """Tangent lines between two circles (radius1, cp1) and (radius2, cp2).
 
     Returns a list of up to 4 tangent lines, each a [point_on_circle1, point_on_circle2]
     pair: 2 external tangents plus 2 internal (crossing) tangents if the circles don't
     overlap, or just the 2 external tangents if they do.
     """
-    r1v = r1 if r1 is not None else d1 / 2
-    r2v = r2 if r2 is not None else d2 / 2
+    r1v = radius1 if radius1 is not None else diameter1 / 2
+    r2v = radius2 if radius2 is not None else diameter2 / 2
     cp1 = np.asarray(cp1, dtype=float)
     cp2 = np.asarray(cp2, dtype=float)
     dist = float(np.linalg.norm(cp2 - cp1))
@@ -146,18 +146,18 @@ def circle_circle_tangents(
     k_vals = [-1, 1, -1, 1]
     ext = [1, 1, -1, -1]
     if 1 - r_vals[2] ** 2 >= 0:
-        n = 4
+        sides = 4
     elif 1 - r_vals[0] ** 2 >= 0:
-        n = 2
+        sides = 2
     else:
-        n = 0
+        sides = 0
     u = unit(cp2 - cp1)
     result = []
     for i in range(n):
-        r = r_vals[i]
-        s = math.sqrt(max(0.0, 1 - r * r))
+        radius = r_vals[i]
+        s = math.sqrt(max(0.0, 1 - radius * radius))
         k = k_vals[i]
-        coef = np.array([r * u[0] - k * s * u[1], k * s * u[0] + r * u[1]])
+        coef = np.array([radius * u[0] - k * s * u[1], k * s * u[0] + radius * u[1]])
         p1 = cp1 - r1v * coef
         p2 = cp2 - ext[i] * r2v * coef
         if not np.array_equal(p1, p2):

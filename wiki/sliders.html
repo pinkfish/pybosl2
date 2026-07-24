@@ -147,74 +147,23 @@ the printed fit with the slider’s <code class="docutils literal notranslate"><
 <p>V-groove sliders and rails (BOSL2 sliders.scad).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.sliders.Sliders.slider">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">slider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ang</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/sliders.html#Sliders.slider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.sliders.Sliders.slider" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">slider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/sliders.html#Sliders.slider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.sliders.Sliders.slider" title="Link to this definition">¶</a></dt>
 <dd><p>A slider that rides in a matching <a class="reference internal" href="#bosl2.sliders.Sliders.rail" title="bosl2.sliders.Sliders.rail"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rail()</span></code></a> V-groove (BOSL2 slider()).</p>
 <p class="rubric">Examples</p>
 <p>A slider:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.sliders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sliders</span>
-<span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-e764ae22049240c099000b4cd0089faf" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-e764ae22049240c099000b4cd0089faf");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/b68a71186098b379.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/b68a71186098b379.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>l</strong> (<em>float</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em>)</p></li>
 <li><p><strong>w</strong> (<em>float</em>)</p></li>
-<li><p><strong>h</strong> (<em>float</em>)</p></li>
+<li><p><strong>height</strong> (<em>float</em>)</p></li>
 <li><p><strong>base</strong> (<em>float</em>)</p></li>
 <li><p><strong>wall</strong> (<em>float</em>)</p></li>
-<li><p><strong>ang</strong> (<em>float</em>)</p></li>
+<li><p><strong>angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
@@ -226,22 +175,22 @@ window.addEventListener("resize", resize);
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bosl2.sliders.Sliders.rail">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">rail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ang</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/sliders.html#Sliders.rail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.sliders.Sliders.rail" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">rail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/sliders.html#Sliders.rail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.sliders.Sliders.rail" title="Link to this definition">¶</a></dt>
 <dd><p>A V-groove rail for a <a class="reference internal" href="#bosl2.sliders.Sliders.slider" title="bosl2.sliders.Sliders.slider"><code class="xref py py-meth docutils literal notranslate"><span class="pre">slider()</span></code></a> (BOSL2 rail()).</p>
 <p class="rubric">Examples</p>
 <p>A rail:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.sliders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sliders</span>
-<span class="n">Sliders</span><span class="o">.</span><span class="n">rail</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">Sliders</span><span class="o">.</span><span class="n">rail</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-bd421d646f774a62bc334ab51f50c574" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-5e8ebad612df487ca6a1c30d7363efee" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-bd421d646f774a62bc334ab51f50c574");
+const el = document.getElementById("stlviewer-5e8ebad612df487ca6a1c30d7363efee");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -264,7 +213,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/4c30deb07ca2c8c5.stl", function (geo) {
+new STLLoader().load("_stl/429c3c124241c906.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -284,15 +233,15 @@ new STLLoader().load("_stl/4c30deb07ca2c8c5.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/4c30deb07ca2c8c5.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/429c3c124241c906.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>l</strong> (<em>float</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em>)</p></li>
 <li><p><strong>w</strong> (<em>float</em>)</p></li>
-<li><p><strong>h</strong> (<em>float</em>)</p></li>
+<li><p><strong>height</strong> (<em>float</em>)</p></li>
 <li><p><strong>chamfer</strong> (<em>float</em>)</p></li>
-<li><p><strong>ang</strong> (<em>float</em>)</p></li>
+<li><p><strong>angle</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -309,73 +258,22 @@ window.addEventListener("resize", resize);
 Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">slider</span></code></p>
 <p>A V-groove slider:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-61148052c69346349b6419ffd9ce57f8" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-61148052c69346349b6419ffd9ce57f8");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/649d42945c35c096.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/649d42945c35c096.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">rail</span></code></p>
 <p>The mating rail:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">rail</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">rail</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7a1d62f16b084051bc080a465cc429b5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ac0d52991cad4745a6f8265d1a0b4f8f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7a1d62f16b084051bc080a465cc429b5");
+const el = document.getElementById("stlviewer-ac0d52991cad4745a6f8265d1a0b4f8f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -398,7 +296,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/6fbaacd946c657cb.stl", function (geo) {
+new STLLoader().load("_stl/594054d0aa05bdf6.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -418,7 +316,7 @@ new STLLoader().load("_stl/6fbaacd946c657cb.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/6fbaacd946c657cb.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/594054d0aa05bdf6.stl">⬇ Download STL mesh</a></p>
 </section>
 </section>
 

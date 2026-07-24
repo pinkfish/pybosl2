@@ -63,20 +63,20 @@ class Joiners:
             slope = 1 / math.tan(math.radians(angle))
         hslop = slop if gender == "female" else 0.0
         w = width + 2 * hslop
-        h = height + hslop
-        flare = 2 * h / slope  # total added width at the top
+        height = height + hslop
+        flare = 2 * height / slope  # total added width at the top
 
         if taper or back_width is not None:
             if back_width is None:
                 back_width = width - 2 * slide * math.tan(math.radians(taper))
             wb = back_width + 2 * hslop
-            front = prismoid([w, 0.02], [w + flare, 0.02], h=h).back(slide / 2)
-            back = prismoid([wb, 0.02], [wb + flare, 0.02], h=h).forward(slide / 2)
+            front = prismoid([w, 0.02], [w + flare, 0.02], height=height).back(slide / 2)
+            back = prismoid([wb, 0.02], [wb + flare, 0.02], height=height).forward(slide / 2)
             body = Bosl2Solid(_ohull(front.shape, back.shape))
         else:
-            body = prismoid([w, slide], [w + flare, slide], h=h)
+            body = prismoid([w, slide], [w + flare, slide], height=height)
 
-        return Bosl2Solid(body.shape, size=[w + flare, slide, h])
+        return Bosl2Solid(body.shape, size=[w + flare, slide, height])
 
     @staticmethod
     def snap_pin(
@@ -102,12 +102,12 @@ class Joiners:
                 from bosl2.joiners import Joiners
                 Joiners.snap_pin().show()
         """
-        shaft = cyl(h=length, d=diameter, _fn=_fn)
+        shaft = cyl(height=length, diameter=diameter, _fn=_fn)
         # barb: a downward-facing ratchet lip at the tip (wide at its base, tapering to the shaft).
-        barb = cyl(h=snap, d1=diameter + 2 * nub_depth, d2=diameter, _fn=_fn).up(
+        barb = cyl(height=snap, diameter1=diameter + 2 * nub_depth, diameter2=diameter, _fn=_fn).up(
             length / 2 - snap / 2
         )
-        tip = sphere(d=diameter, _fn=_fn).up(length / 2)
+        tip = sphere(diameter=diameter, _fn=_fn).up(length / 2)
         pin = shaft | barb | tip
         pin = pin - cuboid(
             [diameter + 2 * nub_depth + 1, slot, length + snap]
@@ -129,9 +129,9 @@ class Joiners:
 
         A clearance bore with a relief groove that the pin's barb clicks into.
         """
-        bore = cyl(h=length + 1, d=diameter + 2 * clearance, _fn=_fn)
+        bore = cyl(height=length + 1, diameter=diameter + 2 * clearance, _fn=_fn)
         relief = cyl(
-            h=snap + clearance, d=diameter + 2 * nub_depth + 2 * clearance, _fn=_fn
+            height=snap + clearance, diameter=diameter + 2 * nub_depth + 2 * clearance, _fn=_fn
         ).up(length / 2 - snap / 2)
         return Bosl2Solid(
             (bore | relief).shape,

@@ -57,31 +57,31 @@ CORNER_OFFSETS = [[xa, ya, za] for za in (-1, 1) for ya in (-1, 1) for xa in (-1
 
 
 def mask2d_roundover(
-    r: float | None = None,
+    radius: float | None = None,
     inset: float | list[float] = 0,
     excess: float = 0.01,
-    d: float | None = None,
+    diameter: float | None = None,
     _fn: float | None = None,
     _fa: float | None = None,
     _fs: float | None = None,
 ) -> list[list[float]]:
-    """The 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *r*.
+    """The 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *radius*.
 
     The origin is the sharp corner to be rounded; the shape extends along +X and +Y (with a
     small `excess` skirt past 0 on each) into the material being cut, with a quarter-circle
-    bite of radius *r* taken out of the far corner.
+    bite of radius *radius* taken out of the far corner.
 
     Args:
-        r:      rounding radius
+        radius:      rounding radius
         inset:  scalar or [x,y] inset of the rounding center from the corner (default 0)
         excess: amount the flat sides extend past the origin, for a clean boolean cut (default 0.01)
-        d:      rounding diameter (alternative to r)
+        diameter:      rounding diameter (alternative to radius)
         _fn/_fa/_fs: arc smoothness overrides
     """
-    if r is None:
-        assert d is not None, "mask2d_roundover(): must give r or d"
-        r = d / 2
-    rad = r
+    if radius is None:
+        assert diameter is not None, "mask2d_roundover(): must give radius or diameter"
+        radius = diameter / 2
+    rad = radius
     inset_l = list(inset) if isinstance(inset, (list, tuple)) else [inset, inset]
     steps = max(1, int(_quantup(_frag_count(rad, _fn, _fa, _fs), 4) // 4))
     step = 90.0 / steps
@@ -97,49 +97,49 @@ def mask2d_roundover(
 
 
 def rounding_edge_mask(
-    l: float | None = None,
-    r: float | None = None,
-    r1: float | None = None,
-    r2: float | None = None,
-    d: float | None = None,
-    d1: float | None = None,
-    d2: float | None = None,
-    h: float | None = None,
+    length: float | None = None,
+    radius: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    height: float | None = None,
     excess: float = 0.1,
     _fn: float | None = None,
     _fa: float | None = None,
     _fs: float | None = None,
 ) -> PyOpenSCAD:
-    """A standalone 3-D edge-rounding cutter of length *l*, for manual positioning (matching
+    """A standalone 3-D edge-rounding cutter of length *length*, for manual positioning (matching
     this project's existing `.rotate(...).translate(...)` usage rather than going through
     edge_mask()). Uses the same local-frame convention as mask2d_roundover(): origin at the
-    sharp edge, +X/+Y extending into the material, centered along its own Z axis over length *l*.
+    sharp edge, +X/+Y extending into the material, centered along its own Z axis over length *length*.
 
     Args:
-        l/h:    length of the cutter along its axis (default 1)
-        r:      rounding radius (both ends)
-        r1/r2:  rounding radius at each end, for a tapered cutter
-        d/d1/d2: rounding diameter (both ends) / each end
+        length/height:    length of the cutter along its axis (default 1)
+        radius:      rounding radius (both ends)
+        radius1/radius2:  rounding radius at each end, for a tapered cutter
+        diameter/diameter1/diameter2: rounding diameter (both ends) / each end
         excess: amount the flat sides extend past the origin (default 0.1)
         _fn/_fa/_fs: arc smoothness overrides
     """
-    length = l if l is not None else (h if h is not None else 1)
+    length = length if length is not None else (height if height is not None else 1)
     rad1 = (
-        r1
-        if r1 is not None
+        radius1
+        if radius1 is not None
         else (
-            r
-            if r is not None
-            else (d1 / 2 if d1 is not None else (d / 2 if d is not None else 1))
+            radius
+            if radius is not None
+            else (diameter1 / 2 if diameter1 is not None else (diameter / 2 if diameter is not None else 1))
         )
     )
     rad2 = (
-        r2
-        if r2 is not None
+        radius2
+        if radius2 is not None
         else (
-            r
-            if r is not None
-            else (d2 / 2 if d2 is not None else (d / 2 if d is not None else 1))
+            radius
+            if radius is not None
+            else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else 1))
         )
     )
     if rad1 < rad2:
@@ -154,21 +154,21 @@ def rounding_edge_mask(
 
 
 def chamfer_edge_mask(
-    l: float = 1, chamfer: float = 1, excess: float = 0.1
+    length: float = 1, chamfer: float = 1, excess: float = 0.1
 ) -> PyOpenSCAD:
-    """A standalone 3-D edge-chamfer cutter of length *l* (BOSL2 chamfer_edge_mask()).
+    """A standalone 3-D edge-chamfer cutter of length *length* (BOSL2 chamfer_edge_mask()).
 
     A diamond bar (a square prism rotated 45 degrees, with its vertices *chamfer* out along each
-    axis -- i.e. ``cylinder(r=chamfer, $fn=4)``), centered on its own Z axis. Position it along a
+    axis -- i.e. ``cylinder(radius=chamfer, $fn=4)``), centered on its own Z axis. Position it along a
     sharp edge and subtract it to bevel the edge by *chamfer*.
 
     Args:
-        l:       length of the cutter along its axis (default 1)
+        length:       length of the cutter along its axis (default 1)
         chamfer: chamfer size -- the diamond's half-diagonal along each axis (default 1)
-        excess:  extra length past *l* so the cut clears the surface (default 0.1)
+        excess:  extra length past *length* so the cut clears the surface (default 0.1)
     """
     diamond = [[chamfer, 0], [0, chamfer], [-chamfer, 0], [0, -chamfer]]
-    return _opolygon(diamond).linear_extrude(height=l + excess, center=True)
+    return _opolygon(diamond).linear_extrude(height=length + excess, center=True)
 
 
 def _pick_axes(vec: Sequence[float]) -> tuple[int, int, int, float, float]:
@@ -344,15 +344,15 @@ def _corners(v, except_: list | None = None) -> list[int]:
 def _corner_cutter(
     size: Sequence[float],
     corner_vec: Sequence[float],
-    r: float,
+    radius: float,
     _fn=None,
     _fa=None,
     _fs=None,
 ) -> PyOpenSCAD:
-    cube_center = [corner_vec[i] * (size[i] / 2 - r / 2) for i in range(3)]
-    sphere_center = [corner_vec[i] * (size[i] / 2 - r) for i in range(3)]
-    cube_shape = _ocube([r, r, r], center=True).translate(cube_center)
-    sphere_shape = _osphere(r=r, fn=_fn, fa=_fa, fs=_fs).translate(sphere_center)
+    cube_center = [corner_vec[i] * (size[i] / 2 - radius / 2) for i in range(3)]
+    sphere_center = [corner_vec[i] * (size[i] / 2 - radius) for i in range(3)]
+    cube_shape = _ocube([radius, radius, radius], center=True).translate(cube_center)
+    sphere_shape = _osphere(radius=r, fn=_fn, fa=_fa, fs=_fs).translate(sphere_center)
     return cube_shape - sphere_shape
 
 
@@ -360,8 +360,8 @@ def corner_profile(
     body: PyOpenSCAD,
     corners: str | list = "ALL",
     except_corners: list | None = None,
-    r: float | None = None,
-    d: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
     size: Sequence[float] | None = None,
     children: Sequence[Sequence[float]] | None = None,
     convexity: int = 10,
@@ -371,15 +371,15 @@ def corner_profile(
     _fa: float | None = None,
     _fs: float | None = None,
 ) -> PyOpenSCAD:
-    """Round each selected corner of the box-shaped *body* to radius *r* (cube-octant-minus-sphere).
+    """Round each selected corner of the box-shaped *body* to radius *radius* (cube-octant-minus-sphere).
 
     Args:
         body:           the box solid to cut
         corners:        corners to mask -- "ALL"/"NONE", a face vector (all corners on that face),
                          or a corner vector (default "ALL")
         except_corners: corners to explicitly not mask
-        r:              rounding radius
-        d:              rounding diameter (alternative to r)
+        radius:              rounding radius
+        diameter:              rounding diameter (alternative to radius)
         size:           the box's [x,y,z] size
         children:       accepted for call-site compatibility with BOSL2's `_children=`; unused
                          (this port always uses the cube-minus-sphere construction, which is only
@@ -390,10 +390,10 @@ def corner_profile(
         center:         the box center in body's current frame; when given it's used directly
         _fn/_fa/_fs:    arc smoothness overrides
     """
-    if r is None:
-        assert d is not None, "corner_profile(): must give r or d"
-        r = d / 2
-    rad = r
+    if radius is None:
+        assert diameter is not None, "corner_profile(): must give radius or diameter"
+        radius = diameter / 2
+    rad = radius
     assert size is not None, "size= (the box's size) must be given"
     corner_set = _corners(corners, except_corners or [])
     cutter = None
@@ -412,8 +412,8 @@ def corner_profile(
 def face_profile(
     body: PyOpenSCAD,
     faces: str | list = "ALL",
-    r: float | None = None,
-    d: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
     size: Sequence[float] | None = None,
     children: Sequence[Sequence[float]] | None = None,
     convexity: int = 10,
@@ -423,28 +423,28 @@ def face_profile(
     _fa: float | None = None,
     _fs: float | None = None,
 ) -> PyOpenSCAD:
-    """Round all edges and corners bounding the given face(s) of the box-shaped *body* to radius *r*.
+    """Round all edges and corners bounding the given face(s) of the box-shaped *body* to radius *radius*.
 
-    Equivalent to edge_profile(faces) followed by corner_profile(faces, r).
+    Equivalent to edge_profile(faces) followed by corner_profile(faces, radius).
 
     Args:
         body:      the box solid to cut
         faces:     face(s) to round the border of, e.g. TOP, or "ALL" (default "ALL")
-        r:         rounding radius
-        d:         rounding diameter (alternative to r)
+        radius:         rounding radius
+        diameter:         rounding diameter (alternative to radius)
         size:      the box's [x,y,z] size
         children:  the 2-D mask cross-section path used for the edges (BOSL2's `_children=`);
-                   defaults to mask2d_roundover(r) if not given
+                   defaults to mask2d_roundover(radius) if not given
         convexity: accepted for signature compatibility; unused
         anchor:    the anchor *body* was built with (default CENTER); used only when `center`
                    isn't given
         center:    the box center in body's current frame; when given it's used directly
         _fn/_fa/_fs: arc smoothness overrides
     """
-    if r is None:
-        assert d is not None, "face_profile(): must give r or d"
-        r = d / 2
-    rad = r
+    if radius is None:
+        assert diameter is not None, "face_profile(): must give radius or diameter"
+        radius = diameter / 2
+    rad = radius
     mask = (
         children
         if children is not None
@@ -462,7 +462,7 @@ def face_profile(
     return corner_profile(
         body,
         faces,
-        r=rad,
+        radius=rad,
         size=size,
         convexity=convexity,
         anchor=anchor,

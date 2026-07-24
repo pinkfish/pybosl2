@@ -45,16 +45,16 @@ def _dual(verts, faces):
     newfaces = []
     for vi in range(len(V)):
         adj = [fi for fi, f in enumerate(faces) if vi in f]
-        n = V[vi] / np.linalg.norm(V[vi])
-        t = np.cross(n, [0, 0, 1.0])
+        sides = V[vi] / np.linalg.norm(V[vi])
+        t = np.cross(sides, [0, 0, 1.0])
         if np.linalg.norm(t) < 1e-6:
-            t = np.cross(n, [0, 1.0, 0])
+            t = np.cross(sides, [0, 1.0, 0])
         t = t / np.linalg.norm(t)
-        b = np.cross(n, t)
+        b = np.cross(sides, t)
 
         def ang(fi):
-            d = centroids[fi] - n * float(np.dot(centroids[fi], n))
-            return math.atan2(float(np.dot(d, b)), float(np.dot(d, t)))
+            diameter = centroids[fi] - sides * float(np.dot(centroids[fi], sides))
+            return math.atan2(float(np.dot(diameter, b)), float(np.dot(diameter, t)))
 
         newfaces.append(sorted(adj, key=ang))
     return centroids.tolist(), newfaces
@@ -194,12 +194,12 @@ class Polyhedra:
     @staticmethod
     def regular_polyhedron(
         name: str = "cube",
-        r: float | None = None,
-        d: float | None = None,
-        ir: float | None = None,
+        radius: float | None = None,
+        diameter: float | None = None,
+        inner_radius: float | None = None,
         side: float | None = None,
     ) -> Bosl2Solid:
-        """A Platonic solid, sized by circumradius *r*, diameter *d*, inradius *ir*, or *side* (BOSL2 regular_polyhedron()).
+        """A Platonic solid, sized by circumradius *radius*, diameter *diameter*, inradius *inner_radius*, or *side* (BOSL2 regular_polyhedron()).
 
         *name* is ``tetrahedron`` / ``cube`` / ``octahedron`` / ``dodecahedron`` / ``icosahedron``
         (short aliases accepted). Defaults to circumradius 1.
@@ -216,12 +216,12 @@ class Polyhedra:
         verts, faces, ratio = _SOLIDS[key]
         if side is not None:
             scale = side * ratio  # circumradius for the requested side
-        elif d is not None:
-            scale = d / 2
-        elif ir is not None:
-            scale = ir / _inradius_ratio(key)  # circumradius from the inradius
-        elif r is not None:
-            scale = r
+        elif diameter is not None:
+            scale = diameter / 2
+        elif inner_radius is not None:
+            scale = inner_radius / _inradius_ratio(key)  # circumradius from the inradius
+        elif radius is not None:
+            scale = radius
         else:
             scale = 1.0
         sv = [[x * scale, y * scale, z * scale] for x, y, z in verts]

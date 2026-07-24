@@ -21,10 +21,10 @@ def _size(s):
 def test_dovetail_flares_to_top_width():
     # top width = base width + 2*height/slope; the dovetail is wider than its base
     dt = J.dovetail("male", width=15, height=8, slide=30, slope=6)
-    w, sl, h = _size(dt)
+    w, sl, height = _size(dt)
     assert w == pytest.approx(15 + 2 * 8 / 6, abs=0.1)
     assert sl == pytest.approx(30, abs=0.1)
-    assert h == pytest.approx(8, abs=0.05)
+    assert height == pytest.approx(8, abs=0.05)
 
 
 def test_steeper_angle_flares_more():

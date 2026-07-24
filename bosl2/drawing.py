@@ -75,7 +75,7 @@ def _rot_pts(deg: float, pts):
 
 
 def catenary(
-    width: float, droop: float | None = None, n: int = 100, angle: float | None = None
+    width: float, droop: float | None = None, sides: int = 100, angle: float | None = None
 ) -> Path:
     """The catenary (hanging-chain) curve of the given *width*, as a :class:`~bosl2.paths.Path`.
 
@@ -87,7 +87,7 @@ def catenary(
     Args:
         width: horizontal distance between the endpoints (> 0)
         droop: how far the midpoint hangs below the endpoints (give this or *angle*)
-        n:     number of points along the curve (default 100)
+        sides:     number of points along the curve (default 100)
         angle: endpoint slope in degrees, ``0 < |angle| < 90`` (give this or *droop*)
 
     Examples:
@@ -101,7 +101,7 @@ def catenary(
         "catenary() needs exactly one of droop= or angle="
     )
     assert width > 0, "catenary() needs width > 0."
-    assert isinstance(n, int) and n > 0, "catenary() needs a positive integer n."
+    assert isinstance(sides, int) and sides > 0, "catenary() needs a positive integer sides."
     given = droop if droop is not None else angle
     assert given is not None
     sgn = int(math.copysign(1, given))
@@ -138,7 +138,7 @@ def catenary(
     sc = (width / 2) / scx
     droop_v = droop_a if droop_a is not None else (math.cosh(scx) - 1) * sc
     pts = []
-    for xv in lerpn(-scx, scx, n):
+    for xv in lerpn(-scx, scx, sides):
         xval = xv * sc
         yval = 0.0 if abs(abs(xv) - scx) < 1e-9 else (math.cosh(xv) - 1) * sc - droop_v
         pts.append([xval, yval])
@@ -165,7 +165,7 @@ def helix(
     transforms/measurements and feeds straight into :func:`stroke` or ``path_sweep``. Give
     exactly two of *l*/*h* (length), *turns*, and *angle*; the third is derived. Positive *turns*
     is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
-    spiral is ``h=0`` with a turn count).
+    spiral is ``height=0`` with a turn count).
 
     Args:
         l/h:     height of the helix (0 for a flat spiral)
@@ -180,13 +180,13 @@ def helix(
 
         .. pythonscad-example::
 
-            stroke(helix(turns=2.5, h=100, r=30), width=3).show()
+            stroke(helix(turns=2.5, height=100, radius=30), width=3).show()
     """
     r1v = _pick_radius(radius1=r1, diameter1=d1, radius=r, diameter=d, dflt=1)
     r2v = _pick_radius(radius1=r2, diameter1=d2, radius=r, diameter=d, dflt=1)
     length = l if l is not None else h
     assert sum(v is not None for v in (length, turns, angle)) == 2, (
-        "helix() needs exactly two of l/h, turns, and angle."
+        "helix() needs exactly two of length/h, turns, and angle."
     )
     assert angle is None or length != 0, "helix() cannot take an angle with length 0."
     if angle is not None and length != 0:
@@ -470,7 +470,7 @@ def _endcap_polys(style, lw: float):
         return []
     spec = _ENDCAP_DEFAULTS[style]
     w = spec.width_mult
-    l = spec.length_mult * spec.width_mult
+    length = spec.length_mult * spec.width_mult
     l2 = spec.extent_mult * spec.width_mult
 
     def circle_poly(rx, ry, n):
@@ -547,8 +547,8 @@ def _endcap_trim(style, width: float) -> float:
 
 def _place(poly, theta_deg: float, at):
     """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
-    r = math.radians(theta_deg)
-    c, s = math.cos(r), math.sin(r)
+    radius = math.radians(theta_deg)
+    c, s = math.cos(radius), math.sin(radius)
     return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]
 
 
@@ -582,10 +582,10 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
     from bosl2.shapes2d import circle as _circle, square as _square
 
     shapes = []
-    n = len(pts)
+    sides = len(pts)
     # Pull the body back under arrow endcaps; endcaps still sit at the original endpoints.
     body = list(pts)
-    if not closed and n >= 2:
+    if not closed and sides >= 2:
         body = _trim_ends(
             body, _endcap_trim(endcap1, width), _endcap_trim(endcap2, width)
         )
@@ -596,9 +596,9 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
         length = math.hypot(dx, dy)
         if length < 1e-9:
             continue
-        ang = math.degrees(math.atan2(dy, dx))
+        angle = math.degrees(math.atan2(dy, dx))
         mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
-        shapes.append(_square([length, width]).rotate([0, 0, ang]).translate(mid))
+        shapes.append(_square([length, width]).rotate([0, 0, angle]).translate(mid))
     # Joints: round/square fill the corner with a centred blob; other styles use the oriented shape.
     for i in range(nb) if closed else range(1, nb - 1):
         at = body[i]
@@ -611,7 +611,7 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
             blob = _endcap_geometry_2d(joints, at, incoming, width)
             if blob is not None:
                 shapes.append(blob)
-    if not closed and n >= 2:
+    if not closed and sides >= 2:
         for cap, end, ref in ((endcap1, pts[0], pts[1]), (endcap2, pts[-1], pts[-2])):
             outdir = [end[0] - ref[0], end[1] - ref[1]]
             blob = _endcap_geometry_2d(cap, end, outdir, width)
@@ -643,9 +643,9 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
     if style in (False, "butt", None):
         return None
     if style in (True, "round"):
-        return _sphere(r=width / 2).translate([float(c) for c in at])
+        return _sphere(radius=width / 2).translate([float(c) for c in at])
     if style == "dot":
-        return _sphere(r=width).translate([float(c) for c in at])
+        return _sphere(radius=width).translate([float(c) for c in at])
     polys = _endcap_polys(style, width)
     if not polys:
         return None
@@ -660,21 +660,21 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
 def _stroke3d(pts, width, closed, endcap1, endcap2):
     from bosl2.shapes3d import sphere as _sphere, cyl as _cyl
 
-    r = width / 2
+    radius = width / 2
     shapes = []
-    n = len(pts)
-    for i in range(n) if closed else range(n - 1):
+    sides = len(pts)
+    for i in range(sides) if closed else range(sides - 1):
         a = np.asarray(pts[i], dtype=float)
-        b = np.asarray(pts[(i + 1) % n], dtype=float)
-        d = b - a
-        length = float(np.linalg.norm(d))
+        b = np.asarray(pts[(i + 1) % sides], dtype=float)
+        diameter = b - a
+        length = float(np.linalg.norm(diameter))
         if length < 1e-9:
             continue
-        seg = _oriented_to(_cyl(h=length, r=r).translate([0, 0, length / 2]), d, a)
+        seg = _oriented_to(_cyl(height=length, radius=radius).translate([0, 0, length / 2]), diameter, a)
         shapes.append(seg)
-    for i in range(n) if closed else range(1, n - 1):
-        shapes.append(_sphere(r=r).translate([float(c) for c in pts[i]]))
-    if not closed and n >= 2:
+    for i in range(sides) if closed else range(1, sides - 1):
+        shapes.append(_sphere(radius=radius).translate([float(c) for c in pts[i]]))
+    if not closed and sides >= 2:
         for cap, end, ref in ((endcap1, pts[0], pts[1]), (endcap2, pts[-1], pts[-2])):
             outdir = [end[j] - ref[j] for j in range(3)]
             blob = _endcap_geometry_3d(cap, end, outdir, width)

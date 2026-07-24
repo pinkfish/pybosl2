@@ -65,7 +65,7 @@ def test_anchor_offset_hull3_center_is_zero():
 
 def test_prismoid_bottom_anchor_is_centred_on_xy():
     # regression: BOTTOM (the default) must centre X/Y and rest the base on z=0, not anchor to a corner
-    lo, size = prismoid([50, 10], [50, 10], h=25)._native_bounds()
+    lo, size = prismoid([50, 10], [50, 10], height=25)._native_bounds()
     np.testing.assert_allclose(lo, [-25, -5, 0], atol=1e-6)
     np.testing.assert_allclose(size, [50, 10, 25], atol=1e-6)
 
@@ -144,8 +144,8 @@ def test_color_and_scale_preserve_wrapper():
 
 
 def test_other_primitives_build():
-    assert isinstance(sphere(r=5), Bosl2Solid)
-    assert isinstance(cyl(h=10, r=3), Bosl2Solid)
+    assert isinstance(sphere(radius=5), Bosl2Solid)
+    assert isinstance(cyl(height=10, radius=3), Bosl2Solid)
 
 
 def test_getattr_falls_through_to_native():
@@ -203,15 +203,15 @@ def test_resolve_bounds_rejects_bad_bbox():
 
 
 def test_fillet_builds():
-    assert isinstance(fillet(l=20, r=6), Bosl2Solid)
-    assert isinstance(fillet(l=20, r1=4, r2=8), Bosl2Solid)
+    assert isinstance(fillet(length=20, radius=6), Bosl2Solid)
+    assert isinstance(fillet(length=20, radius1=4, radius2=8), Bosl2Solid)
 
 
 def test_fillet_rejects_non_right_angle():
     import pytest
 
     with pytest.raises(AssertionError):
-        fillet(l=20, r=6, ang=120)
+        fillet(length=20, radius=6, angle=120)
 
 
 def test_plot_revolution_taper_and_path():
@@ -220,7 +220,7 @@ def test_plot_revolution_taper_and_path():
     f = lambda a, z: 2 * math.sin(math.radians(a))
     assert isinstance(
         plot_revolution(
-            f, angle=list(range(0, 361, 20)), z=list(range(0, 21, 5)), r1=10, r2=6
+            f, angle=list(range(0, 361, 20)), z=list(range(0, 21, 5)), radius1=10, radius2=6
         ),
         Bosl2Solid,
     )

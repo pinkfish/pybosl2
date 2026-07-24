@@ -67,7 +67,7 @@ class NemaSteppers:
 
     @staticmethod
     def nema_stepper_motor(
-        size: int = 17, h: float = 24, shaft_len: float = 20, _fn: int | None = None
+        size: int = 17, height: float = 24, shaft_len: float = 20, _fn: int | None = None
     ) -> Bosl2Solid:
         """A model of a NEMA *size* stepper motor (BOSL2 nema_stepper_motor()).
 
@@ -85,37 +85,37 @@ class NemaSteppers:
         s = NemaSteppers.nema_motor_info(size)
         if size < 23:
             body = cuboid(
-                [s.motor_width, s.motor_width, h],
+                [s.motor_width, s.motor_width, height],
                 chamfer=2 if size >= 8 else 0.5,
                 edges="Z",
             )
         else:
             body = cuboid(
-                [s.motor_width, s.motor_width, h], rounding=s.screw_size, edges="Z"
+                [s.motor_width, s.motor_width, height], rounding=s.screw_size, edges="Z"
             )
-        body = body.down(h / 2)  # mounting face at z=0, body below
+        body = body.down(height / 2)  # mounting face at z=0, body below
         for sx in (-1, 1):
             for sy in (-1, 1):  # blind mounting holes at the corners
                 hole = (
-                    cyl(h=s.screw_depth * 2, d=s.screw_size, _fn=_fn)
+                    cyl(height=s.screw_depth * 2, diameter=s.screw_size, _fn=_fn)
                     .right(sx * s.screw_spacing / 2)
                     .back(sy * s.screw_spacing / 2)
                 )
                 body = body - hole
-        plinth = cyl(h=s.plinth_height, d=s.plinth_diam, _fn=_fn).up(
+        plinth = cyl(height=s.plinth_height, diameter=s.plinth_diam, _fn=_fn).up(
             s.plinth_height / 2
-        ) - cyl(h=s.plinth_height * 3, d=s.shaft_diam + 0.75, _fn=_fn)
-        shaft = cyl(h=shaft_len, d=s.shaft_diam, _fn=_fn).up(shaft_len / 2)
+        ) - cyl(height=s.plinth_height * 3, diameter=s.shaft_diam + 0.75, _fn=_fn)
+        shaft = cyl(height=shaft_len, diameter=s.shaft_diam, _fn=_fn).up(shaft_len / 2)
         return Bosl2Solid(
             (body | plinth | shaft).shape,
-            size=[s.motor_width, s.motor_width, h + shaft_len],
+            size=[s.motor_width, s.motor_width, height + shaft_len],
         )
 
     @staticmethod
     def nema_mount_mask(
         size: int,
         depth: float = 5,
-        l: float = 5,
+        length: float = 5,
         atype: str = "full",
         slop: float = 0.0,
         _fn: int | None = None,
@@ -123,7 +123,7 @@ class NemaSteppers:
         """The mounting cutout for a NEMA *size* motor -- difference it from a plate (BOSL2 nema_mount_mask()).
 
         Cuts the four screw holes and (``atype="full"``) the central plinth clearance. A slot length
-        *l* > 0 elongates each hole so the motor can be positioned (e.g. to tension a belt).
+        *length* > 0 elongates each hole so the motor can be positioned (e.g. to tension a belt).
         """
         s = NemaSteppers.nema_motor_info(size)
         pd = s.plinth_diam + slop
@@ -131,13 +131,13 @@ class NemaSteppers:
         ss = s.screw_spacing
 
         def slotted(d, cx=0.0, cy=0.0):
-            if l > 0:
+            if length > 0:
                 return [
-                    cyl(h=depth, d=d, _fn=_fn).back(l / 2).right(cx).back(cy),
-                    cyl(h=depth, d=d, _fn=_fn).forward(l / 2).right(cx).back(cy),
-                    cuboid([d, l, depth]).right(cx).back(cy),
+                    cyl(height=depth, diameter=d, _fn=_fn).back(length / 2).right(cx).back(cy),
+                    cyl(height=depth, diameter=d, _fn=_fn).forward(length / 2).right(cx).back(cy),
+                    cuboid([d, length, depth]).right(cx).back(cy),
                 ]
-            return [cyl(h=depth, d=d, _fn=_fn).right(cx).back(cy)]
+            return [cyl(height=depth, diameter=d, _fn=_fn).right(cx).back(cy)]
 
         parts = []
         for sx in (-1, 1):
@@ -147,5 +147,5 @@ class NemaSteppers:
             parts += slotted(pd)
         elif atype != "screws":
             raise ValueError('nema_mount_mask(): atype must be "full" or "screws".')
-        w = ss + sz + (l if l > 0 else 0)
+        w = ss + sz + (length if length > 0 else 0)
         return Bosl2Solid(_union(parts).shape, size=[ss + sz, w, depth])

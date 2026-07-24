@@ -10,7 +10,7 @@ and -- unlike BOSL2, which extrudes its *children* -- they take the 2-D cross-se
 **profile argument**::
 
     Path([[0, 0], [40, 0], [40, 40]]).path_extrude2d(s2.square([4, 8], center=True))
-    Path3D([[0, 0, 0], [30, 0, 10], [30, 30, 20]]).path_extrude(s2.circle(r=4))
+    Path3D([[0, 0, 0], [30, 0, 10], [30, 30, 20]]).path_extrude(s2.circle(radius=4))
 
 The *profile* can be a native 2-D shape, a :class:`~bosl2.paths.Path`, a
 :class:`~bosl2.regions.Region`, a :class:`~bosl2.shapes3d.Bosl2Solid` wrapping 2-D geometry, or a
@@ -75,7 +75,7 @@ A profile swept along a rising 3-D path:
 .. pythonscad-example::
 
     route = Path3D([[0, 0, 0], [30, 0, 10], [30, 30, 20], [0, 30, 30]], closed=False)
-    route.path_extrude(s2.circle(r=4, _fn=16)).show()
+    route.path_extrude(s2.circle(radius=4, _fn=16)).show()
 
 A twisting, tapering column between two points:
 

@@ -50,7 +50,7 @@ def _trans4(v):
     return m
 
 
-def _axis_rot4(axis, deg, cp=(0.0, 0.0, 0.0)):
+def _axis_rot4(axis, deg, center=(0.0, 0.0, 0.0)):
     a = math.radians(deg)
     c, s = math.cos(a), math.sin(a)
     x, y, z = np.asarray(axis, float) / np.linalg.norm(axis)
@@ -63,22 +63,22 @@ def _axis_rot4(axis, deg, cp=(0.0, 0.0, 0.0)):
     )
     m = np.eye(4)
     m[:3, :3] = R
-    if any(cp):
-        cp = np.asarray(cp, float)
-        m = _trans4(cp) @ m @ _trans4(-cp)
+    if any(center):
+        center = np.asarray(center, float)
+        m = _trans4(center) @ m @ _trans4(-center)
     return m
 
 
-def _xrot4(a, cp=(0, 0, 0)):
-    return _axis_rot4([1, 0, 0], a, cp)
+def _xrot4(a, center=(0, 0, 0)):
+    return _axis_rot4([1, 0, 0], a, center)
 
 
-def _yrot4(a, cp=(0, 0, 0)):
-    return _axis_rot4([0, 1, 0], a, cp)
+def _yrot4(a, center=(0, 0, 0)):
+    return _axis_rot4([0, 1, 0], a, center)
 
 
-def _zrot4(a, cp=(0, 0, 0)):
-    return _axis_rot4([0, 0, 1], a, cp)
+def _zrot4(a, center=(0, 0, 0)):
+    return _axis_rot4([0, 0, 1], a, center)
 
 
 def _apply(T, pt):
@@ -159,19 +159,19 @@ def _set(state, idx, val):
     return s
 
 
-def _turtle_rotation(command, angle, cp=(0, 0, 0)):
+def _turtle_rotation(command, angle, center=(0, 0, 0)):
     a = (
         -1 if (_ends_with(command, "right") or _ends_with(command, "up")) else 1
     ) * angle
     if _ends_with(command, "xrot"):
-        return _xrot4(a, cp)
+        return _xrot4(a, center)
     if _ends_with(command, "yrot"):
-        return _yrot4(a, cp)
+        return _yrot4(a, center)
     if _ends_with(command, "zrot"):
-        return _zrot4(a, cp)
+        return _zrot4(a, center)
     if _ends_with(command, "right") or _ends_with(command, "left"):
-        return _zrot4(a, cp)
-    return _yrot4(a, cp)
+        return _zrot4(a, center)
+    return _yrot4(a, center)
 
 
 _ONE_OR_TWO = {
@@ -234,20 +234,20 @@ def _command(command, parm, parm2, state, index):
     step, ang, arcn = state[_STEP], state[_ANG], state[_ARCN]
 
     if command == "move":
-        d = (p if p is not None else 1) * step
-        return _tupdate(state, [lastT @ _trans4([d, 0, 0])], [lastPre])
+        diameter = (p if p is not None else 1) * step
+        return _tupdate(state, [lastT @ _trans4([diameter, 0, 0])], [lastPre])
     if command in ("untilx", "untily", "untilz"):
         axis = {"untilx": 0, "untily": 1, "untilz": 2}[command]
-        d = _apply(lastT, [1, 0, 0]) - lastpt  # unit step direction
-        if abs(d[axis]) < 1e-12:
+        diameter = _apply(lastT, [1, 0, 0]) - lastpt  # unit step direction
+        if abs(diameter[axis]) < 1e-12:
             raise ValueError(f'"{command}" never reaches the goal at index {index}')
-        size = (parm - lastpt[axis]) / d[axis]
+        size = (parm - lastpt[axis]) / diameter[axis]
         return _tupdate(state, [lastT @ _trans4([size, 0, 0])], [lastPre])
     if command in ("xmove", "ymove", "zmove"):
         v = {"xmove": [1, 0, 0], "ymove": [0, 1, 0], "zmove": [0, 0, 1]}[command]
-        d = (p if p is not None else 1) * step
+        diameter = (p if p is not None else 1) * step
         return _tupdate(
-            state, [_trans4([v[0] * d, v[1] * d, v[2] * d]) @ lastT], [lastPre]
+            state, [_trans4([v[0] * diameter, v[1] * diameter, v[2] * diameter]) @ lastT], [lastPre]
         )
     if command == "xyzmove":
         return _tupdate(state, [_trans4(parm) @ lastT], [lastPre])
@@ -378,8 +378,8 @@ def _scale4(v):
 
 def _unit(v):
     v = np.asarray(v, float)
-    n = np.linalg.norm(v)
-    return v / n if n > 1e-12 else np.zeros(3)
+    sides = np.linalg.norm(v)
+    return v / sides if sides > 1e-12 else np.zeros(3)
 
 
 def _lerp3(a, b, t):

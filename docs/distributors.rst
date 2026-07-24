@@ -13,7 +13,7 @@ What a copier returns depends on the object it is called on:
   solid), matching BOSL2's module form::
 
       cuboid([10, 10, 10]).grid_copies(n=[3, 3], spacing=30)   # 9 cubes, unioned
-      cuboid([6, 6, 6]).zrot_copies(n=6, r=30)                 # a ring of 6 cubes
+      cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)                 # a ring of 6 cubes
       part.right(20).xflip_copy()                              # part + its mirror image
 
 * :class:`~bosl2.paths.Path` / :class:`~bosl2.paths.Path3D` -- a plain ``list`` of the transformed
@@ -81,20 +81,20 @@ A grid of rounded pillars, unioned into one solid:
 
 .. pythonscad-example::
 
-    s3.cyl(h=12, r=4, rounding=1).grid_copies(n=[4, 3], spacing=14).show()
+    s3.cyl(height=12, radius=4, rounding=1).grid_copies(n=[4, 3], spacing=14).show()
 
 A ring of wedges facing the centre:
 
 .. pythonscad-example::
 
-    s3.prismoid([6, 10], [2, 10], h=12).zrot_copies(n=8, r=24).show()
+    s3.prismoid([6, 10], [2, 10], height=12).zrot_copies(sides=8, radius=24).show()
 
 Copies of a 2-D outline along an arc, extruded together:
 
 .. pythonscad-example::
 
     tile = Path([[-3, -3], [3, -3], [3, 3], [-3, 3]])
-    reduce(lambda a, b: a | b, (c.polygon() for c in tile.arc_copies(n=10, r=30, ea=180))) \
+    reduce(lambda a, b: a | b, (c.polygon() for c in tile.arc_copies(sides=10, radius=30, ea=180))) \
         .linear_extrude(height=3).show()
 
 API reference

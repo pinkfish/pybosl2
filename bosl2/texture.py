@@ -33,14 +33,14 @@ __all__ = ["texture", "TEXTURES", "is_heightfield_texture", "is_vnf_texture"]
 # --- small helpers mirroring the BOSL2 list utilities texture() uses ----------
 
 
-def _lerpn(a: float, b: float, n: int, endpoint: bool = True) -> list[float]:
-    """*n* evenly spaced values from *a* to *b* (BOSL2 lerpn); *endpoint* includes *b*."""
-    n = int(n)
-    if n <= 0:
+def _lerpn(a: float, b: float, sides: int, endpoint: bool = True) -> list[float]:
+    """*sides* evenly spaced values from *a* to *b* (BOSL2 lerpn); *endpoint* includes *b*."""
+    sides = int(sides)
+    if sides <= 0:
         return []
     if endpoint:
-        return list(np.linspace(a, b, n))
-    return [a + (b - a) * i / n for i in range(n)]
+        return list(np.linspace(a, b, sides))
+    return [a + (b - a) * i / sides for i in range(sides)]
 
 
 def _quantup(x: float, m: int) -> int:
@@ -53,89 +53,89 @@ def _sel(lst, i: int):
     return lst[i % len(lst)]
 
 
-def _rands(lo: float, hi: float, n: int, seed: int) -> list[float]:
-    """*n* uniform randoms in ``[lo, hi]`` (BOSL2 rands; this port's RNG, so values differ)."""
-    return list(np.random.default_rng(seed).uniform(lo, hi, int(n)))
+def _rands(lo: float, hi: float, sides: int, seed: int) -> list[float]:
+    """*sides* uniform randoms in ``[lo, hi]`` (BOSL2 rands; this port's RNG, so values differ)."""
+    return list(np.random.default_rng(seed).uniform(lo, hi, int(sides)))
 
 
 # --- height-field textures (return a rows x cols array of heights in [0,1]) ---
 
 
-def _tex_ribs(n=None, **_):
-    n = _quantup(n if n is not None else 2, 2)
-    return [_lerpn(1, 0, n // 2, False) + _lerpn(0, 1, n // 2, False)]
+def _tex_ribs(sides=None, **_):
+    sides = _quantup(sides if sides is not None else 2, 2)
+    return [_lerpn(1, 0, sides // 2, False) + _lerpn(0, 1, sides // 2, False)]
 
 
-def _tex_trunc_ribs(n=None, **_):
-    n = _quantup(n if n is not None else 4, 4)
-    q = n // 4
+def _tex_trunc_ribs(sides=None, **_):
+    sides = _quantup(sides if sides is not None else 4, 4)
+    q = sides // 4
     return [[0.0] * q + _lerpn(0, 1, q, False) + [1.0] * q + _lerpn(1, 0, q, False)]
 
 
-def _tex_wave_ribs(n=None, **_):
-    n = max(6, int(n if n is not None else 8))
+def _tex_wave_ribs(sides=None, **_):
+    sides = max(6, int(sides if sides is not None else 8))
     return [
-        [(math.cos(math.radians(a)) + 1) / 2 for a in np.arange(0, 360 - 1e-9, 360 / n)]
+        [(math.cos(math.radians(a)) + 1) / 2 for a in np.arange(0, 360 - 1e-9, 360 / sides)]
     ]
 
 
-def _tex_diamonds(n=None, **_):
-    n = _quantup(n if n is not None else 2, 2)
-    path = _lerpn(0, 1, n // 2, False) + _lerpn(1, 0, n // 2, False)
+def _tex_diamonds(sides=None, **_):
+    sides = _quantup(sides if sides is not None else 2, 2)
+    path = _lerpn(0, 1, sides // 2, False) + _lerpn(1, 0, sides // 2, False)
     return [
-        [min(_sel(path, i + j), _sel(path, i - j)) for j in range(n)] for i in range(n)
+        [min(_sel(path, i + j), _sel(path, i - j)) for j in range(sides)] for i in range(sides)
     ]
 
 
-def _tex_pyramids(n=None, **_):
-    n = _quantup(n if n is not None else 2, 2)
+def _tex_pyramids(sides=None, **_):
+    sides = _quantup(sides if sides is not None else 2, 2)
     return [
-        [1 - (max(abs(i - n / 2), abs(j - n / 2)) / (n / 2)) for j in range(n)]
-        for i in range(n)
+        [1 - (max(abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2)) for j in range(sides)]
+        for i in range(sides)
     ]
 
 
-def _tex_trunc_pyramids(n=None, **_):
-    n = _quantup(n if n is not None else 6, 3)
+def _tex_trunc_pyramids(sides=None, **_):
+    sides = _quantup(sides if sides is not None else 6, 3)
     return [
         [
-            (1 - (max(n / 6, abs(i - n / 2), abs(j - n / 2)) / (n / 2))) * 1.5
-            for j in range(n)
+            (1 - (max(sides / 6, abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2))) * 1.5
+            for j in range(sides)
         ]
-        for i in range(n)
+        for i in range(sides)
     ]
 
 
-def _tex_hills(n=None, **_):
-    n = int(n if n is not None else 12)
-    angs = list(np.arange(0, 359.999, 360 / n))
+def _tex_hills(sides=None, **_):
+    sides = int(sides if sides is not None else 12)
+    angs = list(np.arange(0, 359.999, 360 / sides))
     return [
         [(math.cos(math.radians(a)) * math.cos(math.radians(b)) + 1) / 2 for b in angs]
         for a in angs
     ]
 
 
-def _tex_bricks(n=None, roughness=None, **_):
-    n = _quantup(n if n is not None else 24, 2)
+def _tex_bricks(sides=None, roughness=None, **_):
+    sides = _quantup(sides if sides is not None else 24, 2)
     rough = roughness if roughness is not None else 0.1
-    thin = max(1, n / 16)
+    thin = max(1, sides / 16)
     out = []
-    for y in range(n):
-        rand = _rands(1 - rough, 1, n, 12345 + y * 678)
+    for y in range(sides):
+        rand = _rands(1 - rough, 1, sides, 12345 + y * 678)
         row = []
-        for x in range(n):
-            if y % (n // 2) <= thin:
+        for x in range(sides):
+            if y % (sides // 2) <= thin:
                 row.append(0.0)
             else:
-                even = n // 2 if (y // (n // 2)) % 2 else 0
-                row.append(0.0 if (x + even) % n <= thin else rand[x])
+                even = sides // 2 if (y // (sides // 2)) % 2 else 0
+                row.append(0.0 if (x + even) % sides <= thin else rand[x])
         out.append(row)
     return out
 
 
-def _tex_rough(n=None, **_):
-    n = int(n if n is not None else 32)
-    return [_rands(0, 1, n, 123456 + 29 * y) for y in range(n)]
+def _tex_rough(sides=None, **_):
+    sides = int(sides if sides is not None else 32)
+    return [_rands(0, 1, sides, 123456 + 29 * y) for y in range(sides)]
 
 
 # --- VNF-tile textures (return (verts, faces); one unit cell over [0,1]x[0,1]) ---
@@ -163,7 +163,7 @@ def _mv(off, pts):
 
 def _sqr(size, z=0.0):
     """path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, h]``)."""
-    w, h = (size, size) if isinstance(size, (int, float)) else (size[0], size[1])
+    w, height = (size, size) if isinstance(size, (int, float)) else (size[0], size[1])
     return [[0.0, 0.0, z], [w, 0.0, z], [w, h, z], [0.0, h, z]]
 
 
@@ -352,8 +352,8 @@ def _tex_checkers_vnf(border=None, **_):
 def _tex_trunc_diamonds_vnf(border=None, **_):
     b = (border if border is not None else 0.1) / math.sqrt(2) * 2
     assert 0 < b < 0.5, "trunc_diamonds texture requires border in (0, 0.5/sqrt(2))."
-    d1 = [[p[0], p[1], 0.0] for p in _circle_xy(1, 4)]
-    d2 = [[p[0], p[1], 0.0] for p in _circle_xy(1 - b * 2, 4)]
+    diameter1 = [[p[0], p[1], 0.0] for p in _circle_xy(1, 4)]
+    diameter2 = [[p[0], p[1], 0.0] for p in _circle_xy(1 - b * 2, 4)]
     verts = _mv([0.5, 0.5, 0], d1) + _mv([0.5, 0.5, 1], d2)
     for a in (0, 90, 180, 270):
         verts += _mv([0.5, 0.5], _zrot2([[0.5, b, 1], [b, 0.5, 1], [0.5, 0.5, 1]], -a))
@@ -482,45 +482,45 @@ def _tex_cones_vnf(fn=None, border=None, **_):
     # BOSL2 defaults border=0, but a zero border leaves the tile's rim on the cell edge, which this
     # port's weld-and-close tiler can't seam watertight -- so default to a small positive border.
     b = border if border is not None else 0.05
-    n = _quantup(fn, 4) if fn else _TEX_FN_DEFAULT
+    sides = _quantup(fn, 4) if fn else _TEX_FN_DEFAULT
     assert 0 < b < 0.5, "this port's cones texture requires border in (0, 0.5)."
-    rim = [[0.5 + x, 0.5 + y, 0.0] for x, y in _circle_xy(1 - 2 * b, n)]
+    rim = [[0.5 + x, 0.5 + y, 0.0] for x, y in _circle_xy(1 - 2 * b, sides)]
     verts = rim + [[0.5, 0.5, 1.0]] + [[x, y, 0.0] for x, y in _square_pts(b)]
-    faces = [[i, (i + 1) % n, n] for i in range(n)] + _base_faces(n, n + 1, b)
+    faces = [[i, (i + 1) % sides, sides] for i in range(sides)] + _base_faces(sides, sides + 1, b)
     return verts, faces
 
 
 def _tex_dots_vnf(fn=None, border=None, **_):
     b = border if border is not None else 0.05
-    n = _quantup(fn, 4) if fn else _TEX_FN_DEFAULT
+    sides = _quantup(fn, 4) if fn else _TEX_FN_DEFAULT
     assert 0 <= b < 0.5, "dots texture requires border in [0, 0.5)."
-    rows = math.ceil(n / 4)
-    r = (0.5 - b) / math.cos(math.radians(45))  # adj_ang_to_hyp(0.5-border, 45)
-    cpz = -r * math.sin(math.radians(45))
-    sc = 1 / (r - abs(cpz))
+    rows = math.ceil(sides / 4)
+    radius = (0.5 - b) / math.cos(math.radians(45))  # adj_ang_to_hyp(0.5-border, 45)
+    cpz = -radius * math.sin(math.radians(45))
+    sc = 1 / (radius - abs(cpz))
     uv = []
     for p in range(rows):
         phi = 45 - 45 * p / rows
-        for ti in range(n):
-            s = _sph(r, -360 * ti / n, phi)
+        for ti in range(sides):
+            s = _sph(radius, -360 * ti / sides, phi)
             uv.append([0.5 + s[0], 0.5 + s[1], cpz + s[2]])
-    uv.append([0.5, 0.5, cpz + r])  # dome apex
+    uv.append([0.5, 0.5, cpz + radius])  # dome apex
     uv += [[x, y, 0.0] for x, y in _square_pts(b)]
     verts = [[v[0], v[1], v[2] * sc] for v in uv]  # zscale(sc)
     faces = []
     for i in range(rows - 1):
-        for j in range(n):
+        for j in range(sides):
             faces.append(
                 [
-                    i * n + j,
-                    i * n + (j + 1) % n,
-                    (i + 1) * n + (j + 1) % n,
-                    (i + 1) * n + j,
+                    i * sides + j,
+                    i * sides + (j + 1) % sides,
+                    (i + 1) * sides + (j + 1) % sides,
+                    (i + 1) * sides + j,
                 ]
             )
-    for i in range(n):
-        faces.append([(rows - 1) * n + i, (rows - 1) * n + (i + 1) % n, rows * n])
-    faces += _base_faces(n, rows * n + 1, b)
+    for i in range(sides):
+        faces.append([(rows - 1) * sides + i, (rows - 1) * sides + (i + 1) % sides, rows * sides])
+    faces += _base_faces(sides, rows * sides + 1, b)
     return verts, faces
 
 
@@ -627,10 +627,10 @@ TEXTURES = {
 }
 
 
-def texture(tex, n=None, border=None, gap=None, roughness=None, inset=None, fn=None):
+def texture(tex, sides=None, border=None, gap=None, roughness=None, inset=None, fn=None):
     """The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
-    *n* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile
+    *sides* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile
     textures; *roughness* perturbs ``bricks``. Pass a name from :data:`TEXTURES`. See the module
     docstring for which textures are ported.
     """
@@ -645,7 +645,7 @@ def texture(tex, n=None, border=None, gap=None, roughness=None, inset=None, fn=N
             f"available: {sorted(TEXTURES)}"
         )
     builder, _kind = TEXTURES[key]
-    return builder(n=n, border=border, gap=gap, roughness=roughness, fn=fn)
+    return builder(sides=sides, border=border, gap=gap, roughness=roughness, fn=fn)
 
 
 def _weld(V, F, tol=1e-6):
@@ -710,8 +710,8 @@ def is_watertight_topology(verts, faces) -> bool:
     return bool(e) and all(c == 2 for c in e.values())
 
 
-def rasterize_vnf_texture(verts, faces, n=24):
-    """Sample a VNF texture tile's top surface to an *n* x *n* height-field over ``[0,1]x[0,1]``.
+def rasterize_vnf_texture(verts, faces, sides=24):
+    """Sample a VNF texture tile's top surface to an *sides* x *sides* height-field over ``[0,1]x[0,1]``.
 
     A robust fallback for VNF tiles whose exact geometry can't be tiled watertight (pinch points,
     interior holes): the top (max-z) surface is captured; overhangs/undercuts are flattened."""
@@ -724,11 +724,11 @@ def rasterize_vnf_texture(verts, faces, n=24):
     cx, cy = C[:, 0], C[:, 1]
     den = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
     den = np.where(np.abs(den) < 1e-12, 1e-12, den)
-    H = [[0.0] * n for _ in range(n)]
-    for gy in range(n):
-        vy = (gy + 0.5) / n
-        for gx in range(n):
-            ux = (gx + 0.5) / n
+    H = [[0.0] * sides for _ in range(sides)]
+    for gy in range(sides):
+        vy = (gy + 0.5) / sides
+        for gx in range(sides):
+            ux = (gx + 0.5) / sides
             l1 = ((by - cy) * (ux - cx) + (cx - bx) * (vy - cy)) / den
             l2 = ((cy - ay) * (ux - cx) + (ax - cx) * (vy - cy)) / den
             l3 = 1 - l1 - l2

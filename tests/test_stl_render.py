@@ -53,16 +53,16 @@ def test_cuboid(tmp_path):
 
 def test_prismoid_frustum_volume(tmp_path):
     # frustum volume = h/3 * (A1 + A2 + sqrt(A1*A2)) = 30/3*(1600+400+800) = 28000
-    m = _render(tmp_path, "s3.prismoid([40, 40], [20, 20], h=30)", name="prismoid")
+    m = _render(tmp_path, "s3.prismoid([40, 40], [20, 20], height=30)", name="prismoid")
     np.testing.assert_allclose(m.size, [40, 40, 30], atol=1e-2)
     assert math.isclose(m.volume, 28000.0, rel_tol=1e-3)
     assert m.watertight
 
 
 def test_cylinder_volume(tmp_path):
-    # true volume pi*r^2*h = pi*25*20 ~= 1570.8; a 64-gon inscribes slightly under it
+    # true volume pi*r^2*height = pi*25*20 ~= 1570.8; a 64-gon inscribes slightly under it
     true_vol = math.pi * 25 * 20
-    m = _render(tmp_path, "s3.cyl(h=20, r=5, _fn=64)", name="cyl")
+    m = _render(tmp_path, "s3.cyl(height=20, radius=5, _fn=64)", name="cyl")
     assert math.isclose(m.size[2], 20.0, abs_tol=1e-3)
     np.testing.assert_allclose(m.size[:2], [10, 10], atol=0.1)
     assert 0.99 * true_vol < m.volume < true_vol
@@ -71,14 +71,14 @@ def test_cylinder_volume(tmp_path):
 
 def test_sphere_volume(tmp_path):
     true_vol = 4 / 3 * math.pi * 10**3
-    m = _render(tmp_path, "s3.sphere(r=10, _fn=64)", name="sphere")
+    m = _render(tmp_path, "s3.sphere(radius=10, _fn=64)", name="sphere")
     np.testing.assert_allclose(m.size, [20, 20, 20], atol=0.4)
     assert 0.95 * true_vol < m.volume < true_vol  # faceting under-fills the true sphere
     assert m.watertight
 
 
 def test_regular_prism_height_and_solid(tmp_path):
-    m = _render(tmp_path, "s3.regular_prism(6, h=10, r=10)", name="hexprism")
+    m = _render(tmp_path, "s3.regular_prism(6, height=10, radius=10)", name="hexprism")
     assert math.isclose(m.size[2], 10.0, abs_tol=1e-3)
     assert m.volume > 0
     assert m.watertight
@@ -86,7 +86,7 @@ def test_regular_prism_height_and_solid(tmp_path):
 
 def test_tube_is_hollow(tmp_path):
     # a tube encloses less than the solid outer cylinder of the same radius/height
-    m = _render(tmp_path, "s3.tube(h=10, outer_r=10, ir=6)", name="tube")
+    m = _render(tmp_path, "s3.tube(height=10, outer_r=10, inner_radius=6)", name="tube")
     assert math.isclose(m.size[2], 10.0, abs_tol=1e-3)
     solid_outer = math.pi * 10**2 * 10
     assert 0 < m.volume < solid_outer
@@ -227,7 +227,7 @@ def test_spiral_sweep_coil(tmp_path):
     setup = "section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]\n"
     m = _render(
         tmp_path,
-        "spiral_sweep(section, h=40, r=12, turns=5).polyhedron()",
+        "spiral_sweep(section, height=40, radius=12, turns=5).polyhedron()",
         setup=setup,
         name="coil",
     )
@@ -255,7 +255,7 @@ def test_rot_resample_then_sweep(tmp_path):
     setup = (
         "sq = [[-1.5, -1.5], [1.5, -1.5], [1.5, 1.5], [-1.5, 1.5]]\n"
         "curve = [[0, 0, 0], [20, 0, 8], [20, 20, 16], [0, 20, 24]]\n"
-        "tl = rot_resample(path_sweep(sq, curve, transforms=True), n=30)\n"
+        "tl = rot_resample(path_sweep(sq, curve, transforms=True), sides=30)\n"
     )
     m = _render(tmp_path, "sweep(sq, tl).polyhedron()", setup=setup, name="rotresample")
     assert m.ntris > 0
@@ -313,7 +313,7 @@ def test_fillet_subtracts_a_concave_edge(tmp_path):
     box = 30 * 30 * 20
     m = _render(
         tmp_path,
-        "(s3.cuboid([30, 30, 20]) - s3.fillet(l=20, r=6).right(15).forward(15))",
+        "(s3.cuboid([30, 30, 20]) - s3.fillet(length=20, radius=6).right(15).forward(15))",
         name="fillet",
     )
     np.testing.assert_allclose(m.size, [30, 30, 20], atol=1e-2)
@@ -324,11 +324,11 @@ def test_fillet_subtracts_a_concave_edge(tmp_path):
 def test_plot_revolution_makes_a_revolved_solid(tmp_path):
     setup = (
         "f = lambda a, z: 3 * math.sin(math.radians(4 * a)) * (z / 30)\n"
-        "ang = list(range(0, 361, 6)); zs = list(range(0, 31, 2))\n"
+        "angle = list(range(0, 361, 6)); zs = list(range(0, 31, 2))\n"
     )
     m = _render(
         tmp_path,
-        "s3.plot_revolution(f, angle=ang, z=zs, r1=12, r2=8)",
+        "s3.plot_revolution(f, angle=ang, z=zs, radius1=12, radius2=8)",
         setup=setup,
         name="plotrev",
     )
@@ -427,7 +427,7 @@ def test_stroke_2d_closed_square(tmp_path):
 
 def test_stroke_3d_helix_tube(tmp_path):
     m = _render(
-        tmp_path, "stroke(helix(turns=2, h=40, r=15), width=4)", name="stroke3d"
+        tmp_path, "stroke(helix(turns=2, height=40, radius=15), width=4)", name="stroke3d"
     )
     assert m.ntris > 0
     assert m.volume > 0
@@ -530,7 +530,7 @@ def test_stroke_arrow_endcap_3d_is_a_cone(tmp_path):
 
 def test_path3d_rotated_helix_stroke(tmp_path):
     # rotating the helix about X swaps its Z-height into -Y; the tube follows
-    setup = "coil = helix(turns=2, h=40, r=12).rotate(90, [1, 0, 0])\n"
+    setup = "coil = helix(turns=2, height=40, radius=12).rotate(90, [1, 0, 0])\n"
     m = _render(tmp_path, "coil.stroke(width=3)", setup=setup, name="helixrot")
     assert m.volume > 0
     # after a 90-deg X rotation the ~40 tall extent now lies along Y (plus tube thickness)
@@ -538,7 +538,7 @@ def test_path3d_rotated_helix_stroke(tmp_path):
 
 
 def test_path3d_resampled_helix_stroke(tmp_path):
-    setup = "coil = helix(turns=3, h=60, r=20).resample(n=150)\n"
+    setup = "coil = helix(turns=3, height=60, radius=20).resample(sides=150)\n"
     m = _render(tmp_path, "coil.stroke(width=4)", setup=setup, name="helixresample")
     assert m.ntris > 0
     assert m.volume > 0
@@ -546,7 +546,7 @@ def test_path3d_resampled_helix_stroke(tmp_path):
 
 
 def test_path3d_translate_moves_stroke(tmp_path):
-    setup = "coil = helix(turns=1.5, h=30, r=10).up(100)\n"
+    setup = "coil = helix(turns=1.5, height=30, radius=10).up(100)\n"
     m = _render(tmp_path, "coil.stroke(width=3)", setup=setup, name="helixup")
     assert m.bbmin[2] > 90  # lifted 100mm up
 
@@ -558,7 +558,7 @@ def test_grid_copies_span_and_volume(tmp_path):
     # a 3x3 grid of 10mm cubes at 30mm spacing -> outer span 2*30 + 10 = 70, 9x the volume
     m = _render(
         tmp_path,
-        "s3.cuboid([10, 10, 10]).grid_copies(n=[3, 3], spacing=30)",
+        "s3.cuboid([10, 10, 10]).grid_copies(sides=[3, 3], spacing=30)",
         name="grid",
     )
     np.testing.assert_allclose(m.size[:2], [70, 70], atol=0.5)
@@ -567,14 +567,14 @@ def test_grid_copies_span_and_volume(tmp_path):
 
 
 def test_line_copies_volume(tmp_path):
-    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).xcopies(20, n=4)", name="linecopies")
+    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).xcopies(20, sides=4)", name="linecopies")
     assert math.isclose(m.volume, 4 * 6**3, rel_tol=1e-3)
     np.testing.assert_allclose(m.size[0], 3 * 20 + 6, atol=0.5)  # span of 4 copies
 
 
 def test_zrot_copies_ring(tmp_path):
     # 6 cubes in a ring of radius 30 -> spread across a ~60mm-diameter footprint in X and Y
-    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(n=6, r=30)", name="ring")
+    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)", name="ring")
     assert m.volume > 5 * 6**3  # roughly 6 cubes (minus any tiny overlap)
     assert 55 < m.size[0] < 70 and 55 < m.size[1] < 70
     assert math.isclose(m.size[2], 6.0, abs_tol=0.2)  # ring stays flat in Z
@@ -591,7 +591,7 @@ def test_xflip_copy_mirrors(tmp_path):
 def test_arc_copies_solid(tmp_path):
     m = _render(
         tmp_path,
-        "s3.cuboid([5, 5, 5]).arc_copies(n=8, r=25, sa=0, ea=180)",
+        "s3.cuboid([5, 5, 5]).arc_copies(sides=8, radius=25, sa=0, ea=180)",
         name="arccopies",
     )
     assert m.volume > 0
@@ -599,7 +599,7 @@ def test_arc_copies_solid(tmp_path):
 
 
 def test_distribute_list_of_children(tmp_path):
-    setup = "parts = [s3.cuboid([10, 10, 10]), s3.sphere(r=8), s3.cyl(h=14, r=5)]\n"
+    setup = "parts = [s3.cuboid([10, 10, 10]), s3.sphere(radius=8), s3.cyl(height=14, radius=5)]\n"
     m = _render(
         tmp_path, "xdistribute(parts, spacing=8)", setup=setup, name="distribute"
     )
@@ -611,7 +611,7 @@ def test_path_copies_along_path(tmp_path):
     setup = "route = Path([[0, 0], [40, 0], [40, 40]], closed=False)\n"
     m = _render(
         tmp_path,
-        "s3.cuboid([4, 8, 4]).path_copies(route, n=6)",
+        "s3.cuboid([4, 8, 4]).path_copies(route, sides=6)",
         setup=setup,
         name="pathcopies",
     )
@@ -704,7 +704,7 @@ def test_half_of_auto_sizes_from_bbox(tmp_path):
 
 
 def test_jigsaw_cut_path_half(tmp_path):
-    setup = "cp = partition_path([60, 'jigsaw', 60], _fn=16)\n"
+    setup = "center = partition_path([60, 'jigsaw', 60], _fn=16)\n"
     m = _render(
         tmp_path,
         "s3.cuboid([120, 40, 20]).back_half(cut_path=cp)",
@@ -737,7 +737,7 @@ def test_partition_single_piece_is_interlocking_half(tmp_path):
 def test_partition_mask_renders(tmp_path):
     m = _render(
         tmp_path,
-        "partition_mask(l=60, w=30, h=20, cutpath='dovetail')",
+        "partition_mask(length=60, w=30, height=20, cutpath='dovetail')",
         name="partmask",
     )
     assert m.volume > 0
@@ -787,7 +787,7 @@ def test_path_extrude2d_takes_a_factory(tmp_path):
         name="pe2dfac",
     )
     assert m.volume > 0
-    assert math.isclose(m.size[2], 8.0, abs_tol=0.3)  # circle d=8 stands 8 tall
+    assert math.isclose(m.size[2], 8.0, abs_tol=0.3)  # circle diameter=8 stands 8 tall
 
 
 def test_path_extrude_3d_path(tmp_path):
@@ -827,15 +827,15 @@ def test_extrude_from_to_diagonal_with_twist(tmp_path):
 
 
 def test_bounding_box_wraps_object(tmp_path):
-    m = _render(tmp_path, "s3.sphere(r=15).bounding_box(excess=2)", name="bbox")
-    np.testing.assert_allclose(m.size, [34, 34, 34], atol=0.4)  # d=30 + 2*2 excess
+    m = _render(tmp_path, "s3.sphere(radius=15).bounding_box(excess=2)", name="bbox")
+    np.testing.assert_allclose(m.size, [34, 34, 34], atol=0.4)  # diameter=30 + 2*2 excess
     assert m.watertight
 
 
 def test_chain_hull_connects_shapes(tmp_path):
     m = _render(
         tmp_path,
-        "chain_hull(s3.cuboid([5, 5, 5]), s3.sphere(r=4).right(20))",
+        "chain_hull(s3.cuboid([5, 5, 5]), s3.sphere(radius=4).right(20))",
         name="chainhull",
     )
     assert m.volume > 0
@@ -850,15 +850,15 @@ def test_offset3d_grows_solid(tmp_path):
 
 
 def test_cylindrical_extrude_wraps(tmp_path):
-    # a 30-wide profile wraps a ~57-degree arc of a r=30 cylinder, standing 8 tall in Z
+    # a 30-wide profile wraps a ~57-degree arc of a radius=30 cylinder, standing 8 tall in Z
     m = _render(
         tmp_path,
-        "cylindrical_extrude(s2.square([30, 8], center=True), ir=25, or_=30)",
+        "cylindrical_extrude(s2.square([30, 8], center=True), inner_radius=25, outer_radius=30)",
         name="cylext",
     )
     assert m.volume > 0
     assert math.isclose(m.size[2], 8.0, abs_tol=0.5)  # profile height -> cylinder axis
-    assert m.bbmax[1] <= 30.5 and m.size[0] > 15  # curved band out near r=25..30
+    assert m.bbmax[1] <= 30.5 and m.size[0] > 15  # curved band out near radius=25..30
 
 
 # -- nurbs.scad curve / surface evaluation ------------------------------------------------

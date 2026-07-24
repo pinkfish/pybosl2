@@ -104,24 +104,24 @@ def test_extrude_from_to_same_point_raises():
 
 def test_cylindrical_extrude():
     assert isinstance(
-        M.cylindrical_extrude(s2.square([20, 8]), ir=25, or_=30), Bosl2Solid
+        M.cylindrical_extrude(s2.square([20, 8]), inner_radius=25, outer_radius=30), Bosl2Solid
     )
     assert isinstance(
-        M.cylindrical_extrude(s2.square([20, 8]), id=50, od=60, spin=45), Bosl2Solid
+        M.cylindrical_extrude(s2.square([20, 8]), inner_diameter=50, outer_diameter=60, spin=45), Bosl2Solid
     )
 
 
 def test_cylindrical_extrude_needs_radii():
     with pytest.raises(AssertionError):
-        M.cylindrical_extrude(s2.square([20, 8]), ir=25)
+        M.cylindrical_extrude(s2.square([20, 8]), inner_radius=25)
 
 
 def test_chain_hull():
     assert isinstance(
-        M.chain_hull(cuboid([5, 5, 5]), sphere(r=4).right(20)), Bosl2Solid
+        M.chain_hull(cuboid([5, 5, 5]), sphere(radius=4).right(20)), Bosl2Solid
     )
     assert isinstance(
-        M.chain_hull([cuboid([5, 5, 5]), sphere(r=4), cuboid([3, 3, 3])]), Bosl2Solid
+        M.chain_hull([cuboid([5, 5, 5]), sphere(radius=4), cuboid([3, 3, 3])]), Bosl2Solid
     )
     # single object passes through
     assert isinstance(M.chain_hull(cuboid([5, 5, 5])), Bosl2Solid)
@@ -129,7 +129,7 @@ def test_chain_hull():
 
 def test_minkowski_difference():
     assert isinstance(
-        M.minkowski_difference(cuboid([40, 40, 40]), sphere(r=8)), Bosl2Solid
+        M.minkowski_difference(cuboid([40, 40, 40]), sphere(radius=8)), Bosl2Solid
     )
 
 
@@ -151,9 +151,9 @@ def test_offset3d_and_round3d():
     assert isinstance(BOX.offset3d(2), Bosl2Solid)
     assert isinstance(BOX.offset3d(-2), Bosl2Solid)
     assert isinstance(BOX.round3d(3), Bosl2Solid)
-    assert isinstance(BOX.round3d(or_=2, ir=1), Bosl2Solid)
+    assert isinstance(BOX.round3d(outer_radius=2, inner_radius=1), Bosl2Solid)
 
 
 def test_chain_hull_and_minkowski_diff_methods():
-    assert isinstance(BOX.chain_hull(sphere(r=5).right(30)), Bosl2Solid)
-    assert isinstance(BOX.minkowski_difference(sphere(r=4)), Bosl2Solid)
+    assert isinstance(BOX.chain_hull(sphere(radius=5).right(30)), Bosl2Solid)
+    assert isinstance(BOX.minkowski_difference(sphere(radius=4)), Bosl2Solid)

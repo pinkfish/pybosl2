@@ -37,7 +37,7 @@ A #2 Phillips recess cut into a tapered head:
 .. pythonscad-example::
 
     from bosl2.screw_drive import ScrewDrive
-    (s3.cyl(d1=2, d2=8, h=4).down(2) - ScrewDrive.phillips_mask("#2")).show()
+    (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask("#2")).show()
 
 A T30 Torx tip:
 
