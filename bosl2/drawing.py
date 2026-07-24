@@ -703,7 +703,8 @@ def stroke(
     Arrow endcaps trim the line back so it doesn't poke through the tip.
 
     Args:
-        path:     a point list, :class:`~bosl2.paths.Path`/:class:`~bosl2.paths.Path3D`, or :class:`~bosl2.regions.Region`
+        path:     a point list, :class:`~bosl2.paths.Path`/:class:`~bosl2.paths.Path3D`, or
+        :class:`~bosl2.regions.Region`
         width:    line width (default 1)
         closed:   close the path into a loop (default: the path's own ``closed`` flag, or True for a Region)
         endcaps:  style for both ends (``endcap1``/``endcap2`` override per end)

@@ -25,6 +25,11 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from bosl2.paths import Path
+    from bosl2.shapes3d import Bosl2Solid
 
 import numpy as np
 
@@ -182,19 +187,19 @@ def _partition_subpath(cptype, fn=None, fa=None, fs=None):
     raise AssertionError(f"Unsupported cutpath type: {cptype!r}")
 
 
-def _partition_cutpath(l, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None):
-    """One row of the named cut sub-path, repeated to span *l* (BOSL2 _partition_cutpath())."""
+def _partition_cutpath(length, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None):
+    """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
     sub = (
         [list(p) for p in cutpath]
         if isinstance(cutpath, (list, tuple, np.ndarray))
         else _partition_subpath(cutpath, fn, fa, fs)
     )
-    reps_raw = 1 + math.floor((l - cs[0]) / (cs[0] + gap))
+    reps_raw = 1 + math.floor((length - cs[0]) / (cs[0] + gap))
     reps = reps_raw - 1 if (reps_raw % 2 == 0 and cutpath_centered) else reps_raw
     reps = max(1, reps)
     cplen = reps * cs[0] + max(0, reps - 1) * gap
-    pts = [[-l / 2, sub[0][1] * cs[1]]]
+    pts = [[-length / 2, sub[0][1] * cs[1]]]
     for i in range(reps):
         for pt in sub:
             pts.append([pt[0] * cs[0] + i * (cs[0] + gap) - cplen / 2, pt[1] * cs[1]])
@@ -492,7 +497,7 @@ def _ptn_path_redirect(major_path, minor_path, center=True):
 
 
 def _partition_mask_shape(
-    l,
+    length,
     w,
     h,
     cutsize,
@@ -510,13 +515,13 @@ def _partition_mask_shape(
     from pythonscad import square as _square
 
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
-    path = _partition_cutpath(l, h, cs, cutpath, gap, cutpath_centered, fn, fa, fs)
+    path = _partition_cutpath(length, h, cs, cutpath, gap, cutpath_centered, fn, fa, fs)
     ww = w * (-1 if inverse else 1)
     fullpath = list(path) + [[path[-1][0], ww], [path[0][0], ww]]
     poly = _polygon([[float(x), float(y)] for x, y in fullpath])
     if slop:
         poly = poly.offset(delta=-slop)
-    poly = poly & _square([l, w * 2], center=True)
+    poly = poly & _square([length, w * 2], center=True)
     return poly.linear_extrude(height=h, center=True)
 
 

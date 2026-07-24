@@ -72,11 +72,14 @@ class Hooks:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2 ring_hook()).
+        """A ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2
+        ring_hook()).
 
         *base_size* is the ``[x, y]`` of the mounting base, which sits on ``z = 0``; *hole_z* the
-        height of the cylinder centre above it; *outer_radius* / *outer_diameter* the cylinder's outer radius / diameter.
-        Give exactly two of *outer_radius/outer_diameter*, *inner_radius/inner_diameter* and *wall* to set the wall around the through-hole (or a
+        height of the cylinder centre above it; *outer_radius* / *outer_diameter* the cylinder's outer radius /
+        diameter.
+        Give exactly two of *outer_radius/outer_diameter*, *inner_radius/inner_diameter* and *wall* to set the wall
+        around the through-hole (or a
         zero inner radius for a solid paddle). *hole* is ``"circle"``, ``"D"`` (semicircular, flat side
         down) or a list of ``[x, z]`` points for a custom hole. *rounding* rounds the base's vertical
         edges; *hole_rounding* eases the hole mouth.

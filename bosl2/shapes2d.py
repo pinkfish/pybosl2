@@ -54,7 +54,7 @@ from bosl2.geometry import is_collinear
 from bosl2.paths import Path
 from bosl2.vectors import unit
 
-from .constants import CENTER, FRONT, LEFT, TOP
+from .constants import CENTER
 
 # ---------------------------------------------------------------------------
 # Internal helpers (not part of BOSL2's public API)
@@ -825,7 +825,7 @@ def regular_ngon(
     )
     if rad is None:
         raise ValueError(
-            "regular_ngon(): need to specify one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, side."
+            "regular_ngon(): need to specify one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, side."  # noqa: E501
         )
     path = _regular_ngon_path(
         sides,
@@ -1136,7 +1136,8 @@ def star(
         inner_radius:   radius to the inner corners of the star
         diameter/outer_diameter: diameter to the tips of the star
         inner_diameter: diameter to the inner corners of the star
-        step:           compute inner radius by virtually drawing a line `step` tips around the star (2 <= step < tips/2)
+        step:           compute inner radius by virtually drawing a line `step` tips around the star (2 <= step <
+        tips/2)
         realign:        put the midpoint of the last edge (instead of vertex 0) on the X+ axis (default False)
         align_tip:      rotate so the first tip points in this 2-D direction (applied before spin)
         align_pit:      rotate so the first inner corner points in this 2-D direction (applied before spin)

@@ -517,9 +517,15 @@ def ellipse2d(
     whose zero-isosurface is the desired ellipse.
     """
     if radius is not None:
-        rx, ry = (float(radius), float(radius)) if isinstance(radius, (int, float)) else (float(radius[0]), float(radius[1]))
+        rx, ry = (
+            (float(radius), float(radius)) if isinstance(radius, (int, float)) else (float(radius[0]), float(radius[1]))
+        )
     elif diameter is not None:
-        dx, dy = (float(diameter), float(diameter)) if isinstance(diameter, (int, float)) else (float(diameter[0]), float(diameter[1]))
+        dx, dy = (
+            (float(diameter), float(diameter))
+            if isinstance(diameter, (int, float))
+            else (float(diameter[0]), float(diameter[1]))
+        )
         rx, ry = dx / 2, dy / 2
     else:
         rx = ry = 1.0
@@ -562,10 +568,18 @@ def regular_ngon2d(
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / _m.sin(_m.radians(180.0 / num_sides)) if side is not None else None
-    rad = _radius(radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, radius=radius, diameter=diameter, dflt=side_s)
+    rad = _radius(
+        radius1=ir_s,
+        diameter1=id_s,
+        radius2=outer_radius,
+        diameter2=outer_diameter,
+        radius=radius,
+        diameter=diameter,
+        dflt=side_s,
+    )
     if rad is None:
         raise ValueError(
-            "regular_ngon2d(): need one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
+            "regular_ngon2d(): need one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."  # noqa: E501
         )
 
     pts = [[_m.cos(2 * _m.pi * i / num_sides) * rad, _m.sin(2 * _m.pi * i / num_sides) * rad] for i in range(num_sides)]

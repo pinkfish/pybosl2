@@ -57,7 +57,8 @@ class Walls:
 
     @staticmethod
     def narrowing_strut(w: float = 10, length: float = 100, wall: float = 5, angle: float = 30) -> Bosl2Solid:
-        """A strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2 narrowing_strut()).
+        """A strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2
+        narrowing_strut()).
 
         The triangular top converges at *angle* so the strut can brace an overhang without needing
         support. *w* is the width (thickness), *length* the length, *wall* the height of the rectangular
@@ -100,10 +101,10 @@ class Walls:
         return Bosl2Solid(shape, size=[thick, length, height])
 
     @staticmethod
-    def _sparse_wall2d(h, l, maxang, strut, max_bridge):
-        """The 2D cross-braced pattern, in the (X=h, Y=l) plane (BOSL2 sparse_wall2d())."""
+    def _sparse_wall2d(h, length, maxang, strut, max_bridge):
+        """The 2D cross-braced pattern, in the (X=h, Y=length) plane (BOSL2 sparse_wall2d())."""
         zoff = h / 2 - strut / 2
-        yoff = l / 2 - strut / 2
+        yoff = length / 2 - strut / 2
         maxa = math.radians(maxang)
         maxhyp = 1.5 * (max_bridge + strut) / 2 / math.sin(maxa)
         maxz = 2 * maxhyp * math.cos(maxa)
@@ -117,10 +118,10 @@ class Walls:
 
         # solid border, built as four bars so there is no polygon-with-hole
         parts = [
-            _rect(-h / 2, -h / 2 + strut, -l / 2, l / 2),
-            _rect(h / 2 - strut, h / 2, -l / 2, l / 2),
-            _rect(-h / 2, h / 2, -l / 2, -l / 2 + strut),
-            _rect(-h / 2, h / 2, l / 2 - strut, l / 2),
+            _rect(-h / 2, -h / 2 + strut, -length / 2, length / 2),
+            _rect(h / 2 - strut, h / 2, -length / 2, length / 2),
+            _rect(-h / 2, h / 2, -length / 2, -length / 2 + strut),
+            _rect(-h / 2, h / 2, length / 2 - strut, length / 2),
         ]
         wx = (h - strut) / zreps
         wy = strut / math.cos(angle)

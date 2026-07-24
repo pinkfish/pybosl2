@@ -155,7 +155,7 @@ def circle_circle_tangents(
         sides = 0
     u = unit(cp2 - cp1)
     result = []
-    for i in range(n):
+    for i in range(sides):
         radius = r_vals[i]
         s = math.sqrt(max(0.0, 1 - radius * radius))
         k = k_vals[i]

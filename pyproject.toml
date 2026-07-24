@@ -72,6 +72,10 @@ line-length = 120
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
+[tool.ruff.lint.per-file-ignores]
+# Embedded CSS/SVG/JS string literals in the spec-sheet generator are inherently long.
+"docs/_specgen.py" = ["E501"]
+
 [tool.ruff.format]
 # Use double quotes for strings
 quote-style = "double"

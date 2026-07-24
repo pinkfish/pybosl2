@@ -28,6 +28,10 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from bosl2.shapes3d import Bosl2Solid
 from dataclasses import dataclass
 
 __all__ = [
@@ -417,7 +421,7 @@ class Screws:
             thread="coarse" if thread in (True, False) else thread,
             pitch=pitch,
         )
-        d, p = info["diameter"], info["pitch"]
+        d, _p = info["diameter"], info["pitch"]
         thread_kind = thread if isinstance(thread, str) else "coarse"
 
         # -- shaft: top face at z=0, tip at z=-length -----------------------------------

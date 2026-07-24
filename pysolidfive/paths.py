@@ -86,7 +86,13 @@ def _radius(
     tell "not specified" apart from a real radius (see torus()/tube(), which call
     _pick_radius() directly with `dflt=None`)."""
     result = _pick_radius(
-        radius1=radius1, diameter1=diameter1, radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=dflt
+        radius1=radius1,
+        diameter1=diameter1,
+        radius2=radius2,
+        diameter2=diameter2,
+        radius=radius,
+        diameter=diameter,
+        dflt=dflt,
     )
     assert result is not None
     return result

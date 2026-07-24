@@ -251,7 +251,7 @@ def truss_svg(cubes=3):
         bx = ox + c * ex
         by = oy + c * ey
         # 3 visible faces of a cube in iso
-        top = f"{bx},{by} {bx + ex},{by + ey} {bx + ex - ex},{by + ey + s * 0.0} "  # placeholder
+        _top = f"{bx},{by} {bx + ex},{by + ey} {bx + ex - ex},{by + ey + s * 0.0} "  # placeholder
 
         # define 8 corners
         def P(dx, dy, dz):
@@ -259,7 +259,7 @@ def truss_svg(cubes=3):
 
         A = (bx, by)
         B = (bx + ex, by + ey)
-        C = (bx, by + s)
+        _C = (bx, by + s)
         D = (bx + ex, by + ey + s)
         E = (bx - ex, by + ey)
         F = (bx - ex, by + ey + s)

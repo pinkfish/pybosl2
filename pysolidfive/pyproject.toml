@@ -26,6 +26,22 @@ Issues = "https://github.com/pinkfish/openscad_boardgame_toolkit/issues"
 # Only needed to build docs/ (`pip install -e ".[docs]"` then `make -C docs html`) -- not a
 # runtime dependency of the library itself.
 docs = ["sphinx>=7"]
+# Test-suite extras. The render tests (tests/test_pysolidfive_render.py) compare rendered PNGs
+# with Pillow; they also need the PythonSCAD app binary and skip without it. The SDF/numeric
+# tests run against tests/mock_libfive.py and need nothing beyond the stdlib.
+test = ["Pillow>=10"]
+
+[tool.ruff]
+# Mirror the parent repo's ruff settings so pysolidfive lints identically whether checked
+# standalone or as part of pybosl2 (ruff's default line-length is 88; this project uses 120).
+target-version = "py39"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "double"
 
 [tool.setuptools]
 packages = ["pysolidfive", "pysolidfive.tests"]

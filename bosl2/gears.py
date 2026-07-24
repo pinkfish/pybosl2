@@ -261,7 +261,7 @@ def _gear_tooth_profile(
     prad = _pitch_radius(circ_pitch, teeth, helical)
     brad = _base_radius(circ_pitch, teeth, pa, helical)
     rrad = _root_radius_basic(circ_pitch, teeth, clear, internal, helical, profile_shift)
-    srad = max(rrad, brad)
+    _srad = max(rrad, brad)
     tthick = circ_pitch / PI / math.cos(math.radians(helical)) * (
         PI / 2 + 2 * profile_shift * math.tan(math.radians(pa))
     ) + (backlash if internal else -backlash)

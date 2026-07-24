@@ -194,7 +194,7 @@ def frep(exp, mn, mx, res):
 
 # This module shadows the builtins min/max/abs with SDF-Tree-returning wrappers (above), so
 # the AABB helpers below -- which need ordinary numeric min/max -- bind the real builtins.
-import builtins as _bi
+import builtins as _bi  # noqa: E402
 
 _bmin = _bi.min
 _bmax = _bi.max

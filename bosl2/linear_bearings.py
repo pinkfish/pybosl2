@@ -81,7 +81,8 @@ class LinearBearings:
         inner_diameter: float = 8,
         color: str | None = "silver",
     ) -> Bosl2Solid:
-        """A generic linear ball-bearing cartridge, bore *inner_diameter* / outer *outer_diameter* / length *length* (BOSL2 linear_bearing()).
+        """A generic linear ball-bearing cartridge, bore *inner_diameter* / outer *outer_diameter* / length *length*
+        (BOSL2 linear_bearing()).
 
         Examples:
             An LM8UU-sized bearing:
@@ -139,7 +140,8 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A pillow-block housing that clamps a linear bearing (bore *diameter*, length *length*) to a plate (BOSL2 linear_bearing_housing()).
+        """A pillow-block housing that clamps a linear bearing (bore *diameter*, length *length*) to a plate (BOSL2
+        linear_bearing_housing()).
 
         The teardrop bore prints without support; the split *gap* and a *screwsize* clamp screw
         through the tabs let it grip the bearing.

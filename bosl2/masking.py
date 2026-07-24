@@ -51,7 +51,7 @@ from pythonscad import sphere as _osphere
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
-from .constants import ALL, CENTER, TOP
+from .constants import CENTER
 from .shapes2d import _frag_count, _polar_to_xy
 from .shapes3d import EDGE_OFFSETS, _anchor_offset_box3, _edges, _quantup
 

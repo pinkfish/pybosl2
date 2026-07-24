@@ -144,7 +144,7 @@ class TestPolygonPathUtils(unittest.TestCase):
         rounded = pysolidfive.round_corners(sq, radius=2, fn=16)
         self.assertGreater(len(rounded), 8, msg="arcs inserted")
         xs = [p[0] for p in rounded]
-        ys = [p[1] for p in rounded]
+        _ys = [p[1] for p in rounded]
         self.assertAlmostEqual(min(xs), 0.0, places=9)
         self.assertAlmostEqual(max(xs), 20.0, places=9)
         # No point should sit in the sharp-corner exclusion zone (outside the fillet

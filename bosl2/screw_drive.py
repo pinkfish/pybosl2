@@ -88,7 +88,8 @@ class TorxSpec:
     inner_rounding: float  # inner rounding radius
 
     def as_tuple(self) -> tuple[float, float, float, float, float]:
-        """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info`` list."""
+        """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info``
+        list."""
         return (self.outer_diameter, self.inner_diameter, self.depth, self.tip_rounding, self.inner_rounding)
 
 

@@ -8,7 +8,8 @@
 #    Pure-Python port of BOSL2's ball_bearings.scad: models of standard ball-bearing cartridges.
 #    :meth:`BallBearings.ball_bearing` builds a bearing -- either a sealed/shielded cartridge (nested
 #    rings plus a shield face) or an open one (inner and outer races, a ball-race groove, and the
-#    balls) -- from a trade-size name (``"608"``, ``"6902ZZ"``, ``"R8"``) or explicit inner_diameter/outer_diameter/width.
+#    balls) -- from a trade-size name (``"608"``, ``"6902ZZ"``, ``"R8"``) or explicit
+#    inner_diameter/outer_diameter/width.
 #    :meth:`BallBearings.ball_bearing_info` returns the tabulated dimensions as a :class:`BearingSpec`.
 #
 #    The trade-size table is transcribed verbatim from ball_bearings.scad.

@@ -117,7 +117,7 @@ def _ends_with(s, suffix):
 
 def _init_state(state):
     """Normalise the *state* argument (a direction 3-vector, a 4x4 matrix, or a full state list)."""
-    arr = np.asarray(state, dtype=object)
+    _arr = np.asarray(state, dtype=object)
     if isinstance(state, np.ndarray) and state.shape == (4, 4):
         return [[np.asarray(state, float)], [_yrot4(90)], 1.0, 90.0, 0]
     if _is_vec3(state):

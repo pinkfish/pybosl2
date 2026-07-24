@@ -1687,7 +1687,9 @@ def polygon_prism(
     for p in path_list:
         assert len(p) >= 3, f"polygon_prism(): every path needs >= 3 points, got {len(p)}"
     assert height > 0, f"polygon_prism(): height must be > 0, height={height}"
-    assert abs(rounding_top) < height and abs(rounding_bottom) < height, "polygon_prism(): rim treatments must be smaller than height"
+    assert abs(rounding_top) < height and abs(rounding_bottom) < height, (
+        "polygon_prism(): rim treatments must be smaller than height"
+    )
 
     def sdf_fn(x, y, z):
         d2d = None
@@ -1926,7 +1928,7 @@ def regular_prism(
     built on polygon_prism(). Mirrors bosl2.shapes3d.regular_prism().
 
     Size is controlled by one of the radius/diameter/side parameters, in BOSL2 priority order:
-    inner_radius/inner_diameter > outer_radius/outer_diameter > r/d > side.  The ``or``/``outer_radius`` 
+    inner_radius/inner_diameter > outer_radius/outer_diameter > r/d > side.  The ``or``/``outer_radius``
     keyword collision with the Python keyword ``or`` is resolved as ``outer_radius`` here.
 
     Args:
@@ -1948,7 +1950,13 @@ def regular_prism(
     id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / _m.sin(_m.radians(180.0 / num_sides)) if side is not None else None
     rad = _pick_radius(
-        radius1=ir_s, diameter1=id_s, radius2=outer_radius, diameter2=outer_diameter, radius=radius, diameter=diameter, dflt=side_s
+        radius1=ir_s,
+        diameter1=id_s,
+        radius2=outer_radius,
+        diameter2=outer_diameter,
+        radius=radius,
+        diameter=diameter,
+        dflt=side_s,
     )
     if rad is None:
         raise ValueError(

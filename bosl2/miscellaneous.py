@@ -26,6 +26,10 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from bosl2.shapes3d import Bosl2Solid
 import operator
 from functools import reduce
 
@@ -158,7 +162,8 @@ def cylindrical_extrude(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2 cylindrical_extrude()).
+    """Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2
+    cylindrical_extrude()).
 
     Chops the profile into vertical facets and extrudes each radially. Handy for embossing text
     onto a curved wall. The profile's X spans one revolution by default (override with *size*).

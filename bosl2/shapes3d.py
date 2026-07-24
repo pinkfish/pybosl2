@@ -25,6 +25,7 @@ from __future__ import annotations
 import math
 import numbers
 from collections.abc import Sequence
+from typing import TYPE_CHECKING, Callable
 
 import numpy as np
 from pythonscad import (
@@ -51,6 +52,20 @@ from pythonscad import (
 from pythonscad import (
     textmetrics as _otextmetrics,
 )
+
+if TYPE_CHECKING:
+    from openscad import PyOpenSCAD  # noqa: F401
+from bosl2.color import Colorable
+from bosl2.distributors import Distributable
+from bosl2.geometry import cross
+from bosl2.miscellaneous import Miscellaneous
+from bosl2.partitions import Partitionable
+from bosl2.paths import Path
+from bosl2.vectors import is_vector, unit
+
+from .constants import BACK, BOTTOM, CENTER, DOWN, FRONT, INCH, LEFT, TOP, UP
+from .shapes2d import _frag_count, _pick_radius
+from .shapes2d import text as _text2d
 
 
 def _ocylinder(
@@ -94,22 +109,6 @@ def _osphere(radius=None, center=None, fn=None, fa=None, fs=None):
             kw[nat] = full
     return _osphere_native(**kw)
 
-
-from typing import TYPE_CHECKING, Callable
-
-if TYPE_CHECKING:
-    from openscad import PyOpenSCAD  # noqa: F401
-from bosl2.color import Colorable
-from bosl2.distributors import Distributable
-from bosl2.geometry import cross
-from bosl2.miscellaneous import Miscellaneous
-from bosl2.partitions import Partitionable
-from bosl2.paths import Path
-from bosl2.vectors import is_vector, unit
-
-from .constants import ALL, BACK, BOTTOM, CENTER, DOWN, FRONT, INCH, LEFT, RIGHT, TOP, UP
-from .shapes2d import _frag_count, _pick_radius
-from .shapes2d import text as _text2d
 
 # ---------------------------------------------------------------------------
 # Section: Base class
@@ -1620,7 +1619,8 @@ def cyl(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """A cylinder with optional chamfering/rounding of its end rims, built with cube()/cylinder()/sphere()/rotate_extrude().
+    """A cylinder with optional chamfering/rounding of its end rims, built with
+    cube()/cylinder()/sphere()/rotate_extrude().
 
     Positive rounding is built as a minkowski() of a shorter cylinder with a sphere at each
     rounded end (an inset fillet, not an outward bulge), matching BOSL2's own rounded-end
@@ -2812,7 +2812,7 @@ def path_text(
         normpts = _cut_interp(pts, path, normal_pv)
     toppts = None if top_pv is None else _cut_interp(pts, path, top_pv)
 
-    usetop = top_pv is not None
+    _usetop = top_pv is not None
     usernorm = normal_pv is not None
 
     letters = []

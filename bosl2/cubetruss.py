@@ -45,11 +45,11 @@ def _union(shapes):
     return union(shapes)
 
 
-def _cmask(l, chamfer, orient=None):
+def _cmask(length, chamfer, orient=None):
     """
     chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis).
     """
-    m = Bosl2Solid(chamfer_edge_mask(length=l, chamfer=chamfer))
+    m = Bosl2Solid(chamfer_edge_mask(length=length, chamfer=chamfer))
     if orient == "RIGHT":
         return m.rotate([0, 90, 0])
     if orient == "BACK":
@@ -65,15 +65,15 @@ def _clip_placement(vec, extents):
     """For a face direction *vec*, return (z-rotation, rotated [X,Y,Z] extents) placing a clip
     (BOSL2 rot(from=FWD, to=vec)). Supports the four horizontal cardinal faces."""
     x, y = float(vec[0]), float(vec[1])
-    w, l, hh = extents
+    w, length, hh = extents
     if y < 0:  # FRONT (-Y): FWD itself
-        return 0, (w, l, hh)
+        return 0, (w, length, hh)
     if y > 0:  # BACK (+Y)
-        return 180, (w, l, hh)
+        return 180, (w, length, hh)
     if x > 0:  # RIGHT (+X)
-        return 90, (l, w, hh)
+        return 90, (length, w, hh)
     if x < 0:  # LEFT (-X)
-        return -90, (l, w, hh)
+        return -90, (length, w, hh)
     raise ValueError(f"cubetruss(clips=): unsupported clip direction {vec!r} (use FRONT/BACK/LEFT/RIGHT)")
 
 
@@ -173,28 +173,28 @@ class CubeTruss:
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
         clipthick = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
         if isinstance(extents, (int, float)):
-            w, l, hh = 1, int(extents), 1
+            w, length, hh = 1, int(extents), 1
         else:
             e = list(extents) + [1] * (3 - len(extents))
-            w, l, hh = int(e[0]), int(e[1]), int(e[2])
+            w, length, hh = int(e[0]), int(e[1]), int(e[2])
 
         step = size - strut
         segs = []
         for zrow in range(hh):
             for xcol in range(w):
-                for ycol in range(l):
+                for ycol in range(length):
                     seg = CubeTruss.cubetruss_segment(size=size, strut=strut, bracing=bracing)
                     seg = (
                         seg.up((zrow - (hh - 1) / 2) * step)
                         .right((xcol - (w - 1) / 2) * step)
-                        .back((ycol - (l - 1) / 2) * step)
+                        .back((ycol - (length - 1) / 2) * step)
                     )
                     segs.append(seg)
 
         if clips is not None and clipthick > 0:
             vecs = clips if (clips and isinstance(clips[0], (list, tuple))) else [clips]
             for vec in vecs:
-                zang, (exx, exy, exz) = _clip_placement(vec, (w, l, hh))
+                zang, (exx, exy, exz) = _clip_placement(vec, (w, length, hh))
                 for zrow in range(exz):
                     clip = CubeTruss.cubetruss_clip(
                         extents=exx,
@@ -210,7 +210,7 @@ class CubeTruss:
         result = _union(segs)
         s = [
             CubeTruss.cubetruss_dist(w, 1, size, strut),
-            CubeTruss.cubetruss_dist(l, 1, size, strut),
+            CubeTruss.cubetruss_dist(length, 1, size, strut),
             CubeTruss.cubetruss_dist(hh, 1, size, strut),
         ]
         return Bosl2Solid(result.shape, size=s)
@@ -241,7 +241,7 @@ class CubeTruss:
             e = [int(x) for x in (list(extents) + [1, 1, 1])[:3]]
             ex, ey, ez = e
         step = size - strut
-        w, l, height = step * ex + strut, step * ey + strut, step * ez + strut
+        w, length, height = step * ex + strut, step * ey + strut, step * ez + strut
         v = [0.0, 1.0 / ey, 1.0 / ez]  # BACK/ey + UP/ez diagonal cut normal
         smax = size * (max(ex, ey, ez) + 1)
         octid = size - 2 * strut
@@ -260,7 +260,7 @@ class CubeTruss:
 
         pieces = []
         for mx in xcopies(step, sides=ex):
-            base = cuboid([size, l, height]).half_of(v=v, s=smax)
+            base = cuboid([size, length, height]).half_of(v=v, s=smax)
             cells = [
                 hollow_cell().multmatrix((my @ mz).tolist())
                 for my in ycopies(step, sides=ey)
@@ -271,7 +271,7 @@ class CubeTruss:
                 [octprism(ey * size + 1, [90, 0, 0]).multmatrix(mz.tolist()) for mz in zcopies(step, sides=ez)]
             )
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
-        return Bosl2Solid(_union(pieces).shape, size=[w, l, height])
+        return Bosl2Solid(_union(pieces).shape, size=[w, length, height])
 
     @staticmethod
     def cubetruss_corner(

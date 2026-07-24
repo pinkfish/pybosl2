@@ -195,7 +195,8 @@ class Polyhedra:
         inner_radius: float | None = None,
         side: float | None = None,
     ) -> Bosl2Solid:
-        """A Platonic solid, sized by circumradius *radius*, diameter *diameter*, inradius *inner_radius*, or *side* (BOSL2 regular_polyhedron()).
+        """A Platonic solid, sized by circumradius *radius*, diameter *diameter*, inradius *inner_radius*, or *side*
+        (BOSL2 regular_polyhedron()).
 
         *name* is ``tetrahedron`` / ``cube`` / ``octahedron`` / ``dodecahedron`` / ``icosahedron``
         (short aliases accepted). Defaults to circumradius 1.

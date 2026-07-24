@@ -50,8 +50,14 @@ from pathlib import Path
 # pysolidfive/tests/render_pysolidfive.py -> pysolidfive/tests -> pysolidfive -> repo root.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
+# PythonSCAD-dev is preferred: the plain app's hardened runtime rejects the installed numpy,
+# while the dev build allows it (matches bosl2/tests/render_stl.py's discovery order).
 _CANDIDATE_BINARIES = [
+    "/Applications/PythonSCAD-dev.app/Contents/MacOS/PythonSCAD",
     "/Applications/PythonSCAD.app/Contents/MacOS/PythonSCAD",
+    # AppImage extracted by CI (see .github/workflows/docs.yml)
+    "/usr/local/bin/pythonscad",
+    "squashfs-root/AppRun",
 ]
 
 # pysolidfive's frep()-meshed PolySets report "Triangles: N"; real BOSL2/CSG solids (Manifold

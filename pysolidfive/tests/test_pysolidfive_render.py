@@ -83,7 +83,7 @@ SHAPES = [
     (
         "polygon_prism_concave_rims",
         "pysolidfive.polygon_prism([[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]], "
-        "h=12, rounding_bottom=2, rounding_top=-2)",
+        "height=12, rounding_bottom=2, rounding_top=-2)",
     ),
     # The named n-ary CSG combinators. union/difference/intersection are thin SDF min/max
     # composition (the operators |, &, - with list/varargs conventions); hull() is the
