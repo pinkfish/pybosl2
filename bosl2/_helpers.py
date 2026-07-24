@@ -24,9 +24,7 @@ import numpy as np
 
 def is_num(value) -> bool:
     """True if *value* is a numeric scalar (int, float, or numpy numeric), excluding bool."""
-    return isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(
-        value, bool
-    )
+    return isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, bool)
 
 
 # ---------------------------------------------------------------------------
@@ -131,7 +129,7 @@ def frame_map4_yz(y_axis, z_axis):
 
 def union(shapes):
     """
-        Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``).
+    Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``).
     """
     return reduce(operator.or_, shapes)
 

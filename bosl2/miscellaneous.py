@@ -82,9 +82,7 @@ def _point_left_of_line2d(p, a, b):
 def _vector_angle3(a, b, c):
     va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
     vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
-    cosv = float(np.dot(va, vc)) / (
-        float(np.linalg.norm(va)) * float(np.linalg.norm(vc))
-    )
+    cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
     return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
@@ -142,11 +140,7 @@ def extrude_from_to(
     }
     if slices is not None:
         kw["slices"] = slices
-    solid = (
-        native.linear_extrude(**kw)
-        .rotate([0, phi, theta])
-        .translate([float(c) for c in p1])
-    )
+    solid = native.linear_extrude(**kw).rotate([0, phi, theta]).translate([float(c) for c in p1])
     return Bosl2Solid(solid)
 
 
@@ -174,16 +168,8 @@ def cylindrical_extrude(
     from bosl2.shapes2d import _frag_count
     from bosl2.shapes3d import Bosl2Solid
 
-    irv = (
-        inner_radius
-        if inner_radius is not None
-        else (inner_diameter / 2 if inner_diameter is not None else None)
-    )
-    orv = (
-        outer_radius
-        if outer_radius is not None
-        else (outer_diameter / 2 if outer_diameter is not None else None)
-    )
+    irv = inner_radius if inner_radius is not None else (inner_diameter / 2 if inner_diameter is not None else None)
+    orv = outer_radius if outer_radius is not None else (outer_diameter / 2 if outer_diameter is not None else None)
     assert irv is not None and orv is not None and irv > 0 and orv > 0, (
         "cylindrical_extrude(): give positive inner and outer radius/diameter."
     )
@@ -205,12 +191,8 @@ def cylindrical_extrude(
         clip = _square([max(step, 2**-15), size[1]], center=True)
         slab = native.translate([-x, 0]) & clip
         slab = slab.scale([scalefactor, 1]).mirror([0, 1])
-        wedge = slab.linear_extrude(
-            height=orv - irv, scale=[irv / orv, 1], center=False, convexity=convexity
-        )
-        wedge = wedge.rotate([-90, 0, 0]).translate(
-            [0, -orv * math.cos(math.radians(180 / sides)), 0]
-        )
+        wedge = slab.linear_extrude(height=orv - irv, scale=[irv / orv, 1], center=False, convexity=convexity)
+        wedge = wedge.rotate([-90, 0, 0]).translate([0, -orv * math.cos(math.radians(180 / sides)), 0])
         wedge = wedge.rotate([0, 0, 360 * x / circumf])
         facets.append(wedge)
     solid = reduce(operator.or_, facets)
@@ -232,11 +214,7 @@ def chain_hull(*objects):
 
     from bosl2.shapes3d import Bosl2Solid
 
-    objs = (
-        list(objects[0])
-        if len(objects) == 1 and isinstance(objects[0], (list, tuple))
-        else list(objects)
-    )
+    objs = list(objects[0]) if len(objects) == 1 and isinstance(objects[0], (list, tuple)) else list(objects)
     assert objs, "chain_hull(): needs at least one object."
     natives = [unwrap(o) for o in objs]
     if len(natives) == 1:
@@ -253,29 +231,15 @@ def minkowski_difference(base, *diffs, size: float = 1000, convexity: int = 10):
     from bosl2.shapes3d import Bosl2Solid
 
     b = unwrap(base)
-    raw = (
-        list(diffs[0])
-        if len(diffs) == 1 and isinstance(diffs[0], (list, tuple))
-        else list(diffs)
-    )
+    raw = list(diffs[0]) if len(diffs) == 1 and isinstance(diffs[0], (list, tuple)) else list(diffs)
     # Diffs may arrive as Bosl2Solid wrappers; the native minkowski() only takes raw solids.
     ds = [unwrap(d) for d in raw]
     assert ds, "minkowski_difference(): needs at least one diff shape."
-    center, sz = (
-        Bosl2Solid(b).bounds() if isinstance(base, Bosl2Solid) else _native_bounds(b)
-    )
-    box0 = _cube([sz[i] for i in range(3)], center=True).translate(
-        [float(c) for c in center]
-    )
-    box1 = _cube([sz[i] + 2 for i in range(3)], center=True).translate(
-        [float(c) for c in center]
-    )
+    center, sz = Bosl2Solid(b).bounds() if isinstance(base, Bosl2Solid) else _native_bounds(b)
+    box0 = _cube([sz[i] for i in range(3)], center=True).translate([float(c) for c in center])
+    box1 = _cube([sz[i] + 2 for i in range(3)], center=True).translate([float(c) for c in center])
     shell = box1 - b
-    carve = (
-        reduce(operator.or_, [_mink(shell, d) for d in ds])
-        if len(ds) > 1
-        else _mink(shell, ds[0])
-    )
+    carve = reduce(operator.or_, [_mink(shell, d) for d in ds]) if len(ds) > 1 else _mink(shell, ds[0])
     return Bosl2Solid(box0 - carve)
 
 
@@ -296,9 +260,7 @@ class Extrudable:
     of OpenSCAD children (a native 2-D shape, a Path/Region, a Bosl2Solid, or a factory).
     """
 
-    def path_extrude2d(
-        self, profile, caps: bool = False, closed=None, s=None, convexity: int = 10
-    ):
+    def path_extrude2d(self, profile, caps: bool = False, closed=None, s=None, convexity: int = 10):
         """Extrude a 2-D *profile* along this 2-D path, standing it vertically (BOSL2 path_extrude2d()).
 
         Builds a straight run for each segment and a revolved fillet at each corner, unioned into a
@@ -308,13 +270,9 @@ class Extrudable:
         """
         from bosl2.shapes3d import Bosl2Solid
 
-        assert len(self[0]) == 2, (
-            "path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."
-        )
+        assert len(self[0]) == 2, "path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."
         is_closed = self.closed if closed is None else closed
-        assert not (caps and is_closed), (
-            "path_extrude2d(): cannot cap a closed extrusion."
-        )
+        assert not (caps and is_closed), "path_extrude2d(): cannot cap a closed extrusion."
         pts = [[float(p[0]), float(p[1])] for p in self.deduplicated()]
         sides = len(pts)
         assert sides >= 2, "path_extrude2d(): need at least two points."
@@ -332,44 +290,30 @@ class Extrudable:
             seglen = float(np.linalg.norm(segv))
             if seglen < 1e-9:
                 continue
-            block = factory().linear_extrude(
-                height=seglen, center=True, convexity=convexity
-            )
-            block = block.rotate([90, 0, 0]).multmatrix(
-                rot_from_to4(BACK, [segv[0], segv[1], 0]).tolist()
-            )
-            block = block.translate(
-                [float((a[0] + b[0]) / 2), float((a[1] + b[1]) / 2), 0]
-            )
+            block = factory().linear_extrude(height=seglen, center=True, convexity=convexity)
+            block = block.rotate([90, 0, 0]).multmatrix(rot_from_to4(BACK, [segv[0], segv[1], 0]).tolist())
+            block = block.translate([float((a[0] + b[0]) / 2), float((a[1] + b[1]) / 2), 0])
             parts.append(block)
         # corner fillets
         ea = 0.1  # tiny overlap so the fillets fuse to the segments
         idxs = range(sides) if is_closed else range(1, sides - 1)
         for i in idxs:
             t0, t1, t2 = pts[(i - 1) % sides], pts[i], pts[(i + 1) % sides]
-            angle = -(180 - _vector_angle3(t0, t1, t2)) * (
-                1 if _point_left_of_line2d(t2, t0, t1) >= 0 else -1
-            )
+            angle = -(180 - _vector_angle3(t0, t1, t2)) * (1 if _point_left_of_line2d(t2, t0, t1) >= 0 else -1)
             if abs(angle) < 1e-9:
                 continue
             sgn = 1 if angle > 0 else -1
             half = _planar_half(factory(), keep_positive_x=(angle < 0), s=s)
             corner = half.rotate_extrude(angle=angle + sgn * ea)
             corner = corner.rotate([0, 0, -sgn * ea / 2])
-            corner = corner.multmatrix(
-                frame_map4_yz([t2[0] - t1[0], t2[1] - t1[1], 0], UP).tolist()
-            )
+            corner = corner.multmatrix(frame_map4_yz([t2[0] - t1[0], t2[1] - t1[1], 0], UP).tolist())
             corner = corner.translate([t1[0], t1[1], 0])
             parts.append(corner)
         # rounded caps on the open ends
         if caps and not is_closed:
             for a, b in ((pts[0], pts[1]), (pts[-1], pts[-2])):
-                cap = _planar_half(factory(), keep_positive_x=True, s=s).rotate_extrude(
-                    angle=180
-                )
-                cap = cap.multmatrix(
-                    rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist()
-                )
+                cap = _planar_half(factory(), keep_positive_x=True, s=s).rotate_extrude(angle=180)
+                cap = cap.multmatrix(rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist())
                 cap = cap.translate([a[0], a[1], 0])
                 parts.append(cap)
         assert parts, "path_extrude2d(): nothing to extrude."
@@ -389,18 +333,14 @@ class Extrudable:
         from bosl2.skin import rot_resample
 
         dim = len(self[0])
-        path = [
-            [float(p[0]), float(p[1]), float(p[2]) if dim == 3 else 0.0] for p in self
-        ]
+        path = [[float(p[0]), float(p[1]), float(p[2]) if dim == 3 else 0.0] for p in self]
         sides = len(path)
         assert sides >= 2, "path_extrude(): need at least two points."
         parr = [np.asarray(p) for p in path]
         rotmats = []
         acc = np.eye(4)
         for i in range(sides - 1):
-            vec1 = (
-                np.asarray(UP, dtype=float) if i == 0 else unit(parr[i] - parr[i - 1])
-            )
+            vec1 = np.asarray(UP, dtype=float) if i == 0 else unit(parr[i] - parr[i - 1])
             vec2 = unit(parr[i + 1] - parr[i])
             # left-multiply so each frame maps local +Z exactly onto its segment direction
             # (frame_i @ UP == dir_i); this is the discrete rotation-minimizing frame.
@@ -459,9 +399,7 @@ class Miscellaneous:
         from bosl2.shapes3d import cuboid
 
         center, size = self.bounds()
-        return cuboid([size[i] + 2 * excess for i in range(3)]).translate(
-            [float(c) for c in center]
-        )
+        return cuboid([size[i] + 2 * excess for i in range(3)]).translate([float(c) for c in center])
 
     def offset3d(self, radius: float, size: float = 1000, convexity: int = 10):
         """Expand (or, for negative *radius*, contract) the surface of this solid by *radius* (BOSL2 offset3d()).
@@ -483,26 +421,12 @@ class Miscellaneous:
         big2 = _cube([size] * 3, center=True)
         return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))
 
-    def round3d(
-        self, radius=None, outer_radius=None, inner_radius=None, size: float = 1000
-    ):
+    def round3d(self, radius=None, outer_radius=None, inner_radius=None, size: float = 1000):
         """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,
         *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow."""
-        orr = (
-            outer_radius
-            if outer_radius is not None
-            else (radius if radius is not None else 0)
-        )
-        irr = (
-            inner_radius
-            if inner_radius is not None
-            else (radius if radius is not None else 0)
-        )
-        return (
-            self.offset3d(orr, size=size)
-            .offset3d(-irr - orr, size=size)
-            .offset3d(irr, size=size)
-        )
+        orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
+        irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
+        return self.offset3d(orr, size=size).offset3d(-irr - orr, size=size).offset3d(irr, size=size)
 
     def chain_hull(self, *others):
         """This solid chain-hulled with *others*, in order (see :func:`chain_hull`)."""

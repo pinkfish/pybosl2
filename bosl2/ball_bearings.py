@@ -113,10 +113,7 @@ _BEARINGS = {
 }
 # The "...ZZ" shielded variants share the open variant's dimensions.
 _BEARINGS.update(
-    {
-        name + "ZZ": BearingSpec(s.inner_diameter, s.outer_diameter, s.width, True)
-        for name, s in list(_BEARINGS.items())
-    }
+    {name + "ZZ": BearingSpec(s.inner_diameter, s.outer_diameter, s.width, True) for name, s in list(_BEARINGS.items())}
 )
 
 
@@ -126,8 +123,8 @@ class BallBearings:
     @staticmethod
     def ball_bearing_info(trade_size: str) -> BearingSpec:
         """
-            The :class:`BearingSpec` for a standard trade size, e.g. ``"608"`` / ``"6902ZZ"`` /
-            ``"R8"``.
+        The :class:`BearingSpec` for a standard trade size, e.g. ``"608"`` / ``"6902ZZ"`` /
+        ``"R8"``.
         """
         try:
             return _BEARINGS[str(trade_size)]
@@ -217,15 +214,11 @@ class BallBearings:
                 fa=fa,
                 fs=fs,
             )
-            races = races - torus(
-                major_radius=mid_d / 2, minor_radius=wall, fn=fn, fa=fa, fs=fs
-            )
+            races = races - torus(major_radius=mid_d / 2, minor_radius=wall, fn=fn, fa=fa, fs=fs)
             balls = reduce(
                 operator.or_,
                 (
-                    sphere(diameter=wall * 2, fn=fn, fa=fa, fs=fs)
-                    .right(mid_d / 2)
-                    .rotate([0, 0, i * 360 / ball_cnt])
+                    sphere(diameter=wall * 2, fn=fn, fa=fa, fs=fs).right(mid_d / 2).rotate([0, 0, i * 360 / ball_cnt])
                     for i in range(ball_cnt)
                 ),
             )

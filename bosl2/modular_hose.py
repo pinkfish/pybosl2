@@ -254,14 +254,8 @@ _BIG_CMDS = [
 _WAIST = [1.7698, 1.8251, 3.95998]
 _SIZES = {0.25: 0, 0.5: 1, 0.75: 2}
 
-_SMALL = [
-    [[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0))]
-    for cmds, x0 in _SMALL_CMDS
-]
-_BIG = [
-    [[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0))]
-    for cmds, x0 in _BIG_CMDS
-]
+_SMALL = [[[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0))] for cmds, x0 in _SMALL_CMDS]
+_BIG = [[[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0))] for cmds, x0 in _BIG_CMDS]
 
 
 def _bounds(pts):
@@ -274,9 +268,7 @@ def _size_index(size):
     try:
         return _SIZES[size]
     except KeyError:
-        raise ValueError(
-            'modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").'
-        )
+        raise ValueError('modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").')
 
 
 class ModularHose:
@@ -307,11 +299,7 @@ class ModularHose:
                 ModularHose.modular_hose(0.5, "segment").show()
         """
         ind = _size_index(size)
-        cl = (
-            clearance
-            if isinstance(clearance, (list, tuple))
-            else [clearance, clearance]
-        )
+        cl = clearance if isinstance(clearance, (list, tuple)) else [clearance, clearance]
         small, big = _SMALL[ind], _BIG[ind]
         (_sx, smy), _ = _bounds(small)
         (_bx, bmy), _ = _bounds(big)
@@ -333,9 +321,7 @@ class ModularHose:
                 [bigend[0][0], 0],
             ]
         else:
-            raise ValueError(
-                "modular_hose(): type must be one of small/big/segment/socket/ball."
-            )
+            raise ValueError("modular_hose(): type must be one of small/big/segment/socket/ball.")
 
         (_mnx, mny), (mxx, mxy) = _bounds(shape)
         cy = (mny + mxy) / 2
@@ -346,8 +332,8 @@ class ModularHose:
     @staticmethod
     def modular_hose_radius(size: float, outer: bool = False) -> float:
         """
-            The inner (bore) or *outer* radius of a modular hose of *size* (BOSL2
-            modular_hose_radius()).
+        The inner (bore) or *outer* radius of a modular hose of *size* (BOSL2
+        modular_hose_radius()).
         """
         big = _BIG[_size_index(size)]
         return big[-1][0] if outer else big[0][0]

@@ -6,7 +6,6 @@
 
 """Tests for bosl2.turtle3d (the Turtle class) and the debug_polygon/debug_region methods."""
 
-
 import numpy as np
 import pytest
 
@@ -131,9 +130,7 @@ def test_debug_polygon_builds_with_labels():
 
 
 def test_debug_region_builds():
-    radius = Region.with_holes(
-        [[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]]
-    )
+    radius = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]])
     assert isinstance(radius.debug_region(size=3), Bosl2Solid)
 
 

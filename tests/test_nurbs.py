@@ -9,7 +9,6 @@ numeric results are pinned to real BOSL2 in tests/test_bosl2_reorient.py; here w
 surface (return types, endpoints, the parameter-list form, and error handling). nurbs_vnf uses the
 mocked VNF, so its geometry is checked for real in test_stl_render.py."""
 
-
 import numpy as np
 import pytest
 
@@ -60,9 +59,7 @@ def test_scalar_u_returns_single_point():
 
 
 def test_closed_curve_is_flagged_closed():
-    c = nurbs_curve(
-        [[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type="closed"
-    )
+    c = nurbs_curve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type="closed")
     assert isinstance(c, Path) and c.closed is True
 
 
@@ -133,9 +130,7 @@ def test_nurbs_vnf_parameter_list():
 
 def test_nurbs_vnf_caps_require_closed_clamped():
     with pytest.raises(AssertionError):
-        nurbs_vnf(
-            PATCH, 3, type="clamped", caps=True
-        )  # both clamped -> no caps allowed
+        nurbs_vnf(PATCH, 3, type="clamped", caps=True)  # both clamped -> no caps allowed
 
 
 # -- degree elevation ---------------------------------------------------------------------

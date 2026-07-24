@@ -22,12 +22,10 @@ import numpy as np
 from bosl2.math import EPSILON
 
 
-def is_vector(
-    v, length: int | None = None, zero: bool | None = None, eps: float = EPSILON
-) -> bool:
+def is_vector(v, length: int | None = None, zero: bool | None = None, eps: float = EPSILON) -> bool:
     """
-        True if *v* is a list/tuple/ndarray of finite numbers (optionally of a given length and/or
-        zero-ness).
+    True if *v* is a list/tuple/ndarray of finite numbers (optionally of a given length and/or
+    zero-ness).
     """
     if isinstance(v, np.ndarray):
         if v.ndim != 1 or v.size == 0:

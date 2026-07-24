@@ -55,9 +55,7 @@ class Hinges:
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
         top = hingegap + 2 * thick / math.tan(math.radians(foldangle / 2))
-        return prismoid(
-            [length, hingegap], [length, top], height=thick, anchor=BOTTOM
-        ).up(layerheight * 2)
+        return prismoid([length, hingegap], [length, top], height=thick, anchor=BOTTOM).up(layerheight * 2)
 
     @staticmethod
     def knuckle_hinge(
@@ -87,22 +85,14 @@ class Hinges:
             if (i % 2) != (1 if inner else 0):
                 continue
             x = -length / 2 + seglen / 2 + i * (seglen + gap)
-            parts.append(
-                cyl(height=seglen, diameter=knuckle_diam, fn=fn, fa=fa, fs=fs)
-                .rotate([0, 90, 0])
-                .right(x)
-            )
+            parts.append(cyl(height=seglen, diameter=knuckle_diam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).right(x))
         # the flat leaf plate, merging into the lower part of the knuckle line
         ydir = -1 if inner else 1
         plate_w = arm + knuckle_diam / 2
         parts.append(cuboid([length, plate_w, thick]).back(ydir * plate_w / 2))
         leaf = union(parts)
-        leaf = leaf - cyl(
-            height=length + 1, diameter=pin_diam, fn=fn, fa=fa, fs=fs
-        ).rotate([0, 90, 0])  # pin bore
-        return Bosl2Solid(
-            leaf.shape, size=[length, plate_w + knuckle_diam / 2, knuckle_diam]
-        )
+        leaf = leaf - cyl(height=length + 1, diameter=pin_diam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0])  # pin bore
+        return Bosl2Solid(leaf.shape, size=[length, plate_w + knuckle_diam / 2, knuckle_diam])
 
     @staticmethod
     def knuckle_hinge_pair(
@@ -158,17 +148,11 @@ class Hinges:
             fs=fs,
         )
         if fold:
-            inner = inner.rotate(
-                [fold, 0, 0]
-            )  # rotate the inner leaf about the pin (X) axis
+            inner = inner.rotate([fold, 0, 0])  # rotate the inner leaf about the pin (X) axis
         hinge = outer | inner
         if pin:
-            hinge = hinge | cyl(
-                height=length - gap, diameter=pin_diam - 0.1, fn=fn, fa=fa, fs=fs
-            ).rotate([0, 90, 0])
-        return Bosl2Solid(
-            hinge.shape, size=[length, 2 * arm + knuckle_diam, knuckle_diam]
-        )
+            hinge = hinge | cyl(height=length - gap, diameter=pin_diam - 0.1, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0])
+        return Bosl2Solid(hinge.shape, size=[length, 2 * arm + knuckle_diam, knuckle_diam])
 
     @staticmethod
     def snap_lock(
@@ -184,24 +168,14 @@ class Hinges:
         fs: float | None = None,
     ) -> Bosl2Solid:
         """
-            A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2
-            snap_lock()).
+        A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2
+        snap_lock()).
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
-        snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(
-            math.radians(foldangle / 2)
-        ) + hingegap / 2
-        post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick]).up(
-            (snapdiam / 2 + thick) / 2
-        )
-        ridge = (
-            cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs)
-            .rotate([0, 90, 0])
-            .up(snapdiam / 2 + thick)
-        )
-        return Bosl2Solid(
-            (post | ridge).back(snap_x).shape, size=[snaplen, snapdiam, 2 * thick]
-        )
+        snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hingegap / 2
+        post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick]).up((snapdiam / 2 + thick) / 2)
+        ridge = cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).up(snapdiam / 2 + thick)
+        return Bosl2Solid((post | ridge).back(snap_x).shape, size=[snaplen, snapdiam, 2 * thick])
 
     @staticmethod
     def snap_socket(
@@ -218,17 +192,9 @@ class Hinges:
     ) -> Bosl2Solid:
         """The receiving socket for a :meth:`snap_lock` tab (BOSL2 snap_socket())."""
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
-        snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(
-            math.radians(foldangle / 2)
-        ) + hingegap / 2
-        post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick]).up(
-            (snapdiam / 2 + thick) / 2
-        )
-        ridge = (
-            cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs)
-            .rotate([0, 90, 0])
-            .up(snapdiam / 2 + thick)
-        )
+        snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hingegap / 2
+        post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick]).up((snapdiam / 2 + thick) / 2)
+        ridge = cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).up(snapdiam / 2 + thick)
         divot = (
             sphere(diameter=snapdiam * 0.8, fn=fn, fa=fa, fs=fs)
             .scale([0.333, 1, 1])

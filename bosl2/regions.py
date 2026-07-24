@@ -86,13 +86,9 @@ class Region(list):
         chamfer: bool = False,
     ) -> "Region":
         """Offset every path in the region."""
-        return Region(
-            [p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self]
-        )
+        return Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self])
 
-    def round_corners(
-        self, radius: float | list[float] | None = None, **kwargs: Any
-    ) -> "Region":
+    def round_corners(self, radius: float | list[float] | None = None, **kwargs: Any) -> "Region":
         return Region([p.round_corners(radius=radius, **kwargs) for p in self])
 
     def translate(self, v: Sequence[float]) -> "Region":
@@ -127,9 +123,7 @@ class Region(list):
 
         paths = [p if isinstance(p, Path) else Path(p) for p in self]
         if len(paths) <= 1:
-            return (paths[0] if paths else Path(self)).debug_polygon(
-                size=size, vertices=vertices
-            )
+            return (paths[0] if paths else Path(self)).debug_polygon(size=size, vertices=vertices)
         solid = Bosl2Solid(self.geometry().linear_extrude(height=0.01, center=True))
         if not vertices:
             return solid
@@ -150,19 +144,17 @@ class Region(list):
 
     def stroke(self, width: float = 1, **kwargs: Any):
         """
-            Draw every path in this region as a closed solid line (see
-            :func:`bosl2.drawing.stroke`).
+        Draw every path in this region as a closed solid line (see
+        :func:`bosl2.drawing.stroke`).
         """
         from bosl2.drawing import stroke as _stroke
 
         return _stroke(self, width=width, **kwargs)
 
-    def dashed_stroke(
-        self, dashpat: Sequence[float] = (3, 3), **kwargs: Any
-    ) -> list[Path]:
+    def dashed_stroke(self, dashpat: Sequence[float] = (3, 3), **kwargs: Any) -> list[Path]:
         """
-            Break every path in this region into dash sub-paths (see
-            :func:`bosl2.drawing.dashed_stroke`).
+        Break every path in this region into dash sub-paths (see
+        :func:`bosl2.drawing.dashed_stroke`).
         """
         from bosl2.drawing import dashed_stroke as _dashed
 

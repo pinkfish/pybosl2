@@ -45,9 +45,7 @@ def _vector_angle3(a, b, c) -> float:
     """The angle in degrees at vertex *b* of the corner a-b-c (2-D or 3-D)."""
     va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
     vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
-    cosv = float(np.dot(va, vc)) / (
-        float(np.linalg.norm(va)) * float(np.linalg.norm(vc))
-    )
+    cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
     return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
@@ -84,7 +82,7 @@ def _chamfcorner(points, parm):
 
 def _arc3d(center, start, end, n):
     """
-        *n* points along the short arc from *start* to *end* about *center* (slerp, any dimension).
+    *n* points along the short arc from *start* to *end* about *center* (slerp, any dimension).
     """
     c = np.asarray(center, dtype=float)
     v0, v1 = np.asarray(start, dtype=float) - c, np.asarray(end, dtype=float) - c
@@ -100,10 +98,7 @@ def _arc3d(center, start, end, n):
             list(np.asarray(end, dtype=float)),
         ]
     s = math.sin(angle)
-    return [
-        list(c + (math.sin((1 - t) * angle) * v0 + math.sin(t * angle) * v1) / s)
-        for t in np.linspace(0, 1, n)
-    ]
+    return [list(c + (math.sin((1 - t) * angle) * v0 + math.sin(t * angle) * v1) / s) for t in np.linspace(0, 1, n)]
 
 
 def _circlecorner(points, parm, fn=None, fa=None, fs=None):
@@ -174,9 +169,7 @@ def round_corners(
     """
     from bosl2.paths import Path, Path3D
 
-    assert method in ("circle", "smooth", "chamfer"), (
-        'method must be "circle", "smooth" or "chamfer".'
-    )
+    assert method in ("circle", "smooth", "chamfer"), 'method must be "circle", "smooth" or "chamfer".'
     given = [
         (m, v)
         for m, v in (
@@ -192,12 +185,8 @@ def round_corners(
     pts = [[float(c) for c in p] for p in path]
     sides = len(pts)
     assert sides > 2, f"Path has length {sides}. Length must be 3 or more."
-    assert method == "circle" or measure != "radius", (
-        'radius is allowed only with method="circle".'
-    )
-    assert method == "chamfer" or measure != "width", (
-        'width is allowed only with method="chamfer".'
-    )
+    assert method == "circle" or measure != "radius", 'radius is allowed only with method="circle".'
+    assert method == "chamfer" or measure != "width", 'width is allowed only with method="chamfer".'
 
     if is_num(size):
         parm = [float(size)] * sides
@@ -212,11 +201,7 @@ def round_corners(
         kv = [float(k)] * sides
     else:
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = (
-            ([0.0] + [float(v) for v in k] + [0.0])
-            if len(k) < sides
-            else [float(v) for v in k]
-        )
+        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < sides else [float(v) for v in k]
     assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
     assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
 
@@ -227,13 +212,9 @@ def round_corners(
         if (not closed and (i == 0 or i == sides - 1)) or parm[i] == 0:
             dk.append([0.0])
             continue
-        assert not (approx(p0, p1) or approx(p1, p2)), (
-            f"Repeated point in path at index {i} with nonzero rounding."
-        )
+        assert not (approx(p0, p1) or approx(p1, p2)), f"Repeated point in path at index {i} with nonzero rounding."
         angle = _vector_angle3(p0, p1, p2) / 2
-        assert not approx(angle, 0), (
-            f"Path turns back on itself at index {i} with nonzero rounding."
-        )
+        assert not approx(angle, 0), f"Path turns back on itself at index {i} with nonzero rounding."
         ar = math.radians(angle)
         if method == "chamfer":
             dk.append(
@@ -247,9 +228,7 @@ def round_corners(
             )  # width
         elif method == "smooth":
             dk.append(
-                [parm[i], kv[i]]
-                if measure == "joint"
-                else [8 * parm[i] / math.cos(ar) / (1 + 4 * kv[i]), kv[i]]
+                [parm[i], kv[i]] if measure == "joint" else [8 * parm[i] / math.cos(ar) / (1 + 4 * kv[i]), kv[i]]
             )  # cut
         elif measure == "radius":
             dk.append([parm[i] / math.tan(ar), parm[i]])
@@ -263,30 +242,19 @@ def round_corners(
                 dk.append([cr / math.tan(ar), cr])
 
     lengths = [
-        float(
-            np.linalg.norm(
-                np.asarray(pts[i % sides]) - np.asarray(pts[(i - 1) % sides])
-            )
-        )
-        for i in range(sides + 1)
+        float(np.linalg.norm(np.asarray(pts[i % sides]) - np.asarray(pts[(i - 1) % sides]))) for i in range(sides + 1)
     ]
     scale = []
     for i in range(sides):
         if closed or (i != 0 and i != sides - 1):
-            a = (
-                lengths[i] / (dk[(i - 1) % sides][0] + dk[i][0])
-                if (dk[(i - 1) % sides][0] + dk[i][0])
-                else math.inf
-            )
+            a = lengths[i] / (dk[(i - 1) % sides][0] + dk[i][0]) if (dk[(i - 1) % sides][0] + dk[i][0]) else math.inf
             b = (
                 lengths[i + 1] / (dk[i][0] + dk[(i + 1) % sides][0])
                 if (dk[i][0] + dk[(i + 1) % sides][0])
                 else math.inf
             )
             scale.append(min(a, b))
-    assert not scale or min(scale) >= 1 - 1e-9, (
-        "Roundovers are too big for the path (they overlap); reduce the sizes."
-    )
+    assert not scale or min(scale) >= 1 - 1e-9, "Roundovers are too big for the path (they overlap); reduce the sizes."
 
     out = []
     for i in range(sides):

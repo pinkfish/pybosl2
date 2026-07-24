@@ -100,21 +100,15 @@ def catenary(
 
             catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()
     """
-    assert (droop is None) != (angle is None), (
-        "catenary() needs exactly one of droop= or angle="
-    )
+    assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
     assert width > 0, "catenary() needs width > 0."
-    assert isinstance(sides, int) and sides > 0, (
-        "catenary() needs a positive integer sides."
-    )
+    assert isinstance(sides, int) and sides > 0, "catenary() needs a positive integer sides."
     given = droop if droop is not None else angle
     assert given is not None
     sgn = int(math.copysign(1, given))
     droop_a = None if droop is None else abs(droop)
     angle_a = None if angle is None else abs(angle)
-    assert angle_a is None or (0 < angle_a < 90), (
-        "catenary() angle must satisfy 0 < |angle| < 90."
-    )
+    assert angle_a is None or (0 < angle_a < 90), "catenary() angle must satisfy 0 < |angle| < 90."
 
     if droop_a is None:  # solve for the scale that gives the requested endpoint slope
         assert angle_a is not None
@@ -197,9 +191,7 @@ def helix(
     if angle is not None and length != 0:
         dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
     else:
-        assert (
-            length is not None and turns is not None
-        )  # else-branch only reached with both set
+        assert length is not None and turns is not None  # else-branch only reached with both set
         dz = length / abs(turns)
     if turns is not None:
         maxtheta = 360.0 * turns
@@ -272,11 +264,7 @@ def _turtle_repeat(commands, state, full_state, repeat):
 def _turtle_command_len(commands, index) -> int:
     if commands[index] == "repeat":
         return 3
-    if (
-        commands[index] in _TURTLE_TWO_ARG
-        and len(commands) > index + 2
-        and not isinstance(commands[index + 2], str)
-    ):
+    if commands[index] in _TURTLE_TWO_ARG and len(commands) > index + 2 and not isinstance(commands[index + 2], str):
         return 3
     if index + 1 < len(commands) and isinstance(commands[index + 1], str):
         return 1
@@ -297,12 +285,8 @@ def _turtle(commands, state, index: int = 0):
 def _turtle_command(command, parm, parm2, state, index):
     PATH, STEP, ANGLE, ARCS = 0, 1, 2, 3
     if command == "repeat":
-        assert isinstance(parm, (int, float)), (
-            f'"repeat" needs a count at index {index}'
-        )
-        assert isinstance(parm2, (list, tuple)), (
-            f'"repeat" needs a command list at index {index}'
-        )
+        assert isinstance(parm, (int, float)), f'"repeat" needs a count at index {index}'
+        assert isinstance(parm2, (list, tuple)), f'"repeat" needs a command list at index {index}'
         return _turtle_repeat(list(parm2), state, True, int(parm))
 
     parm = None if isinstance(parm, str) else parm
@@ -323,15 +307,9 @@ def _turtle_command(command, parm, parm2, state, index):
     if command == "move":
         return with_point((parm if parm is not None else 1) * step + lastpt)
     if command == "xmove":
-        return with_point(
-            (parm if parm is not None else 1) * np.linalg.norm(step) * np.array([1, 0])
-            + lastpt
-        )
+        return with_point((parm if parm is not None else 1) * np.linalg.norm(step) * np.array([1, 0]) + lastpt)
     if command == "ymove":
-        return with_point(
-            (parm if parm is not None else 1) * np.linalg.norm(step) * np.array([0, 1])
-            + lastpt
-        )
+        return with_point((parm if parm is not None else 1) * np.linalg.norm(step) * np.array([0, 1]) + lastpt)
     if command == "xymove":
         return with_point(lastpt + np.asarray(parm, dtype=float))
     if command == "jump":
@@ -359,10 +337,7 @@ def _turtle_command(command, parm, parm2, state, index):
     if command == "setdir":
         if isinstance(parm, (list, tuple, np.ndarray)):
             return with_step(np.linalg.norm(step) * unit([parm[0], parm[1]]))
-        return with_step(
-            np.linalg.norm(step)
-            * np.array([math.cos(math.radians(parm)), math.sin(math.radians(parm))])
-        )
+        return with_step(np.linalg.norm(step) * np.array([math.cos(math.radians(parm)), math.sin(math.radians(parm))]))
     if command == "length":
         return with_step(parm * unit(step))
     if command == "scale":
@@ -380,9 +355,7 @@ def _turtle_command(command, parm, parm2, state, index):
 
 def _turtle_arc(command, parm, parm2, state, index):
     PATH, STEP, ANGLE, ARCS = 0, 1, 2, 3
-    assert isinstance(parm, (int, float)), (
-        f'"{command}" needs a numeric radius at index {index}'
-    )
+    assert isinstance(parm, (int, float)), f'"{command}" needs a numeric radius at index {index}'
     lastpt = np.asarray(state[PATH][-1], dtype=float)
     step = np.asarray(state[STEP], dtype=float)
     lrsign = 1 if command in ("arcleft", "arcleftto") else -1
@@ -395,9 +368,7 @@ def _turtle_arc(command, parm, parm2, state, index):
         turn = math.copysign(1, parm) * lrsign * myangle
         rot_step = _rot2(lrsign * myangle, step)
     else:  # arcleftto / arcrightto
-        assert isinstance(parm2, (int, float)), (
-            f'"{command}" needs a numeric angle at index {index}'
-        )
+        assert isinstance(parm2, (int, float)), f'"{command}" needs a numeric angle at index {index}'
         radius = parm
         center = lastpt + lrsign * radius * line_normal([0, 0], step)
         start_angle = math.degrees(math.atan2(step[1], step[0])) % 360
@@ -413,9 +384,7 @@ def _turtle_arc(command, parm, parm2, state, index):
     else:
         p_mid = _rot2(turn / 2, lastpt - center) + center
         p_end = _rot2(turn, lastpt - center) + center
-        arcpath = list(arc(steps, points=[lastpt, p_mid, p_end]))[
-            1:
-        ]  # drop the shared first point
+        arcpath = list(arc(steps, points=[lastpt, p_mid, p_end]))[1:]  # drop the shared first point
     s = list(state)
     s[PATH] = state[PATH] + [[float(p[0]), float(p[1])] for p in arcpath]
     s[STEP] = [float(rot_step[0]), float(rot_step[1])]
@@ -479,16 +448,11 @@ def _endcap_polys(style, lw: float):
     l2 = spec.extent_mult * spec.width_mult
 
     def circle_poly(rx, ry, n):
-        return [
-            [rx * math.cos(2 * math.pi * k / n), ry * math.sin(2 * math.pi * k / n)]
-            for k in range(n)
-        ]
+        return [[rx * math.cos(2 * math.pi * k / n), ry * math.sin(2 * math.pi * k / n)] for k in range(n)]
 
     if style in (True, "round"):
         polys = [circle_poly(w / 2, length / 2, max(8, _frag_count(w * lw / 2)))]
-    elif (
-        style == "chisel"
-    ):  # circle(diameter=1, $fn=4) scaled [w, length] -> an axis-aligned diamond
+    elif style == "chisel":  # circle(diameter=1, $fn=4) scaled [w, length] -> an axis-aligned diamond
         polys = [circle_poly(w / 2, length / 2, 4)]
     elif style == "diamond":  # circle(diameter=w, $fn=4)
         polys = [circle_poly(w / 2, w / 2, 4)]
@@ -607,9 +571,7 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
     # Pull the body back under arrow endcaps; endcaps still sit at the original endpoints.
     body = list(pts)
     if not closed and sides >= 2:
-        body = _trim_ends(
-            body, _endcap_trim(endcap1, width), _endcap_trim(endcap2, width)
-        )
+        body = _trim_ends(body, _endcap_trim(endcap1, width), _endcap_trim(endcap2, width))
     nb = len(body)
     for i in range(nb) if closed else range(nb - 1):
         a, b = body[i], body[(i + 1) % nb]
@@ -654,7 +616,7 @@ def _oriented_to(shape, outdir, at):
 
 def _endcap_geometry_3d(style, at, outdir, width: float):
     """
-        Native 3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid.
+    Native 3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid.
     """
     from pythonscad import (
         polygon as _opolygon,
@@ -777,9 +739,7 @@ def stroke(
         and isinstance(path[0], (Path, Path3D))
         and not isinstance(path, (Path, Path3D))
     ):
-        parts = [
-            stroke(p, width=width, closed=True, joints=joints, dots=dots) for p in path
-        ]
+        parts = [stroke(p, width=width, closed=True, joints=joints, dots=dots) for p in path]
         shape = reduce(operator.or_, parts)
         return shape.color(color) if color is not None else shape
 
@@ -789,16 +749,8 @@ def stroke(
     if dots:
         joints = "dot"
         endcaps = "dot" if endcaps is None else endcaps
-    cap1 = (
-        endcap1
-        if endcap1 is not None
-        else (endcaps if endcaps is not None else "round")
-    )
-    cap2 = (
-        endcap2
-        if endcap2 is not None
-        else (endcaps if endcaps is not None else "round")
-    )
+    cap1 = endcap1 if endcap1 is not None else (endcaps if endcaps is not None else "round")
+    cap2 = endcap2 if endcap2 is not None else (endcaps if endcaps is not None else "round")
     jnt = joints if joints is not None else "round"
 
     dim = len(pts[0])

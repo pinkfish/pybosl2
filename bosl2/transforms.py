@@ -83,8 +83,8 @@ def rot_about_axis(angle: float, axis, center=(0.0, 0.0, 0.0)) -> np.ndarray:
 
 def rot_inverse(t) -> np.ndarray:
     """
-        Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,
-        un-translate.
+    Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,
+    un-translate.
     """
     t = np.asarray(t, dtype=float)
     radius = t[:3, :3]
@@ -111,10 +111,7 @@ def rot_decode(m, long: bool = False) -> list:
     largest = int(np.argmax([radius[0, 0], radius[1, 1], radius[2, 2]]))
     axis_matrix = radius + radius.T - (np.trace(radius) - 1) * np.eye(3)
     q_im = axis_matrix[largest]
-    q_re = (
-        radius[(largest + 2) % 3][(largest + 1) % 3]
-        - radius[(largest + 1) % 3][(largest + 2) % 3]
-    )
+    q_re = radius[(largest + 2) % 3][(largest + 1) % 3] - radius[(largest + 1) % 3][(largest + 2) % 3]
     c_sin = float(np.linalg.norm(q_im))
     c_cos = abs(float(q_re))
     if c_sin < 1e-12:

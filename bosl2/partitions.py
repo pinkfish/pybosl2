@@ -182,15 +182,9 @@ def _partition_subpath(cptype, fn=None, fa=None, fs=None):
     raise AssertionError(f"Unsupported cutpath type: {cptype!r}")
 
 
-def _partition_cutpath(
-    l, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None
-):
+def _partition_cutpath(l, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None):
     """One row of the named cut sub-path, repeated to span *l* (BOSL2 _partition_cutpath())."""
-    cs = (
-        list(cutsize)
-        if isinstance(cutsize, (list, tuple, np.ndarray))
-        else [cutsize * 2, cutsize]
-    )
+    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
     sub = (
         [list(p) for p in cutpath]
         if isinstance(cutpath, (list, tuple, np.ndarray))
@@ -249,9 +243,7 @@ def _ptn_sect(
             osect1 = _scale2(0.5, 0.5, _left(b1[0][0], sect1))
             osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2[0][0], sect2)))
             return _merge_collinear(osect1 + osect2)
-        if (
-            opt and opt[0].isdigit() and opt.endswith("x") and opt[:-1].isdigit()
-        ):  # "3x": repeat
+        if opt and opt[0].isdigit() and opt.endswith("x") and opt[:-1].isdigit():  # "3x": repeat
             reps = int(opt[:-1])
             assert reps > 0, "repetition count must be positive."
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
@@ -263,9 +255,7 @@ def _ptn_sect(
         if opt and opt[0].isdigit() and "x" in opt:  # "30x20": resize
             parts = opt.split("x")
             assert len(parts) == 2, "size modifier must be LENGTHxWIDTH, e.g. '30x25'."
-            return _ptn_sect(
-                base, float(parts[0]), float(parts[1]), fn=fn, fa=fa, fs=fs
-            )
+            return _ptn_sect(base, float(parts[0]), float(parts[1]), fn=fn, fa=fa, fs=fs)
         if opt.startswith("skew:"):
             angle = float(opt[5:])
             assert -45 <= angle <= 45, "skew angle must be between -45 and 45."
@@ -281,25 +271,12 @@ def _ptn_sect(
             minx, maxx = min(xs), max(xs)
             w_half, midx = (maxx - minx) / 2, (minx + maxx) / 2
             maxy = max(abs(p[1]) for p in raw)
-            dx = (
-                maxy * math.tan(math.radians(val)) / w_half
-                if (is_deg and maxy and w_half)
-                else 0
-            )
+            dx = maxy * math.tan(math.radians(val)) / w_half if (is_deg and maxy and w_half) else 0
             pcnt = (1 - dx) * 100 if is_deg else val
             if maxy == 0:
                 return raw
-            return [
-                [(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]]
-                for p in raw
-            ]
-        if (
-            base == "flat"
-            and opt
-            and opt[0].isdigit()
-            and "x" not in opt
-            and ":" not in opt
-        ):
+            return [[(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]] for p in raw]
+        if base == "flat" and opt and opt[0].isdigit() and "x" not in opt and ":" not in opt:
             return [[0, 0], [float(opt), 0]]
         raise AssertionError(f"Bad section option: {opt!r}")
 
@@ -315,10 +292,7 @@ def _ptn_sect(
     elif cptype == "triangle":
         path = [[0, 0], [0.5, 1], [1, 0]]
     elif cptype == "halfsine":
-        path = [
-            [a / 180, math.sin(math.radians(a))]
-            for a in np.arange(0, 180.0001, 360 / steps)
-        ]
+        path = [[a / 180, math.sin(math.radians(a))] for a in np.arange(0, 180.0001, 360 / steps)]
     elif cptype == "semicircle":
         path = _yscale(
             2,
@@ -476,9 +450,7 @@ def partition_path(
     redirpath = cleanpath if altpath is None else _ptn_path_redirect(altpath, cleanpath)
     if y is None:
         return Path(redirpath, closed=False)
-    assert y < min_y or y > max_y, (
-        "partition_path(): closing y would make the path self-crossing."
-    )
+    assert y < min_y or y > max_y, "partition_path(): closing y would make the path self-crossing."
     closedpath = [[redirpath[-1][0], y], [redirpath[0][0], y]] + redirpath
     outpath = closedpath if y < 0 else closedpath[::-1]
     return Path(outpath, closed=True)
@@ -507,9 +479,7 @@ def _ptn_path_redirect(major_path, minor_path, center=True):
     minor3 = _left(minor2[0][0] - xoff, minor2)
     out = []
     for pt in minor3:
-        pinfo = Path._path_cut_points(
-            major3, max(0.0, pt[0]), closed=False, direction=True
-        )
+        pinfo = Path._path_cut_points(major3, max(0.0, pt[0]), closed=False, direction=True)
         base = np.asarray(pinfo[0])
         tangent = unit(np.asarray(pinfo[3]), [0.0, 1.0])
         out.append(list(base + tangent * pt[1]))
@@ -539,11 +509,7 @@ def _partition_mask_shape(
     from pythonscad import polygon as _polygon
     from pythonscad import square as _square
 
-    cs = (
-        list(cutsize)
-        if isinstance(cutsize, (list, tuple, np.ndarray))
-        else [cutsize * 2, cutsize]
-    )
+    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
     path = _partition_cutpath(l, h, cs, cutpath, gap, cutpath_centered, fn, fa, fs)
     ww = w * (-1 if inverse else 1)
     fullpath = list(path) + [[path[-1][0], ww], [path[0][0], ww]]
@@ -623,14 +589,8 @@ def partition_cut_mask(
     from bosl2.drawing import stroke as _stroke
     from bosl2.shapes3d import Bosl2Solid
 
-    cs = (
-        list(cutsize)
-        if isinstance(cutsize, (list, tuple, np.ndarray))
-        else [cutsize * 2, cutsize]
-    )
-    path = _partition_cutpath(
-        length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs
-    )
+    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
+    path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs)
     ribbon = _stroke(path, width=max(0.1, slop * 2))
     return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
 
@@ -708,13 +668,9 @@ class Partitionable:
             cpv = _as_vec3(center)
         if s is None:
             center, size = self.bounds()
-            reach = float(np.linalg.norm(size)) + float(
-                np.linalg.norm(cpv - np.asarray(center))
-            )
+            reach = float(np.linalg.norm(size)) + float(np.linalg.norm(cpv - np.asarray(center)))
             s = 2.2 * reach + 2.0
-        return self._wrap(
-            self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset)
-        )
+        return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))
 
     def left_half(self, x=0, s=None, cut_path=None, cut_angle=0, offset=0):
         """Keep the left (-X) half, cut at ``X=x`` (BOSL2 left_half())."""
@@ -803,11 +759,7 @@ class Partitionable:
         rotates the cut direction; *slop* leaves a printer-fit clearance.
         """
         center, size = self.bounds()
-        cs = (
-            list(cutsize)
-            if isinstance(cutsize, (list, tuple, np.ndarray))
-            else [cutsize * 2, cutsize]
-        )
+        cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
         sp = math.radians(spin)
         c, sn = math.cos(sp), math.sin(sp)
         rsx = abs(size[0] * c - size[1] * sn)
@@ -832,9 +784,7 @@ class Partitionable:
             )
             mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center])
             move = vec if idx == 0 else -vec
-            pieces.append(
-                self._wrap(self.shape & mask).translate([float(m) for m in move])
-            )
+            pieces.append(self._wrap(self.shape & mask).translate([float(m) for m in move]))
         return pieces
 
 

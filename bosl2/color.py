@@ -30,9 +30,7 @@ __all__ = ["hsl", "hsv", "rainbow", "rainbow_colors", "Colorable"]
 # ---------------------------------------------------------------------------
 
 
-def hsl(
-    height: float, s: float = 1.0, length: float = 0.5, a: float | None = None
-) -> list[float]:
+def hsl(height: float, s: float = 1.0, length: float = 0.5, a: float | None = None) -> list[float]:
     """Convert HSL to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsl().
 
     Args:
@@ -52,9 +50,7 @@ def hsl(
     return rgb + ([a] if a is not None else [])
 
 
-def hsv(
-    height: float, s: float = 1.0, v: float = 1.0, a: float | None = None
-) -> list[float]:
+def hsv(height: float, s: float = 1.0, v: float = 1.0, a: float | None = None) -> list[float]:
     """Convert HSV to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsv().
 
     Args:
@@ -143,9 +139,7 @@ def rainbow(
         seed:    seed for the shuffle
     """
     items = list(items)
-    colors = rainbow_colors(
-        len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed
-    )
+    colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
     return [obj.color(col) for obj, col in zip(items, colors)]
 
 
@@ -165,9 +159,7 @@ class Colorable:
     already-coloured children keep their colour, matching OpenSCAD's ``color()`` semantics).
     """
 
-    def _color_native(
-        self, c=None, alpha=None
-    ):  # pragma: no cover - overridden by the host class
+    def _color_native(self, c=None, alpha=None):  # pragma: no cover - overridden by the host class
         raise NotImplementedError
 
     def _highlight_native(self):  # pragma: no cover - overridden by the host class
@@ -198,15 +190,11 @@ class Colorable:
             return self
         return self._color_native(c, alpha)
 
-    def hsl(
-        self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None
-    ):
+    def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None):
         """Colour this object from an HSL hue/saturation/lightness (BOSL2 hsl())."""
         return self._color_native(hsl(height, s, length), a)
 
-    def hsv(
-        self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None
-    ):
+    def hsv(self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None):
         """Colour this object from an HSV hue/saturation/value (BOSL2 hsv())."""
         return self._color_native(hsv(height, s, v), a)
 

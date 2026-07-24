@@ -151,10 +151,7 @@ def test_bezier_sweep_tube(tmp_path):
 
 
 def test_bezpath_sweep(tmp_path):
-    setup = (
-        f"shape = {CIRCLE}\n"
-        "bezpath = [[0,0,0],[10,0,0],[10,10,0],[10,10,10],[10,20,10],[0,20,10],[0,20,20]]\n"
-    )
+    setup = f"shape = {CIRCLE}\nbezpath = [[0,0,0],[10,0,0],[10,10,0],[10,10,10],[10,20,10],[0,20,10],[0,20,20]]\n"
     m = _render(
         tmp_path,
         "Bezier(bezpath).bezpath_sweep(shape, splinesteps=8, N=3).polyhedron()",
@@ -233,13 +230,9 @@ def test_linear_sweep_plain_volume(tmp_path):
 
 def test_rotate_sweep_full_revolution(tmp_path):
     setup = "profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]\n"
-    m = _render(
-        tmp_path, "rotate_sweep(profile, 360).polyhedron()", setup=setup, name="revolve"
-    )
+    m = _render(tmp_path, "rotate_sweep(profile, 360).polyhedron()", setup=setup, name="revolve")
     assert m.volume > 0
-    np.testing.assert_allclose(
-        m.size[:2], [24, 24], atol=0.5
-    )  # diameter ~ 2 * xmax(12)
+    np.testing.assert_allclose(m.size[:2], [24, 24], atol=0.5)  # diameter ~ 2 * xmax(12)
 
 
 def test_rotate_sweep_partial(tmp_path):
@@ -264,19 +257,12 @@ def test_spiral_sweep_coil(tmp_path):
     )
     assert m.ntris > 0
     assert m.volume > 0
-    assert math.isclose(
-        m.size[2], 40 + 2.4, abs_tol=1.0
-    )  # height + a section's worth of overhang
+    assert math.isclose(m.size[2], 40 + 2.4, abs_tol=1.0)  # height + a section's worth of overhang
 
 
 def test_path_sweep2d_wavy_bar(tmp_path):
-    setup = (
-        "shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]\n"
-        "path = [[t, 8*math.sin(t/12)] for t in range(0, 90, 3)]\n"
-    )
-    m = _render(
-        tmp_path, "path_sweep2d(shape, path).polyhedron()", setup=setup, name="psweep2d"
-    )
+    setup = "shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]\npath = [[t, 8*math.sin(t/12)] for t in range(0, 90, 3)]\n"
+    m = _render(tmp_path, "path_sweep2d(shape, path).polyhedron()", setup=setup, name="psweep2d")
     assert m.ntris > 0
     assert m.volume > 0
     assert m.watertight  # a capped open sweep is a closed solid
@@ -324,9 +310,7 @@ def test_ring_extruded(tmp_path):
         name="ring",
     )
     assert m.volume > 0
-    np.testing.assert_allclose(
-        m.size[:2], [48, 48], atol=1.0
-    )  # outer diameter ~ 2*(20+4)
+    np.testing.assert_allclose(m.size[:2], [48, 48], atol=1.0)  # outer diameter ~ 2*(20+4)
 
 
 def test_plot3d_surface_solid(tmp_path):
@@ -403,9 +387,7 @@ def test_orient_rotates_up_to_direction(tmp_path):
 
 
 def test_reorient_anchor_moves_face_to_origin(tmp_path):
-    m = _render(
-        tmp_path, "s3.cuboid([40, 30, 20]).reorient(anchor=TOP)", name="reorient"
-    )
+    m = _render(tmp_path, "s3.cuboid([40, 30, 20]).reorient(anchor=TOP)", name="reorient")
     np.testing.assert_allclose(m.size, [40, 30, 20], atol=1e-3)
     assert math.isclose(m.bbmax[2], 0.0, abs_tol=1e-3)  # top face on z=0
 
@@ -451,9 +433,7 @@ def test_stroke_2d_closed_square(tmp_path):
         name="strokesq",
     )
     assert m.volume > 0
-    np.testing.assert_allclose(
-        m.size[:2], [43, 43], atol=1.0
-    )  # 40 + width, round joints
+    np.testing.assert_allclose(m.size[:2], [43, 43], atol=1.0)  # 40 + width, round joints
 
 
 def test_stroke_3d_helix_tube(tmp_path):
@@ -517,9 +497,7 @@ def test_stroke_arrow_endcap_2d(tmp_path):
     )
     assert m.volume > 0
     assert m.size[1] > 3 + 1  # arrowhead (width 3.5*3) is wider than the 3mm line
-    assert math.isclose(
-        m.bbmin[0], 0.0, abs_tol=0.2
-    )  # arrow tip sits at the line end, no overshoot
+    assert math.isclose(m.bbmin[0], 0.0, abs_tol=0.2)  # arrow tip sits at the line end, no overshoot
     assert math.isclose(m.bbmax[0], 40.0, abs_tol=0.2)
 
 
@@ -553,9 +531,7 @@ def test_stroke_arrow_endcap_3d_is_a_cone(tmp_path):
     )
     assert m.ntris > 0
     assert m.volume > 0
-    assert (
-        m.size[1] > 4 + 1 and m.size[2] > 4 + 1
-    )  # cone base wider than the tube in Y and Z
+    assert m.size[1] > 4 + 1 and m.size[2] > 4 + 1  # cone base wider than the tube in Y and Z
 
 
 # -- Path3D transforms feed the renderers -------------------------------------------------
@@ -600,18 +576,14 @@ def test_grid_copies_span_and_volume(tmp_path):
 
 
 def test_line_copies_volume(tmp_path):
-    m = _render(
-        tmp_path, "s3.cuboid([6, 6, 6]).xcopies(20, sides=4)", name="linecopies"
-    )
+    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).xcopies(20, sides=4)", name="linecopies")
     assert math.isclose(m.volume, 4 * 6**3, rel_tol=1e-3)
     np.testing.assert_allclose(m.size[0], 3 * 20 + 6, atol=0.5)  # span of 4 copies
 
 
 def test_zrot_copies_ring(tmp_path):
     # 6 cubes in a ring of radius 30 -> spread across a ~60mm-diameter footprint in X and Y
-    m = _render(
-        tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)", name="ring"
-    )
+    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)", name="ring")
     assert m.volume > 5 * 6**3  # roughly 6 cubes (minus any tiny overlap)
     assert 55 < m.size[0] < 70 and 55 < m.size[1] < 70
     assert math.isclose(m.size[2], 6.0, abs_tol=0.2)  # ring stays flat in Z
@@ -637,9 +609,7 @@ def test_arc_copies_solid(tmp_path):
 
 def test_distribute_list_of_children(tmp_path):
     setup = "parts = [s3.cuboid([10, 10, 10]), s3.sphere(radius=8), s3.cyl(height=14, radius=5)]\n"
-    m = _render(
-        tmp_path, "xdistribute(parts, spacing=8)", setup=setup, name="distribute"
-    )
+    m = _render(tmp_path, "xdistribute(parts, spacing=8)", setup=setup, name="distribute")
     assert m.volume > 0
     assert m.size[0] > 30  # spread out along X
 
@@ -727,9 +697,7 @@ def test_bottom_half_offset_plane(tmp_path):
 
 def test_half_of_diagonal_plane(tmp_path):
     m = _render(tmp_path, "s3.cuboid([40, 30, 20]).half_of([0, 1, 1])", name="halfdiag")
-    assert math.isclose(
-        m.volume, 40 * 30 * 20 / 2, rel_tol=1e-2
-    )  # a plane through the centre halves it
+    assert math.isclose(m.volume, 40 * 30 * 20 / 2, rel_tol=1e-2)  # a plane through the centre halves it
     assert m.watertight
 
 
@@ -755,10 +723,7 @@ def test_jigsaw_cut_path_half(tmp_path):
 
 def test_partition_two_pieces_conserve_volume(tmp_path):
     # the two dovetail pieces together reconstruct the whole box (spread apart)
-    setup = (
-        "p = s3.cuboid([60, 40, 20]).partition(spread=12, cutpath='dovetail')\n"
-        "obj0 = p[0] | p[1]\n"
-    )
+    setup = "p = s3.cuboid([60, 40, 20]).partition(spread=12, cutpath='dovetail')\nobj0 = p[0] | p[1]\n"
     m = _render(tmp_path, "obj0", setup=setup, name="partition")
     assert math.isclose(m.volume, 60 * 40 * 20, rel_tol=1e-3)  # volume conserved
     np.testing.assert_allclose(m.size[1], 40 + 12, atol=0.5)  # spread widens Y by 12
@@ -794,9 +759,7 @@ def test_path_extrude2d_follows_the_path(tmp_path):
         name="pe2d",
     )
     assert m.volume > 0
-    np.testing.assert_allclose(
-        m.size[:2], [42, 42], atol=1.0
-    )  # 40 path + profile width
+    np.testing.assert_allclose(m.size[:2], [42, 42], atol=1.0)  # 40 path + profile width
     assert math.isclose(m.size[2], 8.0, abs_tol=1e-2)  # profile height
     assert m.watertight
 
@@ -858,16 +821,12 @@ def test_extrude_from_to_diagonal_with_twist(tmp_path):
     )
     assert m.volume > 0
     # the far end sits at [10,20,30]
-    np.testing.assert_allclose(
-        [m.bbmax[0], m.bbmax[1], m.bbmax[2]], [10, 20, 30], atol=6
-    )
+    np.testing.assert_allclose([m.bbmax[0], m.bbmax[1], m.bbmax[2]], [10, 20, 30], atol=6)
 
 
 def test_bounding_box_wraps_object(tmp_path):
     m = _render(tmp_path, "s3.sphere(radius=15).bounding_box(excess=2)", name="bbox")
-    np.testing.assert_allclose(
-        m.size, [34, 34, 34], atol=0.4
-    )  # diameter=30 + 2*2 excess
+    np.testing.assert_allclose(m.size, [34, 34, 34], atol=0.4)  # diameter=30 + 2*2 excess
     assert m.watertight
 
 
@@ -931,9 +890,7 @@ def test_nurbs_surface_patch(tmp_path):
         name="nurbspatch",
     )
     assert m.ntris > 0
-    np.testing.assert_allclose(
-        m.size[:2], [100, 100], atol=1.0
-    )  # spans the control grid
+    np.testing.assert_allclose(m.size[:2], [100, 100], atol=1.0)  # spans the control grid
 
 
 def test_rounding_methods_extrude(tmp_path):
@@ -951,9 +908,7 @@ def test_rounding_methods_extrude(tmp_path):
         )
         assert m.volume > 0
         assert math.isclose(m.size[2], 4.0, abs_tol=1e-2)
-        np.testing.assert_allclose(
-            m.size[:2], [40, 30], atol=0.6
-        )  # stays within the square
+        np.testing.assert_allclose(m.size[:2], [40, 30], atol=0.6)  # stays within the square
         assert m.watertight
 
 
@@ -979,9 +934,7 @@ def test_round_corners_3d_path(tmp_path):
 
 def test_threaded_rod_iso(tmp_path):
     # an ISO M12x1.75 rod: major diameter 12, length 24, minor = 12 - 2*(cos30*5/8)*1.75
-    m = _render(
-        tmp_path, "Threading.threaded_rod(12, 24, 1.75, fa=6, fs=1)", name="isorod"
-    )
+    m = _render(tmp_path, "Threading.threaded_rod(12, 24, 1.75, fa=6, fs=1)", name="isorod")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [12, 12], atol=0.1)  # major diameter
     assert math.isclose(m.size[2], 24.0, abs_tol=0.05)  # length
@@ -1075,31 +1028,21 @@ def test_screw_socket_head(tmp_path):
 
 def test_screw_hex_head(tmp_path):
     # M8 hex head: across-flats 13 (corner-to-corner ~15), head height 5.3 above a 16 mm shaft.
-    m = _render(
-        tmp_path, "Screws.screw('M8', 16, head='hex', fa=6, fs=1)", name="scrhex"
-    )
+    m = _render(tmp_path, "Screws.screw('M8', 16, head='hex', fa=6, fs=1)", name="scrhex")
     assert m.watertight
-    assert math.isclose(
-        min(m.size[:2]), 13.0, abs_tol=0.4
-    )  # flat-to-flat of the hex head
+    assert math.isclose(min(m.size[:2]), 13.0, abs_tol=0.4)  # flat-to-flat of the hex head
     assert math.isclose(m.size[2], 21.3, abs_tol=0.3)  # 16 shaft + 5.3 head
 
 
 def test_screw_flat_head_countersunk(tmp_path):
     # M6 countersunk: the head is a 90-degree cone, so it adds only (11.085-6)/2 ~ 2.54 above the shaft.
-    m = _render(
-        tmp_path, "Screws.screw('M6', 16, head='flat', fa=6, fs=1)", name="scrflat"
-    )
+    m = _render(tmp_path, "Screws.screw('M6', 16, head='flat', fa=6, fs=1)", name="scrflat")
     assert m.watertight
-    np.testing.assert_allclose(
-        m.size[:2], [11.085, 11.085], atol=0.4
-    )  # head diameter at the surface
+    np.testing.assert_allclose(m.size[:2], [11.085, 11.085], atol=0.4)  # head diameter at the surface
     assert math.isclose(m.size[2], 16 + (11.085 - 6) / 2, abs_tol=0.3)
 
 
-@pytest.mark.parametrize(
-    "head,name", [("button", "scrbtn"), ("pan", "scrpan"), ("none", "scrset")]
-)
+@pytest.mark.parametrize("head,name", [("button", "scrbtn"), ("pan", "scrpan"), ("none", "scrset")])
 def test_screw_heads_watertight(tmp_path, head, name):
     drive = "hex" if head in ("button", "none") else "none"
     m = _render(
@@ -1108,9 +1051,7 @@ def test_screw_heads_watertight(tmp_path, head, name):
         name=name,
     )
     assert m.watertight
-    assert (
-        math.isclose(min(m.size[:2]), 6.0, abs_tol=0.4) or min(m.size[:2]) >= 6.0
-    )  # at least the shaft
+    assert math.isclose(min(m.size[:2]), 6.0, abs_tol=0.4) or min(m.size[:2]) >= 6.0  # at least the shaft
 
 
 def test_screw_recess_removes_volume(tmp_path):
@@ -1199,17 +1140,12 @@ def test_metaball_torus_has_a_hole(tmp_path):
         name="mbtorus",
     )
     assert m.watertight
-    np.testing.assert_allclose(
-        m.size[:2], [26, 26], atol=1.5
-    )  # outer diameter ~ 2*(10+3)
+    np.testing.assert_allclose(m.size[:2], [26, 26], atol=1.5)  # outer diameter ~ 2*(10+3)
     assert m.size[2] < 8  # flat torus
 
 
 def test_isosurface_of_a_field_function(tmp_path):
-    setup = (
-        "def sf(pts):\n"
-        "    return 8.0 / (pts[:, 0]**2 + pts[:, 1]**2 + pts[:, 2]**2) ** 0.5\n"
-    )
+    setup = "def sf(pts):\n    return 8.0 / (pts[:, 0]**2 + pts[:, 1]**2 + pts[:, 2]**2) ** 0.5\n"
     m = _render(
         tmp_path,
         "isosurface(sf, 1, bounding_box=24, voxel_size=1.5).polyhedron()",
@@ -1254,9 +1190,7 @@ def test_oversample_subdivides_facets(tmp_path):
     over = _render(tmp_path, "s3.cuboid([20, 20, 10]).oversample(3)", name="ov_3")
     assert over.watertight
     assert over.ntris > base.ntris * 4  # each facet subdivided many-fold
-    np.testing.assert_allclose(
-        over.size, [20, 20, 10], atol=0.1
-    )  # same shape, just denser
+    np.testing.assert_allclose(over.size, [20, 20, 10], atol=0.1)  # same shape, just denser
     assert math.isclose(over.volume, base.volume, rel_tol=0.02)
 
 
@@ -1277,9 +1211,7 @@ def test_roof_makes_a_pyramid(tmp_path):
 
 def test_pull_stretches_material(tmp_path):
     solid = _render(tmp_path, "s3.cuboid([20, 20, 10])", name="pull_base")
-    pulled = _render(
-        tmp_path, "s3.cuboid([20, 20, 10]).pull([0, 0, 1], 8)", name="pull_8"
-    )
+    pulled = _render(tmp_path, "s3.cuboid([20, 20, 10]).pull([0, 0, 1], 8)", name="pull_8")
     assert pulled.watertight
     assert pulled.volume > solid.volume  # stretched apart, so bigger
 
@@ -1305,9 +1237,7 @@ def test_separate_extracts_one_lump(tmp_path):
 
 
 def test_circle_extruded(tmp_path):
-    m = _render(
-        tmp_path, "s2.circle(radius=10, fn=48).linear_extrude(height=5)", name="circle"
-    )
+    m = _render(tmp_path, "s2.circle(radius=10, fn=48).linear_extrude(height=5)", name="circle")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [20, 20], atol=0.3)
     assert math.isclose(m.size[2], 5.0, abs_tol=1e-2)
@@ -1348,9 +1278,7 @@ def test_ellipse_extruded(tmp_path):
 
 
 def test_regular_ngon_extruded(tmp_path):
-    m = _render(
-        tmp_path, "s2.regular_ngon(6, radius=10).linear_extrude(height=6)", name="hex2d"
-    )
+    m = _render(tmp_path, "s2.regular_ngon(6, radius=10).linear_extrude(height=6)", name="hex2d")
     assert m.watertight
     assert math.isclose(m.size[2], 6.0, abs_tol=1e-2)
     assert m.volume > 0
@@ -1419,9 +1347,7 @@ def test_reuleaux_polygon_extruded(tmp_path):
 
 
 def test_cuboid_rounding_watertight(tmp_path):
-    m = _render(
-        tmp_path, "s3.cuboid([40, 30, 20], rounding=5, fn=32)", name="cuboid_round"
-    )
+    m = _render(tmp_path, "s3.cuboid([40, 30, 20], rounding=5, fn=32)", name="cuboid_round")
     assert m.watertight
     assert m.volume > 0
     np.testing.assert_allclose(m.size, [40, 30, 20], atol=0.5)
@@ -1444,16 +1370,12 @@ def test_cuboid_edges_rounding(tmp_path):
 
 
 def test_cylinder_chamfered(tmp_path):
-    m = _render_golden(
-        tmp_path, "s3.cyl(height=20, radius=5, chamfer=2, fn=64)", name="cyl_chamf"
-    )
+    m = _render_golden(tmp_path, "s3.cyl(height=20, radius=5, chamfer=2, fn=64)", name="cyl_chamf")
     assert m.volume > 0
 
 
 def test_cylinder_rounded(tmp_path):
-    m = _render(
-        tmp_path, "s3.cyl(height=20, radius=5, rounding=2, fn=64)", name="cyl_round"
-    )
+    m = _render(tmp_path, "s3.cyl(height=20, radius=5, rounding=2, fn=64)", name="cyl_round")
     assert m.watertight
     assert m.volume > 0
 
@@ -1491,9 +1413,7 @@ def test_tube_chamfered(tmp_path):
 
 
 def test_torus_shape(tmp_path):
-    m = _render_golden(
-        tmp_path, "s3.torus(major_radius=12, minor_radius=3, fn=48)", name="torus"
-    )
+    m = _render_golden(tmp_path, "s3.torus(major_radius=12, minor_radius=3, fn=48)", name="torus")
     assert m.watertight
     assert m.volume > 0
 
@@ -1505,9 +1425,7 @@ def test_xcyl_builds(tmp_path):
 
 
 def test_pie_slice_builds(tmp_path):
-    m = _render_golden(
-        tmp_path, "s3.pie_slice(height=8, radius=15, angle=[30, 120])", name="pieslice"
-    )
+    m = _render_golden(tmp_path, "s3.pie_slice(height=8, radius=15, angle=[30, 120])", name="pieslice")
     assert m.watertight
     assert m.volume > 0
 
@@ -1516,9 +1434,7 @@ def test_pie_slice_builds(tmp_path):
 
 
 def test_spur_gear_builds(tmp_path):
-    m = _render_golden(
-        tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6)", name="spurgear"
-    )
+    m = _render_golden(tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6)", name="spurgear")
     assert m.watertight
     assert m.volume > 0
 
@@ -1550,17 +1466,13 @@ def test_walls_thinning_wall_builds(tmp_path):
 
 
 def test_polyhedra_tetrahedron(tmp_path):
-    m = _render(
-        tmp_path, "Polyhedra.regular_polyhedron('tetrahedron', radius=12)", name="tetra"
-    )
+    m = _render(tmp_path, "Polyhedra.regular_polyhedron('tetrahedron', radius=12)", name="tetra")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_polyhedra_icosahedron(tmp_path):
-    m = _render(
-        tmp_path, "Polyhedra.regular_polyhedron('icosahedron', radius=10)", name="icosa"
-    )
+    m = _render(tmp_path, "Polyhedra.regular_polyhedron('icosahedron', radius=10)", name="icosa")
     assert m.watertight
     assert m.volume > 0
 
@@ -1582,8 +1494,6 @@ def test_nema_stepper_motor(tmp_path):
 
 
 def test_sliders_rail_builds(tmp_path):
-    m = _render(
-        tmp_path, "Sliders.rail(length=40, w=10, height=10)", name="slider_rail"
-    )
+    m = _render(tmp_path, "Sliders.rail(length=40, w=10, height=10)", name="slider_rail")
     assert m.watertight
     assert m.volume > 0

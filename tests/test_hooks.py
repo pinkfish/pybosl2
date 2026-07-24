@@ -41,9 +41,7 @@ def test_basic_ring_hook_envelope():
 
 def test_ring_height_is_hole_z_plus_or():
     _, sz = _bounds(Hooks.ring_hook([50, 10], 40, outer_radius=25, inner_radius=20))
-    assert sz[2] == pytest.approx(
-        65.0, abs=0.5
-    )  # faceted ring top sits just under hole_z + or
+    assert sz[2] == pytest.approx(65.0, abs=0.5)  # faceted ring top sits just under hole_z + or
 
 
 def test_wall_and_od_id_forms_equivalent():
@@ -55,15 +53,9 @@ def test_wall_and_od_id_forms_equivalent():
 @pytest.mark.parametrize(
     "kw",
     [
-        dict(
-            base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=0
-        ),  # solid paddle
-        dict(
-            base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=15, hole="D"
-        ),  # D hole
-        dict(
-            base_size=[40, 10], hole_z=25, outer_radius=25, inner_radius=0
-        ),  # narrow base
+        dict(base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=0),  # solid paddle
+        dict(base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=15, hole="D"),  # D hole
+        dict(base_size=[40, 10], hole_z=25, outer_radius=25, inner_radius=0),  # narrow base
     ],
 )
 def test_variants_build(kw):
@@ -78,9 +70,7 @@ def test_custom_hole_path_builds():
         ]
         for k in range(8)
     ]
-    assert isinstance(
-        Hooks.ring_hook([50, 20], 30, outer_radius=25, hole=oct8), Bosl2Solid
-    )
+    assert isinstance(Hooks.ring_hook([50, 20], 30, outer_radius=25, hole=oct8), Bosl2Solid)
 
 
 def test_must_define_exactly_two_of_or_ir_wall():
@@ -90,16 +80,12 @@ def test_must_define_exactly_two_of_or_ir_wall():
 
 def test_base_corners_must_be_outside_cylinder():
     with pytest.raises(ValueError):
-        Hooks.ring_hook(
-            [10, 10], 5, outer_radius=25, inner_radius=0
-        )  # corners inside cylinder, no tangent
+        Hooks.ring_hook([10, 10], 5, outer_radius=25, inner_radius=0)  # corners inside cylinder, no tangent
 
 
 def test_circle_hole_must_fit_above_base():
     with pytest.raises(ValueError):
-        Hooks.ring_hook(
-            [50, 10], 10, outer_radius=25, inner_radius=20
-        )  # ir >= hole_z: hole pokes out the base
+        Hooks.ring_hook([50, 10], 10, outer_radius=25, inner_radius=20)  # ir >= hole_z: hole pokes out the base
 
 
 def test_custom_hole_rejects_ir_and_wall():

@@ -33,34 +33,22 @@ _UNIT_CUBE = [[x, y, z] for x in (-0.5, 0.5) for y in (-0.5, 0.5) for z in (-0.5
 
 def test_anchor_offset_hull3_face_is_face_centre():
     # BOTTOM ties all four bottom corners; the anchor is the face centre, so the offset lifts z by 0.5
-    np.testing.assert_allclose(
-        _anchor_offset_hull3(_UNIT_CUBE, BOTTOM), [0, 0, 0.5], atol=1e-9
-    )
-    np.testing.assert_allclose(
-        _anchor_offset_hull3(_UNIT_CUBE, TOP), [0, 0, -0.5], atol=1e-9
-    )
-    np.testing.assert_allclose(
-        _anchor_offset_hull3(_UNIT_CUBE, RIGHT), [-0.5, 0, 0], atol=1e-9
-    )
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, BOTTOM), [0, 0, 0.5], atol=1e-9)
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, TOP), [0, 0, -0.5], atol=1e-9)
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, RIGHT), [-0.5, 0, 0], atol=1e-9)
 
 
 def test_anchor_offset_hull3_edge_is_edge_midpoint():
     # RIGHT+TOP ties two vertices; the anchor is their midpoint
-    np.testing.assert_allclose(
-        _anchor_offset_hull3(_UNIT_CUBE, [1, 0, 1]), [-0.5, 0, -0.5], atol=1e-9
-    )
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, [1, 0, 1]), [-0.5, 0, -0.5], atol=1e-9)
 
 
 def test_anchor_offset_hull3_corner_is_the_corner():
-    np.testing.assert_allclose(
-        _anchor_offset_hull3(_UNIT_CUBE, [1, 1, 1]), [-0.5, -0.5, -0.5], atol=1e-9
-    )
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, [1, 1, 1]), [-0.5, -0.5, -0.5], atol=1e-9)
 
 
 def test_anchor_offset_hull3_center_is_zero():
-    np.testing.assert_allclose(
-        _anchor_offset_hull3(_UNIT_CUBE, CENTER), [0, 0, 0], atol=1e-9
-    )
+    np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, CENTER), [0, 0, 0], atol=1e-9)
 
 
 def test_prismoid_bottom_anchor_is_centred_on_xy():
@@ -103,12 +91,8 @@ def test_directional_moves_shift_center():
 
 def test_move_and_translate_agree():
     c = cuboid([10, 10, 10])
-    np.testing.assert_allclose(
-        c.move([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9
-    )
-    np.testing.assert_allclose(
-        c.translate([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9
-    )
+    np.testing.assert_allclose(c.move([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
+    np.testing.assert_allclose(c.translate([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
 
 
 def test_rot_is_rotate_alias():
@@ -176,12 +160,8 @@ def test_orient_reorient_return_bosl2solid():
 def test_anchor_bbox_override():
     # a passed-in bbox overrides the object's own bounds (min/max corners)
     c = cuboid([10, 10, 10])
-    np.testing.assert_allclose(
-        c.anchor_point(TOP, bbox=[[-20, -20, -20], [20, 20, 20]]), [0, 0, 20], atol=1e-9
-    )
-    np.testing.assert_allclose(
-        c.anchor_point(RIGHT, bbox=[[0, 0, 0], [40, 40, 40]]), [40, 20, 20], atol=1e-9
-    )
+    np.testing.assert_allclose(c.anchor_point(TOP, bbox=[[-20, -20, -20], [20, 20, 20]]), [0, 0, 20], atol=1e-9)
+    np.testing.assert_allclose(c.anchor_point(RIGHT, bbox=[[0, 0, 0], [40, 40, 40]]), [40, 20, 20], atol=1e-9)
 
 
 def test_reanchor_bbox_override_moves_center():
@@ -231,16 +211,12 @@ def test_plot_revolution_taper_and_path():
         Bosl2Solid,
     )
     prof = [[10, 0], [8, 10], [10, 20]]
-    assert isinstance(
-        plot_revolution(_f, angle=list(range(0, 361, 20)), path=prof), Bosl2Solid
-    )
+    assert isinstance(plot_revolution(_f, angle=list(range(0, 361, 20)), path=prof), Bosl2Solid)
 
 
 def test_textured_tile_reps_and_size():
     bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
-    assert isinstance(
-        textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3), Bosl2Solid
-    )
+    assert isinstance(textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3), Bosl2Solid)
     assert isinstance(textured_tile(bump, size=[40, 40], tex_size=10), Bosl2Solid)
 
 

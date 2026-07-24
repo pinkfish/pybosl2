@@ -28,9 +28,7 @@ _VNF = [n for n, (_b, k) in TEXTURES.items() if k == "vnf"]
 def test_heightfield_textures_are_2d_arrays_in_range(name):
     a = np.array(texture(name))
     assert a.ndim == 2 and a.size > 0
-    assert (
-        a.min() >= -1e-9 and a.max() <= 1.6 + 1e-9
-    )  # heights normalised to [0,1] (trunc_pyr to 1.5)
+    assert a.min() >= -1e-9 and a.max() <= 1.6 + 1e-9  # heights normalised to [0,1] (trunc_pyr to 1.5)
     assert is_heightfield_texture(texture(name))
 
 
@@ -74,9 +72,7 @@ def test_textured_tile_by_name_builds(name):
 
 
 def test_textured_tile_raw_array_still_works():
-    s = textured_tile(
-        [[0, 0, 0], [0, 1, 0], [0, 0, 0]], size=[40, 40], tex_reps=[4, 4], tex_depth=3
-    )
+    s = textured_tile([[0, 0, 0], [0, 1, 0], [0, 0, 0]], size=[40, 40], tex_reps=[4, 4], tex_depth=3)
     assert isinstance(s, Bosl2Solid)
 
 

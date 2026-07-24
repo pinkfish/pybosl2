@@ -57,10 +57,7 @@ def _hex_offset_ring(d, lev):
     if lev == 0:
         return [[0.0, 0.0]]
     R = lev * d  # hexagon circumradius; side length == R
-    corners = [
-        (R * math.cos(math.radians(60 * k)), R * math.sin(math.radians(60 * k)))
-        for k in range(6)
-    ]
+    corners = [(R * math.cos(math.radians(60 * k)), R * math.sin(math.radians(60 * k))) for k in range(6)]
     pts = []
     for k in range(6):  # subdivide each edge into lev segments
         x0, y0 = corners[k]
@@ -89,8 +86,8 @@ class Wiring:
     @staticmethod
     def hex_offsets(sides: int, diameter: float) -> list:
         """
-            The centre points for the optimal hexagonal packing of at least *sides* circles spaced
-            *diameter* apart.
+        The centre points for the optimal hexagonal packing of at least *sides* circles spaced
+        *diameter* apart.
         """
         return _hex_offsets(sides, diameter)
 
@@ -122,9 +119,7 @@ class Wiring:
             raise ValueError("wire_bundle() needs at least one wire.")
         sides = max(_segs(wirediam / 2), 8)
         offsets = _hex_offsets(wires, wirediam)
-        rounded_path = round_corners(
-            path, radius=rounding, closed=False, fn=(corner_steps + 1) * 4
-        )
+        rounded_path = round_corners(path, radius=rounding, closed=False, fn=(corner_steps + 1) * 4)
         radius = wirediam / 2
         profile = [
             [

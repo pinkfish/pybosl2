@@ -58,20 +58,14 @@ def _u(v) -> np.ndarray:
 
 def path3d(path) -> list:
     """Pad a 2-D (or 3-D) point list to 3-D with z=0."""
-    return [
-        [float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path
-    ]
+    return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
 
 
 def clockwise_polygon(poly) -> list:
     """*poly* wound clockwise (reversed if its signed area is positive/CCW)."""
     from bosl2.paths import Path
 
-    return (
-        list(poly)
-        if Path._polygon_area(poly, signed=True) <= 0
-        else list(reversed(list(poly)))
-    )
+    return list(poly) if Path._polygon_area(poly, signed=True) <= 0 else list(reversed(list(poly)))
 
 
 # (imported from bosl2._helpers as translate4, zrot4)
@@ -95,7 +89,7 @@ def _xrot4(a: float) -> np.ndarray:
 
 def _segs(radius: float) -> int:
     """
-        OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs()).
+    OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs()).
     """
     return max(5, int(math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(radius)) / 2.0))))
 
@@ -118,9 +112,7 @@ def frame_map(x=None, y=None, z=None) -> np.ndarray:
     return m
 
 
-def sweep(
-    shape, transforms, closed: bool = False, caps=None, style: str = "min_edge"
-) -> VNF:
+def sweep(shape, transforms, closed: bool = False, caps=None, style: str = "min_edge") -> VNF:
     """Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF.
 
     Args:
@@ -143,13 +135,8 @@ def sweep(
     ntrans = len(transforms)
     assert ntrans >= 2, "transforms must be length 2 or more."
     hi = ntrans - (0 if closed else 1)
-    points = [
-        np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float)
-        for i in range(hi + 1)
-    ]
-    return VNF.vertex_array(
-        points, cap1=flatcaps[0], cap2=flatcaps[1], col_wrap=True, style=style
-    )
+    points = [np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float) for i in range(hi + 1)]
+    return VNF.vertex_array(points, cap1=flatcaps[0], cap2=flatcaps[1], col_wrap=True, style=style)
 
 
 def path_sweep(
@@ -197,9 +184,7 @@ def path_sweep(
     if tangent is not None:
         tangents = np.array([_u(t) for t in path3d(tangent)])
     else:
-        tangents = np.asarray(
-            Path._path_tangents(patharr, closed=closed, uniform=uniform), dtype=float
-        )
+        tangents = np.asarray(Path._path_tangents(patharr, closed=closed, uniform=uniform), dtype=float)
 
     # Resolve the initial/per-point normal.
     if normal is not None:
@@ -212,54 +197,32 @@ def path_sweep(
             normals = np.tile(normal_single, (L, 1))
     else:
         normal_single = np.asarray(
-            BACK
-            if (method == "incremental" and abs(tangents[0][2]) > 1 / math.sqrt(2))
-            else UP,
+            BACK if (method == "incremental" and abs(tangents[0][2]) > 1 / math.sqrt(2)) else UP,
             dtype=float,
         )
         normals = np.tile(normal_single, (L, 1))
 
     if twist_by_length:
-        tpathfrac = np.asarray(
-            Path._path_length_fractions(patharr, closed), dtype=float
-        )
+        tpathfrac = np.asarray(Path._path_length_fractions(patharr, closed), dtype=float)
     else:
         tpathfrac = np.array([i / (L - (0 if closed else 1)) for i in range(L + 1)])
     if scale_by_length:
-        spathfrac = np.asarray(
-            Path._path_length_fractions(patharr, closed), dtype=float
-        )
+        spathfrac = np.asarray(Path._path_length_fractions(patharr, closed), dtype=float)
     else:
         spathfrac = np.array([i / (L - (0 if closed else 1)) for i in range(L + 1)])
 
     # Resolve the per-cross-section scale [sx, sy].
     if np.isscalar(scale) or (np.ndim(scale) == 1 and len(scale) == 2):
-        s = (
-            [float(scale), float(scale)]
-            if np.isscalar(scale)
-            else [float(scale[0]), float(scale[1])]
-        )
+        s = [float(scale), float(scale)] if np.isscalar(scale) else [float(scale[0]), float(scale[1])]
         if not scale_by_length:
             scalevals = [
-                [
-                    float(v)
-                    for v in (
-                        (1 - i / (L - 1)) * np.array([1.0, 1.0])
-                        + (i / (L - 1)) * np.array(s)
-                    )
-                ]
+                [float(v) for v in ((1 - i / (L - 1)) * np.array([1.0, 1.0]) + (i / (L - 1)) * np.array(s))]
                 for i in range(L)
             ]
         else:
-            scalevals = [
-                [float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))]
-                for f in spathfrac[:L]
-            ]
+            scalevals = [[float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))] for f in spathfrac[:L]]
     else:
-        scalevals = [
-            [float(x), float(x)] if np.isscalar(x) else [float(x[0]), float(x[1])]
-            for x in scale
-        ]
+        scalevals = [[float(x), float(x)] if np.isscalar(x) else [float(x[0]), float(x[1])] for x in scale]
     scale_list = [_scale4([sv[0], sv[1], 1.0]) for sv in scalevals]
     if closed:
         scale_list.append(_scale4([scalevals[0][0], scalevals[0][1], 1.0]))
@@ -293,12 +256,7 @@ def path_sweep(
         mismatch = rotations[-1][:3, :3].T @ reference[:3, :3]
         correction_twist = math.degrees(math.atan2(mismatch[1][0], mismatch[0][0]))
         twistfix = correction_twist % (360 / symmetry)
-        unscaled = [
-            translate4(patharr[i])
-            @ rotations[i]
-            @ zrot4((twistfix - twist) * tpathfrac[i])
-            for i in range(L)
-        ]
+        unscaled = [translate4(patharr[i]) @ rotations[i] @ zrot4((twistfix - twist) * tpathfrac[i]) for i in range(L)]
         if closed:
             unscaled.append(
                 translate4(patharr[0])
@@ -313,15 +271,9 @@ def path_sweep(
                 ynormal, znormal = ni, ti - (ni @ ti) * ni
             else:
                 ynormal, znormal = ni - (ni @ ti) * ti, ti
-            unscaled.append(
-                translate4(patharr[i % L])
-                @ frame_map(y=ynormal, z=znormal)
-                @ zrot4(-twist * tpathfrac[i])
-            )
+            unscaled.append(translate4(patharr[i % L]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i]))
     elif method == "natural":
-        pathnormal = np.asarray(
-            Path._path_normals(patharr, tangents, closed), dtype=float
-        )
+        pathnormal = np.asarray(Path._path_normals(patharr, tangents, closed), dtype=float)
         unscaled = [
             translate4(patharr[i % L])
             @ frame_map(x=pathnormal[i % L], z=tangents[i % L])
@@ -329,9 +281,7 @@ def path_sweep(
             for i in range(nprofiles)
         ]
     else:
-        raise AssertionError(
-            f"Unknown method {method!r} (use incremental/manual/natural)."
-        )
+        raise AssertionError(f"Unknown method {method!r} (use incremental/manual/natural).")
 
     transform_list = [unscaled[i] @ scale_list[i] for i in range(len(unscaled))]
     if transforms:
@@ -368,11 +318,7 @@ def slice_profiles(profiles, slices, closed: bool = False) -> list:
     lists; the interpolation is vertex-by-vertex."""
     sides = len(profiles)
     nseg = sides - (0 if closed else 1)
-    count = (
-        list(slices)
-        if isinstance(slices, (list, tuple, np.ndarray))
-        else [slices] * nseg
-    )
+    count = list(slices) if isinstance(slices, (list, tuple, np.ndarray)) else [slices] * nseg
     out = []
     for i in range(nseg):
         a = np.asarray(profiles[i], dtype=float)
@@ -431,37 +377,23 @@ def skin(
     if caps is None:
         caps = False if closed else True
     fullcaps = (
-        [False, False]
-        if closed
-        else (
-            [caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])]
-        )
+        [False, False] if closed else ([caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])])
     )
     refine = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method:
-        assert m in ("direct", "reindex"), (
-            f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r})."
-        )
+        assert m in ("direct", "reindex"), f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r})."
     sampling = sampling if sampling is not None else "length"
 
     dim = len(profiles[0][0])
     if dim == 2:
-        assert z is not None and len(z) == sides, (
-            "skin(): 2-D profiles need a matching-length z list."
-        )
-        profiles = [
-            [[float(pt[0]), float(pt[1]), float(z[i])] for pt in profiles[i]]
-            for i in range(sides)
-        ]
+        assert z is not None and len(z) == sides, "skin(): 2-D profiles need a matching-length z list."
+        profiles = [[[float(pt[0]), float(pt[1]), float(z[i])] for pt in profiles[i]] for i in range(sides)]
 
     from bosl2.paths import Path  # local: keep the import graph acyclic
 
     maxlen = max(refine[i] * len(profiles[i]) for i in range(sides))
-    resampled = [
-        Path._subdivide_path(profiles[i], sides=maxlen, closed=True, method=sampling)
-        for i in range(sides)
-    ]
+    resampled = [Path._subdivide_path(profiles[i], sides=maxlen, closed=True, method=sampling) for i in range(sides)]
     fixedprof = [resampled[0]]
     for i in range(1, sides):
         if method[i - 1] == "direct":
@@ -470,9 +402,7 @@ def skin(
             fixedprof.append(_reindex_polygon(fixedprof[i - 1], resampled[i]))
     sliced = slice_profiles(fixedprof, slices, closed)
     grid = sliced if not closed else sliced + [sliced[0]]
-    vnf = VNF.vertex_array(
-        grid, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style
-    )
+    vnf = VNF.vertex_array(grid, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -520,15 +450,9 @@ def linear_sweep(
     path = [[float(p[0]), float(p[1])] for p in region]
     if slices is None:
         slices = max(1, math.ceil(abs(twist) / 5))
-    sc = (
-        [float(scale), float(scale)]
-        if isinstance(scale, (int, float))
-        else [float(scale[0]), float(scale[1])]
-    )
+    sc = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]
     sh = [float(shift[0]), float(shift[1])]
-    fullcaps = (
-        [caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])]
-    )
+    fullcaps = [caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])]
     z0 = -hh / 2 if center else 0.0
     base = np.asarray(path3d(path), dtype=float)
     verts = []
@@ -540,9 +464,7 @@ def linear_sweep(
             @ zrot4(-twist * u)
         )
         verts.append(np.asarray(_apply(m, base), dtype=float))
-    vnf = VNF.vertex_array(
-        verts, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style
-    )
+    vnf = VNF.vertex_array(verts, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -590,9 +512,7 @@ def rotate_sweep(
     else:
         angs = [start + angle * i / (steps - 1) for i in range(steps)]
     transforms = [zrot4(a) @ _xrot4(90) for a in angs]
-    vnf = sweep(
-        prof, transforms, closed=full, caps=(not full and bool(caps)), style=style
-    )
+    vnf = sweep(prof, transforms, closed=full, caps=(not full and bool(caps)), style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -630,20 +550,14 @@ def spiral_sweep(
             section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
             spiral_sweep(section, height=40, radius=12, turns=5).polyhedron().show()
     """
-    assert height > 0 and turns != 0, (
-        "spiral_sweep(): need positive height and nonzero turns."
-    )
+    assert height > 0 and turns != 0, "spiral_sweep(): need positive height and nonzero turns."
     rr1 = (
         radius1
         if radius1 is not None
         else (
             radius
             if radius is not None
-            else (
-                diameter1 / 2
-                if diameter1 is not None
-                else (diameter / 2 if diameter is not None else 1)
-            )
+            else (diameter1 / 2 if diameter1 is not None else (diameter / 2 if diameter is not None else 1))
         )
     )
     rr2 = (
@@ -652,11 +566,7 @@ def spiral_sweep(
         else (
             radius
             if radius is not None
-            else (
-                diameter2 / 2
-                if diameter2 is not None
-                else (diameter / 2 if diameter is not None else 1)
-            )
+            else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else 1))
         )
     )
     poly = [[float(p[0]), float(p[1])] for p in poly]
@@ -673,18 +583,13 @@ def spiral_sweep(
         rad = rr1 + (rr2 - rr1) * frac
         z = z0 + height * frac
         transforms.append(
-            translate4([0, 0, z])
-            @ zrot4(a * math.copysign(1, turns))
-            @ translate4([rad, 0, 0])
-            @ _xrot4(90)
+            translate4([0, 0, z]) @ zrot4(a * math.copysign(1, turns)) @ translate4([rad, 0, 0]) @ _xrot4(90)
         )
     vnf = sweep(poly, transforms, closed=False, caps=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
-def subdivide_and_slice(
-    profiles, slices, numpoints=None, method: str = "length", closed: bool = False
-) -> list:
+def subdivide_and_slice(profiles, slices, numpoints=None, method: str = "length", closed: bool = False) -> list:
     """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
@@ -697,17 +602,10 @@ def subdivide_and_slice(
     elif numpoints == "lcm":
         from functools import reduce
 
-        numpoints = reduce(
-            lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles]
-        )
+        numpoints = reduce(lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles])
     numpoints = int(round(numpoints))
-    assert numpoints >= maxsize, (
-        "subdivide_and_slice(): numpoints is smaller than the largest profile."
-    )
-    fixed = [
-        Path._subdivide_path(p, sides=numpoints, closed=True, method=method)
-        for p in profiles
-    ]
+    assert numpoints >= maxsize, "subdivide_and_slice(): numpoints is smaller than the largest profile."
+    fixed = [Path._subdivide_path(p, sides=numpoints, closed=True, method=method) for p in profiles]
     return slice_profiles(fixed, slices, closed)
 
 
@@ -756,15 +654,9 @@ def path_sweep2d(
     if caps is None:
         caps = False if closed else True
     fullcaps = (
-        [False, False]
-        if closed
-        else (
-            [caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])]
-        )
+        [False, False] if closed else ([caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])])
     )
-    profile = (
-        shape if not shape.is_clockwise() else shape.reversed_path()
-    )  # ccw_polygon
+    profile = shape if not shape.is_clockwise() else shape.reversed_path()  # ccw_polygon
     flip = -1.0 if (closed and path.is_clockwise()) else 1.0
     pth = path if flip > 0 else path.reversed_path()
 
@@ -781,9 +673,7 @@ def path_sweep2d(
     grid = [[per_point[j][i] for j in range(len(profile))] for i in range(len(pth))]
     if closed:
         grid = grid + [grid[0]]
-    vnf = VNF.vertex_array(
-        grid, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style
-    )
+    vnf = VNF.vertex_array(grid, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -855,9 +745,7 @@ def rot_resample(
         method:  "length" (uniform screw-distance) or "count" (fixed samples per gap)
     """
     rotlist = [np.asarray(t, dtype=float) for t in rotlist]
-    assert smoothlen > 0 and smoothlen % 2 == 1, (
-        "rot_resample(): smoothlen must be a positive odd integer."
-    )
+    assert smoothlen > 0 and smoothlen % 2 == 1, "rot_resample(): smoothlen must be a positive odd integer."
     assert method in ("length", "count")
     m = len(rotlist)
     tcount = m + (0 if closed else -1)
@@ -891,9 +779,7 @@ def rot_resample(
         for i in range(tcount)
     ]
     if method == "length":
-        assert all(x > 0 for x in length), (
-            "rot_resample(): a repeated/origin rotation makes method='length' undefined."
-        )
+        assert all(x > 0 for x in length), "rot_resample(): a repeated/origin rotation makes method='length' undefined."
 
     cumlen = [0.0]
     for x in length:
@@ -903,9 +789,7 @@ def rot_resample(
 
     if method == "count":
         nlist = list(sides) if isinstance(sides, (list, tuple)) else [sides] * tcount
-        samples = [
-            [k / N for k in range(N)] for N in nlist
-        ]  # lerpn(0,1,N,endpoint=False)
+        samples = [[k / N for k in range(N)] for N in nlist]  # lerpn(0,1,N,endpoint=False)
     else:
         samples = []
         for i in range(tcount):
@@ -925,11 +809,7 @@ def rot_resample(
         cumtwist = [0.0]
         for t in twist_v:
             cumtwist.append(cumtwist[-1] + t)
-        sampletwist = [
-            cumtwist[i] + (cumtwist[i + 1] - cumtwist[i]) * u
-            for i in range(tcount)
-            for u in samples[i]
-        ]
+        sampletwist = [cumtwist[i] + (cumtwist[i + 1] - cumtwist[i]) * u for i in range(tcount) for u in samples[i]]
         if needlast:
             sampletwist.append(cumtwist[-1])
 
@@ -939,11 +819,7 @@ def rot_resample(
         cumscale = [1.0]
         for s in scale_v:
             cumscale.append(cumscale[-1] * s)
-        samplescale = [
-            cumscale[i] + (cumscale[i + 1] - cumscale[i]) * u
-            for i in range(tcount)
-            for u in samples[i]
-        ]
+        samplescale = [cumscale[i] + (cumscale[i + 1] - cumscale[i]) * u for i in range(tcount) for u in samples[i]]
         if needlast:
             samplescale.append(cumscale[-1])
 
@@ -960,18 +836,11 @@ def rot_resample(
         for u in samples[i]:
             mv = np.eye(4)
             mv[:3, 3] = u * parms[i][3]
-            interpolated.append(
-                rotlist[i]
-                @ mv
-                @ rot_about_axis(u * parms[i][0], parms[i][1], parms[i][2])
-            )
+            interpolated.append(rotlist[i] @ mv @ rot_about_axis(u * parms[i][0], parms[i][1], parms[i][2]))
     if needlast:
         interpolated.append(rotlist[-1])
 
     end = len(interpolated) - (1 if closed else 0)
     return [
-        interpolated[i]
-        @ zrot4(smoothtwist[i])
-        @ _scale4([smoothscale[i], smoothscale[i], 1.0])
-        for i in range(end)
+        interpolated[i] @ zrot4(smoothtwist[i]) @ _scale4([smoothscale[i], smoothscale[i], 1.0]) for i in range(end)
     ]

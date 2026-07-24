@@ -50,9 +50,7 @@ def test_influence_and_cutoff():
 
 def test_torus_field_hole():
     f = mb_torus(8, 2)
-    assert math.isclose(
-        f([10, 0, 0]), 1.0, abs_tol=1e-9
-    )  # on the tube (dist from ring = 2)
+    assert math.isclose(f([10, 0, 0]), 1.0, abs_tol=1e-9)  # on the tube (dist from ring = 2)
     assert f([0, 0, 0]) < f([8, 0, 0])  # center of hole is weaker than the ring
 
 
@@ -60,9 +58,7 @@ def test_capsule_field_straight_section():
     f = mb_capsule(24, 4)  # straight length 24-8=16, hl=8
     # anywhere along the straight axis the field is r/rxy
     assert math.isclose(f([4, 0, 0]), 1.0, abs_tol=1e-9)
-    assert math.isclose(
-        f([4, 0, 5]), 1.0, abs_tol=1e-9
-    )  # still on the straight part (|z|<=8)
+    assert math.isclose(f([4, 0, 5]), 1.0, abs_tol=1e-9)  # still on the straight part (|z|<=8)
 
 
 def test_cuboid_and_octahedron_build():
@@ -73,9 +69,7 @@ def test_cuboid_and_octahedron_build():
 
 def test_connector_is_symmetric_capsule():
     f = mb_connector([-10, 0, 0], [10, 0, 0], 3)
-    assert math.isclose(
-        f([0, 3, 0]), 1.0, abs_tol=1e-9
-    )  # 3 away from the axis midpoint
+    assert math.isclose(f([0, 3, 0]), 1.0, abs_tol=1e-9)  # 3 away from the axis midpoint
     assert math.isclose(f([5, 0, 3]), f([-5, 0, 3]), abs_tol=1e-9)  # symmetric
 
 

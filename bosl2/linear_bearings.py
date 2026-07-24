@@ -66,8 +66,8 @@ class LinearBearings:
     @staticmethod
     def lmXuu_info(size: int) -> LinearBearingSpec:
         """
-            The :class:`LinearBearingSpec` (od, length) for a standard LMxUU size (BOSL2
-            lmXuu_info()).
+        The :class:`LinearBearingSpec` (od, length) for a standard LMxUU size (BOSL2
+        lmXuu_info()).
         """
         try:
             return _LMXUU[int(size)]
@@ -151,35 +151,27 @@ class LinearBearings:
         # teardrop bearing shell + base + clamp tabs, then the bore, split gap and screw hole removed.
         body = _union(
             [
-                teardrop(
-                    diameter=outer_diameter, height=length, fn=fn, fa=fa, fs=fs
-                ).rotate([0, 90, 0]),  # teardrop shell, axis along X
-                cuboid([length, outer_diameter, outer_diameter / 2]).down(
-                    outer_diameter / 4
-                ),  # base
+                teardrop(diameter=outer_diameter, height=length, fn=fn, fa=fa, fs=fs).rotate(
+                    [0, 90, 0]
+                ),  # teardrop shell, axis along X
+                cuboid([length, outer_diameter, outer_diameter / 2]).down(outer_diameter / 4),  # base
                 cuboid([length, ogap, outer_diameter / 2 + tab / 2]).up(
                     (outer_diameter / 2 + tab / 2) / 2
                 ),  # clamp tabs
             ]
         )
-        body = body - teardrop(
-            diameter=diameter, height=length + 0.1, fn=fn, fa=fa, fs=fs
-        ).rotate([0, 90, 0])  # bearing bore
+        body = body - teardrop(diameter=diameter, height=length + 0.1, fn=fn, fa=fa, fs=fs).rotate(
+            [0, 90, 0]
+        )  # bearing bore
         body = body - cuboid([length + 0.1, gap, outer_diameter])  # split gap
         # clamp screw across the tabs (a simple clearance hole)
         from bosl2.screws import Screws
 
         screw = (
-            Screws.screw_hole(
-                f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs
-            )
-            .rotate([90, 0, 0])
-            .up(tabh)
+            Screws.screw_hole(f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs).rotate([90, 0, 0]).up(tabh)
         )
         body = body - screw
-        return Bosl2Solid(
-            body.shape, size=[length, outer_diameter, outer_diameter + tab / 2]
-        )
+        return Bosl2Solid(body.shape, size=[length, outer_diameter, outer_diameter + tab / 2])
 
     @staticmethod
     def lmXuu_housing(

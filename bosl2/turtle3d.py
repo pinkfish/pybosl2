@@ -160,9 +160,7 @@ def _set(state, idx, val):
 
 
 def _turtle_rotation(command, angle, center=(0, 0, 0)):
-    a = (
-        -1 if (_ends_with(command, "right") or _ends_with(command, "up")) else 1
-    ) * angle
+    a = (-1 if (_ends_with(command, "right") or _ends_with(command, "up")) else 1) * angle
     if _ends_with(command, "xrot"):
         return _xrot4(a, center)
     if _ends_with(command, "yrot"):
@@ -223,9 +221,7 @@ def _command(command, parm, parm2, state, index):
     if command == "repeat":
         return _run(parm2, state, int(parm))
     if isinstance(command, (list, tuple)):
-        tran, pretran = _list_command(
-            command, state[_ARCN], state[_STEP], state[_TR][-1], state[_PRE][-1], index
-        )
+        tran, pretran = _list_command(command, state[_ARCN], state[_STEP], state[_TR][-1], state[_PRE][-1], index)
         return _tupdate(state, tran, pretran)
     p = _num(parm)
     lastT = state[_TR][-1]
@@ -304,18 +300,11 @@ def _command(command, parm, parm2, state, index):
         length = 2 * math.pi * radius * abs(myangle) / 360
         center = [
             0.0,
-            radius
-            if command == "arcleft"
-            else -radius
-            if command == "arcright"
-            else 0.0,
+            radius if command == "arcleft" else -radius if command == "arcright" else 0.0,
             -radius if command == "arcdown" else radius if command == "arcup" else 0.0,
         ]
         steps = _segs(abs(radius)) if arcn == 0 else arcn
-        tran = [
-            lastT @ _turtle_rotation(command, myangle * k / steps, center)
-            for k in range(1, steps + 1)
-        ]
+        tran = [lastT @ _turtle_rotation(command, myangle * k / steps, center) for k in range(1, steps + 1)]
         return _tupdate(state, tran, [lastPre] * steps)
     if command in ("arcxrot", "arcyrot", "arczrot"):
         radius = step * parm
@@ -333,20 +322,14 @@ def _command(command, parm, parm2, state, index):
         center = np.sign(myangle) * radius * np.cross(dir_, projv)
         vshift = dir_ * (np.dot(dir_, v) / np.linalg.norm(projv)) * length
         tran = [
-            _trans4(shift + vshift * k / steps)
-            @ _turtle_rotation(command, myangle * k / steps, center)
-            @ Trot
+            _trans4(shift + vshift * k / steps) @ _turtle_rotation(command, myangle * k / steps, center) @ Trot
             for k in range(1, steps + 1)
         ]
         return _tupdate(state, tran, [lastPre] * steps)
     if command in ("arctodir", "arcrot"):
         Trot, shift = _rotpart(lastT), _transpart(lastT)
         v = _apply(Trot, [1, 0, 0])
-        rd = rot_decode(
-            rot_from_to4(v, parm2)
-            if command == "arctodir"
-            else np.asarray(parm2, float)
-        )
+        rd = rot_decode(rot_from_to4(v, parm2) if command == "arctodir" else np.asarray(parm2, float))
         myangle, dir_ = rd[0], np.asarray(rd[1], float)
         projv = v - np.dot(dir_, v) * dir_
         radius = step * parm
@@ -355,9 +338,7 @@ def _command(command, parm, parm2, state, index):
         steps = _segs(abs(radius)) if arcn == 0 else arcn
         center = radius * np.cross(dir_, projv)
         tran = [
-            _trans4(shift + vshift * k / steps)
-            @ _axis_rot4(dir_, k / steps * myangle, center)
-            @ Trot
+            _trans4(shift + vshift * k / steps) @ _axis_rot4(dir_, k / steps * myangle, center) @ Trot
             for k in range(1, steps + 1)
         ]
         return _tupdate(state, tran, [lastPre] * steps)
@@ -395,7 +376,7 @@ def _vec_angle(a, b):
 
 def _compute_spin(anchor_dir, spin_dir):
     """
-        The roll angle that aligns the turtle's "up" with *spin_dir* (BOSL2 _compute_spin(), 2-arg).
+    The roll angle that aligns the turtle's "up" with *spin_dir* (BOSL2 _compute_spin(), 2-arg).
     """
     native = _rotpart(rot_from_to4(UP, anchor_dir))[:3, :3] @ np.asarray(BACK, float)
     ad, sd = np.asarray(anchor_dir, float), np.asarray(spin_dir, float)
@@ -420,13 +401,9 @@ def _list_command(command, arcsteps, movescale, lastT, lastPre, index):
         ri = command.index("reverse")
         assert ri % 2 == 0, f"Malformed compound command at index {index}"
         command = command[:ri] + command[ri + 1 :]
-    assert len(command) % 2 == 0, (
-        f"Compound command must be [keyword, value] pairs at index {index}"
-    )
+    assert len(command) % 2 == 0, f"Compound command must be [keyword, value] pairs at index {index}"
     head = command[0]
-    assert head in ("move", "arc"), (
-        f'A compound command must begin with "move" or "arc" at index {index}'
-    )
+    assert head in ("move", "arc"), f'A compound command must begin with "move" or "arc" at index {index}'
     keys = {command[i]: command[i + 1] for i in range(0, len(command), 2)}
 
     move = movescale * keys.get("move", 0) if head == "move" else 0.0
@@ -441,12 +418,8 @@ def _list_command(command, arcsteps, movescale, lastT, lastPre, index):
     # relative rotation ("left"/"right"/"up"/"down")
     right, left = keys.get("right", 0), keys.get("left", 0)
     up, down = keys.get("up", 0), keys.get("down", 0)
-    assert head == "move" or (right == 0 or left == 0), (
-        f'Cannot give both "left" and "right" at index {index}'
-    )
-    assert head == "move" or (up == 0 or down == 0), (
-        f'Cannot give both "up" and "down" at index {index}'
-    )
+    assert head == "move" or (right == 0 or left == 0), f'Cannot give both "left" and "right" at index {index}'
+    assert head == "move" or (up == 0 or down == 0), f'Cannot give both "up" and "down" at index {index}'
     newdir = _apply(_zrot4(left - right) @ _yrot4(down - up), RIGHT)
     if left - right == 0:
         relaxis = np.asarray(BACK, float)
@@ -474,14 +447,8 @@ def _list_command(command, arcsteps, movescale, lastT, lastPre, index):
     rotM, todir = keys.get("rot", None), keys.get("todir", None)
     absangle, absaxis = None, np.zeros(3)
     if head == "arc":
-        nz = (
-            len([e for e in (xr, yr, zr) if e != 0])
-            + (rotM is not None)
-            + (todir is not None)
-        )
-        assert nz <= 1, (
-            f'Give only one of "xrot"/"yrot"/"zrot"/"rot"/"todir" at index {index}'
-        )
+        nz = len([e for e in (xr, yr, zr) if e != 0]) + (rotM is not None) + (todir is not None)
+        assert nz <= 1, f'Give only one of "xrot"/"yrot"/"zrot"/"rot"/"todir" at index {index}'
         if rotM is not None:
             rd = rot_decode(np.asarray(rotM, float))
             absangle, absaxis = rd[0], np.asarray(rd[1], float)
@@ -498,19 +465,9 @@ def _list_command(command, arcsteps, movescale, lastT, lastPre, index):
         abscenter = vshift = None
     else:
         projv = v - np.dot(absaxis, v) * absaxis
-        assert np.linalg.norm(projv) > 1e-9, (
-            f"Rotation acts as twist -- not a valid arc at index {index}"
-        )
+        assert np.linalg.norm(projv) > 1e-9, f"Rotation acts as twist -- not a valid arc at index {index}"
         abscenter = np.sign(absangle) * radius * np.cross(absaxis, projv)
-        vshift = (
-            absaxis
-            * (np.dot(absaxis, v) / np.linalg.norm(projv))
-            * 2
-            * math.pi
-            * radius
-            * absangle
-            / 360
-        )
+        vshift = absaxis * (np.dot(absaxis, v) / np.linalg.norm(projv)) * 2 * math.pi * radius * absangle / 360
     assert head != "arc" or (absangle or angle), '"arc" needs a rotation type and angle'
 
     # roll (numeric, or roll-to-a-direction)
@@ -534,14 +491,8 @@ def _list_command(command, arcsteps, movescale, lastT, lastPre, index):
         fT = _finalT()
         finaldir = _unit(_apply(_rotpart(fT), RIGHT))
         finalup = _apply(_rotpart(fT), UP)
-        desired = (
-            rollto
-            if rollto is not None
-            else (rrollto if rrollto is not None else lrollto)
-        )
-        delta = (
-            _compute_spin(finaldir, desired) - _compute_spin(finaldir, finalup)
-        ) % 360
+        desired = rollto if rollto is not None else (rrollto if rrollto is not None else lrollto)
+        delta = (_compute_spin(finaldir, desired) - _compute_spin(finaldir, finalup)) % 360
         if rrollto is not None or delta == 0:
             roll = delta
         elif lrollto is not None or delta > 180:
@@ -620,8 +571,8 @@ class Turtle:
 
     def run(self, commands, repeat=1) -> "Turtle":
         """
-            Execute *commands* (optionally *repeat* times), advancing this turtle's state. Returns
-            self.
+        Execute *commands* (optionally *repeat* times), advancing this turtle's state. Returns
+        self.
         """
         self.state = _run(list(commands), self.state, repeat)
         return self
@@ -632,22 +583,17 @@ class Turtle:
 
     def transforms(self) -> list:
         """
-            The list of 4x4 transforms (position + orientation) for sweeping a profile along the
-            path.
+        The list of 4x4 transforms (position + orientation) for sweeping a profile along the
+        path.
         """
-        return [
-            self.state[_TR][i] @ self.state[_PRE][i]
-            for i in range(len(self.state[_TR]))
-        ]
+        return [self.state[_TR][i] @ self.state[_PRE][i] for i in range(len(self.state[_TR]))]
 
     def full_state(self):
         """The raw turtle state ``[transforms, pre-transforms, move-length, angle, arc-steps]``."""
         return self.state
 
     @classmethod
-    def turtle3d(
-        cls, commands, state=RIGHT, transforms=False, full_state=False, repeat=1
-    ):
+    def turtle3d(cls, commands, state=RIGHT, transforms=False, full_state=False, repeat=1):
         """One-shot BOSL2 ``turtle3d()``: run *commands* from *state* and return points (default),
         sweep *transforms*, or the *full_state*."""
         t = cls(state).run(commands, repeat)

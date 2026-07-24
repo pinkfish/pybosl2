@@ -124,9 +124,7 @@ def test_helix_needs_exactly_two_params():
 
 def test_helix_flat_spiral():
     height = helix(h=0, r1=50, r2=25, length=0, turns=4)
-    assert all(
-        math.isclose(p[2], 0, abs_tol=1e-9) for p in height
-    )  # flat: every z is 0
+    assert all(math.isclose(p[2], 0, abs_tol=1e-9) for p in height)  # flat: every z is 0
 
 
 # -- turtle -------------------------------------------------------------------------------
@@ -172,9 +170,7 @@ def test_stroke_closed_path_defaults_from_flag():
 
 
 def test_stroke_region_strokes_every_path():
-    reg = Region.with_holes(
-        [[0, 0], [40, 0], [40, 30], [0, 30]], [[10, 10], [30, 10], [30, 20], [10, 20]]
-    )
+    reg = Region.with_holes([[0, 0], [40, 0], [40, 30], [0, 30]], [[10, 10], [30, 10], [30, 20], [10, 20]])
     assert reg.stroke(width=2) is not None
 
 

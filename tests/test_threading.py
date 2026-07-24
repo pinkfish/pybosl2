@@ -110,9 +110,7 @@ def test_rod_builders(call):
         lambda: Threading.acme_threaded_nut(24, 16, 12, 3, slop=0.1),
         lambda: Threading.square_threaded_nut(24, 16, 12, 3, slop=0.1),
         lambda: Threading.buttress_threaded_nut(24, 16, 12, 3, slop=0.1),
-        lambda: Threading.generic_threaded_nut(
-            18, 12, 10, 1.75, _iso_profile(), slop=0.1
-        ),
+        lambda: Threading.generic_threaded_nut(18, 12, 10, 1.75, _iso_profile(), slop=0.1),
     ],
 )
 def test_nut_builders(call):

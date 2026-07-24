@@ -59,9 +59,7 @@ def test_arc_points_span():
     assert len(pts) == 3
     np.testing.assert_allclose(pts[0], [1, 0], atol=1e-12)
     np.testing.assert_allclose(pts[-1], [0, 1], atol=1e-12)
-    np.testing.assert_allclose(
-        pts[1], [math.cos(math.radians(45)), math.sin(math.radians(45))], atol=1e-12
-    )
+    np.testing.assert_allclose(pts[1], [math.cos(math.radians(45)), math.sin(math.radians(45))], atol=1e-12)
 
 
 def test_arc_points_no_endpoint_drops_last():

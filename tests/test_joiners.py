@@ -41,9 +41,7 @@ def test_female_is_enlarged_by_slop():
 
 @pytest.mark.parametrize("kw", [{}, {"taper": 4}, {"back_width": 12}])
 def test_dovetail_taper_builds(kw):
-    assert isinstance(
-        J.dovetail("male", width=18, height=6, slide=40, **kw), Bosl2Solid
-    )
+    assert isinstance(J.dovetail("male", width=18, height=6, slide=40, **kw), Bosl2Solid)
 
 
 def test_snap_pin_and_socket_build():
