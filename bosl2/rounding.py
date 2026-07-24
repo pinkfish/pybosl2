@@ -56,7 +56,7 @@ def _smooth_bez_fill(points, k):
     return [p0, p1 + (p0 - p1) * k, p1, p1 + (p2 - p1) * k, p2]
 
 
-def _bezcorner(points, parm, _fn=0, _fs=2.0):
+def _bezcorner(points, parm, fn=0, fs=2.0):
     """A continuous-curvature (bezier) corner (BOSL2 _bezcorner())."""
     from bosl2.beziers import Bezier
 
@@ -69,7 +69,7 @@ def _bezcorner(points, parm, _fn=0, _fs=2.0):
     else:
         ctrl = _smooth_bez_fill(points, float(parm))
     bez = Bezier([[float(c) for c in p] for p in ctrl])
-    sides = max(3, _fn if _fn and _fn > 0 else math.ceil(bez.length() / _fs))
+    sides = max(3, fn if fn and fn > 0 else math.ceil(bez.length() / fs))
     return [[float(c) for c in p] for p in bez.curve(sides, endpoint=True)]
 
 
@@ -104,7 +104,7 @@ def _arc3d(center, start, end, n):
     ]
 
 
-def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
+def _circlecorner(points, parm, fn=None, fa=None, fs=None):
     """A circular-arc corner (BOSL2 _circlecorner())."""
     from bosl2.shapes2d import arc, _frag_count
 
@@ -117,7 +117,7 @@ def _circlecorner(points, parm, _fn=None, _fa=None, _fs=None):
     if approx(angle, 90):
         return [list(start), list(end)]
     center = radius / math.sin(math.radians(angle)) * unit(prev + nxt) + p1
-    sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, _fn, _fa, _fs)))
+    sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, fn, fa, fs)))
     if len(points[1]) == 2:
         return [
             [float(c) for c in p]
@@ -147,9 +147,9 @@ def round_corners(
     width=None,
     k=None,
     closed=True,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ):
     """Round every corner of *path* (BOSL2 round_corners()).
 
@@ -292,11 +292,11 @@ def round_corners(
         if dk[i][0] == 0:
             out.append(pts[i])
         elif method == "smooth":
-            out += _bezcorner(corner, dk[i], _fn=_fn or 0, _fs=_fs or 2.0)
+            out += _bezcorner(corner, dk[i], fn=fn or 0, fs=fs or 2.0)
         elif method == "chamfer":
             out += _chamfcorner(corner, dk[i])
         else:
-            out += _circlecorner(corner, dk[i], _fn=_fn, _fa=_fa, _fs=_fs)
+            out += _circlecorner(corner, dk[i], fn=fn, fa=fa, fs=fs)
 
     result = _dedup(out)
     dim = len(result[0])

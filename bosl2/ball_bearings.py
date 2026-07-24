@@ -139,9 +139,9 @@ class BallBearings:
         width: float | None = None,
         shield: bool = True,
         color: str | None = "silver",
-        _fn=None,
-        _fa=None,
-        _fs=None,
+        fn=None,
+        fa=None,
+        fs=None,
     ) -> Bosl2Solid:
         """A ball-bearing cartridge model (BOSL2 ball_bearing()).
 
@@ -172,24 +172,55 @@ class BallBearings:
         wall = (outer_diameter - inner_diameter) / 2 / 3
         if shield:
             result = (
-                tube(inner_diameter=inner_diameter, wall=wall, height=width)
-                | tube(outer_diameter=outer_diameter, wall=wall, height=width)
+                tube(
+                    inner_diameter=inner_diameter,
+                    wall=wall,
+                    height=width,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
+                )
+                | tube(
+                    outer_diameter=outer_diameter,
+                    wall=wall,
+                    height=width,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
+                )
                 | tube(
                     inner_diameter=inner_diameter + 0.1,
                     outer_diameter=outer_diameter - 0.1,
                     height=(wall * 2 + width) / 2,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
             )
         else:
             ball_cnt = int(math.floor(math.pi * mid_d * 0.95 / (wall * 2)))
-            races = tube(inner_diameter=inner_diameter, wall=wall, height=width) | tube(
-                outer_diameter=outer_diameter, wall=wall, height=width
+            races = tube(
+                inner_diameter=inner_diameter,
+                wall=wall,
+                height=width,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            ) | tube(
+                outer_diameter=outer_diameter,
+                wall=wall,
+                height=width,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
-            races = races - torus(major_radius=mid_d / 2, minor_radius=wall)
+            races = races - torus(
+                major_radius=mid_d / 2, minor_radius=wall, fn=fn, fa=fa, fs=fs
+            )
             balls = reduce(
                 operator.or_,
                 (
-                    sphere(diameter=wall * 2, _fn=_fn, _fa=_fa, _fs=_fs)
+                    sphere(diameter=wall * 2, fn=fn, fa=fa, fs=fs)
                     .right(mid_d / 2)
                     .rotate([0, 0, i * 360 / ball_cnt])
                     for i in range(ball_cnt)

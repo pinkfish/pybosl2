@@ -30,7 +30,7 @@ from bosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
 
 def test_partition_path_returns_path():
-    p = partition_path(["flat", "jigsaw", "flat"], _fn=24)
+    p = partition_path(["flat", "jigsaw", "flat"], fn=24)
     assert isinstance(p, Path)
     assert p.closed is False
 
@@ -47,7 +47,7 @@ def test_named_subpaths_have_expected_shape():
     assert _partition_subpath("sawtooth") == [[0, 0], [0.5, 1], [1, 0]]
     assert len(_partition_subpath("dovetail")) == 6
     assert len(_partition_subpath("hammerhead")) == 10
-    assert len(_partition_subpath("jigsaw", _fn=24)) > 10  # arc-based
+    assert len(_partition_subpath("jigsaw", fn=24)) > 10  # arc-based
 
 
 def test_ptn_sect_numeric_is_flat_segment():
@@ -71,7 +71,7 @@ def test_ptn_sect_repeat_triples_width():
 
 
 def test_ptn_sect_resize():
-    sect = _ptn_sect("jigsaw 40x20", _fn=24)
+    sect = _ptn_sect("jigsaw 40x20", fn=24)
     xs = [p[0] for p in sect]
     ys = [p[1] for p in sect]
     assert math.isclose(max(xs) - min(xs), 40, abs_tol=1e-6)
@@ -105,7 +105,7 @@ def test_partition_mask_builds():
     )
     assert isinstance(
         partition_mask(
-            length=60, w=30, height=20, cutpath="jigsaw", inverse=True, _fn=12
+            length=60, w=30, height=20, cutpath="jigsaw", inverse=True, fn=12
         ),
         Bosl2Solid,
     )
@@ -138,7 +138,7 @@ def test_half_of_general_normal():
 
 
 def test_half_of_with_cut_path():
-    center = partition_path([40, "jigsaw", 40], _fn=12)
+    center = partition_path([40, "jigsaw", 40], fn=12)
     assert isinstance(BOX.back_half(cut_path=center), Bosl2Solid)
 
 

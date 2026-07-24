@@ -160,9 +160,9 @@ def cylindrical_extrude(
     spin: float = 0,
     orient=UP,
     convexity: int = 10,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ):
     """Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2 cylindrical_extrude()).
 
@@ -193,7 +193,7 @@ def cylindrical_extrude(
         size = [float(size), 1000.0]
     else:
         size = [float(size[0]), float(size[1])]
-    sides = _frag_count(orv, _fn, _fa, _fs)
+    sides = _frag_count(orv, fn, fa, fs)
     step = circumf / sides
     steps = math.ceil(size[0] / step)
     scalefactor = sides / math.pi * math.sin(math.radians(180 / sides))

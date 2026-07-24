@@ -30,7 +30,7 @@ def test_repair_returns_solid():
 
 def test_wrap_returns_solid_with_and_without_fn():
     assert isinstance(_cube().wrap(20), Bosl2Solid)
-    assert isinstance(_cube().wrap(20, _fn=32), Bosl2Solid)
+    assert isinstance(_cube().wrap(20, fn=32), Bosl2Solid)
 
 
 @pytest.mark.skipif(

@@ -14,9 +14,9 @@
 #    always returns a real PyOpenSCAD 2D solid (never a raw path).
 #
 #    Anywhere BOSL2 lets you tune arc smoothness with the special variables
-#    $fn/$fa/$fs, this module exposes the same knob as an explicit `_fn`/
-#    `_fa`/`_fs` keyword argument (matching this project's existing calling
-#    convention, e.g. `circle(radius=5, _fn=64)`), and uses it when computing the
+#    $fn/$fa/$fs, this module exposes the same knob as an explicit `fn`/
+#    `fa`/`fs` keyword argument (matching this project's existing calling
+#    convention, e.g. `circle(radius=5, fn=64)`), and uses it when computing the
 #    point count for any rounded/curved portion of the shape.
 #
 # FileSummary: 2D primitives, polygons, curves, text and rounding (BOSL2 shapes2d.scad).
@@ -57,15 +57,15 @@ from bosl2.paths import Path
 
 def _frag_count(
     radius: float,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> int:
     """Number of polygon segments to approximate a circle of radius *radius*, mirroring OpenSCAD's $fn/$fa/$fs rules."""
-    if _fn is not None and _fn >= 3:
-        return int(math.floor(_fn))
-    fa = _fa if _fa else 12.0
-    fs = _fs if _fs else 2.0
+    if fn is not None and fn >= 3:
+        return int(math.floor(fn))
+    fa = fa if fa else 12.0
+    fs = fs if fs else 2.0
     return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(radius)) / fs))))
 
 
@@ -121,9 +121,9 @@ def _arc_between_points(
     point_end: Sequence[float],
     radius: float,
     endpoint: bool = True,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ) -> list[list[float]]:
     """Arc around *center* from *point_start* to *point_end*, sweeping the shorter way around."""
     a0 = math.degrees(
@@ -131,7 +131,7 @@ def _arc_between_points(
     )
     a1 = math.degrees(math.atan2(point_end[1] - center[1], point_end[0] - center[0]))
     delta = (a1 - a0 + 180) % 360 - 180
-    num = max(3, math.ceil(_frag_count(radius, _fn, _fa, _fs) * abs(delta) / 360))
+    num = max(3, math.ceil(_frag_count(radius, fn, fa, fs) * abs(delta) / 360))
     return _arc_points(num, radius, a0, delta, center, endpoint=endpoint)
 
 
@@ -142,9 +142,9 @@ def _arc_through_3(
     point_mid: Sequence[float],
     point_end: Sequence[float],
     endpoint: bool = True,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ) -> list[list[float]]:
     """Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be the long way around)."""
     a0 = math.degrees(
@@ -155,7 +155,7 @@ def _arc_through_3(
     d_mid = (am - a0) % 360
     d_end = (a1 - a0) % 360
     delta = d_end if d_mid <= d_end else d_end - 360
-    num = max(3, math.ceil(_frag_count(radius, _fn, _fa, _fs) * abs(delta) / 360))
+    num = max(3, math.ceil(_frag_count(radius, fn, fa, fs) * abs(delta) / 360))
     return _arc_points(num, radius, a0, delta, center, endpoint=endpoint)
 
 
@@ -354,9 +354,9 @@ def _rect_path(
     size: Sequence[float],
     rounding: float | Sequence[float] = 0,
     chamfer: float | Sequence[float] = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> list[list[float]]:
     sx, sy = size
     rounding_l = (
@@ -397,7 +397,7 @@ def _rect_path(
         qchamf = chamfer_l[quad]
         qround = rounding_l[quad]
         cverts = (
-            int(_quant(_frag_count(abs(qinset), _fn, _fa, _fs), 4) / 4)
+            int(_quant(_frag_count(abs(qinset), fn, fa, fs), 4) / 4)
             if abs(qinset) >= eps
             else 0
         )
@@ -428,9 +428,9 @@ def rect(
     chamfer: float | Sequence[float] = 0,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A rectangle with optional rounded or chamfered corners.
 
@@ -443,14 +443,14 @@ def rect(
         chamfer:  corner chamfer size, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs: arc smoothness overrides for rounded corners
+        fn/fa/fs: arc smoothness overrides for rounded corners
     """
     sz = (
         [float(size), float(size)]
         if isinstance(size, (int, float))
         else [float(v) for v in size]
     )
-    path = _rect_path(sz, rounding=rounding, chamfer=chamfer, _fn=_fn, _fa=_fa, _fs=_fs)
+    path = _rect_path(sz, rounding=rounding, chamfer=chamfer, fn=fn, fa=fa, fs=fs)
     shape = _opolygon(path)
     complex_shape = (
         rounding != 0 if isinstance(rounding, (int, float)) else any(rounding)
@@ -467,9 +467,9 @@ def rect_path(
     rounding: float | Sequence[float] = 0,
     chamfer: float | Sequence[float] = 0,
     anchor: Sequence[float] = CENTER,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> list[list[float]]:
     """The *points* of a (optionally rounded/chamfered) rectangle -- BOSL2's ``rect()`` in its
     function form, as opposed to :func:`rect` which returns native 2-D geometry.
@@ -497,7 +497,7 @@ def rect_path(
         if isinstance(size, (int, float))
         else [float(v) for v in size]
     )
-    path = _rect_path(sz, rounding=rounding, chamfer=chamfer, _fn=_fn, _fa=_fa, _fs=_fs)
+    path = _rect_path(sz, rounding=rounding, chamfer=chamfer, fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_box(sz, anchor)
     return [[float(p[0]) + offset[0], float(p[1]) + offset[1]] for p in path]
 
@@ -518,9 +518,9 @@ def arc(
     clockwise: bool = False,
     counterclockwise: bool = False,
     endpoint: bool = True,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Path:
     """A 2-D arc, returned as a :class:`~bosl2.paths.Path` of points (BOSL2's ``arc()``).
 
@@ -566,9 +566,9 @@ def arc(
             points=[[width / 2, 0], [0, thickness], [-width / 2, 0]],
             wedge=wedge,
             endpoint=endpoint,
-            _fn=_fn,
-            _fa=_fa,
-            _fs=_fs,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
 
     # -- corner: the fillet arc tangent to both legs of a 3-point corner ---------------------
@@ -598,9 +598,9 @@ def arc(
             angle=rng,
             wedge=wedge,
             endpoint=endpoint,
-            _fn=_fn,
-            _fa=_fa,
-            _fs=_fs,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
 
     # -- points forms ------------------------------------------------------------------------
@@ -640,9 +640,9 @@ def arc(
                 angle=final_angle,
                 wedge=wedge,
                 endpoint=endpoint,
-                _fn=_fn,
-                _fa=_fa,
-                _fs=_fs,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
         assert len(pts) == 3, f"arc(points=) needs 2 or 3 points, got {len(pts)}"
         assert not is_collinear(pts[0], pts[1], pts[2]), (
@@ -659,7 +659,7 @@ def arc(
             count
             if count is not None
             else max(
-                3, math.ceil(_frag_count(arc_radius, _fn, _fa, _fs) * abs(delta) / 360)
+                3, math.ceil(_frag_count(arc_radius, fn, fa, fs) * abs(delta) / 360)
             )
         )
         out = _arc_points(point_count, arc_radius, a0, delta, centre, endpoint=endpoint)
@@ -683,8 +683,7 @@ def arc(
     point_count = (
         count
         if count is not None
-        else math.ceil(_frag_count(arc_radius, _fn, _fa, _fs) * abs(calc_angle) / 360)
-        + 1
+        else math.ceil(_frag_count(arc_radius, fn, fa, fs) * abs(calc_angle) / 360) + 1
     )
     out = _arc_points(
         point_count, arc_radius, calc_start, calc_angle, calc_center, endpoint=endpoint
@@ -701,9 +700,9 @@ def circle(
     corner: Sequence[Sequence[float]] | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A circle, built with the builtin circle(), by radius/diameter, or fit to points.
 
@@ -719,11 +718,11 @@ def circle(
         corner:   three 2-D points defining a path the circle should be tangent to
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     if points is not None:
         center, rad = _circle_from_3pts(points)
-        return _ocircle(r=rad, fn=_fn, fa=_fa, fs=_fs).translate(center)
+        return _ocircle(r=rad, fn=fn, fa=fa, fs=fs).translate(center)
     if corner is not None:
         rad = (
             radius
@@ -731,12 +730,12 @@ def circle(
             else (diameter / 2 if diameter is not None else 1)
         )
         center = _circle_from_corner(corner, rad)
-        return _ocircle(r=rad, fn=_fn, fa=_fa, fs=_fs).translate(center)
+        return _ocircle(r=rad, fn=fn, fa=fa, fs=fs).translate(center)
     rad = (
         radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     )
-    shape = _ocircle(r=rad, fn=_fn, fa=_fa, fs=_fs)
-    n = _frag_count(rad, _fn, _fa, _fs)
+    shape = _ocircle(r=rad, fn=fn, fa=fa, fs=fs)
+    n = _frag_count(rad, fn, fa, fs)
     offset = _anchor_offset_hull(_circle_pts(rad, n), anchor)
     return _finish(shape, offset, spin)
 
@@ -749,9 +748,9 @@ def ellipse(
     uniform: bool = False,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """An ellipse (approximated as a polygon), built directly with polygon().
 
@@ -765,7 +764,7 @@ def ellipse(
         circum:   circumscribe rather than inscribe the ideal ellipse (default False)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     if radius is not None:
         rad = (
@@ -782,7 +781,7 @@ def ellipse(
         rad = [dd[0] / 2, dd[1] / 2]
     else:
         rad = [1.0, 1.0]
-    n = _frag_count(max(rad), _fn, _fa, _fs)
+    n = _frag_count(max(rad), fn, fa, fs)
     scale = 1.0 / math.cos(math.pi / n) if circum else 1.0
     start = (360.0 / n) / 2 if realign else 0.0
     path = [
@@ -809,15 +808,15 @@ def _regular_ngon_path(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ) -> list[list[float]]:
     if not rounding:
         path = _circle_pts(radius, sides)
     else:
         inset = rounding / math.sin(math.radians((180 - 360.0 / sides) / 2))
-        steps = max(1, int(_frag_count(radius, _fn, _fa, _fs) // sides))
+        steps = max(1, int(_frag_count(radius, fn, fa, fs) // sides))
         path2 = []
         for i in range(sides):
             a = 360 - i * 360.0 / sides
@@ -856,9 +855,9 @@ def regular_ngon(
     align_side: Sequence[float] | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A regular N-gon (equilateral, equiangular polygon), built directly with polygon().
 
@@ -878,7 +877,7 @@ def regular_ngon(
         align_side:     rotate so the normal of side 0 points in this 2-D direction (applied before spin)
         anchor:         anchor point (default CENTER)
         spin:           Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs:    arc smoothness overrides for rounded tips
+        fn/fa/fs:    arc smoothness overrides for rounded tips
     """
     assert sides >= 3
     sc = 1 / math.cos(math.radians(180.0 / sides))
@@ -907,9 +906,9 @@ def regular_ngon(
         realign=realign,
         align_tip=align_tip,
         align_side=align_side,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
@@ -930,9 +929,9 @@ def pentagon(
     align_side: Sequence[float] | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A regular pentagon. See regular_ngon() for argument details."""
     return regular_ngon(
@@ -950,9 +949,9 @@ def pentagon(
         align_side=align_side,
         anchor=anchor,
         spin=spin,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
 
 
@@ -970,9 +969,9 @@ def hexagon(
     align_side: Sequence[float] | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A regular hexagon. See regular_ngon() for argument details."""
     return regular_ngon(
@@ -990,9 +989,9 @@ def hexagon(
         align_side=align_side,
         anchor=anchor,
         spin=spin,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
 
 
@@ -1010,9 +1009,9 @@ def octagon(
     align_side: Sequence[float] | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A regular octagon. See regular_ngon() for argument details."""
     return regular_ngon(
@@ -1030,9 +1029,9 @@ def octagon(
         align_side=align_side,
         anchor=anchor,
         spin=spin,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
 
 
@@ -1071,9 +1070,9 @@ def _trapezoid_path(
     chamfer,
     rounding,
     flip: bool,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ) -> list[list[float]]:
     chamfs = list(chamfer) if isinstance(chamfer, (list, tuple)) else [chamfer] * 4
     rounds = list(rounding) if isinstance(rounding, (list, tuple)) else [rounding] * 4
@@ -1130,7 +1129,7 @@ def _trapezoid_path(
         else:
             a0, a1 = angle_pairs[i]["neg"]
         point_count = (
-            max(3, math.ceil(_frag_count(rads[i], _fn, _fa, _fs) * abs(a1 - a0) / 360))
+            max(3, math.ceil(_frag_count(rads[i], fn, fa, fs) * abs(a1 - a0) / 360))
             if rounds[i]
             else 2
         )
@@ -1149,9 +1148,9 @@ def trapezoid(
     flip: bool = False,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A trapezoid with parallel front and back sides, built directly with polygon().
 
@@ -1166,7 +1165,7 @@ def trapezoid(
         flip:     point negative roundings/chamfers forward/back instead of left/right (default False)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs: arc smoothness overrides for rounded corners
+        fn/fa/fs: arc smoothness overrides for rounded corners
     """
     defined = sum(x is not None for x in (height, width1, width2, angle))
     assert defined == 3, (
@@ -1185,7 +1184,7 @@ def trapezoid(
         "Degenerate trapezoid geometry."
     )
     path = _trapezoid_path(
-        height, width1, width2, shift, chamfer, rounding, flip, _fn, _fa, _fs
+        height, width1, width2, shift, chamfer, rounding, flip, fn, fa, fs
     )
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
@@ -1293,9 +1292,9 @@ def teardrop2d(
     realign: bool = False,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A 2-D teardrop shape, useful for 3D-printable horizontal holes, built directly with polygon().
 
@@ -1311,7 +1310,7 @@ def teardrop2d(
         realign:    flip whether the bottom is a point or a flat (default False)
         anchor:     anchor point (default CENTER)
         spin:       Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     rad = (
         radius if radius is not None else (diameter / 2 if diameter is not None else 1)
@@ -1328,7 +1327,7 @@ def teardrop2d(
     else:
         cap_top = [(maxheight - cap_height) * math.tan(math.radians(angle)), cap_height]
     cap_bot = [rad * math.cos(math.radians(angle)), rad * math.sin(math.radians(angle))]
-    n = _frag_count(rad, _fn, _fa, _fs)
+    n = _frag_count(rad, fn, fa, fs)
     start = 90.0 + (180.0 / n if realign else 0.0)
     fullcircle = _circle_pts(rad, n, start=start)
     seglen = math.dist(fullcircle[0], fullcircle[1]) if len(fullcircle) > 1 else 0.0
@@ -1359,9 +1358,9 @@ def egg(
     arc_diameter: float | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """An egg-shaped 2-D outline, made of two circles joined by tangent arcs, built directly with polygon().
 
@@ -1375,7 +1374,7 @@ def egg(
         arc_diameter: diameter of the joining arcs (alternative to arc_radius)
         anchor:       anchor point (default CENTER)
         spin:         Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs:  arc smoothness overrides
+        fn/fa/fs:  arc smoothness overrides
     """
     radius1 = (
         radius1
@@ -1399,7 +1398,7 @@ def egg(
     if R is None:
         raise ValueError("egg(): must give arc_radius or arc_diameter")
     assert length is not None, "egg(): must give length"
-    path = _egg_path(length, radius1, radius2, R, _fn, _fa, _fs)
+    path = _egg_path(length, radius1, radius2, R, fn, fa, fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)
@@ -1410,9 +1409,9 @@ def _egg_path(
     radius1: float,
     radius2: float,
     arc_radius: float,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ) -> list[list[float]]:
     assert length > 0
     assert arc_radius > length / 2, "Side radius must be larger than length/2"
@@ -1440,7 +1439,7 @@ def _egg_path(
                 [c2[0] + radius2 * u2[0], c2[1] + radius2 * u2[1]],
             ]
         )
-    kw = {"_fn": _fn, "_fa": _fa, "_fs": _fs}
+    kw = {"fn": fn, "fa": fa, "fs": fs}
     path = []
     path += _arc_between_points(
         c2, [length / 2, 0.0], arcparms[0][2], radius2, endpoint=False, **kw
@@ -1473,9 +1472,9 @@ def glued_circles(
     diameter: float | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """Two circles joined by a curved waist, like a dumbbell, built directly with polygon().
 
@@ -1486,7 +1485,7 @@ def glued_circles(
         diameter: diameter of the end circles (alternative to radius)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     rad = (
         radius if radius is not None else (diameter / 2 if diameter is not None else 10)
@@ -1495,7 +1494,7 @@ def glued_circles(
     sa1 = 90 - tangent
     ea1 = 270 + tangent
     lobearc = ea1 - sa1
-    lobesegs = math.ceil(_frag_count(rad, _fn, _fa, _fs) * lobearc / 360)
+    lobesegs = math.ceil(_frag_count(rad, fn, fa, fs) * lobearc / 360)
     if tangent == 0:
         # r2/cp2 (the inner waist arc) are undefined and unused in this case: the two end
         # circles' own arcs already meet with no separate waist curve needed.
@@ -1508,7 +1507,7 @@ def glued_circles(
         sa2 = 270 - tangent
         ea2 = 270 + tangent
         subarc = ea2 - sa2
-        arcsegs = math.ceil(_frag_count(r2, _fn, _fa, _fs) * abs(subarc) / 360)
+        arcsegs = math.ceil(_frag_count(r2, fn, fa, fs) * abs(subarc) / 360)
         part1 = _arc_points(
             lobesegs, rad, sa1, ea1 - sa1, [-cp1[0], -cp1[1]], endpoint=False
         )
@@ -1631,11 +1630,11 @@ def squircle_radius_fg(squareness: float, radius: float, angle: float) -> float:
     )
 
 
-def _squircle_fg_path(size, squareness, _fn, _fa, _fs) -> list:
+def _squircle_fg_path(size, squareness, fn, fa, fs) -> list:
     sq = _linearize_squareness(squareness)
     aspect = size[1] / size[0]
     r = 0.5 * size[0]
-    fn = _frag_count(r, _fn, _fa, _fs)
+    fn = _frag_count(r, fn, fa, fs)
     astep = 90.0 / round(fn / 4) if fn >= 12 else 360.0 / 48
     pts = []
     a = 360.0
@@ -1658,9 +1657,9 @@ def squircle(
     style: str = "fg",
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A squircle -- a rounded square that morphs between a square and a circle (BOSL2 squircle()).
 
@@ -1672,7 +1671,7 @@ def squircle(
         squareness: 0 (circle) .. 1 (square); default 0.5
         style:      only "fg" is supported
         anchor/spin: standard BOSL2 2-D anchor / spin
-        _fn/_fa/_fs: smoothness overrides
+        fn/fa/fs: smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -1686,7 +1685,7 @@ def squircle(
         else [float(size[0]), float(size[1])]
     )
     assert style == "fg", 'squircle(): only the default "fg" style is ported.'
-    path = _squircle_fg_path(sz, squareness, _fn, _fa, _fs)
+    path = _squircle_fg_path(sz, squareness, fn, fa, fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)
@@ -1702,9 +1701,9 @@ def keyhole(
     _length=None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A keyhole slot -- a small circle joined to a larger one by tangent shoulders (BOSL2 keyhole()).
 
@@ -1749,7 +1748,7 @@ def keyhole(
     angle = math.degrees(math.atan2(abs(ds[1]), abs(ds[0])))
 
     def _arc(**kw):
-        return arc(endpoint=False, _fn=_fn, _fa=_fa, _fs=_fs, **kw)
+        return arc(endpoint=False, fn=fn, fa=fa, fs=fs, **kw)
 
     path = []
     if r1v > r2v:
@@ -1795,9 +1794,9 @@ def ring(
     angle=None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A 2-D ring (annulus) between two concentric radii (BOSL2 ring(), full-annulus form).
 
@@ -1840,9 +1839,9 @@ def ring(
         )
         inner, outer = min(rv, rv + ring_width), max(rv, rv + ring_width)
     assert inner != outer and outer > 0, "ring(): zero (or invalid) width."
-    fnv = sides if sides is not None else _fn
-    shape = circle(radius=outer, _fn=fnv, _fa=_fa, _fs=_fs) - circle(
-        radius=inner, _fn=fnv, _fa=_fa, _fs=_fs
+    fnv = sides if sides is not None else fn
+    shape = circle(radius=outer, fn=fnv, fa=fa, fs=fs) - circle(
+        radius=inner, fn=fnv, fa=fa, fs=fs
     )
     offset = _anchor_offset_box([2 * outer, 2 * outer], anchor)
     return _finish(shape, offset, spin)
@@ -1854,9 +1853,9 @@ def reuleaux_polygon(
     diameter: float | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A Reuleaux polygon (constant-width curved-side shape), built directly with polygon().
 
@@ -1866,13 +1865,13 @@ def reuleaux_polygon(
         diameter: scale the shape to fit in a circle of this diameter
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     assert sides >= 3 and sides % 2 == 1
     rad = (
         radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     )
-    ssegs = max(3, math.ceil(_frag_count(rad, _fn, _fa, _fs) / sides))
+    ssegs = max(3, math.ceil(_frag_count(rad, fn, fa, fs) / sides))
     slen = math.dist(_polar_to_xy(rad, 0), _polar_to_xy(rad, 180 - 180.0 / sides))
     path = []
     for i in range(sides):
@@ -1945,9 +1944,9 @@ def round2d(
     outer_radius: float | None = None,
     inner_radius: float | None = None,
     children: PyOpenSCAD | None = None,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """Rounds the concave and/or convex corners of arbitrary 2-D children, via chained .offset() calls.
 
@@ -1962,7 +1961,7 @@ def round2d(
         outer_radius: radius to round only convex (outside) corners to (BOSL2 `or`)
         inner_radius: radius to round only concave (inside) corners to
         children:     the 2-D solid(s) to round
-        _fn/_fa/_fs:  arc smoothness overrides
+        fn/fa/fs:  arc smoothness overrides
     """
     orad = (
         outer_radius
@@ -1977,7 +1976,7 @@ def round2d(
     assert children is not None, "round2d(): must give children"
     shape = children.offset(delta=irad, chamfer=True)
     shape = shape.offset(delta=-(irad + orad))
-    shape = shape.offset(radius=orad, _fn=_fn, _fa=_fa, _fs=_fs)
+    shape = shape.offset(radius=orad, fn=fn, fa=fa, fs=fs)
     return shape
 
 
@@ -1986,9 +1985,9 @@ def shell2d(
     outer_radius: float | Sequence[float] = 0,
     inner_radius: float | Sequence[float] = 0,
     children: PyOpenSCAD | None = None,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """Creates a hollow shell from 2-D children, with optional rounding.
 
@@ -2002,7 +2001,7 @@ def shell2d(
         inner_radius: rounding radius for inside corners of the shell; a [CONVEX,CONCAVE]
                       pair rounds those corner types separately (default 0)
         children:     the 2-D solid(s) to shell
-        _fn/_fa/_fs:  arc smoothness overrides
+        fn/fa/fs:  arc smoothness overrides
     """
     assert thickness is not None, "shell2d(): must give thickness"
     assert children is not None, "shell2d(): must give children"
@@ -2021,17 +2020,17 @@ def shell2d(
         if isinstance(inner_radius, (int, float))
         else [float(v) for v in inner_radius]
     )
-    kw = {"_fn": _fn, "_fa": _fa, "_fs": _fs}
+    kw = {"fn": fn, "fa": fa, "fs": fs}
     outer_shape = round2d(
         outer_radius=orad[0],
         inner_radius=orad[1],
-        children=children.offset(delta=th[1], _fn=_fn, _fa=_fa, _fs=_fs),
+        children=children.offset(delta=th[1], fn=fn, fa=fa, fs=fs),
         **kw,
     )
     inner_shape = round2d(
         outer_radius=irad[1],
         inner_radius=irad[0],
-        children=children.offset(delta=th[0], _fn=_fn, _fa=_fa, _fs=_fs),
+        children=children.offset(delta=th[0], fn=fn, fa=fa, fs=fs),
         **kw,
     )
     return outer_shape - inner_shape

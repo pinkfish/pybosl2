@@ -98,7 +98,7 @@ def _merge_collinear(path):
 # ---------------------------------------------------------------------------
 
 
-def _partition_subpath(cptype, _fn=None, _fa=None, _fs=None):
+def _partition_subpath(cptype, fn=None, fa=None, fs=None):
     """The simple named cut sub-paths used by the mask builders (BOSL2 _partition_subpath())."""
     from bosl2.shapes2d import arc
 
@@ -151,9 +151,9 @@ def _partition_subpath(cptype, _fn=None, _fa=None, _fs=None):
                     center=[0, -3 / 16],
                     start=270,
                     angle=125,
-                    _fn=_fn,
-                    _fa=_fa,
-                    _fs=_fs,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
             )
             + list(
@@ -162,9 +162,9 @@ def _partition_subpath(cptype, _fn=None, _fa=None, _fs=None):
                     center=[1 / 2, 3 / 16],
                     start=215,
                     angle=-250,
-                    _fn=_fn,
-                    _fa=_fa,
-                    _fs=_fs,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
             )
             + list(
@@ -173,9 +173,9 @@ def _partition_subpath(cptype, _fn=None, _fa=None, _fs=None):
                     center=[1, -3 / 16],
                     start=145,
                     angle=125,
-                    _fn=_fn,
-                    _fa=_fa,
-                    _fs=_fs,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
             )
         )
@@ -183,7 +183,7 @@ def _partition_subpath(cptype, _fn=None, _fa=None, _fs=None):
 
 
 def _partition_cutpath(
-    l, h, cutsize, cutpath, gap, cutpath_centered, _fn=None, _fa=None, _fs=None
+    l, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None
 ):
     """One row of the named cut sub-path, repeated to span *l* (BOSL2 _partition_cutpath())."""
     cs = (
@@ -194,7 +194,7 @@ def _partition_cutpath(
     sub = (
         [list(p) for p in cutpath]
         if isinstance(cutpath, (list, tuple, np.ndarray))
-        else _partition_subpath(cutpath, _fn, _fa, _fs)
+        else _partition_subpath(cutpath, fn, fa, fs)
     )
     reps_raw = 1 + math.floor((l - cs[0]) / (cs[0] + gap))
     reps = reps_raw - 1 if (reps_raw % 2 == 0 and cutpath_centered) else reps_raw
@@ -218,9 +218,9 @@ def _ptn_sect(
     length: float = 25,
     width: float = 25,
     invert=False,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ):
     """One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect())."""
     from bosl2.shapes2d import arc, _frag_count
@@ -229,26 +229,22 @@ def _ptn_sect(
         assert cptype > 0, "flat section length must be positive."
         return [[0, 0], [float(cptype), 0]]
     if invert:
-        return _yscale(-1, _ptn_sect(cptype, length, width, _fn=_fn, _fa=_fa, _fs=_fs))
+        return _yscale(-1, _ptn_sect(cptype, length, width, fn=fn, fa=fa, fs=fs))
 
     if isinstance(cptype, str) and " " in cptype:
         pos = cptype.rfind(" ")
         opt = cptype[pos + 1 :]
         base = cptype[:pos]
         if opt == "yflip":
-            return _yscale(
-                -1, _ptn_sect(base, length, width, _fn=_fn, _fa=_fa, _fs=_fs)
-            )
+            return _yscale(-1, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs))
         if opt == "xflip":
-            sect = _ptn_sect(base, length, width, _fn=_fn, _fa=_fa, _fs=_fs)
+            sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             b = pointlist_bounds(sect)
             xpos = (b[1][0] + b[0][0]) / 2
             return _xflip(xpos, sect)[::-1]
         if opt in ("addflip", "wave"):
-            sect1 = _ptn_sect(base, length, width, _fn=_fn, _fa=_fa, _fs=_fs)
-            sect2 = _ptn_sect(
-                base + " yflip xflip", length, width, _fn=_fn, _fa=_fa, _fs=_fs
-            )
+            sect1 = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
+            sect2 = _ptn_sect(base + " yflip xflip", length, width, fn=fn, fa=fa, fs=fs)
             b1, b2 = pointlist_bounds(sect1), pointlist_bounds(sect2)
             osect1 = _scale2(0.5, 0.5, _left(b1[0][0], sect1))
             osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2[0][0], sect2)))
@@ -258,7 +254,7 @@ def _ptn_sect(
         ):  # "3x": repeat
             reps = int(opt[:-1])
             assert reps > 0, "repetition count must be positive."
-            sect = _ptn_sect(base, length, width, _fn=_fn, _fa=_fa, _fs=_fs)
+            sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             w = sect[-1][0]
             out = []
             for i in range(reps):
@@ -268,21 +264,19 @@ def _ptn_sect(
             parts = opt.split("x")
             assert len(parts) == 2, "size modifier must be LENGTHxWIDTH, e.g. '30x25'."
             return _ptn_sect(
-                base, float(parts[0]), float(parts[1]), _fn=_fn, _fa=_fa, _fs=_fs
+                base, float(parts[0]), float(parts[1]), fn=fn, fa=fa, fs=fs
             )
         if opt.startswith("skew:"):
             angle = float(opt[5:])
             assert -45 <= angle <= 45, "skew angle must be between -45 and 45."
-            return _skew(
-                angle, _ptn_sect(base, length, width, _fn=_fn, _fa=_fa, _fs=_fs)
-            )
+            return _skew(angle, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs))
         if opt.startswith("pinch:"):
             val_str = opt[6:]
             is_deg = val_str.endswith("deg")
             is_pct = val_str.endswith("%")
             num_str = val_str[:-3] if is_deg else val_str[:-1] if is_pct else val_str
             val = float(num_str)
-            raw = _ptn_sect(base, length, width, _fn=_fn, _fa=_fa, _fs=_fs)
+            raw = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             xs = [p[0] for p in raw]
             minx, maxx = min(xs), max(xs)
             w_half, midx = (maxx - minx) / 2, (minx + maxx) / 2
@@ -310,8 +304,8 @@ def _ptn_sect(
         raise AssertionError(f"Bad section option: {opt!r}")
 
     if cptype == "sinewave":
-        return _ptn_sect("halfsine addflip", length, width, _fn=_fn, _fa=_fa, _fs=_fs)
-    steps = _frag_count(length / 2, _fn, _fa, _fs)
+        return _ptn_sect("halfsine addflip", length, width, fn=fn, fa=fa, fs=fs)
+    steps = _frag_count(length / 2, fn, fa, fs)
     if cptype == "flat":
         path = [[0, 0], [1, 0]]
     elif cptype == "sawtooth":
@@ -379,9 +373,9 @@ def _ptn_sect(
                     center=[0, 5 / 16],
                     start=270,
                     angle=125,
-                    _fn=_fn,
-                    _fa=_fa,
-                    _fs=_fs,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
             )
             + list(
@@ -391,9 +385,9 @@ def _ptn_sect(
                     center=[1 / 2, 11 / 16],
                     start=215,
                     angle=-250,
-                    _fn=_fn,
-                    _fa=_fa,
-                    _fs=_fs,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
             )
             + list(
@@ -403,9 +397,9 @@ def _ptn_sect(
                     center=[1, 5 / 16],
                     start=145,
                     angle=125,
-                    _fn=_fn,
-                    _fa=_fa,
-                    _fs=_fs,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
             )
         )
@@ -423,9 +417,9 @@ def partition_path(
     altpath=None,
     seglen: float = 25,
     segwidth: float = 25,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ):
     """Build a 2-D interlocking cut path from a list of segment descriptors (BOSL2 partition_path()).
 
@@ -452,7 +446,7 @@ def partition_path(
 
         .. pythonscad-example::
 
-            wall = partition_path([40, "jigsaw", 10, "jigsaw yflip", 40], _fn=24)
+            wall = partition_path([40, "jigsaw", 10, "jigsaw yflip", 40], fn=24)
             wall.stroke(width=3).linear_extrude(height=30).show()
     """
     from bosl2.paths import Path
@@ -463,9 +457,9 @@ def partition_path(
             if isinstance(pd, (list, tuple, np.ndarray)):
                 paths.append([[float(a), float(b)] for a, b in pd])
             elif is_num(pd):
-                paths.append(_ptn_sect(pd, _fn=_fn, _fa=_fa, _fs=_fs))
+                paths.append(_ptn_sect(pd, fn=fn, fa=fa, fs=fs))
             elif isinstance(pd, str):
-                paths.append(_ptn_sect(pd, seglen, segwidth, _fn=_fn, _fa=_fa, _fs=_fs))
+                paths.append(_ptn_sect(pd, seglen, segwidth, fn=fn, fa=fa, fs=fs))
             else:
                 raise AssertionError(f"Path descriptor {pd!r} is invalid.")
     min_xs = [min(p[0] for p in path) for path in paths]
@@ -537,9 +531,9 @@ def _partition_mask_shape(
     cutpath_centered,
     inverse,
     slop,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ):
     """Native geometry for a partition mask (removes half, leaving an interlocking edge)."""
     from pythonscad import polygon as _polygon, square as _square
@@ -549,7 +543,7 @@ def _partition_mask_shape(
         if isinstance(cutsize, (list, tuple, np.ndarray))
         else [cutsize * 2, cutsize]
     )
-    path = _partition_cutpath(l, h, cs, cutpath, gap, cutpath_centered, _fn, _fa, _fs)
+    path = _partition_cutpath(l, h, cs, cutpath, gap, cutpath_centered, fn, fa, fs)
     ww = w * (-1 if inverse else 1)
     fullpath = list(path) + [[path[-1][0], ww], [path[0][0], ww]]
     poly = _polygon([[float(x), float(y)] for x, y in fullpath])
@@ -569,9 +563,9 @@ def partition_mask(
     cutpath_centered=True,
     inverse=False,
     slop=0.0,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ):
     """A mask to remove half of an object, leaving an interlocking edge (BOSL2 partition_mask()).
 
@@ -602,9 +596,9 @@ def partition_mask(
             cutpath_centered,
             inverse,
             slop,
-            _fn,
-            _fa,
-            _fs,
+            fn,
+            fa,
+            fs,
         )
     )
 
@@ -617,9 +611,9 @@ def partition_cut_mask(
     gap=0,
     cutpath_centered=True,
     slop=0.1,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ):
     """A thin mask to cut an object into two mating pieces (BOSL2 partition_cut_mask()).
 
@@ -635,7 +629,7 @@ def partition_cut_mask(
         else [cutsize * 2, cutsize]
     )
     path = _partition_cutpath(
-        length, height, cs, cutpath, gap, cutpath_centered, _fn, _fa, _fs
+        length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs
     )
     ribbon = _stroke(path, width=max(0.1, slop * 2))
     return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
@@ -797,9 +791,9 @@ class Partitionable:
         cutpath_centered=True,
         spin=0,
         slop=0.0,
-        _fn=None,
-        _fa=None,
-        _fs=None,
+        fn=None,
+        fa=None,
+        fs=None,
     ):
         """Cut this solid into two interlocking pieces, spread apart (BOSL2 partition()).
 
@@ -832,9 +826,9 @@ class Partitionable:
                 cutpath_centered,
                 inverse,
                 slop,
-                _fn,
-                _fa,
-                _fs,
+                fn,
+                fa,
+                fs,
             )
             mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center])
             move = vec if idx == 0 else -vec

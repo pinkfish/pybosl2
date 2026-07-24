@@ -39,8 +39,7 @@ PATCH = (
 def _render(tmp_path, expr, setup="", name="obj"):
     out = tmp_path / f"{name}.stl"
     res = render_object(expr, out, setup=setup)
-    if not res.ok:
-        pytest.skip(f"render failed: {res.error}\n{res.stderr[-600:]}")
+    assert res.ok, f"render failed for {name}: {res.error}\n{res.stderr[-600:]}"
     return stl_metrics(out)
 
 
@@ -56,8 +55,7 @@ def _render_golden(tmp_path, expr, name, setup="", *, update=False):
     """
     out = tmp_path / f"{name}.stl"
     res = render_object(expr, out, setup=setup, export_format="binstl")
-    if not res.ok:
-        pytest.skip(f"render failed: {res.error}\n{res.stderr[-600:]}")
+    assert res.ok, f"render failed for {name}: {res.error}\n{res.stderr[-600:]}"
     golden = GOLDEN_DIR / f"{name}.stl"
     _update = update or os.environ.get("UPDATE_GOLDENS") == "1"
     if _update:
@@ -92,7 +90,7 @@ def test_prismoid_frustum_volume(tmp_path):
 def test_cylinder_volume(tmp_path):
     # true volume pi*r^2*height = pi*25*20 ~= 1570.8; a 64-gon inscribes slightly under it
     true_vol = math.pi * 25 * 20
-    m = _render(tmp_path, "s3.cyl(height=20, radius=5, _fn=64)", name="cyl")
+    m = _render(tmp_path, "s3.cyl(height=20, radius=5, fn=64)", name="cyl")
     assert math.isclose(m.size[2], 20.0, abs_tol=1e-3)
     np.testing.assert_allclose(m.size[:2], [10, 10], atol=0.1)
     assert 0.99 * true_vol < m.volume < true_vol
@@ -101,7 +99,7 @@ def test_cylinder_volume(tmp_path):
 
 def test_sphere_volume(tmp_path):
     true_vol = 4 / 3 * math.pi * 10**3
-    m = _render(tmp_path, "s3.sphere(radius=10, _fn=64)", name="sphere")
+    m = _render(tmp_path, "s3.sphere(radius=10, fn=64)", name="sphere")
     np.testing.assert_allclose(m.size, [20, 20, 20], atol=0.4)
     assert 0.95 * true_vol < m.volume < true_vol  # faceting under-fills the true sphere
     assert m.watertight
@@ -117,7 +115,9 @@ def test_regular_prism_height_and_solid(tmp_path):
 def test_tube_is_hollow(tmp_path):
     # a tube encloses less than the solid outer cylinder of the same radius/height
     m = _render(
-        tmp_path, "s3.tube(height=10, outer_radius=10, inner_radius=6)", name="tube"
+        tmp_path,
+        "s3.tube(height=10, outer_radius=10, inner_radius=6, fn=48)",
+        name="tube",
     )
     assert math.isclose(m.size[2], 10.0, abs_tol=1e-3)
     solid_outer = math.pi * 10**2 * 10
@@ -742,7 +742,7 @@ def test_half_of_auto_sizes_from_bbox(tmp_path):
 
 
 def test_jigsaw_cut_path_half(tmp_path):
-    setup = "center = partition_path([60, 'jigsaw', 60], _fn=16)\n"
+    setup = "center = partition_path([60, 'jigsaw', 60], fn=16)\n"
     m = _render(
         tmp_path,
         "s3.cuboid([120, 40, 20]).back_half(cut_path=center)",
@@ -766,7 +766,7 @@ def test_partition_two_pieces_conserve_volume(tmp_path):
 
 
 def test_partition_single_piece_is_interlocking_half(tmp_path):
-    setup = "obj0 = s3.cuboid([60, 40, 20]).partition(spread=0, cutpath='jigsaw', _fn=16)[0]\n"
+    setup = "obj0 = s3.cuboid([60, 40, 20]).partition(spread=0, cutpath='jigsaw', fn=16)[0]\n"
     m = _render(tmp_path, "obj0", setup=setup, name="partback")
     assert math.isclose(m.volume, 60 * 40 * 20 / 2, rel_tol=1e-2)  # each piece is ~half
     assert m.watertight
@@ -820,7 +820,7 @@ def test_path_extrude2d_takes_a_factory(tmp_path):
     setup = "route = Path([[0, 0], [30, 0]], closed=False)\n"
     m = _render(
         tmp_path,
-        "route.path_extrude2d(lambda: s2.circle(radius=4, _fn=16))",
+        "route.path_extrude2d(lambda: s2.circle(radius=4, fn=16))",
         setup=setup,
         name="pe2dfac",
     )
@@ -832,7 +832,7 @@ def test_path_extrude_3d_path(tmp_path):
     setup = "route = Path3D([[0, 0, 0], [30, 0, 10], [30, 30, 20], [0, 30, 30]], closed=False)\n"
     m = _render(
         tmp_path,
-        "route.path_extrude(s2.circle(radius=4, _fn=16))",
+        "route.path_extrude(s2.circle(radius=4, fn=16))",
         setup=setup,
         name="pe3d",
     )
@@ -843,7 +843,7 @@ def test_path_extrude_3d_path(tmp_path):
 def test_extrude_from_to_column(tmp_path):
     m = _render(
         tmp_path,
-        "extrude_from_to(s2.circle(radius=4, _fn=24), [0, 0, 0], [0, 0, 30])",
+        "extrude_from_to(s2.circle(radius=4, fn=24), [0, 0, 0], [0, 0, 30])",
         name="eft",
     )
     assert math.isclose(m.size[2], 30.0, abs_tol=1e-2)
@@ -981,7 +981,7 @@ def test_round_corners_3d_path(tmp_path):
 def test_threaded_rod_iso(tmp_path):
     # an ISO M12x1.75 rod: major diameter 12, length 24, minor = 12 - 2*(cos30*5/8)*1.75
     m = _render(
-        tmp_path, "Threading.threaded_rod(12, 24, 1.75, _fa=6, _fs=1)", name="isorod"
+        tmp_path, "Threading.threaded_rod(12, 24, 1.75, fa=6, fs=1)", name="isorod"
     )
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [12, 12], atol=0.1)  # major diameter
@@ -995,10 +995,10 @@ def test_threaded_rod_iso(tmp_path):
 @pytest.mark.parametrize(
     "expr,name,dia",
     [
-        ("Threading.trapezoidal_threaded_rod(20, 30, 4, _fa=6, _fs=1)", "traprod", 20),
-        ("Threading.acme_threaded_rod(20, 30, 4, _fa=6, _fs=1)", "acmerod", 20),
-        ("Threading.square_threaded_rod(20, 30, 4, _fa=6, _fs=1)", "sqrod", 20),
-        ("Threading.buttress_threaded_rod(20, 30, 4, _fa=6, _fs=1)", "buttrod", 20),
+        ("Threading.trapezoidal_threaded_rod(20, 30, 4, fa=6, fs=1)", "traprod", 20),
+        ("Threading.acme_threaded_rod(20, 30, 4, fa=6, fs=1)", "acmerod", 20),
+        ("Threading.square_threaded_rod(20, 30, 4, fa=6, fs=1)", "sqrod", 20),
+        ("Threading.buttress_threaded_rod(20, 30, 4, fa=6, fs=1)", "buttrod", 20),
     ],
 )
 def test_threaded_rod_variants_watertight(tmp_path, expr, name, dia):
@@ -1011,13 +1011,13 @@ def test_threaded_rod_variants_watertight(tmp_path, expr, name, dia):
 def test_multistart_and_left_handed(tmp_path):
     a = _render(
         tmp_path,
-        "Threading.threaded_rod(16, 24, 2, starts=2, _fa=6, _fs=1)",
+        "Threading.threaded_rod(16, 24, 2, starts=2, fa=6, fs=1)",
         name="ms2",
     )
     assert a.watertight and math.isclose(a.size[2], 24.0, abs_tol=0.05)
     b = _render(
         tmp_path,
-        "Threading.threaded_rod(12, 24, 1.75, left_handed=True, _fa=6, _fs=1)",
+        "Threading.threaded_rod(12, 24, 1.75, left_handed=True, fa=6, fs=1)",
         name="lh",
     )
     assert b.watertight
@@ -1028,7 +1028,7 @@ def test_threaded_hex_nut(tmp_path):
     # a hex nut for an M12 rod: flat-to-flat 18, corner-to-corner ~20.8, height 10, threaded hole
     m = _render(
         tmp_path,
-        "Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1, _fa=6, _fs=1)",
+        "Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1)",
         name="hexnut",
     )
     assert m.watertight
@@ -1040,7 +1040,7 @@ def test_threaded_hex_nut(tmp_path):
 def test_threaded_square_nut(tmp_path):
     m = _render(
         tmp_path,
-        "Threading.trapezoidal_threaded_nut(24, 16, 12, 3, shape='square', slop=0.1, _fa=6, _fs=1)",
+        "Threading.trapezoidal_threaded_nut(24, 16, 12, 3, shape='square', slop=0.1, fa=6, fs=1)",
         name="sqnut",
     )
     assert m.watertight
@@ -1051,7 +1051,7 @@ def test_threaded_square_nut(tmp_path):
 def test_thread_helix_ridge(tmp_path):
     m = _render(
         tmp_path,
-        "Threading.thread_helix(20, 4, turns=3, _fa=6, _fs=1)",
+        "Threading.thread_helix(20, 4, turns=3, fa=6, fs=1)",
         name="threadhelix",
     )
     assert m.volume > 0
@@ -1066,7 +1066,7 @@ def test_screw_socket_head(tmp_path):
     # whole solid is 26 tall and 10 wide at the head.
     m = _render(
         tmp_path,
-        "Screws.screw('M6', 20, head='socket', drive='hex', _fa=6, _fs=1)",
+        "Screws.screw('M6', 20, head='socket', drive='hex', fa=6, fs=1)",
         name="scrsocket",
     )
     assert m.watertight
@@ -1077,7 +1077,7 @@ def test_screw_socket_head(tmp_path):
 def test_screw_hex_head(tmp_path):
     # M8 hex head: across-flats 13 (corner-to-corner ~15), head height 5.3 above a 16 mm shaft.
     m = _render(
-        tmp_path, "Screws.screw('M8', 16, head='hex', _fa=6, _fs=1)", name="scrhex"
+        tmp_path, "Screws.screw('M8', 16, head='hex', fa=6, fs=1)", name="scrhex"
     )
     assert m.watertight
     assert math.isclose(
@@ -1089,7 +1089,7 @@ def test_screw_hex_head(tmp_path):
 def test_screw_flat_head_countersunk(tmp_path):
     # M6 countersunk: the head is a 90-degree cone, so it adds only (11.085-6)/2 ~ 2.54 above the shaft.
     m = _render(
-        tmp_path, "Screws.screw('M6', 16, head='flat', _fa=6, _fs=1)", name="scrflat"
+        tmp_path, "Screws.screw('M6', 16, head='flat', fa=6, fs=1)", name="scrflat"
     )
     assert m.watertight
     np.testing.assert_allclose(
@@ -1105,7 +1105,7 @@ def test_screw_heads_watertight(tmp_path, head, name):
     drive = "hex" if head in ("button", "none") else "none"
     m = _render(
         tmp_path,
-        f"Screws.screw('M6', 16, head='{head}', drive='{drive}', _fa=6, _fs=1)",
+        f"Screws.screw('M6', 16, head='{head}', drive='{drive}', fa=6, fs=1)",
         name=name,
     )
     assert m.watertight
@@ -1118,12 +1118,12 @@ def test_screw_recess_removes_volume(tmp_path):
     # the hex drive recess must actually cut material out of the head.
     solid = _render(
         tmp_path,
-        "Screws.screw('M8', 16, head='socket', drive='none', _fa=6, _fs=1)",
+        "Screws.screw('M8', 16, head='socket', drive='none', fa=6, fs=1)",
         name="norec",
     )
     drilled = _render(
         tmp_path,
-        "Screws.screw('M8', 16, head='socket', drive='hex', _fa=6, _fs=1)",
+        "Screws.screw('M8', 16, head='socket', drive='hex', fa=6, fs=1)",
         name="rec",
     )
     assert drilled.watertight
@@ -1132,7 +1132,7 @@ def test_screw_recess_removes_volume(tmp_path):
 
 def test_nut_matches_thread(tmp_path):
     # an M6 hex nut: flat-to-flat 10, normal thickness 5.2, threaded hole.
-    m = _render(tmp_path, "Screws.nut('M6', slop=0.1, _fa=6, _fs=1)", name="scrnut")
+    m = _render(tmp_path, "Screws.nut('M6', slop=0.1, fa=6, fs=1)", name="scrnut")
     assert m.watertight
     assert math.isclose(min(m.size[:2]), 10.0, abs_tol=0.3)  # flat-to-flat
     assert math.isclose(m.size[2], 5.2, abs_tol=0.1)  # normal thickness
@@ -1142,7 +1142,7 @@ def test_nut_matches_thread(tmp_path):
 def test_square_nut(tmp_path):
     m = _render(
         tmp_path,
-        "Screws.nut('M6', shape='square', slop=0.1, _fa=6, _fs=1)",
+        "Screws.nut('M6', shape='square', slop=0.1, fa=6, fs=1)",
         name="sqscrnut",
     )
     assert m.watertight
@@ -1151,7 +1151,7 @@ def test_square_nut(tmp_path):
 
 def test_screw_hole_clearance(tmp_path):
     # a normal-fit clearance hole for M6 is a plain cylinder of diameter 6 + 2*0.5 = 7.
-    m = _render(tmp_path, "Screws.screw_hole('M6', 20, _fa=6, _fs=1)", name="clrhole")
+    m = _render(tmp_path, "Screws.screw_hole('M6', 20, fa=6, fs=1)", name="clrhole")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [7, 7], atol=0.2)
     assert math.isclose(m.size[2], 20.0, abs_tol=0.05)
@@ -1161,7 +1161,7 @@ def test_screw_hole_countersink(tmp_path):
     # a flat-head clearance hole flares out to the countersink diameter at the top.
     m = _render(
         tmp_path,
-        "Screws.screw_hole('M6', 20, head='flat', _fa=6, _fs=1)",
+        "Screws.screw_hole('M6', 20, head='flat', fa=6, fs=1)",
         name="cskhole",
     )
     assert m.watertight
@@ -1307,7 +1307,7 @@ def test_separate_extracts_one_lump(tmp_path):
 
 def test_circle_extruded(tmp_path):
     m = _render(
-        tmp_path, "s2.circle(radius=10, _fn=48).linear_extrude(height=5)", name="circle"
+        tmp_path, "s2.circle(radius=10, fn=48).linear_extrude(height=5)", name="circle"
     )
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [20, 20], atol=0.3)
@@ -1329,7 +1329,7 @@ def test_square_extruded(tmp_path):
 def test_rect_rounded_extruded(tmp_path):
     m = _render(
         tmp_path,
-        "s2.rect([30, 20], rounding=4, _fn=32).linear_extrude(height=5)",
+        "s2.rect([30, 20], rounding=4, fn=32).linear_extrude(height=5)",
         name="rect_round",
     )
     assert m.watertight
@@ -1340,7 +1340,7 @@ def test_rect_rounded_extruded(tmp_path):
 def test_ellipse_extruded(tmp_path):
     m = _render(
         tmp_path,
-        "s2.ellipse(radius=[15, 10], _fn=48).linear_extrude(height=5)",
+        "s2.ellipse(radius=[15, 10], fn=48).linear_extrude(height=5)",
         name="ellipse",
     )
     assert m.watertight
@@ -1360,7 +1360,7 @@ def test_regular_ngon_extruded(tmp_path):
 def test_regular_ngon_rounded_extruded(tmp_path):
     m = _render_golden(
         tmp_path,
-        "s2.regular_ngon(5, radius=10, rounding=3, _fn=36).linear_extrude(height=6)",
+        "s2.regular_ngon(5, radius=10, rounding=3, fn=36).linear_extrude(height=6)",
         name="pent_round",
     )
     assert m.watertight
@@ -1380,7 +1380,7 @@ def test_star_extruded(tmp_path):
 def test_teardrop2d_extruded(tmp_path):
     m = _render_golden(
         tmp_path,
-        "s2.teardrop2d(radius=10, angle=45, _fn=32).linear_extrude(height=5)",
+        "s2.teardrop2d(radius=10, angle=45, fn=32).linear_extrude(height=5)",
         name="teardrop2d",
     )
     assert m.volume > 0
@@ -1389,7 +1389,7 @@ def test_teardrop2d_extruded(tmp_path):
 def test_egg_extruded(tmp_path):
     m = _render_golden(
         tmp_path,
-        "s2.egg(length=50, radius1=10, radius2=6, arc_radius=30, _fn=32).linear_extrude(height=5)",
+        "s2.egg(length=50, radius1=10, radius2=6, arc_radius=30, fn=32).linear_extrude(height=5)",
         name="egg",
     )
     assert m.watertight
@@ -1399,7 +1399,7 @@ def test_egg_extruded(tmp_path):
 def test_glued_circles_extruded(tmp_path):
     m = _render_golden(
         tmp_path,
-        "s2.glued_circles(radius=10, spread=30, tangent=30, _fn=32).linear_extrude(height=5)",
+        "s2.glued_circles(radius=10, spread=30, tangent=30, fn=32).linear_extrude(height=5)",
         name="glued",
     )
     assert m.watertight
@@ -1409,7 +1409,7 @@ def test_glued_circles_extruded(tmp_path):
 def test_reuleaux_polygon_extruded(tmp_path):
     m = _render_golden(
         tmp_path,
-        "s2.reuleaux_polygon(3, radius=10, _fn=48).linear_extrude(height=5)",
+        "s2.reuleaux_polygon(3, radius=10, fn=48).linear_extrude(height=5)",
         name="reuleaux",
     )
     assert m.watertight
@@ -1421,7 +1421,7 @@ def test_reuleaux_polygon_extruded(tmp_path):
 
 def test_cuboid_rounding_watertight(tmp_path):
     m = _render(
-        tmp_path, "s3.cuboid([40, 30, 20], rounding=5, _fn=32)", name="cuboid_round"
+        tmp_path, "s3.cuboid([40, 30, 20], rounding=5, fn=32)", name="cuboid_round"
     )
     assert m.watertight
     assert m.volume > 0
@@ -1437,7 +1437,7 @@ def test_cuboid_chamfer_watertight(tmp_path):
 def test_cuboid_edges_rounding(tmp_path):
     m = _render(
         tmp_path,
-        "s3.cuboid([40, 30, 20], rounding=3, edges=TOP, _fn=24)",
+        "s3.cuboid([40, 30, 20], rounding=3, edges=TOP, fn=24)",
         name="cuboid_topround",
     )
     assert m.watertight
@@ -1446,30 +1446,28 @@ def test_cuboid_edges_rounding(tmp_path):
 
 def test_cylinder_chamfered(tmp_path):
     m = _render_golden(
-        tmp_path, "s3.cyl(height=20, radius=5, chamfer=2, _fn=64)", name="cyl_chamf"
+        tmp_path, "s3.cyl(height=20, radius=5, chamfer=2, fn=64)", name="cyl_chamf"
     )
     assert m.volume > 0
 
 
 def test_cylinder_rounded(tmp_path):
     m = _render(
-        tmp_path, "s3.cyl(height=20, radius=5, rounding=2, _fn=64)", name="cyl_round"
+        tmp_path, "s3.cyl(height=20, radius=5, rounding=2, fn=64)", name="cyl_round"
     )
     assert m.watertight
     assert m.volume > 0
 
 
 def test_cylinder_cone(tmp_path):
-    m = _render(
-        tmp_path, "s3.cyl(height=20, radius1=8, radius2=3, _fn=64)", name="cone"
-    )
+    m = _render(tmp_path, "s3.cyl(height=20, radius1=8, radius2=3, fn=64)", name="cone")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [16, 16], atol=0.2)
     assert math.isclose(m.size[2], 20.0, abs_tol=1e-3)
 
 
 def test_spheroid_shape(tmp_path):
-    m = _render_golden(tmp_path, "s3.spheroid(radius=15, _fn=48)", name="spheroid")
+    m = _render_golden(tmp_path, "s3.spheroid(radius=15, fn=48)", name="spheroid")
     assert m.watertight
     assert m.volume > 0
 
@@ -1477,7 +1475,7 @@ def test_spheroid_shape(tmp_path):
 def test_regular_prism_rounded(tmp_path):
     m = _render_golden(
         tmp_path,
-        "s3.regular_prism(5, height=12, radius=10, rounding=2, _fn=32)",
+        "s3.regular_prism(5, height=12, radius=10, rounding=2, fn=32)",
         name="pentprism_round",
     )
     assert m.volume > 0
@@ -1486,7 +1484,7 @@ def test_regular_prism_rounded(tmp_path):
 def test_tube_chamfered(tmp_path):
     m = _render_golden(
         tmp_path,
-        "s3.tube(height=12, outer_radius=10, inner_radius=6)",
+        "s3.tube(height=12, outer_radius=10, inner_radius=6, fa=6, fs=1)",
         name="tube_chamf",
     )
     assert m.watertight
@@ -1495,7 +1493,7 @@ def test_tube_chamfered(tmp_path):
 
 def test_torus_shape(tmp_path):
     m = _render_golden(
-        tmp_path, "s3.torus(major_radius=12, minor_radius=3)", name="torus"
+        tmp_path, "s3.torus(major_radius=12, minor_radius=3, fn=48)", name="torus"
     )
     assert m.watertight
     assert m.volume > 0
@@ -1529,7 +1527,7 @@ def test_spur_gear_builds(tmp_path):
 def test_hinge_knuckle_builds(tmp_path):
     m = _render_golden(
         tmp_path,
-        "Hinges.knuckle_hinge(length=30, knuckle_diam=6, pin_diam=2, arm=18, thick=3, _fn=32)",
+        "Hinges.knuckle_hinge(length=30, knuckle_diam=6, pin_diam=2, arm=18, thick=3, fn=32)",
         name="knuckle_hinge",
     )
     assert m.watertight
@@ -1569,7 +1567,7 @@ def test_polyhedra_icosahedron(tmp_path):
 
 
 def test_screw_drive_phillips_mask(tmp_path):
-    m = _render(tmp_path, "ScrewDrive.phillips_mask('#2', _fn=24)", name="phillips")
+    m = _render(tmp_path, "ScrewDrive.phillips_mask('#2', fn=24)", name="phillips")
     assert m.volume > 0
     assert m.watertight
 
@@ -1577,7 +1575,7 @@ def test_screw_drive_phillips_mask(tmp_path):
 def test_nema_stepper_motor(tmp_path):
     m = _render(
         tmp_path,
-        "NemaSteppers.nema_mount_mask(size=17, depth=5, _fn=24)",
+        "NemaSteppers.nema_mount_mask(size=17, depth=5, fn=24)",
         name="nema_mask",
     )
     assert m.volume > 0

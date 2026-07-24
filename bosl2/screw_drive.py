@@ -185,13 +185,19 @@ class ScrewDrive:
     # ---- Phillips --------------------------------------------------------
 
     @staticmethod
-    def phillips_mask(size="#2", center: bool = False, _fn: int = 36) -> Bosl2Solid:
+    def phillips_mask(
+        size="#2",
+        center: bool = False,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Bosl2Solid:
         """A Phillips driver-recess mask for the given Phillips *size* (BOSL2 phillips_mask()).
 
         Args:
             size: bit size as ``"#0"``..``"#4"`` or an integer ``0``..``4``.
             center: center the mask vertically (default: bottom on the XY plane).
-            _fn: facet count for the revolved body.
+            fn/fa/fs: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
 
         Examples:
             A #2 Phillips recess cut into a tapered head:
@@ -201,6 +207,8 @@ class ScrewDrive:
                 from bosl2.screw_drive import ScrewDrive
                 (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask(size="#2")).show()
         """
+        if fn is None and fa is None and fs is None:
+            fn = 36  # BOSL2 revolves the phillips body at a fixed $fn=36
         spec = _PHILLIPS[_phillips_num(size)]
         shaft, b, e, g = spec.shaft, spec.b, spec.e, spec.g
         alpha, beta, gamma = spec.alpha, spec.beta, _PH_GAMMA
@@ -229,7 +237,10 @@ class ScrewDrive:
         cutter = cutter.rotate([0, 0, 45])
 
         body = _orotate_extrude(
-            _opolygon([[0, 0], [g / 2, h1], [shaft / 2, length], [0, length]]), fn=_fn
+            _opolygon([[0, 0], [g / 2, h1], [shaft / 2, length], [0, length]]),
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
         mask = Bosl2Solid(body - cutter, size=[shaft, shaft, length])
         return mask.down(length / 2) if center else mask
@@ -313,18 +324,18 @@ class ScrewDrive:
 
         # Six outward lobes: two rotated copies of a hull of three tip circles, plus the base circle.
         tip_circles = [
-            circle(radius=tip, _fn=fn // 2)
+            circle(radius=tip, fn=fn // 2)
             .translate([base / 2, 0])
             .multmatrix(m.tolist())
             for m in zrot_copies(sides=3)
         ]
         tri = _ohull(*tip_circles)
         lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(sides=2))
-        solid = circle(diameter=base, _fn=fn) | lobes
+        solid = circle(diameter=base, fn=fn) | lobes
 
         # Six inner rounding cutouts.
         cut = _union(
-            circle(radius=rounding, _fn=fn)
+            circle(radius=rounding, fn=fn)
             .translate([id_ / 2 + rounding, 0])
             .rotate([0, 0, 180 / 6])
             .multmatrix(m.tolist())

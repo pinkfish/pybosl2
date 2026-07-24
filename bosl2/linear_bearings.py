@@ -132,7 +132,9 @@ class LinearBearings:
         wall: float = 3,
         tabwall: float = 5,
         screwsize: float = 3,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A pillow-block housing that clamps a linear bearing (bore *diameter*, length *length*) to a plate (BOSL2 linear_bearing_housing()).
 
@@ -146,9 +148,9 @@ class LinearBearings:
         # teardrop bearing shell + base + clamp tabs, then the bore, split gap and screw hole removed.
         body = _union(
             [
-                teardrop(diameter=outer_diameter, height=length).rotate(
-                    [0, 90, 0]
-                ),  # teardrop shell, axis along X
+                teardrop(
+                    diameter=outer_diameter, height=length, fn=fn, fa=fa, fs=fs
+                ).rotate([0, 90, 0]),  # teardrop shell, axis along X
                 cuboid([length, outer_diameter, outer_diameter / 2]).down(
                     outer_diameter / 4
                 ),  # base
@@ -157,15 +159,17 @@ class LinearBearings:
                 ),  # clamp tabs
             ]
         )
-        body = body - teardrop(diameter=diameter, height=length + 0.1).rotate(
-            [0, 90, 0]
-        )  # bearing bore
+        body = body - teardrop(
+            diameter=diameter, height=length + 0.1, fn=fn, fa=fa, fs=fs
+        ).rotate([0, 90, 0])  # bearing bore
         body = body - cuboid([length + 0.1, gap, outer_diameter])  # split gap
         # clamp screw across the tabs (a simple clearance hole)
         from bosl2.screws import Screws
 
         screw = (
-            Screws.screw_hole(f"M{screwsize:g}", length=ogap + 1, _fn=_fn or 16)
+            Screws.screw_hole(
+                f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs
+            )
             .rotate([90, 0, 0])
             .up(tabh)
         )
@@ -182,7 +186,9 @@ class LinearBearings:
         wall: float = 3,
         tabwall: float = 5,
         screwsize: float = 3,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmXuu_housing())."""
         spec = LinearBearings.lmXuu_info(size)
@@ -194,5 +200,7 @@ class LinearBearings:
             wall=wall,
             tabwall=tabwall,
             screwsize=screwsize,
-            _fn=_fn,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )

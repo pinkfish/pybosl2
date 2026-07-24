@@ -68,7 +68,9 @@ class Hooks:
         hole_rounding: float = 0,
         fillet: float = 0,
         outside_segments: int | None = None,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2 ring_hook()).
 
@@ -139,18 +141,26 @@ class Hooks:
             [bx, w], [2 * tx, w], height=tz, rounding=rounding if rounding else 0
         )  # anchor=BOTTOM: base on z=0
         ring = (
-            cyl(height=w, radius=ro, _fn=outside_segments if outside_segments else _fn)
+            cyl(
+                height=w,
+                radius=ro,
+                fn=outside_segments if outside_segments else fn,
+                fa=fa,
+                fs=fs,
+            )
             .rotate([90, 0, 0])
             .up(hole_z)
         )
         body = base | ring
 
         if ri > 0 or custom:
-            body = body - _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, _fn)
+            body = body - _hole_cutter(
+                hole, ri, w, hole_z, hole_rounding, custom, fn, fa, fs
+            )
         return Bosl2Solid(body.shape, size=[bx, w, hole_z + ro])
 
 
-def _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, _fn):
+def _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, fn, fa=None, fs=None):
     """The solid to subtract for the through-hole, laid along Y and centred at z=hole_z."""
     L = w + 2
     if custom:
@@ -158,7 +168,11 @@ def _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, _fn):
         cut = _opolygon(pts).linear_extrude(height=L, center=True)
         return Bosl2Solid(cut).rotate([90, 0, 0]).up(hole_z)
     rnd = hole_rounding if hole_rounding else None
-    bore = cyl(height=L, radius=ri, rounding=rnd, _fn=_fn).rotate([90, 0, 0]).up(hole_z)
+    bore = (
+        cyl(height=L, radius=ri, rounding=rnd, fn=fn, fa=fa, fs=fs)
+        .rotate([90, 0, 0])
+        .up(hole_z)
+    )
     if hole == "D":  # keep the upper half -> flat-bottomed D-hole
         upper = cuboid([2 * ri + 2, L + 2, 2 * ri]).up(hole_z + ri)
         bore = bore & upper

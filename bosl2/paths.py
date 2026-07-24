@@ -222,9 +222,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         radius: float | None = None,
         delta: float | None = None,
         chamfer: bool = False,
-        _fn: float | None = None,
-        _fa: float | None = None,
-        _fs: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Path":
         """Offset by *radius* (rounded joins) or *delta* (sharp/chamfered). See :meth:`_offset`.
 
@@ -238,9 +238,9 @@ class Path(Distributable, Extrudable, Roundable, list):
                 delta=delta,
                 chamfer=chamfer,
                 closed=self.closed,
-                _fn=_fn,
-                _fa=_fa,
-                _fs=_fs,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
         )
 
@@ -1315,15 +1315,15 @@ class Path(Distributable, Extrudable, Roundable, list):
     @staticmethod
     def _offset_segs(
         radius: float,
-        _fn: float | None = None,
-        _fa: float | None = None,
-        _fs: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> int:
         """OpenSCAD's $fn/$fa/$fs segment count for a circle of radius *radius* (BOSL2's segs())."""
-        if _fn is not None and _fn >= 3:
-            return int(math.floor(_fn))
-        fa = _fa if _fa else 12.0
-        fs = _fs if _fs else 2.0
+        if fn is not None and fn >= 3:
+            return int(math.floor(fn))
+        fa = fa if fa else 12.0
+        fs = fs if fs else 2.0
         return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(radius)) / fs))))
 
     @staticmethod
@@ -1333,9 +1333,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         delta: float | None = None,
         chamfer: bool = False,
         closed: bool = True,
-        _fn: float | None = None,
-        _fa: float | None = None,
-        _fs: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> list[list[float]]:
         """Offset a closed polygon by *radius* (rounded joins) or *delta* (sharp/chamfered joins).
 
@@ -1451,7 +1451,7 @@ class Path(Distributable, Extrudable, Roundable, list):
                 sweep = (end_deg - start_deg + 180) % 360 - 180
                 steps = (
                     math.ceil(
-                        Path._offset_segs(abs(amount), _fn, _fa, _fs) * abs(sweep) / 360
+                        Path._offset_segs(abs(amount), fn, fa, fs) * abs(sweep) / 360
                     )
                     + 1
                 )
@@ -1507,9 +1507,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         points: list[list[float]],
         diameter: float,
         radius: float,
-        _fn=None,
-        _fa=None,
-        _fs=None,
+        fn=None,
+        fa=None,
+        fs=None,
     ) -> list[list[float]]:
         # local: shapes2d imports pythonscad, which paths.py must stay importable without
         from bosl2.shapes2d import _frag_count, _arc_points
@@ -1533,9 +1533,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         center = [
             radius / math.sin(math.radians(angle)) * bis[i] + p1[i] for i in range(dim)
         ]
-        sides = max(
-            3, math.ceil((90 - angle) / 180 * _frag_count(radius, _fn, _fa, _fs))
-        )
+        sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, fn, fa, fs)))
         a0 = math.degrees(math.atan2(start[1] - center[1], start[0] - center[0]))
         a1 = math.degrees(math.atan2(end[1] - center[1], end[0] - center[0]))
         delta = (a1 - a0 + 180) % 360 - 180
@@ -1546,9 +1544,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         path: list[list[float]],
         radius: float | list[float] | None = None,
         closed: bool = True,
-        _fn: float | None = None,
-        _fa: float | None = None,
-        _fs: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> list[list[float]]:
         """Round every corner of a 2-D *path* to the given radius, inserting an arc at each vertex.
 
@@ -1557,7 +1555,7 @@ class Path(Distributable, Extrudable, Roundable, list):
             radius: rounding radius, a scalar (applied to every corner) or a per-vertex list
             radius:      synonym for radius
             closed: if True, treat path as a closed polygon (default True)
-            _fn/_fa/_fs: arc smoothness overrides
+            fn/fa/fs: arc smoothness overrides
         """
         sides = len(path)
         assert sides > 2, f"Path has length {sides}. Length must be 3 or more."
@@ -1586,9 +1584,7 @@ class Path(Distributable, Extrudable, Roundable, list):
                 out.append(path[i])
                 continue
             p0, p1, p2 = path[(i - 1) % sides], path[i], path[(i + 1) % sides]
-            out.extend(
-                Path._circlecorner([p0, p1, p2], dk[i][0], dk[i][1], _fn, _fa, _fs)
-            )
+            out.extend(Path._circlecorner([p0, p1, p2], dk[i][0], dk[i][1], fn, fa, fs))
         return Path._deduplicate(out, closed=closed)
 
 

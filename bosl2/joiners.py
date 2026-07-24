@@ -41,7 +41,9 @@ class Joiners:
         taper: float = 0,
         back_width: float | None = None,
         slop: float = 0.0,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A dovetail joint that slides along Y and flares upward in X (BOSL2 dovetail()).
 
@@ -90,7 +92,9 @@ class Joiners:
         snap: float = 2.2,
         clearance: float = 0.2,
         slot: float = 1.2,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A press-and-click snap pin: a slotted shaft with a barbed head (BOSL2 snap_pin()).
 
@@ -106,12 +110,17 @@ class Joiners:
                 from bosl2.joiners import Joiners
                 Joiners.snap_pin().show()
         """
-        shaft = cyl(height=length, diameter=diameter, _fn=_fn)
+        shaft = cyl(height=length, diameter=diameter, fn=fn, fa=fa, fs=fs)
         # barb: a downward-facing ratchet lip at the tip (wide at its base, tapering to the shaft).
         barb = cyl(
-            height=snap, diameter1=diameter + 2 * nub_depth, diameter2=diameter, _fn=_fn
+            height=snap,
+            diameter1=diameter + 2 * nub_depth,
+            diameter2=diameter,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         ).up(length / 2 - snap / 2)
-        tip = sphere(diameter=diameter, _fn=_fn).up(length / 2)
+        tip = sphere(diameter=diameter, fn=fn, fa=fa, fs=fs).up(length / 2)
         pin = shaft | barb | tip
         pin = pin - cuboid(
             [diameter + 2 * nub_depth + 1, slot, length + snap]
@@ -127,17 +136,23 @@ class Joiners:
         nub_depth: float = 0.6,
         snap: float = 2.2,
         clearance: float = 0.2,
-        _fn: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """The mating socket mask for a :meth:`snap_pin` -- difference it out of a part (BOSL2 snap_pin_socket()).
 
         A clearance bore with a relief groove that the pin's barb clicks into.
         """
-        bore = cyl(height=length + 1, diameter=diameter + 2 * clearance, _fn=_fn)
+        bore = cyl(
+            height=length + 1, diameter=diameter + 2 * clearance, fn=fn, fa=fa, fs=fs
+        )
         relief = cyl(
             height=snap + clearance,
             diameter=diameter + 2 * nub_depth + 2 * clearance,
-            _fn=_fn,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         ).up(length / 2 - snap / 2)
         return Bosl2Solid(
             (bore | relief).shape,

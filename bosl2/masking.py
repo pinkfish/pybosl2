@@ -61,9 +61,9 @@ def mask2d_roundover(
     inset: float | list[float] = 0,
     excess: float = 0.01,
     diameter: float | None = None,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> list[list[float]]:
     """The 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *radius*.
 
@@ -76,14 +76,14 @@ def mask2d_roundover(
         inset:  scalar or [x,y] inset of the rounding center from the corner (default 0)
         excess: amount the flat sides extend past the origin, for a clean boolean cut (default 0.01)
         diameter:      rounding diameter (alternative to radius)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     if radius is None:
         assert diameter is not None, "mask2d_roundover(): must give radius or diameter"
         radius = diameter / 2
     rad = radius
     inset_l = list(inset) if isinstance(inset, (list, tuple)) else [inset, inset]
-    steps = max(1, int(_quantup(_frag_count(rad, _fn, _fa, _fs), 4) // 4))
+    steps = max(1, int(_quantup(_frag_count(rad, fn, fa, fs), 4) // 4))
     step = 90.0 / steps
     path = [
         [rad + inset_l[0], -excess],
@@ -106,9 +106,9 @@ def rounding_edge_mask(
     diameter2: float | None = None,
     height: float | None = None,
     excess: float = 0.1,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """A standalone 3-D edge-rounding cutter of length *length*, for manual positioning (matching
     this project's existing `.rotate(...).translate(...)` usage rather than going through
@@ -121,7 +121,7 @@ def rounding_edge_mask(
         radius1/radius2:  rounding radius at each end, for a tapered cutter
         diameter/diameter1/diameter2: rounding diameter (both ends) / each end
         excess: amount the flat sides extend past the origin (default 0.1)
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = (
@@ -151,12 +151,12 @@ def rounding_edge_mask(
         )
     )
     if rad1 < rad2:
-        cross = mask2d_roundover(rad2, excess=excess, _fn=_fn, _fa=_fa, _fs=_fs)
+        cross = mask2d_roundover(rad2, excess=excess, fn=fn, fa=fa, fs=fs)
         shape = _opolygon(cross).linear_extrude(
             height=length, center=True, scale=rad1 / rad2
         )
         return shape.rotate(180, [1, 0, 0])
-    cross = mask2d_roundover(rad1, excess=excess, _fn=_fn, _fa=_fa, _fs=_fs)
+    cross = mask2d_roundover(rad1, excess=excess, fn=fn, fa=fa, fs=fs)
     scale = rad2 / rad1 if rad1 else 1
     return _opolygon(cross).linear_extrude(height=length, center=True, scale=scale)
 
@@ -353,16 +353,14 @@ def _corner_cutter(
     size: Sequence[float],
     corner_vec: Sequence[float],
     radius: float,
-    _fn=None,
-    _fa=None,
-    _fs=None,
+    fn=None,
+    fa=None,
+    fs=None,
 ) -> PyOpenSCAD:
     cube_center = [corner_vec[i] * (size[i] / 2 - radius / 2) for i in range(3)]
     sphere_center = [corner_vec[i] * (size[i] / 2 - radius) for i in range(3)]
     cube_shape = _ocube([radius, radius, radius], center=True).translate(cube_center)
-    sphere_shape = _osphere(radius=radius, fn=_fn, fa=_fa, fs=_fs).translate(
-        sphere_center
-    )
+    sphere_shape = _osphere(radius=radius, fn=fn, fa=fa, fs=fs).translate(sphere_center)
     return cube_shape - sphere_shape
 
 
@@ -377,9 +375,9 @@ def corner_profile(
     convexity: int = 10,
     anchor: Sequence[float] = CENTER,
     center: Sequence[float] | None = None,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """Round each selected corner of the box-shaped *body* to radius *radius* (cube-octant-minus-sphere).
 
@@ -398,7 +396,7 @@ def corner_profile(
         anchor:         the anchor *body* was built with (default CENTER); used only when `center`
                          isn't given
         center:         the box center in body's current frame; when given it's used directly
-        _fn/_fa/_fs:    arc smoothness overrides
+        fn/fa/fs:    arc smoothness overrides
     """
     if radius is None:
         assert diameter is not None, "corner_profile(): must give radius or diameter"
@@ -409,7 +407,7 @@ def corner_profile(
     cutter = None
     for idx, sel in enumerate(corner_set):
         if sel:
-            piece = _corner_cutter(size, CORNER_OFFSETS[idx], rad, _fn, _fa, _fs)
+            piece = _corner_cutter(size, CORNER_OFFSETS[idx], rad, fn, fa, fs)
             cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return body
@@ -429,9 +427,9 @@ def face_profile(
     convexity: int = 10,
     anchor: Sequence[float] = CENTER,
     center: Sequence[float] | None = None,
-    _fn: float | None = None,
-    _fa: float | None = None,
-    _fs: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> PyOpenSCAD:
     """Round all edges and corners bounding the given face(s) of the box-shaped *body* to radius *radius*.
 
@@ -449,16 +447,14 @@ def face_profile(
         anchor:    the anchor *body* was built with (default CENTER); used only when `center`
                    isn't given
         center:    the box center in body's current frame; when given it's used directly
-        _fn/_fa/_fs: arc smoothness overrides
+        fn/fa/fs: arc smoothness overrides
     """
     if radius is None:
         assert diameter is not None, "face_profile(): must give radius or diameter"
         radius = diameter / 2
     rad = radius
     mask = (
-        children
-        if children is not None
-        else mask2d_roundover(rad, _fn=_fn, _fa=_fa, _fs=_fs)
+        children if children is not None else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)
     )
     body = edge_profile(
         body,
@@ -477,7 +473,7 @@ def face_profile(
         convexity=convexity,
         anchor=anchor,
         center=center,
-        _fn=_fn,
-        _fa=_fa,
-        _fs=_fs,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
