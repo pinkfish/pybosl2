@@ -28,15 +28,21 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
 import numpy as np
-from pythonscad import polygon as _opolygon
 
+from bosl2._native import native
 from bosl2.constants import INCH
 from bosl2.paths import Path
 from bosl2.shapes2d import _frag_count
 from bosl2.shapes3d import Bosl2Solid, cylinder
 from bosl2.vnf import VNF
+
+if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
+    from pythonscad import polygon as _opolygon
+else:
+    _opolygon = native("polygon")
 
 __all__ = ["Gears"]
 

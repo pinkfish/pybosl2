@@ -6,6 +6,7 @@ __pycache__/
 build/
 dist/
 .pytest_cache/
+monkeytype.sqlite3
 
 # Virtual environments
 .venv/

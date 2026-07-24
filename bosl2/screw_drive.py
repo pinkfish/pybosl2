@@ -25,22 +25,23 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-
-from pythonscad import (
-    hull as _ohull,
-)
-from pythonscad import (
-    polygon as _opolygon,
-)
-from pythonscad import (
-    rotate_extrude as _orotate_extrude,
-)
+from typing import TYPE_CHECKING
 
 from bosl2._helpers import union
+from bosl2._native import native
 from bosl2.constants import BOTTOM, INCH
 from bosl2.distributors import zrot_copies
 from bosl2.shapes2d import _frag_count, circle, hexagon
 from bosl2.shapes3d import Bosl2Solid, _quantup, cyl, prismoid
+
+if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
+    from pythonscad import hull as _ohull
+    from pythonscad import polygon as _opolygon
+    from pythonscad import rotate_extrude as _orotate_extrude
+else:
+    _ohull = native("hull")
+    _opolygon = native("polygon")
+    _orotate_extrude = native("rotate_extrude")
 
 __all__ = ["ScrewDrive", "PhillipsSpec", "TorxSpec", "RobertsonSpec"]
 

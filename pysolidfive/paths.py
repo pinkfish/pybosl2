@@ -31,6 +31,7 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 
 import libfive as lv
 import numpy as np
@@ -39,7 +40,7 @@ from numpy.typing import ArrayLike, NDArray
 from pysolidfive._edges import _pick_radius
 
 
-def as_path_list(paths) -> "list[NDArray[np.float64]]":
+def as_path_list(paths: list[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:
     """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a
     list of (n, 2) float arrays (the multi-outline entry-point convention polygon2d()/
     region2d() accept)."""
@@ -98,11 +99,11 @@ def _radius(
     return result
 
 
-def _lv_hypot(a, b):
+def _lv_hypot(a: float, b: float):
     return lv.sqrt(a * a + b * b)
 
 
-def _rect2d(u, v, bu: float, bv: float, amount: list[float], mode):
+def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | None) -> float:
     """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent
     per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one string for
     all four corners, or a per-corner list) -- given by `amount[i]` at each of its 4 corners.
@@ -132,7 +133,7 @@ def _rect2d(u, v, bu: float, bv: float, amount: list[float], mode):
     return lv.min(lv.min(candidates[0], candidates[1]), lv.min(candidates[2], candidates[3]))
 
 
-def _polygon_sdf_xy(x, y, pts: ArrayLike):
+def _polygon_sdf_xy(x: float, y: float, pts: ArrayLike):
     """Signed distance to an arbitrary SIMPLE polygon (convex or concave, either winding order)
     at the 2-D point (x, y) -- unlike polygon_extrude()'s max-of-half-planes (convex only),
     this handles concave outlines correctly. The zero set (the actual surface, and therefore
@@ -160,7 +161,7 @@ def _ccw(pts: NDArray[np.float64]) -> NDArray[np.float64]:
     return pts if area2 > 0 else pts[::-1]
 
 
-def _halfplane_max_sdf(x, y, ccw_pts: NDArray[np.float64]):
+def _halfplane_max_sdf(x: float, y: float, ccw_pts: NDArray[np.float64]):
     """max of signed half-plane distances over a CCW convex polygon's edges (zero-length edges
     skipped, tolerating duplicate points from densified/offset path data)."""
     d = None
@@ -178,7 +179,7 @@ def _halfplane_max_sdf(x, y, ccw_pts: NDArray[np.float64]):
     return d
 
 
-def _convex_deficiency_sdf(x, y, ccw_pts: NDArray[np.float64], _depth: int = 0):
+def _convex_deficiency_sdf(x: float, y: float, ccw_pts: NDArray[np.float64], _depth: int = 0):
     """See _polygon_sdf_xy(): CCW polygon as (convex hull) minus (recursive pockets)."""
     assert _depth < 16, "polygon decomposition recursed implausibly deep -- is the outline self-intersecting?"
     if _is_convex(ccw_pts):
@@ -231,7 +232,7 @@ def _convex_hull_indices(ccw_pts: NDArray[np.float64]) -> list[int]:
     return idx
 
 
-def _polygon_dist2_xy(x, y, pts: ArrayLike):
+def _polygon_dist2_xy(x: float, y: float, pts: ArrayLike):
     """UNSIGNED squared distance to the polygon outline `pts` at (x, y): the min over per-edge
     point-to-segment distances (the segment clamp is just min/max -- no atan2/winding needed,
     so unlike the signed form this stays branch-cut-free everywhere)."""
@@ -285,7 +286,7 @@ def _hull2d_points(pts: ArrayLike) -> NDArray[np.float64]:
     if len(unique) <= 2:
         return np.asarray([list(p) for p in unique], dtype=float)
 
-    def cross(o, a, b):
+    def cross(o: tuple[float, float], a: tuple[float, float], b: tuple[float, float]) -> float:
         return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
     lower: list = []
@@ -466,39 +467,39 @@ def _arc_through(
 # ---------------------------------------------------------------------------
 
 
-def _v_sub(a, b) -> NDArray[np.float64]:
+def _v_sub(a: Sequence[float], b: Sequence[float]) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
 
 
-def _v_add(a, b) -> NDArray[np.float64]:
+def _v_add(a: Sequence[float], b: Sequence[float]) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) + np.asarray(b, dtype=float)
 
 
-def _v_scale(a, s) -> NDArray[np.float64]:
+def _v_scale(a: Sequence[float], s: float) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) * float(s)
 
 
-def _v_norm(a) -> float:
+def _v_norm(a: Sequence[float]) -> float:
     return float(np.linalg.norm(np.asarray(a, dtype=float)))
 
 
-def _v_unit(a) -> NDArray[np.float64]:
+def _v_unit(a: Sequence[float]) -> NDArray[np.float64]:
     arr = np.asarray(a, dtype=float)
     n = float(np.linalg.norm(arr))
     assert n > 1e-12, "cannot normalize a zero vector"
     return arr / n
 
 
-def _v_dot(a, b) -> float:
+def _v_dot(a: Sequence[float], b: Sequence[float]) -> float:
     return float(np.asarray(a, dtype=float) @ np.asarray(b, dtype=float))
 
 
-def _lerp_pt(a, b, t) -> NDArray[np.float64]:
+def _lerp_pt(a: Sequence[float], b: Sequence[float], t: float) -> NDArray[np.float64]:
     aa = np.asarray(a, dtype=float)
     return aa + (np.asarray(b, dtype=float) - aa) * float(t)
 
 
-def line_normal(p1, p2) -> NDArray[np.float64]:
+def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]:
     """Unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --
     byte-for-byte the bosl2 port's convention."""
     return _v_unit([p1[1] - p2[1], p2[0] - p1[0]])
@@ -521,7 +522,7 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
 
     hs = np.asarray(h, dtype=float)
 
-    def dnu(f1, fc, f2, h1: float, h2: float) -> NDArray[np.float64]:
+    def dnu(f1: float, fc: float, f2: float, h1: float, h2: float) -> NDArray[np.float64]:
         g1 = _lerp_pt(fc, f1, h2 / h1) if h2 < h1 else f1
         g2 = _lerp_pt(fc, f2, h1 / h2) if h1 < h2 else f2
         return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (2 * min(h1, h2))
@@ -732,7 +733,7 @@ def path_length(path: ArrayLike, closed: bool = False) -> float:
     return total
 
 
-def path_cut_points(path: ArrayLike, cutdist, closed: bool = False):
+def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool = False) -> list[float] | None:
     """The point(s) at the given arc-length distance(s) from the start of `path`, each as
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances
     requirement) as the bosl2 port's path_cut_points()."""
@@ -741,7 +742,7 @@ def path_cut_points(path: ArrayLike, cutdist, closed: bool = False):
         return path_cut_points(path, [cutdist], closed)[0]
     assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
 
-    def select(p, i):
+    def select(p: list, i: int) -> float:
         return p[i % len(p)]
 
     def cut_single(dist: float, ind: int, eps: float = 1e-7):
@@ -787,14 +788,21 @@ def _frag_count(r: float, fn: float | None = None, fa: float | None = None, fs: 
     return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(r)) / fs))))
 
 
-def _vector_angle3(p0, p1, p2) -> float:
+def _vector_angle3(p0: Sequence[float], p1: Sequence[float], p2: Sequence[float]) -> float:
     v1 = _v_sub(p0, p1)
     v2 = _v_sub(p2, p1)
     cosang = max(-1.0, min(1.0, _v_dot(v1, v2) / (_v_norm(v1) * _v_norm(v2))))
     return math.degrees(math.acos(cosang))
 
 
-def _circlecorner(p0, p1, p2, d: float, r: float, fn=None) -> list:
+def _circlecorner(
+    p0: Sequence[float],
+    p1: Sequence[float],
+    p2: Sequence[float],
+    d: float,
+    r: float,
+    fn: int | None = None,
+) -> list[list[float]]:
     prev = _v_unit(_v_sub(p0, p1))
     nxt = _v_unit(_v_sub(p2, p1))
     angle = _vector_angle3(p0, p1, p2) / 2

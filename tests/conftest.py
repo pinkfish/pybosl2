@@ -6,15 +6,13 @@
 
 # pytest fixtures/setup for the bosl2 package test-suite.
 #
-# The bosl2 modules that touch native geometry (shapes2d/shapes3d/masking, and the
-# .polygon()/.polyhedron() FFI boundaries) import `pythonscad`/`openscad` at load time. These
-# modules must therefore be importable BEFORE any test module -- and therefore any bosl2 module --
-# is imported.
-#
-# The supported setup is a venv with the real `pythonscad` wheel installed (`pip install -e
-# .[test]`), which provides genuine `pythonscad` and `openscad` modules. If that wheel is not
-# installed, we fall back to the shared numeric mock (pysolidfive/tests/mock_libfive.py) when it is
-# present next to this checkout, so the pure-Python suite can still run without PythonSCAD at all.
+# The bosl2 package imports FFI-free (native primitives are lazy handles from bosl2/_native.py), so
+# the modules load without `pythonscad`; the FFI is only needed once a test actually *constructs*
+# geometry. The supported setup is a venv with the real `pythonscad` wheel installed (`pip install
+# -e .[test]`), which provides genuine `pythonscad`/`openscad` modules. If that wheel is not
+# installed, we fall back to bosl2's own numeric mock (tests/mock_libfive.py) so the pure-Python
+# suite can still run without PythonSCAD at all. The mock is owned by this package -- no reach into
+# the sibling pysolidfive package's test tree.
 
 import importlib.util
 import os
@@ -30,14 +28,12 @@ def _pythonscad_installed() -> bool:
 
 
 def _install_mock() -> bool:
-    """Install the shared numeric mock from the in-repo pysolidfive package; return success."""
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    mock_dir = os.path.join(repo_root, "pysolidfive", "tests")
+    """Install bosl2's own numeric native mock (tests/mock_libfive.py); return success."""
+    mock_dir = os.path.dirname(__file__)
     if not os.path.isfile(os.path.join(mock_dir, "mock_libfive.py")):
         return False
-    for p in (repo_root, mock_dir):
-        if p not in sys.path:
-            sys.path.insert(0, p)
+    if mock_dir not in sys.path:
+        sys.path.insert(0, mock_dir)
     import mock_libfive  # noqa: F401  -- installs pythonscad/openscad/libfive stubs on import
 
     return True

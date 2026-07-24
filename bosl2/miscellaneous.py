@@ -26,6 +26,7 @@
 from __future__ import annotations
 
 import math
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -392,9 +393,14 @@ class Extrudable:
 # ---------------------------------------------------------------------------
 
 
-class Miscellaneous:
+class Miscellaneous(ABC):
     """Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods
     on :class:`~bosl2.shapes3d.Bosl2Solid`."""
+
+    @abstractmethod
+    def _wrap(self, new_shape):  # pragma: no cover - provided by the host class (Bosl2Solid)
+        """Re-wrap a native shape as the host solid type."""
+        raise NotImplementedError
 
     def bounding_box(self, excess: float = 0):
         """The smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).

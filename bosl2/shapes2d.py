@@ -30,23 +30,13 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, overload
 
 import numpy as np
-from pythonscad import (
-    circle as _ocircle,
-)
-from pythonscad import (
-    polygon as _opolygon,
-)
+
+from bosl2._native import native
 
 # Imported explicitly (rather than `from pythonscad import *`) so editors/type-checkers
 # can resolve these names -- this module immediately shadows all five with its own
 # BOSL2-style square()/circle()/polygon()/text()/hull() below, so the plain builtins are
 # captured under private names first.
-from pythonscad import (
-    square as _osquare,
-)
-from pythonscad import (
-    text as _otext,
-)
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
@@ -55,6 +45,17 @@ from bosl2.paths import Path
 from bosl2.vectors import unit
 
 from .constants import CENTER
+
+if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
+    from pythonscad import circle as _ocircle
+    from pythonscad import polygon as _opolygon
+    from pythonscad import square as _osquare
+    from pythonscad import text as _otext
+else:
+    _ocircle = native("circle")
+    _opolygon = native("polygon")
+    _osquare = native("square")
+    _otext = native("text")
 
 # ---------------------------------------------------------------------------
 # Internal helpers (not part of BOSL2's public API)
