@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -16,16 +17,16 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Polyhedra" href="polyhedra.html" />
     <link rel="prev" title="Wiring" href="wiring.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -101,9 +102,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -128,69 +129,42 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
-  <section id="sliders-rails">
+
+  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-class"><strong>Sliders</strong></li><li class="ps-meth"><a href="#bosl2.sliders.Sliders.Sliders.slider">Sliders.slider</a></li><li class="ps-meth"><a href="#bosl2.sliders.Sliders.Sliders.rail">Sliders.rail</a></li></ul></div><section id="sliders-rails">
 <h1>Sliders &amp; rails<a class="headerlink" href="#sliders-rails" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/index.html">Parts catalog &rarr;</a></b>
   &nbsp;&mdash;&nbsp; this module is featured in the visual parts catalog.
-</p><p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">sliders.scad</span></code>: a V-groove <a class="reference internal" href="#bosl2.sliders.Sliders.slider" title="bosl2.sliders.Sliders.slider"><code class="xref py py-meth docutils literal notranslate"><span class="pre">slider()</span></code></a> and
-the matching <a class="reference internal" href="#bosl2.sliders.Sliders.rail" title="bosl2.sliders.Sliders.rail"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rail()</span></code></a>, both designed to 3-D print without support. Tune
-the printed fit with the slider’s <code class="docutils literal notranslate"><span class="pre">slop</span></code>.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="bosl2.sliders.Sliders">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.sliders.</span></span><span class="sig-name descname"><span class="pre">Sliders</span></span><a class="reference internal" href="_modules/bosl2/sliders.html#Sliders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.sliders.Sliders" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>V-groove sliders and rails (BOSL2 sliders.scad).</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bosl2.sliders.Sliders.slider">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">slider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/sliders.html#Sliders.slider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.sliders.Sliders.slider" title="Link to this definition">¶</a></dt>
-<dd><p>A slider that rides in a matching <a class="reference internal" href="#bosl2.sliders.Sliders.rail" title="bosl2.sliders.Sliders.rail"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rail()</span></code></a> V-groove (BOSL2 slider()).</p>
-<p class="rubric">Examples</p>
-<p>A slider:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.sliders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sliders</span>
-<span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>length</strong> (<em>float</em>)</p></li>
-<li><p><strong>w</strong> (<em>float</em>)</p></li>
-<li><p><strong>height</strong> (<em>float</em>)</p></li>
-<li><p><strong>base</strong> (<em>float</em>)</p></li>
-<li><p><strong>wall</strong> (<em>float</em>)</p></li>
-<li><p><strong>angle</strong> (<em>float</em>)</p></li>
-<li><p><strong>slop</strong> (<em>float</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
-</dd>
+</p><p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">sliders.scad</span></code>: a V-groove <code class="xref py py-meth docutils literal notranslate"><span class="pre">slider()</span></code> and
+the matching <code class="xref py py-meth docutils literal notranslate"><span class="pre">rail()</span></code>, both designed to 3-D print without support. Tune
+the printed fit with the slider’s <code class="docutils literal notranslate"><span class="pre">slop</span></code>.
+.. autoclass:: bosl2.sliders.Sliders</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">members<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bosl2.sliders.Sliders.rail">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">rail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/sliders.html#Sliders.rail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.sliders.Sliders.rail" title="Link to this definition">¶</a></dt>
-<dd><p>A V-groove rail for a <a class="reference internal" href="#bosl2.sliders.Sliders.slider" title="bosl2.sliders.Sliders.slider"><code class="xref py py-meth docutils literal notranslate"><span class="pre">slider()</span></code></a> (BOSL2 rail()).</p>
-<p class="rubric">Examples</p>
-<p>A rail:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.sliders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sliders</span>
-<span class="n">Sliders</span><span class="o">.</span><span class="n">rail</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div></blockquote>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<p>These mirror the examples in BOSL2’s <code class="docutils literal notranslate"><span class="pre">sliders.scad</span></code>, rendered live through PythonSCAD.
+Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
+<p class="rubric"><code class="docutils literal notranslate"><span class="pre">slider</span></code></p>
+<p>A V-groove slider:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-953f043a2a0742989211f45d7e759150" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-60c2bdc98e134ca3acf09c9b021ef30f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-953f043a2a0742989211f45d7e759150");
+const el = document.getElementById("stlviewer-60c2bdc98e134ca3acf09c9b021ef30f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -213,7 +187,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/429c3c124241c906.stl", function (geo) {
+new STLLoader().load("_stl/3e16ee8cf6d5ee1f.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -233,47 +207,20 @@ new STLLoader().load("_stl/429c3c124241c906.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/429c3c124241c906.stl">⬇ Download STL mesh</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>length</strong> (<em>float</em>)</p></li>
-<li><p><strong>w</strong> (<em>float</em>)</p></li>
-<li><p><strong>height</strong> (<em>float</em>)</p></li>
-<li><p><strong>chamfer</strong> (<em>float</em>)</p></li>
-<li><p><strong>angle</strong> (<em>float</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
-<p>These mirror the examples in BOSL2’s <code class="docutils literal notranslate"><span class="pre">sliders.scad</span></code>, rendered live through PythonSCAD.
-Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
-<p class="rubric"><code class="docutils literal notranslate"><span class="pre">slider</span></code></p>
-<p>A V-groove slider:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
+<p><a class="reference external" href="_stl/3e16ee8cf6d5ee1f.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">rail</span></code></p>
 <p>The mating rail:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">rail</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7b265c47acf240caaa8cd79a40a8d237" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-1a62c49536ba4ac69f2fd32a70b35e10" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7b265c47acf240caaa8cd79a40a8d237");
+const el = document.getElementById("stlviewer-1a62c49536ba4ac69f2fd32a70b35e10");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -322,25 +269,25 @@ window.addEventListener("resize", resize);
 
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
       |
       <a href="_sources/sliders.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

@@ -89,7 +89,6 @@ A jigsaw cut face on one half of a long bar:
 
 API reference
 -------------
-
 .. automodule:: bosl2.partitions
    :members:
    :undoc-members:

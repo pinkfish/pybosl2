@@ -9,22 +9,23 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="3-D shapes and Bosl2Solid" href="shapes3d.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="#">bosl2 (PythonSCAD port)</a></h1>
@@ -100,9 +101,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -126,15 +127,15 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
+
   <section id="bosl2-a-pure-python-pythonscad-port-of-bosl2">
 <h1>bosl2 — a pure-Python PythonSCAD port of BOSL2<a class="headerlink" href="#bosl2-a-pure-python-pythonscad-port-of-bosl2" title="Link to this heading">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">bosl2</span></code> is a pure-Python / numpy port of the pieces of <a class="reference external" href="https://github.com/BelfrySCAD/BOSL2">BOSL2</a>
 that this toolkit uses, with <strong>no</strong> <code class="docutils literal notranslate"><span class="pre">osuse()</span></code>/BOSL2 runtime dependency. Every operation hangs off
-an object — <a class="reference internal" href="paths.html#bosl2.paths.Path" title="bosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> for 2-D outlines, <a class="reference internal" href="regions.html#bosl2.regions.Region" title="bosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> for
+an object — <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> for 2-D outlines, <a class="reference internal" href="regions.html#bosl2.regions.Region" title="bosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> for
 outlines-with-holes, <a class="reference internal" href="beziers.html#bosl2.beziers.Bezier" title="bosl2.beziers.Bezier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bezier</span></code></a> / <a class="reference internal" href="beziers.html#bosl2.beziers.BezierPatch" title="bosl2.beziers.BezierPatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">BezierPatch</span></code></a> for bezier
 curves and surfaces, <a class="reference internal" href="vnf.html#bosl2.vnf.VNF" title="bosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> for vertex-face meshes, and the
 <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> primitives — so new code reads as fluent chains:</p>
@@ -166,13 +167,13 @@ also embed a viewer for any STL yourself with <code class="docutils literal notr
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-59ab9d2decc042f6abc494dfc0507b0c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-25d83c7091324e85b0eb59f01cb4a1fb" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-59ab9d2decc042f6abc494dfc0507b0c");
+const el = document.getElementById("stlviewer-25d83c7091324e85b0eb59f01cb4a1fb");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -227,13 +228,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-5bf35dc89811456f8f7420f3ac3ff480" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-10b86abd89d54899b8fc3c1939efed6d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-5bf35dc89811456f8f7420f3ac3ff480");
+const el = document.getElementById("stlviewer-10b86abd89d54899b8fc3c1939efed6d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -283,13 +284,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-29e59518fa5f4a4ea88897e86cdcdb37" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-baffbe7533ff493bb9ab93aec5db0d16" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-29e59518fa5f4a4ea88897e86cdcdb37");
+const el = document.getElementById("stlviewer-baffbe7533ff493bb9ab93aec5db0d16");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -412,25 +413,25 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
       |
       <a href="_sources/index.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

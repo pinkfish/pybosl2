@@ -28,11 +28,9 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from bosl2.shapes3d import Bosl2Solid
 from dataclasses import dataclass
+
+from bosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = [
     "Screws",
@@ -412,7 +410,6 @@ class Screws:
         *length* is the shaft length below the head (for a flat head, below the surface). Set
         ``thread=False`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.
         """
-        from bosl2.shapes3d import cyl
 
         info = Screws.screw_info(
             spec,
@@ -451,7 +448,6 @@ class Screws:
 
     @staticmethod
     def _make_head(info, fn, fa, fs):
-        from bosl2.shapes3d import cyl, regular_prism
 
         head = info["head"]
         if head in (None, "none"):
@@ -481,7 +477,6 @@ class Screws:
 
     @staticmethod
     def _make_recess(info, head_top, fn, fa, fs):
-        from bosl2.shapes3d import cuboid, regular_prism
 
         drive = info.get("drive")
         size = info.get("drive_size")
@@ -548,7 +543,6 @@ class Screws:
         with its mouth at ``z = 0``; countersinks/counterbores open upward from there. Set
         ``thread=True`` for a tapped (threaded) hole instead of a clearance hole.
         """
-        from bosl2.shapes3d import cyl
 
         d, p = _parse_spec(spec, "coarse" if thread in (True, False) else thread, pitch)
         if thread:

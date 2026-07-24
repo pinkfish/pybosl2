@@ -24,6 +24,7 @@ from bosl2.paths import (
     Path,
     Path3D,
 )  # Path/Path3D live in paths.py; re-exported here for compatibility
+from bosl2.shapes3d import Bosl2Solid, text3d
 
 __all__ = ["Path", "Path3D", "Region"]
 
@@ -119,7 +120,6 @@ class Region(list):
         from functools import reduce
 
         from bosl2.paths import Path
-        from bosl2.shapes3d import Bosl2Solid, text3d
 
         paths = [p if isinstance(p, Path) else Path(p) for p in self]
         if len(paths) <= 1:

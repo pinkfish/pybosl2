@@ -65,7 +65,10 @@ def test_vnf_texture_tiles_watertight_or_rasterizes(name):
 
 @pytest.mark.parametrize("name", _HF + _VNF)
 def test_textured_tile_by_name_builds(name):
-    s = textured_tile(name, size=[40, 40], tex_reps=[4, 4], tex_depth=3)
+    # tex_reps=[2, 2] keeps a tile-to-tile seam while building a far smaller mesh than [4, 4]:
+    # this test only checks that each named texture builds a valid solid of the right outer size
+    # (the dense [4, 4] render path is exercised by tests/test_stl_render.py::test_textured_tile_heightfield).
+    s = textured_tile(name, size=[40, 40], tex_reps=[2, 2], tex_depth=3)
     assert isinstance(s, Bosl2Solid)
     _, sz = s.bounds()
     assert round(sz[0]) == 40 and round(sz[1]) == 40

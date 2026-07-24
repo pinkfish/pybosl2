@@ -63,7 +63,6 @@ A PCO-1881 neck and its cap, side by side:
 
 API reference
 -------------
-
 .. autoclass:: bosl2.bottlecaps.BottleCaps
    :members:
 

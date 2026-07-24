@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -16,16 +17,16 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Joiners" href="joiners.html" />
     <link rel="prev" title="Cube trusses" href="cubetruss.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -101,9 +102,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -128,265 +129,28 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
-  <section id="hinges">
+
+  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-class"><strong>Hinges</strong></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.living_hinge_mask">Hinges.living_hinge_mask</a></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.knuckle_hinge">Hinges.knuckle_hinge</a></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.knuckle_hinge_pair">Hinges.knuckle_hinge_pair</a></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.snap_lock">Hinges.snap_lock</a></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.snap_socket">Hinges.snap_socket</a></li></ul></div><section id="hinges">
 <h1>Hinges<a class="headerlink" href="#hinges" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/hinges.html">Spec sheet &rarr;</a></b>
   &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.
 </p><p>Pure-Python port of the hinges in BOSL2’s <code class="docutils literal notranslate"><span class="pre">hinges.scad</span></code>: a print-in-place
-<a class="reference internal" href="#bosl2.hinges.Hinges.living_hinge_mask" title="bosl2.hinges.Hinges.living_hinge_mask"><code class="xref py py-meth docutils literal notranslate"><span class="pre">living_hinge_mask()</span></code></a> (differenced from a plate to make a folding “live”
-hinge), a functional interlocking <a class="reference internal" href="#bosl2.hinges.Hinges.knuckle_hinge" title="bosl2.hinges.Hinges.knuckle_hinge"><code class="xref py py-meth docutils literal notranslate"><span class="pre">knuckle_hinge()</span></code></a> leaf (with
-<a class="reference internal" href="#bosl2.hinges.Hinges.knuckle_hinge_pair" title="bosl2.hinges.Hinges.knuckle_hinge_pair"><code class="xref py py-meth docutils literal notranslate"><span class="pre">knuckle_hinge_pair()</span></code></a> for both leaves meshed around one pin, at any fold
-angle), and simple <a class="reference internal" href="#bosl2.hinges.Hinges.snap_lock" title="bosl2.hinges.Hinges.snap_lock"><code class="xref py py-meth docutils literal notranslate"><span class="pre">snap_lock()</span></code></a> / <a class="reference internal" href="#bosl2.hinges.Hinges.snap_socket" title="bosl2.hinges.Hinges.snap_socket"><code class="xref py py-meth docutils literal notranslate"><span class="pre">snap_socket()</span></code></a>
-connectors.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="bosl2.hinges.Hinges">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.hinges.</span></span><span class="sig-name descname"><span class="pre">Hinges</span></span><a class="reference internal" href="_modules/bosl2/hinges.html#Hinges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.hinges.Hinges" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Folding/knuckle hinges and snap connectors (BOSL2 hinges.scad).</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bosl2.hinges.Hinges.living_hinge_mask">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">living_hinge_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerheight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foldangle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hingegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/hinges.html#Hinges.living_hinge_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.hinges.Hinges.living_hinge_mask" title="Link to this definition">¶</a></dt>
-<dd><p>A wedge mask to difference out of a plate to make a print-in-place living hinge (BOSL2 living_hinge_mask()).</p>
-<p>Centre it on the bottom of a plate of thickness <em>thick</em>; it leaves <code class="docutils literal notranslate"><span class="pre">2*layerheight</span></code> of
-material as the flexible hinge, and a V-groove wide enough to fold <em>foldangle</em> degrees.</p>
-<p class="rubric">Examples</p>
-<p>A living hinge cut into a 100x40 plate:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.hinges</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hinges</span>
-<span class="p">(</span><span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">-</span> <span class="n">Hinges</span><span class="o">.</span><span class="n">living_hinge_mask</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">thick</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foldangle</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="mf">1.5</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-
-<div class="stl-viewer" id="stlviewer-d6a68d8e73e648a784573148cf7b3e47" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-d6a68d8e73e648a784573148cf7b3e47");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/29dbf0097e0790a7.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/29dbf0097e0790a7.stl">⬇ Download STL mesh</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>length</strong> (<em>float</em>)</p></li>
-<li><p><strong>thick</strong> (<em>float</em>)</p></li>
-<li><p><strong>layerheight</strong> (<em>float</em>)</p></li>
-<li><p><strong>foldangle</strong> (<em>float</em>)</p></li>
-<li><p><strong>hingegap</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>slop</strong> (<em>float</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
-</dd>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">living_hinge_mask()</span></code> (differenced from a plate to make a folding “live”
+hinge), a functional interlocking <code class="xref py py-meth docutils literal notranslate"><span class="pre">knuckle_hinge()</span></code> leaf (with
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">knuckle_hinge_pair()</span></code> for both leaves meshed around one pin, at any fold
+angle), and simple <code class="xref py py-meth docutils literal notranslate"><span class="pre">snap_lock()</span></code> / <code class="xref py py-meth docutils literal notranslate"><span class="pre">snap_socket()</span></code>
+connectors.
+.. autoclass:: bosl2.hinges.Hinges</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">members<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bosl2.hinges.Hinges.knuckle_hinge">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">knuckle_hinge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knuckle_diam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_diam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/hinges.html#Hinges.knuckle_hinge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.hinges.Hinges.knuckle_hinge" title="Link to this definition">¶</a></dt>
-<dd><p>One leaf of an interlocking knuckle (butt) hinge, with a pin bore (BOSL2 knuckle_hinge()).</p>
-<p>The hinge pin lies along X at the origin; the flat leaf extends in +Y (outer leaf) or -Y
-(inner leaf). <em>segs</em> is the total knuckle count across both leaves – the outer leaf takes
-the <code class="docutils literal notranslate"><span class="pre">ceil(segs/2)</span></code> even knuckles, the inner leaf the <code class="docutils literal notranslate"><span class="pre">floor(segs/2)</span></code> odd ones, so the
-two mesh. Pair with <a class="reference internal" href="#bosl2.hinges.Hinges.knuckle_hinge_pair" title="bosl2.hinges.Hinges.knuckle_hinge_pair"><code class="xref py py-meth docutils literal notranslate"><span class="pre">knuckle_hinge_pair()</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>length</strong> (<em>float</em>)</p></li>
-<li><p><strong>segs</strong> (<em>int</em>)</p></li>
-<li><p><strong>knuckle_diam</strong> (<em>float</em>)</p></li>
-<li><p><strong>pin_diam</strong> (<em>float</em>)</p></li>
-<li><p><strong>arm</strong> (<em>float</em>)</p></li>
-<li><p><strong>thick</strong> (<em>float</em>)</p></li>
-<li><p><strong>gap</strong> (<em>float</em>)</p></li>
-<li><p><strong>inner</strong> (<em>bool</em>)</p></li>
-<li><p><strong>_fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bosl2.hinges.Hinges.knuckle_hinge_pair">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">knuckle_hinge_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knuckle_diam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_diam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/hinges.html#Hinges.knuckle_hinge_pair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.hinges.Hinges.knuckle_hinge_pair" title="Link to this definition">¶</a></dt>
-<dd><p>Both leaves of a knuckle hinge, meshed around one pin (a full, laid-flat or <em>fold</em>-degree hinge).</p>
-<p>Set <em>fold</em> to rotate the inner leaf about the pin axis. With <em>pin</em>, a pin cylinder is included.</p>
-<p class="rubric">Examples</p>
-<p>A knuckle hinge folded 90 degrees:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.hinges</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hinges</span>
-<span class="n">Hinges</span><span class="o">.</span><span class="n">knuckle_hinge_pair</span><span class="p">(</span><span class="n">fold</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-
-<div class="stl-viewer" id="stlviewer-77a12fed062f41b2903ed74c05ad3f30" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-77a12fed062f41b2903ed74c05ad3f30");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/c2da1aafbe6fb02c.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#4a90d9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/c2da1aafbe6fb02c.stl">⬇ Download STL mesh</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>length</strong> (<em>float</em>)</p></li>
-<li><p><strong>segs</strong> (<em>int</em>)</p></li>
-<li><p><strong>knuckle_diam</strong> (<em>float</em>)</p></li>
-<li><p><strong>pin_diam</strong> (<em>float</em>)</p></li>
-<li><p><strong>arm</strong> (<em>float</em>)</p></li>
-<li><p><strong>thick</strong> (<em>float</em>)</p></li>
-<li><p><strong>gap</strong> (<em>float</em>)</p></li>
-<li><p><strong>fold</strong> (<em>float</em>)</p></li>
-<li><p><strong>pin</strong> (<em>bool</em>)</p></li>
-<li><p><strong>_fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bosl2.hinges.Hinges.snap_lock">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">snap_lock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snaplen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapdiam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerheight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foldangle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hingegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/hinges.html#Hinges.snap_lock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.hinges.Hinges.snap_lock" title="Link to this definition">¶</a></dt>
-<dd><p>A snap-lock tab (a ridge on a post) that clicks into a <a class="reference internal" href="#bosl2.hinges.Hinges.snap_socket" title="bosl2.hinges.Hinges.snap_socket"><code class="xref py py-meth docutils literal notranslate"><span class="pre">snap_socket()</span></code></a> (BOSL2 snap_lock()).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>thick</strong> (<em>float</em>)</p></li>
-<li><p><strong>snaplen</strong> (<em>float</em>)</p></li>
-<li><p><strong>snapdiam</strong> (<em>float</em>)</p></li>
-<li><p><strong>layerheight</strong> (<em>float</em>)</p></li>
-<li><p><strong>foldangle</strong> (<em>float</em>)</p></li>
-<li><p><strong>hingegap</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>slop</strong> (<em>float</em>)</p></li>
-<li><p><strong>_fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bosl2.hinges.Hinges.snap_socket">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">snap_socket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snaplen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapdiam</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerheight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foldangle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hingegap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/hinges.html#Hinges.snap_socket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.hinges.Hinges.snap_socket" title="Link to this definition">¶</a></dt>
-<dd><p>The receiving socket for a <a class="reference internal" href="#bosl2.hinges.Hinges.snap_lock" title="bosl2.hinges.Hinges.snap_lock"><code class="xref py py-meth docutils literal notranslate"><span class="pre">snap_lock()</span></code></a> tab (BOSL2 snap_socket()).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>thick</strong> (<em>float</em>)</p></li>
-<li><p><strong>snaplen</strong> (<em>float</em>)</p></li>
-<li><p><strong>snapdiam</strong> (<em>float</em>)</p></li>
-<li><p><strong>layerheight</strong> (<em>float</em>)</p></li>
-<li><p><strong>foldangle</strong> (<em>float</em>)</p></li>
-<li><p><strong>hingegap</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>slop</strong> (<em>float</em>)</p></li>
-<li><p><strong>_fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+</div></blockquote>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
 <p>These mirror the examples in BOSL2’s <code class="docutils literal notranslate"><span class="pre">hinges.scad</span></code>, rendered live through PythonSCAD.
@@ -397,13 +161,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b6c9bcf4f4924a258278eada73037b70" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-97cdb946379c4e19b455c040185f9273" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b6c9bcf4f4924a258278eada73037b70");
+const el = document.getElementById("stlviewer-97cdb946379c4e19b455c040185f9273");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -453,13 +217,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-ef8bc06ece764e3eb080e1a774284793" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-954c99435fc94c4bb00ce187ec0cc15b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-ef8bc06ece764e3eb080e1a774284793");
+const el = document.getElementById("stlviewer-954c99435fc94c4bb00ce187ec0cc15b");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -509,13 +273,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-6a61dd71d0ed423097c6461949ef8c8f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4f48ab1fc37449c3bc9efa1d11e598e4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-6a61dd71d0ed423097c6461949ef8c8f");
+const el = document.getElementById("stlviewer-4f48ab1fc37449c3bc9efa1d11e598e4");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -565,13 +329,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-ec77233ed5034571a456f443e804e8a6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-32172ed7025f42459e9ec52dcd035bb3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-ec77233ed5034571a456f443e804e8a6");
+const el = document.getElementById("stlviewer-32172ed7025f42459e9ec52dcd035bb3");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -621,13 +385,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-88e75fe51aaa4bd1a030e9eac8634470" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-0abfa0dd10c1483f88b16aec2911d64f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-88e75fe51aaa4bd1a030e9eac8634470");
+const el = document.getElementById("stlviewer-0abfa0dd10c1483f88b16aec2911d64f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -676,25 +440,25 @@ window.addEventListener("resize", resize);
 
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
       |
       <a href="_sources/hinges.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

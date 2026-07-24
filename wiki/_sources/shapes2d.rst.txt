@@ -53,7 +53,6 @@ Coverage of BOSL2 ``shapes2d.scad``
 
 API reference
 -------------
-
 .. automodule:: bosl2.shapes2d
    :members:
    :undoc-members:

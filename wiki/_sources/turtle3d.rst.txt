@@ -15,6 +15,5 @@ commands are also supported — a single nested list starting with ``"move"`` or
 several effects at once (``["move", 40, "grow", 2, "twist", 180, "steps", 40]``), with
 ``grow``/``shrink`` scaling the swept profile, ``twist`` rotating it, ``roll``/``rollto`` rolling the
 frame, and, for ``arc``, relative or absolute rotation.
-
 .. autoclass:: bosl2.turtle3d.Turtle
    :members:

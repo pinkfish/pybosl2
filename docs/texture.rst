@@ -13,7 +13,6 @@ All of BOSL2's textures are ported (9 height-field + 12 VNF). Height-field textu
 ``$fn``-parametric ``cones``, ``dots`` and ``hex_grid`` (pass *fn* for their resolution). A few VNF
 tiles that can't be tiled watertight directly (``bricks_vnf``, ``checkers``, ``trunc_diamonds``) fall
 back to a sampled height-field, which slightly flattens their vertical faces.
-
 .. autofunction:: bosl2.texture.texture
 
 .. autofunction:: bosl2.texture.vnf_tile_to_solid

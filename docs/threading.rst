@@ -90,7 +90,6 @@ A rod threaded into its matching hex nut (shown side by side):
 
 API reference
 -------------
-
 .. autoclass:: bosl2.threading.Threading
    :members:
 

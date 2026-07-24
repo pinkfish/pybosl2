@@ -24,11 +24,9 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from bosl2.shapes3d import Bosl2Solid
 from dataclasses import dataclass
+
+from bosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = ["Threading", "ThreadProfile"]
 
@@ -164,7 +162,6 @@ def _rod_solid(d, length, pitch, profile, starts=1, left_handed=False, fn=None, 
     merged at the VNF level (not by CSG union, which Manifold cannot do on coaxial helical solids)
     into one polyhedron, then trimmed to length with an intersection."""
     from bosl2.shapes2d import _frag_count
-    from bosl2.shapes3d import Bosl2Solid, cyl
     from bosl2.vnf import VNF
 
     radius = d / 2
@@ -203,7 +200,6 @@ def _nut_solid(
     fs=None,
 ):
     """A nut: a hex/square body with a threaded hole cut by a matching thread 'tap'."""
-    from bosl2.shapes3d import cuboid, regular_prism
 
     if shape == "hex":
         body = regular_prism(6, height=h, inner_diameter=nutwidth)
@@ -212,8 +208,6 @@ def _nut_solid(
     else:
         raise AssertionError('nut shape must be "hex" or "square".')
     if pitch == 0:
-        from bosl2.shapes3d import cyl
-
         return body - cyl(height=h + 2, radius=idia / 2 + slop, fn=fn, fa=fa, fs=fs)
     depth_abs = _profile_depth_abs(profile, pitch)
     tap = _rod_solid(
@@ -561,7 +555,6 @@ class Threading:
         """A single helical thread ridge (no core), for adding threads onto your own cylinder
         (BOSL2 thread_helix()). The thread crest is at diameter *d*; give *thread_depth* and
         *flank_angle*, or an explicit *profile*."""
-        from bosl2.shapes3d import Bosl2Solid
         from bosl2.skin import spiral_sweep
 
         assert pitch > 0 and d > 0, "thread_helix(): d and pitch must be positive."

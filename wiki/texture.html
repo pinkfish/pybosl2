@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
     <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -16,16 +17,16 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Direction constants" href="constants.html" />
     <link rel="prev" title="Native-only mesh operations" href="native_ops.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -101,9 +102,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -128,14 +129,14 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
-  <section id="textures">
+
+  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-func"><a href="#module-bosl2.texture.texture.texture">texture</a></li><li class="ps-func"><a href="#module-bosl2.texture.texture.is_watertight_topology">is_watertight_topology</a></li><li class="ps-func"><a href="#module-bosl2.texture.texture.rasterize_vnf_texture">rasterize_vnf_texture</a></li><li class="ps-func"><a href="#module-bosl2.texture.texture.vnf_tile_to_solid">vnf_tile_to_solid</a></li><li class="ps-func"><a href="#module-bosl2.texture.texture.is_heightfield_texture">is_heightfield_texture</a></li><li class="ps-func"><a href="#module-bosl2.texture.texture.is_vnf_texture">is_vnf_texture</a></li></ul></div><section id="textures">
 <h1>Textures<a class="headerlink" href="#textures" title="Link to this heading">¶</a></h1>
 <p>Port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">texture()</span></code> engine (from <code class="docutils literal notranslate"><span class="pre">skin.scad</span></code>): the named-texture table that
-<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.textured_tile" title="bosl2.shapes3d.textured_tile"><code class="xref py py-func docutils literal notranslate"><span class="pre">textured_tile()</span></code></a> builds from. <a class="reference internal" href="#bosl2.texture.texture" title="bosl2.texture.texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">texture()</span></code></a> resolves a texture
+<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.textured_tile" title="bosl2.shapes3d.textured_tile"><code class="xref py py-func docutils literal notranslate"><span class="pre">textured_tile()</span></code></a> builds from. <code class="xref py py-func docutils literal notranslate"><span class="pre">texture()</span></code> resolves a texture
 <strong>name</strong> to its data — either a <strong>height-field</strong> (a 2-D array of heights in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>) or a <strong>VNF
 tile</strong> <code class="docutils literal notranslate"><span class="pre">(verts,</span> <span class="pre">faces)</span></code> describing one unit cell of the surface.</p>
 <p>All of BOSL2’s textures are ported (9 height-field + 12 VNF). Height-field textures: <code class="docutils literal notranslate"><span class="pre">ribs</span></code>,
@@ -144,16 +145,8 @@ tile</strong> <code class="docutils literal notranslate"><span class="pre">(vert
 <code class="docutils literal notranslate"><span class="pre">trunc_ribs_vnf</span></code>, <code class="docutils literal notranslate"><span class="pre">bricks_vnf</span></code>, <code class="docutils literal notranslate"><span class="pre">checkers</span></code>, <code class="docutils literal notranslate"><span class="pre">trunc_diamonds</span></code>, <code class="docutils literal notranslate"><span class="pre">tri_grid</span></code>, and the
 <code class="docutils literal notranslate"><span class="pre">$fn</span></code>-parametric <code class="docutils literal notranslate"><span class="pre">cones</span></code>, <code class="docutils literal notranslate"><span class="pre">dots</span></code> and <code class="docutils literal notranslate"><span class="pre">hex_grid</span></code> (pass <em>fn</em> for their resolution). A few VNF
 tiles that can’t be tiled watertight directly (<code class="docutils literal notranslate"><span class="pre">bricks_vnf</span></code>, <code class="docutils literal notranslate"><span class="pre">checkers</span></code>, <code class="docutils literal notranslate"><span class="pre">trunc_diamonds</span></code>) fall
-back to a sampled height-field, which slightly flattens their vertical faces.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="bosl2.texture.texture">
-<span class="sig-prename descclassname"><span class="pre">bosl2.texture.</span></span><span class="sig-name descname"><span class="pre">texture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roughness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/texture.html#texture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.texture.texture" title="Link to this definition">¶</a></dt>
-<dd><p>The named texture <em>tex</em> – a height-field array or a VNF tile <code class="docutils literal notranslate"><span class="pre">(verts,</span> <span class="pre">faces)</span></code> (BOSL2 texture()).</p>
-<p><em>sides</em> sets the resolution of the parametric height-field textures; <em>border</em>/<em>gap</em> shape the VNF-tile
-textures; <em>roughness</em> perturbs <code class="docutils literal notranslate"><span class="pre">bricks</span></code>. Pass a name from <code class="xref py py-data docutils literal notranslate"><span class="pre">TEXTURES</span></code>. See the module
-docstring for which textures are ported.</p>
-</dd></dl>
-
+back to a sampled height-field, which slightly flattens their vertical faces.
+.. autofunction:: bosl2.texture.texture</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.texture.vnf_tile_to_solid">
 <span class="sig-prename descclassname"><span class="pre">bosl2.texture.</span></span><span class="sig-name descname"><span class="pre">vnf_tile_to_solid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tex_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/texture.html#vnf_tile_to_solid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.texture.vnf_tile_to_solid" title="Link to this definition">¶</a></dt>
@@ -165,25 +158,25 @@ it into a watertight solid. Returns <code class="docutils literal notranslate"><
 
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
       |
       <a href="_sources/texture.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
-    
 
-    
+
+
   </body>
 </html>

@@ -78,7 +78,6 @@ A screw threaded into its matching hex nut (shown side by side):
 
 API reference
 -------------
-
 .. autoclass:: bosl2.screws.Screws
    :members:
 

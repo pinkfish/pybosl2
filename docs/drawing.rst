@@ -67,7 +67,6 @@ Coverage of BOSL2 ``drawing.scad``
 
 API reference
 -------------
-
 .. autofunction:: bosl2.shapes2d.arc
 
 .. automodule:: bosl2.drawing

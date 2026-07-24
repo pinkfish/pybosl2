@@ -36,6 +36,8 @@ from bosl2.geometry import general_line_intersection, line_normal
 from bosl2.math import lerp, lerpn
 from bosl2.paths import Path, Path3D
 from bosl2.shapes2d import _frag_count, _pick_radius, arc
+from bosl2.shapes3d import cyl as _cyl
+from bosl2.shapes3d import sphere as _sphere
 from bosl2.vectors import unit
 
 __all__ = [
@@ -628,8 +630,6 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
         square as _osquare,
     )
 
-    from bosl2.shapes3d import sphere as _sphere
-
     if style in (False, "butt", None):
         return None
     if style in (True, "round"):
@@ -648,8 +648,6 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
 
 
 def _stroke3d(pts, width, closed, endcap1, endcap2):
-    from bosl2.shapes3d import cyl as _cyl
-    from bosl2.shapes3d import sphere as _sphere
 
     radius = width / 2
     shapes = []

@@ -99,7 +99,6 @@ Copies of a 2-D outline along an arc, extruded together:
 
 API reference
 -------------
-
 .. automodule:: bosl2.distributors
    :members:
    :undoc-members:

@@ -85,7 +85,6 @@ are not ported — the methods above cover positioning/masking directly on the o
 
 API reference
 -------------
-
 .. automodule:: bosl2.shapes3d
    :members:
    :undoc-members:

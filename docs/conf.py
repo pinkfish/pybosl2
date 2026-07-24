@@ -76,6 +76,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "stl_viewer",
     "bosl2_example",
+    "bosl2_navsidebar",
 ]
 
 # bosl2's docstrings use Google-style Args:/Returns:/Example: sections throughout.
@@ -106,7 +107,8 @@ exclude_patterns: list[str] = ["_build", "_generated", "_extra"]
 html_extra_path = ["_extra"]
 
 html_theme = "alabaster"
-html_static_path: list[str] = []
+html_static_path: list[str] = ["_static"]
+html_css_files: list[str] = ["pysidebar.css"]
 
 # A grouped, always-visible global TOC so the many modules are easy to track. Alabaster renders each
 # toctree ``:caption:`` from index.rst as a section header in the sidebar's navigation block.

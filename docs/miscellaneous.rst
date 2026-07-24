@@ -85,7 +85,6 @@ A twisting, tapering column between two points:
 
 API reference
 -------------
-
 .. automodule:: bosl2.miscellaneous
    :members:
    :undoc-members:

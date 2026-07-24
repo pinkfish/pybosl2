@@ -8,21 +8,22 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pysidebar.css?v=dd122b57" />
     <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
-  
 
-  
-  
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+
+
+
 
   </head><body>
   <div class="document">
-    
+
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <h1 class="logo"><a href="../../index.html">bosl2 (PythonSCAD port)</a></h1>
@@ -98,9 +99,9 @@
 
 <hr />
 <ul>
-    
+
     <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
-    
+
 </ul>
 <div class="relations">
 <h3>Related Topics</h3>
@@ -125,10 +126,10 @@
       </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
+
 
           <div class="body" role="main">
-            
+
   <h1>Source code for bosl2.vnf</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
 <span class="c1">#</span>
@@ -162,10 +163,11 @@
     <span class="k">return</span> <span class="n">radius</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="n">radius</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_lofttri</span><span class="p">(</span>
-    <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">i1off</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">i2off</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n2</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">trimax</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2 _lofttri).&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_lofttri</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">i1off</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">i2off</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n2</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">trimax</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2</span>
+<span class="sd">    _lofttri).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">a1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">tris</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -177,18 +179,12 @@
             <span class="n">t2</span> <span class="o">=</span> <span class="n">i2</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">i2</span> <span class="o">&lt;</span> <span class="n">n2</span> <span class="k">else</span> <span class="n">n2</span>
             <span class="n">d12</span> <span class="o">=</span> <span class="mf">9e9</span> <span class="k">if</span> <span class="n">t2</span> <span class="o">&gt;=</span> <span class="n">n2</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a2</span><span class="p">[</span><span class="n">t2</span><span class="p">]</span> <span class="o">-</span> <span class="n">a1</span><span class="p">[</span><span class="n">i1</span><span class="p">]))</span>
             <span class="n">d21</span> <span class="o">=</span> <span class="mf">9e9</span> <span class="k">if</span> <span class="n">t1</span> <span class="o">&gt;=</span> <span class="n">n1</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="n">t1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a2</span><span class="p">[</span><span class="n">i2</span><span class="p">]))</span>
-            <span class="n">userow</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">(</span><span class="mi">2</span> <span class="k">if</span> <span class="n">tc1</span> <span class="o">&lt;</span> <span class="n">trimax</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">d12</span> <span class="o">&lt;</span> <span class="n">d21</span> <span class="k">else</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">tc2</span> <span class="o">&lt;</span> <span class="n">trimax</span> <span class="k">else</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">userow</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="k">if</span> <span class="n">tc1</span> <span class="o">&lt;</span> <span class="n">trimax</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">d12</span> <span class="o">&lt;</span> <span class="n">d21</span> <span class="k">else</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">tc2</span> <span class="o">&lt;</span> <span class="n">trimax</span> <span class="k">else</span> <span class="mi">2</span><span class="p">)</span>
             <span class="n">newt</span> <span class="o">=</span> <span class="p">(</span><span class="n">t1</span> <span class="k">if</span> <span class="n">t1</span> <span class="o">&lt;</span> <span class="n">n1</span> <span class="k">else</span> <span class="n">i1</span><span class="p">)</span> <span class="k">if</span> <span class="n">userow</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">(</span><span class="n">t2</span> <span class="k">if</span> <span class="n">t2</span> <span class="o">&lt;</span> <span class="n">n2</span> <span class="k">else</span> <span class="n">i2</span><span class="p">)</span>
             <span class="n">newofft</span> <span class="o">=</span> <span class="n">i2off</span> <span class="o">+</span> <span class="n">newt</span> <span class="k">if</span> <span class="n">userow</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">i1off</span> <span class="o">+</span> <span class="n">newt</span>
             <span class="n">tc1n</span> <span class="o">=</span> <span class="n">tc1</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="n">d12</span> <span class="o">&lt;</span> <span class="n">d21</span> <span class="ow">and</span> <span class="n">tc1</span> <span class="o">&lt;</span> <span class="n">trimax</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
             <span class="n">tc2n</span> <span class="o">=</span> <span class="n">tc2</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="n">d21</span> <span class="o">&lt;</span> <span class="n">d12</span> <span class="ow">and</span> <span class="n">tc2</span> <span class="o">&lt;</span> <span class="n">trimax</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="n">triangle</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">[</span><span class="n">i1off</span> <span class="o">+</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2off</span> <span class="o">+</span> <span class="n">i2</span><span class="p">,</span> <span class="n">newofft</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">reverse</span>
-                <span class="k">else</span> <span class="p">[</span><span class="n">i2off</span> <span class="o">+</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i1off</span> <span class="o">+</span> <span class="n">i1</span><span class="p">,</span> <span class="n">newofft</span><span class="p">]</span>
-            <span class="p">)</span>
+            <span class="n">triangle</span> <span class="o">=</span> <span class="p">[</span><span class="n">i1off</span> <span class="o">+</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2off</span> <span class="o">+</span> <span class="n">i2</span><span class="p">,</span> <span class="n">newofft</span><span class="p">]</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="p">[</span><span class="n">i2off</span> <span class="o">+</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i1off</span> <span class="o">+</span> <span class="n">i1</span><span class="p">,</span> <span class="n">newofft</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">t1</span> <span class="o">&gt;=</span> <span class="n">n1</span> <span class="ow">and</span> <span class="n">t2</span> <span class="o">&gt;=</span> <span class="n">n2</span><span class="p">:</span>
                 <span class="k">break</span>
             <span class="n">tris</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">triangle</span><span class="p">)</span>
@@ -365,9 +361,7 @@
         <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;quincunx&quot;</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rowcnt</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">colcnt</span><span class="p">):</span>
-                    <span class="n">corners</span> <span class="o">=</span> <span class="n">parr</span><span class="p">[</span>
-                        <span class="p">[</span><span class="n">idx</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="n">idx</span><span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="n">idx</span><span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">idx</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
-                    <span class="p">]</span>
+                    <span class="n">corners</span> <span class="o">=</span> <span class="n">parr</span><span class="p">[[</span><span class="n">idx</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="n">idx</span><span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span> <span class="n">idx</span><span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">idx</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]]</span>
                     <span class="n">verts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">corners</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
 
         <span class="n">vertsarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -390,55 +384,31 @@
                     <span class="n">i5</span> <span class="o">=</span> <span class="n">pcnt</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">colcnt</span> <span class="o">+</span> <span class="n">c</span>
                     <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i5</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">i5</span><span class="p">,</span> <span class="n">i3</span><span class="p">],</span> <span class="p">[</span><span class="n">i3</span><span class="p">,</span> <span class="n">i5</span><span class="p">,</span> <span class="n">i4</span><span class="p">],</span> <span class="p">[</span><span class="n">i4</span><span class="p">,</span> <span class="n">i5</span><span class="p">,</span> <span class="n">i1</span><span class="p">]]</span>
                 <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;min_area&quot;</span><span class="p">:</span>
-                    <span class="n">area42</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p4</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span>
-                    <span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p4</span> <span class="o">-</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p2</span> <span class="o">-</span> <span class="n">p3</span><span class="p">))</span>
-                    <span class="n">area13</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p4</span><span class="p">,</span> <span class="n">p3</span> <span class="o">-</span> <span class="n">p4</span><span class="p">)</span>
-                    <span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p3</span> <span class="o">-</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span><span class="p">))</span>
-                    <span class="n">cell</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
-                        <span class="k">if</span> <span class="n">area42</span> <span class="o">&lt;</span> <span class="n">area13</span> <span class="o">+</span> <span class="n">_EPS</span>
-                        <span class="k">else</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
-                    <span class="p">)</span>
+                    <span class="n">area42</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p4</span> <span class="o">-</span> <span class="n">p1</span><span class="p">))</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p4</span> <span class="o">-</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p2</span> <span class="o">-</span> <span class="n">p3</span><span class="p">))</span>
+                    <span class="n">area13</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p4</span><span class="p">,</span> <span class="n">p3</span> <span class="o">-</span> <span class="n">p4</span><span class="p">))</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p3</span> <span class="o">-</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span><span class="p">))</span>
+                    <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span> <span class="k">if</span> <span class="n">area42</span> <span class="o">&lt;</span> <span class="n">area13</span> <span class="o">+</span> <span class="n">_EPS</span> <span class="k">else</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
                 <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">:</span>
                     <span class="n">d42</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p4</span> <span class="o">-</span> <span class="n">p2</span><span class="p">)</span>
                     <span class="n">d13</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p3</span><span class="p">)</span>
-                    <span class="n">cell</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
-                        <span class="k">if</span> <span class="n">d42</span> <span class="o">&lt;</span> <span class="n">d13</span> <span class="o">+</span> <span class="n">_EPS</span>
-                        <span class="k">else</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
-                    <span class="p">)</span>
+                    <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span> <span class="k">if</span> <span class="n">d42</span> <span class="o">&lt;</span> <span class="n">d13</span> <span class="o">+</span> <span class="n">_EPS</span> <span class="k">else</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
                 <span class="k">elif</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;convex&quot;</span><span class="p">,</span> <span class="s2">&quot;concave&quot;</span><span class="p">):</span>
                     <span class="n">sides</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p3</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">sides</span><span class="p">):</span>
                         <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">above</span> <span class="o">=</span> <span class="p">(</span>
-                            <span class="p">(</span><span class="n">sides</span> <span class="o">@</span> <span class="n">p4</span> <span class="o">&gt;</span> <span class="n">sides</span> <span class="o">@</span> <span class="n">p1</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;convex&quot;</span>
-                            <span class="k">else</span> <span class="p">(</span><span class="n">sides</span> <span class="o">@</span> <span class="n">p4</span> <span class="o">&lt;=</span> <span class="n">sides</span> <span class="o">@</span> <span class="n">p1</span><span class="p">)</span>
-                        <span class="p">)</span>
-                        <span class="n">cell</span> <span class="o">=</span> <span class="p">(</span>
-                            <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
-                            <span class="k">if</span> <span class="n">above</span>
-                            <span class="k">else</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
-                        <span class="p">)</span>
+                        <span class="n">above</span> <span class="o">=</span> <span class="p">(</span><span class="n">sides</span> <span class="o">@</span> <span class="n">p4</span> <span class="o">&gt;</span> <span class="n">sides</span> <span class="o">@</span> <span class="n">p1</span><span class="p">)</span> <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;convex&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="n">sides</span> <span class="o">@</span> <span class="n">p4</span> <span class="o">&lt;=</span> <span class="n">sides</span> <span class="o">@</span> <span class="n">p1</span><span class="p">)</span>
+                        <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span> <span class="k">if</span> <span class="n">above</span> <span class="k">else</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
                 <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;quad&quot;</span><span class="p">:</span>
                     <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i4</span><span class="p">]]</span>
                 <span class="k">elif</span> <span class="p">(</span>
-                    <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;alt&quot;</span>
-                    <span class="ow">or</span> <span class="p">(</span><span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;flip1&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-                    <span class="ow">or</span> <span class="p">(</span><span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;flip2&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;alt&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;flip1&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;flip2&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="p">):</span>
                     <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i2</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
                 <span class="k">else</span><span class="p">:</span>  <span class="c1"># default</span>
                     <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="p">[</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">]]</span>
                 <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">cell</span><span class="p">:</span>
                     <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">cc</span> <span class="o">=</span> <span class="n">vertsarr</span><span class="p">[</span><span class="n">face</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">vertsarr</span><span class="p">[</span><span class="n">face</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">vertsarr</span><span class="p">[</span><span class="n">face</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
-                    <span class="k">if</span> <span class="p">(</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">,</span> <span class="n">cc</span> <span class="o">-</span> <span class="n">a</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">_EPS</span>
-                    <span class="p">):</span>  <span class="c1"># drop degenerate faces</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">,</span> <span class="n">cc</span> <span class="o">-</span> <span class="n">a</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">_EPS</span><span class="p">:</span>  <span class="c1"># drop degenerate faces</span>
                         <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">face</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="n">face</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span></div>
 
@@ -481,17 +451,11 @@
 
         <span class="n">faces</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">capfirst</span><span class="p">:</span>
-            <span class="n">rng</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rowstarts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">addcol</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">reverse</span>
-                <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rowstarts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">addcol</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-            <span class="p">)</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rowstarts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">addcol</span><span class="p">))</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rowstarts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">addcol</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
             <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">plen</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">row_wrap</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)):</span>
             <span class="n">j</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plen</span>
-            <span class="n">trimax</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="n">j</span><span class="p">])))</span> <span class="k">if</span> <span class="n">limit_bunching</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">trimax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="n">j</span><span class="p">])))</span> <span class="k">if</span> <span class="n">limit_bunching</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
             <span class="n">faces</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="n">_lofttri</span><span class="p">(</span>
                     <span class="n">st</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
@@ -535,22 +499,22 @@
 </pre></div>
 
           </div>
-          
+
         </div>
       </div>
     <div class="clearer"></div>
   </div>
     <div class="footer">
       &#169;2026, pinkfish.
-      
+
       |
       Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-      
+
     </div>
 
-    
 
-    
+
+
   </body>
 </html>
