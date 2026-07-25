@@ -33,6 +33,8 @@ from bosl2._native import native
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
+from bosl2._backend import check_operand_backend as _check_operand_backend
+from bosl2._backend import unsupported_feature as _unsupported_feature
 from bosl2.color import Colorable
 from bosl2.distributors import Distributable
 from bosl2.geometry import cross
@@ -140,6 +142,10 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     the raw native object: use `.shape` to unwrap explicitly.
     """
 
+    #: which realize backend produced this solid -- see bosl2/_backend.py. Bosl2Solid is the
+    #: exact-CSG (PythonSCAD) backend's Solid; the libfive/SDF backend uses its own wrapper.
+    backend = "csg"
+
     def __init__(
         self,
         shape: PyOpenSCAD,
@@ -178,6 +184,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         # so copy/pickle/hasattr behave instead of blowing the stack.
         if name == "shape" or (name.startswith("__") and name.endswith("__")):
             raise AttributeError(name)
+        _unsupported = _unsupported_feature("csg", name)  # SDF-only feature on the CSG backend?
+        if _unsupported is not None:
+            raise _unsupported
         shape = object.__getattribute__(self, "shape")  # bypass __getattr__: no recursion
         attr = getattr(shape, name)
         if not callable(attr):
@@ -305,22 +314,43 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def _ghost_native(self) -> "Bosl2Solid":
         return self._wrap(self.shape.background())
 
+    def to_csg(self) -> "Bosl2Solid":
+        """This solid is already on the CSG backend -- returns self (the converter no-op)."""
+        return self
+
+    def to_sdf(self, voxel_size: float | None = None) -> "Bosl2Solid":
+        """CSG -> SDF conversion is not supported (would require lossy voxel-sampling)."""
+        from bosl2.exceptions import UnsupportedByBackend
+
+        raise UnsupportedByBackend(
+            "to_sdf",
+            "csg",
+            hint="a CSG tree has no signed-distance field; build the shape on the SDF backend "
+            "instead (with use_backend('sdf')). Only SDF->CSG (PyShape.to_csg()) is supported.",
+        )
+
     def __or__(self, other) -> "Bosl2Solid":
+        _check_operand_backend("csg", other)
         return self._wrap(self.shape | Bosl2Solid._unwrap(other))
 
     def __and__(self, other) -> "Bosl2Solid":
+        _check_operand_backend("csg", other)
         return self._wrap(self.shape & Bosl2Solid._unwrap(other))
 
     def __sub__(self, other) -> "Bosl2Solid":
+        _check_operand_backend("csg", other)
         return self._wrap(self.shape - Bosl2Solid._unwrap(other))
 
     def __ror__(self, other) -> "Bosl2Solid":
+        _check_operand_backend("csg", other)
         return self._wrap(Bosl2Solid._unwrap(other) | self.shape)
 
     def __rand__(self, other) -> "Bosl2Solid":
+        _check_operand_backend("csg", other)
         return self._wrap(Bosl2Solid._unwrap(other) & self.shape)
 
     def __rsub__(self, other) -> "Bosl2Solid":
+        _check_operand_backend("csg", other)
         return self._wrap(Bosl2Solid._unwrap(other) - self.shape)
 
     # ---- distributors (bosl2/distributors.py) ----
