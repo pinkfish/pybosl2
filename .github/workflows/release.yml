@@ -85,7 +85,15 @@ jobs:
           else
             git add bosl2/version.py
             git commit -m "Release ${VERSION}: set version in code"
+            
+            # 1. Push the commit to main
             git push origin HEAD:main
+            
+            # 2. FORCE-UPDATE the tag locally to point to this new commit
+            git tag -f "$TAG_NAME"
+            
+            # 3. FORCE-PUSH the updated tag back to GitHub to correct the release target
+            git push origin -f "$TAG_NAME"
           fi      - name: Build sdist and wheel
 
       - name: Build sdist and wheel
