@@ -33,7 +33,15 @@ from collections.abc import Sequence
 # ---------------------------------------------------------------------------
 
 
-def _pick_radius(radius1=None, diameter1=None, radius2=None, diameter2=None, radius=None, diameter=None, dflt=None):
+def _pick_radius(
+    radius1: float | None = None,
+    diameter1: float | None = None,
+    radius2: float | None = None,
+    diameter2: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
+    dflt: float | None = None,
+) -> float | None:
     """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) > dflt."""
     if radius1 is not None:
         return radius1
@@ -68,7 +76,7 @@ EDGE_OFFSETS = [
 _MAJOR_AXIS_VALID = ["X", "Y", "Z", "ALL", "NONE"]
 
 
-def _is_edge_array(x) -> bool:
+def _is_edge_array(x: str | list[list[str]] | None) -> bool:
     return isinstance(x, list) and len(x) == 3 and all(isinstance(row, list) and len(row) == 4 for row in x)
 
 
@@ -106,7 +114,7 @@ def _edge_set(v) -> list[list[int]]:
     return out
 
 
-def _is_plain_vector(v) -> bool:
+def _is_plain_vector(v: list | None) -> bool:
     return (
         isinstance(v, list) and len(v) > 0 and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
     )

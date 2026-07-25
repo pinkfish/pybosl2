@@ -19,10 +19,15 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
-from pythonscad import hull as _ohull
-
+from bosl2._native import native
 from bosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
+
+if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
+    from pythonscad import hull as _ohull
+else:
+    _ohull = native("hull")
 
 __all__ = ["Joiners"]
 

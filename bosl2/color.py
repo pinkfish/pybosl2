@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import random
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
 __all__ = ["hsl", "hsv", "rainbow", "rainbow_colors", "Colorable"]
@@ -148,7 +149,7 @@ def rainbow(
 # ---------------------------------------------------------------------------
 
 
-class Colorable:
+class Colorable(ABC):
     """Mixin adding the color.scad colour operators as methods.
 
     Inherited by :class:`~bosl2.shapes3d.Bosl2Solid`. Every operator resolves to the host's native
@@ -159,12 +160,15 @@ class Colorable:
     already-coloured children keep their colour, matching OpenSCAD's ``color()`` semantics).
     """
 
+    @abstractmethod
     def _color_native(self, c=None, alpha=None):  # pragma: no cover - overridden by the host class
         raise NotImplementedError
 
+    @abstractmethod
     def _highlight_native(self):  # pragma: no cover - overridden by the host class
         raise NotImplementedError
 
+    @abstractmethod
     def _ghost_native(self):  # pragma: no cover - overridden by the host class
         raise NotImplementedError
 

@@ -29,6 +29,7 @@
 from __future__ import annotations
 
 import math
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
 import numpy as np
@@ -557,7 +558,7 @@ def zflip_copy(offset=0, z=0) -> list[np.ndarray]:
 # ---------------------------------------------------------------------------
 
 
-class Distributable:
+class Distributable(ABC):
     """Mixin adding the distributors.scad copiers as methods.
 
     Inherited by :class:`~bosl2.shapes3d.Bosl2Solid`, :class:`~bosl2.paths.Path`, and
@@ -566,6 +567,7 @@ class Distributable:
     copies into a new solid; a Path / Path3D returns a plain ``list`` of the copied paths.
     """
 
+    @abstractmethod
     def _distribute(self, mats):  # pragma: no cover - overridden by every host class
         raise NotImplementedError("Distributable subclasses must implement _distribute().")
 

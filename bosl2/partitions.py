@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 import math
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -612,7 +613,7 @@ def _as_vec3(v):
     return a
 
 
-class Partitionable:
+class Partitionable(ABC):
     """Mixin adding the partitions.scad planar cuts and the partition() split as methods.
 
     Inherited by :class:`~bosl2.shapes3d.Bosl2Solid`. A half-cut intersects the solid with a
@@ -620,6 +621,11 @@ class Partitionable:
     argument is optional). ``cut_path=`` follows a 2-D :func:`partition_path` to make an
     interlocking cut face instead of a flat plane.
     """
+
+    @abstractmethod
+    def _wrap(self, new_shape):  # pragma: no cover - provided by the host class (Bosl2Solid)
+        """Re-wrap a native shape as the host solid type."""
+        raise NotImplementedError
 
     def _half_mask(self, v, cpv, s, cut_path, cut_angle, offset):
         from pythonscad import polygon as _polygon
