@@ -51,6 +51,8 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Resolved version: $VERSION"
+          # FIX: Explicitly set the output for GitHub Actions
+          echo "tag_name=$RAW" >> "$GITHUB_OUTPUT"
 
       - name: Write the version into the code
         run: |
