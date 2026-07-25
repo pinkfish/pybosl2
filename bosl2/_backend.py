@@ -37,9 +37,66 @@ __all__ = [
     "get_backend",
     "known_backends",
     "check_operand_backend",
+    "supports",
+    "unsupported_feature",
     "Solid",
     "SolidBackend",
 ]
+
+# Features one backend has that the other cannot faithfully express. Calling one of these on the
+# wrong backend raises UnsupportedByBackend (see the wrappers' __getattr__) instead of a confusing
+# AttributeError -- or, for the SDF backend, instead of meshing just to fail.
+CSG_ONLY_FEATURES = frozenset(
+    {  # BOSL2's attachment / anchor system -- no SDF equivalent
+        "attach",
+        "anchor_point",
+        "reanchor",
+        "position",
+        "align",
+        "reorient",
+        "orient",
+        "edge_mask",
+        "edge_profile",
+        "edge_profile_asym",
+        "corner_profile",
+        "face_profile",
+    }
+)
+SDF_ONLY_FEATURES = frozenset(
+    {  # implicit-surface edge treatments -- CSG rounds via rounding=/chamfer= params, not a method
+        "round",
+        "chamfer",
+    }
+)
+
+
+def supports(backend: str, feature: str) -> bool:
+    """Whether *backend* can do *feature*. Backend-exclusive features are False on the other side;
+    everything else (the shared surface) is assumed supported."""
+    if feature in CSG_ONLY_FEATURES:
+        return backend == "csg"
+    if feature in SDF_ONLY_FEATURES:
+        return backend == "sdf"
+    return True
+
+
+def unsupported_feature(backend: str, name: str):
+    """The :class:`~bosl2.exceptions.UnsupportedByBackend` to raise if *name* is exclusive to the
+    OTHER backend, else ``None`` (so the caller can fall through to normal attribute handling)."""
+    from bosl2.exceptions import UnsupportedByBackend
+
+    if backend == "sdf" and name in CSG_ONLY_FEATURES:
+        return UnsupportedByBackend(
+            name, "sdf", hint="attachment/anchoring is a CSG-backend feature; build it with the default (csg) backend."
+        )
+    if backend == "csg" and name in SDF_ONLY_FEATURES:
+        return UnsupportedByBackend(
+            name,
+            "csg",
+            hint=f"the csg backend has no implicit {name}(); use the rounding=/chamfer= "
+            "parameters on cuboid()/cyl(), or build the shape under use_backend('sdf').",
+        )
+    return None
 
 
 def check_operand_backend(self_backend: str, other: Any) -> None:

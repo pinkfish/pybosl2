@@ -22,6 +22,7 @@ from typing import Any, Callable
 import numpy as np
 
 from bosl2._backend import check_operand_backend as _check_operand_backend
+from bosl2._backend import unsupported_feature as _unsupported_feature
 from bosl2._native import native
 from bosl2._sdf._constants import BOTTOM, CENTER, FRONT, LEFT
 from bosl2._sdf._edges import (
@@ -246,8 +247,14 @@ class PyShape:
         return self._mesh_cache
 
     def __getattr__(self, name):
-        # Anything not defined on PyShape itself (color/show/... or any other real PyOpenSCAD
-        # method) falls through to the meshed solid.
+        # A CSG-only feature (attachment/anchoring) on the SDF backend raises a clear error rather
+        # than meshing (libfive) just to fail with a confusing AttributeError.
+        if not (name.startswith("__") and name.endswith("__")):
+            _unsupported = _unsupported_feature("sdf", name)
+            if _unsupported is not None:
+                raise _unsupported
+        # Anything else (color/show/... or any other real PyOpenSCAD method) falls through to the
+        # meshed solid.
         return getattr(self.mesh(), name)
 
     # ---- SDF-level composition ----

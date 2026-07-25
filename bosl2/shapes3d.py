@@ -34,6 +34,7 @@ from bosl2._native import native
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
 from bosl2._backend import check_operand_backend as _check_operand_backend
+from bosl2._backend import unsupported_feature as _unsupported_feature
 from bosl2.color import Colorable
 from bosl2.distributors import Distributable
 from bosl2.geometry import cross
@@ -183,6 +184,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         # so copy/pickle/hasattr behave instead of blowing the stack.
         if name == "shape" or (name.startswith("__") and name.endswith("__")):
             raise AttributeError(name)
+        _unsupported = _unsupported_feature("csg", name)  # SDF-only feature on the CSG backend?
+        if _unsupported is not None:
+            raise _unsupported
         shape = object.__getattribute__(self, "shape")  # bypass __getattr__: no recursion
         attr = getattr(shape, name)
         if not callable(attr):
