@@ -5,136 +5,37 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # The cuboid() edge-selector mini-language (`_edges()`, `EDGES_ALL`, edge vectors like
 # `TOP+LEFT`) and the anchor-offset helpers for each primitive family (box/cylinder/
-# sphere/convex-hull), needed by pysolidfive/__init__.py's cuboid()/cyl()/sphere()/etc.
-# Deliberately a vendored copy of the relevant subset of bosl2/shapes3d.py and
-# bosl2/shapes2d.py's _pick_radius() rather than an import from either -- pysolidfive is
-# meant to stand alone (no bosl2, and therefore no transitive numpy dependency; see the
-# package docstring in pysolidfive/__init__.py). Kept byte-for-byte identical to bosl2's
-# algorithm so both libraries still accept identical edge selectors.
+# sphere/convex-hull), needed by the SDF backend's cuboid()/cyl()/sphere()/etc.
+# A vendored subset of bosl2/shapes3d.py's edge/anchor helpers, kept identical to bosl2's
+# algorithm so both backends accept the same edge selectors. The radius/diameter resolver
+# (_pick_radius) is NOT copied here -- it is imported from bosl2.shapes2d so the two backends
+# share a single implementation (M6: no SDF/CSG math duplication).
 import math
 from collections.abc import Sequence
 
-# ---------------------------------------------------------------------------
-# Radius/diameter resolution
-# ---------------------------------------------------------------------------
-
-
-def _pick_radius(
-    radius1: float | None = None,
-    diameter1: float | None = None,
-    radius2: float | None = None,
-    diameter2: float | None = None,
-    radius: float | None = None,
-    diameter: float | None = None,
-    dflt: float | None = None,
-) -> float | None:
-    """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) > dflt."""
-    if radius1 is not None:
-        return radius1
-    if diameter1 is not None:
-        return diameter1 / 2
-    if radius2 is not None:
-        return radius2
-    if diameter2 is not None:
-        return diameter2 / 2
-    if radius is not None:
-        return radius
-    if diameter is not None:
-        return diameter / 2
-    return dflt
-
+# The shared radius-priority resolver (radius1 > d1/2 > radius2 > d2/2 > radius > d/2 > dflt).
+# Re-exported so bosl2._sdf.paths and bosl2._sdf.shapes3d can import it from here as before.
+from bosl2.shapes2d import _pick_radius  # noqa: F401
 
 # ---------------------------------------------------------------------------
-# cuboid() edge-set machinery, mirroring BOSL2 attachments.scad
+# cuboid() edge-set machinery -- mirrors BOSL2 attachments.scad.
+# M6: this is the SAME mini-language as bosl2/shapes3d.py (verified identical over every
+# selector), so it is imported from there rather than kept as a second copy. Re-exported so
+# bosl2._sdf.paths and bosl2._sdf.shapes3d can keep importing these names from here.
 # ---------------------------------------------------------------------------
-
-EDGES_ALL = [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]
-EDGES_NONE = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-
-# The vector pointing to the center of each edge of a unit cube; EDGE_OFFSETS[axis][i]
-# corresponds to edges[axis][i] in the edge-set representation above.
-EDGE_OFFSETS = [
-    [[0, -1, -1], [0, 1, -1], [0, -1, 1], [0, 1, 1]],
-    [[-1, 0, -1], [1, 0, -1], [-1, 0, 1], [1, 0, 1]],
-    [[-1, -1, 0], [1, -1, 0], [-1, 1, 0], [1, 1, 0]],
-]
-
-_MAJOR_AXIS_VALID = ["X", "Y", "Z", "ALL", "NONE"]
-
-
-def _is_edge_array(x: str | list[list[str]] | None) -> bool:
-    return isinstance(x, list) and len(x) == 3 and all(isinstance(row, list) and len(row) == 4 for row in x)
-
-
-def _edge_set(v) -> list[list[int]]:
-    if _is_edge_array(v):
-        return v
-    out = []
-    for ax in range(3):
-        row = []
-        for b in (-1, 1):
-            for a in (-1, 1):
-                v2 = [[0, a, b], [a, 0, b], [a, b, 0]][ax]
-                if isinstance(v, str):
-                    if v == "X":
-                        matched = ax == 0
-                    elif v == "Y":
-                        matched = ax == 1
-                    elif v == "Z":
-                        matched = ax == 2
-                    elif v == "ALL":
-                        matched = True
-                    elif v == "NONE":
-                        matched = False
-                    else:
-                        raise ValueError(f"{v} must be a vector, edge array, or one of {_MAJOR_AXIS_VALID}")
-                else:
-                    nonz = sum(abs(x) for x in v)
-                    if nonz == 2:
-                        matched = list(v) == v2
-                    else:
-                        matches = sum(1 for i in range(3) if v[i] and v[i] == v2[i])
-                        matched = matches == (1 if nonz == 1 else 2)
-                row.append(1 if matched else 0)
-        out.append(row)
-    return out
-
-
-def _is_plain_vector(v: list | None) -> bool:
-    return (
-        isinstance(v, list) and len(v) > 0 and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
-    )
-
-
-def _edges(v, except_: list | None = None) -> list[list[int]]:
-    if except_ is None:
-        except_ = []
-    if v == []:
-        return EDGES_NONE
-    if isinstance(v, str) or _is_edge_array(v) or _is_plain_vector(v):
-        return _edges([v], except_)
-    if isinstance(except_, str) or _is_edge_array(except_) or _is_plain_vector(except_):
-        return _edges(v, [except_])
-    summed = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-    for x in v:
-        es = _edge_set(x)
-        for ax in range(3):
-            for i in range(4):
-                summed[ax][i] += es[ax][i]
-    normed = [[1 if summed[ax][i] > 0 else 0 for i in range(4)] for ax in range(3)]
-    if not except_:
-        return normed
-    exc = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-    for x in except_:
-        es = _edge_set(x)
-        for ax in range(3):
-            for i in range(4):
-                exc[ax][i] += es[ax][i]
-    return [[1 if (normed[ax][i] - (1 if exc[ax][i] > 0 else 0)) > 0 else 0 for i in range(4)] for ax in range(3)]
-
+from bosl2.shapes3d import (  # noqa: E402, F401
+    _MAJOR_AXIS_VALID,
+    EDGE_OFFSETS,
+    EDGES_ALL,
+    EDGES_NONE,
+    _edge_set,
+    _edges,
+    _is_edge_array,
+    _is_plain_vector,
+)
 
 # ---------------------------------------------------------------------------
-# Anchor-offset helpers, one per primitive family
+# Anchor-offset helpers, one per primitive family (SDF-backend specific)
 # ---------------------------------------------------------------------------
 
 

@@ -26,6 +26,11 @@ from numpy.typing import ArrayLike, NDArray
 from bosl2._sdf._edges import _pick_radius
 from bosl2._sdf._libfive import lv
 
+# M6: shared pure-math helpers live in bosl2 proper (verified output-identical to the old
+# vendored copies), so the SDF backend imports rather than duplicating them.
+from bosl2.geometry import circle_circle_tangents, line_normal  # noqa: F401
+from bosl2.math import deriv
+
 
 def as_path_list(paths: list[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:
     """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a
@@ -486,56 +491,6 @@ def _lerp_pt(a: Sequence[float], b: Sequence[float], t: float) -> NDArray[np.flo
     return aa + (np.asarray(b, dtype=float) - aa) * float(t)
 
 
-def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]:
-    """Unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --
-    byte-for-byte the bosl2 port's convention."""
-    return _v_unit([p1[1] - p2[1], p2[0] - p1[0]])
-
-
-def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> NDArray[np.float64]:
-    """BOSL2 deriv(): numerical first derivative of vector-valued samples, with either a
-    scalar step or a per-segment step list (the non-uniform variant path_tangents() feeds
-    with segment lengths)."""
-    pts = np.asarray(data, dtype=float)
-    L = len(pts)
-    assert L >= 2
-    if isinstance(h, (int, float)):
-        if closed:
-            return (np.roll(pts, -1, axis=0) - np.roll(pts, 1, axis=0)) / (2 * h)
-        first = pts[1] - pts[0] if L < 3 else 3 * (pts[1] - pts[0]) - (pts[2] - pts[1])
-        last = pts[L - 1] - pts[L - 2] if L < 3 else (pts[L - 3] - pts[L - 2]) - 3 * (pts[L - 2] - pts[L - 1])
-        mid = (pts[2:] - pts[:-2]) / (2 * h) if L > 2 else np.empty((0, pts.shape[1]))
-        return np.vstack([[first / (2 * h)], mid, [last / (2 * h)]])
-
-    hs = np.asarray(h, dtype=float)
-
-    def dnu(f1: float, fc: float, f2: float, h1: float, h2: float) -> NDArray[np.float64]:
-        g1 = _lerp_pt(fc, f1, h2 / h1) if h2 < h1 else f1
-        g2 = _lerp_pt(fc, f2, h1 / h2) if h1 < h2 else f2
-        return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (2 * min(h1, h2))
-
-    if closed:
-        assert len(hs) == L
-        return np.asarray(
-            [
-                dnu(
-                    pts[(L + i - 1) % L],
-                    pts[i],
-                    pts[(i + 1) % L],
-                    hs[(i - 1) % L],
-                    hs[i],
-                )
-                for i in range(L)
-            ]
-        )
-    assert len(hs) == L - 1
-    return np.vstack(
-        [[(pts[1] - pts[0]) / hs[0]]]
-        + [[dnu(pts[i - 1], pts[i], pts[i + 1], hs[i - 1], hs[i])] for i in range(1, L - 1)]
-        + [[(pts[L - 1] - pts[L - 2]) / hs[L - 2]]]
-    )
-
-
 def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -> NDArray[np.float64]:
     """BOSL2 path_tangents(): unit tangent at each path point (uniform=False weights the
     derivative by segment lengths, which is what rabbit_clip() uses)."""
@@ -546,7 +501,7 @@ def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -
         seg_ends = np.roll(pts, -1, axis=0) if closed else pts[1:]
         seg_starts = pts if closed else pts[:-1]
         segs = np.linalg.norm(seg_ends - seg_starts, axis=1)
-        d = deriv(pts, h=segs, closed=closed)
+        d = deriv(pts, segs, closed=closed)
     norms = np.linalg.norm(d, axis=1, keepdims=True)
     assert np.all(norms > 1e-12), "cannot normalize a zero tangent"
     return d / norms
@@ -657,42 +612,6 @@ def path_to_bezpath(
         out.append(second + tangent2 * ln)
     out.append(path[lastpt % len(path)])
     return np.asarray(out, dtype=float)
-
-
-def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: ArrayLike) -> NDArray[np.float64]:
-    """Tangent lines between two circles, each returned as a [point_on_circle1,
-    point_on_circle2] pair -- same construction and ORDERING as bosl2's port (rabbit_clip()
-    indexes [0][1], so the ordering matters): 2 external tangents, then 2 internal ones if
-    the circles don't overlap."""
-    cp1 = np.asarray(cp1, dtype=float)
-    cp2 = np.asarray(cp2, dtype=float)
-    dist = float(np.linalg.norm(cp2 - cp1))
-    r_vals = [
-        (radius2 - radius1) / dist,
-        (radius2 - radius1) / dist,
-        (-radius2 - radius1) / dist,
-        (-radius2 - radius1) / dist,
-    ]
-    k_vals = [-1, 1, -1, 1]
-    ext = [1, 1, -1, -1]
-    if 1 - r_vals[2] ** 2 >= 0:
-        n = 4
-    elif 1 - r_vals[0] ** 2 >= 0:
-        n = 2
-    else:
-        n = 0
-    u = _v_unit(_v_sub(cp2, cp1))
-    result = []
-    for i in range(n):
-        r = r_vals[i]
-        s = math.sqrt(max(0.0, 1 - r * r))
-        k = k_vals[i]
-        coef = np.asarray([r * u[0] - k * s * u[1], k * s * u[0] + r * u[1]])
-        p1 = cp1 - radius1 * coef
-        p2 = cp2 - ext[i] * radius2 * coef
-        if not np.array_equal(p1, p2):
-            result.append([p1, p2])
-    return np.asarray(result, dtype=float)
 
 
 def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
