@@ -82,7 +82,7 @@ jobs:
           git config --local --unset-all "http.https://github.com" || true
           
           # FIX: Explicitly inject authentication into the remote URL using GITHUB_TOKEN
-          git remote set-url origin "https://x-access-token:${{ secrets.PAT }}@://github.com${{ github.repository }}.git"
+          git remote set-url origin "https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}.git"
          
           if git diff --quiet -- bosl2/version.py; then
             echo "version already up to date; nothing to commit"
