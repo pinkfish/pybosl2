@@ -66,17 +66,27 @@ jobs:
           PY
 
       - name: Commit the version bump to main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Pass token explicitly for the push auth
         run: |
           VERSION="${{ steps.ver.outputs.version }}"
+          
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # FIX: Clear the restricted header cached by the checkout action
+          git config --local --unset-all "http.https://github.com" || true
+          
+          # FIX: Explicitly inject authentication into the remote URL using GITHUB_TOKEN
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@://github.com{{ github.repository }}.git"
+
           if git diff --quiet -- bosl2/version.py; then
             echo "version already up to date; nothing to commit"
           else
             git add bosl2/version.py
             git commit -m "Release ${VERSION}: set version in code"
             git push origin HEAD:main
-          fi
+          fi      - name: Build sdist and wheel
 
       - name: Build sdist and wheel
         run: |
