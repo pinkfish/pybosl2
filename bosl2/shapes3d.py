@@ -140,6 +140,10 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     the raw native object: use `.shape` to unwrap explicitly.
     """
 
+    #: which realize backend produced this solid -- see bosl2/_backend.py. Bosl2Solid is the
+    #: exact-CSG (PythonSCAD) backend's Solid; the libfive/SDF backend uses its own wrapper.
+    backend = "csg"
+
     def __init__(
         self,
         shape: PyOpenSCAD,

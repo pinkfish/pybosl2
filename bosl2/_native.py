@@ -4,18 +4,15 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: bosl2/_native.py
-#    Lazy handles to PythonSCAD's native primitives (cube/cylinder/sphere/polygon/hull/...).
+# Lazy handles to PythonSCAD's native primitives (cube/cylinder/sphere/polygon/hull/...).
 #
-#    The pure-Python geometry layer references these at module load, but PythonSCAD's C++ FFI
-#    (`pythonscad`) is only needed when geometry is actually *constructed*. Wrapping each native op
-#    in a lazy callable lets the whole `bosl2` package import -- and its math/algorithms be
-#    unit-tested, type-checked and introspected -- without the FFI present; the `import pythonscad`
-#    happens on the first call, not at module load. This keeps the dependency direction right: the
-#    algorithmic code no longer drags the native runtime in just to be imported.
+# The pure-Python geometry layer references these at module load, but PythonSCAD's C++ FFI
+# (`pythonscad`) is only needed when geometry is actually *constructed*. Wrapping each native op
+# in a lazy callable lets the whole `bosl2` package import -- and its math/algorithms be
+# unit-tested, type-checked and introspected -- without the FFI present; the `import pythonscad`
+# happens on the first call, not at module load. This keeps the dependency direction right: the
+# algorithmic code no longer drags the native runtime in just to be imported.
 #
-# FileSummary: Lazy proxies for the native PythonSCAD primitives (import-without-FFI).
-# FileGroup: BOSL2
 
 from __future__ import annotations
 
