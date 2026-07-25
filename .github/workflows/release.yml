@@ -32,7 +32,10 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-
+          # FIX: Pass your PAT directly to checkout so Git initializes with write access
+          token: ${{ secrets.RELEASE_PAT }}
+          persist-credentials: true
+          
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
