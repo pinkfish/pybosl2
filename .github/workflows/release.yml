@@ -98,7 +98,7 @@ jobs:
             
             # 3. FORCE-PUSH the updated tag back to GitHub to correct the release target
             git push origin -f "$TAG_NAME"
-          fi      - name: Build sdist and wheel
+          fi
 
       - name: Build sdist and wheel
         run: |
