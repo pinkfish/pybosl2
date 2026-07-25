@@ -56,16 +56,16 @@ jobs:
         run: |
           VERSION="${{ steps.ver.outputs.version }}"
           python - "$VERSION" <<'PY'
-            import re, sys, pathlib
-            # FIX: Target the first actual positional argument index instead of the whole argv array
-            version = sys.argv[1] 
-            path = pathlib.Path("bosl2/version.py")
-            text = path.read_text()
-            new, n = re.subn(r'^__version__ = ".*"$', f'__version__ = "{version}"', text, count=1, flags=re.MULTILINE)
-            if n != 1:
-                raise SystemExit("could not find __version__ assignment in bosl2/version.py")
-            path.write_text(new)
-            print(f"bosl2/version.py -> __version__ = {version!r}")
+          import re, sys, pathlib
+          # FIX: Target the first actual positional argument index instead of the whole argv array
+          version = sys.argv[1] 
+          path = pathlib.Path("bosl2/version.py")
+          text = path.read_text()
+          new, n = re.subn(r'^__version__ = ".*"$', f'__version__ = "{version}"', text, count=1, flags=re.MULTILINE)
+          if n != 1:
+              raise SystemExit("could not find __version__ assignment in bosl2/version.py")
+          path.write_text(new)
+          print(f"bosl2/version.py -> __version__ = {version!r}")
           PY
           
       - name: Commit the version bump to main
