@@ -64,5 +64,5 @@ def test_cross_backend_error_gives_conversion_guidance():
     err = CrossBackendError("csg", "sdf")
     assert err.left == "csg" and err.right == "sdf"
     msg = str(err)
-    assert "to_csg" in msg and "to_sdf" in msg  # tells you how to convert either way
+    assert "to_csg" in msg  # points at the supported SDF->CSG bridge
     assert isinstance(err, Bosl2Error)

@@ -60,6 +60,6 @@ class CrossBackendError(Bosl2Error):
         self.right = right
         super().__init__(
             f"cannot combine a {left!r}-backend solid with a {right!r}-backend solid -- operands "
-            f"must share a backend. Convert one first: `a.to_{left}()` / `b.to_{right}()` "
-            f"(SDF->CSG is an exact mesh->polyhedron; CSG->SDF voxel-samples, so pass voxel_size=)."
+            f"must share a backend. Bring the SDF solid into the CSG world with `.to_csg()` (an "
+            f"exact mesh->polyhedron) and combine there. (Direct CSG->SDF conversion is not supported.)"
         )

@@ -36,9 +36,25 @@ __all__ = [
     "register_backend",
     "get_backend",
     "known_backends",
+    "check_operand_backend",
     "Solid",
     "SolidBackend",
 ]
+
+
+def check_operand_backend(self_backend: str, other: Any) -> None:
+    """Raise :class:`~bosl2.exceptions.CrossBackendError` if *other* is a Solid on a different backend.
+
+    Called by every boolean operator so ``csg_solid | sdf_solid`` fails loudly with conversion
+    guidance instead of producing nonsense. A raw native shape (no ``backend`` attribute) is treated
+    as same-backend so existing native interop keeps working.
+    """
+    other_backend = getattr(other, "backend", None)
+    if other_backend is not None and other_backend != self_backend:
+        from bosl2.exceptions import CrossBackendError
+
+        raise CrossBackendError(self_backend, other_backend)
+
 
 BackendName = str  # "csg" | "sdf" (kept a plain str so third-party backends can register too)
 

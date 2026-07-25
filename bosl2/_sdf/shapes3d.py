@@ -21,6 +21,7 @@ from typing import Any, Callable
 
 import numpy as np
 
+from bosl2._backend import check_operand_backend as _check_operand_backend
 from bosl2._native import native
 from bosl2._sdf._constants import BOTTOM, CENTER, FRONT, LEFT
 from bosl2._sdf._edges import (
@@ -355,7 +356,22 @@ class PyShape:
         new_mx = [max(c[i] for c in refl) for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
 
+    def to_sdf(self) -> PyShape:
+        """This solid is already on the SDF backend -- returns self (the converter no-op)."""
+        return self
+
+    def to_csg(self):
+        """Convert to the CSG backend: mesh the SDF (libfive frep) and wrap it as a Bosl2Solid.
+
+        Exact -- the meshed surface IS the field's zero set. This is the supported bridge for mixing
+        an SDF shape into CSG booleans (``csg_solid | sdf_solid.to_csg()``). Needs libfive at call
+        time (like any SDF meshing)."""
+        from bosl2.shapes3d import Bosl2Solid
+
+        return Bosl2Solid(self.mesh())
+
     def __or__(self, other: "PyShape") -> PyShape:
+        _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y, z: lv.min(fa(x, y, z), fb(x, y, z))  # noqa: E731
         mn = [min(self.mn[i], other.mn[i]) for i in range(3)]
@@ -363,6 +379,7 @@ class PyShape:
         return self._wrap(new_fn, mn, mx)
 
     def __and__(self, other: "PyShape") -> PyShape:
+        _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y, z: lv.max(fa(x, y, z), fb(x, y, z))  # noqa: E731
         # The intersection can only live where BOTH boxes overlap -- so the meshing region
@@ -373,6 +390,7 @@ class PyShape:
         return self._wrap(new_fn, mn, mx)
 
     def __sub__(self, other: "PyShape") -> PyShape:
+        _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
         new_fn = lambda x, y, z: lv.max(fa(x, y, z), -fb(x, y, z))  # noqa: E731
         return self._wrap(new_fn, list(self.mn), list(self.mx))
