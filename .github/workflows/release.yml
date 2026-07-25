@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   release:
@@ -23,6 +24,7 @@ jobs:
     permissions:
       id-token: write  # Mandatory for Trusted Publishing
       contents: write
+      pull-requests: write
 
     steps:
       - name: Check out main
