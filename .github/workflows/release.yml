@@ -70,6 +70,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Pass token explicitly for the push auth
         run: |
           VERSION="${{ steps.ver.outputs.version }}"
+          TAG_NAME="${{ steps.ver.outputs.tag_name }}"
           
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
