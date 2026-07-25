@@ -64,6 +64,7 @@ jobs:
           path.write_text(new)
           print(f"bosl2/version.py -> __version__ = {version!r}")
           PY
+          
       - name: Commit the version bump to main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Pass token explicitly for the push auth
