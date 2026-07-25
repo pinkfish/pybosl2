@@ -165,6 +165,19 @@ def test_sdf_path_sweep_tube_volume(tmp_path):
     assert abs(m.volume - expected) < 0.02 * expected
 
 
+def test_sdf_concave_profile_sweep_volume(tmp_path):
+    # A concave (L-shaped) profile swept straight: meshes watertight with the notch carved out, so
+    # the volume equals the L's area (8x8 minus a 5x5 corner = 39) times the height.
+    setup = (
+        "from bosl2._sdf.shapes3d import path_sweep\n"
+        "L = [[0,0],[8,0],[8,3],[3,3],[3,8],[0,8]]\n"
+        "pathz = [[0, 0, z] for z in np.linspace(0, 20, 40)]\n"
+    )
+    m = _render(tmp_path, "path_sweep(L, pathz, res=16)", setup=setup, name="sdfconcavesweep")
+    assert m.watertight
+    assert abs(m.volume - 39 * 20) < 0.02 * (39 * 20)
+
+
 def test_sdf_bezier_sweep_watertight(tmp_path):
     # A profile swept along a curved 3-D Bezier as a libfive SDF meshes to a closed solid.
     setup = (

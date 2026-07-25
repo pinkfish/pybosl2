@@ -143,9 +143,11 @@ Query support directly with ``supports(backend, feature)``::
 Sweeping a profile along a path (SDF)
 -------------------------------------
 
-The SDF backend can sweep a **convex** 2-D profile along a 3-D path directly as a distance field
-(``bosl2._sdf.shapes3d.path_sweep`` / ``bezier_sweep``). The profile is placed in a
-rotation-minimizing frame at each path sample and unioned, so the result is a true SDF — it can be
+The SDF backend can sweep a 2-D profile (**convex or concave**) along a 3-D path directly as a
+distance field (``bosl2._sdf.shapes3d.path_sweep`` / ``bezier_sweep``). The profile is placed in a
+rotation-minimizing frame at each path sample and unioned; the cross-section itself is evaluated with
+the convex-deficiency decomposition (the same one ``polygon_prism`` uses over the convex-only
+``polygon_extrude``), so concave outlines are handled correctly. The result is a true SDF — it can be
 ``.round()``/``.chamfer()``ed, meshed at any resolution, or bridged to CSG with ``.to_csg()``. Bezier
 generation stays bosl2's canonical :class:`~bosl2.beziers.Bezier`; the sweep just consumes the
 sampled curve::
