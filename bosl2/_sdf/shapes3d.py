@@ -2008,3 +2008,165 @@ def regular_prism(
     if any(offset):
         prism = prism.translate(offset)
     return prism
+
+
+# ---------------------------------------------------------------------------
+# Sweeping a 2-D profile along a 3-D path, as a libfive SDF
+# ---------------------------------------------------------------------------
+
+
+def _convex_profile_edges(profile):
+    """A CONVEX 2-D profile as (ordered_points, edges), each edge a (nx, ny, x0, y0) outward
+    half-plane -- the same construction polygon_extrude() uses for its cross-section."""
+    pts = as_points(profile)
+    assert len(pts) >= 3, "sweep profile needs at least 3 points"
+    m = len(pts)
+    area2 = sum(pts[i][0] * pts[(i + 1) % m][1] - pts[(i + 1) % m][0] * pts[i][1] for i in range(m))
+    ordered = pts if area2 > 0 else list(reversed(pts))
+    edges = []
+    for i in range(len(ordered)):
+        x0, y0 = ordered[i]
+        x1, y1 = ordered[(i + 1) % len(ordered)]
+        ex, ey = x1 - x0, y1 - y0
+        elen = math.hypot(ex, ey)
+        assert elen > 1e-12, "sweep profile has a zero-length edge"
+        edges.append((ey / elen, -ex / elen, float(x0), float(y0)))
+    return ordered, edges
+
+
+def _rmf_frames(points):
+    """Rotation-minimizing frames along a 3-D polyline (Wang et al.'s double-reflection method).
+
+    Returns (T, N, B) arrays -- unit tangent, normal and binormal at each point. Unlike a Frenet
+    frame this does not flip at inflection points, so the swept profile does not suddenly twist.
+    """
+    p = np.asarray(points, dtype=float)
+    n = len(p)
+    t = np.zeros((n, 3))
+    t[1:-1] = p[2:] - p[:-2]
+    t[0] = p[1] - p[0]
+    t[-1] = p[-1] - p[-2]
+    tl = np.linalg.norm(t, axis=1, keepdims=True)
+    assert np.all(tl > 1e-12), "path has a repeated point (zero-length tangent)"
+    t /= tl
+    nrm = np.zeros((n, 3))
+    ref = np.array([0.0, 0.0, 1.0]) if abs(t[0][2]) < 0.9 else np.array([1.0, 0.0, 0.0])
+    n0 = ref - np.dot(ref, t[0]) * t[0]
+    nrm[0] = n0 / np.linalg.norm(n0)
+    for i in range(n - 1):
+        v1 = p[i + 1] - p[i]
+        c1 = float(np.dot(v1, v1))
+        if c1 < 1e-18:
+            nrm[i + 1] = nrm[i]
+            continue
+        r_l = nrm[i] - (2.0 / c1) * np.dot(v1, nrm[i]) * v1
+        t_l = t[i] - (2.0 / c1) * np.dot(v1, t[i]) * v1
+        v2 = t[i + 1] - t_l
+        c2 = float(np.dot(v2, v2))
+        nn = r_l if c2 < 1e-18 else r_l - (2.0 / c2) * np.dot(v2, r_l) * v2
+        nrm[i + 1] = nn / np.linalg.norm(nn)
+    b = np.cross(t, nrm)
+    return t, nrm, b
+
+
+def path_sweep(profile, path, res: int = 12, twist: float = 0.0) -> PyShape:
+    """Sweep a CONVEX 2-D `profile` (list of ``[u, v]`` cross-section points) along a 3-D `path`
+    (a list of ``[x, y, z]`` points -- 2-D points are lifted to ``z = 0``), as a libfive SDF.
+
+    At each path sample the profile is placed in a rotation-minimizing frame (see
+    :func:`_rmf_frames`) -- ``u`` along the frame normal, ``v`` along the binormal -- and the swept
+    solid is the union (``min``) of those oriented cross-sections. Because a union of exact SDFs is
+    exact, this is a true signed-distance field: it can be ``.round()``/``.chamfer()``ed, meshed at
+    any resolution, or combined with other backends' solids via ``.to_csg()`` like any other
+    :class:`PyShape`. Denser paths give a smoother lateral surface (the sweep converges from the
+    faceted union of cross-sections). The ends are capped perpendicular to the path.
+
+    `twist` is a total rotation of the profile (in degrees) applied evenly along the path.
+
+    CAVEAT: `profile` must be convex (same reason as :func:`polygon_extrude`).
+    """
+    ordered, edges = _convex_profile_edges(profile)
+    pts3 = [list(p) + [0.0] * (3 - len(p)) for p in np.asarray(path, dtype=float).tolist()]
+    assert len(pts3) >= 2, "sweep path needs at least 2 points"
+    p = np.asarray(pts3, dtype=float)
+    tang, norm, binorm = _rmf_frames(p)
+    n = len(p)
+
+    seg = np.linalg.norm(p[1:] - p[:-1], axis=1)
+    # Each station's cross-section occupies [-ext_back, +ext_fwd] along its tangent. Interior
+    # stations reach 0.6 of the way into each neighbouring segment, so consecutive slabs always
+    # overlap (a gap-free union even where the path curves); the two ends cap exactly at the path
+    # endpoints (ext = 0 on the outward side), so the sweep does not overshoot.
+    ext_back = np.zeros(n)
+    ext_fwd = np.zeros(n)
+    for i in range(n):
+        ext_fwd[i] = 0.0 if i == n - 1 else 0.6 * seg[i]
+        ext_back[i] = 0.0 if i == 0 else 0.6 * seg[i - 1]
+
+    tws = np.radians(twist) * (np.arange(n) / (n - 1)) if twist else np.zeros(n)
+
+    stations = []
+    for i in range(n):
+        ca, sa = math.cos(tws[i]), math.sin(tws[i])
+        stations.append(
+            (
+                tuple(p[i]),
+                tuple(norm[i]),
+                tuple(binorm[i]),
+                tuple(tang[i]),
+                float(ext_back[i]),
+                float(ext_fwd[i]),
+                ca,
+                sa,
+            )
+        )
+
+    def sdf_fn(x, y, z):
+        total = None
+        for (cx, cy, cz), (nx, ny, nz), (bx, by, bz), (tx, ty, tz), eb, ef, ca, sa in stations:
+            dx, dy, dz = x - cx, y - cy, z - cz
+            u = nx * dx + ny * dy + nz * dz
+            v = bx * dx + by * dy + bz * dz
+            w = tx * dx + ty * dy + tz * dz
+            if sa:  # twist: rotate the query into the profile's frame
+                u, v = ca * u + sa * v, -sa * u + ca * v
+            pd = None
+            for enx, eny, ex0, ey0 in edges:
+                e = enx * (u - ex0) + eny * (v - ey0)
+                pd = e if pd is None else lv.max(pd, e)
+            # signed distance to the tangent interval [-eb, ef]
+            cap = lv.max((-eb) - w, w - ef)
+            slab = lv.max(pd, cap)
+            total = slab if total is None else lv.min(total, slab)
+        return total
+
+    pu = [q[0] for q in ordered]
+    pv = [q[1] for q in ordered]
+    world = []
+    for i in range(n):
+        for uu in (min(pu), max(pu)):
+            for vv in (min(pv), max(pv)):
+                base = p[i] + uu * norm[i] + vv * binorm[i]
+                world.append(base + ext_fwd[i] * tang[i])
+                world.append(base - ext_back[i] * tang[i])
+    world = np.asarray(world)
+    mn = world.min(axis=0).tolist()
+    mx = world.max(axis=0).tolist()
+    return PyShape(sdf_fn, mn, mx, res)
+
+
+def bezier_sweep(profile, control_points, splinesteps: int = 24, res: int = 12, twist: float = 0.0) -> PyShape:
+    """Sweep a CONVEX 2-D `profile` along a 3-D Bezier curve, as a libfive SDF.
+
+    `control_points` are the Bezier control points (any degree). The curve is generated with
+    bosl2's canonical :class:`bosl2.beziers.Bezier` (``splinesteps`` segments) and swept by
+    :func:`path_sweep`, so bezier generation and the signed-distance sweep compose directly::
+
+        from bosl2._sdf.shapes3d import bezier_sweep
+        circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
+        tube = bezier_sweep(circle, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
+    """
+    from bosl2.beziers import Bezier
+
+    path = Bezier(control_points).curve(splinesteps=splinesteps)
+    return path_sweep(profile, path, res=res, twist=twist)

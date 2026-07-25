@@ -150,6 +150,37 @@ def test_bezier_sweep_tube(tmp_path):
     assert m.watertight  # a capped tube is a closed solid
 
 
+def test_sdf_path_sweep_tube_volume(tmp_path):
+    # The libfive/SDF-backend sweep: a 32-gon circle (r=2) swept straight along z 0..30 meshes to a
+    # watertight prism whose volume matches the exact 32-gon x height (the sign/zero-set is correct).
+    setup = (
+        "from bosl2._sdf.shapes3d import path_sweep\n"
+        "circle = [[2*math.cos(t), 2*math.sin(t)] for t in np.linspace(0, 2*math.pi, 32, endpoint=False)]\n"
+        "pathz = [[0, 0, z] for z in np.linspace(0, 30, 60)]\n"
+    )
+    m = _render(tmp_path, "path_sweep(circle, pathz, res=16)", setup=setup, name="sdfsweep")
+    assert m.watertight
+    assert abs(m.size[0] - 4) < 0.1 and abs(m.size[1] - 4) < 0.1 and abs(m.size[2] - 30) < 0.1
+    expected = 0.5 * 32 * 2**2 * math.sin(2 * math.pi / 32) * 30  # 32-gon prism
+    assert abs(m.volume - expected) < 0.02 * expected
+
+
+def test_sdf_bezier_sweep_watertight(tmp_path):
+    # A profile swept along a curved 3-D Bezier as a libfive SDF meshes to a closed solid.
+    setup = (
+        "from bosl2._sdf.shapes3d import bezier_sweep\n"
+        "circle = [[2*math.cos(t), 2*math.sin(t)] for t in np.linspace(0, 2*math.pi, 24, endpoint=False)]\n"
+    )
+    m = _render(
+        tmp_path,
+        "bezier_sweep(circle, [[0,0,0],[0,0,20],[25,12,15],[30,4,6]], res=14)",
+        setup=setup,
+        name="sdfbeziersweep",
+    )
+    assert m.ntris > 0 and m.volume > 0
+    assert m.watertight
+
+
 def test_bezpath_sweep(tmp_path):
     setup = f"shape = {CIRCLE}\nbezpath = [[0,0,0],[10,0,0],[10,10,0],[10,10,10],[10,20,10],[0,20,10],[0,20,20]]\n"
     m = _render(

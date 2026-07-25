@@ -139,3 +139,23 @@ Query support directly with ``supports(backend, feature)``::
     supports("sdf", "attach")   # False
     supports("sdf", "round")    # True
     supports("csg", "sphere")   # True  -- shared surface
+
+Sweeping a profile along a path (SDF)
+-------------------------------------
+
+The SDF backend can sweep a **convex** 2-D profile along a 3-D path directly as a distance field
+(``bosl2._sdf.shapes3d.path_sweep`` / ``bezier_sweep``). The profile is placed in a
+rotation-minimizing frame at each path sample and unioned, so the result is a true SDF — it can be
+``.round()``/``.chamfer()``ed, meshed at any resolution, or bridged to CSG with ``.to_csg()``. Bezier
+generation stays bosl2's canonical :class:`~bosl2.beziers.Bezier`; the sweep just consumes the
+sampled curve::
+
+    import math, numpy as np
+    from bosl2._sdf.shapes3d import bezier_sweep
+
+    circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
+    tube = bezier_sweep(circle, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
+
+This is distinct from the CSG sweeps (:meth:`bosl2.beziers.Bezier.sweep`, ``skin``, ``offset_sweep``),
+which build a VNF/polyhedron mesh rather than a distance field. Denser paths give a smoother lateral
+surface; the ends cap perpendicular to the path.
