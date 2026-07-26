@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Hinges &#8212; bosl2 (PythonSCAD port) 0.5.9 documentation</title>
+    <title>Hinges &#8212; bosl2 (PythonSCAD port) 0.6.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=dd122b57" />
-    <script src="_static/documentation_options.js?v=9a3cda14"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
+    <script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -137,7 +137,15 @@
 
           <div class="body" role="main">
 
-  <div class="pysidebar"><p class="pysidebar-title">Navigation</p><ul class="pysidebar-list"><li class="ps-class"><strong>Hinges</strong></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.living_hinge_mask">Hinges.living_hinge_mask</a></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.knuckle_hinge">Hinges.knuckle_hinge</a></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.knuckle_hinge_pair">Hinges.knuckle_hinge_pair</a></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.snap_lock">Hinges.snap_lock</a></li><li class="ps-meth"><a href="#bosl2.hinges.Hinges.Hinges.snap_socket">Hinges.snap_socket</a></li></ul></div><section id="hinges">
+  <aside class="sidebar"><p class="sidebar-title">Navigation</p>
+<ul class="pysidebar-list">
+<li class="ps-class"><a href="#bosl2.hinges.Hinges.Hinges"><strong>Hinges</strong></a></li>
+<li class="ps-meth"><span>Hinges.living_hinge_mask</span></li>
+<li class="ps-meth"><span>Hinges.knuckle_hinge</span></li>
+<li class="ps-meth"><span>Hinges.knuckle_hinge_pair</span></li>
+<li class="ps-meth"><span>Hinges.snap_lock</span></li>
+<li class="ps-meth"><span>Hinges.snap_socket</span></li>
+</ul></aside><section id="hinges">
 <h1>Hinges<a class="headerlink" href="#hinges" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/hinges.html">Spec sheet &rarr;</a></b>
@@ -165,13 +173,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0219cd890ac34ec1a9be08ce02063cac" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-53f94fd63bf04b9db7f07241a8fe7554" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0219cd890ac34ec1a9be08ce02063cac");
+const el = document.getElementById("stlviewer-53f94fd63bf04b9db7f07241a8fe7554");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -221,13 +229,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-a7ed2ae2d4d14b5ea9428dc8224b6de5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7e3660a3096742b3a5227d25d0d85406" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-a7ed2ae2d4d14b5ea9428dc8224b6de5");
+const el = document.getElementById("stlviewer-7e3660a3096742b3a5227d25d0d85406");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -277,13 +285,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7d2cfae6c692478d82864aa21f92615c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8d4727c0ad2744a29db23326df17ca13" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7d2cfae6c692478d82864aa21f92615c");
+const el = document.getElementById("stlviewer-8d4727c0ad2744a29db23326df17ca13");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -333,13 +341,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-817a1e041c884ad3b8c9d7c208fe4b7e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3fa0d6bf653549d38db27c2276a80240" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-817a1e041c884ad3b8c9d7c208fe4b7e");
+const el = document.getElementById("stlviewer-3fa0d6bf653549d38db27c2276a80240");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -389,13 +397,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-8414b64d2f7f45bcae34970dda8a385b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-afc2b8810aa74e08bc672c33855a5203" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-8414b64d2f7f45bcae34970dda8a385b");
+const el = document.getElementById("stlviewer-afc2b8810aa74e08bc672c33855a5203");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
