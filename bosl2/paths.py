@@ -42,9 +42,14 @@
 
 import math
 from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+
+if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this module
+    from bosl2._backend import Solid  # noqa: F401
+    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike  # noqa: F401
+    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
 
 from bosl2.comparisons import approx
 from bosl2.distributors import (
@@ -296,8 +301,8 @@ class Path(Distributable, Extrudable, Roundable, list):
         """Translate every point by *v* (2-D; a 1-vector shifts X only)."""
         pts = self.array
         vv = np.zeros(2)
-        v = np.asarray(v, dtype=float)
-        vv[: min(2, len(v))] = v[: min(2, len(v))]
+        va = np.asarray(v, dtype=float)
+        vv[: min(2, len(va))] = va[: min(2, len(va))]
         return self._like(pts + vv)
 
     move = translate
@@ -351,16 +356,105 @@ class Path(Distributable, Extrudable, Roundable, list):
 
         return Region([self])
 
-    def polygon(self):
-        """Native 2-D geometry for this path (crosses the FFI as plain floats)."""
+    # -- 2-D geometry (csg backend only) ---------------------------------------------------
+    #
+    # A Path is backend-neutral -- it is just points -- but 2-D *geometry* is not: only the CSG
+    # backend has a 2-D shape (Bosl2Shape2D). The SDF backend models a field over 3-space and
+    # has no 2-D object to hand back, so these four raise UnsupportedByBackend under it rather
+    # than quietly building CSG geometry that could not then be combined with SDF solids.
+    # The extruders below, which end in a 3-D solid, DO work on both.
+
+    def _require_csg(self, feature: str) -> None:
+        from bosl2._backend import current_backend
+        from bosl2.exceptions import UnsupportedByBackend
+
+        backend = current_backend()
+        if backend != "csg":
+            raise UnsupportedByBackend(
+                feature,
+                backend,
+                hint="2-D geometry is a csg-backend notion; the sdf backend goes straight from "
+                "path points to a 3-D field. Use .linear_extrude(...) here, or build the 2-D "
+                "shape under the default (csg) backend.",
+            )
+
+    def polygon(self) -> "Bosl2Shape2D":
+        """This path as 2-D geometry (crosses the FFI as plain floats).
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
+            operators (``.fill()``, ``.hull()``, ``.offset()``) and the extruders
+            (``.linear_extrude(...)``).
+
+        Raises:
+            ~bosl2.exceptions.UnsupportedByBackend: under ``use_backend("sdf")`` -- see the note
+            above :meth:`linear_extrude`, which works on both backends.
+        """
         from pythonscad import polygon as _polygon
 
-        return _polygon([[float(x), float(y)] for x, y in self])
+        from bosl2.shapes2d import Bosl2Shape2D  # local: shapes2d imports this module
 
-    def geometry(self):
-        """Native 2-D geometry -- the name :class:`Region` also exposes, so a caller that may
+        self._require_csg("polygon")
+        return Bosl2Shape2D(_polygon([[float(x), float(y)] for x, y in self]))
+
+    def geometry(self) -> "Bosl2Shape2D":
+        """2-D geometry -- the name :class:`Region` also exposes, so a caller that may
         hold either a Path or a Region can ask for geometry without checking which it got."""
         return self.polygon()
+
+    def fill(self) -> "Bosl2Shape2D":
+        """This path as 2-D geometry with every hole filled in -- only the outermost outline
+        survives (OpenSCAD ``fill()``). For a self-intersecting path this closes up the interior
+        loops that ``polygon()`` would leave as holes.
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D` (csg backend only).
+        """
+        return self.polygon().fill()
+
+    def hull(self, *others: "Shape2DLike") -> "Bosl2Shape2D":
+        """The 2-D convex hull of this path, optionally together with *others* (more paths,
+        regions, 2-D shapes or point lists) -- OpenSCAD ``hull()``.
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D` (csg backend only).
+        """
+        return self.polygon().hull(*others)
+
+    # -- 2-D -> 3-D (both backends) --------------------------------------------------------
+
+    def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
+        """Extrude this path *height* along +Z into a 3-D solid, **on whichever backend is
+        active**: a :class:`~bosl2.shapes3d.Bosl2Solid` under the default CSG backend, a
+        :class:`~bosl2._sdf.shapes3d.PyShape` under ``use_backend("sdf")``::
+
+            plate = Path(pts).linear_extrude(height=4)          # -> Bosl2Solid
+            with use_backend("sdf"):
+                field = Path(pts).linear_extrude(height=4)      # -> PyShape
+
+        The extra options differ by backend, since each realizes the extrusion its own way: the
+        CSG backend takes the native ``center``/``twist``/``scale``/``slices``/``convexity`` (see
+        :meth:`~bosl2.shapes2d.Bosl2Shape2D.linear_extrude`); the SDF backend takes ``center``
+        plus ``rounding_top``/``rounding_bottom``/``res``, and rejects the profile-shearing ones.
+        """
+        from bosl2._backend import get_backend
+
+        return get_backend().linear_extrude([self], height, **kwargs)
+
+    def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
+        """Revolve this path about the Y axis into a 3-D solid; see
+        :meth:`~bosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
+
+        Returns:
+            A :class:`~bosl2.shapes3d.Bosl2Solid`.
+
+        Raises:
+            ~bosl2.exceptions.UnsupportedByBackend: under ``use_backend("sdf")`` -- the SDF
+            backend has no revolve; sweep the profile instead
+            (:func:`bosl2._sdf.shapes3d.path_sweep`).
+        """
+        self._require_csg("rotate_extrude")
+        return self.polygon().rotate_extrude(angle, **kwargs)
 
     def debug_polygon(self, size: float = 1, vertices: bool = True):
         """A debug view of this polygon: the filled outline (as a thin flat solid) with each vertex
@@ -372,9 +466,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         import operator
         from functools import reduce
 
-        from bosl2.shapes3d import Bosl2Solid, text3d
+        from bosl2.shapes3d import text3d
 
-        solid = Bosl2Solid(self.polygon().linear_extrude(height=0.01, center=True))
+        solid = self.polygon().linear_extrude(height=0.01, center=True)
         if not vertices:
             return solid
         labels = [
@@ -405,11 +499,11 @@ class Path(Distributable, Extrudable, Roundable, list):
         dashpat: Sequence[float] = (3, 3),
         closed: bool | None = None,
         **kwargs: Any,
-    ) -> list["Path"]:
+    ) -> "list[Path | Path3D]":
         """Break this path into dash sub-paths (see :func:`bosl2.drawing.dashed_stroke`)."""
         from bosl2.drawing import dashed_stroke as _dashed
 
-        return _dashed(
+        return _dashed(  # type: ignore[return-value]
             self,
             dashpat=dashpat,
             closed=self.closed if closed is None else closed,
@@ -772,7 +866,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         if maxlen is not None:
             assert method is None, "Cannot give method with maxlen"
             assert exact is None, "Cannot give exact with maxlen"
-            out = []
+            out: list[Any] = []
             for p0, p1 in Path._pair(path, closed):
                 steps = math.ceil(math.dist(p1, p0) / maxlen)
                 out.extend(lerpn(p0, p1, steps, endpoint=False))
@@ -794,22 +888,23 @@ class Path(Distributable, Extrudable, Roundable, list):
                 assert len(sides) == count, "Vector parameter sides to subdivide_path has the wrong length"
                 add_guess = add_scalar(list(sides), -1)
             else:
-                add_guess = Path._repeat((sides - len(path)) / count, count)
+                add_guess_r = Path._repeat((sides - len(path)) / count, count)
+                add_guess = add_guess_r  # type: ignore[assignment]
         else:
             assert isinstance(sides, (int, float)), (
                 'Parameter sides to subdivide path must be a number when method="length"'
             )
             path_lens = Path._path_segment_lengths(path, closed)
             add_density = (sides - len(path)) / sum(path_lens)
-            add_guess = [ln * add_density for ln in path_lens]
+            add_guess = [float(ln * add_density) for ln in path_lens]  # type: ignore[assignment]
         add_list = [float(v) for v in add_guess]
         add = Path._sum_preserving_round(add_list) if exact else [Path._scad_round(v) for v in add_list]
-        out = []
+        out2: list[Any] = []
         for i in range(count):
-            out.extend(lerpn(path[i], Path._select(path, i + 1), 1 + int(add[i]), endpoint=False))
+            out2.extend(lerpn(path[i], Path._select(path, i + 1), 1 + int(add[i]), endpoint=False))
         if not closed:
-            out.append(path[-1])
-        return out
+            out2.append(path[-1])
+        return out2
 
     @staticmethod
     def _resample_path(path, sides=None, spacing=None, closed: bool = True) -> list:
@@ -1002,7 +1097,7 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _path_cut_points_recurse(path, dists: Sequence[float], closed: bool = False) -> list:
-        result = []
+        result: list[Any] = []
         pind = 0
         dtotal = 0
         for dind in range(len(dists)):
@@ -1012,9 +1107,9 @@ class Path(Distributable, Extrudable, Roundable, list):
                 t = (dists[dind] - dtotal) / dpartial
                 nextpoint = [lerp(lastpt, Path._select(path, pind), t), pind]
             else:
-                nextpoint = Path._path_cut_single(path, dists[dind] - dtotal - dpartial, closed, pind)
+                nextpoint = Path._path_cut_single(path, dists[dind] - dtotal - dpartial, closed, pind)  # type: ignore[arg-type]
             result.append(nextpoint)
-            dtotal = dists[dind]
+            dtotal = dists[dind]  # type: ignore[assignment]
             pind = nextpoint[1]
         return result
 
@@ -1161,9 +1256,11 @@ class Path(Distributable, Extrudable, Roundable, list):
             bakmatch = approx(seg[1], fragment[-1], eps=eps)
             frags.append([fwdmatch, bakmatch, list(reversed(fragment)) if bakmatch else fragment])
         angs = []
-        for fwdmatch, bakmatch, frag in frags:
-            if fwdmatch or bakmatch:
-                delta2 = [frag[1][0] - frag[0][0], frag[1][1] - frag[0][1]]
+        fwdmatch_v: bool = False
+        for frag_tuple in frags:
+            fwdmatch_v, bakmatch, frag = frag_tuple[0], frag_tuple[1], frag_tuple[2]  # type: ignore[misc, assignment]
+            if fwdmatch_v or bakmatch:
+                delta2 = [frag[1][0] - frag[0][0], frag[1][1] - frag[0][1]]  # type: ignore[index]
                 segang2 = math.degrees(math.atan2(delta2[1], delta2[0]))
                 angs.append(Path._modang(segang2 - segang))
             else:
@@ -1300,7 +1397,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         pts = np.asarray(path, dtype=float)
         assert len(pts) >= 3, f"offset() needs at least 3 points, got {len(pts)}"
 
-        amount = float(radius if radius is not None else delta)
+        amount = float(radius if radius is not None else delta)  # type: ignore[arg-type]
         use_round = radius is not None
         if amount == 0:
             return [[float(x), float(y)] for x, y in pts]
@@ -1628,8 +1725,8 @@ class Path3D(Distributable, Extrudable, Roundable, list):
     def translate(self, v: Sequence[float]) -> "Path3D":
         """Translate every point by *v* (a shorter vector pads with zeros)."""
         vv = np.zeros(3)
-        v = np.asarray(v, dtype=float)
-        vv[: min(3, len(v))] = v[: min(3, len(v))]
+        va = np.asarray(v, dtype=float)
+        vv[: min(3, len(va))] = va[: min(3, len(va))]
         return self._like(self.array + vv)
 
     move = translate
@@ -1645,7 +1742,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         from bosl2.transforms import axis_angle_matrix
 
         if v is not None:
-            m = np.asarray(axis_angle_matrix(a, v), dtype=float)
+            m = np.asarray(axis_angle_matrix(float(a), list(v)), dtype=float)
         elif isinstance(a, (list, tuple, np.ndarray)):
             rx, ry, rz = (list(a) + [0, 0, 0])[:3]
             mx = np.asarray(axis_angle_matrix(rx, [1, 0, 0]), dtype=float)
@@ -1653,7 +1750,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
             mz = np.asarray(axis_angle_matrix(rz, [0, 0, 1]), dtype=float)
             m = mz @ my @ mx
         else:
-            m = np.asarray(axis_angle_matrix(a, [0, 0, 1]), dtype=float)
+            m = np.asarray(axis_angle_matrix(float(a), [0, 0, 1]), dtype=float)
         return self._like(self.array @ m.T)
 
     rot = rotate
@@ -1695,7 +1792,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
 
     def path2d(self) -> "Path":
         """Drop the Z coordinate, giving a 2-D :class:`Path` (the XY projection)."""
-        return Path(self.array[:, :2], closed=self.closed)
+        return Path(self.array[:, :2].tolist(), closed=self.closed)
 
     def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any):
         """
@@ -1716,7 +1813,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         dashpat: Sequence[float] = (3, 3),
         closed: bool | None = None,
         **kwargs: Any,
-    ) -> list["Path3D"]:
+    ) -> "list[Path | Path3D]":  # type: ignore[override]
         """Break this 3-D path into dash sub-paths (see :func:`bosl2.drawing.dashed_stroke`)."""
         from bosl2.drawing import dashed_stroke as _dashed
 

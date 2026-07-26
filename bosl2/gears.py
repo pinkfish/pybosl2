@@ -7,7 +7,7 @@
 # LibFile: bosl2/gears.py
 #    Pure-Python port of the core of BOSL2's (current) gears.scad. Gears are sized by circular pitch
 #    (``circ_pitch``), metric ``mod``, or ``diam_pitch``; the default 20-degree pressure angle and
-#    ``profile_shift="auto"`` (which corrects undercut on low-tooth-count gears) match BOSL2. The
+#    ``profile_shift=None`` (which corrects undercut on low-tooth-count gears) match BOSL2. The
 #    :meth:`~Gears.spur_gear2d` / :meth:`~Gears.spur_gear` teeth are generated the way BOSL2 does it:
 #    the involute working flank plus the trochoid that a meshing rack would carve, so low-tooth gears
 #    get a real undercut. :meth:`~Gears.herringbone_gear`, the linear :meth:`~Gears.rack`, the
@@ -28,15 +28,21 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
 import numpy as np
-from pythonscad import polygon as _opolygon
 
+from bosl2._native import native
 from bosl2.constants import INCH
 from bosl2.paths import Path
-from bosl2.shapes2d import _frag_count
+from bosl2.shapes2d import Bosl2Shape2D, _frag_count
 from bosl2.shapes3d import Bosl2Solid, cylinder
 from bosl2.vnf import VNF
+
+if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
+    from pythonscad import polygon as _opolygon
+else:
+    _opolygon = native("polygon")
 
 __all__ = ["Gears"]
 
@@ -107,7 +113,7 @@ def _outer_radius_basic(
     )
 
 
-def _auto_profile_shift(teeth, pressure_angle=20, helical=0, profile_shift="auto") -> float:
+def _auto_profile_shift(teeth, pressure_angle=20, helical=0, profile_shift=None) -> float:
     """Minimum profile shift to avoid undercut, or the given value (BOSL2 auto_profile_shift())."""
     if isinstance(profile_shift, (int, float)):
         return float(profile_shift)
@@ -518,7 +524,7 @@ class Gears:
     """Gears (BOSL2 gears.scad): spur (with undercut), helical, herringbone, rack, ring, bevel, worm.
 
     Size a gear by ``circ_pitch`` (mm of pitch circle per tooth), ``mod`` (metric module) or
-    ``diam_pitch``; pass one. The 20-degree ``pressure_angle`` and ``profile_shift="auto"`` defaults
+    ``diam_pitch``; pass one. The 20-degree ``pressure_angle`` and ``profile_shift=None`` defaults
     match BOSL2. All angles are in degrees.
     """
 
@@ -580,7 +586,7 @@ class Gears:
         clearance: float | None = None,
         internal: bool = False,
         helical: float = 0,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         pressure_angle: float = 20,
         shorten: float = 0,
         mod: float | None = None,
@@ -589,7 +595,7 @@ class Gears:
     ) -> float:
         """Tip radius; the gear fits within this circle (BOSL2 outer_radius())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+        ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         return _outer_radius_basic(center, teeth, clearance, internal, helical, ps, shorten)
 
     @staticmethod
@@ -599,7 +605,7 @@ class Gears:
         clearance: float | None = None,
         internal: bool = False,
         helical: float = 0,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         pressure_angle: float = 20,
         mod: float | None = None,
         pitch: float | None = None,
@@ -607,7 +613,7 @@ class Gears:
     ) -> float:
         """Root radius at the base of the tooth valleys (BOSL2 root_radius())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+        ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         return _root_radius_basic(center, teeth, clearance, internal, helical, ps)
 
     @staticmethod
@@ -630,7 +636,7 @@ class Gears:
 
     @staticmethod
     def auto_profile_shift(
-        teeth: int, pressure_angle: float = 20, helical: float = 0, profile_shift: float = "auto"
+        teeth: int, pressure_angle: float = 20, helical: float = 0, profile_shift: float | None = None
     ) -> float:
         """Minimum profile shift (modules) to avoid undercut (BOSL2 auto_profile_shift())."""
         return _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
@@ -642,8 +648,8 @@ class Gears:
         teeth1: int,
         teeth2: int,
         helical: float = 0,
-        profile_shift1: float = "auto",
-        profile_shift2: float = "auto",
+        profile_shift1: float | None = None,
+        profile_shift2: float | None = None,
         internal1: bool = False,
         internal2: bool = False,
         backlash: float = 0,
@@ -700,7 +706,7 @@ class Gears:
         backlash: float = 0.0,
         helical: float = 0,
         internal: bool = False,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         shorten: float = 0,
         center: bool = False,
         mod: float | None = None,
@@ -711,10 +717,10 @@ class Gears:
         The 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2
         _gear_tooth_profile()).
         """
-        center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+        circ_p: float = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+        ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         return _gear_tooth_profile(
-            center,
+            circ_p,
             teeth,
             pressure_angle,
             clearance,
@@ -735,7 +741,7 @@ class Gears:
         clearance: float | None = None,
         backlash: float = 0.0,
         internal: bool = False,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         helical: float = 0,
         shaft_diam: float = 0,
         shorten: float = 0,
@@ -743,7 +749,7 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> Bosl2Shape2D:
         """A 2-D involute spur gear outline (BOSL2 spur_gear2d()).
 
         Examples:
@@ -755,7 +761,7 @@ class Gears:
                 Gears.spur_gear2d(mod=5, teeth=30).linear_extrude(height=3).show()
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+        ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         tooth = _gear_tooth_profile(
             center,
             teeth,
@@ -782,11 +788,11 @@ class Gears:
             _auto_profile_shift(teeth, pressure_angle, helical, profile_shift),
             shorten,
         )
-        result = Bosl2Solid(shape, size=[2 * outer_radius, 2 * outer_radius, 0])
+        result = Bosl2Shape2D(shape, size=[2 * outer_radius, 2 * outer_radius])
         if shaft_diam > 0 and not hide:
             from bosl2.shapes2d import circle as _circle2d
 
-            result = result - Bosl2Solid(_circle2d(diameter=shaft_diam))
+            result = result - _circle2d(diameter=shaft_diam)
         return result
 
     @staticmethod
@@ -802,7 +808,7 @@ class Gears:
         helical: float = 0,
         herringbone: bool = False,
         internal: bool = False,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         shorten: float = 0,
         slices: int | None = None,
         gear_spin=0,
@@ -868,7 +874,7 @@ class Gears:
         backlash: float = 0.0,
         helical: float = 0,
         internal: bool = False,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         shorten: float = 0,
         gear_spin=0,
         mod: float | None = None,
@@ -908,7 +914,7 @@ class Gears:
         clearance: float | None = None,
         backlash: float = 0.0,
         helical: float = 0,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
@@ -918,7 +924,7 @@ class Gears:
         ring_gear()).
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+        ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         outer_radius = _outer_radius_basic(center, teeth, clearance, True, helical, ps, 0) + backing
         cavity = Gears.spur_gear(
             circ_pitch=center,
@@ -968,12 +974,12 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> Bosl2Shape2D:
         """A 2-D involute rack outline -- a straight bar of teeth (BOSL2 rack2d())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         path = Gears._rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
-        return Bosl2Solid(_opolygon(path), size=[teeth * center, 2 * abs(a - height), 0])
+        return Bosl2Shape2D(_opolygon(path), size=[teeth * center, 2 * abs(a - height)])
 
     @staticmethod
     def rack(

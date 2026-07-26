@@ -29,6 +29,7 @@
 from __future__ import annotations
 
 import math
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
 import numpy as np
@@ -301,7 +302,7 @@ def grid_copies(
 def rot_copies(
     rots=None,
     v=None,
-    center: bool = (0, 0, 0),
+    center: "bool | Sequence[float]" = (0, 0, 0),
     sides=None,
     sa: float = 0,
     offset=0,
@@ -335,7 +336,7 @@ def rot_copies(
 
 def xrot_copies(
     rots=None,
-    center: bool = (0, 0, 0),
+    center: "bool | Sequence[float]" = (0, 0, 0),
     sides=None,
     sa: float = 0,
     radius: float | None = None,
@@ -360,7 +361,7 @@ def xrot_copies(
 
 def yrot_copies(
     rots=None,
-    center: bool = (0, 0, 0),
+    center: "bool | Sequence[float]" = (0, 0, 0),
     sides=None,
     sa: float = 0,
     radius: float | None = None,
@@ -385,7 +386,7 @@ def yrot_copies(
 
 def zrot_copies(
     rots=None,
-    center: bool = (0, 0, 0),
+    center: "bool | Sequence[float]" = (0, 0, 0),
     sides=None,
     sa: float = 0,
     radius: float | None = None,
@@ -522,7 +523,7 @@ def path_copies(
     return mats
 
 
-def mirror_copy(v=(0, 0, 1), offset=0, center: bool | None = None) -> list[np.ndarray]:
+def mirror_copy(v=(0, 0, 1), offset=0, center: bool | list[float] | None = None) -> list[np.ndarray]:
     """The original plus a mirrored copy across the plane with normal *v* (BOSL2 mirror_copy())."""
     nv = _unit3(v)
     cen = (
@@ -533,7 +534,7 @@ def mirror_copy(v=(0, 0, 1), offset=0, center: bool | None = None) -> list[np.nd
     off = nv * offset
     return [
         translate4(off),
-        translate4(cen) @ _mirror4(nv) @ translate4(-cen) @ translate4(off),
+        translate4(np.asarray(cen)) @ _mirror4(nv) @ translate4(-np.asarray(cen)) @ translate4(off),
     ]
 
 
@@ -557,7 +558,7 @@ def zflip_copy(offset=0, z=0) -> list[np.ndarray]:
 # ---------------------------------------------------------------------------
 
 
-class Distributable:
+class Distributable(ABC):
     """Mixin adding the distributors.scad copiers as methods.
 
     Inherited by :class:`~bosl2.shapes3d.Bosl2Solid`, :class:`~bosl2.paths.Path`, and
@@ -566,6 +567,7 @@ class Distributable:
     copies into a new solid; a Path / Path3D returns a plain ``list`` of the copied paths.
     """
 
+    @abstractmethod
     def _distribute(self, mats):  # pragma: no cover - overridden by every host class
         raise NotImplementedError("Distributable subclasses must implement _distribute().")
 
@@ -606,7 +608,7 @@ class Distributable:
         self,
         rots=None,
         v=None,
-        center: bool = (0, 0, 0),
+        center: "bool | Sequence[float]" = (0, 0, 0),
         sides=None,
         sa: float = 0,
         offset=0,
@@ -619,7 +621,7 @@ class Distributable:
     def xrot_copies(
         self,
         rots=None,
-        center: bool = (0, 0, 0),
+        center: "bool | Sequence[float]" = (0, 0, 0),
         sides=None,
         sa: float = 0,
         radius: float | None = None,
@@ -632,7 +634,7 @@ class Distributable:
     def yrot_copies(
         self,
         rots=None,
-        center: bool = (0, 0, 0),
+        center: "bool | Sequence[float]" = (0, 0, 0),
         sides=None,
         sa: float = 0,
         radius: float | None = None,
@@ -645,7 +647,7 @@ class Distributable:
     def zrot_copies(
         self,
         rots=None,
-        center: bool = (0, 0, 0),
+        center: "bool | Sequence[float]" = (0, 0, 0),
         sides=None,
         sa: float = 0,
         radius: float | None = None,

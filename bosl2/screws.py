@@ -398,7 +398,7 @@ class Screws:
         length: float,
         head: str = "socket",
         drive: str = "none",
-        thread: str = True,
+        thread: str = "coarse",
         thread_len: float | None = None,
         pitch: float | None = None,
         fn: int | None = None,
@@ -408,7 +408,7 @@ class Screws:
         """A metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.
 
         *length* is the shaft length below the head (for a flat head, below the surface). Set
-        ``thread=False`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.
+        ``thread="none"`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.
         """
 
         info = Screws.screw_info(
@@ -500,7 +500,7 @@ class Screws:
     @staticmethod
     def nut(
         spec,
-        thickness: float = "normal",
+        thickness: float | str = "normal",
         shape="hex",
         thread: str = "coarse",
         nutwidth: float | None = None,
@@ -530,7 +530,7 @@ class Screws:
         head: str = "none",
         counterbore=0.0,
         fit: str = "normal",
-        thread: str = False,
+        thread: str = "none",
         pitch: float | None = None,
         fn: int | None = None,
         fa: float | None = None,
@@ -541,11 +541,12 @@ class Screws:
 
         Returns a solid to *subtract* from your part. The clearance shaft occupies ``z in [-length, 0]``
         with its mouth at ``z = 0``; countersinks/counterbores open upward from there. Set
-        ``thread=True`` for a tapped (threaded) hole instead of a clearance hole.
+        ``thread="coarse"`` for a tapped (threaded) hole instead of a clearance hole.
         """
 
-        d, p = _parse_spec(spec, "coarse" if thread in (True, False) else thread, pitch)
-        if thread:
+        use_thread = thread and str(thread).lower() not in ("none", "false", "no", "")
+        d, p = _parse_spec(spec, "coarse" if thread in (True, False) else (thread if use_thread else "coarse"), pitch)
+        if use_thread:
             from bosl2.threading import Threading
 
             # a tapped hole: cut with the rod's thread tap (major + a touch of clearance)
@@ -596,6 +597,8 @@ def _nut_dims(diam, thickness, nutwidth):
     """
     spec = _closest(_NUT, diam)
     width = float(nutwidth) if nutwidth is not None else spec.width
+    if thickness is None:
+        return width, spec.normal
     if isinstance(thickness, (int, float)):
         return width, float(thickness)
     t = str(thickness).lower()

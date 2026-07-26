@@ -150,6 +150,50 @@ def test_bezier_sweep_tube(tmp_path):
     assert m.watertight  # a capped tube is a closed solid
 
 
+def test_sdf_path_sweep_tube_volume(tmp_path):
+    # The libfive/SDF-backend sweep: a 32-gon circle (r=2) swept straight along z 0..30 meshes to a
+    # watertight prism whose volume matches the exact 32-gon x height (the sign/zero-set is correct).
+    setup = (
+        "from bosl2._sdf.shapes3d import path_sweep\n"
+        "circle = [[2*math.cos(t), 2*math.sin(t)] for t in np.linspace(0, 2*math.pi, 32, endpoint=False)]\n"
+        "pathz = [[0, 0, z] for z in np.linspace(0, 30, 60)]\n"
+    )
+    m = _render(tmp_path, "path_sweep(circle, pathz, res=16)", setup=setup, name="sdfsweep")
+    assert m.watertight
+    assert abs(m.size[0] - 4) < 0.1 and abs(m.size[1] - 4) < 0.1 and abs(m.size[2] - 30) < 0.1
+    expected = 0.5 * 32 * 2**2 * math.sin(2 * math.pi / 32) * 30  # 32-gon prism
+    assert abs(m.volume - expected) < 0.02 * expected
+
+
+def test_sdf_concave_profile_sweep_volume(tmp_path):
+    # A concave (L-shaped) profile swept straight: meshes watertight with the notch carved out, so
+    # the volume equals the L's area (8x8 minus a 5x5 corner = 39) times the height.
+    setup = (
+        "from bosl2._sdf.shapes3d import path_sweep\n"
+        "L = [[0,0],[8,0],[8,3],[3,3],[3,8],[0,8]]\n"
+        "pathz = [[0, 0, z] for z in np.linspace(0, 20, 40)]\n"
+    )
+    m = _render(tmp_path, "path_sweep(L, pathz, res=16)", setup=setup, name="sdfconcavesweep")
+    assert m.watertight
+    assert abs(m.volume - 39 * 20) < 0.02 * (39 * 20)
+
+
+def test_sdf_bezier_sweep_watertight(tmp_path):
+    # A profile swept along a curved 3-D Bezier as a libfive SDF meshes to a closed solid.
+    setup = (
+        "from bosl2._sdf.shapes3d import bezier_sweep\n"
+        "circle = [[2*math.cos(t), 2*math.sin(t)] for t in np.linspace(0, 2*math.pi, 24, endpoint=False)]\n"
+    )
+    m = _render(
+        tmp_path,
+        "bezier_sweep(circle, [[0,0,0],[0,0,20],[25,12,15],[30,4,6]], res=14)",
+        setup=setup,
+        name="sdfbeziersweep",
+    )
+    assert m.ntris > 0 and m.volume > 0
+    assert m.watertight
+
+
 def test_bezpath_sweep(tmp_path):
     setup = f"shape = {CIRCLE}\nbezpath = [[0,0,0],[10,0,0],[10,10,0],[10,10,10],[10,20,10],[0,20,10],[0,20,20]]\n"
     m = _render(
@@ -1281,6 +1325,140 @@ def test_regular_ngon_extruded(tmp_path):
     m = _render(tmp_path, "s2.regular_ngon(6, radius=10).linear_extrude(height=6)", name="hex2d")
     assert m.watertight
     assert math.isclose(m.size[2], 6.0, abs_tol=1e-2)
+
+
+# -- the Bosl2Shape2D operators, rendered for real ---------------------------
+
+
+def test_shape2d_fill_removes_the_hole(tmp_path):
+    # a 40x40 plate with a radius-8 hole, then the same plate filled: same envelope, more volume
+    holed = _render(
+        tmp_path,
+        "(s2.square(40) - s2.circle(radius=8, fn=64)).linear_extrude(height=4)",
+        name="fill_holed",
+    )
+    filled = _render(
+        tmp_path,
+        "(s2.square(40) - s2.circle(radius=8, fn=64)).fill().linear_extrude(height=4)",
+        name="fill_filled",
+    )
+    assert holed.watertight and filled.watertight
+    np.testing.assert_allclose(filled.size, holed.size, atol=0.1)
+    # the hole was pi*8^2*4 ~= 804 mm^3 of missing material
+    assert math.isclose(filled.volume - holed.volume, math.pi * 64 * 4, rel_tol=0.02)
+    assert math.isclose(filled.volume, 40 * 40 * 4, rel_tol=1e-3)
+
+
+def test_shape2d_hull_of_two_circles_is_a_slot(tmp_path):
+    m = _render(
+        tmp_path,
+        "s2.circle(radius=5, fn=64).hull(s2.circle(radius=5, fn=64).right(30)).linear_extrude(height=3)",
+        name="hull_slot",
+    )
+    assert m.watertight
+    np.testing.assert_allclose(m.size, [40, 10, 3], atol=0.2)
+    # a 30x10 rectangle plus a radius-5 disc, 3 tall
+    assert math.isclose(m.volume, (30 * 10 + math.pi * 25) * 3, rel_tol=0.02)
+
+
+def test_shape2d_hull_fills_a_star_notch(tmp_path):
+    star = _render(tmp_path, "s2.star(tips=5, radius=20, inner_radius=8).linear_extrude(height=2)", name="hull_star")
+    hull = _render(
+        tmp_path,
+        "s2.star(tips=5, radius=20, inner_radius=8).hull().linear_extrude(height=2)",
+        name="hull_starhull",
+    )
+    assert star.watertight and hull.watertight
+    np.testing.assert_allclose(hull.size, star.size, atol=0.2)  # same tips
+    assert hull.volume > star.volume * 1.2  # but convex, so the notches are filled
+
+
+def test_shape2d_offset_uses_the_bosl2_radius_keyword(tmp_path):
+    # BOSL2 spells it radius=; the native offset() only understands r=
+    m = _render(tmp_path, "s2.square(20).offset(radius=3, fn=32).linear_extrude(height=2)", name="off2d_radius")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [26, 26], atol=0.2)
+    m = _render(tmp_path, "s2.square(20).offset(delta=3).linear_extrude(height=2)", name="off2d_delta")
+    assert m.watertight
+    np.testing.assert_allclose(m.size[:2], [26, 26], atol=1e-2)
+
+
+def test_shape2d_rotate_extrude_makes_a_torus(tmp_path):
+    m = _render(
+        tmp_path,
+        "s2.circle(radius=4, fn=48).right(20).rotate_extrude(fn=64)",
+        name="rotex2d",
+    )
+    assert m.watertight
+    np.testing.assert_allclose(m.size, [48, 48, 8], atol=0.5)
+
+
+def test_path_linear_extrude_and_fill(tmp_path):
+    # Path.linear_extrude()/fill() go through Path.polygon() -> Bosl2Shape2D; a simple outline
+    # has no holes, so fill() leaves it exactly as it was.
+    setup = "outline = Path([[0, 0], [40, 0], [40, 30], [0, 30]])\n"
+    plain = _render(tmp_path, "outline.linear_extrude(height=3)", setup=setup, name="path_extrude")
+    filled = _render(tmp_path, "outline.fill().linear_extrude(height=3)", setup=setup, name="path_fill")
+    assert plain.watertight and filled.watertight
+    np.testing.assert_allclose(plain.size, [40, 30, 3], atol=0.1)
+    assert math.isclose(plain.volume, 40 * 30 * 3, rel_tol=1e-3)
+    assert math.isclose(filled.volume, plain.volume, rel_tol=1e-6)
+
+
+def test_path_hull_wraps_a_concave_outline(tmp_path):
+    # an L-shaped outline; its hull cuts the inner corner off diagonally
+    setup = "ell = Path([[0, 0], [40, 0], [40, 10], [10, 10], [10, 30], [0, 30]])\n"
+    plain = _render(tmp_path, "ell.linear_extrude(height=3)", setup=setup, name="path_ell")
+    hull = _render(tmp_path, "ell.hull().linear_extrude(height=3)", setup=setup, name="path_ell_hull")
+    assert plain.watertight and hull.watertight
+    np.testing.assert_allclose(hull.size, [40, 30, 3], atol=0.1)
+    # the hull is the pentagon (0,0)-(40,0)-(40,10)-(10,30)-(0,30), area 900
+    assert math.isclose(hull.volume, 900 * 3, rel_tol=1e-3)
+    assert math.isclose(plain.volume, 600 * 3, rel_tol=1e-3)  # the L itself: 40x10 + 10x20
+
+
+def test_region_fill_removes_the_hole(tmp_path):
+    setup = (
+        "region = Region.with_holes([[0, 0], [40, 0], [40, 30], [0, 30]], [[10, 10], [30, 10], [30, 20], [10, 20]])\n"
+    )
+    holed = _render(tmp_path, "region.linear_extrude(height=4)", setup=setup, name="region_holed")
+    filled = _render(tmp_path, "region.fill().linear_extrude(height=4)", setup=setup, name="region_filled")
+    assert holed.watertight and filled.watertight
+    np.testing.assert_allclose(filled.size, [40, 30, 4], atol=0.1)
+    assert math.isclose(filled.volume, 40 * 30 * 4, rel_tol=1e-3)
+    assert math.isclose(holed.volume, (40 * 30 - 20 * 10) * 4, rel_tol=1e-3)
+
+
+def test_solid_hull_of_two_spheres_is_a_capsule(tmp_path):
+    m = _render(
+        tmp_path,
+        "s3.sphere(radius=8, fn=48).hull(s3.sphere(radius=8, fn=48).up(30))",
+        name="hull_capsule",
+    )
+    assert m.watertight
+    np.testing.assert_allclose(m.size, [16, 16, 46], atol=0.5)
+    # a 30-tall cylinder plus one full sphere
+    assert math.isclose(m.volume, math.pi * 64 * 30 + 4 / 3 * math.pi * 8**3, rel_tol=0.03)
+
+
+def test_solid_projection_is_the_xy_footprint(tmp_path):
+    m = _render(
+        tmp_path,
+        "s3.cuboid([30, 20, 10], rounding=3, fn=32).projection().linear_extrude(height=2)",
+        name="projection2d",
+    )
+    assert m.watertight
+    np.testing.assert_allclose(m.size, [30, 20, 2], atol=0.2)
+
+
+def test_solid_projection_offset_makes_a_base_plate(tmp_path):
+    m = _render(
+        tmp_path,
+        "s3.cuboid([30, 20, 10]).projection().offset(radius=4, fn=32).linear_extrude(height=2)",
+        name="projection_plate",
+    )
+    assert m.watertight
+    np.testing.assert_allclose(m.size, [38, 28, 2], atol=0.3)
     assert m.volume > 0
 
 

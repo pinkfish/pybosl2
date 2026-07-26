@@ -14,13 +14,13 @@
 #    meshes in the ``bosl2-example`` blocks; without it the build still succeeds and shows source
 #    only (see docs/_ext/bosl2_example.py). Unchanged examples reuse their cached image/STL.
 #
-#    Before autodoc touches the bosl2 modules, this file must (1) put the repo root on sys.path so
-#    ``import bosl2`` resolves, and (2) make the ``pythonscad``/``openscad`` native modules
-#    importable, because bosl2/shapes2d.py, shapes3d.py and masking.py import ``pythonscad`` at load
-#    time. The supported setup is a venv with the real ``pythonscad`` wheel installed (``pip install
-#    -e .[test]``); if that is not present we fall back to pysolidfive/tests/mock_libfive.py's
-#    stand-ins when they can be found beside this checkout -- the same fallback the test-suite's
-#    conftest uses.
+#    Before autodoc touches the bosl2 modules, this file puts the repo root on sys.path so
+#    ``import bosl2`` resolves. bosl2 itself imports FFI-free (native primitives are lazy handles
+#    from bosl2/_native.py), but autodoc *constructs* geometry when it runs the docstring examples,
+#    which needs the real ``pythonscad``/``openscad`` modules. The supported setup is a venv with
+#    the real ``pythonscad`` wheel installed (``pip install -e .[test]``); if that is not present we
+#    fall back to bosl2's own tests/mock_libfive.py stand-ins -- the same fallback the test-suite's
+#    conftest uses (no reach into the sibling pysolidfive package).
 #
 # FileGroup: bosl2
 
@@ -34,6 +34,7 @@ _REPO_ROOT = _DOCS_DIR.parent
 
 sys.path.insert(0, str(_REPO_ROOT))
 sys.path.insert(0, str(_DOCS_DIR / "_ext"))
+sys.path.insert(0, str(_DOCS_DIR))  # conf.py's own dir, so `import _specgen` resolves in setup()
 
 # Try to import the real pythonscad wheel; if the C extension cannot load on this platform
 # (e.g. missing system libraries on a headless CI runner), fall back to the numeric mock.
@@ -47,14 +48,14 @@ except ImportError:
     pass
 
 if not _have_pythonscad:
-    _mock_dir = _REPO_ROOT / "pysolidfive" / "tests"
+    _mock_dir = _REPO_ROOT / "tests"  # bosl2's own native mock (not the sibling pysolidfive's)
     if (_mock_dir / "mock_libfive.py").is_file():
         sys.path.insert(0, str(_mock_dir))
         import mock_libfive  # noqa: E402,F401  -- installs pythonscad/openscad/libfive stubs
     else:
         raise RuntimeError(
             "docs build needs the pythonscad native modules: install the wheel with "
-            "`pip install -e .[test]`, or provide pysolidfive/tests/mock_libfive.py in the repo"
+            "`pip install -e .[test]`, or provide tests/mock_libfive.py in the repo"
         )
 
 project = "bosl2 (PythonSCAD port)"
@@ -125,3 +126,22 @@ html_theme_options = {
 html_sidebars = {
     "**": ["about.html", "navigation.html", "relations.html", "searchbox.html"],
 }
+
+
+def setup(app):
+    """Regenerate the visual spec-sheet pages (``_extra/specs/*.html`` + ``spec.css``) from the
+    committed STL cache (``_extra/specs/_stl/metrics.json``) before Sphinx copies ``_extra/``.
+
+    ``_specgen.py`` is the single source of truth for those pages, so they are treated as build
+    artifacts (see ``docs/.gitignore``) rather than checked in -- eliminating the hand-sync drift
+    between the generator and its output. No rendering happens here: ``build_variant_stls`` reuses
+    the cached meshes/metrics, so this is a sub-second, FFI-free step.
+    """
+
+    def _regenerate_specs(_app):
+        import _specgen  # docs/ is on sys.path (added above)
+
+        _specgen.main()
+
+    app.connect("builder-inited", _regenerate_specs)
+    return {"parallel_read_safe": True, "parallel_write_safe": True}

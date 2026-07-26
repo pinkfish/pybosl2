@@ -41,7 +41,10 @@
 # FileSummary: Evaluate, analyze and build Bezier curves and paths (BOSL2 beziers.scad).
 # FileGroup: BOSL2
 
+from __future__ import annotations
+
 import math
+from typing import Sequence
 
 import numpy as np
 
@@ -232,21 +235,23 @@ class Bezier(list):
             out.append(bezpath[-1:])
         return np.concatenate(out, axis=0)
 
-    def path_closest_point(self, pt, N: int = 3, max_err: float = 0.01) -> list:
+    def path_closest_point(self, pt: Sequence[float], N: int = 3, max_err: float = 0.01) -> tuple[int, float]:
         """[segnum, u] for the closest position on this bezier PATH to *pt* (approximate)."""
-        pt = np.asarray(pt, dtype=float)
+        new_pt = np.asarray(pt, dtype=float)
         assert len(self) % N == 1, f"A degree {N} bezier path should have a multiple of {N} points in it, plus 1."
         nsegs = (len(self) - 1) // N
         best = None
         for seg in range(nsegs):
             curve = Bezier(self.array[seg * N : (seg + 1) * N + 1])
-            u = curve.closest_point(pt, max_err=0.05)
-            dist = float(np.linalg.norm(np.asarray(curve.points(u)) - pt))
+            u = curve.closest_point(new_pt, max_err=0.05)
+            dist = float(np.linalg.norm(np.asarray(curve.points(u)) - new_pt))
             if best is None or dist < best[1]:
                 best = (seg, dist)
+        if best is None:
+            raise ValueError("Could not find closest point.")
         seg = best[0]
         curve = Bezier(self.array[seg * N : (seg + 1) * N + 1])
-        return [seg, curve.closest_point(pt, max_err=max_err)]
+        return (seg, curve.closest_point(new_pt, max_err=max_err))
 
     def path_length(self, N: int = 3, max_deflect: float = 0.001) -> float:
         """Approximate arc length of this bezier PATH."""
@@ -256,7 +261,7 @@ class Bezier(list):
             sum(Bezier(self.array[seg * N : (seg + 1) * N + 1]).length(max_deflect=max_deflect) for seg in range(nsegs))
         )
 
-    def close_to_axis(self, axis: str = "X", N: int = 3) -> "Bezier":
+    def close_to_axis(self, axis: str = "X", N: int = 3) -> Bezier:
         """
         Close this 2-D bezier PATH down to the given axis (\"X\" or \"Y\"), returning a new
         Bezier.
@@ -282,7 +287,7 @@ class Bezier(list):
             )
         )
 
-    def path_offset(self, offset, N: int = 3) -> "Bezier":
+    def path_offset(self, offset: Sequence[float], N: int = 3) -> Bezier:
         """
         Close this 2-D bezier PATH with a reversed copy offset by *offset* [x, y], returning a
         Bezier.
@@ -305,13 +310,13 @@ class Bezier(list):
     @classmethod
     def from_path(
         cls,
-        path,
+        path: Sequence[Sequence[float]],
         closed: bool = False,
-        tangents=None,
+        tangents: Sequence[Sequence[float]] | None = None,
         uniform: bool = False,
-        size=None,
-        relsize=None,
-    ) -> "Bezier":
+        size: float | None = None,
+        relsize: float | None = None,
+    ) -> Bezier:
         """Cubic bezier PATH through every point of *path*, matching its tangents (BOSL2 path_to_bezpath).
 
         *size*/*relsize* control how far the curve may deviate from the input path (relsize is a
@@ -374,16 +379,16 @@ class Bezier(list):
 
     def sweep(
         self,
-        shape,
+        shape: np.ndarray,
         splinesteps: int = 16,
         N: int = 3,
         method: str = "incremental",
         endpoint: bool = True,
-        normal=None,
+        normal: Sequence[float] | None = None,
         closed: bool = False,
         twist: float = 0.0,
         twist_by_length: bool = True,
-        scale=1,
+        scale: float = 1.0,
         scale_by_length: bool = True,
         symmetry: int = 1,
         last_normal=None,
@@ -528,7 +533,8 @@ class Bezier(list):
 
     def debug(self, width: float = 1.0, N: int = 3):
         """Native geometry visualizing this bezier PATH: the swept curve, control net and control
-        points (a functional port of BOSL2's debug_bezier() module; requires the real app)."""
+        points (a functional port of BOSL2's debug_bezier() module; requires the real app).
+        """
         result = _debug_tube(self.path_curve(N=N), width / 2.0).color("cyan")
         result = result | _debug_tube([list(p) for p in self], width / 2.0).color("green")
         for k, p in enumerate(self):
@@ -569,7 +575,8 @@ class Bezier(list):
     @staticmethod
     def _ctrl_offset(dim: int, a, r, p) -> np.ndarray:
         """The control-point offset vector from a fixed point, given a scalar angle / direction
-        vector / 3-D spherical angle spec (BOSL2's begin/joint/end direction handling)."""
+        vector / 3-D spherical angle spec (BOSL2's begin/joint/end direction handling).
+        """
         if isinstance(a, (list, tuple, np.ndarray)):
             av = np.asarray(a, dtype=float)
             return av if r is None else r * np.asarray(_unit(av), dtype=float)
@@ -665,7 +672,8 @@ class BezierPatch(list):
     def points(self, u, v):
         """Sample the patch at parameter(s) *u* (inner/column axis) and *v* (outer/row axis).
 
-        Scalar u and v give one point; lists/ranges give a rectangular (len(u) x len(v)) grid."""
+        Scalar u and v give one point; lists/ranges give a rectangular (len(u) x len(v)) grid.
+        """
         patch = self.array
         R, C = patch.shape[0], patch.shape[1]
         su = isinstance(u, (int, float, np.floating, np.integer))
@@ -748,7 +756,8 @@ class BezierPatch(list):
     def sheet(self, delta: float, splinesteps: int = 16, style: str = "default") -> VNF:
         """A thin sheet from this patch, offsetting along the surface normals by *delta* (BOSL2 bezier_sheet()).
 
-        *delta* is a 2-vector [d0, diameter1] of the two offset distances (a scalar d means [0, -d])."""
+        *delta* is a 2-vector [d0, diameter1] of the two offset distances (a scalar d means [0, -d]).
+        """
         diameter = [0.0, -float(delta)] if isinstance(delta, (int, float)) else [float(delta[0]), float(delta[1])]
         ss = splinesteps if isinstance(splinesteps, (list, tuple, np.ndarray)) else (splinesteps, splinesteps)
         uvals = list(lerpn(0, 1, int(ss[0]) + 1))

@@ -46,12 +46,12 @@ from pysolidfive.shapes3d import PyShape
 # ---------------------------------------------------------------------------
 
 
-def path3d(path) -> list[list[float]]:
+def path3d(path: list[list[float]]) -> list[list[float]]:
     """Pad a 2-D (or 3-D) point list to 3-D with z=0."""
     return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
 
 
-def clockwise_polygon(poly) -> list:
+def clockwise_polygon(poly: list[list[float]]) -> list:
     """*poly* wound clockwise (reversed if CCW)."""
     area = 0.0
     pts = list(poly)
@@ -62,7 +62,7 @@ def clockwise_polygon(poly) -> list:
     return pts if area <= 0 else list(reversed(pts))
 
 
-def _scale4(s) -> np.ndarray:
+def _scale4(s: float | list[float]) -> np.ndarray:
     m = np.eye(4)
     m[0, 0], m[1, 1] = float(s[0]), float(s[1])
     if len(s) > 2:
@@ -78,7 +78,7 @@ def _xrot4(a: float) -> np.ndarray:
     return m
 
 
-def _translate4(v) -> np.ndarray:
+def _translate4(v: list[float]) -> np.ndarray:
     m = np.eye(4)
     m[0, 3] = float(v[0])
     m[1, 3] = float(v[1])
@@ -116,7 +116,7 @@ def _apply_transform(m: np.ndarray, pt: Sequence[float]) -> list[float]:
 # ---------------------------------------------------------------------------
 
 
-def _clamp(v, lo, hi):
+def _clamp(v: float, lo: float, hi: float) -> float:
     """Clamp *v* between *lo* and *hi* using libfive min/max (no native clamp op)."""
     return lv.max(lo, lv.min(hi, v))
 

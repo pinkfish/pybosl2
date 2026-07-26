@@ -26,6 +26,7 @@
 from __future__ import annotations
 
 import math
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -57,23 +58,20 @@ __all__ = [
 
 
 def _as_native_2d(profile):
-    """A native 2-D shape from *profile* (native shape, Path, Region, or Bosl2Solid)."""
-    from bosl2.shapes3d import Bosl2Solid
+    """A raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
+    a Path, or a Region) -- see :func:`bosl2.shapes2d._as_native_2d`, which this defers to."""
+    from bosl2.shapes2d import _as_native_2d as _coerce
 
-    if isinstance(profile, Bosl2Solid):
-        return profile.shape
-    geom = getattr(profile, "geometry", None)
-    if callable(geom):  # Path / Region
-        return geom()
-    return profile
+    return _coerce(profile)
 
 
 def _profile_factory(profile):
     """A zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time
     (the "children" form, safe for frep handles); anything else is meshed once and reused."""
+    from bosl2.shapes2d import Bosl2Shape2D
     from bosl2.shapes3d import Bosl2Solid
 
-    if callable(profile) and not isinstance(profile, (list, tuple, Bosl2Solid)):
+    if callable(profile) and not isinstance(profile, (list, tuple, Bosl2Solid, Bosl2Shape2D)):
         return lambda: _as_native_2d(profile())
     native = _as_native_2d(profile)
     return lambda: native
@@ -275,10 +273,10 @@ class Extrudable:
         """
         from bosl2.shapes3d import Bosl2Solid
 
-        assert len(self[0]) == 2, "path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."
-        is_closed = self.closed if closed is None else closed
+        assert len(self[0]) == 2, "path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."  # type: ignore[index]
+        is_closed = self.closed if closed is None else closed  # type: ignore[attr-defined]
         assert not (caps and is_closed), "path_extrude2d(): cannot cap a closed extrusion."
-        pts = [[float(p[0]), float(p[1])] for p in self.deduplicated()]
+        pts = [[float(p[0]), float(p[1])] for p in self.deduplicated()]  # type: ignore[attr-defined]
         sides = len(pts)
         assert sides >= 2, "path_extrude2d(): need at least two points."
         if s is None:
@@ -316,7 +314,7 @@ class Extrudable:
             parts.append(corner)
         # rounded caps on the open ends
         if caps and not is_closed:
-            for a, b in ((pts[0], pts[1]), (pts[-1], pts[-2])):
+            for a, b in ((pts[0], pts[1]), (pts[-1], pts[-2])):  # type: ignore[misc]
                 cap = _planar_half(factory(), keep_positive_x=True, s=s).rotate_extrude(angle=180)
                 cap = cap.multmatrix(rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist())
                 cap = cap.translate([a[0], a[1], 0])
@@ -337,8 +335,8 @@ class Extrudable:
         from bosl2.shapes3d import Bosl2Solid
         from bosl2.skin import rot_resample
 
-        dim = len(self[0])
-        path = [[float(p[0]), float(p[1]), float(p[2]) if dim == 3 else 0.0] for p in self]
+        dim = len(self[0])  # type: ignore[index]
+        path: list[list[float]] = [[float(p[0]), float(p[1]), float(p[2]) if dim == 3 else 0.0] for p in self]  # type: ignore[attr-defined]
         sides = len(path)
         assert sides >= 2, "path_extrude(): need at least two points."
         parr = [np.asarray(p) for p in path]
@@ -392,9 +390,14 @@ class Extrudable:
 # ---------------------------------------------------------------------------
 
 
-class Miscellaneous:
+class Miscellaneous(ABC):
     """Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods
     on :class:`~bosl2.shapes3d.Bosl2Solid`."""
+
+    @abstractmethod
+    def _wrap(self, new_shape):  # pragma: no cover - provided by the host class (Bosl2Solid)
+        """Re-wrap a native shape as the host solid type."""
+        raise NotImplementedError
 
     def bounding_box(self, excess: float = 0):
         """The smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).
@@ -403,7 +406,7 @@ class Miscellaneous:
         not needed here)."""
         from bosl2.shapes3d import cuboid
 
-        center, size = self.bounds()
+        center, size = self.bounds()  # type: ignore[attr-defined]
         return cuboid([size[i] + 2 * excess for i in range(3)]).translate([float(c) for c in center])
 
     def offset3d(self, radius: float, size: float = 1000, convexity: int = 10):
@@ -421,10 +424,10 @@ class Miscellaneous:
         sides = max(8, _frag_count(abs(radius)))
         sides = int(math.ceil(sides / 4) * 4)
         if radius > 0:
-            return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))
+            return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))  # type: ignore[attr-defined]
         big1 = _cube([size * 1.02] * 3, center=True)
         big2 = _cube([size] * 3, center=True)
-        return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))
+        return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))  # type: ignore[attr-defined]
 
     def round3d(
         self,

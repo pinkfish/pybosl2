@@ -25,22 +25,22 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-
-from pythonscad import (
-    hull as _ohull,
-)
-from pythonscad import (
-    polygon as _opolygon,
-)
-from pythonscad import (
-    rotate_extrude as _orotate_extrude,
-)
+from typing import TYPE_CHECKING
 
 from bosl2._helpers import union
+from bosl2._native import native
 from bosl2.constants import BOTTOM, INCH
 from bosl2.distributors import zrot_copies
 from bosl2.shapes2d import _frag_count, circle, hexagon
+from bosl2.shapes2d import hull as _hull2d
 from bosl2.shapes3d import Bosl2Solid, _quantup, cyl, prismoid
+
+if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
+    from pythonscad import polygon as _opolygon
+    from pythonscad import rotate_extrude as _orotate_extrude
+else:
+    _opolygon = native("polygon")
+    _orotate_extrude = native("rotate_extrude")
 
 __all__ = ["ScrewDrive", "PhillipsSpec", "TorxSpec", "RobertsonSpec"]
 
@@ -289,7 +289,7 @@ class ScrewDrive:
         """
         realsize = 1.0072 * size + 0.0341 + 2 * slop  # empirical fit to the ISO standard
         solid = hexagon(inner_diameter=realsize).linear_extrude(height=length, center=center)
-        return Bosl2Solid(solid, size=[realsize, realsize, length])
+        return Bosl2Solid(solid.shape, size=[realsize, realsize, length])
 
     # ---- Torx ------------------------------------------------------------
 
@@ -335,7 +335,7 @@ class ScrewDrive:
         tip_circles = [
             circle(radius=tip, fn=fn // 2).translate([base / 2, 0]).multmatrix(m.tolist()) for m in zrot_copies(sides=3)
         ]
-        tri = _ohull(*tip_circles)
+        tri = _hull2d(tip_circles)
         lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(sides=2))
         solid = circle(diameter=base, fn=fn) | lobes
 
@@ -363,7 +363,7 @@ class ScrewDrive:
         """
         outer_diameter = ScrewDrive.torx_diam(size)
         solid = ScrewDrive._torx_profile(size).linear_extrude(height=length, center=center)
-        return Bosl2Solid(solid, size=[outer_diameter, outer_diameter, length])
+        return Bosl2Solid(solid.shape, size=[outer_diameter, outer_diameter, length])
 
     # ---- Robertson / square ---------------------------------------------
 

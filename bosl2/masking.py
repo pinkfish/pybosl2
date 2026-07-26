@@ -45,15 +45,22 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from pythonscad import cube as _ocube
-from pythonscad import polygon as _opolygon
-from pythonscad import sphere as _osphere
+from bosl2._native import native
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
 from .constants import CENTER
 from .shapes2d import _frag_count, _polar_to_xy
 from .shapes3d import EDGE_OFFSETS, _anchor_offset_box3, _edges, _quantup
+
+if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
+    from pythonscad import cube as _ocube
+    from pythonscad import polygon as _opolygon
+    from pythonscad import sphere as _osphere
+else:
+    _ocube = native("cube")
+    _opolygon = native("polygon")
+    _osphere = native("sphere")
 
 CORNER_OFFSETS = [[xa, ya, za] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)]
 

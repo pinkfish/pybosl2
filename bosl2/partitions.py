@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 import math
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -190,7 +191,7 @@ def _partition_subpath(cptype, fn=None, fa=None, fs=None):
 def _partition_cutpath(length, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None):
     """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
-    sub = (
+    sub: list[list[float]] = (
         [list(p) for p in cutpath]
         if isinstance(cutpath, (list, tuple, np.ndarray))
         else _partition_subpath(cutpath, fn, fa, fs)
@@ -289,7 +290,7 @@ def _ptn_sect(
         return _ptn_sect("halfsine addflip", length, width, fn=fn, fa=fa, fs=fs)
     steps = _frag_count(length / 2, fn, fa, fs)
     if cptype == "flat":
-        path = [[0, 0], [1, 0]]
+        path: list[list[float]] = [[0, 0], [1, 0]]
     elif cptype == "sawtooth":
         path = [[0, 0], [0, 1], [1, 0]]
     elif cptype == "square":
@@ -612,7 +613,7 @@ def _as_vec3(v):
     return a
 
 
-class Partitionable:
+class Partitionable(ABC):
     """Mixin adding the partitions.scad planar cuts and the partition() split as methods.
 
     Inherited by :class:`~bosl2.shapes3d.Bosl2Solid`. A half-cut intersects the solid with a
@@ -620,6 +621,11 @@ class Partitionable:
     argument is optional). ``cut_path=`` follows a 2-D :func:`partition_path` to make an
     interlocking cut face instead of a flat plane.
     """
+
+    @abstractmethod
+    def _wrap(self, new_shape):  # pragma: no cover - provided by the host class (Bosl2Solid)
+        """Re-wrap a native shape as the host solid type."""
+        raise NotImplementedError
 
     def _half_mask(self, v, cpv, s, cut_path, cut_angle, offset):
         from pythonscad import polygon as _polygon
@@ -656,7 +662,15 @@ class Partitionable:
             mask = mask.translate([float(c) for c in cpv])
         return mask
 
-    def half_of(self, v=UP, center: bool | None = None, s=None, cut_path=None, cut_angle: float = 0, offset=0):
+    def half_of(
+        self,
+        v=UP,
+        center: bool | list[float] | None = None,
+        s=None,
+        cut_path=None,
+        cut_angle: float = 0,
+        offset=0,
+    ):
         """Keep the half of this solid on the side the normal *v* points to (BOSL2 half_of()).
 
         *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*
@@ -668,14 +682,14 @@ class Partitionable:
         if center is None:
             cpv = np.zeros(3)
         elif is_num(center):
-            cpv = float(center) * unit(v3)
+            cpv = float(center) * unit(v3)  # type: ignore[arg-type]
         else:
             cpv = _as_vec3(center)
         if s is None:
-            center, size = self.bounds()
-            reach = float(np.linalg.norm(size)) + float(np.linalg.norm(cpv - np.asarray(center)))
+            center_pt, size = self.bounds()  # type: ignore[attr-defined]
+            reach = float(np.linalg.norm(size)) + float(np.linalg.norm(cpv - np.asarray(center_pt)))
             s = 2.2 * reach + 2.0
-        return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))
+        return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))  # type: ignore[attr-defined]
 
     def left_half(self, x=0, s=None, cut_path=None, cut_angle: float = 0, offset=0):
         """Keep the left (-X) half, cut at ``X=x`` (BOSL2 left_half())."""
@@ -763,7 +777,7 @@ class Partitionable:
         The joint follows *cutpath* (``"jigsaw"``, ``"dovetail"``, ``"hammerhead"``, ...); *spin*
         rotates the cut direction; *slop* leaves a printer-fit clearance.
         """
-        center, size = self.bounds()
+        center_pt, size = self.bounds()  # type: ignore[attr-defined]
         cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
         sp = math.radians(spin)
         c, sn = math.cos(sp), math.sin(sp)
@@ -787,9 +801,9 @@ class Partitionable:
                 fa,
                 fs,
             )
-            mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center])
+            mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center_pt])
             move = vec if idx == 0 else -vec
-            pieces.append(self._wrap(self.shape & mask).translate([float(m) for m in move]))
+            pieces.append(self._wrap(self.shape & mask).translate([float(m) for m in move]))  # type: ignore[attr-defined]
         return pieces
 
 

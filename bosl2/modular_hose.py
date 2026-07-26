@@ -17,12 +17,18 @@
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
-from pythonscad import polygon as _opolygon
-from pythonscad import rotate_extrude as _orotate_extrude
-
+from bosl2._native import native
 from bosl2.drawing import turtle
 from bosl2.shapes3d import Bosl2Solid
+
+if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
+    from pythonscad import polygon as _opolygon
+    from pythonscad import rotate_extrude as _orotate_extrude
+else:
+    _opolygon = native("polygon")
+    _orotate_extrude = native("rotate_extrude")
 
 __all__ = ["ModularHose"]
 

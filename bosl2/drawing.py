@@ -36,8 +36,12 @@ from bosl2.geometry import general_line_intersection, line_normal
 from bosl2.math import lerp, lerpn
 from bosl2.paths import Path, Path3D
 from bosl2.shapes2d import _frag_count, _pick_radius, arc
-from bosl2.shapes3d import cyl as _cyl
-from bosl2.shapes3d import sphere as _sphere
+
+# The stroke body is built from the backend-neutral facade, NOT bosl2.shapes3d directly, so a
+# 3-D stroke realizes on whichever backend is active: Bosl2Solids under the default csg backend,
+# PyShapes under use_backend("sdf").
+from bosl2.solid import cyl as _cyl  # type: ignore[attr-defined]
+from bosl2.solid import sphere as _sphere  # type: ignore[attr-defined]
 from bosl2.vectors import unit
 
 __all__ = [
@@ -539,14 +543,19 @@ def _place(poly, theta_deg: float, at):
 
 
 def _endcap_geometry_2d(style, at, outdir, width: float):
-    """Native 2-D geometry for endcap/joint *style* at *at*, with local +Y rotated onto *outdir*."""
+    """2-D geometry for endcap/joint *style* at *at*, with local +Y rotated onto *outdir*.
+
+    Returns a :class:`~bosl2.shapes2d.Bosl2Shape2D`, matching what the rest of the 2-D stroke
+    builds, so the pieces combine without leaking a raw native handle into the reduce()."""
     from pythonscad import polygon as _opolygon
+
+    from bosl2.shapes2d import Bosl2Shape2D
 
     polys = _endcap_polys(style, width)
     if not polys:
         return None
     theta = math.degrees(math.atan2(outdir[1], outdir[0])) - 90.0  # BACK (+Y) -> outdir
-    geos = [_opolygon(_place(poly, theta, at)) for poly in polys]
+    geos = [Bosl2Shape2D(_opolygon(_place(poly, theta, at))) for poly in polys]
     return reduce(operator.or_, geos)
 
 
@@ -565,9 +574,25 @@ def _trim_ends(body, trim1: float, trim2: float):
 
 
 def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
+    """A 2-D stroke, as a :class:`~bosl2.shapes2d.Bosl2Shape2D`.
+
+    2-D geometry only exists on the CSG backend, so this raises under ``use_backend("sdf")``
+    rather than quietly building a CSG shape that could not then be combined with the SDF solids
+    around it. A 3-D path strokes on either backend -- see :func:`_stroke3d`.
+    """
+    from bosl2._backend import current_backend
+    from bosl2.exceptions import UnsupportedByBackend
     from bosl2.shapes2d import circle as _circle
     from bosl2.shapes2d import square as _square
 
+    if current_backend() != "csg":
+        raise UnsupportedByBackend(
+            "stroke (2-D path)",
+            current_backend(),
+            hint="a 2-D stroke is 2-D geometry, which only the csg backend has. Stroke a Path3D "
+            "for a solid tube on either backend, or draw the 2-D stroke under the default (csg) "
+            "backend.",
+        )
     shapes = []
     sides = len(pts)
     # Pull the body back under arrow endcaps; endcaps still sit at the original endpoints.
@@ -607,28 +632,27 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
 
 
 def _oriented_to(shape, outdir, at):
-    """Rotate a Z-up native solid so +Z points along 3-D *outdir*, then translate it to *at*."""
-    from bosl2.transforms import axis_angle_matrix, rot_from_to
+    """Rotate a Z-up solid so +Z points along 3-D *outdir*, then translate it to *at*.
+
+    Uses ``rotate(angle, axis)`` rather than a 4x4 ``multmatrix`` so it works on either backend's
+    solid -- an SDF PyShape rotates its field in closed form, but has no multmatrix.
+    """
+    from bosl2.transforms import rot_from_to
 
     angle, axis = rot_from_to([0, 0, 1], outdir)
-    m3 = np.asarray(axis_angle_matrix(angle, axis), dtype=float)
-    m4 = [[*m3[0], 0.0], [*m3[1], 0.0], [*m3[2], 0.0], [0.0, 0.0, 0.0, 1.0]]
-    return shape.multmatrix(m4).translate([float(c) for c in at])
+    return shape.rotate(float(angle), [float(c) for c in axis]).translate([float(c) for c in at])
 
 
 def _endcap_geometry_3d(style, at, outdir, width: float):
+    """3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid.
+
+    The sphere caps come from the backend-neutral facade, so they realize on whichever backend is
+    active. The revolved caps (arrow/diamond/tail/...) are built by ``rotate_extrude()``, which
+    only the csg backend has, so they raise :class:`~bosl2.exceptions.UnsupportedByBackend` under
+    ``use_backend("sdf")``.
     """
-    Native 3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid.
-    """
-    from pythonscad import (
-        polygon as _opolygon,
-    )
-    from pythonscad import (
-        rotate_extrude as _orotate_extrude,
-    )
-    from pythonscad import (
-        square as _osquare,
-    )
+    from bosl2._backend import current_backend
+    from bosl2.exceptions import UnsupportedByBackend
 
     if style in (False, "butt", None):
         return None
@@ -639,16 +663,31 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
     polys = _endcap_polys(style, width)
     if not polys:
         return None
-    # Revolve each polygon's right half (x >= 0) about its outward (+Y -> +Z) axis, then orient.
+    if current_backend() != "csg":
+        raise UnsupportedByBackend(
+            f"stroke(endcap={style!r})",
+            current_backend(),
+            hint="the revolved endcaps need rotate_extrude(), which the sdf backend has no "
+            "equivalent for. Use endcap='round'/'dot'/'butt' there, or stroke on the csg backend.",
+        )
+    from pythonscad import polygon as _opolygon
+    from pythonscad import rotate_extrude as _orotate_extrude
+    from pythonscad import square as _osquare
+
+    from bosl2.shapes3d import Bosl2Solid
+
     big = max(abs(v) for poly in polys for p in poly for v in p) * 4 + width
     right = _osquare([big, big], center=True).translate([big / 2, 0])
     solids = [_orotate_extrude((_opolygon(poly) & right)) for poly in polys]
-    solid = reduce(operator.or_, solids)
-    return _oriented_to(solid, outdir, at)
+    return _oriented_to(Bosl2Solid(reduce(operator.or_, solids)), outdir, at)
 
 
 def _stroke3d(pts, width, closed, endcap1, endcap2):
+    """A 3-D stroke -- a tube following *pts* -- on whichever backend is active.
 
+    Every piece comes from the backend-neutral facade (:mod:`bosl2.solid`), so this yields
+    Bosl2Solids under the default csg backend and PyShapes under ``use_backend("sdf")``.
+    """
     radius = width / 2
     shapes = []
     sides = len(pts)
@@ -766,7 +805,7 @@ def dashed_stroke(
     closed: bool = False,
     fit: bool = True,
     mindash: float = 0.5,
-) -> list[Path]:
+) -> "list[Path | Path3D]":
     """Break *path* into dashes -- BOSL2's ``dashed_stroke()`` function form.
 
     Returns the list of "on" dash sub-paths (each a :class:`~bosl2.paths.Path`); stroke or extrude
@@ -794,8 +833,8 @@ def dashed_stroke(
     if isinstance(path, Region):
         out: list[Path] = []
         for p in path:
-            out.extend(dashed_stroke(p, dashpat, closed=True, fit=fit, mindash=mindash))
-        return out
+            out.extend(dashed_stroke(p, dashpat, closed=True, fit=fit, mindash=mindash))  # type: ignore[arg-type]
+        return out  # type: ignore[return-value]
 
     raw = [list(map(float, p)) for p in path]
     # a 3-D path yields 3-D dashes (Path3D); a 2-D path yields Path
@@ -818,7 +857,7 @@ def dashed_stroke(
                 cuts.append(x)
     cuts = sorted(c for c in cuts)
     if not cuts:
-        return [wrap(raw, closed=False)]
+        return [wrap(raw, closed=False)]  # type: ignore[return-value]
     dashes = Path._path_cut(raw, cuts, closed=False)
     dcnt = len(dashes)
     evens = []
@@ -827,4 +866,4 @@ def dashed_stroke(
             continue
         if i < dcnt - 1 or Path._path_length(dash, closed=False) > mindash:
             evens.append(wrap(dash, closed=False))
-    return evens
+    return evens  # type: ignore[return-value]

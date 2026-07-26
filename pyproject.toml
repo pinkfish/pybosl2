@@ -30,6 +30,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
+    "typing-extensions",
 ]
 
 [project.optional-dependencies]
@@ -40,6 +41,7 @@ test = [
     "pytest>=7",
     "numpy",
     "pythonscad",
+    "typing-extensions",
 ]
 # Build the API docs (Sphinx autodoc). Needs pythonscad because the geometry
 # modules import it at load time, before autodoc can read their docstrings.
@@ -79,3 +81,6 @@ select = ["E", "F", "I"]
 [tool.ruff.format]
 # Use double quotes for strings
 quote-style = "double"
+
+[tool.mypy]
+ignore_missing_imports = true
