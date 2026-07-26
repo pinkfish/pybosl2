@@ -33,6 +33,8 @@ from bosl2._native import native
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
+
+    from bosl2.shapes2d import Bosl2Shape2D  # noqa: F401
 from bosl2._backend import check_operand_backend as _check_operand_backend
 from bosl2._backend import unsupported_feature as _unsupported_feature
 from bosl2.color import Colorable
@@ -109,6 +111,21 @@ def _osphere(radius=None, center=None, fn=None, fa=None, fs=None):
     return _osphere_native(**kw)
 
 
+def _as_native_3d(obj) -> "PyOpenSCAD":
+    """A raw native handle from *obj*: a :class:`Bosl2Solid` / ``Bosl2Shape2D`` wrapper, a native
+    shape, or anything exposing ``geometry()`` (a :class:`~bosl2.vnf.VNF`, a
+    :class:`~bosl2.paths.Path`, a :class:`~bosl2.regions.Region`)."""
+    from bosl2._helpers import unwrap
+
+    unwrapped = unwrap(obj)
+    if unwrapped is not obj:  # a Bosl2Solid / Bosl2Shape2D wrapper
+        return unwrapped
+    geom = getattr(obj, "geometry", None)  # VNF / Path / Region
+    if callable(geom):
+        return unwrap(geom())
+    return obj
+
+
 # ---------------------------------------------------------------------------
 # Section: Base class
 # ---------------------------------------------------------------------------
@@ -161,7 +178,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
     @staticmethod
     def _unwrap(x):
-        return x.shape if isinstance(x, Bosl2Solid) else x
+        from bosl2._helpers import unwrap
+
+        return unwrap(x)
 
     def _wrap(self, new_shape: PyOpenSCAD) -> "Bosl2Solid":
         """Wrap a native result, carrying size/anchor metadata (and moved-ness) forward unchanged.
@@ -296,6 +315,54 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def inside(self, point: "Sequence[float] | np.ndarray") -> bool:
         """True if *point* lies inside the solid (native ``inside()``)."""
         return bool(self.shape.inside([float(x) for x in point]))
+
+    # ---- hull / projection ----
+
+    def hull(self, *others) -> "Bosl2Solid":
+        """The convex hull of this solid (OpenSCAD ``hull()``).
+
+        With arguments, the hull of this solid *together with* each of *others* -- the shrink-wrap
+        around them all, which is how BOSL2 builds a rounded box from spheres at its corners.
+        Each of *others* may be a ``Bosl2Solid``, a raw native solid, or a
+        :class:`~bosl2.vnf.VNF`/point list, which is meshed as a polyhedron first.
+
+        See :meth:`~bosl2.miscellaneous.Miscellaneous.chain_hull` to hull consecutive *pairs*
+        instead of everything at once.
+
+        Examples:
+            .. pythonscad-example::
+
+                capsule = sphere(radius=8).hull(sphere(radius=8).up(30))
+                capsule.show()
+        """
+        return Bosl2Solid(_ohull(self.shape, *[_as_native_3d(o) for o in others]))
+
+    def projection(self, cut: bool = False) -> "Bosl2Shape2D":
+        """The 2-D shadow of this solid on the XY plane (OpenSCAD ``projection()``).
+
+        With ``cut=True`` you get the cross-section where the solid crosses the z=0 plane instead
+        of the full outline -- slice the solid at the height you want first.
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D`, so the result chains straight back into the
+            2-D operators (``.offset()``, ``.fill()``, ``.hull()``) and the extruders.
+
+        Note:
+            CSG only. The SDF backend's :meth:`~bosl2._sdf.shapes3d.PyShape.projection` raises
+            :class:`~bosl2.exceptions.UnsupportedByBackend` -- a distance field has no
+            closed-form 2-D shadow, and 2-D geometry is a CSG-backend notion.
+
+        Examples:
+            A footprint outline, grown 2mm, extruded into a base plate:
+
+            .. pythonscad-example::
+
+                part = cuboid([30, 20, 10], rounding=3)
+                part.projection().offset(radius=2).linear_extrude(height=2).show()
+        """
+        from bosl2.shapes2d import Bosl2Shape2D
+
+        return Bosl2Shape2D(self.shape.projection(cut=cut))
 
     # ---- colour (bosl2/color.py) ----
     #
@@ -2673,7 +2740,9 @@ def text3d(
         language=language,
         script=script,
     )
-    shape = flat.linear_extrude(height=height, center=True)
+    # .shape: _text2d() hands back a Bosl2Shape2D, but everything below works on raw natives
+    # (_finish3) and the result is wrapped once, at the end.
+    shape = flat.shape.linear_extrude(height=height, center=True)
     offset = _anchor_offset_box3([size, size, height], [0, 0, av[2]])
     shape = _finish3(shape, offset, spin, orient)
     return Bosl2Solid(shape, size=None, anchor=anchor)
@@ -2786,7 +2855,10 @@ def path_text(
             adjustment = [0.0] * dim
         x_axis = [tangent[k] - adjustment[k] for k in range(dim)]
 
-        glyph = _text2d(ch, size=size, font=font, halign="left", valign="baseline").translate([-lsize[i] / 2.0, 0])
+        # .shape: the letters are composed as raw natives and wrapped once, at the end.
+        glyph = (
+            _text2d(ch, size=size, font=font, halign="left", valign="baseline").translate([-lsize[i] / 2.0, 0]).shape
+        )
 
         if dim == 3:
             z_axis = None if toppts is not None else normpts[i]

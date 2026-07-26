@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -24,7 +24,12 @@ from bosl2.paths import (
     Path,
     Path3D,
 )  # Path/Path3D live in paths.py; re-exported here for compatibility
-from bosl2.shapes3d import Bosl2Solid, text3d
+from bosl2.shapes3d import text3d
+
+if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would be circular
+    from bosl2._backend import Solid  # noqa: F401
+    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike  # noqa: F401
+    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
 
 __all__ = ["Path", "Path3D", "Region"]
 
@@ -101,12 +106,67 @@ class Region(list):
         all_pts = np.vstack([p.array for p in self])
         return np.array([all_pts.min(axis=0), all_pts.max(axis=0)])
 
-    def geometry(self):
-        """Native 2-D geometry: the outline with the holes subtracted."""
+    def geometry(self) -> "Bosl2Shape2D":
+        """2-D geometry: the outline with the holes subtracted.
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
+            operators and the extruders.
+        """
         shape = self.outline.polygon()
         for hole in self.holes:
             shape = shape - hole.polygon()
         return shape
+
+    def fill(self) -> "Bosl2Shape2D":
+        """This region as 2-D geometry with its holes filled in -- i.e. just the outline
+        (OpenSCAD ``fill()``).
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D`.
+        """
+        return self.geometry().fill()
+
+    def hull(self, *others: "Shape2DLike") -> "Bosl2Shape2D":
+        """The 2-D convex hull of this region, optionally together with *others* (more regions,
+        paths, 2-D shapes or point lists) -- OpenSCAD ``hull()``.
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D`.
+        """
+        return self.geometry().hull(*others)
+
+    def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
+        """Extrude this region *height* along +Z into a 3-D solid (holes included), **on whichever
+        backend is active** -- a :class:`~bosl2.shapes3d.Bosl2Solid` under the default CSG backend,
+        a :class:`~bosl2._sdf.shapes3d.PyShape` under ``use_backend("sdf")``. See
+        :meth:`bosl2.paths.Path.linear_extrude` for the per-backend options.
+
+        The SDF backend's prism is the union of the outlines' fields, so it can only express a
+        region of DISJOINT islands; a region with holes raises
+        :class:`~bosl2.exceptions.UnsupportedByBackend` there.
+        """
+        from bosl2._backend import current_backend, get_backend
+        from bosl2.exceptions import UnsupportedByBackend
+
+        if current_backend() != "csg" and self.holes:
+            raise UnsupportedByBackend(
+                "linear_extrude (region with holes)",
+                current_backend(),
+                hint="the sdf prism unions its outlines' fields, so it cannot cut holes. Extrude "
+                "the outline and subtract the holes' own extrusions, or build it on the csg backend.",
+            )
+        return get_backend().linear_extrude(list(self), height, **kwargs)
+
+    def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
+        """Revolve this region about the Y axis into a 3-D solid; see
+        :meth:`~bosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
+
+        Returns:
+            A :class:`~bosl2.shapes3d.Bosl2Solid` (csg backend only -- the SDF backend has no
+            revolve).
+        """
+        return self.geometry().rotate_extrude(angle, **kwargs)
 
     def debug_region(self, size: float = 1, vertices: bool = True):
         """A debug view of this region: the filled region (as a thin flat solid) with every path's
@@ -124,7 +184,7 @@ class Region(list):
         paths = [p if isinstance(p, Path) else Path(p) for p in self]
         if len(paths) <= 1:
             return (paths[0] if paths else Path(self)).debug_polygon(size=size, vertices=vertices)
-        solid = Bosl2Solid(self.geometry().linear_extrude(height=0.01, center=True))
+        solid = self.geometry().linear_extrude(height=0.01, center=True)
         if not vertices:
             return solid
         labels = [

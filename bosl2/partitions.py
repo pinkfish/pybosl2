@@ -191,7 +191,7 @@ def _partition_subpath(cptype, fn=None, fa=None, fs=None):
 def _partition_cutpath(length, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None):
     """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
-    sub = (
+    sub: list[list[float]] = (
         [list(p) for p in cutpath]
         if isinstance(cutpath, (list, tuple, np.ndarray))
         else _partition_subpath(cutpath, fn, fa, fs)
@@ -290,7 +290,7 @@ def _ptn_sect(
         return _ptn_sect("halfsine addflip", length, width, fn=fn, fa=fa, fs=fs)
     steps = _frag_count(length / 2, fn, fa, fs)
     if cptype == "flat":
-        path = [[0, 0], [1, 0]]
+        path: list[list[float]] = [[0, 0], [1, 0]]
     elif cptype == "sawtooth":
         path = [[0, 0], [0, 1], [1, 0]]
     elif cptype == "square":
@@ -662,7 +662,9 @@ class Partitionable(ABC):
             mask = mask.translate([float(c) for c in cpv])
         return mask
 
-    def half_of(self, v=UP, center: bool | None = None, s=None, cut_path=None, cut_angle: float = 0, offset=0):
+    def half_of(
+        self, v=UP, center: bool | list[float] | None = None, s=None, cut_path=None, cut_angle: float = 0, offset=0
+    ):
         """Keep the half of this solid on the side the normal *v* points to (BOSL2 half_of()).
 
         *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*

@@ -151,7 +151,7 @@ def test_screw_builds(head):
 
 
 def test_screw_unthreaded_and_partly_threaded():
-    assert isinstance(Screws.screw("M6", 20, thread=False, fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw("M6", 20, thread="none", fn=8), Bosl2Solid)
     assert isinstance(Screws.screw("M6", 20, thread_len=8, fn=8), Bosl2Solid)
 
 
@@ -174,7 +174,7 @@ def test_screw_hole_builds(head, counterbore):
 
 
 def test_tapped_hole_builds():
-    assert isinstance(Screws.screw_hole("M6", 20, thread=True, fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw_hole("M6", 20, thread="coarse", fn=8), Bosl2Solid)
 
 
 @pytest.mark.parametrize("fit", ["close", "normal", "loose"])

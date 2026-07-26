@@ -523,7 +523,7 @@ def path_copies(
     return mats
 
 
-def mirror_copy(v=(0, 0, 1), offset=0, center: bool | None = None) -> list[np.ndarray]:
+def mirror_copy(v=(0, 0, 1), offset=0, center: bool | list[float] | None = None) -> list[np.ndarray]:
     """The original plus a mirrored copy across the plane with normal *v* (BOSL2 mirror_copy())."""
     nv = _unit3(v)
     cen = (

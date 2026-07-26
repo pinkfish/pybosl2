@@ -91,3 +91,165 @@ def test_boolean_ops_dispatch_on_active_backend(backend, op):
         result = getattr(solid, op)(a, b)
     assert result.backend == backend
     assert isinstance(result, Solid)
+
+
+# ---------------------------------------------------------------------------
+# 2-D -> 3-D: Path/Region extrude on either backend
+# ---------------------------------------------------------------------------
+
+SQUARE = [[0, 0], [20, 0], [20, 12], [0, 12]]
+
+
+@pytest.mark.parametrize("backend", ["csg", "sdf"])
+def test_path_linear_extrude_dispatches_on_active_backend(backend):
+    from bosl2.paths import Path
+
+    with use_backend(backend):
+        s = Path(SQUARE).linear_extrude(height=5)
+    assert s.backend == backend
+    assert isinstance(s, Solid)
+    for got, want in zip(s.bounds()[1], [20, 12, 5]):
+        assert abs(got - want) < TOL, f"path extrude on {backend}: size {s.bounds()[1]}"
+
+
+@pytest.mark.parametrize("backend", ["csg", "sdf"])
+def test_path_linear_extrude_center_lands_on_the_origin(backend):
+    from bosl2.paths import Path
+
+    with use_backend(backend):
+        s = Path(SQUARE).linear_extrude(height=5, center=True)
+    assert abs(s.bounds()[0][2]) < TOL, "center=True should straddle z=0 on both backends"
+
+
+@pytest.mark.parametrize("backend", ["csg", "sdf"])
+def test_single_outline_region_extrudes_on_both_backends(backend):
+    from bosl2.regions import Region
+
+    with use_backend(backend):
+        s = Region([SQUARE]).linear_extrude(height=5)
+    assert s.backend == backend
+    for got, want in zip(s.bounds()[1], [20, 12, 5]):
+        assert abs(got - want) < TOL
+
+
+def test_region_with_holes_extrudes_only_on_csg():
+    from bosl2.exceptions import UnsupportedByBackend
+    from bosl2.regions import Region
+
+    plate = Region.with_holes(SQUARE, [[5, 3], [15, 3], [15, 9], [5, 9]])
+    assert plate.linear_extrude(height=5).backend == "csg"
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+        plate.linear_extrude(height=5)
+
+
+def test_sdf_extrude_rejects_the_profile_shearing_options():
+    from bosl2.exceptions import UnsupportedByBackend
+    from bosl2.paths import Path
+
+    for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
+        with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+            Path(SQUARE).linear_extrude(height=5, **kw)
+    # ...but the CSG backend takes them all
+    for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
+        assert Path(SQUARE).linear_extrude(height=5, **kw).backend == "csg"
+
+
+def test_sdf_extrude_takes_the_rim_roundings():
+    from bosl2.paths import Path
+
+    with use_backend("sdf"):
+        s = Path(SQUARE).linear_extrude(height=5, rounding_top=1, rounding_bottom=1)
+    assert s.backend == "sdf"
+
+
+# ---------------------------------------------------------------------------
+# 2-D geometry is a csg-only notion
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("call", ["polygon", "geometry", "fill", "hull", "rotate_extrude"])
+def test_path_2d_geometry_is_csg_only(call):
+    from bosl2.exceptions import UnsupportedByBackend
+    from bosl2.paths import Path
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+        getattr(Path(SQUARE), call)()
+
+
+def test_2d_shape_constructors_stay_on_csg():
+    # shapes2d builds exact 2-D geometry, which has no SDF counterpart -- it does NOT silently
+    # change meaning inside a use_backend("sdf") block.
+    import bosl2.shapes2d as s2
+    from bosl2.shapes2d import Bosl2Shape2D
+
+    with use_backend("sdf"):
+        shape = s2.square(10)
+    assert isinstance(shape, Bosl2Shape2D) and shape.backend == "csg"
+
+
+# ---------------------------------------------------------------------------
+# hull() / projection() on the 3-D object, per backend
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("backend", ["csg", "sdf"])
+def test_solid_hull_dispatches_on_active_backend(backend):
+    with use_backend(backend):
+        capsule = solid.cube(10).hull(solid.cube(10).translate([0, 0, 30]))
+    assert capsule.backend == backend
+    for got, want in zip(capsule.bounds()[1], [10, 10, 40]):
+        assert abs(got - want) < TOL, f"hull on {backend}: size {capsule.bounds()[1]}"
+
+
+def test_projection_is_csg_only():
+    from bosl2.exceptions import UnsupportedByBackend
+    from bosl2.shapes2d import Bosl2Shape2D
+
+    assert isinstance(solid.cuboid([30, 20, 10]).projection(), Bosl2Shape2D)
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+        solid.cuboid([30, 20, 10]).projection()
+
+
+def test_fill_is_csg_only_on_a_solid():
+    from bosl2.exceptions import UnsupportedByBackend
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+        solid.cube(10).fill()
+
+
+# ---------------------------------------------------------------------------
+# stroke(): a 3-D stroke follows the active backend, a 2-D one is csg-only
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("backend", ["csg", "sdf"])
+def test_stroke_of_a_3d_path_follows_the_active_backend(backend):
+    from bosl2.paths import Path3D
+
+    spine = Path3D([[0, 0, 0], [0, 0, 20], [10, 0, 30]], closed=False)
+    with use_backend(backend):
+        tube = spine.stroke(width=3)
+    assert tube.backend == backend, "stroke() must not force everything onto csg"
+    assert isinstance(tube, Solid)
+
+
+def test_stroke_of_a_2d_path_is_csg_only():
+    from bosl2.exceptions import UnsupportedByBackend
+    from bosl2.paths import Path
+    from bosl2.shapes2d import Bosl2Shape2D
+
+    flat = Path([[0, 0], [20, 0], [20, 20]], closed=False)
+    assert isinstance(flat.stroke(width=3), Bosl2Shape2D)
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+        flat.stroke(width=3)
+
+
+def test_sdf_stroke_rejects_a_revolved_endcap():
+    from bosl2.exceptions import UnsupportedByBackend
+    from bosl2.paths import Path3D
+
+    spine = Path3D([[0, 0, 0], [0, 0, 20]], closed=False)
+    with use_backend("sdf"):
+        assert spine.stroke(width=3, endcaps="round").backend == "sdf"  # sphere caps are shared
+        with pytest.raises(UnsupportedByBackend):
+            spine.stroke(width=3, endcaps="arrow")

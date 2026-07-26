@@ -102,11 +102,15 @@ def frame_map(x=None, y=None, z=None) -> np.ndarray:
     yu = _u(y) if y is not None else None
     zu = _u(z) if z is not None else None
     if xu is None:
+        assert yu is not None and zu is not None
         xu = np.cross(yu, zu)
     elif yu is None:
+        assert zu is not None and xu is not None
         yu = np.cross(zu, xu)
     elif zu is None:
+        assert xu is not None and yu is not None
         zu = np.cross(xu, yu)
+    assert xu is not None and yu is not None and zu is not None
     m = np.eye(4)
     m[:3, :3] = np.column_stack([xu, yu, zu])
     return m
@@ -213,16 +217,16 @@ def path_sweep(
 
     # Resolve the per-cross-section scale [sx, sy].
     if np.isscalar(scale) or (np.ndim(scale) == 1 and len(scale) == 2):
-        s = [float(scale), float(scale)] if np.isscalar(scale) else [float(scale[0]), float(scale[1])]
+        s = [float(scale), float(scale)] if np.isscalar(scale) else [float(scale[0]), float(scale[1])]  # type: ignore[arg-type]
         if not scale_by_length:
             scalevals = [
                 [float(v) for v in ((1 - i / (L - 1)) * np.array([1.0, 1.0]) + (i / (L - 1)) * np.array(s))]
                 for i in range(L)
             ]
         else:
-            scalevals = [[float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))] for f in spathfrac[:L]]
+            scalevals = [[float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))] for f in spathfrac[:L]]  # type: ignore[arg-type]
     else:
-        scalevals = [[float(x), float(x)] if np.isscalar(x) else [float(x[0]), float(x[1])] for x in scale]
+        scalevals = [[float(x), float(x)] if np.isscalar(x) else [float(x[0]), float(x[1])] for x in scale]  # type: ignore[arg-type]
     scale_list = [_scale4([sv[0], sv[1], 1.0]) for sv in scalevals]
     if closed:
         scale_list.append(_scale4([scalevals[0][0], scalevals[0][1], 1.0]))
@@ -380,8 +384,8 @@ def skin(
         [False, False] if closed else ([caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])])
     )
     refine = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
-    method = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
-    for m in method:
+    method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
+    for m in method_list:
         assert m in ("direct", "reindex"), f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r})."
     sampling = sampling if sampling is not None else "length"
 
@@ -804,7 +808,7 @@ def rot_resample(
     needlast = abs(lastsample - 1.0) > 1e-9
 
     if isinstance(twist_v, (int, float)):
-        sampletwist = list(np.linspace(0, twist_v, count))
+        sampletwist: list[float] = list(np.linspace(0, twist_v, count))
     else:
         cumtwist = [0.0]
         for t in twist_v:
@@ -814,7 +818,7 @@ def rot_resample(
             sampletwist.append(cumtwist[-1])
 
     if isinstance(scale_v, (int, float)):
-        samplescale = [1 + (scale_v - 1) * u for u in np.linspace(0, 1, count)]
+        samplescale: list[float] = [1 + (scale_v - 1) * u for u in np.linspace(0, 1, count)]
     else:
         cumscale = [1.0]
         for s in scale_v:

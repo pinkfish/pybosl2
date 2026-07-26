@@ -18,6 +18,13 @@ from bosl2._backend import use_backend
 from bosl2.exceptions import CrossBackendError, UnsupportedByBackend
 
 
+def _libfive_available() -> bool:
+    try:
+        return importlib.util.find_spec("libfive") is not None
+    except (ImportError, ValueError):
+        return False
+
+
 def _csg_sphere():
     return solid.sphere(radius=10)
 
@@ -61,7 +68,7 @@ def test_csg_to_sdf_is_unsupported():
 
 
 @pytest.mark.skipif(
-    importlib.util.find_spec("libfive") is None,
+    not _libfive_available(),
     reason="SDF->CSG conversion meshes via libfive (not installed here)",
 )
 def test_sdf_to_csg_meshes_into_a_csg_solid():

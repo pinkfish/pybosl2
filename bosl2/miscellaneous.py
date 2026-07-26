@@ -58,23 +58,20 @@ __all__ = [
 
 
 def _as_native_2d(profile):
-    """A native 2-D shape from *profile* (native shape, Path, Region, or Bosl2Solid)."""
-    from bosl2.shapes3d import Bosl2Solid
+    """A raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
+    a Path, or a Region) -- see :func:`bosl2.shapes2d._as_native_2d`, which this defers to."""
+    from bosl2.shapes2d import _as_native_2d as _coerce
 
-    if isinstance(profile, Bosl2Solid):
-        return profile.shape
-    geom = getattr(profile, "geometry", None)
-    if callable(geom):  # Path / Region
-        return geom()
-    return profile
+    return _coerce(profile)
 
 
 def _profile_factory(profile):
     """A zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time
     (the "children" form, safe for frep handles); anything else is meshed once and reused."""
+    from bosl2.shapes2d import Bosl2Shape2D
     from bosl2.shapes3d import Bosl2Solid
 
-    if callable(profile) and not isinstance(profile, (list, tuple, Bosl2Solid)):
+    if callable(profile) and not isinstance(profile, (list, tuple, Bosl2Solid, Bosl2Shape2D)):
         return lambda: _as_native_2d(profile())
     native = _as_native_2d(profile)
     return lambda: native
