@@ -79,3 +79,6 @@ select = ["E", "F", "I"]
 [tool.ruff.format]
 # Use double quotes for strings
 quote-style = "double"
+
+[tool.mypy]
+ignore_missing_imports = true

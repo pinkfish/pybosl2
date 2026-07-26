@@ -165,9 +165,12 @@ class BallBearings:
                 spec.width,
                 spec.shielded,
             )
-        assert None not in (inner_diameter, outer_diameter, width), (
-            "ball_bearing(): give a trade_size or inner_diameter/outer_diameter/width."
-        )
+        if inner_diameter is None:
+            raise ValueError("ball_bearing(): must give inner_diameter.")
+        if outer_diameter is None:
+            raise ValueError("ball_bearing(): must give outer_diameter.")
+        if width is None:
+            raise ValueError("ball_bearing(): must give width.")
 
         mid_d = (inner_diameter + outer_diameter) / 2
         wall = (outer_diameter - inner_diameter) / 2 / 3

@@ -71,6 +71,12 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 
 .. toctree::
    :maxdepth: 1
+   :caption: Solid backends
+
+   CSG & SDF backends <backends>
+
+.. toctree::
+   :maxdepth: 1
    :caption: Foundational
 
    3-D shapes <shapes3d>

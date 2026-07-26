@@ -7,7 +7,7 @@
 # LibFile: bosl2/gears.py
 #    Pure-Python port of the core of BOSL2's (current) gears.scad. Gears are sized by circular pitch
 #    (``circ_pitch``), metric ``mod``, or ``diam_pitch``; the default 20-degree pressure angle and
-#    ``profile_shift="auto"`` (which corrects undercut on low-tooth-count gears) match BOSL2. The
+#    ``profile_shift=None`` (which corrects undercut on low-tooth-count gears) match BOSL2. The
 #    :meth:`~Gears.spur_gear2d` / :meth:`~Gears.spur_gear` teeth are generated the way BOSL2 does it:
 #    the involute working flank plus the trochoid that a meshing rack would carve, so low-tooth gears
 #    get a real undercut. :meth:`~Gears.herringbone_gear`, the linear :meth:`~Gears.rack`, the
@@ -113,7 +113,7 @@ def _outer_radius_basic(
     )
 
 
-def _auto_profile_shift(teeth, pressure_angle=20, helical=0, profile_shift="auto") -> float:
+def _auto_profile_shift(teeth, pressure_angle=20, helical=0, profile_shift=None) -> float:
     """Minimum profile shift to avoid undercut, or the given value (BOSL2 auto_profile_shift())."""
     if isinstance(profile_shift, (int, float)):
         return float(profile_shift)
@@ -524,7 +524,7 @@ class Gears:
     """Gears (BOSL2 gears.scad): spur (with undercut), helical, herringbone, rack, ring, bevel, worm.
 
     Size a gear by ``circ_pitch`` (mm of pitch circle per tooth), ``mod`` (metric module) or
-    ``diam_pitch``; pass one. The 20-degree ``pressure_angle`` and ``profile_shift="auto"`` defaults
+    ``diam_pitch``; pass one. The 20-degree ``pressure_angle`` and ``profile_shift=None`` defaults
     match BOSL2. All angles are in degrees.
     """
 
@@ -586,7 +586,7 @@ class Gears:
         clearance: float | None = None,
         internal: bool = False,
         helical: float = 0,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         pressure_angle: float = 20,
         shorten: float = 0,
         mod: float | None = None,
@@ -605,7 +605,7 @@ class Gears:
         clearance: float | None = None,
         internal: bool = False,
         helical: float = 0,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         pressure_angle: float = 20,
         mod: float | None = None,
         pitch: float | None = None,
@@ -636,7 +636,7 @@ class Gears:
 
     @staticmethod
     def auto_profile_shift(
-        teeth: int, pressure_angle: float = 20, helical: float = 0, profile_shift: float = "auto"
+        teeth: int, pressure_angle: float = 20, helical: float = 0, profile_shift: float | None = None
     ) -> float:
         """Minimum profile shift (modules) to avoid undercut (BOSL2 auto_profile_shift())."""
         return _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
@@ -648,8 +648,8 @@ class Gears:
         teeth1: int,
         teeth2: int,
         helical: float = 0,
-        profile_shift1: float = "auto",
-        profile_shift2: float = "auto",
+        profile_shift1: float | None = None,
+        profile_shift2: float | None = None,
         internal1: bool = False,
         internal2: bool = False,
         backlash: float = 0,
@@ -706,7 +706,7 @@ class Gears:
         backlash: float = 0.0,
         helical: float = 0,
         internal: bool = False,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         shorten: float = 0,
         center: bool = False,
         mod: float | None = None,
@@ -718,7 +718,7 @@ class Gears:
         _gear_tooth_profile()).
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+        ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         return _gear_tooth_profile(
             center,
             teeth,
@@ -741,7 +741,7 @@ class Gears:
         clearance: float | None = None,
         backlash: float = 0.0,
         internal: bool = False,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         helical: float = 0,
         shaft_diam: float = 0,
         shorten: float = 0,
@@ -808,7 +808,7 @@ class Gears:
         helical: float = 0,
         herringbone: bool = False,
         internal: bool = False,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         shorten: float = 0,
         slices: int | None = None,
         gear_spin=0,
@@ -874,7 +874,7 @@ class Gears:
         backlash: float = 0.0,
         helical: float = 0,
         internal: bool = False,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         shorten: float = 0,
         gear_spin=0,
         mod: float | None = None,
@@ -914,7 +914,7 @@ class Gears:
         clearance: float | None = None,
         backlash: float = 0.0,
         helical: float = 0,
-        profile_shift: float = "auto",
+        profile_shift: float | None = None,
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
