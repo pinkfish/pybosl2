@@ -42,9 +42,14 @@
 
 import math
 from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+
+if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this module
+    from bosl2._backend import Solid  # noqa: F401
+    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike  # noqa: F401
+    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
 
 from bosl2.comparisons import approx
 from bosl2.distributors import (
@@ -351,16 +356,105 @@ class Path(Distributable, Extrudable, Roundable, list):
 
         return Region([self])
 
-    def polygon(self):
-        """Native 2-D geometry for this path (crosses the FFI as plain floats)."""
+    # -- 2-D geometry (csg backend only) ---------------------------------------------------
+    #
+    # A Path is backend-neutral -- it is just points -- but 2-D *geometry* is not: only the CSG
+    # backend has a 2-D shape (Bosl2Shape2D). The SDF backend models a field over 3-space and
+    # has no 2-D object to hand back, so these four raise UnsupportedByBackend under it rather
+    # than quietly building CSG geometry that could not then be combined with SDF solids.
+    # The extruders below, which end in a 3-D solid, DO work on both.
+
+    def _require_csg(self, feature: str) -> None:
+        from bosl2._backend import current_backend
+        from bosl2.exceptions import UnsupportedByBackend
+
+        backend = current_backend()
+        if backend != "csg":
+            raise UnsupportedByBackend(
+                feature,
+                backend,
+                hint="2-D geometry is a csg-backend notion; the sdf backend goes straight from "
+                "path points to a 3-D field. Use .linear_extrude(...) here, or build the 2-D "
+                "shape under the default (csg) backend.",
+            )
+
+    def polygon(self) -> "Bosl2Shape2D":
+        """This path as 2-D geometry (crosses the FFI as plain floats).
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
+            operators (``.fill()``, ``.hull()``, ``.offset()``) and the extruders
+            (``.linear_extrude(...)``).
+
+        Raises:
+            ~bosl2.exceptions.UnsupportedByBackend: under ``use_backend("sdf")`` -- see the note
+            above :meth:`linear_extrude`, which works on both backends.
+        """
         from pythonscad import polygon as _polygon
 
-        return _polygon([[float(x), float(y)] for x, y in self])
+        from bosl2.shapes2d import Bosl2Shape2D  # local: shapes2d imports this module
 
-    def geometry(self):
-        """Native 2-D geometry -- the name :class:`Region` also exposes, so a caller that may
+        self._require_csg("polygon")
+        return Bosl2Shape2D(_polygon([[float(x), float(y)] for x, y in self]))
+
+    def geometry(self) -> "Bosl2Shape2D":
+        """2-D geometry -- the name :class:`Region` also exposes, so a caller that may
         hold either a Path or a Region can ask for geometry without checking which it got."""
         return self.polygon()
+
+    def fill(self) -> "Bosl2Shape2D":
+        """This path as 2-D geometry with every hole filled in -- only the outermost outline
+        survives (OpenSCAD ``fill()``). For a self-intersecting path this closes up the interior
+        loops that ``polygon()`` would leave as holes.
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D` (csg backend only).
+        """
+        return self.polygon().fill()
+
+    def hull(self, *others: "Shape2DLike") -> "Bosl2Shape2D":
+        """The 2-D convex hull of this path, optionally together with *others* (more paths,
+        regions, 2-D shapes or point lists) -- OpenSCAD ``hull()``.
+
+        Returns:
+            A :class:`~bosl2.shapes2d.Bosl2Shape2D` (csg backend only).
+        """
+        return self.polygon().hull(*others)
+
+    # -- 2-D -> 3-D (both backends) --------------------------------------------------------
+
+    def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
+        """Extrude this path *height* along +Z into a 3-D solid, **on whichever backend is
+        active**: a :class:`~bosl2.shapes3d.Bosl2Solid` under the default CSG backend, a
+        :class:`~bosl2._sdf.shapes3d.PyShape` under ``use_backend("sdf")``::
+
+            plate = Path(pts).linear_extrude(height=4)          # -> Bosl2Solid
+            with use_backend("sdf"):
+                field = Path(pts).linear_extrude(height=4)      # -> PyShape
+
+        The extra options differ by backend, since each realizes the extrusion its own way: the
+        CSG backend takes the native ``center``/``twist``/``scale``/``slices``/``convexity`` (see
+        :meth:`~bosl2.shapes2d.Bosl2Shape2D.linear_extrude`); the SDF backend takes ``center``
+        plus ``rounding_top``/``rounding_bottom``/``res``, and rejects the profile-shearing ones.
+        """
+        from bosl2._backend import get_backend
+
+        return get_backend().linear_extrude([self], height, **kwargs)
+
+    def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
+        """Revolve this path about the Y axis into a 3-D solid; see
+        :meth:`~bosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
+
+        Returns:
+            A :class:`~bosl2.shapes3d.Bosl2Solid`.
+
+        Raises:
+            ~bosl2.exceptions.UnsupportedByBackend: under ``use_backend("sdf")`` -- the SDF
+            backend has no revolve; sweep the profile instead
+            (:func:`bosl2._sdf.shapes3d.path_sweep`).
+        """
+        self._require_csg("rotate_extrude")
+        return self.polygon().rotate_extrude(angle, **kwargs)
 
     def debug_polygon(self, size: float = 1, vertices: bool = True):
         """A debug view of this polygon: the filled outline (as a thin flat solid) with each vertex
@@ -372,9 +466,9 @@ class Path(Distributable, Extrudable, Roundable, list):
         import operator
         from functools import reduce
 
-        from bosl2.shapes3d import Bosl2Solid, text3d
+        from bosl2.shapes3d import text3d
 
-        solid = Bosl2Solid(self.polygon().linear_extrude(height=0.01, center=True))
+        solid = self.polygon().linear_extrude(height=0.01, center=True)
         if not vertices:
             return solid
         labels = [

@@ -408,7 +408,7 @@ class Screws:
         """A metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.
 
         *length* is the shaft length below the head (for a flat head, below the surface). Set
-        ``thread=False`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.
+        ``thread="none"`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.
         """
 
         info = Screws.screw_info(
@@ -500,7 +500,7 @@ class Screws:
     @staticmethod
     def nut(
         spec,
-        thickness: float | None = None,
+        thickness: float | str = "normal",
         shape="hex",
         thread: str = "coarse",
         nutwidth: float | None = None,
@@ -541,7 +541,7 @@ class Screws:
 
         Returns a solid to *subtract* from your part. The clearance shaft occupies ``z in [-length, 0]``
         with its mouth at ``z = 0``; countersinks/counterbores open upward from there. Set
-        ``thread=True`` for a tapped (threaded) hole instead of a clearance hole.
+        ``thread="coarse"`` for a tapped (threaded) hole instead of a clearance hole.
         """
 
         d, p = _parse_spec(spec, "coarse" if thread in (True, False) else thread, pitch)

@@ -35,7 +35,7 @@ import numpy as np
 from bosl2._native import native
 from bosl2.constants import INCH
 from bosl2.paths import Path
-from bosl2.shapes2d import _frag_count
+from bosl2.shapes2d import Bosl2Shape2D, _frag_count
 from bosl2.shapes3d import Bosl2Solid, cylinder
 from bosl2.vnf import VNF
 
@@ -749,7 +749,7 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> Bosl2Shape2D:
         """A 2-D involute spur gear outline (BOSL2 spur_gear2d()).
 
         Examples:
@@ -788,11 +788,11 @@ class Gears:
             _auto_profile_shift(teeth, pressure_angle, helical, profile_shift),
             shorten,
         )
-        result = Bosl2Solid(shape, size=[2 * outer_radius, 2 * outer_radius, 0])
+        result = Bosl2Shape2D(shape, size=[2 * outer_radius, 2 * outer_radius])
         if shaft_diam > 0 and not hide:
             from bosl2.shapes2d import circle as _circle2d
 
-            result = result - Bosl2Solid(_circle2d(diameter=shaft_diam))
+            result = result - _circle2d(diameter=shaft_diam)
         return result
 
     @staticmethod
@@ -974,12 +974,12 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> Bosl2Shape2D:
         """A 2-D involute rack outline -- a straight bar of teeth (BOSL2 rack2d())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         path = Gears._rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
-        return Bosl2Solid(_opolygon(path), size=[teeth * center, 2 * abs(a - height), 0])
+        return Bosl2Shape2D(_opolygon(path), size=[teeth * center, 2 * abs(a - height)])
 
     @staticmethod
     def rack(
