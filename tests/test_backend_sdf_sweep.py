@@ -35,12 +35,26 @@ class _LVNumeric:
 
 @pytest.fixture
 def numeric_lv(monkeypatch):
-    monkeypatch.setattr(sdf, "lv", _LVNumeric())
+    # both modules: the sweep closure lives in shapes3d, the concave polygon SDF in paths
+    import bosl2._sdf.paths as paths
+
+    shim = _LVNumeric()
+    monkeypatch.setattr(sdf, "lv", shim)
+    monkeypatch.setattr(paths, "lv", shim)
 
 
 def _field(shape):
     fn = shape._sdf_fn
     return lambda x, y, z: float(fn(np.array([x]), np.array([y]), np.array([z]))[0])
+
+
+def _frame_probe(shape, path):
+    """A helper to probe the field in the mid-station's (u, v) profile frame (for a straight path)."""
+    _, nrm, binorm = sdf._rmf_frames(np.asarray(path, dtype=float))
+    mid = len(nrm) // 2
+    center = np.asarray(path, dtype=float)[mid]
+    f = _field(shape)
+    return lambda u, v: f(*(center + u * nrm[mid] + v * binorm[mid]))
 
 
 def test_sweep_builds_ffi_free():
@@ -79,3 +93,19 @@ def test_twist_keeps_it_a_solid(numeric_lv):
     tube = sdf.path_sweep(square, [[0, 0, z] for z in np.linspace(0, 20, 30)], twist=90)
     f = _field(tube)
     assert f(0, 0, 10) < 0  # still solid along the axis with a 90-degree twist
+    # the mid station is rotated ~45 degrees, so a corner reaches ~2*sqrt2; the mesh domain must
+    # include it (regression: bounds were computed from the un-rotated profile bbox and clipped it)
+    corner = 2 * math.sqrt(2)
+    assert tube.mx[0] >= corner - 0.05 and tube.mn[0] <= -corner + 0.05
+    assert f(2.7, 0, 10) < 0 and 2.7 <= tube.mx[0]  # solid material there, and inside the domain
+
+
+def test_concave_profile_notch_is_carved(numeric_lv):
+    # An L-shaped (concave) profile: the removed top-right quadrant must read OUTSIDE, while both
+    # arms read inside -- i.e. the sweep honours the concavity (via _polygon_sdf_xy), not just a hull.
+    L = [[0, 0], [4, 0], [4, 2], [2, 2], [2, 4], [0, 4]]
+    path = [[0, 0, z] for z in np.linspace(0, 10, 30)]
+    tube = sdf.path_sweep(L, path)
+    uv = _frame_probe(tube, path)
+    assert uv(1, 1) < 0 and uv(3, 1) < 0 and uv(1, 3) < 0  # both solid arms
+    assert uv(2.5, 2.5) > 0 and uv(3.5, 3.5) > 0  # the concave notch is empty

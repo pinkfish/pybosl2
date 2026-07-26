@@ -57,6 +57,7 @@ _SHARED_3D = (
 
 __all__ = [
     *_SHARED_3D,
+    "polyhedron",
     "union",
     "difference",
     "intersection",
@@ -85,6 +86,16 @@ def _make(shape: str):
 for _shape in _SHARED_3D:
     globals()[_shape] = _make(_shape)
 del _shape
+
+
+def polyhedron(points: Any, faces: Any = None, **kwargs: Any) -> Solid:
+    """A polyhedron on the active backend.
+
+    Backends differ on what a polyhedron means (this is not part of the shared primitive surface):
+    the CSG backend builds the exact mesh from *points* and *faces* (both required); the SDF backend
+    ignores *faces* and builds the convex hull of *points* as a distance field.
+    """
+    return get_backend().polyhedron(points, faces, **kwargs)
 
 
 def union(*solids: Solid) -> Solid:

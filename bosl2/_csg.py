@@ -28,27 +28,10 @@ class CsgBackend:
         """Build the named shape via bosl2.shapes3d (the CSG constructors)."""
         import bosl2.shapes3d as _m
 
-        return getattr(_m, shape)(*args, **kwargs)
-
-    def cube(self, *args: Any, **kwargs: Any) -> Any:
-        from bosl2.shapes3d import cube
-
-        return cube(*args, **kwargs)
-
-    def cuboid(self, *args: Any, **kwargs: Any) -> Any:
-        from bosl2.shapes3d import cuboid
-
-        return cuboid(*args, **kwargs)
-
-    def sphere(self, *args: Any, **kwargs: Any) -> Any:
-        from bosl2.shapes3d import sphere
-
-        return sphere(*args, **kwargs)
-
-    def cylinder(self, *args: Any, **kwargs: Any) -> Any:
-        from bosl2.shapes3d import cylinder
-
-        return cylinder(*args, **kwargs)
+        fn = getattr(_m, shape, None)
+        if not callable(fn):
+            raise ValueError(f"the csg backend has no shape constructor {shape!r}")
+        return fn(*args, **kwargs)
 
     def polyhedron(self, points: Any, faces: Any, **kwargs: Any) -> Any:
         from bosl2._native import native

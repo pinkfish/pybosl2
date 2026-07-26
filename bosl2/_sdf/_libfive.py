@@ -15,7 +15,13 @@ from __future__ import annotations
 
 from typing import Any
 
-__all__ = ["lv"]
+__all__ = ["lv", "LVTree"]
+
+# A libfive expression tree -- what ``lv.x()`` / ``lv.max(...)`` / ... return, and what the SDF
+# closures (``sdf_fn(x, y, z)``) build and return. ``Any`` because libfive is lazily imported (no
+# type is available at type-check time) and because these expressions transparently accept plain
+# Python floats too (via libfive's operator overloading), so callers may pass either.
+LVTree = Any
 
 
 class _LazyLibfive:
@@ -33,4 +39,4 @@ class _LazyLibfive:
         return getattr(mod, name)
 
 
-lv = _LazyLibfive()
+lv: _LazyLibfive = _LazyLibfive()

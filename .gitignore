@@ -7,6 +7,7 @@ build/
 dist/
 .pytest_cache/
 monkeytype.sqlite3
+righttyper.*
 
 # Virtual environments
 .venv/

@@ -26,7 +26,7 @@ import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
 from bosl2._sdf._edges import _pick_radius
-from bosl2._sdf._libfive import lv
+from bosl2._sdf._libfive import LVTree, lv
 
 
 def as_path_list(paths: list[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:
@@ -88,7 +88,7 @@ def _radius(
     return result
 
 
-def _lv_hypot(a: float, b: float):
+def _lv_hypot(a: LVTree, b: LVTree) -> LVTree:
     return lv.sqrt(a * a + b * b)
 
 
@@ -122,7 +122,7 @@ def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode:
     return lv.min(lv.min(candidates[0], candidates[1]), lv.min(candidates[2], candidates[3]))
 
 
-def _polygon_sdf_xy(x: float, y: float, pts: ArrayLike):
+def _polygon_sdf_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
     """Signed distance to an arbitrary SIMPLE polygon (convex or concave, either winding order)
     at the 2-D point (x, y) -- unlike polygon_extrude()'s max-of-half-planes (convex only),
     this handles concave outlines correctly. The zero set (the actual surface, and therefore
@@ -150,7 +150,7 @@ def _ccw(pts: NDArray[np.float64]) -> NDArray[np.float64]:
     return pts if area2 > 0 else pts[::-1]
 
 
-def _halfplane_max_sdf(x: float, y: float, ccw_pts: NDArray[np.float64]):
+def _halfplane_max_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64]) -> LVTree:
     """max of signed half-plane distances over a CCW convex polygon's edges (zero-length edges
     skipped, tolerating duplicate points from densified/offset path data)."""
     d = None
@@ -168,7 +168,7 @@ def _halfplane_max_sdf(x: float, y: float, ccw_pts: NDArray[np.float64]):
     return d
 
 
-def _convex_deficiency_sdf(x: float, y: float, ccw_pts: NDArray[np.float64], _depth: int = 0):
+def _convex_deficiency_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64], _depth: int = 0) -> LVTree:
     """See _polygon_sdf_xy(): CCW polygon as (convex hull) minus (recursive pockets)."""
     assert _depth < 16, "polygon decomposition recursed implausibly deep -- is the outline self-intersecting?"
     if _is_convex(ccw_pts):
@@ -221,7 +221,7 @@ def _convex_hull_indices(ccw_pts: NDArray[np.float64]) -> list[int]:
     return idx
 
 
-def _polygon_dist2_xy(x: float, y: float, pts: ArrayLike):
+def _polygon_dist2_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
     """UNSIGNED squared distance to the polygon outline `pts` at (x, y): the min over per-edge
     point-to-segment distances (the segment clamp is just min/max -- no atan2/winding needed,
     so unlike the signed form this stays branch-cut-free everywhere)."""

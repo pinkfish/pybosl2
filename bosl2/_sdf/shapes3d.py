@@ -20,6 +20,7 @@ from collections.abc import Sequence
 from typing import Any, Callable
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 
 from bosl2._backend import check_operand_backend as _check_operand_backend
 from bosl2._backend import unsupported_feature as _unsupported_feature
@@ -33,10 +34,12 @@ from bosl2._sdf._edges import (
     _edges,
     _pick_radius,
 )
-from bosl2._sdf._libfive import lv
+from bosl2._sdf._libfive import LVTree, lv
 from bosl2._sdf.paths import (
     _PENALTY,
     _SQRT2,
+    _ccw,
+    _convex_deficiency_sdf,
     _lv_hypot,
     _polygon_dist2_xy,
     _polygon_sdf_xy,
@@ -64,7 +67,7 @@ def _axis_angle_matrix(deg: float, axis: list[float]) -> list[list[float]]:
     ]
 
 
-def _rotation_matrix(a, v: list[float] | None = None) -> list[list[float]]:
+def _rotation_matrix(a: float | Sequence[float], v: list[float] | None = None) -> list[list[float]]:
     """3x3 rotation matrix matching the real rotate(obj, a, v)'s two calling conventions:
     `a` a lone angle (degrees) with an explicit axis `v`, or (v is None) `a` a 3-vector of Euler
     angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
@@ -78,7 +81,7 @@ def _rotation_matrix(a, v: list[float] | None = None) -> list[list[float]]:
     return _matmul3(_matmul3(rz, ry), rx)
 
 
-def _rounded_box_sdf(x, y, z, size: list[float], r: float):
+def _rounded_box_sdf(x: LVTree, y: LVTree, z: LVTree, size: list[float], r: float) -> LVTree:
     """Exact SDF for a box uniformly rounded on every edge and corner: the Minkowski sum of a
     box (shrunk by `r` on every side) with a sphere of radius `r` -- the same construction
     bosl2.shapes3d.cuboid() itself special-cases via a real minkowski() for edges="ALL". Unlike
@@ -97,7 +100,7 @@ def _rounded_box_sdf(x, y, z, size: list[float], r: float):
     return outside + inside - r
 
 
-def _edge_matrices(amount: float, edge_set: list[list[int]], mode: str):
+def _edge_matrices(amount: float, edge_set: list[list[int]], mode: str) -> tuple[list[list[float]], list[list[str]]]:
     """The per-edge treatment state for a single (amount, edge_set, mode) selection, as the
     3x4 amounts/modes matrices _cuboid_edge_sdf() consumes (EDGE_OFFSETS row/column order)."""
     amounts = [[amount if edge_set[a][i] else 0.0 for i in range(4)] for a in range(3)]
@@ -105,7 +108,9 @@ def _edge_matrices(amount: float, edge_set: list[list[int]], mode: str):
     return amounts, modes
 
 
-def _cuboid_edge_sdf(x, y, z, size: list[float], amounts: list[list[float]], modes: list[list[str]]):
+def _cuboid_edge_sdf(
+    x: LVTree, y: LVTree, z: LVTree, size: list[float], amounts: list[list[float]], modes: list[list[str]]
+) -> LVTree:
     """The cuboid SDF (as an explicit function of the given x/y/z trees, so callers can pass
     shifted coordinates to compose translation) with an independent treatment per edge:
     `amounts[axis][i]` (rounding radius or chamfer size, per `modes[axis][i]`) in EDGE_OFFSETS
@@ -124,7 +129,7 @@ def _cuboid_edge_sdf(x, y, z, size: list[float], amounts: list[list[float]], mod
     # varies over (Y, Z), axis 1 (Y) over (X, Z), axis 2 (Z) over (X, Y).
     axes_perp = [(1, 2), (0, 2), (0, 1)]
 
-    def axis_sdf(axis: int):
+    def axis_sdf(axis: int) -> LVTree:
         pa, pb = axes_perp[axis]
         d2d = _rect2d(p[pa], p[pb], b[pa], b[pb], amounts[axis], modes[axis])
         slab = lv.abs(p[axis]) - b[axis]
@@ -179,7 +184,7 @@ class PyShape:
         cuboid_center: Sequence[float] = (0.0, 0.0, 0.0),
         cuboid_edge_amounts: list[list[float]] | None = None,
         cuboid_edge_modes: list[list[str]] | None = None,
-    ):
+    ) -> None:
         self._sdf_fn = sdf_fn
         self.mn = list(mn)
         self.mx = list(mx)
@@ -214,11 +219,11 @@ class PyShape:
             cuboid_edge_modes,
         )
 
-    def sdf(self):
+    def sdf(self) -> LVTree:
         """The fully-evaluated libfive expression tree, at the real coordinate trees."""
         return self._sdf_fn(lv.x(), lv.y(), lv.z())
 
-    def bounds(self):
+    def bounds(self) -> tuple[list[float], list[float]]:
         """``(center, size)`` of this shape's axis-aligned bounding box (BOSL2/Bosl2Solid convention).
 
         Exact and cheap -- every SDF constructor records its tight ``mn``/``mx``, so no meshing is
@@ -228,7 +233,7 @@ class PyShape:
         size = [b - a for a, b in zip(self.mn, self.mx)]
         return center, size
 
-    def mesh(self):
+    def mesh(self) -> Any:
         """Mesh this SDF into a real solid via frep() (cached after the first call).
 
         Pads `mn`/`mx` slightly beyond the shape's own tight bounding box before sampling:
@@ -246,7 +251,7 @@ class PyShape:
             self._mesh_cache = native("frep")(self.sdf(), mn, mx, self.res)
         return self._mesh_cache
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         # A CSG-only feature (attachment/anchoring) on the SDF backend raises a clear error rather
         # than meshing (libfive) just to fail with a confusing AttributeError.
         if not (name.startswith("__") and name.endswith("__")):
@@ -280,7 +285,7 @@ class PyShape:
             self.cuboid_edge_modes,
         )
 
-    def rotate(self, a, v: list[float] | None = None) -> PyShape:
+    def rotate(self, a: float | Sequence[float], v: list[float] | None = None) -> PyShape:
         """Rotate the SDF itself (`f(p) -> f(R^-1 p)`), exact and free -- no meshing involved,
         so (like translate()) a shape can still be .round()ed/.chamfer()ed/composed afterward
         without forcing an early mesh. Matches the real rotate(obj, a, v)'s two calling
@@ -367,7 +372,7 @@ class PyShape:
         """This solid is already on the SDF backend -- returns self (the converter no-op)."""
         return self
 
-    def to_csg(self):
+    def to_csg(self) -> Any:
         """Convert to the CSG backend: mesh the SDF (libfive frep) and wrap it as a Bosl2Solid.
 
         Exact -- the meshed surface IS the field's zero set. This is the supported bridge for mixing
@@ -404,7 +409,7 @@ class PyShape:
 
     # ---- cuboid-only edge treatments ----
 
-    def _edge_treat(self, amount: float, edges, except_edges, mode: str) -> PyShape:
+    def _edge_treat(self, amount: float, edges: Any, except_edges: Any, mode: str) -> PyShape:
         assert self.cuboid_size is not None, f"{mode}() requires a cuboid-shaped PyShape (from bosl2._sdf.cuboid())"
         assert self.cuboid_edge_amounts is not None and self.cuboid_edge_modes is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
@@ -460,7 +465,7 @@ def _as_shape_list(shapes: tuple) -> list[PyShape]:
     return out
 
 
-def _balanced(op, vals: list):
+def _balanced(op: Callable[[LVTree, LVTree], LVTree], vals: list) -> LVTree:
     """Reduce `vals` with `op` as a balanced tree (depth log n) rather than a left fold
     (depth n) -- same node count either way, but libfive re-evaluates the whole expression
     per sample point and shallow trees keep its interval pruning effective on wide unions."""
@@ -551,7 +556,7 @@ def difference(shape: PyShape, *tools: PyShape) -> PyShape:
     return PyShape(sdf_fn, list(shape.mn), list(shape.mx), shape.res)
 
 
-def _support_points(points, n_dirs: int):
+def _support_points(points: ArrayLike, n_dirs: int) -> NDArray[np.float64]:
     """Decimate a point cloud to at most `n_dirs + 6` extreme (support) points: for each of
     `n_dirs` directions spread over the sphere (a Fibonacci lattice, plus the 6 axis
     directions so bounding-box extremes always survive), keep the farthest point along it.
@@ -704,7 +709,7 @@ def hull(*shapes, directions: int = 64, res: int | None = None) -> PyShape:
             state["planes"] = _hull_planes([[float(c) for c in p] for p in sup])
         return state["planes"]
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         terms = [nx * x + ny * y + nz * z - off for nx, ny, nz, off in planes()]
         return _balanced(lv.max, terms)
 
@@ -716,7 +721,9 @@ def hull(*shapes, directions: int = 64, res: int | None = None) -> PyShape:
     )
 
 
-def _cuboid_flare_sdf(x, y, z, size: list[float], r: float, edge_set: list[list[int]]):
+def _cuboid_flare_sdf(
+    x: LVTree, y: LVTree, z: LVTree, size: list[float], r: float, edge_set: list[list[int]]
+) -> LVTree:
     """The cuboid SDF with BOSL2's negative-rounding treatment (an external cove flare) on the
     selected X/Y-axis edges: the top/bottom face extends outward by `r` in the horizontal
     direction, then a concave quarter-arc sweeps back to the side face -- exactly BOSL2's
@@ -869,7 +876,7 @@ def octahedron(size: float = 1, anchor: "Sequence[float]" = CENTER, res: int = 1
     return shape
 
 
-def convex_polyhedron(points, res: int = 10) -> PyShape:
+def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
     """The convex hull of `points` as a libfive SDF: the max of the hull faces' signed
     half-space distances -- the 3-D analogue of polygon_extrude()'s half-plane form, with the
     same documented value tradeoff (exact perpendicular distance at faces, sign-correct
@@ -888,7 +895,7 @@ def convex_polyhedron(points, res: int = 10) -> PyShape:
     assert n >= 4, f"convex_polyhedron() needs at least 4 points, got {n}"
     planes = _hull_planes(pts)
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         d = None
         for nx, ny, nz, off in planes:
             e = nx * x + ny * y + nz * z - off
@@ -920,7 +927,7 @@ def wedge(
     # actual shape only varies over Y/Z).
     nlen = math.hypot(by, bz)
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         box = lv.max(lv.max(lv.abs(x) - bx, lv.abs(y) - by), lv.abs(z) - bz)
         diag = (bz * y + by * z) / nlen
         return lv.max(box, diag)
@@ -1035,7 +1042,7 @@ def torus(
 # ---------------------------------------------------------------------------
 
 
-def _wall_line_sdf(rxy, z, radius1: float, radius2: float, hb: float):
+def _wall_line_sdf(rxy: LVTree, z: LVTree, radius1: float, radius2: float, hb: float) -> LVTree:
     """Signed distance to the infinite line through `(radius1, -hb)` and `(radius2, hb)` in the
     `(rxy, z)` half-plane -- the slanted wall of a cylinder/cone, exact for the wall itself;
     intersecting (max()) with the top/bottom slabs (see _cylinder_sdf()) caps it off, with the
@@ -1046,7 +1053,9 @@ def _wall_line_sdf(rxy, z, radius1: float, radius2: float, hb: float):
     return ((rxy - radius1) * dz - (z + hb) * dr) / nlen
 
 
-def _cylinder_sdf(x, y, z, h: float, radius1: float, radius2: float, shift: list[float] | None = None):
+def _cylinder_sdf(
+    x: LVTree, y: LVTree, z: LVTree, h: float, radius1: float, radius2: float, shift: list[float] | None = None
+) -> LVTree:
     hb = h / 2
     if shift and (shift[0] or shift[1]):
         # Oblique cone (BOSL2 cyl(shift=)): the section center slides linearly from [0, 0]
@@ -1061,7 +1070,9 @@ def _cylinder_sdf(x, y, z, h: float, radius1: float, radius2: float, shift: list
     return lv.max(wall, slab)
 
 
-def _cyl_edge_sdf(axial, radial, h: float, radius1: float, radius2: float, amt1: float, amt2: float, mode: str):
+def _cyl_edge_sdf(
+    axial: LVTree, radial: LVTree, h: float, radius1: float, radius2: float, amt1: float, amt2: float, mode: str
+) -> LVTree:
     """_cylinder_sdf(), plus independent rounding/chamfer treatment of the bottom (amt1) and
     top (amt2) rim, using the same per-candidate-quadrant masking technique as
     bosl2.shapes3d.cuboid() (but only 2 candidates -- top/bottom -- since the radial
@@ -1211,7 +1222,7 @@ def _cyl_axis(
     assert not ((r1v or r2v) and (c1v or c2v)), "Cannot specify nonzero value for both chamfer and rounding"
     mode, amt1, amt2 = ("chamfer", c1v, c2v) if (c1v or c2v) else ("round", r1v, r2v)
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         coords = [x, y, z]
         axial = coords[axis]
         others = [coords[i] for i in range(3) if i != axis]
@@ -1422,7 +1433,7 @@ def pie_slice(
     ang_rad = math.radians(ang_v)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         body = _cylinder_sdf(x, y, z, length, rad1, rad2)
         if ang_v <= 0 or ang_v >= 360:
             return body
@@ -1478,7 +1489,7 @@ def prismoid(
     bx2, by2 = size2[0] / 2, size2[1] / 2
     hb = height / 2
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         t = lv.min(lv.max((z + hb) / height, 0), 1)
         bx = bx1 + (bx2 - bx1) * t
         by = by1 + (by2 - by1) * t
@@ -1540,7 +1551,7 @@ def rect_tube(
     o_amounts, o_modes = _edge_matrices(rounding, edge_set_z, "round")
     i_amounts, i_modes = _edge_matrices(irounding_v, edge_set_z, "round")
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         outer = _cuboid_edge_sdf(x, y, z, [sz[0], sz[1], length], o_amounts, o_modes)
         inner = _cuboid_edge_sdf(x, y, z, [isz[0], isz[1], length + 0.02], i_amounts, i_modes)
         return lv.max(outer, -inner)
@@ -1583,7 +1594,7 @@ def interior_fillet(
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = length / 2
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         sdf1 = -z
         sdf2 = z * cos_a - x * sin_a
         wedge_sdf = lv.max(sdf1, sdf2)
@@ -1625,7 +1636,7 @@ def rounding_edge_mask(
     length = length if length is not None else (height if height is not None else 1)
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         box = lv.max(lv.max(x - rad, -x - excess), lv.max(y - rad, -y - excess))
         circle = _lv_hypot(x - rad, y - rad) - rad
         cutter2d = lv.max(box, -circle)
@@ -1635,7 +1646,7 @@ def rounding_edge_mask(
     return PyShape(sdf_fn, [-excess, -excess, -length / 2], [rad, rad, length / 2], res)
 
 
-def polygon_extrude(pts, length: float, res: int = 10) -> PyShape:
+def polygon_extrude(pts: ArrayLike, length: float, res: int = 10) -> PyShape:
     """Extrude an arbitrary CONVEX 2-D polygon `pts` (either winding order) along Z by
     `length`, centered -- for a custom edge-profile cutter with no simple closed form (like
     bosl2.shapes3d.Bosl2Solid.edge_profile_asym()'s `children=` path, but swept here by hand
@@ -1664,7 +1675,7 @@ def polygon_extrude(pts, length: float, res: int = 10) -> PyShape:
         elen = math.hypot(ex, ey)
         edges.append((ey / elen, -ex / elen, x0, y0))
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         d = None
         for nx, ny, x0, y0 in edges:
             e = nx * (x - x0) + ny * (y - y0)
@@ -1678,7 +1689,7 @@ def polygon_extrude(pts, length: float, res: int = 10) -> PyShape:
 
 
 def polygon_prism(
-    paths,
+    paths: ArrayLike,
     height: float,
     rounding_top: float = 0,
     rounding_bottom: float = 0,
@@ -1718,7 +1729,7 @@ def polygon_prism(
         "polygon_prism(): rim treatments must be smaller than height"
     )
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         d2d = None
         for p in path_list:
             d = _polygon_sdf_xy(x, y, p)
@@ -1820,7 +1831,7 @@ def teardrop(
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = length / 2
 
-    def profile_sdf(u, v, radius):
+    def profile_sdf(u: LVTree, v: LVTree, radius: float) -> LVTree:
         circle = _lv_hypot(u, v) - radius
         right = u * sin_a + v * cos_a - radius
         left = -u * sin_a + v * cos_a - radius
@@ -1834,7 +1845,7 @@ def teardrop(
             d = lv.max(d, v - cap_height)
         return d
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         t = lv.min(lv.max((y + hb) / length, 0), 1)
         rad = rad1 + (rad2 - rad1) * t
         prof = profile_sdf(x, z, rad)
@@ -1872,7 +1883,7 @@ def onion(
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     v_tangent = rad * cos_a
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         rxy = _lv_hypot(x, y)
         sphere_sdf = _lv_hypot(rxy, z) - rad
         roof = rxy * sin_a + z * cos_a - rad
@@ -1921,7 +1932,7 @@ def heightfield(
     assert callable(data), "pysolidfive.heightfield() only supports callable data -- see the CAVEAT in its docstring."
     bx, by = size[0] / 2, size[1] / 2
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         height = lv.min(lv.max(data(x, y), bottom), maxz)
         top = z - height
         slab = lv.max(lv.abs(x) - bx, lv.abs(y) - by)
@@ -2015,26 +2026,7 @@ def regular_prism(
 # ---------------------------------------------------------------------------
 
 
-def _convex_profile_edges(profile):
-    """A CONVEX 2-D profile as (ordered_points, edges), each edge a (nx, ny, x0, y0) outward
-    half-plane -- the same construction polygon_extrude() uses for its cross-section."""
-    pts = as_points(profile)
-    assert len(pts) >= 3, "sweep profile needs at least 3 points"
-    m = len(pts)
-    area2 = sum(pts[i][0] * pts[(i + 1) % m][1] - pts[(i + 1) % m][0] * pts[i][1] for i in range(m))
-    ordered = pts if area2 > 0 else list(reversed(pts))
-    edges = []
-    for i in range(len(ordered)):
-        x0, y0 = ordered[i]
-        x1, y1 = ordered[(i + 1) % len(ordered)]
-        ex, ey = x1 - x0, y1 - y0
-        elen = math.hypot(ex, ey)
-        assert elen > 1e-12, "sweep profile has a zero-length edge"
-        edges.append((ey / elen, -ex / elen, float(x0), float(y0)))
-    return ordered, edges
-
-
-def _rmf_frames(points):
+def _rmf_frames(points: ArrayLike) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """Rotation-minimizing frames along a 3-D polyline (Wang et al.'s double-reflection method).
 
     Returns (T, N, B) arrays -- unit tangent, normal and binormal at each point. Unlike a Frenet
@@ -2069,8 +2061,8 @@ def _rmf_frames(points):
     return t, nrm, b
 
 
-def path_sweep(profile, path, res: int = 12, twist: float = 0.0) -> PyShape:
-    """Sweep a CONVEX 2-D `profile` (list of ``[u, v]`` cross-section points) along a 3-D `path`
+def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float = 0.0) -> PyShape:
+    """Sweep a 2-D `profile` (list of ``[u, v]`` cross-section points) along a 3-D `path`
     (a list of ``[x, y, z]`` points -- 2-D points are lifted to ``z = 0``), as a libfive SDF.
 
     At each path sample the profile is placed in a rotation-minimizing frame (see
@@ -2081,11 +2073,13 @@ def path_sweep(profile, path, res: int = 12, twist: float = 0.0) -> PyShape:
     :class:`PyShape`. Denser paths give a smoother lateral surface (the sweep converges from the
     faceted union of cross-sections). The ends are capped perpendicular to the path.
 
-    `twist` is a total rotation of the profile (in degrees) applied evenly along the path.
-
-    CAVEAT: `profile` must be convex (same reason as :func:`polygon_extrude`).
+    `profile` may be any SIMPLE polygon -- convex OR concave (the cross-section is evaluated with
+    :func:`_polygon_sdf_xy`'s convex-deficiency decomposition, the same one :func:`polygon_prism`
+    uses over the convex-only :func:`polygon_extrude`). `twist` is a total rotation of the profile
+    (in degrees) applied evenly along the path.
     """
-    ordered, edges = _convex_profile_edges(profile)
+    prof = as_points(profile)
+    assert len(prof) >= 3, "sweep profile needs at least 3 points"
     pts3 = [list(p) + [0.0] * (3 - len(p)) for p in np.asarray(path, dtype=float).tolist()]
     assert len(pts3) >= 2, "sweep path needs at least 2 points"
     p = np.asarray(pts3, dtype=float)
@@ -2121,7 +2115,11 @@ def path_sweep(profile, path, res: int = 12, twist: float = 0.0) -> PyShape:
             )
         )
 
-    def sdf_fn(x, y, z):
+    # The concave-safe cross-section decomposition depends only on the profile, so normalise its
+    # winding once here rather than re-deriving it inside _polygon_sdf_xy at every station.
+    prof_ccw = _ccw(prof)
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         total = None
         for (cx, cy, cz), (nx, ny, nz), (bx, by, bz), (tx, ty, tz), eb, ef, ca, sa in stations:
             dx, dy, dz = x - cx, y - cy, z - cz
@@ -2130,33 +2128,41 @@ def path_sweep(profile, path, res: int = 12, twist: float = 0.0) -> PyShape:
             w = tx * dx + ty * dy + tz * dz
             if sa:  # twist: rotate the query into the profile's frame
                 u, v = ca * u + sa * v, -sa * u + ca * v
-            pd = None
-            for enx, eny, ex0, ey0 in edges:
-                e = enx * (u - ex0) + eny * (v - ey0)
-                pd = e if pd is None else lv.max(pd, e)
+            # cross-section SDF in the frame's (u, v) plane -- concave-safe decomposition
+            pd = _convex_deficiency_sdf(u, v, prof_ccw)
             # signed distance to the tangent interval [-eb, ef]
             cap = lv.max((-eb) - w, w - ef)
             slab = lv.max(pd, cap)
             total = slab if total is None else lv.min(total, slab)
         return total
 
-    pu = [q[0] for q in ordered]
-    pv = [q[1] for q in ordered]
+    # Bounds: the profile's bounding-box corners, rotated by each station's twist, placed in the
+    # frame. Using the bbox corners (rather than the exact vertices) deliberately leaves a little
+    # slack around a convex outline -- frep()'s octree needs the surface strictly *inside* the
+    # sampled domain to see a sign change (see PyShape.mesh) -- while rotating them keeps a twisted
+    # profile's true extent inside the domain (a corner reaches sqrt2x its bbox half-width).
+    umin, umax = float(prof[:, 0].min()), float(prof[:, 0].max())
+    vmin, vmax = float(prof[:, 1].min()), float(prof[:, 1].max())
+    bbox = [(umin, vmin), (umax, vmin), (umin, vmax), (umax, vmax)]
     world = []
     for i in range(n):
-        for uu in (min(pu), max(pu)):
-            for vv in (min(pv), max(pv)):
-                base = p[i] + uu * norm[i] + vv * binorm[i]
-                world.append(base + ext_fwd[i] * tang[i])
-                world.append(base - ext_back[i] * tang[i])
+        ca, sa = math.cos(tws[i]), math.sin(tws[i])
+        for cu, cv in bbox:
+            fu = ca * cu - sa * cv  # frame coords of the corner (inverse of the query twist)
+            fv = sa * cu + ca * cv
+            base = p[i] + fu * norm[i] + fv * binorm[i]
+            world.append(base + ext_fwd[i] * tang[i])
+            world.append(base - ext_back[i] * tang[i])
     world = np.asarray(world)
     mn = world.min(axis=0).tolist()
     mx = world.max(axis=0).tolist()
     return PyShape(sdf_fn, mn, mx, res)
 
 
-def bezier_sweep(profile, control_points, splinesteps: int = 24, res: int = 12, twist: float = 0.0) -> PyShape:
-    """Sweep a CONVEX 2-D `profile` along a 3-D Bezier curve, as a libfive SDF.
+def bezier_sweep(
+    profile: ArrayLike, control_points: ArrayLike, splinesteps: int = 24, res: int = 12, twist: float = 0.0
+) -> PyShape:
+    """Sweep a 2-D `profile` (convex or concave) along a 3-D Bezier curve, as a libfive SDF.
 
     `control_points` are the Bezier control points (any degree). The curve is generated with
     bosl2's canonical :class:`bosl2.beziers.Bezier` (``splinesteps`` segments) and swept by
