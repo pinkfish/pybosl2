@@ -38,6 +38,8 @@ from bosl2._sdf._libfive import LVTree, lv
 from bosl2._sdf.paths import (
     _PENALTY,
     _SQRT2,
+    _ccw,
+    _convex_deficiency_sdf,
     _lv_hypot,
     _polygon_dist2_xy,
     _polygon_sdf_xy,
@@ -2113,6 +2115,10 @@ def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float 
             )
         )
 
+    # The concave-safe cross-section decomposition depends only on the profile, so normalise its
+    # winding once here rather than re-deriving it inside _polygon_sdf_xy at every station.
+    prof_ccw = _ccw(prof)
+
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         total = None
         for (cx, cy, cz), (nx, ny, nz), (bx, by, bz), (tx, ty, tz), eb, ef, ca, sa in stations:
@@ -2123,22 +2129,30 @@ def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float 
             if sa:  # twist: rotate the query into the profile's frame
                 u, v = ca * u + sa * v, -sa * u + ca * v
             # cross-section SDF in the frame's (u, v) plane -- concave-safe decomposition
-            pd = _polygon_sdf_xy(u, v, prof)
+            pd = _convex_deficiency_sdf(u, v, prof_ccw)
             # signed distance to the tangent interval [-eb, ef]
             cap = lv.max((-eb) - w, w - ef)
             slab = lv.max(pd, cap)
             total = slab if total is None else lv.min(total, slab)
         return total
 
-    pu = prof[:, 0]
-    pv = prof[:, 1]
+    # Bounds: the profile's bounding-box corners, rotated by each station's twist, placed in the
+    # frame. Using the bbox corners (rather than the exact vertices) deliberately leaves a little
+    # slack around a convex outline -- frep()'s octree needs the surface strictly *inside* the
+    # sampled domain to see a sign change (see PyShape.mesh) -- while rotating them keeps a twisted
+    # profile's true extent inside the domain (a corner reaches sqrt2x its bbox half-width).
+    umin, umax = float(prof[:, 0].min()), float(prof[:, 0].max())
+    vmin, vmax = float(prof[:, 1].min()), float(prof[:, 1].max())
+    bbox = [(umin, vmin), (umax, vmin), (umin, vmax), (umax, vmax)]
     world = []
     for i in range(n):
-        for uu in (min(pu), max(pu)):
-            for vv in (min(pv), max(pv)):
-                base = p[i] + uu * norm[i] + vv * binorm[i]
-                world.append(base + ext_fwd[i] * tang[i])
-                world.append(base - ext_back[i] * tang[i])
+        ca, sa = math.cos(tws[i]), math.sin(tws[i])
+        for cu, cv in bbox:
+            fu = ca * cu - sa * cv  # frame coords of the corner (inverse of the query twist)
+            fv = sa * cu + ca * cv
+            base = p[i] + fu * norm[i] + fv * binorm[i]
+            world.append(base + ext_fwd[i] * tang[i])
+            world.append(base - ext_back[i] * tang[i])
     world = np.asarray(world)
     mn = world.min(axis=0).tolist()
     mx = world.max(axis=0).tolist()

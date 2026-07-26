@@ -28,23 +28,15 @@ class SdfBackend:
 
     def construct(self, shape: str, *args: Any, **kwargs: Any) -> _s.PyShape:
         """Build the named shape via the vendored SDF constructors (bosl2._sdf.shapes3d)."""
-        return getattr(_s, shape)(*args, **kwargs)
+        fn = getattr(_s, shape, None)
+        if not callable(fn):
+            raise ValueError(f"the sdf backend has no shape constructor {shape!r}")
+        return fn(*args, **kwargs)
 
-    # -- primitives (delegate to the vendored SDF constructors) --------------------------------
-    def cube(self, *args: Any, **kwargs: Any) -> _s.PyShape:
-        return _s.cube(*args, **kwargs)
-
-    def cuboid(self, *args: Any, **kwargs: Any) -> _s.PyShape:
-        return _s.cuboid(*args, **kwargs)
-
-    def sphere(self, *args: Any, **kwargs: Any) -> _s.PyShape:
-        return _s.sphere(*args, **kwargs)
-
-    def cylinder(self, *args: Any, **kwargs: Any) -> _s.PyShape:
-        return _s.cylinder(*args, **kwargs)
-
-    def polyhedron(self, *args: Any, **kwargs: Any) -> _s.PyShape:
-        return _s.convex_polyhedron(*args, **kwargs)
+    def polyhedron(self, points: Any, faces: Any = None, **kwargs: Any) -> _s.PyShape:
+        """The convex hull of `points` as an SDF. `faces` is accepted for signature-compatibility
+        with the CSG backend but ignored -- the SDF backend builds only the convex polyhedron."""
+        return _s.convex_polyhedron(points, **kwargs)
 
     # -- n-ary CSG (min/max on the fields) -----------------------------------------------------
     def union(self, solids: Any) -> _s.PyShape:

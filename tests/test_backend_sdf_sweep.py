@@ -93,6 +93,11 @@ def test_twist_keeps_it_a_solid(numeric_lv):
     tube = sdf.path_sweep(square, [[0, 0, z] for z in np.linspace(0, 20, 30)], twist=90)
     f = _field(tube)
     assert f(0, 0, 10) < 0  # still solid along the axis with a 90-degree twist
+    # the mid station is rotated ~45 degrees, so a corner reaches ~2*sqrt2; the mesh domain must
+    # include it (regression: bounds were computed from the un-rotated profile bbox and clipped it)
+    corner = 2 * math.sqrt(2)
+    assert tube.mx[0] >= corner - 0.05 and tube.mn[0] <= -corner + 0.05
+    assert f(2.7, 0, 10) < 0 and 2.7 <= tube.mx[0]  # solid material there, and inside the domain
 
 
 def test_concave_profile_notch_is_carved(numeric_lv):
