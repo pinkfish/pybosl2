@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2-D shapes &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
+    <title>2-D shapes &#8212; bosl2 (PythonSCAD port) 0.6.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
-    <script src="_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -41,6 +41,10 @@
 
 
 <h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
@@ -135,6 +139,27 @@
 
   <aside class="sidebar"><p class="sidebar-title">Navigation</p>
 <ul class="pysidebar-list">
+<li class="ps-class"><a href="#bosl2.shapes2d.Bosl2Shape2D"><strong>Bosl2Shape2D</strong></a></li>
+<li class="ps-meth"><span>Bosl2Shape2D.translate</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.rotate</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.mirror</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.scale</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.multmatrix</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.right</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.left</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.back</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.forward</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.xflip</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.yflip</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.offset</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.fill</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.hull</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.linear_extrude</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.rotate_extrude</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.path_extrude</span></li>
+<li class="ps-meth"><span>Bosl2Shape2D.bounds</span></li>
+<li class="ps-func"><span>fill</span></li>
+<li class="ps-func"><span>hull</span></li>
 <li class="ps-func"><span>square</span></li>
 <li class="ps-func"><span>rect</span></li>
 <li class="ps-func"><span>rect_path</span></li>
@@ -164,7 +189,34 @@
 </ul></aside><section id="d-shapes">
 <h1>2-D shapes<a class="headerlink" href="#d-shapes" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of the 2-D shape generators from BOSL2’s <code class="docutils literal notranslate"><span class="pre">shapes2d.scad</span></code> (plus <code class="docutils literal notranslate"><span class="pre">arc()</span></code>).
-Each returns native 2-D geometry (via <code class="docutils literal notranslate"><span class="pre">polygon()</span></code>), ready to <code class="docutils literal notranslate"><span class="pre">linear_extrude</span></code> or offset.</p>
+Each returns a <a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code></a> – the 2-D counterpart of
+<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> – so the geometry chains straight on:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">square</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="the-2-d-object">
+<h2>The 2-D object<a class="headerlink" href="#the-2-d-object" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code></a> wraps a native 2-D handle (reachable as <code class="docutils literal notranslate"><span class="pre">.shape</span></code>) and
+carries, as chained methods:</p>
+<ul class="simple">
+<li><p>the 2-D operators – <a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.fill" title="bosl2.shapes2d.Bosl2Shape2D.fill"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fill()</span></code></a> (drop every hole),
+<a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.hull" title="bosl2.shapes2d.Bosl2Shape2D.hull"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hull()</span></code></a> (convex hull, optionally with more shapes/paths) and
+<a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.offset" title="bosl2.shapes2d.Bosl2Shape2D.offset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">offset()</span></code></a> (BOSL2’s <code class="docutils literal notranslate"><span class="pre">radius=</span></code>/<code class="docutils literal notranslate"><span class="pre">delta=</span></code> spelling);</p></li>
+<li><p>the 2-D → 3-D extruders – <a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.linear_extrude" title="bosl2.shapes2d.Bosl2Shape2D.linear_extrude"><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_extrude()</span></code></a>,
+<a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.rotate_extrude" title="bosl2.shapes2d.Bosl2Shape2D.rotate_extrude"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rotate_extrude()</span></code></a> and
+<a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.path_extrude" title="bosl2.shapes2d.Bosl2Shape2D.path_extrude"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_extrude()</span></code></a>, each returning a
+<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>;</p></li>
+<li><p>the transforms, the CSG operators (<code class="docutils literal notranslate"><span class="pre">|</span></code>, <code class="docutils literal notranslate"><span class="pre">&amp;</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code>), the <code class="docutils literal notranslate"><span class="pre">color.scad</span></code> operators and the
+<code class="docutils literal notranslate"><span class="pre">distributors.scad</span></code> copiers, all returning a new <code class="docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>.</p></li>
+</ul>
+<p><a class="reference internal" href="#bosl2.shapes2d.fill" title="bosl2.shapes2d.fill"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill()</span></code></a> and <a class="reference internal" href="#bosl2.shapes2d.hull" title="bosl2.shapes2d.hull"><code class="xref py py-func docutils literal notranslate"><span class="pre">hull()</span></code></a> are also available as free
+functions (the OpenSCAD module form), and accept a <code class="docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>, a raw native shape, a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> / <a class="reference internal" href="regions.html#bosl2.regions.Region" title="bosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>, or a plain point list.</p>
+<p>The same operators live on <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> and <a class="reference internal" href="regions.html#bosl2.regions.Region" title="bosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>
+(<code class="docutils literal notranslate"><span class="pre">path.fill()</span></code>, <code class="docutils literal notranslate"><span class="pre">path.hull()</span></code>, <code class="docutils literal notranslate"><span class="pre">path.linear_extrude(height=...)</span></code>), and
+<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.projection" title="bosl2.shapes3d.Bosl2Solid.projection"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.projection()</span></code></a> comes back the other way,
+from a 3-D solid to a <code class="docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code> footprint.</p>
+</section>
 <section id="coverage-of-bosl2-shapes2d-scad">
 <h2>Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">shapes2d.scad</span></code><a class="headerlink" href="#coverage-of-bosl2-shapes2d-scad" title="Link to this heading">¶</a></h2>
 <table class="docutils align-default">
@@ -232,6 +284,577 @@ the arc / 3-point / corner / width+thickness forms are not ported</p></td>
 </section>
 <section id="module-bosl2.shapes2d">
 <span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-bosl2.shapes2d" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Shape2DLike">
+<span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">Shape2DLike</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ForwardRef('Bosl2Shape2D')</span> <span class="pre">|</span> <span class="pre">ForwardRef('PyOpenSCAD')</span> <span class="pre">|</span> <span class="pre">bosl2.paths.Path</span> <span class="pre">|</span> <span class="pre">collections.abc.Sequence[collections.abc.Sequence[float]]</span></span><a class="headerlink" href="#bosl2.shapes2d.Shape2DLike" title="Link to this definition">¶</a></dt>
+<dd><p>a <a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code></a>, a raw native 2-D handle,
+a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> / <a class="reference internal" href="regions.html#bosl2.regions.Region" title="bosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>, or a <code class="docutils literal notranslate"><span class="pre">[[x,</span> <span class="pre">y],</span> <span class="pre">...]</span></code> point list.
+<code class="xref py py-func docutils literal notranslate"><span class="pre">_as_native_2d()</span></code> reduces any of them to a raw native handle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Anything the 2-D operators accept as a child</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">Bosl2Shape2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="distributors.html#bosl2.distributors.Distributable" title="bosl2.distributors.Distributable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Distributable</span></code></a>, <a class="reference internal" href="color.html#bosl2.color.Colorable" title="bosl2.color.Colorable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Colorable</span></code></a></p>
+<p>Wraps a native PyOpenSCAD <strong>2-D</strong> shape, giving it the same fluent, chainable API that
+<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> gives 3-D solids. Every shape constructor in this file
+returns one of these, as do <code class="xref py py-meth docutils literal notranslate"><span class="pre">polygon()</span></code> and
+<a class="reference internal" href="regions.html#bosl2.regions.Region.geometry" title="bosl2.regions.Region.geometry"><code class="xref py py-meth docutils literal notranslate"><span class="pre">geometry()</span></code></a>.</p>
+<p>The 2-D specific operations live here rather than being reached for through the raw native
+handle:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#bosl2.shapes2d.fill" title="bosl2.shapes2d.fill"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fill()</span></code></a> – drop every hole, keeping only the outermost outline (OpenSCAD <code class="docutils literal notranslate"><span class="pre">fill()</span></code>).</p></li>
+<li><p><a class="reference internal" href="#bosl2.shapes2d.hull" title="bosl2.shapes2d.hull"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hull()</span></code></a> – the convex hull of this shape, optionally together with more shapes/paths
+(OpenSCAD <code class="docutils literal notranslate"><span class="pre">hull()</span></code>).</p></li>
+<li><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.offset" title="bosl2.shapes2d.Bosl2Shape2D.offset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">offset()</span></code></a> – inset/outset, with BOSL2’s <code class="docutils literal notranslate"><span class="pre">radius=</span></code>/<code class="docutils literal notranslate"><span class="pre">delta=</span></code> spelling (the native
+<code class="docutils literal notranslate"><span class="pre">offset()</span></code> only understands <code class="docutils literal notranslate"><span class="pre">r=</span></code>).</p></li>
+<li><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.linear_extrude" title="bosl2.shapes2d.Bosl2Shape2D.linear_extrude"><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_extrude()</span></code></a> / <a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.rotate_extrude" title="bosl2.shapes2d.Bosl2Shape2D.rotate_extrude"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rotate_extrude()</span></code></a> – the 2-D -&gt; 3-D operators, which return a
+<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> so the result keeps the 3-D fluent API.</p></li>
+</ul>
+<p>Transforms (translate/rotate/mirror/scale/multmatrix), the CSG operators (<code class="docutils literal notranslate"><span class="pre">|</span></code>, <code class="docutils literal notranslate"><span class="pre">&amp;</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code>),
+the colour operators (from <a class="reference internal" href="color.html#bosl2.color.Colorable" title="bosl2.color.Colorable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Colorable</span></code></a>) and the distributor copiers (from
+<a class="reference internal" href="distributors.html#bosl2.distributors.Distributable" title="bosl2.distributors.Distributable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Distributable</span></code></a>) all return a new <code class="docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>. Anything else
+falls through <code class="docutils literal notranslate"><span class="pre">__getattr__</span></code> to the native handle, re-wrapped as 2-D when it hands back native
+geometry.</p>
+<p>Like <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> this is composition, not a subclass of the native
+C-extension type: passing one <em>directly</em> into a native function that wants a raw handle needs
+an explicit <code class="docutils literal notranslate"><span class="pre">.shape</span></code> (or <code class="xref py py-func docutils literal notranslate"><span class="pre">bosl2._helpers.unwrap()</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>PyOpenSCAD</em>)</p></li>
+<li><p><strong>size</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>anchor</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>str</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.backend">
+<span class="sig-name descname"><span class="pre">backend</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csg'</span></span><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.backend" title="Link to this definition">¶</a></dt>
+<dd><p>which realize backend produced this shape – 2-D geometry is exact-CSG only (see
+bosl2/_backend.py); the SDF backend has no 2-D surface.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.size">
+<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.size" title="Link to this definition">¶</a></dt>
+<dd><p>nominal [x, y] size for the shapes that have a genuine box size, else None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.translate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.translate" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>v</em> ([x, y], or [x, y, 0]).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.move" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <em>v</em> ([x, y], or [x, y, 0]).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.rotate" title="Link to this definition">¶</a></dt>
+<dd><p>Rotate about the Z axis. A bare scalar angle is accepted (BOSL2 <code class="docutils literal notranslate"><span class="pre">rot(a)</span></code>); the native
+2-D rotate only takes the 3-vector form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>Any</em>)</p></li>
+<li><p><strong>k</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.rot">
+<span class="sig-name descname"><span class="pre">rot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.rot" title="Link to this definition">¶</a></dt>
+<dd><p>Rotate about the Z axis. A bare scalar angle is accepted (BOSL2 <code class="docutils literal notranslate"><span class="pre">rot(a)</span></code>); the native
+2-D rotate only takes the 3-vector form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>Any</em>)</p></li>
+<li><p><strong>k</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.spin" title="Link to this definition">¶</a></dt>
+<dd><p>Rotate about the Z axis. A bare scalar angle is accepted (BOSL2 <code class="docutils literal notranslate"><span class="pre">rot(a)</span></code>); the native
+2-D rotate only takes the 3-vector form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>Any</em>)</p></li>
+<li><p><strong>k</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.mirror">
+<span class="sig-name descname"><span class="pre">mirror</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.mirror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.mirror" title="Link to this definition">¶</a></dt>
+<dd><p>Mirror across the line through the origin normal to <em>v</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.scale" title="Link to this definition">¶</a></dt>
+<dd><p>Scale by <em>v</em> (a scalar, or [x, y]).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.multmatrix">
+<span class="sig-name descname"><span class="pre">multmatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.multmatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.multmatrix" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.right">
+<span class="sig-name descname"><span class="pre">right</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.right"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.right" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.left">
+<span class="sig-name descname"><span class="pre">left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.left"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.left" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.back">
+<span class="sig-name descname"><span class="pre">back</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.back"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.back" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.forward" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.fwd">
+<span class="sig-name descname"><span class="pre">fwd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.fwd" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.xflip">
+<span class="sig-name descname"><span class="pre">xflip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.xflip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.xflip" title="Link to this definition">¶</a></dt>
+<dd><p>Mirror across the vertical line at <em>x</em> (BOSL2 xflip()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.yflip">
+<span class="sig-name descname"><span class="pre">yflip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.yflip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.yflip" title="Link to this definition">¶</a></dt>
+<dd><p>Mirror across the horizontal line at <em>y</em> (BOSL2 yflip()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>float</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.offset">
+<span class="sig-name descname"><span class="pre">offset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.offset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.offset" title="Link to this definition">¶</a></dt>
+<dd><p>Inset (negative) or outset (positive) the outline.</p>
+<p><em>radius</em> rounds the joins it creates, <em>delta</em> keeps them sharp (or bevels them with
+<code class="docutils literal notranslate"><span class="pre">chamfer=True</span></code>) – BOSL2’s spelling of OpenSCAD’s <code class="docutils literal notranslate"><span class="pre">r=</span></code>/<code class="docutils literal notranslate"><span class="pre">delta=</span></code>. Give exactly one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>delta</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer</strong> (<em>bool</em>)</p></li>
+<li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.fill">
+<span class="sig-name descname"><span class="pre">fill</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.fill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.fill" title="Link to this definition">¶</a></dt>
+<dd><p>This shape with every hole filled in – only the outermost outline survives
+(OpenSCAD <code class="docutils literal notranslate"><span class="pre">fill()</span></code>).</p>
+<p>Useful for recovering the solid footprint of a shape you have already punched holes in,
+e.g. to build a backing plate for it, or to close up the interior loops of <code class="docutils literal notranslate"><span class="pre">text()</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plate</span> <span class="o">=</span> <span class="n">s2</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span> <span class="o">-</span> <span class="n">s2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plate</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-2f407d0695ee4bf88f08634602865488" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-2f407d0695ee4bf88f08634602865488");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/a4b5ff701c869357.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/a4b5ff701c869357.stl">⬇ Download STL mesh</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.hull">
+<span class="sig-name descname"><span class="pre">hull</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">others</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.hull"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.hull" title="Link to this definition">¶</a></dt>
+<dd><p>The convex hull of this shape (OpenSCAD <code class="docutils literal notranslate"><span class="pre">hull()</span></code>).</p>
+<p>With arguments, the hull of this shape <em>together with</em> each of <em>others</em> – any mix of
+<code class="docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>, native 2-D shapes, <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> /
+<a class="reference internal" href="regions.html#bosl2.regions.Region" title="bosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>, or plain <code class="docutils literal notranslate"><span class="pre">[[x,</span> <span class="pre">y],</span> <span class="pre">...]</span></code> point lists.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slot</span> <span class="o">=</span> <span class="n">s2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">hull</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span>
+<span class="n">slot</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-bc07c5475caa4f3d83241aa5b7db0da4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-bc07c5475caa4f3d83241aa5b7db0da4");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/e6db60c555db617f.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/e6db60c555db617f.stl">⬇ Download STL mesh</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>others</strong> (<a class="reference internal" href="#bosl2.shapes2d.Shape2DLike" title="bosl2.shapes2d.Shape2DLike"><em>Shape2DLike</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.linear_extrude">
+<span class="sig-name descname"><span class="pre">linear_extrude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">twist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.linear_extrude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.linear_extrude" title="Link to this definition">¶</a></dt>
+<dd><p>Extrude this 2-D shape <em>height</em> along +Z into a 3-D solid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>height</strong> (<em>float</em>) – extrusion height</p></li>
+<li><p><strong>center</strong> (<em>bool</em>) – centre the result on z=0 rather than starting at z=0 (default False)</p></li>
+<li><p><strong>twist</strong> (<em>float</em>) – degrees to rotate the top face relative to the bottom (default 0)</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – scale factor of the top face, a scalar or [x, y] (default 1)</p></li>
+<li><p><strong>slices</strong> (<em>int</em><em> | </em><em>None</em>) – number of intermediate layers (default: from the twist)</p></li>
+<li><p><strong>convexity</strong> (<em>int</em><em> | </em><em>None</em>) – rendering hint for self-overlapping cross-sections</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – any further native <code class="docutils literal notranslate"><span class="pre">linear_extrude()</span></code> parameter (<code class="docutils literal notranslate"><span class="pre">origin</span></code>, <code class="docutils literal notranslate"><span class="pre">fn</span></code>, …)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">s2</span><span class="o">.</span><span class="n">star</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">ir</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">twist</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.rotate_extrude">
+<span class="sig-name descname"><span class="pre">rotate_extrude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">360.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.rotate_extrude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.rotate_extrude" title="Link to this definition">¶</a></dt>
+<dd><p>Revolve this 2-D shape about the Y axis into a 3-D solid (OpenSCAD <code class="docutils literal notranslate"><span class="pre">rotate_extrude()</span></code>).</p>
+<p>The shape must lie entirely on one side of the axis. <em>angle</em> sweeps less than a full
+revolution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>convexity</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.path_extrude">
+<span class="sig-name descname"><span class="pre">path_extrude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.path_extrude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.path_extrude" title="Link to this definition">¶</a></dt>
+<dd><p>Sweep this 2-D shape along <em>path</em> (a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code> or point list), via
+the native <code class="docutils literal notranslate"><span class="pre">path_extrude()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>path</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bosl2.shapes2d.Bosl2Shape2D.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#Bosl2Shape2D.bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.Bosl2Shape2D.bounds" title="Link to this definition">¶</a></dt>
+<dd><p>This shape’s axis-aligned bounding box as <code class="docutils literal notranslate"><span class="pre">(center,</span> <span class="pre">size)</span></code> – both <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> float
+lists in the shape’s current frame (the 2-D form of
+<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.bounds" title="bosl2.shapes3d.Bosl2Solid.bounds"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bounds()</span></code></a>).</p>
+<p>Prefers the native bbox, which always reflects the current geometry; falls back to the
+tracked nominal size/anchor when the native accessors aren’t available (the numeric test
+mock) and the shape hasn’t been moved since construction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[list[float], list[float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bosl2.shapes2d.fill">
+<span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">fill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">children</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#fill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.fill" title="Link to this definition">¶</a></dt>
+<dd><p><em>children</em> with every hole filled in – only the outermost outline survives
+(OpenSCAD <code class="docutils literal notranslate"><span class="pre">fill()</span></code>, the module form of <a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.fill" title="bosl2.shapes2d.Bosl2Shape2D.fill"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Shape2D.fill()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>children</strong> (<a class="reference internal" href="#bosl2.shapes2d.Shape2DLike" title="bosl2.shapes2d.Shape2DLike"><em>Shape2DLike</em></a>) – the 2-D shape to fill (a <code class="docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>, a native shape, a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> / <a class="reference internal" href="regions.html#bosl2.regions.Region" title="bosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>, or a point list)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bosl2.shapes2d.hull">
+<span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">hull</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">children</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#hull"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.hull" title="Link to this definition">¶</a></dt>
+<dd><p>The 2-D convex hull of <em>children</em> (OpenSCAD <code class="docutils literal notranslate"><span class="pre">hull()</span></code>, the module form of
+<a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D.hull" title="bosl2.shapes2d.Bosl2Shape2D.hull"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Shape2D.hull()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>children</strong> (<a class="reference internal" href="#bosl2.shapes2d.Shape2DLike" title="bosl2.shapes2d.Shape2DLike"><em>Shape2DLike</em></a><em> | </em><em>Sequence</em><em>[</em><a class="reference internal" href="#bosl2.shapes2d.Shape2DLike" title="bosl2.shapes2d.Shape2DLike"><em>Shape2DLike</em></a><em>]</em>) – the 2-D shapes to hull – any mix of <code class="docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>, native shapes,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> / <a class="reference internal" href="regions.html#bosl2.regions.Region" title="bosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>, or point lists.
+A single list/tuple <em>of</em> shapes is also accepted.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="bosl2.shapes2d.square">
 <span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">square</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#square"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.square" title="Link to this definition">¶</a></dt>
@@ -246,7 +869,7 @@ the arc / 3-point / corner / width+thickness forms are not ported</p></td>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -272,7 +895,7 @@ the arc / 3-point / corner / width+thickness forms are not ported</p></td>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -281,7 +904,7 @@ the arc / 3-point / corner / width+thickness forms are not ported</p></td>
 <dt class="sig sig-object py" id="bosl2.shapes2d.rect_path">
 <span class="sig-prename descclassname"><span class="pre">bosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">rect_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/shapes2d.html#rect_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.shapes2d.rect_path" title="Link to this definition">¶</a></dt>
 <dd><p>The <em>points</em> of a (optionally rounded/chamfered) rectangle – BOSL2’s <code class="docutils literal notranslate"><span class="pre">rect()</span></code> in its
-function form, as opposed to <a class="reference internal" href="#bosl2.shapes2d.rect" title="bosl2.shapes2d.rect"><code class="xref py py-func docutils literal notranslate"><span class="pre">rect()</span></code></a> which returns native 2-D geometry.</p>
+function form, as opposed to <a class="reference internal" href="#bosl2.shapes2d.rect" title="bosl2.shapes2d.rect"><code class="xref py py-func docutils literal notranslate"><span class="pre">rect()</span></code></a> which returns 2-D geometry (a <a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code></a>).</p>
 <p>Use this when the rectangle is an input to further path math (e.g. a profile fed to
 <code class="xref py py-func docutils literal notranslate"><span class="pre">base_bgtk.PolygonPrism()</span></code>), not something to draw.</p>
 <p>Usage:</p>
@@ -336,7 +959,7 @@ ignored for the <cite>corner</cite>/<cite>points</cite> forms, matching BOSL2.</
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -364,7 +987,7 @@ evenly spaced by angle instead.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -401,7 +1024,7 @@ keyword <cite>or</cite>; it is exposed here as <cite>outer_radius</cite> instead
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -432,7 +1055,7 @@ keyword <cite>or</cite>; it is exposed here as <cite>outer_radius</cite> instead
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -463,7 +1086,7 @@ keyword <cite>or</cite>; it is exposed here as <cite>outer_radius</cite> instead
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -494,7 +1117,7 @@ keyword <cite>or</cite>; it is exposed here as <cite>outer_radius</cite> instead
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -513,7 +1136,7 @@ keyword <cite>or</cite>; it is exposed here as <cite>outer_radius</cite> instead
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -542,7 +1165,7 @@ keyword <cite>or</cite>; it is exposed here as <cite>outer_radius</cite> instead
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -576,7 +1199,7 @@ keyword <cite>or</cite>; it is exposed here as <cite>outer_radius</cite> instead
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -623,7 +1246,7 @@ ray-intersection construction for <cite>circum=True</cite> is not reproduced).</
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -651,7 +1274,7 @@ ray-intersection construction for <cite>circum=True</cite> is not reproduced).</
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -676,7 +1299,7 @@ ray-intersection construction for <cite>circum=True</cite> is not reproduced).</
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -705,7 +1328,7 @@ ray-intersection construction for <cite>circum=True</cite> is not reproduced).</
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -751,7 +1374,7 @@ is ported; the <code class="docutils literal notranslate"><span class="pre">&quo
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -759,13 +1382,13 @@ is ported; the <code class="docutils literal notranslate"><span class="pre">&quo
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-fd78647451a44a7d82336865672149ab" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-2e0965966ea34a048dbbff67b78d85fe" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-fd78647451a44a7d82336865672149ab");
+const el = document.getElementById("stlviewer-2e0965966ea34a048dbbff67b78d85fe");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -835,7 +1458,7 @@ window.addEventListener("resize", resize);
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -843,13 +1466,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-a7ebdaa8fb31483d8d16a202fc1fbb54" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4fde0ea9cae142ebba4112826b9462db" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-a7ebdaa8fb31483d8d16a202fc1fbb54");
+const el = document.getElementById("stlviewer-4fde0ea9cae142ebba4112826b9462db");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -925,7 +1548,7 @@ not ported.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -933,13 +1556,13 @@ not ported.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-ad764affb262406f943953d3c65a1eb4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4f0caba7030b4e39aa7e34c91fd43806" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-ad764affb262406f943953d3c65a1eb4");
+const el = document.getElementById("stlviewer-4f0caba7030b4e39aa7e34c91fd43806");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1004,7 +1627,7 @@ window.addEventListener("resize", resize);
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1030,7 +1653,7 @@ window.addEventListener("resize", resize);
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1049,7 +1672,7 @@ radius.</p>
 <li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>) – radius to round all concave and convex corners to</p></li>
 <li><p><strong>outer_radius</strong> (<em>float</em><em> | </em><em>None</em>) – radius to round only convex (outside) corners to (BOSL2 <cite>or</cite>)</p></li>
 <li><p><strong>inner_radius</strong> (<em>float</em><em> | </em><em>None</em>) – radius to round only concave (inside) corners to</p></li>
-<li><p><strong>children</strong> (<em>PyOpenSCAD</em><em> | </em><em>None</em>) – the 2-D solid(s) to round</p></li>
+<li><p><strong>children</strong> (<a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a><em> | </em><em>PyOpenSCAD</em><em> | </em><em>None</em>) – the 2-D solid(s) to round</p></li>
 <li><p><strong>fn/fa/fs</strong> – arc smoothness overrides</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
@@ -1057,7 +1680,7 @@ radius.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1076,7 +1699,7 @@ or a 2-element list to do both</p></li>
 [CONVEX,CONCAVE] pair rounds those corner types separately (default 0)</p></li>
 <li><p><strong>inner_radius</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – rounding radius for inside corners of the shell; a [CONVEX,CONCAVE]
 pair rounds those corner types separately (default 0)</p></li>
-<li><p><strong>children</strong> (<em>PyOpenSCAD</em><em> | </em><em>None</em>) – the 2-D solid(s) to shell</p></li>
+<li><p><strong>children</strong> (<a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a><em> | </em><em>PyOpenSCAD</em><em> | </em><em>None</em>) – the 2-D solid(s) to shell</p></li>
 <li><p><strong>fn/fa/fs</strong> – arc smoothness overrides</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
@@ -1084,7 +1707,7 @@ pair rounds those corner types separately (default 0)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>PyOpenSCAD</p>
+<dd class="field-even"><p><a class="reference internal" href="#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
 </dd>
 </dl>
 </dd></dl>

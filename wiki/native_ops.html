@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Native-only mesh operations &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
+    <title>Native-only mesh operations &#8212; bosl2 (PythonSCAD port) 0.6.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
-    <script src="_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -41,6 +41,10 @@
 
 
 <h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
@@ -153,6 +157,10 @@
 <li class="ps-meth"><span>Bosl2Solid.oversample</span></li>
 <li class="ps-meth"><span>Bosl2Solid.separate</span></li>
 <li class="ps-meth"><span>Bosl2Solid.inside</span></li>
+<li class="ps-meth"><span>Bosl2Solid.hull</span></li>
+<li class="ps-meth"><span>Bosl2Solid.projection</span></li>
+<li class="ps-meth"><span>Bosl2Solid.to_csg</span></li>
+<li class="ps-meth"><span>Bosl2Solid.to_sdf</span></li>
 <li class="ps-meth"><span>Bosl2Solid.bounds</span></li>
 <li class="ps-meth"><span>Bosl2Solid.anchor_point</span></li>
 <li class="ps-meth"><span>Bosl2Solid.reanchor</span></li>
@@ -188,14 +196,6 @@
 <li class="ps-func"><span>onion</span></li>
 <li class="ps-func"><span>text3d</span></li>
 <li class="ps-func"><span>path_text</span></li>
-<li class="ps-func"><span>interior_fillet</span></li>
-<li class="ps-func"><span>heightfield</span></li>
-<li class="ps-func"><span>cylindrical_heightfield</span></li>
-<li class="ps-func"><span>plot3d</span></li>
-<li class="ps-func"><span>plot_revolution</span></li>
-<li class="ps-func"><span>fillet</span></li>
-<li class="ps-func"><span>textured_tile</span></li>
-<li class="ps-func"><span>ruler</span></li>
 </ul></aside><section id="native-only-mesh-operations">
 <h1>Native-only mesh operations<a class="headerlink" href="#native-only-mesh-operations" title="Link to this heading">¶</a></h1>
 <p>These operations wrap PythonSCAD builtins that <strong>BOSL2 has no counterpart for</strong>, exposed as
@@ -261,13 +261,13 @@ roof):</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c90b26638f7c4091a584b464cc250702" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-1ad74ff6aee24305bfe59e66c6283c1f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c90b26638f7c4091a584b464cc250702");
+const el = document.getElementById("stlviewer-1ad74ff6aee24305bfe59e66c6283c1f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -317,13 +317,13 @@ displacement:</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-824a4b061a8444fba3224a389deefd96" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ee10d3fc6fff416e9122d72896b3e6bc" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-824a4b061a8444fba3224a389deefd96");
+const el = document.getElementById("stlviewer-ee10d3fc6fff416e9122d72896b3e6bc");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -372,13 +372,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-15a4fee47ecb4388ba984fbf5d74e409" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-cab1fc22738549ef9ca82262e058ceba" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-15a4fee47ecb4388ba984fbf5d74e409");
+const el = document.getElementById("stlviewer-cab1fc22738549ef9ca82262e058ceba");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

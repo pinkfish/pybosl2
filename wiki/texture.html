@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Textures &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
+    <title>Textures &#8212; bosl2 (PythonSCAD port) 0.6.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
-    <script src="_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -41,6 +41,10 @@
 
 
 <h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
@@ -144,7 +148,7 @@
 </ul></aside><section id="textures">
 <h1>Textures<a class="headerlink" href="#textures" title="Link to this heading">¶</a></h1>
 <p>Port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">texture()</span></code> engine (from <code class="docutils literal notranslate"><span class="pre">skin.scad</span></code>): the named-texture table that
-<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.textured_tile" title="bosl2.shapes3d.textured_tile"><code class="xref py py-func docutils literal notranslate"><span class="pre">textured_tile()</span></code></a> builds from. <code class="xref py py-func docutils literal notranslate"><span class="pre">texture()</span></code> resolves a texture
+<code class="xref py py-func docutils literal notranslate"><span class="pre">textured_tile()</span></code> builds from. <code class="xref py py-func docutils literal notranslate"><span class="pre">texture()</span></code> resolves a texture
 <strong>name</strong> to its data — either a <strong>height-field</strong> (a 2-D array of heights in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>) or a <strong>VNF
 tile</strong> <code class="docutils literal notranslate"><span class="pre">(verts,</span> <span class="pre">faces)</span></code> describing one unit cell of the surface.</p>
 <p>All of BOSL2’s textures are ported (9 height-field + 12 VNF). Height-field textures: <code class="docutils literal notranslate"><span class="pre">ribs</span></code>,

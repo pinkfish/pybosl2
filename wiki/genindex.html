@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
+    <title>Index &#8212; bosl2 (PythonSCAD port) 0.6.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
-    <script src="_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="_static/documentation_options.js?v=2bd037f0"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="#" />
@@ -38,6 +38,10 @@
 
 
 <h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
@@ -208,10 +212,20 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="constants.html#bosl2.constants.BACK">BACK (in module bosl2.constants)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.back">back() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.back">back() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.back">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="partitions.html#bosl2.partitions.Partitionable.back_half">back_half() (bosl2.partitions.Partitionable method)</a>
 </li>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.backend">backend (bosl2.shapes2d.Bosl2Shape2D attribute)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.backend">(bosl2.shapes3d.Bosl2Solid attribute)</a>
+</li>
+      </ul></li>
       <li><a href="ball_bearings.html#bosl2.ball_bearings.BallBearings.ball_bearing">ball_bearing() (bosl2.ball_bearings.BallBearings static method)</a>
 </li>
       <li><a href="ball_bearings.html#bosl2.ball_bearings.BallBearings.ball_bearing_info">ball_bearing_info() (bosl2.ball_bearings.BallBearings static method)</a>
@@ -296,6 +310,8 @@
         <li><a href="math.html#module-bosl2.math">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     bosl2.miscellaneous
 
@@ -303,8 +319,6 @@
         <li><a href="miscellaneous.html#module-bosl2.miscellaneous">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     bosl2.nurbs
 
@@ -375,6 +389,8 @@
         <li><a href="vnf.html#module-bosl2.vnf">module</a>
 </li>
       </ul></li>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D (class in bosl2.shapes2d)</a>
+</li>
       <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid">Bosl2Solid (class in bosl2.shapes3d)</a>
 </li>
       <li><a href="bottlecaps.html#bosl2.bottlecaps.BottleCaps">BottleCaps (class in bosl2.bottlecaps)</a>
@@ -388,6 +404,8 @@
       <li><a href="regions.html#bosl2.regions.Region.bounds">bounds() (bosl2.regions.Region method)</a>
 
       <ul>
+        <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.bounds">(bosl2.shapes2d.Bosl2Shape2D method)</a>
+</li>
         <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.bounds">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
         <li><a href="vnf.html#bosl2.vnf.VNF.bounds">(bosl2.vnf.VNF method)</a>
@@ -403,6 +421,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="skin.html#bosl2.skin.CapsSpec">CapsSpec (in module bosl2.skin)</a>
+</li>
       <li><a href="drawing.html#bosl2.drawing.catenary">catenary() (in module bosl2.drawing)</a>
 </li>
       <li><a href="constants.html#bosl2.constants.CENTER">CENTER (in module bosl2.constants)</a>
@@ -427,10 +447,10 @@
 </li>
       <li><a href="color.html#bosl2.color.Colorable.color">color() (bosl2.color.Colorable method)</a>
 </li>
-      <li><a href="color.html#bosl2.color.Colorable.color_this">color_this() (bosl2.color.Colorable method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="color.html#bosl2.color.Colorable.color_this">color_this() (bosl2.color.Colorable method)</a>
+</li>
       <li><a href="color.html#bosl2.color.Colorable">Colorable (class in bosl2.color)</a>
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.corner_profile">corner_profile() (bosl2.shapes3d.Bosl2Solid method)</a>
@@ -454,8 +474,6 @@
       <li><a href="shapes3d.html#bosl2.shapes3d.cylinder">cylinder() (in module bosl2.shapes3d)</a>
 </li>
       <li><a href="miscellaneous.html#bosl2.miscellaneous.cylindrical_extrude">cylindrical_extrude() (in module bosl2.miscellaneous)</a>
-</li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.cylindrical_heightfield">cylindrical_heightfield() (in module bosl2.shapes3d)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -549,8 +567,14 @@
         <li><a href="masking.html#bosl2.masking.face_profile">(in module bosl2.masking)</a>
 </li>
       </ul></li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.fillet">fillet() (in module bosl2.shapes3d)</a>
+      <li><a href="regions.html#bosl2.regions.Region.fill">fill() (bosl2.regions.Region method)</a>
+
+      <ul>
+        <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.fill">(bosl2.shapes2d.Bosl2Shape2D method)</a>
 </li>
+        <li><a href="shapes2d.html#bosl2.shapes2d.fill">(in module bosl2.shapes2d)</a>
+</li>
+      </ul></li>
       <li><a href="beziers.html#bosl2.beziers.BezierPatch.flat">flat() (bosl2.beziers.BezierPatch static method)</a>
 </li>
       <li><a href="beziers.html#bosl2.beziers.Bezier.flatten">flatten() (bosl2.beziers.Bezier static method)</a>
@@ -559,8 +583,12 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.forward">forward() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.forward">forward() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.forward">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="skin.html#bosl2.skin.frame_map">frame_map() (in module bosl2.skin)</a>
 </li>
       <li><a href="beziers.html#bosl2.beziers.Bezier.from_path">from_path() (bosl2.beziers.Bezier class method)</a>
@@ -569,8 +597,12 @@
 </li>
       <li><a href="partitions.html#bosl2.partitions.Partitionable.front_half">front_half() (bosl2.partitions.Partitionable method)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.fwd">fwd() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.fwd">fwd() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.fwd">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -609,16 +641,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="partitions.html#bosl2.partitions.Partitionable.half_of">half_of() (bosl2.partitions.Partitionable method)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.heightfield">heightfield() (in module bosl2.shapes3d)</a>
-</li>
       <li><a href="drawing.html#bosl2.drawing.helix">helix() (in module bosl2.drawing)</a>
 </li>
       <li><a href="screw_drive.html#bosl2.screw_drive.ScrewDrive.hex_drive_mask">hex_drive_mask() (bosl2.screw_drive.ScrewDrive static method)</a>
 </li>
       <li><a href="shapes2d.html#bosl2.shapes2d.hexagon">hexagon() (in module bosl2.shapes2d)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="color.html#bosl2.color.Colorable.highlight">highlight() (bosl2.color.Colorable method)</a>
 </li>
       <li><a href="regions.html#bosl2.regions.Region.holes">holes (bosl2.regions.Region property)</a>
@@ -629,10 +657,22 @@
         <li><a href="color.html#bosl2.color.hsl">(in module bosl2.color)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="color.html#bosl2.color.Colorable.hsv">hsv() (bosl2.color.Colorable method)</a>
 
       <ul>
         <li><a href="color.html#bosl2.color.hsv">(in module bosl2.color)</a>
+</li>
+      </ul></li>
+      <li><a href="regions.html#bosl2.regions.Region.hull">hull() (bosl2.regions.Region method)</a>
+
+      <ul>
+        <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.hull">(bosl2.shapes2d.Bosl2Shape2D method)</a>
+</li>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.hull">(bosl2.shapes3d.Bosl2Solid method)</a>
+</li>
+        <li><a href="shapes2d.html#bosl2.shapes2d.hull">(in module bosl2.shapes2d)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -647,12 +687,10 @@
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.inside">inside() (bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.interior_fillet">interior_fillet() (in module bosl2.shapes3d)</a>
+      <li><a href="geometry.html#bosl2.geometry.is_collinear">is_collinear() (in module bosl2.geometry)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="geometry.html#bosl2.geometry.is_collinear">is_collinear() (in module bosl2.geometry)</a>
-</li>
       <li><a href="nurbs.html#bosl2.nurbs.is_nurbs_patch">is_nurbs_patch() (in module bosl2.nurbs)</a>
 </li>
       <li><a href="beziers.html#bosl2.beziers.BezierPatch.is_patch">is_patch() (bosl2.beziers.BezierPatch static method)</a>
@@ -691,8 +729,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="constants.html#bosl2.constants.LEFT">LEFT (in module bosl2.constants)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.left">left() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.left">left() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.left">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="partitions.html#bosl2.partitions.Partitionable.left_half">left_half() (bosl2.partitions.Partitionable method)</a>
 </li>
       <li><a href="beziers.html#bosl2.beziers.Bezier.length">length() (bosl2.beziers.Bezier method)</a>
@@ -723,6 +765,12 @@
 </li>
       <li><a href="linear_bearings.html#bosl2.linear_bearings.LinearBearings.linear_bearing_housing">linear_bearing_housing() (bosl2.linear_bearings.LinearBearings static method)</a>
 </li>
+      <li><a href="regions.html#bosl2.regions.Region.linear_extrude">linear_extrude() (bosl2.regions.Region method)</a>
+
+      <ul>
+        <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.linear_extrude">(bosl2.shapes2d.Bosl2Shape2D method)</a>
+</li>
+      </ul></li>
       <li><a href="skin.html#bosl2.skin.linear_sweep">linear_sweep() (in module bosl2.skin)</a>
 </li>
       <li><a href="linear_bearings.html#bosl2.linear_bearings.LinearBearings">LinearBearings (class in bosl2.linear_bearings)</a>
@@ -765,8 +813,12 @@
         <li><a href="miscellaneous.html#bosl2.miscellaneous.minkowski_difference">(in module bosl2.miscellaneous)</a>
 </li>
       </ul></li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.mirror">mirror() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.mirror">mirror() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.mirror">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="distributors.html#bosl2.distributors.Distributable.mirror_copy">mirror_copy() (bosl2.distributors.Distributable method)</a>
 
       <ul>
@@ -824,16 +876,24 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.move">move() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.move">move() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.move">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="distributors.html#bosl2.distributors.Distributable.move_copies">move_copies() (bosl2.distributors.Distributable method)</a>
 
       <ul>
         <li><a href="distributors.html#bosl2.distributors.move_copies">(in module bosl2.distributors)</a>
 </li>
       </ul></li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.multmatrix">multmatrix() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.multmatrix">multmatrix() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.multmatrix">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -873,11 +933,15 @@
       <li><a href="shapes3d.html#bosl2.shapes3d.octahedron">octahedron() (in module bosl2.shapes3d)</a>
 </li>
       <li><a href="regions.html#bosl2.regions.Region.offset">offset() (bosl2.regions.Region method)</a>
+
+      <ul>
+        <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.offset">(bosl2.shapes2d.Bosl2Shape2D method)</a>
 </li>
-      <li><a href="miscellaneous.html#bosl2.miscellaneous.Miscellaneous.offset3d">offset3d() (bosl2.miscellaneous.Miscellaneous method)</a>
-</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="miscellaneous.html#bosl2.miscellaneous.Miscellaneous.offset3d">offset3d() (bosl2.miscellaneous.Miscellaneous method)</a>
+</li>
       <li><a href="shapes3d.html#bosl2.shapes3d.onion">onion() (in module bosl2.shapes3d)</a>
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.orient">orient() (bosl2.shapes3d.Bosl2Solid method)</a>
@@ -915,7 +979,11 @@
       <li><a href="beziers.html#bosl2.beziers.Bezier.path_curve">path_curve() (bosl2.beziers.Bezier method)</a>
 </li>
       <li><a href="miscellaneous.html#bosl2.miscellaneous.Extrudable.path_extrude">path_extrude() (bosl2.miscellaneous.Extrudable method)</a>
+
+      <ul>
+        <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.path_extrude">(bosl2.shapes2d.Bosl2Shape2D method)</a>
 </li>
+      </ul></li>
       <li><a href="miscellaneous.html#bosl2.miscellaneous.Extrudable.path_extrude2d">path_extrude2d() (bosl2.miscellaneous.Extrudable method)</a>
 </li>
       <li><a href="beziers.html#bosl2.beziers.Bezier.path_length">path_length() (bosl2.beziers.Bezier method)</a>
@@ -928,10 +996,10 @@
 </li>
       <li><a href="skin.html#bosl2.skin.path_sweep2d">path_sweep2d() (in module bosl2.skin)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.path_text">path_text() (in module bosl2.shapes3d)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="shapes3d.html#bosl2.shapes3d.path_text">path_text() (in module bosl2.shapes3d)</a>
+</li>
       <li><a href="bottlecaps.html#bosl2.bottlecaps.BottleCaps.pco1810_cap">pco1810_cap() (bosl2.bottlecaps.BottleCaps static method)</a>
 </li>
       <li><a href="bottlecaps.html#bosl2.bottlecaps.BottleCaps.pco1810_neck">pco1810_neck() (bosl2.bottlecaps.BottleCaps static method)</a>
@@ -950,10 +1018,6 @@
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.pie_slice">pie_slice() (in module bosl2.shapes3d)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.plot3d">plot3d() (in module bosl2.shapes3d)</a>
-</li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.plot_revolution">plot_revolution() (in module bosl2.shapes3d)</a>
-</li>
       <li><a href="geometry.html#bosl2.geometry.pointlist_bounds">pointlist_bounds() (in module bosl2.geometry)</a>
 </li>
       <li><a href="beziers.html#bosl2.beziers.Bezier.points">points() (bosl2.beziers.Bezier method)</a>
@@ -969,6 +1033,8 @@
       <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.position">position() (bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.prismoid">prismoid() (in module bosl2.shapes3d)</a>
+</li>
+      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.projection">projection() (bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.pull">pull() (bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
@@ -1018,22 +1084,30 @@
       </ul></li>
       <li><a href="constants.html#bosl2.constants.RIGHT">RIGHT (in module bosl2.constants)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.right">right() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.right">right() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.right">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="partitions.html#bosl2.partitions.Partitionable.right_half">right_half() (bosl2.partitions.Partitionable method)</a>
 </li>
       <li><a href="shapes2d.html#bosl2.shapes2d.right_triangle">right_triangle() (in module bosl2.shapes2d)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="shapes2d.html#bosl2.shapes2d.ring">ring() (in module bosl2.shapes2d)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="screw_drive.html#bosl2.screw_drive.ScrewDrive.robertson_mask">robertson_mask() (bosl2.screw_drive.ScrewDrive static method)</a>
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.roof">roof() (in module bosl2.shapes3d)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.rot">rot() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.rot">rot() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.rot">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="transforms.html#bosl2.transforms.rot_about_axis">rot_about_axis() (in module bosl2.transforms)</a>
 </li>
       <li><a href="distributors.html#bosl2.distributors.Distributable.rot_copies">rot_copies() (bosl2.distributors.Distributable method)</a>
@@ -1050,8 +1124,18 @@
 </li>
       <li><a href="skin.html#bosl2.skin.rot_resample">rot_resample() (in module bosl2.skin)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.rotate">rotate() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.rotate">rotate() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.rotate">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
+      <li><a href="regions.html#bosl2.regions.Region.rotate_extrude">rotate_extrude() (bosl2.regions.Region method)</a>
+
+      <ul>
+        <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.rotate_extrude">(bosl2.shapes2d.Bosl2Shape2D method)</a>
+</li>
+      </ul></li>
       <li><a href="skin.html#bosl2.skin.rotate_sweep">rotate_sweep() (in module bosl2.skin)</a>
 </li>
       <li><a href="shapes2d.html#bosl2.shapes2d.round2d">round2d() (in module bosl2.shapes2d)</a>
@@ -1070,16 +1154,18 @@
 </li>
       <li><a href="masking.html#bosl2.masking.rounding_edge_mask">rounding_edge_mask() (in module bosl2.masking)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.ruler">ruler() (in module bosl2.shapes3d)</a>
-</li>
   </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.scale">scale() (bosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.scale">scale() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.scale">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="screws.html#bosl2.screws.Screws.screw">screw() (bosl2.screws.Screws static method)</a>
 </li>
       <li><a href="screws.html#bosl2.screws.Screws.screw_hole">screw_hole() (bosl2.screws.Screws static method)</a>
@@ -1094,9 +1180,13 @@
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.separate">separate() (bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Shape2DLike">Shape2DLike (in module bosl2.shapes2d)</a>
+</li>
       <li><a href="beziers.html#bosl2.beziers.BezierPatch.sheet">sheet() (bosl2.beziers.BezierPatch method)</a>
 </li>
       <li><a href="shapes2d.html#bosl2.shapes2d.shell2d">shell2d() (in module bosl2.shapes2d)</a>
+</li>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.size">size (bosl2.shapes2d.Bosl2Shape2D attribute)</a>
 </li>
       <li><a href="skin.html#bosl2.skin.skin">skin() (in module bosl2.skin)</a>
 </li>
@@ -1108,10 +1198,10 @@
         <li><a href="rounding.html#bosl2.rounding.smooth_path">(in module bosl2.rounding)</a>
 </li>
       </ul></li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.sphere">sphere() (in module bosl2.shapes3d)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="shapes3d.html#bosl2.shapes3d.sphere">sphere() (in module bosl2.shapes3d)</a>
+</li>
       <li><a href="distributors.html#bosl2.distributors.Distributable.sphere_copies">sphere_copies() (bosl2.distributors.Distributable method)</a>
 
       <ul>
@@ -1119,6 +1209,8 @@
 </li>
       </ul></li>
       <li><a href="shapes3d.html#bosl2.shapes3d.spheroid">spheroid() (in module bosl2.shapes3d)</a>
+</li>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.spin">spin() (bosl2.shapes2d.Bosl2Shape2D method)</a>
 </li>
       <li><a href="skin.html#bosl2.skin.spiral_sweep">spiral_sweep() (in module bosl2.skin)</a>
 </li>
@@ -1168,8 +1260,6 @@
 </li>
       <li><a href="shapes3d.html#bosl2.shapes3d.text3d">text3d() (in module bosl2.shapes3d)</a>
 </li>
-      <li><a href="shapes3d.html#bosl2.shapes3d.textured_tile">textured_tile() (in module bosl2.shapes3d)</a>
-</li>
       <li><a href="threading.html#bosl2.threading.Threading.thread_helix">thread_helix() (bosl2.threading.Threading static method)</a>
 </li>
       <li><a href="threading.html#bosl2.threading.Threading.threaded_nut">threaded_nut() (bosl2.threading.Threading static method)</a>
@@ -1177,6 +1267,10 @@
       <li><a href="threading.html#bosl2.threading.Threading.threaded_rod">threaded_rod() (bosl2.threading.Threading static method)</a>
 </li>
       <li><a href="threading.html#bosl2.threading.Threading">Threading (class in bosl2.threading)</a>
+</li>
+      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.to_csg">to_csg() (bosl2.shapes3d.Bosl2Solid method)</a>
+</li>
+      <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.to_sdf">to_sdf() (bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       <li><a href="beziers.html#bosl2.beziers.BezierPatch.to_vnf">to_vnf() (bosl2.beziers.BezierPatch static method)</a>
 </li>
@@ -1201,6 +1295,8 @@
       <li><a href="regions.html#bosl2.regions.Region.translate">translate() (bosl2.regions.Region method)</a>
 
       <ul>
+        <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.translate">(bosl2.shapes2d.Bosl2Shape2D method)</a>
+</li>
         <li><a href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.translate">(bosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
@@ -1286,6 +1382,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.xflip">xflip() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+</li>
       <li><a href="distributors.html#bosl2.distributors.Distributable.xflip_copy">xflip_copy() (bosl2.distributors.Distributable method)</a>
 
       <ul>
@@ -1316,6 +1414,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D.yflip">yflip() (bosl2.shapes2d.Bosl2Shape2D method)</a>
+</li>
       <li><a href="distributors.html#bosl2.distributors.Distributable.yflip_copy">yflip_copy() (bosl2.distributors.Distributable method)</a>
 
       <ul>
