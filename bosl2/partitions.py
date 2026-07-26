@@ -622,14 +622,6 @@ class Partitionable(ABC):
     interlocking cut face instead of a flat plane.
     """
 
-    @property
-    def bounds(self):
-        raise NotImplementedError
-
-    @property
-    def shape(self):
-        raise NotImplementedError
-
     @abstractmethod
     def _wrap(self, new_shape):  # pragma: no cover - provided by the host class (Bosl2Solid)
         """Re-wrap a native shape as the host solid type."""

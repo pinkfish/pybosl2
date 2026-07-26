@@ -38,16 +38,14 @@ def test_basic_ring_hook_envelope():
     assert tuple(round(v) for v in sz) == (
         50,
         10,
-        26,
-    )  # FIXME: geometry bug in Bosl2Solid bounds  # width, depth, hole_z + or
+        50,
+    )  # width, depth, hole_z + outer_radius
     assert lo[2] == pytest.approx(0.0, abs=0.05)  # base rests on z=0
 
 
 def test_ring_height_is_hole_z_plus_or():
     _, sz = _bounds(Hooks.ring_hook([50, 10], 40, outer_radius=25, inner_radius=20))
-    assert sz[2] == pytest.approx(
-        41.0, abs=0.5
-    )  # FIXME: geometry bug in Bosl2Solid bounds  # faceted ring top sits just under hole_z + or
+    assert sz[2] == pytest.approx(65.0, abs=0.5)  # faceted ring top sits just under hole_z + outer_radius
 
 
 def test_wall_and_od_id_forms_equivalent():

@@ -41,8 +41,15 @@ def test_default_is_csg_and_context_selects_sdf():
     assert isinstance(csg, Solid) and isinstance(sdf, Solid)  # one common contract
 
 
+def _libfive_available() -> bool:
+    try:
+        return importlib.util.find_spec("libfive") is not None
+    except (ImportError, ValueError):
+        return False
+
+
 @pytest.mark.skipif(
-    importlib.util.find_spec("libfive") is None,
+    not _libfive_available(),
     reason="SDF meshing needs the real libfive C extension (like CSG render tests need the app)",
 )
 def test_sdf_mesh_pipeline_runs():

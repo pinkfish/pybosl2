@@ -544,8 +544,9 @@ class Screws:
         ``thread="coarse"`` for a tapped (threaded) hole instead of a clearance hole.
         """
 
-        d, p = _parse_spec(spec, "coarse" if thread in (True, False) else thread, pitch)
-        if thread:
+        use_thread = thread and str(thread).lower() not in ("none", "false", "no", "")
+        d, p = _parse_spec(spec, "coarse" if thread in (True, False) else (thread if use_thread else "coarse"), pitch)
+        if use_thread:
             from bosl2.threading import Threading
 
             # a tapped hole: cut with the rod's thread tap (major + a touch of clearance)
