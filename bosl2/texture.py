@@ -45,7 +45,7 @@ def _lerpn(a: float, b: float, sides: int, endpoint: bool = True) -> list[float]
 
 def _quantup(x: float, m: int) -> int:
     """Round *x* up to the next multiple of *m* (BOSL2 quantup)."""
-    return int(math.ceil(x / m - 1e-9)) * m
+    return math.ceil(x / m - 1e-9) * m
 
 
 def _sel(lst, i: int):
@@ -55,42 +55,42 @@ def _sel(lst, i: int):
 
 def _rands(lo: float, hi: float, sides: int, seed: int) -> list[float]:
     """*sides* uniform randoms in ``[lo, hi]`` (BOSL2 rands; this port's RNG, so values differ)."""
-    return list(np.random.default_rng(seed).uniform(lo, hi, int(sides)))
+    return list(np.random.default_rng(seed).uniform(lo, hi, sides))
 
 
 # --- height-field textures (return a rows x cols array of heights in [0,1]) ---
 
 
-def _tex_ribs(sides=None, **_):
+def _tex_ribs(sides: int | None = None, **_) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 2, 2)
     return [_lerpn(1, 0, sides // 2, False) + _lerpn(0, 1, sides // 2, False)]
 
 
-def _tex_trunc_ribs(sides=None, **_):
+def _tex_trunc_ribs(sides: int | None = None, **_) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 4, 4)
     q = sides // 4
     return [[0.0] * q + _lerpn(0, 1, q, False) + [1.0] * q + _lerpn(1, 0, q, False)]
 
 
-def _tex_wave_ribs(sides=None, **_):
-    sides = max(6, int(sides if sides is not None else 8))
+def _tex_wave_ribs(sides: int | None = None, **_) -> list[list[float]]:
+    sides = max(6, (sides if sides is not None else 8))
     return [[(math.cos(math.radians(a)) + 1) / 2 for a in np.arange(0, 360 - 1e-9, 360 / sides)]]
 
 
-def _tex_diamonds(sides=None, **_):
+def _tex_diamonds(sides: int | None = None, **_) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 2, 2)
     path = _lerpn(0, 1, sides // 2, False) + _lerpn(1, 0, sides // 2, False)
     return [[min(_sel(path, i + j), _sel(path, i - j)) for j in range(sides)] for i in range(sides)]
 
 
-def _tex_pyramids(sides=None, **_):
+def _tex_pyramids(sides: int | None = None, **_) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 2, 2)
     return [
         [1 - (max(abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2)) for j in range(sides)] for i in range(sides)
     ]
 
 
-def _tex_trunc_pyramids(sides=None, **_):
+def _tex_trunc_pyramids(sides: int | None = None, **_) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 6, 3)
     return [
         [(1 - (max(sides / 6, abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2))) * 1.5 for j in range(sides)]
@@ -98,13 +98,13 @@ def _tex_trunc_pyramids(sides=None, **_):
     ]
 
 
-def _tex_hills(sides=None, **_):
-    sides = int(sides if sides is not None else 12)
+def _tex_hills(sides: int | None = None, **_) -> list[list[float]]:
+    sides = sides if sides is not None else 12
     angs = list(np.arange(0, 359.999, 360 / sides))
     return [[(math.cos(math.radians(a)) * math.cos(math.radians(b)) + 1) / 2 for b in angs] for a in angs]
 
 
-def _tex_bricks(sides=None, roughness=None, **_):
+def _tex_bricks(sides: int | None = None, roughness: float | None = None, **_) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 24, 2)
     rough = roughness if roughness is not None else 0.1
     thin = max(1, sides / 16)
@@ -122,20 +122,20 @@ def _tex_bricks(sides=None, roughness=None, **_):
     return out
 
 
-def _tex_rough(sides=None, **_):
-    sides = int(sides if sides is not None else 32)
+def _tex_rough(sides: int | None = None, **_) -> list[list[float]]:
+    sides = sides if sides is not None else 32
     return [_rands(0, 1, sides, 123456 + 29 * y) for y in range(sides)]
 
 
 # --- VNF-tile textures (return (verts, faces); one unit cell over [0,1]x[0,1]) ---
 
 
-def _sq(s, z=0.0):
+def _sq(s: float, z: float = 0.0) -> list[list[float]]:
     """path3d of a square of side *s* anchored at the origin, at height *z* (BOSL2 square())."""
     return [[0.0, 0.0, z], [s, 0.0, z], [s, s, z], [0.0, s, z]]
 
 
-def _rect(w, height, z=0.0):
+def _rect(w: float, height: float, z: float = 0.0) -> list[list[float]]:
     """path3d of a *w* x *height* rectangle centred at the origin, at height *z* (BOSL2 rect())."""
     return [
         [-w / 2, -height / 2, z],
@@ -145,12 +145,12 @@ def _rect(w, height, z=0.0):
     ]
 
 
-def _mv(off, pts):
+def _mv(off: list[float], pts: list[list[float]]) -> list[list[float]]:
     o = list(off) + [0.0] * (3 - len(off))
     return [[p[0] + o[0], p[1] + o[1], p[2] + o[2]] for p in pts]
 
 
-def _sqr(size, z=0.0):
+def _sqr(size: float | list[float], z: float = 0.0) -> list[list[float]]:
     """
     path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``).
     """
@@ -158,7 +158,7 @@ def _sqr(size, z=0.0):
     return [[0.0, 0.0, z], [w, 0.0, z], [w, height, z], [0.0, height, z]]
 
 
-def _zrot2(pts, deg):
+def _zrot2(pts: list[list[float]], deg: float) -> list[list[float]]:
     """Rotate points about Z by *deg* degrees, preserving z (BOSL2 zrot())."""
     c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
     return [[c * p[0] - s * p[1], s * p[0] + c * p[1], (p[2] if len(p) > 2 else 0.0)] for p in pts]
@@ -195,7 +195,7 @@ def _tex_pyramids_vnf(**_):
     return verts, faces
 
 
-def _tex_trunc_pyramids_vnf(border=None, **_):
+def _tex_trunc_pyramids_vnf(border: float | None = None, **_):
     b = border if border is not None else 0.1
     assert 0 < b < 0.5, "trunc_pyramids_vnf texture requires border in (0, 0.5)."
     verts = _sq(1) + _mv([0.5, 0.5, 1], _rect(1 - 2 * b, 1 - 2 * b))
@@ -234,7 +234,7 @@ def _tex_cubes_vnf(**_):
     return verts, faces
 
 
-def _tex_trunc_ribs_vnf(border=None, gap=None, **_):
+def _tex_trunc_ribs_vnf(border: float | None = None, gap: float | None = None, **_):
     b = (border if border is not None else 0.25) * 2
     g = gap if gap is not None else 0.25
     assert b >= 0 and g >= 0, "trunc_ribs_vnf requires gap>=0 and border>=0."
@@ -248,7 +248,7 @@ def _tex_trunc_ribs_vnf(border=None, gap=None, **_):
     return verts, faces
 
 
-def _tex_bricks_vnf(border=None, gap=None, **_):
+def _tex_bricks_vnf(border: float | None = None, gap: float | None = None, **_):
     b = border if border is not None else 0.05
     g = gap if gap is not None else 0.05
     assert b >= 0 and g > 0 and g + b < 0.5, "bricks_vnf requires border>=0, gap>0, gap+border<0.5."
@@ -288,7 +288,7 @@ def _tex_bricks_vnf(border=None, gap=None, **_):
     return verts, faces
 
 
-def _tex_checkers_vnf(border=None, **_):
+def _tex_checkers_vnf(border: float | None = None, **_):
     b = border if border is not None else 0.05
     assert 0 < b < 0.5, "checkers texture requires border in (0, 0.5)."
     verts = (
@@ -329,7 +329,7 @@ def _tex_checkers_vnf(border=None, **_):
     return verts, faces
 
 
-def _tex_trunc_diamonds_vnf(border=None, **_):
+def _tex_trunc_diamonds_vnf(border: float | None = None, **_):
     b = (border if border is not None else 0.1) / math.sqrt(2) * 2
     assert 0 < b < 0.5, "trunc_diamonds texture requires border in (0, 0.5/sqrt(2))."
     diameter1 = [[p[0], p[1], 0.0] for p in _circle_xy(1, 4)]
@@ -349,7 +349,7 @@ def _tex_trunc_diamonds_vnf(border=None, **_):
     return verts, faces
 
 
-def _tex_tri_grid_vnf(border=None, **_):
+def _tex_tri_grid_vnf(border: float | None = None, **_):
     b = (border if border is not None else 0.05) * math.sqrt(3)
     assert 0 < b < math.sqrt(3) / 6, "tri_grid texture requires border in (0, 1/6)."
     adj = b / math.tan(math.radians(30))  # opp_ang_to_adj(border, 30)
@@ -410,7 +410,7 @@ def _tex_tri_grid_vnf(border=None, **_):
 _TEX_FN_DEFAULT = 16  # BOSL2 _tex_fn_default()
 
 
-def _circle_xy(d, n):
+def _circle_xy(d: float, n: int) -> list[list[float]]:
     """
     *n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2
     circle()).
@@ -424,14 +424,14 @@ def _circle_xy(d, n):
     ]
 
 
-def _square_pts(border):
+def _square_pts(border: float) -> list[list[float]]:
     """The tile base: the unit square, subdivided to 8 points if *border*>0 else its 4 corners."""
     if border > 0:  # subdivide_path(square(1), refine=2)
         return [[0, 0], [0.5, 0], [1, 0], [1, 0.5], [1, 1], [0.5, 1], [0, 1], [0, 0.5]]
     return [[0, 0], [1, 0], [1, 1], [0, 1]]
 
 
-def _sph(r, theta, phi):
+def _sph(r: float, theta: float, phi: float) -> list[float]:
     """BOSL2 spherical_to_xyz(r, theta, phi)."""
     t, p = math.radians(theta), math.radians(phi)
     return [
@@ -441,7 +441,7 @@ def _sph(r, theta, phi):
     ]
 
 
-def _base_faces(n, base0, border):
+def _base_faces(n: int, base0: int, border: float) -> list[list[int]]:
     """The four faces joining a quarter of the *n*-point rim to each base-square region; *base0* is the
     index of the first base-square vertex (BOSL2's cones/dots base connection)."""
     out = []
@@ -461,7 +461,7 @@ def _base_faces(n, base0, border):
     return out
 
 
-def _tex_cones_vnf(fn=None, border=None, **_):
+def _tex_cones_vnf(fn: int | None = None, border: float | None = None, **_):
     # BOSL2 defaults border=0, but a zero border leaves the tile's rim on the cell edge, which this
     # port's weld-and-close tiler can't seam watertight -- so default to a small positive border.
     b = border if border is not None else 0.05
@@ -473,7 +473,7 @@ def _tex_cones_vnf(fn=None, border=None, **_):
     return verts, faces
 
 
-def _tex_dots_vnf(fn=None, border=None, **_):
+def _tex_dots_vnf(fn: int | None = None, border: float | None = None, **_):
     b = border if border is not None else 0.05
     sides = _quantup(fn, 4) if fn else _TEX_FN_DEFAULT
     assert 0 <= b < 0.5, "dots texture requires border in [0, 0.5)."
@@ -507,7 +507,7 @@ def _tex_dots_vnf(fn=None, border=None, **_):
     return verts, faces
 
 
-def _tex_hex_grid_vnf(border=None, **_):
+def _tex_hex_grid_vnf(border: float | None = None, **_):
     b = border if border is not None else 0.1
     assert 0 < b < 0.5, "hex_grid texture requires border in (0, 0.5)."
     diag = b / math.sin(math.radians(60))  # opp_ang_to_hyp(border, 60)
@@ -538,7 +538,7 @@ def _tex_hex_grid_vnf(border=None, **_):
             1.0,
         ]
 
-    def add(a, b3):
+    def add(a: list[float], b3: list[float]) -> list[float]:
         return [a[0] + b3[0], a[1] + b3[1], a[2] + b3[2]]
 
     verts = (
@@ -610,18 +610,39 @@ TEXTURES = {
 }
 
 
-def texture(tex, sides=None, border=None, gap: float | None = None, roughness=None, inset=None, fn: int | None = None):
+def texture(
+    tex: str,
+    sides: int | None = None,
+    border: float | None = None,
+    gap: float | None = None,
+    roughness: float | None = None,
+    inset: float | None = None,
+    fn: int | None = None,
+) -> list[list[float]]:
     """The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
     *sides* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile
     textures; *roughness* perturbs ``bricks``. Pass a name from :data:`TEXTURES`. See the module
     docstring for which textures are ported.
+
+    Returns
+         list[list[float]]:
+            The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
+
+    Raises
+        ValueError: If the texture name is not found or if both 'border' and 'inset' are provided.
+
+    See Also
+        bosl2.paths.Path.texture()
+        bosl2.paths.Path.texture_v()
+        bosl2.shapes3d.Bosl2Solid.texture()
+        bosl2.shapes3d.Bosl2Solid.texture_v()
     """
     if inset is not None and border is not None:
         raise ValueError("texture(): give 'border' or 'inset', not both.")
     if inset is not None:
         border = inset
-    key = str(tex)
+    key = tex
     if key not in TEXTURES:
         raise ValueError(f"Unrecognized (or unported) texture name: {tex!r}; available: {sorted(TEXTURES)}")
     builder, _kind = TEXTURES[key]
@@ -696,7 +717,8 @@ def rasterize_vnf_texture(verts, faces, sides=24):
     """Sample a VNF texture tile's top surface to an *sides* x *sides* height-field over ``[0,1]x[0,1]``.
 
     A robust fallback for VNF tiles whose exact geometry can't be tiled watertight (pinch points,
-    interior holes): the top (max-z) surface is captured; overhangs/undercuts are flattened."""
+    interior holes): the top (max-z) surface is captured; overhangs/undercuts are flattened.
+    """
     V = np.asarray([[float(p[0]), float(p[1]), float(p[2])] for p in verts])
     tris = [[f[0], f[k], f[k + 1]] for f in faces for k in range(1, len(f) - 1)]
     T = np.asarray(tris)

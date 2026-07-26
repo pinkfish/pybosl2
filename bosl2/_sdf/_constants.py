@@ -14,7 +14,12 @@
 #
 
 
-class Vec3(list):
+from __future__ import annotations
+
+from typing import Any, SupportsIndex, override
+
+
+class Vec3(list[float]):
     """A 3-element list that supports elementwise +/-/* like a vector.
 
     Plain Python lists use `+` for concatenation and `*` for repetition, but this library's own
@@ -25,22 +30,28 @@ class Vec3(list):
     the PyOpenSCAD FFI boundary -- unchanged.
     """
 
-    def __add__(self, other: "Vec3 | list[float]") -> "Vec3":
-        return Vec3(a + b for a, b in zip(self, other))
+    @override
+    def __add__(self, value: Any) -> Vec3:  # type: ignore[override]
+        if not isinstance(value, list):
+            return NotImplemented
+        return Vec3(a + b for a, b in zip(self, value))
 
-    def __radd__(self, other: "Vec3 | list[float]") -> "Vec3":
-        return Vec3(a + b for a, b in zip(other, self))
+    def __radd__(self, value: list[float]) -> Vec3:
+        return Vec3(a + b for a, b in zip(value, self))
 
-    def __sub__(self, other: "Vec3 | list[float]") -> "Vec3":
-        return Vec3(a - b for a, b in zip(self, other))
+    def __sub__(self, value: list[float]) -> Vec3:
+        return Vec3(a - b for a, b in zip(self, value))
 
-    def __rsub__(self, other: "Vec3 | list[float]") -> "Vec3":
-        return Vec3(a - b for a, b in zip(other, self))
+    def __rsub__(self, value: list[float]) -> Vec3:
+        return Vec3(a - b for a, b in zip(value, self))
 
-    def __neg__(self) -> "Vec3":
+    def __neg__(self) -> Vec3:
         return Vec3(-a for a in self)
 
-    def __mul__(self, other: float) -> "Vec3":  # type: ignore[override]
+    @override
+    def __mul__(self, other: SupportsIndex) -> Vec3:  # type: ignore[override]
+        if not isinstance(other, (int, float)):
+            return NotImplemented
         return Vec3(a * other for a in self)
 
     __rmul__ = __mul__  # type: ignore[assignment]
@@ -50,18 +61,11 @@ LEFT: Vec3 = Vec3([-1, 0, 0])
 RIGHT: Vec3 = Vec3([1, 0, 0])
 
 FRONT: Vec3 = Vec3([0, -1, 0])
-FWD: Vec3 = FRONT
-FORWARD: Vec3 = FRONT
 
 BACK: Vec3 = Vec3([0, 1, 0])
 
 BOTTOM: Vec3 = Vec3([0, 0, -1])
-BOT: Vec3 = BOTTOM
-DOWN: Vec3 = BOTTOM
 
 TOP: Vec3 = Vec3([0, 0, 1])
-UP: Vec3 = TOP
 
 CENTER: Vec3 = Vec3([0, 0, 0])
-CTR: Vec3 = CENTER
-CENTRE: Vec3 = CENTER

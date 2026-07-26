@@ -36,7 +36,10 @@
 # FileSummary: Skin/sweep/revolve 2-D profiles into VNF surfaces (BOSL2 skin.scad).
 # FileGroup: BOSL2
 
+from __future__ import annotations
+
 import math
+from typing import Sequence, Union
 
 import numpy as np
 
@@ -50,18 +53,29 @@ UP = Vec3([0.0, 0.0, 1.0])
 BACK = Vec3([0.0, 1.0, 0.0])
 
 
-def _u(v) -> np.ndarray:
+def _u(v: Sequence[float]) -> np.ndarray:
     a = np.asarray(v, dtype=float)
     sides = float(np.linalg.norm(a))
     return a / sides if sides else a
 
 
-def path3d(path) -> list:
-    """Pad a 2-D (or 3-D) point list to 3-D with z=0."""
+def _u_nd(v: np.ndarray) -> np.ndarray:
+    sides = float(np.linalg.norm(v))
+    return v / sides if sides else v
+
+
+def path3d(path: Sequence[Sequence[float]]) -> list[list[float]]:
+    """Pad a 2-D (or 3-D) point list to 3-D with z=0.
+
+    The coordinates are converted to plain Python floats, not left as whatever the input held: a
+    numpy row in would otherwise leak ``np.float64`` scalars out of an annotation that promises
+    ``float``, and those raise SystemError/TypeError at the native FFI boundary (see the note in
+    bosl2/paths.py).
+    """
     return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
 
 
-def clockwise_polygon(poly) -> list:
+def clockwise_polygon(poly: Sequence[Sequence[float]]) -> list[Sequence[float]]:
     """*poly* wound clockwise (reversed if its signed area is positive/CCW)."""
     from bosl2.paths import Path
 
@@ -71,11 +85,11 @@ def clockwise_polygon(poly) -> list:
 # (imported from bosl2._helpers as translate4, zrot4)
 
 
-def _scale4(s) -> np.ndarray:
+def _scale4(s: Sequence[float]) -> np.ndarray:
     m = np.eye(4)
-    m[0, 0], m[1, 1] = float(s[0]), float(s[1])
+    m[0, 0], m[1, 1] = s[0], s[1]
     if len(s) > 2:
-        m[2, 2] = float(s[2])
+        m[2, 2] = s[2]
     return m
 
 
@@ -91,13 +105,18 @@ def _segs(radius: float) -> int:
     """
     OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs()).
     """
-    return max(5, int(math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(radius)) / 2.0))))
+    return max(5, math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(radius)) / 2.0)))
 
 
-def frame_map(x=None, y=None, z=None) -> np.ndarray:
+def frame_map(
+    x: Sequence[float] | None = None,
+    y: Sequence[float] | None = None,
+    z: Sequence[float] | None = None,
+) -> np.ndarray:
     """The 4x4 rotation whose columns are the given orthonormal axes (BOSL2 frame_map()).
 
-    Give any two of x/y/z (as 3-vectors); the third is filled in by the cross product."""
+    Give any two of x/y/z (as 3-vectors); the third is filled in by the cross product.
+    """
     xu = _u(x) if x is not None else None
     yu = _u(y) if y is not None else None
     zu = _u(z) if z is not None else None
@@ -116,7 +135,35 @@ def frame_map(x=None, y=None, z=None) -> np.ndarray:
     return m
 
 
-def sweep(shape, transforms, closed: bool = False, caps=None, style: str = "min_edge") -> VNF:
+#: A BOSL2 ``caps=`` argument: one bool for both ends, a ``[cap1, cap2]`` pair for each end
+#: separately, or None to take the call's own default. Every sweep/skin entry point accepts all
+#: three spellings, exactly as BOSL2 does -- see :func:`_norm_caps`.
+CapsSpec = Union[bool, Sequence[bool], None]
+
+
+def _norm_caps(caps: CapsSpec, closed: bool = False, default: bool = True) -> list[bool]:
+    """Normalize a :data:`CapsSpec` to a plain ``[cap1, cap2]`` bool pair.
+
+    A single bool (or numpy bool) caps both ends alike, a 2-sequence caps each end separately,
+    and None falls back to *default*. A *closed* sweep loops back on itself and so has no ends to
+    cap -- it is always uncapped, whatever was asked for.
+    """
+    if closed:
+        return [False, False]
+    if caps is None:
+        return [default, default]
+    if isinstance(caps, (list, tuple, np.ndarray)):
+        return [bool(caps[0]), bool(caps[1])]
+    return [bool(caps), bool(caps)]
+
+
+def sweep(
+    shape: Sequence[Sequence[float]],
+    transforms: Sequence[Sequence[Sequence[float]]],
+    closed: bool = False,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
     """Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF.
 
     Args:
@@ -128,14 +175,7 @@ def sweep(shape, transforms, closed: bool = False, caps=None, style: str = "min_
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     assert len(shape3) >= 3, "shape must be a path of at least 3 points."
-    if closed:
-        flatcaps = [False, False]
-    elif caps is None:
-        flatcaps = [True, True]
-    elif isinstance(caps, bool):
-        flatcaps = [caps, caps]
-    else:
-        flatcaps = [bool(caps[0]), bool(caps[1])]
+    flatcaps = _norm_caps(caps, closed=closed)
     ntrans = len(transforms)
     assert ntrans >= 2, "transforms must be length 2 or more."
     hi = ntrans - (0 if closed else 1)
@@ -144,21 +184,21 @@ def sweep(shape, transforms, closed: bool = False, caps=None, style: str = "min_
 
 
 def path_sweep(
-    shape,
-    path,
+    shape: Sequence[Sequence[float]],
+    path: Sequence[Sequence[float]],
     method: str = "incremental",
-    normal=None,
+    normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
     closed: bool = False,
     twist: float = 0.0,
     twist_by_length: bool = True,
-    scale=1,
+    scale: tuple[float, float] = (1.0, 1.0),
     scale_by_length: bool = True,
     symmetry: int = 1,
-    last_normal=None,
-    tangent=None,
+    last_normal: Sequence[float] | None = None,
+    tangent: Sequence[Sequence[float]] | None = None,
     uniform: bool = True,
     relaxed: bool = False,
-    caps=None,
+    caps: CapsSpec = None,
     style: str = "min_edge",
     transforms: bool = False,
 ):
@@ -180,7 +220,7 @@ def path_sweep(
     """
     from bosl2.paths import Path  # local: keep the import graph acyclic
 
-    caps = False if closed else caps  # a closed loop has no ends to cap
+    caps = _norm_caps(caps, closed=closed)  # a closed loop has no ends to cap
     patharr = np.asarray(path3d(path), dtype=float)
     L = len(patharr)
     assert L >= 2, "path must have at least 2 points."
@@ -197,11 +237,11 @@ def path_sweep(
             normals = np.array([_u(n) for n in narr])
             normal_single = normals[0]
         else:
-            normal_single = _u(narr)
+            normal_single = _u_nd(narr)
             normals = np.tile(normal_single, (L, 1))
     else:
         normal_single = np.asarray(
-            BACK if (method == "incremental" and abs(tangents[0][2]) > 1 / math.sqrt(2)) else UP,
+            (BACK if (method == "incremental" and abs(tangents[0][2]) > 1 / math.sqrt(2)) else UP),
             dtype=float,
         )
         normals = np.tile(normal_single, (L, 1))
@@ -299,11 +339,12 @@ def path_sweep(
 # ---------------------------------------------------------------------------------------------
 
 
-def _reindex_polygon(reference, poly) -> list:
+def _reindex_polygon(reference: Sequence[Sequence[float]], poly: Sequence[Sequence[float]]) -> list[list[float]]:
     """Circularly rotate *poly*'s vertices to best line up with *reference* (BOSL2 reindex_polygon).
 
     Both must be equal-length point lists. Picks the rotation minimizing the summed vertex
-    distance. Winding is not adjusted here (the profiles skin() feeds in are already 3-D)."""
+    distance. Winding is not adjusted here (the profiles skin() feeds in are already 3-D).
+    """
     ref = np.asarray(reference, dtype=float)
     p = np.asarray(poly, dtype=float)
     sides = len(ref)
@@ -315,7 +356,7 @@ def _reindex_polygon(reference, poly) -> list:
     return np.roll(p, -best_k, axis=0).tolist()
 
 
-def slice_profiles(profiles, slices: int, closed: bool = False) -> list:
+def slice_profiles(profiles: Sequence[Sequence[float]], slices: int, closed: bool = False) -> list[list[float]]:
     """Interpolate *slices* extra profiles between each consecutive pair (BOSL2 slice_profiles()).
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
@@ -336,15 +377,15 @@ def slice_profiles(profiles, slices: int, closed: bool = False) -> list:
 
 
 def skin(
-    profiles,
+    profiles: Sequence[Sequence[Sequence[float]]],
     slices: int,
-    refine=1,
+    refine: float = 1.0,
     method: str = "direct",
     sampling: str | None = None,
-    caps=None,
+    caps: CapsSpec = None,
     closed: bool = False,
     style: str = "min_edge",
-    z=None,
+    z: Sequence[float] | None = None,
 ) -> VNF:
     """Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF (BOSL2 skin()).
 
@@ -378,25 +419,24 @@ def skin(
     sides = len(profiles)
     assert sides > 1, "skin() needs at least two profiles."
     profcount = sides - (0 if closed else 1)
-    if caps is None:
-        caps = False if closed else True
-    fullcaps = (
-        [False, False] if closed else ([caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])])
-    )
-    refine = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
+    fullcaps = _norm_caps(caps, closed=closed)
+    refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
-        assert m in ("direct", "reindex"), f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r})."
+        assert m in (
+            "direct",
+            "reindex",
+        ), f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r})."
     sampling = sampling if sampling is not None else "length"
 
     dim = len(profiles[0][0])
     if dim == 2:
         assert z is not None and len(z) == sides, "skin(): 2-D profiles need a matching-length z list."
-        profiles = [[[float(pt[0]), float(pt[1]), float(z[i])] for pt in profiles[i]] for i in range(sides)]
+        profiles = [[[pt[0], pt[1], z[i]] for pt in profiles[i]] for i in range(sides)]
 
     from bosl2.paths import Path  # local: keep the import graph acyclic
 
-    maxlen = max(refine[i] * len(profiles[i]) for i in range(sides))
+    maxlen = max(refine_list[i] * len(profiles[i]) for i in range(sides))
     resampled = [Path._subdivide_path(profiles[i], sides=maxlen, closed=True, method=sampling) for i in range(sides)]
     fixedprof = [resampled[0]]
     for i in range(1, sides):
@@ -416,13 +456,13 @@ def skin(
 
 
 def linear_sweep(
-    region,
+    region: Sequence[Sequence[float]],
     height: float | None = None,
     twist: float = 0.0,
     scale=1,
     shift=(0.0, 0.0),
     slices: int | None = None,
-    caps=True,
+    caps: CapsSpec = None,
     style: str = "default",
     center: bool | None = None,
 ) -> VNF:
@@ -451,12 +491,12 @@ def linear_sweep(
             linear_sweep(square, height=40, twist=120, scale=0.4).polyhedron().show()
     """
     hh = float(height if height is not None else (height if height is not None else 1))
-    path = [[float(p[0]), float(p[1])] for p in region]
+    path = [[p[0], p[1]] for p in region]
     if slices is None:
         slices = max(1, math.ceil(abs(twist) / 5))
     sc = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]
     sh = [float(shift[0]), float(shift[1])]
-    fullcaps = [caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])]
+    fullcaps = _norm_caps(caps)
     z0 = -hh / 2 if center else 0.0
     base = np.asarray(path3d(path), dtype=float)
     verts = []
@@ -473,9 +513,9 @@ def linear_sweep(
 
 
 def rotate_sweep(
-    shape,
+    shape: Sequence[Sequence[float]],
     angle: float = 360.0,
-    caps=None,
+    caps: CapsSpec = None,
     closed: bool | None = None,
     style: str = "min_edge",
     start: float = 0.0,
@@ -502,26 +542,32 @@ def rotate_sweep(
             rotate_sweep(profile, 360).polyhedron().show()
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
-    if caps is None:
-        caps = (not closed) if closed is not None else (angle < 360)
-    prof = [[float(p[0]), float(p[1])] for p in shape]
+    # Default: cap a partial revolution / an explicitly-open profile, but never a full one.
+    capv = _norm_caps(caps, default=(not closed) if closed is not None else (angle < 360))
+    prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
-    if caps and not full:
+    if any(capv) and not full:
         prof = [[0.0, prof[0][1]]] + prof + [[0.0, prof[-1][1]]]
     xmax = max(p[0] for p in prof)
-    steps = int(math.ceil(_segs(xmax) * angle / 360)) + (0 if full else 1)
+    steps = math.ceil(_segs(xmax) * angle / 360) + (0 if full else 1)
     steps = max(steps, 3)
     if full:
         angs = [start + 360.0 * i / steps for i in range(steps)]
     else:
         angs = [start + angle * i / (steps - 1) for i in range(steps)]
     transforms = [zrot4(a) @ _xrot4(90) for a in angs]
-    vnf = sweep(prof, transforms, closed=full, caps=(not full and bool(caps)), style=style)
+    vnf = sweep(
+        prof,
+        transforms,
+        closed=full,
+        caps=[(not full) and capv[0], (not full) and capv[1]],
+        style=style,
+    )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
 def spiral_sweep(
-    poly,
+    poly: Sequence[Sequence[float]],
     height: float,
     radius: float | None = None,
     turns: float = 1.0,
@@ -573,12 +619,12 @@ def spiral_sweep(
             else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else 1))
         )
     )
-    poly = [[float(p[0]), float(p[1])] for p in poly]
+    poly = [[p[0], p[1]] for p in poly]
     nturns = abs(turns)
     sides = _segs(max(rr1, rr2))
     ang_step = 360.0 / sides
     total = 360.0 * nturns
-    steps = int(math.ceil(total / ang_step))
+    steps = math.ceil(total / ang_step)
     angs = [total * i / steps for i in range(steps + 1)]
     z0 = -height / 2 if center else 0.0
     transforms = []
@@ -589,11 +635,17 @@ def spiral_sweep(
         transforms.append(
             translate4([0, 0, z]) @ zrot4(a * math.copysign(1, turns)) @ translate4([rad, 0, 0]) @ _xrot4(90)
         )
-    vnf = sweep(poly, transforms, closed=False, caps=True, style=style)
+    vnf = sweep(poly, transforms, closed=False, caps=(True, True), style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
-def subdivide_and_slice(profiles, slices: int, numpoints=None, method: str = "length", closed: bool = False) -> list:
+def subdivide_and_slice(
+    profiles: Sequence[Sequence[float]],
+    slices: int,
+    numpoints=None,
+    method: str = "length",
+    closed: bool = False,
+) -> list[list[float]]:
     """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
@@ -607,7 +659,7 @@ def subdivide_and_slice(profiles, slices: int, numpoints=None, method: str = "le
         from functools import reduce
 
         numpoints = reduce(lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles])
-    numpoints = int(round(numpoints))
+    numpoints = round(numpoints)
     assert numpoints >= maxsize, "subdivide_and_slice(): numpoints is smaller than the largest profile."
     fixed = [Path._subdivide_path(p, sides=numpoints, closed=True, method=method) for p in profiles]
     return slice_profiles(fixed, slices, closed)
@@ -619,10 +671,10 @@ def subdivide_and_slice(profiles, slices: int, numpoints=None, method: str = "le
 
 
 def path_sweep2d(
-    shape,
-    path,
+    shape: Sequence[Sequence[float]],
+    path: Sequence[Sequence[float]],
     closed: bool = False,
-    caps=None,
+    caps: CapsSpec = None,
     quality: int = 1,
     style: str = "min_edge",
 ) -> VNF:
@@ -655,11 +707,7 @@ def path_sweep2d(
 
     shape = Path(shape)
     path = Path(path)
-    if caps is None:
-        caps = False if closed else True
-    fullcaps = (
-        [False, False] if closed else ([caps, caps] if isinstance(caps, bool) else [bool(caps[0]), bool(caps[1])])
-    )
+    fullcaps = _norm_caps(caps, closed=closed)
     profile = shape if not shape.is_clockwise() else shape.reversed_path()  # ccw_polygon
     flip = -1.0 if (closed and path.is_clockwise()) else 1.0
     pth = path if flip > 0 else path.reversed_path()
@@ -686,10 +734,13 @@ def path_sweep2d(
 # ---------------------------------------------------------------------------------------------
 
 
-def _closest_angle(alpha: float, beta):
+def _closest_angle_array(alpha: float, beta: Sequence[float]) -> list[float]:
     """Congruent angle to *beta* nearest *alpha* (within +/-180 degrees); *beta* may be a list."""
-    if isinstance(beta, (list, tuple, np.ndarray)):
-        return [_closest_angle(alpha, b) for b in beta]
+    return [_closest_angle(alpha, b) for b in beta]
+
+
+def _closest_angle(alpha: float, beta: float) -> float:
+    """Congruent angle to *beta* nearest *alpha* (within +/-180 degrees); *beta* may be a list."""
     if beta - alpha > 180:
         return beta - math.ceil((beta - alpha - 180) / 360) * 360
     if beta - alpha < -180:
@@ -697,11 +748,12 @@ def _closest_angle(alpha: float, beta):
     return beta
 
 
-def _smooth(data, length: int, closed: bool = False, angle: bool = False) -> list:
+def _smooth(data: Sequence[float], length: int, closed: bool = False, angle: bool = False) -> list:
     """Moving-average smooth of *data* over a window of *length* (BOSL2 _smooth()).
 
     With *angle*, values are unwrapped to the nearest congruent angle before averaging so the mean
-    does not jump across the +/-180 boundary. Ends are padded with the edge value (open case)."""
+    does not jump across the +/-180 boundary. Ends are padded with the edge value (open case).
+    """
     halfwidth = length // 2
     sides = len(data)
     out = []
@@ -709,7 +761,7 @@ def _smooth(data, length: int, closed: bool = False, angle: bool = False) -> lis
         for i in range(sides):
             window = [data[(i + k) % sides] for k in range(-halfwidth, halfwidth + 1)]
             if angle:
-                window = _closest_angle(data[i], window)
+                window = _closest_angle_array(data[i], window)
             out.append(sum(window) / len(window))
     else:
         for i in range(sides):
@@ -721,8 +773,8 @@ def _smooth(data, length: int, closed: bool = False, angle: bool = False) -> lis
 
 
 def rot_resample(
-    rotlist,
-    sides,
+    rotlist: Sequence[Sequence[float]],
+    sides: int,
     twist=None,
     scale=None,
     smoothlen: int = 1,
@@ -748,10 +800,10 @@ def rot_resample(
         closed:  the transform list forms a loop (default False)
         method:  "length" (uniform screw-distance) or "count" (fixed samples per gap)
     """
-    rotlist = [np.asarray(t, dtype=float) for t in rotlist]
+    rotlist_extra = [np.asarray(t, dtype=float) for t in rotlist]
     assert smoothlen > 0 and smoothlen % 2 == 1, "rot_resample(): smoothlen must be a positive odd integer."
     assert method in ("length", "count")
-    m = len(rotlist)
+    m = len(rotlist_extra)
     tcount = m + (0 if closed else -1)
     if method == "length":
         count = (sides + 1) if closed else sides
@@ -760,7 +812,7 @@ def rot_resample(
     long_l = list(long) if isinstance(long, (list, tuple)) else [long] * tcount
     turns_l = list(turns) if isinstance(turns, (list, tuple)) else [turns] * tcount
 
-    steps = [rot_inverse(rotlist[i]) @ rotlist[(i + 1) % m] for i in range(tcount)]
+    steps = [rot_inverse(rotlist_extra[i]) @ rotlist_extra[(i + 1) % m] for i in range(tcount)]
     parms = []
     for i in range(tcount):
         tp = rot_decode(steps[i], long_l[i])
@@ -774,11 +826,9 @@ def rot_resample(
         )
     radius = [float(np.linalg.norm(p[2])) for p in parms]
     length = [
-        float(
-            math.hypot(
-                float(np.linalg.norm(parms[i][3])),
-                parms[i][0] / 360 * 2 * math.pi * radius[i],
-            )
+        math.hypot(
+            float(np.linalg.norm(parms[i][3])),
+            parms[i][0] / 360 * 2 * math.pi * radius[i],
         )
         for i in range(tcount)
     ]

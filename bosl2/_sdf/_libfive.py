@@ -33,9 +33,10 @@ class _LazyLibfive:
     def __getattr__(self, name: str) -> Any:
         mod = _LazyLibfive._mod
         if mod is None:
-            import libfive as mod  # deferred: only needed to build/mesh SDF fields
+            import libfive as mod2  # deferred: only needed to build/mesh SDF fields
 
-            _LazyLibfive._mod = mod
+            _LazyLibfive._mod = mod2
+            mod = mod2
         return getattr(mod, name)
 
 
