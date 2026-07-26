@@ -10,13 +10,8 @@
 #    cross-reference. No osuse()/BOSL2 runtime dependency at all -- every
 #    shape's outline is computed here in plain Python and then built with
 #    direct openscad primitive calls (square()/circle()/polygon()/text()/
-#    hull()/.offset()), rather than delegating to BOSL2. Every shape function
-#    always returns real 2-D geometry (never a raw path), wrapped in a
-#    :class:`Bosl2Shape2D` -- the 2-D counterpart of
-#    :class:`~bosl2.shapes3d.Bosl2Solid`, which carries the 2-D operators
-#    (fill(), hull(), offset()) and the 2-D -> 3-D extruders
-#    (linear_extrude(), rotate_extrude(), path_extrude()) as chainable
-#    methods. `.shape` unwraps back to the raw native handle.
+#    hull()/.offset()), rather than delegating to BOSL2. Every function
+#    always returns a real PyOpenSCAD 2D solid (never a raw path).
 #
 #    Anywhere BOSL2 lets you tune arc smoothness with the special variables
 #    $fn/$fa/$fs, this module exposes the same knob as an explicit `fn`/
@@ -30,10 +25,9 @@
 from __future__ import annotations
 
 import math
-import numbers
 import random
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Union, overload
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 
@@ -46,12 +40,6 @@ from bosl2._native import native
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD  # noqa: F401
-
-    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
-from bosl2._backend import check_operand_backend as _check_operand_backend
-from bosl2._backend import unsupported_feature as _unsupported_feature
-from bosl2.color import Colorable
-from bosl2.distributors import Distributable
 from bosl2.geometry import is_collinear
 from bosl2.paths import Path
 from bosl2.vectors import unit
@@ -60,15 +48,11 @@ from .constants import CENTER
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import circle as _ocircle
-    from pythonscad import fill as _ofill
-    from pythonscad import hull as _ohull
     from pythonscad import polygon as _opolygon
     from pythonscad import square as _osquare
     from pythonscad import text as _otext
 else:
     _ocircle = native("circle")
-    _ofill = native("fill")
-    _ohull = native("hull")
     _opolygon = native("polygon")
     _osquare = native("square")
     _otext = native("text")
@@ -322,462 +306,13 @@ def _anchor_offset_hull(points: Sequence[Sequence[float]], anchor: Sequence[floa
     return [-best[0], -best[1]]
 
 
-def _finish(
-    shape: PyOpenSCAD,
-    offset: Sequence[float],
-    spin: float,
-    size: Sequence[float] | None = None,
-    anchor: Sequence[float] | None = None,
-) -> "Bosl2Shape2D":
-    """Anchor-translate and spin a freshly built native 2-D shape, then wrap it.
-
-    Every shape constructor in this file funnels through here, which is what makes them all
-    return a :class:`Bosl2Shape2D` rather than a bare native handle. *size*/*anchor* are the
-    nominal box metadata to carry on the wrapper, for the shapes that have one. A shape that is
-    already wrapped (``ring()`` composes two circles) is unwrapped first, never double-wrapped.
-    """
-    shape = Bosl2Shape2D._unwrap(shape)
+def _finish(shape: PyOpenSCAD, offset: Sequence[float], spin: float) -> PyOpenSCAD:
     if offset[0] != 0 or offset[1] != 0:
         shape = shape.translate(offset)
     if spin:
         # Native 2-D rotate needs the 3-vector form; a bare scalar is rejected.
         shape = shape.rotate([0, 0, spin])
-    return Bosl2Shape2D(shape, size=size, anchor=anchor)
-
-
-# ---------------------------------------------------------------------------
-# Section: Base class
-# ---------------------------------------------------------------------------
-
-#: Anything the 2-D operators accept as a child: a :class:`Bosl2Shape2D`, a raw native 2-D handle,
-#: a :class:`~bosl2.paths.Path` / :class:`~bosl2.regions.Region`, or a ``[[x, y], ...]`` point list.
-#: :func:`_as_native_2d` reduces any of them to a raw native handle.
-Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", Path, Sequence[Sequence[float]]]
-
-
-class Bosl2Shape2D(Distributable, Colorable):
-    """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent, chainable API that
-    :class:`~bosl2.shapes3d.Bosl2Solid` gives 3-D solids. Every shape constructor in this file
-    returns one of these, as do :meth:`~bosl2.paths.Path.polygon` and
-    :meth:`~bosl2.regions.Region.geometry`.
-
-    The 2-D specific operations live here rather than being reached for through the raw native
-    handle:
-
-    * :meth:`fill` -- drop every hole, keeping only the outermost outline (OpenSCAD ``fill()``).
-    * :meth:`hull` -- the convex hull of this shape, optionally together with more shapes/paths
-      (OpenSCAD ``hull()``).
-    * :meth:`offset` -- inset/outset, with BOSL2's ``radius=``/``delta=`` spelling (the native
-      ``offset()`` only understands ``r=``).
-    * :meth:`linear_extrude` / :meth:`rotate_extrude` -- the 2-D -> 3-D operators, which return a
-      :class:`~bosl2.shapes3d.Bosl2Solid` so the result keeps the 3-D fluent API.
-
-    Transforms (translate/rotate/mirror/scale/multmatrix), the CSG operators (``|``, ``&``, ``-``),
-    the colour operators (from :class:`~bosl2.color.Colorable`) and the distributor copiers (from
-    :class:`~bosl2.distributors.Distributable`) all return a new ``Bosl2Shape2D``. Anything else
-    falls through ``__getattr__`` to the native handle, re-wrapped as 2-D when it hands back native
-    geometry.
-
-    Like :class:`~bosl2.shapes3d.Bosl2Solid` this is composition, not a subclass of the native
-    C-extension type: passing one *directly* into a native function that wants a raw handle needs
-    an explicit ``.shape`` (or :func:`bosl2._helpers.unwrap`).
-    """
-
-    #: which realize backend produced this shape -- 2-D geometry is exact-CSG only (see
-    #: bosl2/_backend.py); the SDF backend has no 2-D surface.
-    backend = "csg"
-
-    def __init__(
-        self,
-        shape: PyOpenSCAD,
-        size: Sequence[float] | None = None,
-        anchor: "Sequence[float] | str | None" = None,
-    ):
-        self.shape = shape
-        #: nominal [x, y] size for the shapes that have a genuine box size, else None
-        self.size = None if size is None else [float(v) for v in size][:2]
-        self.anchor = anchor if anchor is not None else CENTER
-        # True once a positional transform has been applied, so `size`/`anchor` no longer
-        # describe where the shape actually is (same flag Bosl2Solid tracks).
-        self._moved = False
-
-    @staticmethod
-    def _unwrap(x: "Bosl2Shape2D | Bosl2Solid | PyOpenSCAD") -> "PyOpenSCAD":
-        """The raw native handle behind *x* (a Bosl2Shape2D/Bosl2Solid), or *x* unchanged."""
-        from bosl2._helpers import unwrap
-
-        return unwrap(x)
-
-    def _wrap(self, new_shape: PyOpenSCAD) -> "Bosl2Shape2D":
-        """Wrap a native result, carrying size/anchor metadata (and moved-ness) forward."""
-        out = Bosl2Shape2D(new_shape, self.size, self.anchor)
-        out._moved = self._moved
-        return out
-
-    def _wrap_moved(self, new_shape: PyOpenSCAD) -> "Bosl2Shape2D":
-        """Wrap a native result of a positional transform, flagging the tracked metadata stale."""
-        out = Bosl2Shape2D(new_shape, self.size, self.anchor)
-        out._moved = True
-        return out
-
-    def __getattr__(self, name: str) -> Any:
-        # __getattr__ only fires on a normal-lookup miss. Guard the recursion trap: never bounce
-        # back through here for `shape` (or dunders) when the object is half-built, so
-        # copy/pickle/hasattr raise a clean AttributeError instead of blowing the stack.
-        if name == "shape" or (name.startswith("__") and name.endswith("__")):
-            raise AttributeError(name)
-        _unsupported = _unsupported_feature("csg", name)  # SDF-only feature on the CSG backend?
-        if _unsupported is not None:
-            raise _unsupported
-        shape = object.__getattribute__(self, "shape")  # bypass __getattr__: no recursion
-        attr = getattr(shape, name)
-        if not callable(attr):
-            return attr  # plain native attr (.position/.size/...)
-        native_cls = type(shape)
-
-        def _forward(*args: Any, **kwargs: Any) -> Any:
-            # Re-wrap native geometry so a passed-through op keeps the fluent API instead of
-            # silently leaking a raw handle. Every 2-D -> 3-D operator is defined explicitly
-            # below, so whatever lands here is still 2-D.
-            result = attr(*args, **kwargs)
-            if isinstance(result, native_cls):
-                return self._wrap_moved(result)
-            if isinstance(result, (list, tuple)) and result and all(isinstance(r, native_cls) for r in result):
-                return type(result)(self._wrap_moved(r) for r in result)
-            return result
-
-        _forward.__name__ = name
-        return _forward
-
-    def __repr__(self) -> str:
-        return f"Bosl2Shape2D({self.shape!r}, size={self.size!r}, anchor={self.anchor!r})"
-
-    # ---- geometry passthrough, preserving size/anchor metadata ----
-
-    def translate(self, v: Sequence[float]) -> "Bosl2Shape2D":
-        """Translate by *v* ([x, y], or [x, y, 0])."""
-        return self._wrap_moved(self.shape.translate([float(c) for c in v]))
-
-    move = translate
-
-    def rotate(self, *a: Any, **k: Any) -> "Bosl2Shape2D":
-        """Rotate about the Z axis. A bare scalar angle is accepted (BOSL2 ``rot(a)``); the native
-        2-D rotate only takes the 3-vector form."""
-        if len(a) == 1 and isinstance(a[0], numbers.Real) and not isinstance(a[0], bool) and "v" not in k:
-            a = ([0.0, 0.0, float(a[0])],)
-        return self._wrap_moved(self.shape.rotate(*a, **k))
-
-    rot = rotate
-    spin = rotate
-
-    def mirror(self, v: Sequence[float]) -> "Bosl2Shape2D":
-        """Mirror across the line through the origin normal to *v*."""
-        return self._wrap_moved(self.shape.mirror([float(c) for c in v]))
-
-    def scale(self, v: "float | Sequence[float]") -> "Bosl2Shape2D":
-        """Scale by *v* (a scalar, or [x, y])."""
-        return self._wrap_moved(self.shape.scale(v))
-
-    def multmatrix(self, m: Sequence[Sequence[float]]) -> "Bosl2Shape2D":
-        return self._wrap_moved(self.shape.multmatrix(m))
-
-    # Directional translates (BOSL2 transforms.scad): right/left +/-X, back/fwd +/-Y.
-
-    def right(self, x: float) -> "Bosl2Shape2D":
-        return self.translate([x, 0.0])
-
-    def left(self, x: float) -> "Bosl2Shape2D":
-        return self.translate([-x, 0.0])
-
-    def back(self, y: float) -> "Bosl2Shape2D":
-        return self.translate([0.0, y])
-
-    def forward(self, y: float) -> "Bosl2Shape2D":
-        return self.translate([0.0, -y])
-
-    fwd = forward
-
-    def xflip(self, x: float = 0.0) -> "Bosl2Shape2D":
-        """Mirror across the vertical line at *x* (BOSL2 xflip())."""
-        return self.translate([-x, 0.0]).mirror([1, 0]).translate([x, 0.0])
-
-    def yflip(self, y: float = 0.0) -> "Bosl2Shape2D":
-        """Mirror across the horizontal line at *y* (BOSL2 yflip())."""
-        return self.translate([0.0, -y]).mirror([0, 1]).translate([0.0, y])
-
-    # ---- 2-D operators ----
-
-    def offset(
-        self,
-        radius: float | None = None,
-        delta: float | None = None,
-        chamfer: bool = False,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> "Bosl2Shape2D":
-        """Inset (negative) or outset (positive) the outline.
-
-        *radius* rounds the joins it creates, *delta* keeps them sharp (or bevels them with
-        ``chamfer=True``) -- BOSL2's spelling of OpenSCAD's ``r=``/``delta=``. Give exactly one.
-        """
-        assert (radius is None) != (delta is None), "offset(): give exactly one of radius= or delta=."
-        kw: dict[str, Any] = {"r": radius} if radius is not None else {"delta": delta, "chamfer": chamfer}
-        for name, value in (("fn", fn), ("fa", fa), ("fs", fs)):
-            if value is not None:
-                kw[name] = value
-        # The offset moves the outline, so the nominal box size no longer describes it.
-        return self._wrap_moved(self.shape.offset(**kw))
-
-    def fill(self) -> "Bosl2Shape2D":
-        """This shape with every hole filled in -- only the outermost outline survives
-        (OpenSCAD ``fill()``).
-
-        Useful for recovering the solid footprint of a shape you have already punched holes in,
-        e.g. to build a backing plate for it, or to close up the interior loops of ``text()``.
-
-        Examples:
-            .. pythonscad-example::
-
-                plate = s2.square(40) - s2.circle(radius=8)
-                plate.fill().linear_extrude(height=2).show()
-        """
-        return self._wrap(_ofill(self.shape))
-
-    def hull(self, *others: "Shape2DLike") -> "Bosl2Shape2D":
-        """The convex hull of this shape (OpenSCAD ``hull()``).
-
-        With arguments, the hull of this shape *together with* each of *others* -- any mix of
-        ``Bosl2Shape2D``, native 2-D shapes, :class:`~bosl2.paths.Path` /
-        :class:`~bosl2.regions.Region`, or plain ``[[x, y], ...]`` point lists.
-
-        Examples:
-            .. pythonscad-example::
-
-                slot = s2.circle(radius=5).hull(s2.circle(radius=5).right(30))
-                slot.linear_extrude(height=3).show()
-        """
-        return Bosl2Shape2D(_ohull(self.shape, *[_as_native_2d(o) for o in others]))
-
-    # ---- 2-D -> 3-D (returns a Bosl2Solid) ----
-
-    def linear_extrude(
-        self,
-        height: float,
-        center: bool = False,
-        twist: float = 0.0,
-        scale: "float | Sequence[float]" = 1,
-        slices: int | None = None,
-        convexity: int | None = None,
-        **kwargs: Any,
-    ) -> "Bosl2Solid":
-        """Extrude this 2-D shape *height* along +Z into a 3-D solid.
-
-        Args:
-            height:    extrusion height
-            center:    centre the result on z=0 rather than starting at z=0 (default False)
-            twist:     degrees to rotate the top face relative to the bottom (default 0)
-            scale:     scale factor of the top face, a scalar or [x, y] (default 1)
-            slices:    number of intermediate layers (default: from the twist)
-            convexity: rendering hint for self-overlapping cross-sections
-            kwargs:    any further native ``linear_extrude()`` parameter (``origin``, ``fn``, ...)
-
-        Returns:
-            A :class:`~bosl2.shapes3d.Bosl2Solid`.
-
-        Examples:
-            .. pythonscad-example::
-
-                s2.star(n=5, r=30, ir=15).linear_extrude(height=6, twist=45).show()
-        """
-        from bosl2.shapes3d import Bosl2Solid
-
-        kw: dict[str, Any] = {"height": height, "center": center, "twist": twist, "scale": scale}
-        if slices is not None:
-            kw["slices"] = slices
-        if convexity is not None:
-            kw["convexity"] = convexity
-        kw.update(kwargs)
-        size = None if self.size is None else [self.size[0], self.size[1], float(height)]
-        return Bosl2Solid(self.shape.linear_extrude(**kw), size=size)
-
-    def rotate_extrude(
-        self,
-        angle: float = 360.0,
-        convexity: int | None = None,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-        **kwargs: Any,
-    ) -> "Bosl2Solid":
-        """Revolve this 2-D shape about the Y axis into a 3-D solid (OpenSCAD ``rotate_extrude()``).
-
-        The shape must lie entirely on one side of the axis. *angle* sweeps less than a full
-        revolution.
-
-        Returns:
-            A :class:`~bosl2.shapes3d.Bosl2Solid`.
-        """
-        from bosl2.shapes3d import Bosl2Solid
-
-        kw: dict[str, Any] = {"angle": angle}
-        for name, value in (("convexity", convexity), ("fn", fn), ("fa", fa), ("fs", fs)):
-            if value is not None:
-                kw[name] = value
-        kw.update(kwargs)
-        return Bosl2Solid(self.shape.rotate_extrude(**kw))
-
-    def path_extrude(self, path: Sequence[Sequence[float]], **kwargs: Any) -> "Bosl2Solid":
-        """Sweep this 2-D shape along *path* (a :class:`~bosl2.paths.Path3D` or point list), via
-        the native ``path_extrude()``.
-
-        Returns:
-            A :class:`~bosl2.shapes3d.Bosl2Solid`.
-        """
-        from bosl2.shapes3d import Bosl2Solid
-
-        pts = [[float(c) for c in p] for p in path]
-        return Bosl2Solid(self.shape.path_extrude(pts, **kwargs))
-
-    # ---- colour (bosl2/color.py) ----
-
-    def _color_native(self, c: "str | Sequence[float] | None" = None, alpha: float | None = None) -> "Bosl2Shape2D":
-        args = () if c is None else (c,)
-        kw = {} if alpha is None else {"alpha": alpha}
-        return self._wrap(self.shape.color(*args, **kw))
-
-    def _highlight_native(self) -> "Bosl2Shape2D":
-        return self._wrap(self.shape.highlight())
-
-    def _ghost_native(self) -> "Bosl2Shape2D":
-        return self._wrap(self.shape.background())
-
-    # ---- CSG ----
-
-    def __or__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(self.shape | Bosl2Shape2D._unwrap(other))
-
-    def __and__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(self.shape & Bosl2Shape2D._unwrap(other))
-
-    def __sub__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(self.shape - Bosl2Shape2D._unwrap(other))
-
-    def __ror__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Shape2D._unwrap(other) | self.shape)
-
-    def __rand__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Shape2D._unwrap(other) & self.shape)
-
-    def __rsub__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Shape2D._unwrap(other) - self.shape)
-
-    # ---- distributors (bosl2/distributors.py) ----
-
-    def _distribute(self, mats: Sequence[Sequence[Sequence[float]]]) -> "Bosl2Shape2D":
-        """Union a multmatrix copy of this shape for each transform matrix (BOSL2's module form).
-
-        The copiers that lift out of the XY plane (``zcopies``, ``xrot_copies``, ...) have no
-        meaning for 2-D geometry and are rejected rather than silently flattened.
-        """
-        assert len(mats), "distributor produced no copies."
-        out = None
-        for m in mats:
-            m4 = np.asarray(m, dtype=float)
-            assert abs(float(m4[2, 3])) < 1e-9 and abs(float(m4[2, 2]) - 1.0) < 1e-9, (
-                "this copier moves the 2-D shape out of the XY plane; extrude it to 3-D first"
-            )
-            copy = self.shape.multmatrix(m4.tolist())
-            out = copy if out is None else out | copy
-        return self._wrap_moved(out)
-
-    # ---- bounding box ----
-
-    def bounds(self) -> "tuple[list[float], list[float]]":
-        """This shape's axis-aligned bounding box as ``(center, size)`` -- both ``[x, y]`` float
-        lists in the shape's current frame (the 2-D form of
-        :meth:`~bosl2.shapes3d.Bosl2Solid.bounds`).
-
-        Prefers the native bbox, which always reflects the current geometry; falls back to the
-        tracked nominal size/anchor when the native accessors aren't available (the numeric test
-        mock) and the shape hasn't been moved since construction.
-        """
-        try:
-            pos, sz = self.shape.position, self.shape.size
-        except AttributeError:
-            pos = sz = None
-        if pos is not None and sz is not None:
-            mincorner = [float(pos[i]) for i in range(2)]
-            size = [float(sz[i]) for i in range(2)]
-            return [mincorner[i] + size[i] / 2 for i in range(2)], size
-        if self.size is not None and not isinstance(self.anchor, str):
-            if self._moved:
-                raise ValueError(
-                    "bounds(): no native bounding box (numeric mock) and the shape has been "
-                    "transformed since construction, so its tracked metadata is stale."
-                )
-            size = [float(v) for v in self.size]
-            return _anchor_offset_box(size, self.anchor), size
-        raise ValueError("bounds(): the shape has no native bounding box and no tracked size metadata.")
-
-
-def _as_native_2d(obj: "Shape2DLike") -> "PyOpenSCAD":
-    """A raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape, a
-    :class:`~bosl2.paths.Path` / :class:`~bosl2.regions.Region`, or a plain point list."""
-    from bosl2._helpers import unwrap
-
-    unwrapped = unwrap(obj)
-    if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
-        return unwrapped
-    geom = getattr(obj, "geometry", None)  # Path / Region
-    if callable(geom):
-        return unwrap(geom())
-    if isinstance(obj, (list, tuple, np.ndarray)):  # a bare [[x, y], ...] point list
-        return _opolygon([[float(p[0]), float(p[1])] for p in obj])
-    return obj
-
-
-def _is_child_2d(obj: "Shape2DLike | Sequence[Shape2DLike]") -> bool:
-    """True if *obj* is a single 2-D child rather than a container of children -- a wrapper or
-    native shape, a Path/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list."""
-    if not isinstance(obj, (list, tuple)):
-        return True  # a wrapper or a native handle
-    if callable(getattr(obj, "geometry", None)):
-        return True  # Path / Region
-    return bool(len(obj)) and isinstance(obj[0], (list, tuple, np.ndarray)) and len(obj[0]) == 2
-
-
-def fill(children: "Shape2DLike") -> Bosl2Shape2D:
-    """*children* with every hole filled in -- only the outermost outline survives
-    (OpenSCAD ``fill()``, the module form of :meth:`Bosl2Shape2D.fill`).
-
-    Args:
-        children: the 2-D shape to fill (a ``Bosl2Shape2D``, a native shape, a
-                  :class:`~bosl2.paths.Path` / :class:`~bosl2.regions.Region`, or a point list)
-    """
-    return Bosl2Shape2D(_ofill(_as_native_2d(children)))
-
-
-def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
-    """The 2-D convex hull of *children* (OpenSCAD ``hull()``, the module form of
-    :meth:`Bosl2Shape2D.hull`).
-
-    Args:
-        children: the 2-D shapes to hull -- any mix of ``Bosl2Shape2D``, native shapes,
-                  :class:`~bosl2.paths.Path` / :class:`~bosl2.regions.Region`, or point lists.
-                  A single list/tuple *of* shapes is also accepted.
-    """
-    items = list(children)
-    if len(items) == 1 and not _is_child_2d(items[0]):
-        items = list(items[0])  # a single list *of* shapes
-    assert items, "hull(): needs at least one child."
-    return Bosl2Shape2D(_ohull(*[_as_native_2d(c) for c in items]))
+    return shape
 
 
 # ---------------------------------------------------------------------------
@@ -790,7 +325,7 @@ def square(
     center: bool | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A rectangle, built with the builtin square(), with BOSL2-style anchor/spin support.
 
     Args:
@@ -805,7 +340,7 @@ def square(
         use_anchor = CENTER if center else [-1, -1, 0]
     shape = _osquare(sz, center=True)
     offset = _anchor_offset_box(sz, use_anchor)
-    return _finish(shape, offset, spin or 0, size=sz, anchor=use_anchor)
+    return _finish(shape, offset, spin or 0)
 
 
 def _rect_path(
@@ -875,7 +410,7 @@ def rect(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A rectangle with optional rounded or chamfered corners.
 
     Note: negative rounding/chamfer (BOSL2's "external roundover spikes") is not supported here.
@@ -897,9 +432,9 @@ def rect(
     )
     if complex_shape and atype == "perim":
         offset = _anchor_offset_hull(path, anchor)
-        return _finish(shape, offset, spin)
-    offset = _anchor_offset_box(sz, anchor)
-    return _finish(shape, offset, spin, size=sz, anchor=anchor)
+    else:
+        offset = _anchor_offset_box(sz, anchor)
+    return _finish(shape, offset, spin)
 
 
 def rect_path(
@@ -912,7 +447,7 @@ def rect_path(
     fs: float | None = None,
 ) -> list[list[float]]:
     """The *points* of a (optionally rounded/chamfered) rectangle -- BOSL2's ``rect()`` in its
-    function form, as opposed to :func:`rect` which returns 2-D geometry (a :class:`Bosl2Shape2D`).
+    function form, as opposed to :func:`rect` which returns native 2-D geometry.
 
     Use this when the rectangle is an input to further path math (e.g. a profile fed to
     :func:`base_bgtk.PolygonPrism`), not something to draw.
@@ -1117,7 +652,7 @@ def circle(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A circle, built with the builtin circle(), by radius/diameter, or fit to points.
 
     If `corner` is given three 2-D points, the circle is centered to be tangent to both
@@ -1136,11 +671,11 @@ def circle(
     """
     if points is not None:
         center, rad = _circle_from_3pts(points)
-        return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0)
+        return _ocircle(r=rad, fn=fn, fa=fa, fs=fs).translate(center)
     if corner is not None:
         rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
         center = _circle_from_corner(corner, rad)
-        return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0)
+        return _ocircle(r=rad, fn=fn, fa=fa, fs=fs).translate(center)
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     shape = _ocircle(r=rad, fn=fn, fa=fa, fs=fs)
     n = _frag_count(rad, fn, fa, fs)
@@ -1159,7 +694,7 @@ def ellipse(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """An ellipse (approximated as a polygon), built directly with polygon().
 
     Note: `uniform` (equal-length approximating segments) is not implemented; segments are
@@ -1254,7 +789,7 @@ def regular_ngon(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A regular N-gon (equilateral, equiangular polygon), built directly with polygon().
 
     Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python
@@ -1326,7 +861,7 @@ def pentagon(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A regular pentagon. See regular_ngon() for argument details."""
     return regular_ngon(
         sides=5,
@@ -1366,7 +901,7 @@ def hexagon(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A regular hexagon. See regular_ngon() for argument details."""
     return regular_ngon(
         sides=6,
@@ -1406,7 +941,7 @@ def octagon(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A regular octagon. See regular_ngon() for argument details."""
     return regular_ngon(
         sides=8,
@@ -1434,7 +969,7 @@ def right_triangle(
     center: bool | None = None,
     anchor: Sequence[float] | None = None,
     spin: float = 0,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A right triangle, built directly with polygon().
 
     Args:
@@ -1453,7 +988,7 @@ def right_triangle(
     path = [[sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, sz[1] / 2]]
     shape = _opolygon(path)
     offset = _anchor_offset_box(sz, use_anchor)
-    return _finish(shape, offset, spin, size=sz, anchor=use_anchor)
+    return _finish(shape, offset, spin)
 
 
 def _trapezoid_path(
@@ -1541,7 +1076,7 @@ def trapezoid(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A trapezoid with parallel front and back sides, built directly with polygon().
 
     Args:
@@ -1590,7 +1125,7 @@ def star(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     atype: str = "hull",
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """An N-pointed star polygon, built directly with polygon().
 
     Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python
@@ -1667,7 +1202,7 @@ def teardrop2d(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A 2-D teardrop shape, useful for 3D-printable horizontal holes, built directly with polygon().
 
     Note: `circum` is approximated the same way as the inscribed case here (BOSL2's exact
@@ -1725,7 +1260,7 @@ def egg(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """An egg-shaped 2-D outline, made of two circles joined by tangent arcs, built directly with polygon().
 
     Args:
@@ -1811,7 +1346,7 @@ def glued_circles(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """Two circles joined by a curved waist, like a dumbbell, built directly with polygon().
 
     Args:
@@ -1900,7 +1435,7 @@ def supershape(
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     atype: str = "hull",
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A 2-D shape from the superformula, built directly with polygon().
 
     Args:
@@ -1987,7 +1522,7 @@ def squircle(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A squircle -- a rounded square that morphs between a square and a circle (BOSL2 squircle()).
 
     *squareness* runs 0 (a circle) to 1 (a square). Only the default ``"fg"`` (Fong-Garcia) style
@@ -2027,7 +1562,7 @@ def keyhole(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A keyhole slot -- a small circle joined to a larger one by tangent shoulders (BOSL2 keyhole()).
 
     Args:
@@ -2098,7 +1633,7 @@ def ring(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A 2-D ring (annulus) between two concentric radii (BOSL2 ring(), full-annulus form).
 
     Give either both radii (*radius1*/*radius2* or *diameter1*/*diameter2*) or one radius plus
@@ -2131,7 +1666,7 @@ def ring(
     fnv = sides if sides is not None else fn
     shape = circle(radius=outer, fn=fnv, fa=fa, fs=fs) - circle(radius=inner, fn=fnv, fa=fa, fs=fs)
     offset = _anchor_offset_box([2 * outer, 2 * outer], anchor)
-    return _finish(shape, offset, spin, size=[2 * outer, 2 * outer], anchor=anchor)
+    return _finish(shape, offset, spin)
 
 
 def reuleaux_polygon(
@@ -2143,7 +1678,7 @@ def reuleaux_polygon(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """A Reuleaux polygon (constant-width curved-side shape), built directly with polygon().
 
     Args:
@@ -2187,7 +1722,7 @@ def text(
     script: str = "latin",
     anchor: str = "baseline",
     spin: float = 0,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """2-D text, built directly with the builtin text() (which already supports halign/valign).
 
     Args:
@@ -2216,7 +1751,7 @@ def text(
         language=language,
         script=script,
     )
-    return _finish(shape, [0.0, 0.0], spin)
+    return shape.rotate([0, 0, spin]) if spin else shape
 
 
 # ---------------------------------------------------------------------------
@@ -2228,11 +1763,11 @@ def round2d(
     radius: float | None = None,
     outer_radius: float | None = None,
     inner_radius: float | None = None,
-    children: "Bosl2Shape2D | PyOpenSCAD | None" = None,
+    children: PyOpenSCAD | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """Rounds the concave and/or convex corners of arbitrary 2-D children, via chained .offset() calls.
 
     Giving `radius` rounds all corners; `inner_radius` alone rounds only concave corners;
@@ -2251,21 +1786,21 @@ def round2d(
     orad = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
     irad = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
     assert children is not None, "round2d(): must give children"
-    shape = Bosl2Shape2D(_as_native_2d(children))
-    shape = shape.offset(delta=irad, chamfer=True)
+    shape = children.offset(delta=irad, chamfer=True)
     shape = shape.offset(delta=-(irad + orad))
-    return shape.offset(radius=orad, fn=fn, fa=fa, fs=fs)
+    shape = shape.offset(radius=orad, fn=fn, fa=fa, fs=fs)
+    return shape
 
 
 def shell2d(
     thickness: float | Sequence[float] | None = None,
     outer_radius: float | Sequence[float] = 0,
     inner_radius: float | Sequence[float] = 0,
-    children: "Bosl2Shape2D | PyOpenSCAD | None" = None,
+    children: PyOpenSCAD | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Shape2D:
+) -> PyOpenSCAD:
     """Creates a hollow shell from 2-D children, with optional rounding.
 
     Note: BOSL2's outer-radius parameter is named `or`, exposed here as `outer_radius`.
@@ -2298,17 +1833,16 @@ def shell2d(
         else [float(v) for v in inner_radius]
     )
     kw = {"fn": fn, "fa": fa, "fs": fs}
-    base = Bosl2Shape2D(_as_native_2d(children))
     outer_shape = round2d(
         outer_radius=orad[0],
         inner_radius=orad[1],
-        children=base.offset(delta=th[1], fn=fn, fa=fa, fs=fs),
+        children=children.offset(delta=th[1], fn=fn, fa=fa, fs=fs),
         **kw,
     )
     inner_shape = round2d(
         outer_radius=irad[1],
         inner_radius=irad[0],
-        children=base.offset(delta=th[0], fn=fn, fa=fa, fs=fs),
+        children=children.offset(delta=th[0], fn=fn, fa=fa, fs=fs),
         **kw,
     )
     return outer_shape - inner_shape

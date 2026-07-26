@@ -129,12 +129,11 @@ class Wiring:
             for k in range(sides)
         ]
 
-        bundle: Bosl2Solid | None = None
+        bundle = None
         for i in range(wires):
             ox, oy = offsets[i]
             prof = [[x + ox, y + oy] for x, y in profile]
             wire = Bosl2Solid(path_sweep(prof, rounded_path).polyhedron())
             wire = wire.color(_WIRE_COLORS[(i + wirenum) % len(_WIRE_COLORS)])
             bundle = wire if bundle is None else (bundle | wire)
-        assert bundle is not None
         return Bosl2Solid(bundle.shape, size=None)

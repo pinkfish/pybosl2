@@ -568,7 +568,7 @@ class Threading:
         section = [[(py - pmax) * pitch, px * pitch] for px, py in prof]
         lead = starts * pitch
         height = turns * lead
-        thread: Bosl2Solid | None = None
+        thread = None
         for k in range(starts):
             sec = [[x, y + k * pitch] for x, y in section]
             piece = Bosl2Solid(
@@ -583,5 +583,4 @@ class Threading:
             if starts > 1:
                 piece = piece.rotate([0, 0, k * 360 / starts])
             thread = piece if thread is None else (thread | piece)
-        assert thread is not None
         return thread

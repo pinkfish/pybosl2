@@ -47,9 +47,7 @@ __all__ = [
 
 
 def _is_param_list(x) -> bool:
-    return bool(
-        isinstance(x, (list, tuple)) and len(x) and isinstance(x[0], str) and x[0] in ("closed", "open", "clamped")
-    )
+    return isinstance(x, (list, tuple)) and len(x) and isinstance(x[0], str) and x[0] in ("closed", "open", "clamped")
 
 
 def _calc_mult(knots):
@@ -487,7 +485,7 @@ def nurbs_vnf(
         patch,
         degree=degree,
         splinesteps=splinesteps,
-        type=(type[0], type[1]),
+        type=type,
         mult=mult,
         knots=knots,
         weights=weights,
