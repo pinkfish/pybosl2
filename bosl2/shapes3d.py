@@ -1350,7 +1350,7 @@ def wedge(
     use_anchor = anchor
     if center is not None:
         use_anchor = CENTER if center else [-1, -1, -1]
-    pts = [[1, 1, -1], [1, -1, -1], [1, -1, 1], [-1, 1, -1], [-1, -1, -1], [-1, -1, 1]]
+    pts: list[list[float]] = [[1, 1, -1], [1, -1, -1], [1, -1, 1], [-1, 1, -1], [-1, -1, -1], [-1, -1, 1]]
     pts = [[p[0] * sz[0] / 2, p[1] * sz[1] / 2, p[2] * sz[2] / 2] for p in pts]
     faces = [
         [0, 1, 2],

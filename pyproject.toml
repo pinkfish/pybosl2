@@ -30,6 +30,7 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
+    "typing-extensions",
 ]
 
 [project.optional-dependencies]
@@ -40,6 +41,7 @@ test = [
     "pytest>=7",
     "numpy",
     "pythonscad",
+    "typing-extensions",
 ]
 # Build the API docs (Sphinx autodoc). Needs pythonscad because the geometry
 # modules import it at load time, before autodoc can read their docstrings.

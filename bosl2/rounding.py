@@ -189,19 +189,19 @@ def round_corners(
     assert method == "chamfer" or measure != "width", 'width is allowed only with method="chamfer".'
 
     if is_num(size):
-        parm = [float(size)] * sides
-    elif len(size) < sides:
-        parm = [0.0] + [float(v) for v in size] + [0.0]
+        parm = [float(size)] * sides  # type: ignore[arg-type]
+    elif len(size) < sides:  # type: ignore[arg-type]
+        parm = [0.0] + [float(v) for v in size] + [0.0]  # type: ignore[union-attr]
     else:
-        parm = [float(v) for v in size]
+        parm = [float(v) for v in size]  # type: ignore[union-attr]
     if k is None:
         kv = [0.5] * sides
     elif is_num(k):
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = [float(k)] * sides
+        kv = [float(k)] * sides  # type: ignore[arg-type]
     else:
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < sides else [float(v) for v in k]
+        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < sides else [float(v) for v in k]  # type: ignore[arg-type]
     assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
     assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
 
@@ -362,7 +362,7 @@ class Roundable:
             joint=joint,
             width=width,
             k=k,
-            closed=self.closed if closed is None else closed,
+            closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
             **kwargs,
         )
 
@@ -383,5 +383,5 @@ class Roundable:
             relsize=relsize,
             splinesteps=splinesteps,
             uniform=uniform,
-            closed=self.closed if closed is None else closed,
+            closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
         )

@@ -96,7 +96,7 @@ def _heightfield_dedupe(
     several consecutive rows can share literally identical positions there but at different grid
     indices. Left un-merged, that turns into a naked seam once degenerate triangles get dropped.
     """
-    remap: Sequence[float] = []
+    remap: list[int] = []
     seen: dict[tuple[float, float, float], int] = {}
     merged: list[list[float]] = []
     for p in pts:
@@ -107,7 +107,7 @@ def _heightfield_dedupe(
             seen[key] = i
             merged.append([float(v) for v in p])
         remap.append(i)
-    out_faces = []
+    out_faces: list[list[int]] = []
     for f in faces:
         nf = [remap[i] for i in f]
         if len(set(nf)) >= 3:
@@ -633,7 +633,7 @@ def plot_revolution(
             else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else None))
         )
     )
-    theta = list(angle)
+    theta = list(float(a) for a in angle)  # type: ignore[arg-type]
     assert len(theta) > 1, "plot_revolution(): angle must have at least 2 values."
     if path is not None:
         prof = [[float(p[0]), float(p[1])] for p in path]

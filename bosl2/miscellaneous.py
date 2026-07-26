@@ -273,10 +273,10 @@ class Extrudable:
         """
         from bosl2.shapes3d import Bosl2Solid
 
-        assert len(self[0]) == 2, "path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."
-        is_closed = self.closed if closed is None else closed
+        assert len(self[0]) == 2, "path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."  # type: ignore[index]
+        is_closed = self.closed if closed is None else closed  # type: ignore[attr-defined]
         assert not (caps and is_closed), "path_extrude2d(): cannot cap a closed extrusion."
-        pts = [[float(p[0]), float(p[1])] for p in self.deduplicated()]
+        pts = [[float(p[0]), float(p[1])] for p in self.deduplicated()]  # type: ignore[attr-defined]
         sides = len(pts)
         assert sides >= 2, "path_extrude2d(): need at least two points."
         if s is None:
@@ -314,7 +314,7 @@ class Extrudable:
             parts.append(corner)
         # rounded caps on the open ends
         if caps and not is_closed:
-            for a, b in ((pts[0], pts[1]), (pts[-1], pts[-2])):
+            for a, b in ((pts[0], pts[1]), (pts[-1], pts[-2])):  # type: ignore[misc]
                 cap = _planar_half(factory(), keep_positive_x=True, s=s).rotate_extrude(angle=180)
                 cap = cap.multmatrix(rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist())
                 cap = cap.translate([a[0], a[1], 0])
@@ -335,8 +335,8 @@ class Extrudable:
         from bosl2.shapes3d import Bosl2Solid
         from bosl2.skin import rot_resample
 
-        dim = len(self[0])
-        path = [[float(p[0]), float(p[1]), float(p[2]) if dim == 3 else 0.0] for p in self]
+        dim = len(self[0])  # type: ignore[index]
+        path: list[list[float]] = [[float(p[0]), float(p[1]), float(p[2]) if dim == 3 else 0.0] for p in self]  # type: ignore[attr-defined]
         sides = len(path)
         assert sides >= 2, "path_extrude(): need at least two points."
         parr = [np.asarray(p) for p in path]
@@ -406,7 +406,7 @@ class Miscellaneous(ABC):
         not needed here)."""
         from bosl2.shapes3d import cuboid
 
-        center, size = self.bounds()
+        center, size = self.bounds()  # type: ignore[attr-defined]
         return cuboid([size[i] + 2 * excess for i in range(3)]).translate([float(c) for c in center])
 
     def offset3d(self, radius: float, size: float = 1000, convexity: int = 10):
@@ -424,10 +424,10 @@ class Miscellaneous(ABC):
         sides = max(8, _frag_count(abs(radius)))
         sides = int(math.ceil(sides / 4) * 4)
         if radius > 0:
-            return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))
+            return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))  # type: ignore[attr-defined]
         big1 = _cube([size * 1.02] * 3, center=True)
         big2 = _cube([size] * 3, center=True)
-        return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))
+        return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))  # type: ignore[attr-defined]
 
     def round3d(
         self,

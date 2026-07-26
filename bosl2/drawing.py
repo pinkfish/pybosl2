@@ -40,8 +40,8 @@ from bosl2.shapes2d import _frag_count, _pick_radius, arc
 # The stroke body is built from the backend-neutral facade, NOT bosl2.shapes3d directly, so a
 # 3-D stroke realizes on whichever backend is active: Bosl2Solids under the default csg backend,
 # PyShapes under use_backend("sdf").
-from bosl2.solid import cyl as _cyl
-from bosl2.solid import sphere as _sphere
+from bosl2.solid import cyl as _cyl  # type: ignore[attr-defined]
+from bosl2.solid import sphere as _sphere  # type: ignore[attr-defined]
 from bosl2.vectors import unit
 
 __all__ = [
@@ -805,7 +805,7 @@ def dashed_stroke(
     closed: bool = False,
     fit: bool = True,
     mindash: float = 0.5,
-) -> list[Path]:
+) -> "list[Path | Path3D]":
     """Break *path* into dashes -- BOSL2's ``dashed_stroke()`` function form.
 
     Returns the list of "on" dash sub-paths (each a :class:`~bosl2.paths.Path`); stroke or extrude
@@ -833,8 +833,8 @@ def dashed_stroke(
     if isinstance(path, Region):
         out: list[Path] = []
         for p in path:
-            out.extend(dashed_stroke(p, dashpat, closed=True, fit=fit, mindash=mindash))
-        return out
+            out.extend(dashed_stroke(p, dashpat, closed=True, fit=fit, mindash=mindash))  # type: ignore[arg-type]
+        return out  # type: ignore[return-value]
 
     raw = [list(map(float, p)) for p in path]
     # a 3-D path yields 3-D dashes (Path3D); a 2-D path yields Path
@@ -857,7 +857,7 @@ def dashed_stroke(
                 cuts.append(x)
     cuts = sorted(c for c in cuts)
     if not cuts:
-        return [wrap(raw, closed=False)]
+        return [wrap(raw, closed=False)]  # type: ignore[return-value]
     dashes = Path._path_cut(raw, cuts, closed=False)
     dcnt = len(dashes)
     evens = []
@@ -866,4 +866,4 @@ def dashed_stroke(
             continue
         if i < dcnt - 1 or Path._path_length(dash, closed=False) > mindash:
             evens.append(wrap(dash, closed=False))
-    return evens
+    return evens  # type: ignore[return-value]
