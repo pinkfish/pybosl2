@@ -410,6 +410,14 @@ def _mock_hull(*solids, **k) -> Any:
     )
 
 
+def _mock_fill(shape=None, **k) -> Any:
+    # fill() drops a 2-D shape's holes, which never changes its bounding box -- so the mock
+    # just hands back the same box (or an unknown one for the bbox-less 2-D stand-ins).
+    if isinstance(shape, _AabbSolid):
+        return _AabbSolid(shape.mn, shape.mx)
+    return _AabbSolid()
+
+
 def _mock_minkowski(*solids, **k) -> Any:
     mns: list[list[float]] = []
     mxs: list[list[float]] = []
@@ -445,6 +453,7 @@ def install():
     setattr(pythonscad_mock, "sphere", _mock_sphere)
     setattr(pythonscad_mock, "polyhedron", _mock_polyhedron)
     setattr(pythonscad_mock, "hull", _mock_hull)
+    setattr(pythonscad_mock, "fill", _mock_fill)
     setattr(pythonscad_mock, "minkowski", _mock_minkowski)
     for name in [
         "rotate_extrude",
@@ -468,6 +477,7 @@ def install():
     setattr(openscad_mock, "cylinder", _mock_cylinder)
     setattr(openscad_mock, "sphere", _mock_sphere)
     setattr(openscad_mock, "hull", _mock_hull)
+    setattr(openscad_mock, "fill", _mock_fill)
     for name in ["polygon", "square", "circle"]:
         setattr(openscad_mock, name, lambda *a, **k: _AabbSolid())
     sys.modules["openscad"] = openscad_mock

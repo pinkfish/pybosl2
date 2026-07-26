@@ -445,6 +445,35 @@ class PyShape:
         """Chamfer the selected edges by `size`, in addition to any existing edge treatment."""
         return self._edge_treat(size, edges, except_edges, "chamfer")
 
+    # -- hull / projection: the counterparts of Bosl2Solid's, on the SDF side ------------------
+
+    def hull(self, *others: Any, directions: int = 64, res: int | None = None) -> PyShape:
+        """The convex hull of this shape (OpenSCAD ``hull()``), optionally together with *others*
+        -- more :class:`PyShape`\\ s and/or raw ``Nx3`` point arrays.
+
+        The method form of :func:`hull`; see it for the polyhedral-approximation caveats (the hull
+        of arbitrary SDFs has no closed form, so the children are meshed and their support points
+        turned into face planes, lazily on first evaluation).
+        """
+        return hull(self, *others, directions=directions, res=res)
+
+    def projection(self, cut: bool = False) -> Any:
+        """Not available on the SDF backend -- an implicit field has no closed-form 2-D shadow.
+
+        Raises:
+            ~bosl2.exceptions.UnsupportedByBackend: always. Convert first
+            (``shape.to_csg().projection()``) if a meshed projection is acceptable.
+        """
+        from bosl2.exceptions import UnsupportedByBackend
+
+        raise UnsupportedByBackend(
+            "projection",
+            "sdf",
+            hint="a signed-distance field has no closed-form 2-D shadow, and 2-D geometry is a "
+            "csg-backend notion. Mesh it first with shape.to_csg().projection() if that is "
+            "acceptable, or build the shape on the csg backend.",
+        )
+
 
 # ---------------------------------------------------------------------------
 # Section: Named CSG combinators (union / difference / intersection / hull)

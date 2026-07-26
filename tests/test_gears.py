@@ -12,6 +12,7 @@ import math
 import pytest
 
 from bosl2.gears import Gears as G
+from bosl2.shapes2d import Bosl2Shape2D
 from bosl2.shapes3d import Bosl2Solid
 
 
@@ -67,11 +68,11 @@ def test_tooth_profile_shape():
 def test_low_tooth_gear_has_undercut_shift():
     # a low-tooth gear picks up an auto profile shift (undercut avoidance)
     assert G.auto_profile_shift(8) > 0.4
-    assert isinstance(G.spur_gear2d(mod=5, teeth=8), Bosl2Solid)
+    assert isinstance(G.spur_gear2d(mod=5, teeth=8), Bosl2Shape2D)
 
 
 def test_spur_gear2d_builds():
-    assert isinstance(G.spur_gear2d(pitch=5, teeth=20), Bosl2Solid)
+    assert isinstance(G.spur_gear2d(pitch=5, teeth=20), Bosl2Shape2D)
 
 
 @pytest.mark.parametrize(
@@ -103,7 +104,7 @@ def test_teeth_count_scales_radius():
 
 
 def test_rack2d_builds():
-    assert isinstance(G.rack2d(pitch=5, teeth=10, height=6), Bosl2Solid)
+    assert isinstance(G.rack2d(pitch=5, teeth=10, height=6), Bosl2Shape2D)
 
 
 def test_rack_length_and_thickness():
@@ -297,7 +298,7 @@ def test_spur_gear_new_api_builds():
         G.spur_gear(mod=5, teeth=16, thickness=35, helical=-20, herringbone=True),
         Bosl2Solid,
     )
-    assert isinstance(G.spur_gear2d(mod=5, teeth=30, gear_spin=45), Bosl2Solid)
+    assert isinstance(G.spur_gear2d(mod=5, teeth=30, gear_spin=45), Bosl2Shape2D)
 
 
 # -- coverage gaps surfaced by the QA review ----------------------------------
@@ -308,7 +309,7 @@ def test_internal_spur_gear_teeth_point_inward():
     # while its outer/valley radius is above it.
     pr = G.pitch_radius(mod=5, teeth=30)
     assert G.root_radius(mod=5, teeth=30, internal=True) < pr < G.outer_radius(mod=5, teeth=30, internal=True)
-    assert isinstance(G.spur_gear2d(mod=5, teeth=30, internal=True), Bosl2Solid)
+    assert isinstance(G.spur_gear2d(mod=5, teeth=30, internal=True), Bosl2Shape2D)
 
 
 def test_gear_dist_with_profile_shift_increases_spacing():
@@ -321,29 +322,27 @@ def test_gear_dist_with_profile_shift_increases_spacing():
 def test_hide_removes_teeth():
     full = G.spur_gear2d(mod=5, teeth=20)
     hidden = G.spur_gear2d(mod=5, teeth=20, hide=5)
-    assert isinstance(hidden, Bosl2Solid)
+    assert isinstance(hidden, Bosl2Shape2D)
     # hiding teeth removes area, so the hidden gear's bbox is no larger
     assert _size2d(hidden)[0] <= _size2d(full)[0] + 0.1
 
 
 def test_backlash_clearance_shorten_build():
-    assert isinstance(G.spur_gear2d(mod=5, teeth=20, backlash=0.2), Bosl2Solid)
-    assert isinstance(G.spur_gear2d(mod=5, teeth=20, clearance=1.0), Bosl2Solid)
-    assert isinstance(G.spur_gear2d(mod=5, teeth=20, shorten=0.1), Bosl2Solid)
+    assert isinstance(G.spur_gear2d(mod=5, teeth=20, backlash=0.2), Bosl2Shape2D)
+    assert isinstance(G.spur_gear2d(mod=5, teeth=20, clearance=1.0), Bosl2Shape2D)
+    assert isinstance(G.spur_gear2d(mod=5, teeth=20, shorten=0.1), Bosl2Shape2D)
 
 
-def _size2d(solid):
-    # 2D shapes have no z-bounds; measure via a thin extrude, re-wrapping with tracked size
-    _center, size = Bosl2Solid(
-        solid.shape.linear_extrude(height=0.1), size=[solid.size[0], solid.size[1], 0.1]
-    ).bounds()
+def _size2d(shape):
+    # 2-D shapes have no z-bounds; measure via a thin extrude, which carries the tracked size
+    _center, size = shape.linear_extrude(height=0.1).bounds()
     return size
 
 
 @pytest.mark.parametrize("ps", [0.4, "auto"])
 def test_profile_shift_gears_build(ps):
     assert isinstance(G.spur_gear(pitch=5, teeth=8, thickness=6, profile_shift=ps), Bosl2Solid)
-    assert isinstance(G.spur_gear2d(pitch=5, teeth=8, profile_shift=ps), Bosl2Solid)
+    assert isinstance(G.spur_gear2d(pitch=5, teeth=8, profile_shift=ps), Bosl2Shape2D)
     assert isinstance(
         G.herringbone_gear(pitch=5, teeth=8, thickness=6, helical=20, profile_shift=ps),
         Bosl2Solid,

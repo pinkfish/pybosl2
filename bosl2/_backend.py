@@ -60,6 +60,10 @@ CSG_ONLY_FEATURES = frozenset(
         "edge_profile_asym",
         "corner_profile",
         "face_profile",
+        # 2-D geometry: only the CSG backend has a 2-D shape object (Bosl2Shape2D). An SDF is a
+        # field over 3-space, with no 2-D shadow and no outline to fill.
+        "projection",
+        "fill",
     }
 )
 SDF_ONLY_FEATURES = frozenset(
@@ -86,9 +90,14 @@ def unsupported_feature(backend: str, name: str):
     from bosl2.exceptions import UnsupportedByBackend
 
     if backend == "sdf" and name in CSG_ONLY_FEATURES:
-        return UnsupportedByBackend(
-            name, "sdf", hint="attachment/anchoring is a CSG-backend feature; build it with the default (csg) backend."
-        )
+        hint = "attachment/anchoring is a CSG-backend feature; build it with the default (csg) backend."
+        if name in ("projection", "fill"):
+            hint = (
+                f"{name}() produces or consumes 2-D geometry, which only the csg backend has "
+                "(bosl2.shapes2d.Bosl2Shape2D). Convert first with .to_csg(), or build the shape "
+                "on the default (csg) backend."
+            )
+        return UnsupportedByBackend(name, "sdf", hint=hint)
     if backend == "csg" and name in SDF_ONLY_FEATURES:
         return UnsupportedByBackend(
             name,
@@ -221,3 +230,14 @@ class SolidBackend(Protocol):
     def union(self, solids: Any) -> Solid: ...
     def difference(self, solids: Any) -> Solid: ...
     def intersection(self, solids: Any) -> Solid: ...
+
+    def linear_extrude(self, paths: Any, height: float, **kwargs: Any) -> Solid:
+        """Extrude 2-D outlines (a list of ``[[x, y], ...]`` paths) *height* along +Z.
+
+        This is the one 2-D -> 3-D entry point both backends can express, and it takes raw point
+        paths rather than a 2-D shape object deliberately: 2-D *geometry* is a CSG-only notion
+        (:class:`~bosl2.shapes2d.Bosl2Shape2D`), whereas a path is backend-neutral. It is what
+        :meth:`bosl2.paths.Path.linear_extrude` dispatches through, so the same call yields a
+        Bosl2Solid on the CSG backend and a PyShape on the SDF one.
+        """
+        ...

@@ -17,6 +17,9 @@ import operator
 from typing import Any
 
 from bosl2._backend import register_backend
+from bosl2._native import native
+
+_polygon = native("polygon")
 
 
 class CsgBackend:
@@ -38,6 +41,22 @@ class CsgBackend:
         from bosl2.shapes3d import Bosl2Solid
 
         return Bosl2Solid(native("polyhedron")(points, faces, **kwargs))
+
+    def linear_extrude(self, paths: Any, height: float, **kwargs: Any) -> Any:
+        """Extrude *paths* into an exact-CSG solid: the first outline with the rest cut out of it
+        as holes, through the native ``linear_extrude()``. Accepts every native option
+        (``center``/``twist``/``scale``/``slices``/...)."""
+        from bosl2.shapes2d import Bosl2Shape2D
+        from bosl2.shapes3d import Bosl2Solid
+
+        # plain floats: the native polygon()/FFI boundary rejects numpy scalars
+        outlines = [[[float(p[0]), float(p[1])] for p in path] for path in paths]
+        assert outlines, "linear_extrude(): needs at least one outline."
+        shape = Bosl2Shape2D(_polygon(outlines[0]))
+        for hole in outlines[1:]:
+            shape = shape - Bosl2Shape2D(_polygon(hole))
+        solid = shape.linear_extrude(height, **kwargs)
+        return solid if isinstance(solid, Bosl2Solid) else Bosl2Solid(solid)
 
     def union(self, solids: Any) -> Any:
         return functools.reduce(operator.or_, solids)

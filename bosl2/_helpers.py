@@ -135,12 +135,18 @@ def union(shapes):
 
 
 # ---------------------------------------------------------------------------
-# Bosl2Solid unwrapping
+# Bosl2Solid / Bosl2Shape2D unwrapping
 # ---------------------------------------------------------------------------
 
 
 def unwrap(obj):
-    """Extract the native shape from a Bosl2Solid wrapper, or return *obj* as-is."""
+    """Extract the native shape from a :class:`~bosl2.shapes3d.Bosl2Solid` (3-D) or
+    :class:`~bosl2.shapes2d.Bosl2Shape2D` (2-D) wrapper, or return *obj* as-is.
+
+    Both are plain Python wrappers around a native handle, so anything handing an object
+    *directly* to a native function (``hull()``, ``minkowski()``, ...) rather than calling a
+    method on it must unwrap first."""
+    from bosl2.shapes2d import Bosl2Shape2D
     from bosl2.shapes3d import Bosl2Solid
 
-    return obj.shape if isinstance(obj, Bosl2Solid) else obj
+    return obj.shape if isinstance(obj, (Bosl2Solid, Bosl2Shape2D)) else obj
