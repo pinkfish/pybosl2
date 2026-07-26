@@ -717,10 +717,10 @@ class Gears:
         The 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2
         _gear_tooth_profile()).
         """
-        center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+        circ_p: float = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         return _gear_tooth_profile(
-            center,
+            circ_p,
             teeth,
             pressure_angle,
             clearance,

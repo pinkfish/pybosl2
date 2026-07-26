@@ -211,14 +211,14 @@ class Region(list):
 
         return _stroke(self, width=width, **kwargs)
 
-    def dashed_stroke(self, dashpat: Sequence[float] = (3, 3), **kwargs: Any) -> list[Path]:
+    def dashed_stroke(self, dashpat: Sequence[float] = (3, 3), **kwargs: Any) -> "list[Path | Path3D]":  # type: ignore[override]
         """
         Break every path in this region into dash sub-paths (see
         :func:`bosl2.drawing.dashed_stroke`).
         """
         from bosl2.drawing import dashed_stroke as _dashed
 
-        return _dashed(self, dashpat=dashpat, **kwargs)
+        return _dashed(self, dashpat=dashpat, **kwargs)  # type: ignore[return-value]
 
     def __repr__(self) -> str:
         return f"Region({len(self)} paths: {[len(p) for p in self]})"

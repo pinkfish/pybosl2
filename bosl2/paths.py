@@ -301,8 +301,8 @@ class Path(Distributable, Extrudable, Roundable, list):
         """Translate every point by *v* (2-D; a 1-vector shifts X only)."""
         pts = self.array
         vv = np.zeros(2)
-        v = np.asarray(v, dtype=float)
-        vv[: min(2, len(v))] = v[: min(2, len(v))]
+        va = np.asarray(v, dtype=float)
+        vv[: min(2, len(va))] = va[: min(2, len(va))]
         return self._like(pts + vv)
 
     move = translate
@@ -499,11 +499,11 @@ class Path(Distributable, Extrudable, Roundable, list):
         dashpat: Sequence[float] = (3, 3),
         closed: bool | None = None,
         **kwargs: Any,
-    ) -> list["Path"]:
+    ) -> "list[Path | Path3D]":
         """Break this path into dash sub-paths (see :func:`bosl2.drawing.dashed_stroke`)."""
         from bosl2.drawing import dashed_stroke as _dashed
 
-        return _dashed(
+        return _dashed(  # type: ignore[return-value]
             self,
             dashpat=dashpat,
             closed=self.closed if closed is None else closed,
@@ -866,7 +866,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         if maxlen is not None:
             assert method is None, "Cannot give method with maxlen"
             assert exact is None, "Cannot give exact with maxlen"
-            out = []
+            out: list[Any] = []
             for p0, p1 in Path._pair(path, closed):
                 steps = math.ceil(math.dist(p1, p0) / maxlen)
                 out.extend(lerpn(p0, p1, steps, endpoint=False))
@@ -888,22 +888,23 @@ class Path(Distributable, Extrudable, Roundable, list):
                 assert len(sides) == count, "Vector parameter sides to subdivide_path has the wrong length"
                 add_guess = add_scalar(list(sides), -1)
             else:
-                add_guess = Path._repeat((sides - len(path)) / count, count)
+                add_guess_r = Path._repeat((sides - len(path)) / count, count)
+                add_guess = add_guess_r  # type: ignore[assignment]
         else:
             assert isinstance(sides, (int, float)), (
                 'Parameter sides to subdivide path must be a number when method="length"'
             )
             path_lens = Path._path_segment_lengths(path, closed)
             add_density = (sides - len(path)) / sum(path_lens)
-            add_guess = [ln * add_density for ln in path_lens]
+            add_guess = [float(ln * add_density) for ln in path_lens]  # type: ignore[assignment]
         add_list = [float(v) for v in add_guess]
         add = Path._sum_preserving_round(add_list) if exact else [Path._scad_round(v) for v in add_list]
-        out = []
+        out2: list[Any] = []
         for i in range(count):
-            out.extend(lerpn(path[i], Path._select(path, i + 1), 1 + int(add[i]), endpoint=False))
+            out2.extend(lerpn(path[i], Path._select(path, i + 1), 1 + int(add[i]), endpoint=False))
         if not closed:
-            out.append(path[-1])
-        return out
+            out2.append(path[-1])
+        return out2
 
     @staticmethod
     def _resample_path(path, sides=None, spacing=None, closed: bool = True) -> list:
@@ -1096,7 +1097,7 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _path_cut_points_recurse(path, dists: Sequence[float], closed: bool = False) -> list:
-        result = []
+        result: list[Any] = []
         pind = 0
         dtotal = 0
         for dind in range(len(dists)):
@@ -1106,9 +1107,9 @@ class Path(Distributable, Extrudable, Roundable, list):
                 t = (dists[dind] - dtotal) / dpartial
                 nextpoint = [lerp(lastpt, Path._select(path, pind), t), pind]
             else:
-                nextpoint = Path._path_cut_single(path, dists[dind] - dtotal - dpartial, closed, pind)
+                nextpoint = Path._path_cut_single(path, dists[dind] - dtotal - dpartial, closed, pind)  # type: ignore[arg-type]
             result.append(nextpoint)
-            dtotal = dists[dind]
+            dtotal = dists[dind]  # type: ignore[assignment]
             pind = nextpoint[1]
         return result
 
@@ -1255,9 +1256,11 @@ class Path(Distributable, Extrudable, Roundable, list):
             bakmatch = approx(seg[1], fragment[-1], eps=eps)
             frags.append([fwdmatch, bakmatch, list(reversed(fragment)) if bakmatch else fragment])
         angs = []
-        for fwdmatch, bakmatch, frag in frags:
-            if fwdmatch or bakmatch:
-                delta2 = [frag[1][0] - frag[0][0], frag[1][1] - frag[0][1]]
+        fwdmatch_v: bool = False
+        for frag_tuple in frags:
+            fwdmatch_v, bakmatch, frag = frag_tuple[0], frag_tuple[1], frag_tuple[2]  # type: ignore[misc, assignment]
+            if fwdmatch_v or bakmatch:
+                delta2 = [frag[1][0] - frag[0][0], frag[1][1] - frag[0][1]]  # type: ignore[index]
                 segang2 = math.degrees(math.atan2(delta2[1], delta2[0]))
                 angs.append(Path._modang(segang2 - segang))
             else:
@@ -1394,7 +1397,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         pts = np.asarray(path, dtype=float)
         assert len(pts) >= 3, f"offset() needs at least 3 points, got {len(pts)}"
 
-        amount = float(radius if radius is not None else delta)
+        amount = float(radius if radius is not None else delta)  # type: ignore[arg-type]
         use_round = radius is not None
         if amount == 0:
             return [[float(x), float(y)] for x, y in pts]
@@ -1722,8 +1725,8 @@ class Path3D(Distributable, Extrudable, Roundable, list):
     def translate(self, v: Sequence[float]) -> "Path3D":
         """Translate every point by *v* (a shorter vector pads with zeros)."""
         vv = np.zeros(3)
-        v = np.asarray(v, dtype=float)
-        vv[: min(3, len(v))] = v[: min(3, len(v))]
+        va = np.asarray(v, dtype=float)
+        vv[: min(3, len(va))] = va[: min(3, len(va))]
         return self._like(self.array + vv)
 
     move = translate
@@ -1739,7 +1742,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         from bosl2.transforms import axis_angle_matrix
 
         if v is not None:
-            m = np.asarray(axis_angle_matrix(a, v), dtype=float)
+            m = np.asarray(axis_angle_matrix(float(a), list(v)), dtype=float)
         elif isinstance(a, (list, tuple, np.ndarray)):
             rx, ry, rz = (list(a) + [0, 0, 0])[:3]
             mx = np.asarray(axis_angle_matrix(rx, [1, 0, 0]), dtype=float)
@@ -1747,7 +1750,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
             mz = np.asarray(axis_angle_matrix(rz, [0, 0, 1]), dtype=float)
             m = mz @ my @ mx
         else:
-            m = np.asarray(axis_angle_matrix(a, [0, 0, 1]), dtype=float)
+            m = np.asarray(axis_angle_matrix(float(a), [0, 0, 1]), dtype=float)
         return self._like(self.array @ m.T)
 
     rot = rotate
@@ -1789,7 +1792,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
 
     def path2d(self) -> "Path":
         """Drop the Z coordinate, giving a 2-D :class:`Path` (the XY projection)."""
-        return Path(self.array[:, :2], closed=self.closed)
+        return Path(self.array[:, :2].tolist(), closed=self.closed)
 
     def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any):
         """
@@ -1810,7 +1813,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         dashpat: Sequence[float] = (3, 3),
         closed: bool | None = None,
         **kwargs: Any,
-    ) -> list["Path3D"]:
+    ) -> "list[Path | Path3D]":  # type: ignore[override]
         """Break this 3-D path into dash sub-paths (see :func:`bosl2.drawing.dashed_stroke`)."""
         from bosl2.drawing import dashed_stroke as _dashed
 

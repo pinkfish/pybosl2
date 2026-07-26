@@ -592,7 +592,12 @@ class Bosl2Shape2D(Distributable, Colorable):
         """
         from bosl2.shapes3d import Bosl2Solid
 
-        kw: dict[str, Any] = {"height": height, "center": center, "twist": twist, "scale": scale}
+        kw: dict[str, Any] = {
+            "height": height,
+            "center": center,
+            "twist": twist,
+            "scale": scale,
+        }
         if slices is not None:
             kw["slices"] = slices
         if convexity is not None:
@@ -621,7 +626,12 @@ class Bosl2Shape2D(Distributable, Colorable):
         from bosl2.shapes3d import Bosl2Solid
 
         kw: dict[str, Any] = {"angle": angle}
-        for name, value in (("convexity", convexity), ("fn", fn), ("fa", fa), ("fs", fs)):
+        for name, value in (
+            ("convexity", convexity),
+            ("fn", fn),
+            ("fa", fa),
+            ("fs", fs),
+        ):
             if value is not None:
                 kw[name] = value
         kw.update(kwargs)
@@ -729,7 +739,8 @@ class Bosl2Shape2D(Distributable, Colorable):
 
 def _as_native_2d(obj: "Shape2DLike") -> "PyOpenSCAD":
     """A raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape, a
-    :class:`~bosl2.paths.Path` / :class:`~bosl2.regions.Region`, or a plain point list."""
+    :class:`~bosl2.paths.Path` / :class:`~bosl2.regions.Region`, or a plain point list.
+    """
     from bosl2._helpers import unwrap
 
     unwrapped = unwrap(obj)
@@ -745,7 +756,8 @@ def _as_native_2d(obj: "Shape2DLike") -> "PyOpenSCAD":
 
 def _is_child_2d(obj: "Shape2DLike | Sequence[Shape2DLike]") -> bool:
     """True if *obj* is a single 2-D child rather than a container of children -- a wrapper or
-    native shape, a Path/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list."""
+    native shape, a Path/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
+    """
     if not isinstance(obj, (list, tuple)):
         return True  # a wrapper or a native handle
     if callable(getattr(obj, "geometry", None)):
@@ -830,7 +842,7 @@ def _rect_path(
     quadpos = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
     eps = 1e-9
     insets = [
-        chamfer_l[i] if abs(chamfer_l[i]) >= eps else (rounding_l[i] if abs(rounding_l[i]) >= eps else 0)
+        (chamfer_l[i] if abs(chamfer_l[i]) >= eps else (rounding_l[i] if abs(rounding_l[i]) >= eps else 0))
         for i in range(4)
     ]
     insets_x = max(insets[0] + insets[1], insets[2] + insets[3])
@@ -1088,15 +1100,15 @@ def arc(
         return Path(out, closed=wedge)
 
     # -- radius + angle (with optional [start, end] range) -----------------------------------
-    arc_radius = _pick_radius(radius=radius, diameter=diameter)
+    arc_radius: float | None = _pick_radius(radius=radius, diameter=diameter)
     assert arc_radius is not None, "arc() needs radius=/diameter=, points=, corner=, or width=/thickness="
     if isinstance(angle, (list, tuple, np.ndarray)):
         assert start is None, "start= is not allowed with angle=[start, end]"
-        calc_start = float(angle[0])
-        calc_angle = float(angle[1]) - float(angle[0])
+        calc_start = float(angle[0])  # type: ignore[arg-type]
+        calc_angle = float(angle[1]) - float(angle[0])  # type: ignore[arg-type]
     else:
-        calc_angle = 360.0 if angle is None else float(angle)
-        calc_start = 0.0 if start is None else float(start)
+        calc_angle = 360.0 if angle is None else float(angle)  # type: ignore[arg-type]
+        calc_start = 0.0 if start is None else float(start)  # type: ignore[arg-type]
     calc_center = (0.0, 0.0) if center is None else center
     point_count = (
         count if count is not None else math.ceil(_frag_count(arc_radius, fn, fa, fs) * abs(calc_angle) / 360) + 1
@@ -1287,7 +1299,7 @@ def regular_ngon(
         diameter2=outer_diameter,
         radius=radius,
         diameter=diameter,
-        dflt=side_s,
+        dflt=side_s if side_s is not None else 0.0,  # type: ignore[arg-type]
     )
     if rad is None:
         raise ValueError(
@@ -1517,11 +1529,11 @@ def _trapezoid_path(
         b = [a[0] + hyp * qdirs[i][0] * sign_b, a[1]]
         center = [base[i][0] + b[0], base[i][1] + b[1]]
         if srads[i] > 0:
-            a0, a1 = angle_pairs[i]["pos"]
+            a0, a1 = angle_pairs[i]["pos"]  # type: ignore[index]
         elif flip:
-            a0, a1 = angle_pairs[i]["flip"]
+            a0, a1 = angle_pairs[i]["flip"]  # type: ignore[index]
         else:
-            a0, a1 = angle_pairs[i]["neg"]
+            a0, a1 = angle_pairs[i]["neg"]  # type: ignore[index]
         point_count = max(3, math.ceil(_frag_count(rads[i], fn, fa, fs) * abs(a1 - a0) / 360)) if rounds[i] else 2
         cpath.extend(_arc_points(point_count, rads[i], a0, a1 - a0, center))
     return list(reversed(cpath))
@@ -2059,7 +2071,7 @@ def keyhole(
     def _arc(**kw):
         return arc(endpoint=False, fn=fn, fa=fa, fs=fs, **kw)
 
-    path = []
+    path: list[Any] = []
     if r1v > r2v:
         path += (
             [spt1]
@@ -2297,18 +2309,21 @@ def shell2d(
         if isinstance(inner_radius, (int, float))
         else [float(v) for v in inner_radius]
     )
-    kw = {"fn": fn, "fa": fa, "fs": fs}
     base = Bosl2Shape2D(_as_native_2d(children))
     outer_shape = round2d(
         outer_radius=orad[0],
         inner_radius=orad[1],
         children=base.offset(delta=th[1], fn=fn, fa=fa, fs=fs),
-        **kw,
+        fn=fn,
+        fa=fa,
+        fs=fs,  # type: ignore[arg-type]
     )
     inner_shape = round2d(
         outer_radius=irad[1],
         inner_radius=irad[0],
         children=base.offset(delta=th[0], fn=fn, fa=fa, fs=fs),
-        **kw,
+        fn=fn,
+        fa=fa,
+        fs=fs,  # type: ignore[arg-type]
     )
     return outer_shape - inner_shape

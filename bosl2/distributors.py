@@ -302,7 +302,7 @@ def grid_copies(
 def rot_copies(
     rots=None,
     v=None,
-    center: bool = (0, 0, 0),
+    center: "bool | Sequence[float]" = (0, 0, 0),
     sides=None,
     sa: float = 0,
     offset=0,
@@ -336,7 +336,7 @@ def rot_copies(
 
 def xrot_copies(
     rots=None,
-    center: bool = (0, 0, 0),
+    center: "bool | Sequence[float]" = (0, 0, 0),
     sides=None,
     sa: float = 0,
     radius: float | None = None,
@@ -361,7 +361,7 @@ def xrot_copies(
 
 def yrot_copies(
     rots=None,
-    center: bool = (0, 0, 0),
+    center: "bool | Sequence[float]" = (0, 0, 0),
     sides=None,
     sa: float = 0,
     radius: float | None = None,
@@ -386,7 +386,7 @@ def yrot_copies(
 
 def zrot_copies(
     rots=None,
-    center: bool = (0, 0, 0),
+    center: "bool | Sequence[float]" = (0, 0, 0),
     sides=None,
     sa: float = 0,
     radius: float | None = None,
@@ -534,7 +534,7 @@ def mirror_copy(v=(0, 0, 1), offset=0, center: bool | list[float] | None = None)
     off = nv * offset
     return [
         translate4(off),
-        translate4(cen) @ _mirror4(nv) @ translate4(-cen) @ translate4(off),
+        translate4(np.asarray(cen)) @ _mirror4(nv) @ translate4(-np.asarray(cen)) @ translate4(off),
     ]
 
 
@@ -608,7 +608,7 @@ class Distributable(ABC):
         self,
         rots=None,
         v=None,
-        center: bool = (0, 0, 0),
+        center: "bool | Sequence[float]" = (0, 0, 0),
         sides=None,
         sa: float = 0,
         offset=0,
@@ -621,7 +621,7 @@ class Distributable(ABC):
     def xrot_copies(
         self,
         rots=None,
-        center: bool = (0, 0, 0),
+        center: "bool | Sequence[float]" = (0, 0, 0),
         sides=None,
         sa: float = 0,
         radius: float | None = None,
@@ -634,7 +634,7 @@ class Distributable(ABC):
     def yrot_copies(
         self,
         rots=None,
-        center: bool = (0, 0, 0),
+        center: "bool | Sequence[float]" = (0, 0, 0),
         sides=None,
         sa: float = 0,
         radius: float | None = None,
@@ -647,7 +647,7 @@ class Distributable(ABC):
     def zrot_copies(
         self,
         rots=None,
-        center: bool = (0, 0, 0),
+        center: "bool | Sequence[float]" = (0, 0, 0),
         sides=None,
         sa: float = 0,
         radius: float | None = None,
