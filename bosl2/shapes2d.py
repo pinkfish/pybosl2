@@ -901,7 +901,7 @@ def rect(
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides for rounded corners
     """
-    sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
+    sz = [float(size), float(size)] if isinstance(size, (int, float)) else [v for v in size]
     path = _rect_path(sz, rounding=rounding, chamfer=chamfer, fn=fn, fa=fa, fs=fs)
     shape = _opolygon(path)
     complex_shape = (rounding != 0 if isinstance(rounding, (int, float)) else any(rounding)) or (
@@ -1158,6 +1158,21 @@ def circle(
     n = _frag_count(rad, fn, fa, fs)
     offset = _anchor_offset_hull(_circle_pts(rad, n), anchor)
     return _finish(shape, offset, spin)
+
+
+def polygon(
+    path: Sequence[Sequence[float]],
+    anchor: Sequence[float] = CENTER,
+    spin: float = 0,
+) -> Bosl2Shape2D:
+    """A polygon, built with the builtin polygon(), with anchor/spin support.
+
+    Args:
+        path:   polygon path
+        anchor: anchor point (default CENTER)
+        spin:   Z-axis rotation in degrees after anchor (default 0)
+    """
+    return _finish(_opolygon(path), anchor, spin)
 
 
 def ellipse(
