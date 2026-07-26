@@ -398,7 +398,7 @@ class Screws:
         length: float,
         head: str = "socket",
         drive: str = "none",
-        thread: str = True,
+        thread: str = "coarse",
         thread_len: float | None = None,
         pitch: float | None = None,
         fn: int | None = None,
@@ -500,7 +500,7 @@ class Screws:
     @staticmethod
     def nut(
         spec,
-        thickness: float = "normal",
+        thickness: float | None = None,
         shape="hex",
         thread: str = "coarse",
         nutwidth: float | None = None,
@@ -530,7 +530,7 @@ class Screws:
         head: str = "none",
         counterbore=0.0,
         fit: str = "normal",
-        thread: str = False,
+        thread: str = "none",
         pitch: float | None = None,
         fn: int | None = None,
         fa: float | None = None,
@@ -596,6 +596,8 @@ def _nut_dims(diam, thickness, nutwidth):
     """
     spec = _closest(_NUT, diam)
     width = float(nutwidth) if nutwidth is not None else spec.width
+    if thickness is None:
+        return width, spec.normal
     if isinstance(thickness, (int, float)):
         return width, float(thickness)
     t = str(thickness).lower()
