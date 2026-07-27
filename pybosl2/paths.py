@@ -403,17 +403,17 @@ class Path(Distributable, Extrudable, Roundable, list):
     #
     # A Path is backend-neutral -- it is just points -- but 2-D *geometry* is not: only the CSG
     # backend has a 2-D shape (Bosl2Shape2D). The SDF backend models a field over 3-space and
-    # has no 2-D object to hand back, so these four raise UnsupportedByBackend under it rather
+    # has no 2-D object to hand back, so these four raise UnsupportedByBackendError under it rather
     # than quietly building CSG geometry that could not then be combined with SDF solids.
     # The extruders below, which end in a 3-D solid, DO work on both.
 
     def _require_csg(self, feature: str) -> None:
         from pybosl2._backend import current_backend
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
         backend = current_backend()
         if backend != "csg":
-            raise UnsupportedByBackend(
+            raise UnsupportedByBackendError(
                 feature,
                 backend,
                 hint="2-D geometry is a csg-backend notion; the sdf backend goes straight from "
@@ -430,7 +430,7 @@ class Path(Distributable, Extrudable, Roundable, list):
             (``.linear_extrude(...)``).
 
         Raises:
-            ~pybosl2.exceptions.UnsupportedByBackend: under ``use_backend("sdf")`` -- see the note
+            ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` -- see the note
             above :meth:`linear_extrude`, which works on both backends.
         """
         from pythonscad import polygon as _polygon
@@ -493,7 +493,7 @@ class Path(Distributable, Extrudable, Roundable, list):
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
 
         Raises:
-            ~pybosl2.exceptions.UnsupportedByBackend: under ``use_backend("sdf")`` -- the SDF
+            ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` -- the SDF
             backend has no revolve; sweep the profile instead
             (:func:`pybosl2._sdf.shapes3d.path_sweep`).
         """

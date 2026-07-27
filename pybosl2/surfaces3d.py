@@ -183,15 +183,15 @@ def _heightfield_reorient_tris(
     :func:`_heightfield_reorient` (verified to render identically in PythonSCAD) and faster. Returns
     None for a non-manifold mesh (an edge shared by 3+ faces), deferring to the flood-fill.
     """
-    P = np.asarray(pts, dtype=float)
-    F = len(faces)
+    pts_arr = np.asarray(pts, dtype=float)
+    nfaces = len(faces)
     tris = np.asarray(faces, dtype=np.int64)
     src = tris[:, [0, 1, 2]].ravel()
     dst = tris[:, [1, 2, 0]].ravel()
-    key = np.minimum(src, dst).astype(np.int64) * len(P) + np.maximum(src, dst)
+    key = np.minimum(src, dst).astype(np.int64) * len(pts_arr) + np.maximum(src, dst)
     order = np.argsort(key, kind="stable")
     key = key[order]
-    fid = np.repeat(np.arange(F), 3)[order]
+    fid = np.repeat(np.arange(nfaces), 3)[order]
     fwd = (src < dst)[order]
     _, counts = np.unique(key, return_counts=True)
     if counts.size and counts.max() > 2:
@@ -206,8 +206,8 @@ def _heightfield_reorient_tris(
     # two triangles sharing an edge agree iff they traverse it in OPPOSITE order; equal fwd -> flip
     need_flip = (fwd[pairs - 1] == fwd[pairs]).tolist()
 
-    parent = list(range(F))
-    parity = bytearray(F)  # parity[x] = orientation of x relative to parent[x]
+    parent = list(range(nfaces))
+    parity = bytearray(nfaces)  # parity[x] = orientation of x relative to parent[x]
 
     def find(x: int) -> int:
         path = []
@@ -229,13 +229,13 @@ def _heightfield_reorient_tris(
             pb = parity[b] if b != rb else 0
             parent[ra] = rb
             parity[ra] = pa ^ pb ^ (1 if nf else 0)
-    for i in range(F):
+    for i in range(nfaces):
         find(i)
 
     flip = np.frombuffer(bytes(parity), dtype=np.uint8).astype(bool)
     out = tris.copy()
     out[flip] = out[flip][:, ::-1]
-    v0, v1, v2 = P[out[:, 0]], P[out[:, 1]], P[out[:, 2]]
+    v0, v1, v2 = pts_arr[out[:, 0]], pts_arr[out[:, 1]], pts_arr[out[:, 2]]
     if float(np.einsum("ij,ij->", v0, np.cross(v1, v2))) > 0:
         out = out[:, ::-1]
     return out.tolist()

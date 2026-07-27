@@ -84,7 +84,6 @@ select = ["N", "E", "F", "I", "B", "SIM", "RUF100", "A", "C4", "CPY", "PIE", "PY
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["N", "ARG"]
-"pybosl2/**" = ["N"]
 
 [tool.ruff.format]
 # Use double quotes for strings

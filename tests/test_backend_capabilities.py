@@ -5,21 +5,21 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 """Milestone 5 of the CSG/SDF merge: the capability map. A backend-exclusive feature raises
-UnsupportedByBackend on the other backend (rather than a confusing AttributeError -- or, on the SDF
+UnsupportedByBackendError on the other backend (rather than a confusing AttributeError -- or, on the SDF
 side, meshing via libfive just to fail)."""
 
 import pytest
 
 from pybosl2 import solid
 from pybosl2._backend import supports, use_backend
-from pybosl2.exceptions import UnsupportedByBackend
+from pybosl2.exceptions import UnsupportedByBackendError
 
 
 @pytest.mark.parametrize("feature", ["attach", "anchor_point", "align", "edge_mask", "face_profile"])
 def test_csg_attachment_features_unsupported_on_sdf(feature):
     with use_backend("sdf"):
         s = solid.sphere(radius=10)  # building is FFI-free; the check fires before any meshing
-        with pytest.raises(UnsupportedByBackend) as ei:
+        with pytest.raises(UnsupportedByBackendError) as ei:
             getattr(s, feature)
         assert ei.value.backend == "sdf" and ei.value.feature == feature
 
@@ -27,7 +27,7 @@ def test_csg_attachment_features_unsupported_on_sdf(feature):
 @pytest.mark.parametrize("feature", ["round", "chamfer"])
 def test_sdf_edge_treatments_unsupported_on_csg(feature):
     s = solid.sphere(radius=10)  # csg (default)
-    with pytest.raises(UnsupportedByBackend) as ei:
+    with pytest.raises(UnsupportedByBackendError) as ei:
         getattr(s, feature)
     assert ei.value.backend == "csg" and ei.value.feature == feature
 

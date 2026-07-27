@@ -58,11 +58,11 @@ class SdfBackend:
         options that shear the profile as it rises (``twist``/``scale``/``slices``) have no
         polygon_prism equivalent and are rejected rather than silently ignored.
         """
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
         for name in ("twist", "scale", "slices", "convexity"):
             if kwargs.pop(name, None) not in (None, 0, 1, False):
-                raise UnsupportedByBackend(
+                raise UnsupportedByBackendError(
                     f"linear_extrude({name}=)",
                     "sdf",
                     hint="polygon_prism() extrudes a constant cross-section; build the shape on "

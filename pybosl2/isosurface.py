@@ -164,22 +164,22 @@ def isosurface(
         iso = float(isovalue)
 
     if isinstance(f, np.ndarray) or (isinstance(f, (list, tuple)) and not callable(f)):
-        F = np.asarray(f, dtype=float)
+        field = np.asarray(f, dtype=float)
         if bounding_box is None:
             vs = _voxsize_vec(voxel_size if voxel_size is not None else 1.0)
-            half = 0.5 * vs * (np.array(F.shape) - 1)
+            half = 0.5 * vs * (np.array(field.shape) - 1)
             bbox, voxsize = np.array([-half, half]), vs
         else:
             bbox = _to_bbox(bounding_box)
-            voxsize = (bbox[1] - bbox[0]) / (np.array(F.shape) - 1)
+            voxsize = (bbox[1] - bbox[0]) / (np.array(field.shape) - 1)
         xs, ys, zs = _grid_axes(bbox, voxsize)
     else:
         assert bounding_box is not None, "isosurface(): a callable field needs a bounding_box."
         bbox, voxsize = _resolve_grid(_to_bbox(bounding_box), voxel_size, voxel_count, exact_bounds)
         xs, ys, zs = _grid_axes(bbox, voxsize)
-        F = _sample_field(f, xs, ys, zs)
+        field = _sample_field(f, xs, ys, zs)
 
-    verts, faces = _marching_cubes(F, xs, ys, zs, iso, closed)
+    verts, faces = _marching_cubes(field, xs, ys, zs, iso, closed)
     vnf = VNF(verts, faces)
     if len(faces):
         vol = vnf.volume()
@@ -188,13 +188,13 @@ def isosurface(
     return vnf
 
 
-def _marching_cubes(F, xs, ys, zs, iso, closed):
+def _marching_cubes(field, xs, ys, zs, iso, closed):
     if closed:
-        F = np.pad(F, 1, mode="constant", constant_values=-1e30)
+        field = np.pad(field, 1, mode="constant", constant_values=-1e30)
         xs = np.concatenate([[xs[0] - (xs[1] - xs[0])], xs, [xs[-1] + (xs[-1] - xs[-2])]])
         ys = np.concatenate([[ys[0] - (ys[1] - ys[0])], ys, [ys[-1] + (ys[-1] - ys[-2])]])
         zs = np.concatenate([[zs[0] - (zs[1] - zs[0])], zs, [zs[-1] + (zs[-1] - zs[-2])]])
-    nx, ny, nz = F.shape
+    nx, ny, nz = field.shape
     coords = (xs, ys, zs)
     verts = []
     faces = []
@@ -210,7 +210,7 @@ def _marching_cubes(F, xs, ys, zs, iso, closed):
         if idx is not None:
             return idx
         (ia, ja, ka), (ib, jb, kb) = key
-        va, vb = F[ia, ja, ka], F[ib, jb, kb]
+        va, vb = field[ia, ja, ka], field[ib, jb, kb]
         t = 0.5 if va == vb else (iso - va) / (vb - va)
         pa = np.array([coords[0][ia], coords[1][ja], coords[2][ka]])
         pb = np.array([coords[0][ib], coords[1][jb], coords[2][kb]])
@@ -223,7 +223,7 @@ def _marching_cubes(F, xs, ys, zs, iso, closed):
         for j in range(ny - 1):
             for k in range(nz - 1):
                 cvals = [
-                    F[
+                    field[
                         i + CORNER_OFFSETS[c][0],
                         j + CORNER_OFFSETS[c][1],
                         k + CORNER_OFFSETS[c][2],

@@ -14,7 +14,7 @@
 # overridden for a block with ``use_backend("sdf")`` or changed globally with
 # ``set_default_backend``. Shape constructors dispatch on :func:`current_backend`; operands of a
 # boolean/transform must share a backend (see :class:`~pybosl2.exceptions.CrossBackendError`), and a
-# call a backend cannot express raises :class:`~pybosl2.exceptions.UnsupportedByBackend`.
+# call a backend cannot express raises :class:`~pybosl2.exceptions.UnsupportedByBackendError`.
 #
 # This module holds only the *selection* machinery and the shared :class:`Solid` /
 # :class:`SolidBackend` contracts -- it imports neither native runtime, so it stays FFI-free.
@@ -44,7 +44,7 @@ __all__ = [
 ]
 
 # Features one backend has that the other cannot faithfully express. Calling one of these on the
-# wrong backend raises UnsupportedByBackend (see the wrappers' __getattr__) instead of a confusing
+# wrong backend raises UnsupportedByBackendError (see the wrappers' __getattr__) instead of a confusing
 # AttributeError -- or, for the SDF backend, instead of meshing just to fail.
 CSG_ONLY_FEATURES = frozenset(
     {  # BOSL2's attachment / anchor system -- no SDF equivalent
@@ -85,9 +85,9 @@ def supports(backend: str, feature: str) -> bool:
 
 
 def unsupported_feature(backend: str, name: str):
-    """The :class:`~pybosl2.exceptions.UnsupportedByBackend` to raise if *name* is exclusive to the
+    """The :class:`~pybosl2.exceptions.UnsupportedByBackendError` to raise if *name* is exclusive to the
     OTHER backend, else ``None`` (so the caller can fall through to normal attribute handling)."""
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
 
     if backend == "sdf" and name in CSG_ONLY_FEATURES:
         hint = "attachment/anchoring is a CSG-backend feature; build it with the default (csg) backend."
@@ -97,9 +97,9 @@ def unsupported_feature(backend: str, name: str):
                 "(pybosl2.shapes2d.Bosl2Shape2D). Convert first with .to_csg(), or build the shape "
                 "on the default (csg) backend."
             )
-        return UnsupportedByBackend(name, "sdf", hint=hint)
+        return UnsupportedByBackendError(name, "sdf", hint=hint)
     if backend == "csg" and name in SDF_ONLY_FEATURES:
-        return UnsupportedByBackend(
+        return UnsupportedByBackendError(
             name,
             "csg",
             hint=f"the csg backend has no implicit {name}(); use the rounding=/chamfer= "

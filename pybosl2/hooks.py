@@ -155,14 +155,14 @@ class Hooks:
 
 def _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, fn, fa=None, fs=None):
     """The solid to subtract for the through-hole, laid along Y and centred at z=hole_z."""
-    L = w + 2
+    length_ = w + 2
     if custom:
         pts = [[float(p[0]), float(p[1])] for p in hole]
-        cut = _opolygon(pts).linear_extrude(height=L, center=True)
+        cut = _opolygon(pts).linear_extrude(height=length_, center=True)
         return Bosl2Solid(cut).rotate([90, 0, 0]).up(hole_z)
     rnd = hole_rounding if hole_rounding else None
-    bore = cyl(height=L, radius=ri, rounding=rnd, fn=fn, fa=fa, fs=fs).rotate([90, 0, 0]).up(hole_z)
+    bore = cyl(height=length_, radius=ri, rounding=rnd, fn=fn, fa=fa, fs=fs).rotate([90, 0, 0]).up(hole_z)
     if hole == "D":  # keep the upper half -> flat-bottomed D-hole
-        upper = cuboid([2 * ri + 2, L + 2, 2 * ri], fn=fn, fa=fa, fs=fs).up(hole_z + ri)
+        upper = cuboid([2 * ri + 2, length_ + 2, 2 * ri], fn=fn, fa=fa, fs=fs).up(hole_z + ri)
         bore = bore & upper
     return bore

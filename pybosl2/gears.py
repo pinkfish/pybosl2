@@ -1103,11 +1103,11 @@ class Gears:
         midpr = (icone_rad + ocone_rad) / 2
         radcp = np.array([0.0, midpr]) + _polar_xy(cutter_radius, 180 + spiral_angle)
         ncp = float(np.linalg.norm(radcp))
-        angC1 = _law_of_cosines(cutter_radius, ncp, ocone_rad)
-        angC2 = _law_of_cosines(cutter_radius, ncp, icone_rad)
+        ang_c1 = _law_of_cosines(cutter_radius, ncp, ocone_rad)
+        ang_c2 = _law_of_cosines(cutter_radius, ncp, icone_rad)
         radcpang = math.degrees(math.atan2(radcp[1], radcp[0]))
-        sang = radcpang - (180 - angC1)
-        eang = radcpang - (180 - angC2)
+        sang = radcpang - (180 - ang_c1)
+        eang = radcpang - (180 - ang_c2)
         profile = _simple_tooth(center, teeth, pressure_angle, clearance, backlash, interior, center=True)
         prof3 = [[x, y, 0.0] for x, y in profile]
         tan_pa = math.tan(math.radians(pitch_angle))
