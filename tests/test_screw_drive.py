@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.screw_drive: the Phillips/hex/Torx/Robertson driver-recess masks and their
+"""Tests for pybosl2.screw_drive: the Phillips/hex/Torx/Robertson driver-recess masks and their
 dimensional helpers. The numeric helpers are checked against the values transcribed from BOSL2's
 screw_drive.scad; the mask builders are smoke-tested (they return a Bosl2Solid and compose via CSG)."""
 
 import pytest
 
-from bosl2.screw_drive import ScrewDrive as SD
-from bosl2.shapes3d import Bosl2Solid, cyl
+from pybosl2.screw_drive import ScrewDrive as SD
+from pybosl2.shapes3d import Bosl2Solid, cyl
 
 # ---- Torx dimensional info (verbatim from screw_drive.scad) ----
 
@@ -30,7 +30,7 @@ def test_torx_info_values():
 
 
 def test_torx_info_is_dataclass():
-    from bosl2.screw_drive import TorxSpec
+    from pybosl2.screw_drive import TorxSpec
 
     assert isinstance(SD.torx_info(30), TorxSpec)
 

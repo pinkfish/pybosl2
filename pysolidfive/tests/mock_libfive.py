@@ -17,7 +17,7 @@
 
 # LibFile: pysolidfive/tests/mock_libfive.py
 #    A numeric-evaluation stand-in for the real `libfive` module (and just enough of
-#    `pythonscad`/`openscad` for pysolidfive to load -- pysolidfive itself has no bosl2
+#    `pythonscad`/`openscad` for pysolidfive to load -- pysolidfive itself has no pybosl2
 #    dependency, so nothing beyond this stand-in is needed), so pysolidfive's SDF math can be
 #    exercised and checked against hand-derived expected values without a real PythonSCAD/libfive
 #    build -- which this environment doesn't have.
@@ -25,7 +25,7 @@
 #    Also shared, unmodified, by every other library's mock test suite in the parent repo's own
 #    tests/ directory (test_labels.py, test_base_bgtk.py, test_components.py, test_lids_base.py,
 #    test_sliding_box.py) -- those libraries build real geometry via native primitives/BOSL2/the
-#    bosl2/ port rather than SDFs, so this mock only stands in for whatever small pysolidfive
+#    pybosl2/ port rather than SDFs, so this mock only stands in for whatever small pysolidfive
 #    pieces they compose with, but they still need the same `libfive`/`pythonscad` stub installed
 #    before *anything* (including pysolidfive) gets imported in the same process.
 #
@@ -202,8 +202,8 @@ _bmax = _bi.max
 
 class _AabbSolid:
     """A tiny native-solid stand-in that tracks an axis-aligned bounding box through the
-    transforms/booleans bosl2 uses, and exposes it as `.position`/`.size` -- the same native
-    accessors PythonSCAD's real PyOpenSCAD provides. This lets bosl2's bbox-backed anchoring
+    transforms/booleans pybosl2 uses, and exposes it as `.position`/`.size` -- the same native
+    accessors PythonSCAD's real PyOpenSCAD provides. This lets pybosl2's bbox-backed anchoring
     (Bosl2Solid.bounds()/anchor_point()/attach()/position()/align()) be unit-tested numerically
     without the real app. `mn`/`mx` are the AABB corners, or None for an unknown/2-D shape (its
     .position/.size then read None, matching the real API's empty-geometry sentinel).
@@ -565,7 +565,7 @@ def _mock_rotate_extrude(shape, *a, **k) -> Any:
 
 def install():
     """Patch sys.modules with mock `libfive`/`pythonscad`/`openscad` modules, so `import pysolidfive`
-    (and its `bosl2.shapes2d`/`bosl2.shapes3d` imports) succeed without a real PythonSCAD app.
+    (and its `pybosl2.shapes2d`/`pybosl2.shapes3d` imports) succeed without a real PythonSCAD app.
     Idempotent -- safe to call more than once (e.g. from multiple test modules)."""
     libfive_mock = types.ModuleType("libfive")
     for name in ["Tree", "x", "y", "z", "sqrt", "square", "abs", "max", "min", "atan2"]:
@@ -573,7 +573,7 @@ def install():
     sys.modules["libfive"] = libfive_mock
 
     # pythonscad: frep() is real (routes to _FrepResult above). The 3-D primitives return an
-    # _AabbSolid that tracks its bounding box (so bosl2's bbox-backed anchoring is numerically
+    # _AabbSolid that tracks its bounding box (so pybosl2's bbox-backed anchoring is numerically
     # testable); the 2-D/other builders return a permissive bbox-less _AabbSolid. pysolidfive
     # itself never calls any of these (it only builds SDFs and calls frep()).
     pythonscad_mock = types.ModuleType("pythonscad")
@@ -596,7 +596,7 @@ def install():
         setattr(pythonscad_mock, name, lambda *a, **k: _AabbSolid())
     sys.modules["pythonscad"] = pythonscad_mock
 
-    # openscad: PyOpenSCAD needs to exist (bosl2/shapes3d.py imports the name for a type hint).
+    # openscad: PyOpenSCAD needs to exist (pybosl2/shapes3d.py imports the name for a type hint).
     # The geometry free functions imported by name (cap_box_polygon.py does
     # `from openscad import hull, polygon`) get the same AABB-aware stand-ins.
     openscad_mock = types.ModuleType("openscad")

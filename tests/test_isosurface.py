@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/isosurface.py: the marching-cubes mesher, the metaball field primitives, and
+"""Tests for pybosl2/isosurface.py: the marching-cubes mesher, the metaball field primitives, and
 metaballs(). The mb_* formulas are pinned to real BOSL2 in tests/test_bosl2_reorient.py; here we
 check the field values against their closed forms and the meshes GEOMETRICALLY (a lone metaball is
 a sphere; overlapping ones merge; a torus has a hole). Native VNF is mocked, so mesh volume/vertex
@@ -14,7 +14,7 @@ import math
 
 import numpy as np
 
-from bosl2.isosurface import (
+from pybosl2.isosurface import (
     isosurface,
     mb_capsule,
     mb_connector,

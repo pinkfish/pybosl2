@@ -1,6 +1,6 @@
 Approximate comparison
 ======================
-.. automodule:: bosl2.comparisons
+.. automodule:: pybosl2.comparisons
    :members:
    :undoc-members:
    :show-inheritance:

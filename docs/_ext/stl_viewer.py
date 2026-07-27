@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: bosl2/docs/_ext/stl_viewer.py
+# LibFile: pybosl2/docs/_ext/stl_viewer.py
 #    Sphinx extension providing an ``.. stl:: <uri>`` directive that embeds an INTERACTIVE 3-D
 #    viewer (rotate / pan / zoom) for an STL mesh, the same idea as the PyPI ``sphinxstl``
 #    package's directive -- but self-contained and working on current Sphinx.
@@ -15,10 +15,10 @@
 #    with three.js (loaded as ES modules from a CDN via esm.sh, so no importmap or vendored
 #    bundle is needed) and needs no build-finished asset copying.
 #
-#    ``bosl2/docs/_ext/bosl2_example.py`` reuses :func:`stl_viewer_html` to show an interactive
+#    ``pybosl2/docs/_ext/pybosl2_example.py`` reuses :func:`stl_viewer_html` to show an interactive
 #    viewer for each rendered example's exported STL, right beside its source and a download link.
 #
-# FileGroup: bosl2
+# FileGroup: pybosl2
 
 from __future__ import annotations
 

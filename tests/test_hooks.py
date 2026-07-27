@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.hooks: the ring hook."""
+"""Tests for pybosl2.hooks: the ring hook."""
 
 import math
 
 import pytest
 
-from bosl2.hooks import Hooks, _circle_point_tangents
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.hooks import Hooks, _circle_point_tangents
+from pybosl2.shapes3d import Bosl2Solid
 
 
 def _bounds(s):

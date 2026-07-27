@@ -2,9 +2,9 @@ Isosurface: marching cubes & metaballs
 ======================================
 
 Pure-Python port of the 3-D core of BOSL2's ``isosurface.scad``:
-:func:`~bosl2.isosurface.isosurface` meshes the level set of a scalar field over a voxel grid
-(marching cubes) into a :class:`~bosl2.vnf.VNF`; the ``mb_*`` functions are metaball field
-primitives; and :func:`~bosl2.isosurface.metaballs` sums transformed primitives and meshes the
+:func:`~pybosl2.isosurface.isosurface` meshes the level set of a scalar field over a voxel grid
+(marching cubes) into a :class:`~pybosl2.vnf.VNF`; the ``mb_*`` functions are metaball field
+primitives; and :func:`~pybosl2.isosurface.metaballs` sums transformed primitives and meshes the
 result into a blobby surface::
 
     isosurface(field_fn, isovalue=1, bounding_box=60, voxel_size=2)
@@ -13,7 +13,7 @@ result into a blobby surface::
 A field primitive returns a value that grows toward infinity at its center and falls off with
 distance; the surface is drawn where the summed field reaches *isovalue* (default 1). Because the
 fields add, overlapping metaballs bulge together into a smooth blob. The ``mb_*`` formulas are
-pinned point-for-point to real BOSL2 in ``tests/test_bosl2_reorient.py``; the meshes are watertight
+pinned point-for-point to real BOSL2 in ``tests/test_pybosl2_reorient.py``; the meshes are watertight
 and verified geometrically.
 
 The mesher uses the standard Paul Bourke marching-cubes triangle table, so its triangulation isn't
@@ -32,12 +32,12 @@ Coverage of BOSL2 ``isosurface.scad``
      - Notes
    * - ``isosurface``
      - ported
-     - :func:`~bosl2.isosurface.isosurface` -- marching cubes over a field callable or a
+     - :func:`~pybosl2.isosurface.isosurface` -- marching cubes over a field callable or a
        precomputed 3-D array; ``voxel_size``/``voxel_count``, ``closed``, ``reverse``, range
        isovalues ``[lo, hi]`` (collapsed to a one-sided threshold).
    * - ``metaballs``
      - ported
-     - :func:`~bosl2.isosurface.metaballs` -- a list of ``(transform, metaball)`` pairs (or the
+     - :func:`~pybosl2.isosurface.metaballs` -- a list of ``(transform, metaball)`` pairs (or the
        BOSL2 flat form).
    * - ``mb_sphere`` / ``mb_cuboid`` / ``mb_torus`` / ``mb_capsule`` / ``mb_disk`` / ``mb_octahedron`` / ``mb_connector``
      - ported
@@ -81,10 +81,10 @@ The level set of a custom field function:
 
 API reference
 -------------
-.. automodule:: bosl2.isosurface
+.. automodule:: pybosl2.isosurface
    :members:
    :undoc-members:
    :exclude-members: Metaball
 
-.. autoclass:: bosl2.isosurface.Metaball
+.. autoclass:: pybosl2.isosurface.Metaball
    :members:

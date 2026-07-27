@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.bottlecaps: the PCO-1810 / PCO-1881 bottle necks and caps. Each builder is
+"""Tests for pybosl2.bottlecaps: the PCO-1810 / PCO-1881 bottle necks and caps. Each builder is
 checked for the right overall envelope (width and height) against the transcribed BOSL2 dimensions,
 and that it returns a Bosl2Solid."""
 
 import pytest
 
-from bosl2.bottlecaps import BottleCaps as BC
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.bottlecaps import BottleCaps as BC
+from pybosl2.shapes3d import Bosl2Solid
 
 
 def _size(solid):

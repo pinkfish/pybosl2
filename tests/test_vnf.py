@@ -4,12 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/vnf.py: VNF construction, grid/tri meshing, join and rendering."""
+"""Tests for pybosl2/vnf.py: VNF construction, grid/tri meshing, join and rendering."""
 
 import numpy as np
 import pytest
 
-from bosl2.vnf import VNF, vnf_polyhedron
+from pybosl2.vnf import VNF, vnf_polyhedron
 
 
 def _grid(rows, cols, warp=False):

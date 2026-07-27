@@ -1,12 +1,12 @@
-bosl2 — a pure-Python PythonSCAD port of BOSL2
+pybosl2 — a pure-Python PythonSCAD port of BOSL2
 ==============================================
 
-``bosl2`` is a pure-Python / numpy port of the pieces of `BOSL2 <https://github.com/BelfrySCAD/BOSL2>`_
+``pybosl2`` is a pure-Python / numpy port of the pieces of `BOSL2 <https://github.com/BelfrySCAD/BOSL2>`_
 that this toolkit uses, with **no** ``osuse()``/BOSL2 runtime dependency. Every operation hangs off
-an object — :class:`~bosl2.paths.Path` for 2-D outlines, :class:`~bosl2.regions.Region` for
-outlines-with-holes, :class:`~bosl2.beziers.Bezier` / :class:`~bosl2.beziers.BezierPatch` for bezier
-curves and surfaces, :class:`~bosl2.vnf.VNF` for vertex-face meshes, and the
-:class:`~bosl2.shapes3d.Bosl2Solid` primitives — so new code reads as fluent chains::
+an object — :class:`~pybosl2.paths.Path` for 2-D outlines, :class:`~pybosl2.regions.Region` for
+outlines-with-holes, :class:`~pybosl2.beziers.Bezier` / :class:`~pybosl2.beziers.BezierPatch` for bezier
+curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
+:class:`~pybosl2.shapes3d.Bosl2Solid` primitives — so new code reads as fluent chains::
 
     Path([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(r=-2).round_corners(radius=1).polygon()
 
@@ -24,7 +24,7 @@ Rendered examples
 
 Every documented function with a rendered example shows both the exact PythonSCAD code and what the
 real PythonSCAD binary builds for it, via the ``pythonscad-example`` directive (in
-``docs/_ext/bosl2_example.py``): an **interactive 3-D viewer** for the exported STL mesh (rotate,
+``docs/_ext/pybosl2_example.py``): an **interactive 3-D viewer** for the exported STL mesh (rotate,
 pan and zoom — served by the ``stl_viewer`` extension's three.js viewer, a working drop-in for the
 ``sphinxstl`` ``.. stl::`` directive), plus a **download link** to the mesh. Two-dimensional or
 open-surface examples that have no solid mesh fall back to a static preview image.
@@ -32,7 +32,7 @@ open-surface examples that have no solid mesh fall back to a static preview imag
 .. note::
 
    The interactive viewers fetch each ``.stl`` over HTTP, so view the built docs through a web
-   server (for example ``python3 -m http.server`` from ``bosl2/wiki``) rather than opening the
+   server (for example ``python3 -m http.server`` from ``pybosl2/wiki``) rather than opening the
    HTML files directly with a ``file://`` URL, where browsers block the local mesh fetch. You can
    also embed a viewer for any STL yourself with ``.. stl:: path/to/mesh.stl``.
 

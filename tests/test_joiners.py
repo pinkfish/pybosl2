@@ -4,12 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.joiners: dovetail joints and snap-pin connectors."""
+"""Tests for pybosl2.joiners: dovetail joints and snap-pin connectors."""
 
 import pytest
 
-from bosl2.joiners import Joiners as J
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.joiners import Joiners as J
+from pybosl2.shapes3d import Bosl2Solid
 
 
 def _size(s):

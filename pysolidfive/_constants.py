@@ -18,9 +18,9 @@
 # LibFile: pysolidfive/_constants.py
 #    Direction-vector constants (TOP/BOTTOM/LEFT/RIGHT/FRONT/BACK/CENTER/...), needed for
 #    anchor=/edges= defaults throughout pysolidfive. Deliberately a vendored copy of the
-#    relevant subset of bosl2/constants.py rather than an import from it -- pysolidfive is meant
-#    to stand alone (no bosl2, and therefore no transitive numpy dependency; see the package
-#    docstring in pysolidfive/__init__.py), the same way base_bgtk.py and bosl2/constants.py
+#    relevant subset of pybosl2/constants.py rather than an import from it -- pysolidfive is meant
+#    to stand alone (no pybosl2, and therefore no transitive numpy dependency; see the package
+#    docstring in pysolidfive/__init__.py), the same way base_bgtk.py and pybosl2/constants.py
 #    each carry their own independent copy of this same Vec3/direction-vector idiom instead of
 #    sharing one.
 #

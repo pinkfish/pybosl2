@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/vectors.py: is_vector(), add_scalar(), unit()."""
+"""Tests for pybosl2/vectors.py: is_vector(), add_scalar(), unit()."""
 
 import math
 
 import numpy as np
 import pytest
 
-from bosl2.vectors import add_scalar, is_vector, unit
+from pybosl2.vectors import add_scalar, is_vector, unit
 
 
 def test_is_vector_basic():

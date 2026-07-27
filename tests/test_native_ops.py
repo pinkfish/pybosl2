@@ -12,8 +12,8 @@ test_stl_render.py."""
 
 import pytest
 
-import bosl2.shapes3d as s3
-from bosl2.shapes3d import Bosl2Solid
+import pybosl2.shapes3d as s3
+from pybosl2.shapes3d import Bosl2Solid
 
 # roof() maps onto a native op that the full PythonSCAD app provides but the pip
 # `pythonscad` wheel does not; skip its test when the underlying op is missing.
@@ -36,7 +36,7 @@ def test_wrap_returns_solid_with_and_without_fn():
 @pytest.mark.skipif(not _HAS_ROOF, reason="native roof() not provided by the pythonscad pip wheel")
 def test_roof_is_2d_to_3d_constructor():
     # roof() is a 2-D -> 3-D constructor (a hip roof over a 2-D outline), not a solid method.
-    import bosl2.shapes2d as s2
+    import pybosl2.shapes2d as s2
 
     assert isinstance(s3.roof(s2.square([20, 20], center=True)), Bosl2Solid)
     # accepts a Bosl2Solid-wrapped 2-D shape too

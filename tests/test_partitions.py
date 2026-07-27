@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/partitions.py: the cut-path generators and the Partitionable cut operators on
+"""Tests for pybosl2/partitions.py: the cut-path generators and the Partitionable cut operators on
 Bosl2Solid. partition_path is pinned to real BOSL2 in tests/test_bosl2_reorient.py; here we check
 the segment grammar and that each cutting method builds. Native geometry is mocked, so the
 geometric correctness (half volumes, interlocking pieces) is verified in test_stl_render.py."""
@@ -14,7 +14,7 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.partitions import (
+from pybosl2.partitions import (
     _partition_cutpath,
     _partition_subpath,
     _ptn_sect,
@@ -22,8 +22,8 @@ from bosl2.partitions import (
     partition_mask,
     partition_path,
 )
-from bosl2.paths import Path
-from bosl2.shapes3d import Bosl2Solid, cuboid, sphere
+from pybosl2.paths import Path
+from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
 # -- cut-path generators ------------------------------------------------------------------
 

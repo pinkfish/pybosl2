@@ -13,9 +13,9 @@ import importlib.util
 
 import pytest
 
-from bosl2 import solid
-from bosl2._backend import use_backend
-from bosl2.exceptions import CrossBackendError, UnsupportedByBackend
+from pybosl2 import solid
+from pybosl2._backend import use_backend
+from pybosl2.exceptions import CrossBackendError, UnsupportedByBackend
 
 
 def _libfive_available() -> bool:

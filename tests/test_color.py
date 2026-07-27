@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/color.py: the HSL/HSV conversions, rainbow(), and the Colorable colour operators
+"""Tests for pybosl2/color.py: the HSL/HSV conversions, rainbow(), and the Colorable colour operators
 on Bosl2Solid. The conversions are pinned to real BOSL2 in tests/test_bosl2_reorient.py; here we
 check edge cases and the object-level operators (native colour is mocked, so we assert type/wrapper
 behaviour, verified for real in test_stl_render.py)."""
@@ -12,8 +12,8 @@ behaviour, verified for real in test_stl_render.py)."""
 import numpy as np
 import pytest
 
-from bosl2.color import hsl, hsv, rainbow, rainbow_colors
-from bosl2.shapes3d import Bosl2Solid, cuboid
+from pybosl2.color import hsl, hsv, rainbow, rainbow_colors
+from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 # -- HSV / HSL primaries ------------------------------------------------------------------
 

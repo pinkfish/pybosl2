@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for :class:`bosl2.shapes2d.Bosl2Shape2D` -- the 2-D shape object every shapes2d
+"""Tests for :class:`pybosl2.shapes2d.Bosl2Shape2D` -- the 2-D shape object every shapes2d
 constructor now returns, its 2-D operators (fill/hull/offset) and its 2-D -> 3-D extruders.
 
 The geometry-value assertions need a native bounding box, which only the real PythonSCAD app
@@ -18,12 +18,12 @@ import math
 import numpy as np
 import pytest
 
-import bosl2.shapes2d as s2
-from bosl2._helpers import unwrap
-from bosl2.paths import Path
-from bosl2.regions import Region
-from bosl2.shapes2d import Bosl2Shape2D
-from bosl2.shapes3d import Bosl2Solid, cuboid
+import pybosl2.shapes2d as s2
+from pybosl2._helpers import unwrap
+from pybosl2.paths import Path
+from pybosl2.regions import Region
+from pybosl2.shapes2d import Bosl2Shape2D
+from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 # The real app reports obj.size for 2-D geometry; the numeric mock's 2-D stand-ins report None.
 needs_native_2d_bbox = pytest.mark.skipif(
@@ -163,7 +163,7 @@ def test_missing_attribute_raises_attribute_error():
 
 
 def test_sdf_only_feature_is_rejected_on_the_csg_backend():
-    from bosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackend
 
     with pytest.raises(UnsupportedByBackend):
         s2.square(10).round(2)
@@ -448,7 +448,7 @@ def test_region_fill_drops_the_hole():
 
 
 def test_solid_hull_returns_a_3d_solid():
-    from bosl2.shapes3d import sphere
+    from pybosl2.shapes3d import sphere
 
     assert isinstance(sphere(radius=8).hull(), Bosl2Solid)
     capsule = sphere(radius=8).hull(sphere(radius=8).up(30))
@@ -457,8 +457,8 @@ def test_solid_hull_returns_a_3d_solid():
 
 
 def test_solid_hull_accepts_a_raw_native_and_a_vnf():
-    from bosl2.shapes3d import sphere
-    from bosl2.vnf import VNF
+    from pybosl2.shapes3d import sphere
+    from pybosl2.vnf import VNF
 
     assert isinstance(sphere(radius=8).hull(cuboid([4, 4, 4]).shape), Bosl2Solid)
     vnf = VNF.tri_array([[[0, 0, 0], [10, 0, 0]], [[0, 10, 0], [10, 10, 5]]])

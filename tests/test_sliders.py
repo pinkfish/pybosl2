@@ -4,12 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.sliders: V-groove sliders and rails."""
+"""Tests for pybosl2.sliders: V-groove sliders and rails."""
 
 import pytest
 
-from bosl2.shapes3d import Bosl2Solid
-from bosl2.sliders import Sliders as S
+from pybosl2.shapes3d import Bosl2Solid
+from pybosl2.sliders import Sliders as S
 
 
 def _size(solid):

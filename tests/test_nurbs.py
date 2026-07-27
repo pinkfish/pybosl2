@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/nurbs.py: NURBS curve/patch evaluation, meshing, and degree elevation. The
+"""Tests for pybosl2/nurbs.py: NURBS curve/patch evaluation, meshing, and degree elevation. The
 numeric results are pinned to real BOSL2 in tests/test_bosl2_reorient.py; here we check the object
 surface (return types, endpoints, the parameter-list form, and error handling). nurbs_vnf uses the
 mocked VNF, so its geometry is checked for real in test_stl_render.py."""
@@ -12,15 +12,15 @@ mocked VNF, so its geometry is checked for real in test_stl_render.py."""
 import numpy as np
 import pytest
 
-from bosl2.nurbs import (
+from pybosl2.nurbs import (
     is_nurbs_patch,
     nurbs_curve,
     nurbs_elevate_degree,
     nurbs_patch_points,
     nurbs_vnf,
 )
-from bosl2.paths import Path, Path3D
-from bosl2.vnf import VNF
+from pybosl2.paths import Path, Path3D
+from pybosl2.vnf import VNF
 
 CTRL3 = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
 CTRL2 = [[0, 0], [10, 20], [30, -10], [50, 20]]

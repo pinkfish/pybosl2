@@ -145,7 +145,7 @@ class TestPyShape(unittest.TestCase):
     def test_rotate_drops_cuboid_metadata(self):
         # Edge selectors (TOP/LEFT/etc.) are global-frame, evaluated before rotation --
         # like
-        # bosl2's own anchor/edges-then-orient ordering -- so round()/chamfer() must
+        # pybosl2's own anchor/edges-then-orient ordering -- so round()/chamfer() must
         # refuse a
         # rotated cuboid the same way they already refuse a non-cuboid shape (see
         # test_round_and_chamfer_require_cuboid_size).
@@ -261,7 +261,7 @@ class TestCuboid(unittest.TestCase):
     def test_edges_all_rounding_matches_classic_formula(self):
         # edges="ALL" rounding now takes pysolidfive's exact-formula fast path
         # (_rounded_box_sdf(),
-        # the same Minkowski-sum construction bosl2.shapes3d.cuboid() uses via a real
+        # the same Minkowski-sum construction pybosl2.shapes3d.cuboid() uses via a real
         # minkowski()), so this must match the classic single-formula rounded box
         # exactly
         # everywhere -- not just near the surface -- including the true-3-D-corner and
@@ -590,7 +590,7 @@ class TestTubes(unittest.TestCase):
     def test_tube_requires_enough_parameters(self):
         # outer_radius alone *does* work (wall defaults to 1, giving an inner radius),
         # matching
-        # bosl2.shapes3d.tube()'s own default -- but no radius/diameter/wall at all
+        # pybosl2.shapes3d.tube()'s own default -- but no radius/diameter/wall at all
         # can't
         # resolve anything.
         with self.assertRaises(AssertionError):

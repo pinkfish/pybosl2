@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/paths.py: the Path list-subclass and its private static kernels."""
+"""Tests for pybosl2/paths.py: the Path list-subclass and its private static kernels."""
 
 import math
 
 import numpy as np
 import pytest
 
-from bosl2.paths import Path
+from pybosl2.paths import Path
 
 SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]
 UNIT = [[0, 0], [10, 0], [10, 10], [0, 10]]
@@ -222,7 +222,7 @@ def test_yflip():
 
 
 def test_to_region():
-    from bosl2.regions import Region
+    from pybosl2.regions import Region
 
     radius = Path(SQUARE).to_region()
     assert isinstance(radius, Region) and len(radius) == 1
@@ -304,7 +304,7 @@ def test_path_length_static_accepts_3d():
 
 
 def test_shapely_backed_path_methods():
-    from bosl2.paths import _SHAPELY
+    from pybosl2.paths import _SHAPELY
 
     if not _SHAPELY:
         pytest.skip("shapely is not installed")

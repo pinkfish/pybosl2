@@ -4,15 +4,15 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/masking.py: the 2-D roundover mask cross-section."""
+"""Tests for pybosl2/masking.py: the 2-D roundover mask cross-section."""
 
 import math
 
 import numpy as np
 import pytest
 
-from bosl2.masking import chamfer_edge_mask, mask2d_roundover
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.masking import chamfer_edge_mask, mask2d_roundover
+from pybosl2.shapes3d import Bosl2Solid
 
 
 def test_chamfer_edge_mask_builds():

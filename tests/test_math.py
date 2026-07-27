@@ -4,12 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/math.py: lerp/lerpn interpolation and the deriv calculus helpers."""
+"""Tests for pybosl2/math.py: lerp/lerpn interpolation and the deriv calculus helpers."""
 
 import numpy as np
 import pytest
 
-from bosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
+from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 
 
 def test_epsilon_value():

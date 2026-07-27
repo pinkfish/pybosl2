@@ -17,18 +17,18 @@
 
 # LibFile: pysolidfive/__init__.py
 #    A small libfive-based (F-Rep / signed-distance-function) shape library. Independent of
-#    the bosl2 port (it does not import bosl2), but built on numpy: all sequence/path/point
+#    the pybosl2 port (it does not import pybosl2), but built on numpy: all sequence/path/point
 #    data is held as numpy arrays internally (accept array-likes in, hand NDArrays out), with
 #    plain-python floats produced only at the native boundaries -- frep() bounds, polygon(),
 #    translate(), and the osuse() FFI all reject (or are corrupted by) raw ndarrays. The
 #    small pieces
 #    it needs from there (direction-vector constants, the edges= mini-language, anchor-offset
 #    math) are vendored into pysolidfive/_constants.py and pysolidfive/_edges.py instead,
-#    byte-for-byte identical to bosl2's own algorithm, the same way base_bgtk.py and
-#    bosl2/constants.py each already carry their own independent copy of the same
+#    byte-for-byte identical to pybosl2's own algorithm, the same way base_bgtk.py and
+#    pybosl2/constants.py each already carry their own independent copy of the same
 #    Vec3/direction-vector idiom rather than sharing one. cuboid() builds a box with
 #    per-edge-selectable rounding AND/OR chamfering -- the same `edges=`/`except_edges=`
-#    mini-language as bosl2.shapes3d.cuboid() (kept compatible on purpose, so both libraries
+#    mini-language as pybosl2.shapes3d.cuboid() (kept compatible on purpose, so both libraries
 #    accept identical edge selectors) -- but composes it as a single signed distance function
 #    meshed via the builtin frep(), instead of BOSL2's hull()-of-primitive-shapes CSG
 #    construction.
@@ -48,7 +48,7 @@
 #    (`edges="ALL"`), cuboid() uses the classic single-formula rounded-box
 #    SDF (https://iquilezles.org/articles/distfunctions/, `_rounded_box_sdf()`
 #    in shapes3d.py) -- the exact Minkowski sum of a box and a sphere, matching
-#    bosl2.shapes3d.cuboid()'s own real minkowski() construction for that
+#    pybosl2.shapes3d.cuboid()'s own real minkowski() construction for that
 #    same case, with a perfectly smooth/seamless spherical corner blend.
 #
 #    For every other case -- a subset of edges, or per-edge/per-corner
@@ -108,7 +108,7 @@
 #         single cuboid(rounding=..., edges="ALL") call now takes the
 #         exact-formula path above.
 #
-#    Shapes covered, mirroring bosl2.shapes3d.py: cube, cuboid, octahedron,
+#    Shapes covered, mirroring pybosl2.shapes3d.py: cube, cuboid, octahedron,
 #    wedge, sphere, spheroid, torus, cylinder, cyl (+xcyl/ycyl/zcyl), tube,
 #    pie_slice, prismoid, rect_tube, regular_prism (n-gon prism),
 #    interior_fillet, teardrop, onion,
@@ -120,10 +120,10 @@
 #    single subtraction, no polygon-offset cleanup), extruded to a specific
 #    height via .extrude()/.linear_extrude() with the same optional rim
 #    roundover/flare treatments as polygon_prism(). Also two standalone cutters, mirroring
-#    bosl2.masking.py/Bosl2Solid.edge_profile_asym(), for edges outside a
+#    pybosl2.masking.py/Bosl2Solid.edge_profile_asym(), for edges outside a
 #    cuboid()'s own edge/corner treatment: rounding_edge_mask() (a positionable
 #    circular roundover cutter, same local frame/rotate()/translate() usage
-#    as bosl2.masking.rounding_edge_mask()) and polygon_extrude() (extrudes
+#    as pybosl2.masking.rounding_edge_mask()) and polygon_extrude() (extrudes
 #    an arbitrary *convex* 2-D profile, for a custom edge cut with no simple
 #    closed form). And polygon_prism(): an arbitrary SIMPLE-polygon (concave
 #    OK -- exact 2-D SDF, winding-number sign via atan2) extrusion with
@@ -132,12 +132,12 @@
 #    bottom=os_circle(..), top=os_circle(..)) construction the path-based
 #    boxes (no_lid.py) are built from. NOT ported: text3d/path_text (no
 #    text-rendering primitive exists in libfive's exposed operator set --
-#    use bosl2.shapes3d for text), cylindrical_heightfield and array-data
+#    use pybosl2.shapes3d for text), cylindrical_heightfield and array-data
 #    heightfield (no closed-form "look up a grid of numbers" primitive is
 #    exposed either), and ruler (a measuring/display aid with text labels,
 #    not really an SDF solid-modeling primitive -- BOSL2 doesn't apply
 #    rounding/chamfer to it either). Several shapes here are deliberately
-#    simplified relative to their bosl2.shapes3d.py counterpart where an
+#    simplified relative to their pybosl2.shapes3d.py counterpart where an
 #    exact SDF would need substantially more derivation for a
 #    rarely-exercised feature -- each function's docstring notes exactly
 #    what's dropped (e.g. prismoid() has no vertical-edge rounding,

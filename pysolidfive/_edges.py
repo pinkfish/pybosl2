@@ -18,10 +18,10 @@
 #    The cuboid() edge-selector mini-language (`_edges()`, `EDGES_ALL`, edge vectors like
 #    `TOP+LEFT`) and the anchor-offset helpers for each primitive family (box/cylinder/
 #    sphere/convex-hull), needed by pysolidfive/__init__.py's cuboid()/cyl()/sphere()/etc.
-#    Deliberately a vendored copy of the relevant subset of bosl2/shapes3d.py and
-#    bosl2/shapes2d.py's _pick_radius() rather than an import from either -- pysolidfive is
-#    meant to stand alone (no bosl2, and therefore no transitive numpy dependency; see the
-#    package docstring in pysolidfive/__init__.py). Kept byte-for-byte identical to bosl2's
+#    Deliberately a vendored copy of the relevant subset of pybosl2/shapes3d.py and
+#    pybosl2/shapes2d.py's _pick_radius() rather than an import from either -- pysolidfive is
+#    meant to stand alone (no pybosl2, and therefore no transitive numpy dependency; see the
+#    package docstring in pysolidfive/__init__.py). Kept byte-for-byte identical to pybosl2's
 #    algorithm so both libraries still accept identical edge selectors.
 #
 # FileGroup: pysolidfive

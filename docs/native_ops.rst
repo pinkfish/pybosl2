@@ -2,7 +2,7 @@ Native-only mesh operations
 ===========================
 
 These operations wrap PythonSCAD builtins that **BOSL2 has no counterpart for**, exposed as
-first-class :class:`~bosl2.shapes3d.Bosl2Solid` methods (and one 2-D→3-D constructor) so they chain
+first-class :class:`~pybosl2.shapes3d.Bosl2Solid` methods (and one 2-D→3-D constructor) so they chain
 fluently and keep their anchoring metadata, rather than leaking raw native handles. They execute
 only inside the real PythonSCAD app; under the numeric test mock they degrade to identity/AABB
 stand-ins, so the pure-Python fast suite still runs and the real geometry is covered by the STL
@@ -41,7 +41,7 @@ render tests.
 
    ``wrap()`` is a valid operation but meshing/exporting a wrapped solid is very slow in the
    Manifold backend, so it has no render test (only mock-level coverage). Call
-   :meth:`~bosl2.shapes3d.Bosl2Solid.oversample` first if you need the bend to look smooth.
+   :meth:`~pybosl2.shapes3d.Bosl2Solid.oversample` first if you need the bend to look smooth.
 
 Examples
 --------
@@ -69,11 +69,11 @@ Pulling a block apart stretches the material between the halves:
 API reference
 -------------
 
-The methods live on :class:`~bosl2.shapes3d.Bosl2Solid`
-(:meth:`~bosl2.shapes3d.Bosl2Solid.repair`, :meth:`~bosl2.shapes3d.Bosl2Solid.oversample`,
-:meth:`~bosl2.shapes3d.Bosl2Solid.pull`, :meth:`~bosl2.shapes3d.Bosl2Solid.wrap`,
-:meth:`~bosl2.shapes3d.Bosl2Solid.separate`, :meth:`~bosl2.shapes3d.Bosl2Solid.inside`); the roof
-constructor is :func:`~bosl2.shapes3d.roof`.
+The methods live on :class:`~pybosl2.shapes3d.Bosl2Solid`
+(:meth:`~pybosl2.shapes3d.Bosl2Solid.repair`, :meth:`~pybosl2.shapes3d.Bosl2Solid.oversample`,
+:meth:`~pybosl2.shapes3d.Bosl2Solid.pull`, :meth:`~pybosl2.shapes3d.Bosl2Solid.wrap`,
+:meth:`~pybosl2.shapes3d.Bosl2Solid.separate`, :meth:`~pybosl2.shapes3d.Bosl2Solid.inside`); the roof
+constructor is :func:`~pybosl2.shapes3d.roof`.
 
-.. autofunction:: bosl2.shapes3d.roof
+.. autofunction:: pybosl2.shapes3d.roof
    :no-index:

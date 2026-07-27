@@ -12,7 +12,7 @@
 #
 #    Re-run after changing the render metrics:  python3 docs/_specgen.py
 #
-# FileGroup: bosl2
+# FileGroup: pybosl2
 
 from __future__ import annotations
 
@@ -953,18 +953,18 @@ API_ONLY = {
 _HOOK_OCT = "hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)]"
 
 SETUP = {
-    "gears": "from bosl2.gears import Gears\n",
-    "walls": "from bosl2.walls import Walls\n",
-    "wiring": "from bosl2.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
-    "hooks": "import math\nfrom bosl2.hooks import Hooks\n",
-    "polyhedra": "from bosl2.polyhedra import Polyhedra\n",
-    "hinges": "from bosl2.hinges import Hinges\n",
-    "joiners": "from bosl2.joiners import Joiners\n",
-    "cubetruss": "from bosl2.cubetruss import CubeTruss\n",
-    "ball_bearings": "from bosl2.ball_bearings import BallBearings\n",
-    "linear_bearings": "from bosl2.linear_bearings import LinearBearings\n",
-    "modular_hose": "from bosl2.modular_hose import ModularHose\n",
-    "nema_steppers": "from bosl2.nema_steppers import NemaSteppers\n",
+    "gears": "from pybosl2.gears import Gears\n",
+    "walls": "from pybosl2.walls import Walls\n",
+    "wiring": "from pybosl2.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
+    "hooks": "import math\nfrom pybosl2.hooks import Hooks\n",
+    "polyhedra": "from pybosl2.polyhedra import Polyhedra\n",
+    "hinges": "from pybosl2.hinges import Hinges\n",
+    "joiners": "from pybosl2.joiners import Joiners\n",
+    "cubetruss": "from pybosl2.cubetruss import CubeTruss\n",
+    "ball_bearings": "from pybosl2.ball_bearings import BallBearings\n",
+    "linear_bearings": "from pybosl2.linear_bearings import LinearBearings\n",
+    "modular_hose": "from pybosl2.modular_hose import ModularHose\n",
+    "nema_steppers": "from pybosl2.nema_steppers import NemaSteppers\n",
 }
 
 VARIANTS = {
@@ -1156,13 +1156,13 @@ HEAD = (
     '<title>{title}</title><link rel="stylesheet" href="spec.css"></head><body>'
 )
 BAR = (
-    '<header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a>'
+    '<header class="bar"><div class="wrap"><a class="logo" href="index.html">pybosl2</a>'
     '<span class="sep">/</span><span class="meta">{crumb}</span>'
     '<nav><a href="index.html">catalog</a><a href="../index.html">API docs &rarr;</a></nav></div></header>'
 )
 # module pages get an extra header link straight to that module's own API reference page.
 MODBAR = (
-    '<header class="bar"><div class="wrap"><a class="logo" href="index.html">py<b>bosl2</b></a>'
+    '<header class="bar"><div class="wrap"><a class="logo" href="index.html">pybosl2</a>'
     '<span class="sep">/</span><span class="meta">spec sheet · {mod}.py</span>'
     '<nav><a href="index.html">catalog</a><a href="../{mod}.html">{mod}.py API &rarr;</a>'
     '<a href="../index.html">all API docs &rarr;</a></nav></div></header>'

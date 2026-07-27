@@ -4,16 +4,16 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.gears: the gear-dimension functions (checked numerically against BOSL2's
+"""Tests for pybosl2.gears: the gear-dimension functions (checked numerically against BOSL2's
 formulas) and the involute spur gear (2-D and 3-D)."""
 
 import math
 
 import pytest
 
-from bosl2.gears import Gears as G
-from bosl2.shapes2d import Bosl2Shape2D
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.gears import Gears as G
+from pybosl2.shapes2d import Bosl2Shape2D
+from pybosl2.shapes3d import Bosl2Solid
 
 
 def _size(solid: Bosl2Solid):

@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/shapes2d.py: the pure point-generating helpers and path builders."""
+"""Tests for pybosl2/shapes2d.py: the pure point-generating helpers and path builders."""
 
 import math
 
 import numpy as np
 
-from bosl2.shapes2d import (
+from pybosl2.shapes2d import (
     _arc_points,
     _circle_from_3pts,
     _circle_pts,
@@ -102,7 +102,7 @@ def test_circle_builds_a_solid_via_mock():
 
 
 def test_squircle_circle_at_zero_squareness():
-    from bosl2.shapes2d import _squircle_fg_path
+    from pybosl2.shapes2d import _squircle_fg_path
 
     pts = _squircle_fg_path([40, 40], 0.0, None, None, None)
     radii = [math.hypot(x, y) for x, y in pts]
@@ -111,7 +111,7 @@ def test_squircle_circle_at_zero_squareness():
 
 
 def test_squircle_square_at_high_squareness():
-    from bosl2.shapes2d import _squircle_fg_path
+    from pybosl2.shapes2d import _squircle_fg_path
 
     pts = _squircle_fg_path([40, 40], 0.99, None, None, None)
     assert math.isclose(max(abs(x) for x, y in pts), 20.0, abs_tol=0.2)
@@ -161,8 +161,8 @@ def test_ring_requires_valid_params():
 
 
 def test_star_and_supershape_atype_enum():
-    from bosl2.constants import LEFT, RIGHT
-    from bosl2.shapes2d import AnchorType, star, supershape
+    from pybosl2.constants import LEFT, RIGHT
+    from pybosl2.shapes2d import AnchorType, star, supershape
 
     # Test star atype
     s1 = star(tips=5, radius=10, atype=AnchorType.BOX, anchor=RIGHT)

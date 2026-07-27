@@ -13,7 +13,7 @@ import importlib.util
 
 import pytest
 
-from bosl2._backend import Solid, current_backend, get_backend, use_backend
+from pybosl2._backend import Solid, current_backend, get_backend, use_backend
 
 
 def test_sdf_backend_registers_and_builds_primitives():
@@ -61,12 +61,12 @@ def test_sdf_mesh_pipeline_runs():
 
 
 def test_sdf_backend_does_not_import_the_csg_god_module():
-    # Importing the SDF backend must not drag in the large bosl2.shapes3d CSG module: the shared
-    # edge-selector language lives in bosl2._edges_lang. Checked in a fresh interpreter since the
+    # Importing the SDF backend must not drag in the large pybosl2.shapes3d CSG module: the shared
+    # edge-selector language lives in pybosl2._edges_lang. Checked in a fresh interpreter since the
     # test session has already imported everything.
     import subprocess
     import sys
 
-    code = "import bosl2._sdf, sys; print('bosl2.shapes3d' in sys.modules)"
+    code = "import pybosl2._sdf, sys; print('pybosl2.shapes3d' in sys.modules)"
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
-    assert out.stdout.strip() == "False", f"bosl2._sdf pulled in bosl2.shapes3d:\n{out.stdout}{out.stderr}"
+    assert out.stdout.strip() == "False", f"pybosl2._sdf pulled in pybosl2.shapes3d:\n{out.stdout}{out.stderr}"
