@@ -422,6 +422,26 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         _check_operand_backend("csg", other)
         return self._wrap(Bosl2Solid._unwrap(other) - self.shape)
 
+    def __add__(self, other) -> "Bosl2Solid":
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __radd__(self, other) -> "Bosl2Solid":
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __mul__(self, other) -> "Bosl2Solid":
+        return self.scale(other)
+
+    def __rmul__(self, other) -> "Bosl2Solid":
+        return self.scale(other)
+
     # ---- distributors (pybosl2/distributors.py) ----
     #
     # The distributors.scad copiers, inherited from Distributable, resolve to _distribute(), which

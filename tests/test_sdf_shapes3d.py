@@ -102,7 +102,7 @@ class TestNamedCombinators:
         a = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0])
         b = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0]).translate([5, 0, 0])
         c = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0]).translate([10, 0, 0])
-        for u in (sdf_s3d.union(a, b, c), sdf_s3d.union([a, b, c])):
+        for u in (sdf_s3d.PyShape.union(a, b, c), sdf_s3d.PyShape.union([a, b, c])):
             m = u.mesh()
             assert m.sample(-2, 0, 0) < 0, "inside a"
             assert m.sample(10, 0, 0) < 0, "inside c"
@@ -156,7 +156,7 @@ class TestNamedCombinators:
     def test_hull_bridges_two_separated_cubes(self):
         a = sdf_s3d.cuboid(size=[8.0, 8.0, 8.0], res=8).translate([-10, 0, 0])
         b = sdf_s3d.cuboid(size=[8.0, 8.0, 8.0], res=8).translate([10, 0, 0])
-        h = sdf_s3d.hull(a, b)
+        h = sdf_s3d.PyShape.hull(a, b)
         m = h.mesh()
         assert m.sample(0, 0, 0) < 0, "the bridge between the cubes is inside the hull"
         assert m.sample(-10, 0, 0) < 0, "inside a"
@@ -184,7 +184,7 @@ class TestNamedCombinators:
 
     def test_hull_of_raw_points_matches_convex_polyhedron(self):
         pts = [[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10]]
-        h = sdf_s3d.hull(pts).mesh()
+        h = sdf_s3d.PyShape.hull(pts).mesh()
         ref = sdf_s3d.convex_polyhedron(pts).mesh()
         for p in [(2, 2, 2), (5, 5, 5), (-1, -1, -1), (3, 0, 0)]:
             assert math.isclose(float(h.sample(*p)), float(ref.sample(*p)), abs_tol=10 ** (-9))

@@ -433,30 +433,103 @@ class PyShape(Distributable):
 
         return Bosl2Solid(self.mesh())
 
-    def __or__(self, other: "PyShape") -> PyShape:
+    def __or__(self, other: PyShape) -> PyShape:
         _check_operand_backend("sdf", other)
-        fa, fb = self._sdf_fn, other._sdf_fn
-        new_fn = lambda x, y, z: lv.min(fa(x, y, z), fb(x, y, z))  # noqa: E731
-        mn = [min(self.mn[i], other.mn[i]) for i in range(3)]
-        mx = [max(self.mx[i], other.mx[i]) for i in range(3)]
-        return self._wrap(new_fn, mn, mx)
+        return PyShape.union(self, other)
 
-    def __and__(self, other: "PyShape") -> PyShape:
+    def __and__(self, other: PyShape) -> PyShape:
         _check_operand_backend("sdf", other)
-        fa, fb = self._sdf_fn, other._sdf_fn
-        new_fn = lambda x, y, z: lv.max(fa(x, y, z), fb(x, y, z))  # noqa: E731
-        # The intersection can only live where BOTH boxes overlap -- so the meshing region
-        # (and its resolution budget) shrinks to the overlap, which is also what makes
-        # cropping a big shape with a small cube cheap.
-        mn = [max(self.mn[i], other.mn[i]) for i in range(3)]
-        mx = [min(self.mx[i], other.mx[i]) for i in range(3)]
-        return self._wrap(new_fn, mn, mx)
+        return PyShape.intersection(self, other)
 
-    def __sub__(self, other: "PyShape") -> PyShape:
+    def __sub__(self, other: PyShape) -> PyShape:
         _check_operand_backend("sdf", other)
-        fa, fb = self._sdf_fn, other._sdf_fn
-        new_fn = lambda x, y, z: lv.max(fa(x, y, z), -fb(x, y, z))  # noqa: E731
-        return self._wrap(new_fn, list(self.mn), list(self.mx))
+        return PyShape.difference(self, other)
+
+    def __ror__(self, other: PyShape) -> PyShape:
+        _check_operand_backend("sdf", other)
+        return PyShape.union(other, self)
+
+    def __rand__(self, other: PyShape) -> PyShape:
+        _check_operand_backend("sdf", other)
+        return PyShape.intersection(other, self)
+
+    def __rsub__(self, other: PyShape) -> PyShape:
+        _check_operand_backend("sdf", other)
+        return PyShape.difference(other, self)
+
+    def __add__(self, other: Any) -> PyShape:
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __radd__(self, other: Any) -> PyShape:
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __mul__(self, other: Any) -> PyShape:
+        return self.scale(other)
+
+    def __rmul__(self, other: Any) -> PyShape:
+        return self.scale(other)
+
+    @staticmethod
+    def union(*shapes: PyShape) -> PyShape:
+        """The union of the given PyShapes (min() of their SDFs), as one PyShape.
+
+        Accepts either varargs or a single list.
+        """
+        shs = _as_shape_list(shapes)
+        if len(shs) == 1:
+            return shs[0]
+        fns = [s._sdf_fn for s in shs]
+
+        def sdf_fn(x, y, z):
+            return _balanced(lv.min, [f(x, y, z) for f in fns])
+
+        mn = [min(s.mn[i] for s in shs) for i in range(3)]
+        mx = [max(s.mx[i] for s in shs) for i in range(3)]
+        return PyShape(sdf_fn, mn, mx, max(s.res for s in shs))
+
+    @staticmethod
+    def intersection(*shapes: PyShape) -> PyShape:
+        """The intersection of the given PyShapes (max() of their SDFs), as one PyShape.
+
+        Accepts either varargs or a single list.
+        """
+        shs = _as_shape_list(shapes)
+        if len(shs) == 1:
+            return shs[0]
+        fns = [s._sdf_fn for s in shs]
+
+        def sdf_fn(x, y, z):
+            return _balanced(lv.max, [f(x, y, z) for f in fns])
+
+        mn = [max(s.mn[i] for s in shs) for i in range(3)]
+        mx = [min(s.mx[i] for s in shs) for i in range(3)]
+        assert all(mn[i] < mx[i] for i in range(3)), (
+            f"intersection(): the shapes' bounding boxes don't overlap (got mn={mn}, mx={mx})"
+        )
+        return PyShape(sdf_fn, mn, mx, max(s.res for s in shs))
+
+    @staticmethod
+    def difference(shape: PyShape, *tools: PyShape) -> PyShape:
+        """`shape` minus the union of every `tool` (max(f, -min(tools))), as one PyShape."""
+        assert isinstance(shape, PyShape), f"difference() base must be a PyShape, got {type(shape).__name__}"
+        if not tools:
+            return shape
+        tls = _as_shape_list(tools)
+        fa = shape._sdf_fn
+        fns = [t._sdf_fn for t in tls]
+
+        def sdf_fn(x, y, z):
+            return lv.max(fa(x, y, z), -_balanced(lv.min, [f(x, y, z) for f in fns]))
+
+        return PyShape(sdf_fn, list(shape.mn), list(shape.mx), shape.res)
 
     # ---- cuboid-only edge treatments ----
 
@@ -499,14 +572,62 @@ class PyShape(Distributable):
     # -- hull / projection: the counterparts of Bosl2Solid's, on the SDF side ------------------
 
     def hull(self, *others: Any, directions: int = 64, res: int | None = None) -> PyShape:
-        """The convex hull of this shape (OpenSCAD ``hull()``), optionally together with *others*
-        -- more :class:`PyShape`\\ s and/or raw ``Nx3`` point arrays.
+        """The convex hull of this shape, optionally together with *others* (BOSL2 hull())."""
+        args = list(self) + list(others) if isinstance(self, (list, tuple)) else [self] + list(others)
 
-        The method form of :func:`hull`; see it for the polyhedral-approximation caveats (the hull
-        of arbitrary SDFs has no closed form, so the children are meshed and their support points
-        turned into face planes, lazily on first evaluation).
-        """
-        return hull(self, *others, directions=directions, res=res)
+        if len(args) == 1 and isinstance(args[0], (list, tuple)) and args[0] and isinstance(args[0][0], PyShape):
+            args = list(args[0])
+        assert args, "hull() needs at least one shape or point set"
+
+        entries: list[tuple[str, Any]] = []
+        mn = [math.inf] * 3
+        mx = [-math.inf] * 3
+        child_res: list[int] = []
+        for a in args:
+            if isinstance(a, PyShape):
+                entries.append(("shape", a))
+                child_res.append(a.res)
+                for i in range(3):
+                    mn[i] = min(mn[i], a.mn[i])
+                    mx[i] = max(mx[i], a.mx[i])
+            else:
+                pts = np.asarray(a, dtype=float)
+                if pts.ndim == 1:
+                    pts = pts.reshape(1, -1)
+                assert pts.ndim == 2 and pts.shape[1] == 3, (
+                    f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}"
+                )
+                entries.append(("points", pts))
+                for i in range(3):
+                    mn[i] = min(mn[i], float(pts[:, i].min()))
+                    mx[i] = max(mx[i], float(pts[:, i].max()))
+
+        state: dict = {}
+
+        def planes() -> list[tuple[float, float, float, float]]:
+            if "planes" not in state:
+                pools = []
+                for kind, v in entries:
+                    if kind == "points":
+                        pools.append(v)
+                    else:
+                        verts, _faces = v.mesh().mesh()
+                        assert verts, "hull(): a child shape meshed to nothing (empty geometry)"
+                        pools.append(np.asarray(verts, dtype=float))
+                sup = _support_points(np.concatenate(pools), directions)
+                state["planes"] = _hull_planes([[float(c) for c in p] for p in sup])
+            return state["planes"]
+
+        def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+            terms = [nx * x + ny * y + nz * z - off for nx, ny, nz, off in planes()]
+            return _balanced(lv.max, terms)
+
+        return PyShape(
+            sdf_fn,
+            mn,
+            mx,
+            res if res is not None else (max(child_res) if child_res else 10),
+        )
 
     def projection(self, cut: bool = False) -> Any:
         """Not available on the SDF backend -- an implicit field has no closed-form 2-D shadow.
@@ -553,91 +674,6 @@ def _balanced(op: Callable[[LVTree, LVTree], LVTree], vals: list) -> LVTree:
     while len(vals) > 1:
         vals = [op(vals[i], vals[i + 1]) if i + 1 < len(vals) else vals[i] for i in range(0, len(vals), 2)]
     return vals[0]
-
-
-def union(*shapes: PyShape) -> PyShape:
-    """The union of the given PyShapes (min() of their SDFs), as one PyShape -- the named,
-    n-ary form of the `|` operator, matching OpenSCAD's union(){}.
-
-    Accepts either varargs (`union(a, b, c)`) or a single list (`union([a, b, c])`). The
-    result's meshing resolution is the finest (max) `res` among the children.
-
-    Examples:
-        .. pythonscad-example::
-
-            import pybosl2._sdf.shapes3d as sdf_s3d
-            a = sdf_s3d.cuboid([20.0, 20.0, 10.0], rounding=3, res=10)
-            b = sdf_s3d.sphere(radius=8, res=10).translate([0.0, 0.0, 8.0])
-            shape = sdf_s3d.union(a, b)
-            shape.show()
-    """
-    shs = _as_shape_list(shapes)
-    if len(shs) == 1:
-        return shs[0]
-    fns = [s._sdf_fn for s in shs]
-    sdf_fn = lambda x, y, z: _balanced(lv.min, [f(x, y, z) for f in fns])  # noqa: E731
-    mn = [min(s.mn[i] for s in shs) for i in range(3)]
-    mx = [max(s.mx[i] for s in shs) for i in range(3)]
-    return PyShape(sdf_fn, mn, mx, max(s.res for s in shs))
-
-
-def intersection(*shapes: PyShape) -> PyShape:
-    """The intersection of the given PyShapes (max() of their SDFs), as one PyShape -- the
-    named, n-ary form of the `&` operator, matching OpenSCAD's intersection(){}.
-
-    Accepts either varargs or a single list. The meshing region shrinks to the overlap of
-    the children's bounding boxes (which is what makes cropping a big shape with a small
-    one cheap); asserts if the boxes don't overlap at all, since the intersection SDF
-    would then have nothing to mesh.
-
-    Examples:
-        .. pythonscad-example::
-
-            import pybosl2._sdf.shapes3d as sdf_s3d
-            a = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4, res=10)
-            b = sdf_s3d.sphere(radius=12, res=10)
-            shape = sdf_s3d.intersection(a, b)
-            shape.show()
-    """
-    shs = _as_shape_list(shapes)
-    if len(shs) == 1:
-        return shs[0]
-    fns = [s._sdf_fn for s in shs]
-    sdf_fn = lambda x, y, z: _balanced(lv.max, [f(x, y, z) for f in fns])  # noqa: E731
-    mn = [max(s.mn[i] for s in shs) for i in range(3)]
-    mx = [min(s.mx[i] for s in shs) for i in range(3)]
-    assert all(mn[i] < mx[i] for i in range(3)), (
-        f"intersection(): the shapes' bounding boxes don't overlap (got mn={mn}, mx={mx})"
-    )
-    return PyShape(sdf_fn, mn, mx, max(s.res for s in shs))
-
-
-def difference(shape: PyShape, *tools: PyShape) -> PyShape:
-    """`shape` minus the union of every `tool` (max(f, -min(tools))), as one PyShape -- the
-    named, n-ary form of the `-` operator, matching OpenSCAD's difference(){} (first child
-    keeps, the rest cut).
-
-    Accepts the tools as varargs or a single list; with no tools, returns `shape` unchanged.
-    Keeps `shape`'s bounds and resolution, like `-`.
-
-    Examples:
-        .. pythonscad-example::
-
-            import pybosl2._sdf.shapes3d as sdf_s3d
-            a = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=3, res=10)
-            b = sdf_s3d.zcyl(height=30, radius=5, res=10)
-            c = sdf_s3d.xcyl(height=30, radius=5, res=10)
-            shape = sdf_s3d.difference(a, b, c)
-            shape.show()
-    """
-    assert isinstance(shape, PyShape), f"difference() base must be a PyShape, got {type(shape).__name__}"
-    if not tools:
-        return shape
-    tls = _as_shape_list(tools)
-    fa = shape._sdf_fn
-    fns = [t._sdf_fn for t in tls]
-    sdf_fn = lambda x, y, z: lv.max(fa(x, y, z), -_balanced(lv.min, [f(x, y, z) for f in fns]))  # noqa: E731
-    return PyShape(sdf_fn, list(shape.mn), list(shape.mx), shape.res)
 
 
 def _support_points(points: ArrayLike, n_dirs: int) -> NDArray[np.float64]:
@@ -704,107 +740,6 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
                 planes.append((nx, ny, nz, d))
     assert planes, "hull planes: no supporting planes found -- are the points coplanar?"
     return planes
-
-
-def hull(*shapes, directions: int = 64, res: int | None = None) -> PyShape:
-    """The convex hull of the given PyShapes (and/or raw Nx3 point arrays), as a libfive SDF
-    PyShape -- the named form of OpenSCAD's hull(){}.
-
-    Because no closed-form SDF exists for the hull of arbitrary SDFs, the hull is polyhedral,
-    built like convex_polyhedron(): each PyShape child is meshed (once, lazily -- the first
-    .sdf()/.mesh()/native fall-through on the RESULT triggers it; constructing the hull is
-    free), its mesh vertices are pooled with any raw points given, the pool is decimated to
-    at most `directions` support points (see _support_points()), and the SDF is the max of
-    the supporting planes' half-space distances. Consequences worth knowing:
-
-      - Corner-dominated children (cuboids, prisms) hull exactly; smooth children (spheres,
-        cylinders) get a faceted hull whose fidelity is set by `directions` (default 64) --
-        raise it for a finer hull, at O(directions^4) one-off plane-extraction cost.
-      - Meshing the children costs the same as rendering them, so prefer hulling simple/
-        low-res shapes; for the exact smooth hull of meshed solids, the native
-        pythonscad hull() on already-meshed children remains the right tool.
-      - Like every PyShape, the result composes symbolically (booleans, transforms) without
-        re-meshing.
-
-    Args:
-        shapes:     PyShapes and/or array-likes of 3-D points, varargs or a single list
-        directions: support-direction budget for the polyhedral approximation (default 64)
-        res:        meshing resolution of the result (default: finest child res, or 10)
-
-    Examples:
-        .. pythonscad-example::
-
-            import pybosl2._sdf.shapes3d as sdf_s3d
-            a = sdf_s3d.sphere(radius=6, res=10)
-            b = sdf_s3d.sphere(radius=6, res=10).translate([18.0, 0.0, 0.0])
-            shape = sdf_s3d.hull(a, b, directions=96)
-            shape.show()
-
-        Mixing shapes and raw points (the point pulls the hull out to a spike):
-
-        .. pythonscad-example::
-
-            import pybosl2._sdf.shapes3d as sdf_s3d
-            a = sdf_s3d.cuboid([16.0, 16.0, 8.0], res=10)
-            shape = sdf_s3d.hull(a, [[0.0, 0.0, 18.0]])
-            shape.show()
-    """
-    args = list(shapes)
-    if len(args) == 1 and isinstance(args[0], (list, tuple)) and args[0] and isinstance(args[0][0], PyShape):
-        args = list(args[0])
-    assert args, "hull() needs at least one shape or point set"
-
-    entries: list[tuple[str, Any]] = []
-    mn = [math.inf] * 3
-    mx = [-math.inf] * 3
-    child_res: list[int] = []
-    for a in args:
-        if isinstance(a, PyShape):
-            entries.append(("shape", a))
-            child_res.append(a.res)
-            for i in range(3):
-                mn[i] = min(mn[i], a.mn[i])
-                mx[i] = max(mx[i], a.mx[i])
-        else:
-            pts = np.asarray(a, dtype=float)
-            if pts.ndim == 1:
-                pts = pts.reshape(1, -1)
-            assert pts.ndim == 2 and pts.shape[1] == 3, (
-                f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}"
-            )
-            entries.append(("points", pts))
-            for i in range(3):
-                mn[i] = min(mn[i], float(pts[:, i].min()))
-                mx[i] = max(mx[i], float(pts[:, i].max()))
-    # The hull's bounding box IS the union's bounding box (an axis extreme of the hull is an
-    # axis extreme of some child), so bounds are exact without meshing anything yet.
-
-    state: dict = {}
-
-    def planes() -> list[tuple[float, float, float, float]]:
-        if "planes" not in state:
-            pools = []
-            for kind, v in entries:
-                if kind == "points":
-                    pools.append(v)
-                else:
-                    verts, _faces = v.mesh().mesh()
-                    assert verts, "hull(): a child shape meshed to nothing (empty geometry)"
-                    pools.append(np.asarray(verts, dtype=float))
-            sup = _support_points(np.concatenate(pools), directions)
-            state["planes"] = _hull_planes([[float(c) for c in p] for p in sup])
-        return state["planes"]
-
-    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
-        terms = [nx * x + ny * y + nz * z - off for nx, ny, nz, off in planes()]
-        return _balanced(lv.max, terms)
-
-    return PyShape(
-        sdf_fn,
-        mn,
-        mx,
-        res if res is not None else (max(child_res) if child_res else 10),
-    )
 
 
 def _cuboid_flare_sdf(

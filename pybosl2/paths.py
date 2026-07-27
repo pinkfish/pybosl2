@@ -75,6 +75,7 @@ from pybosl2.geometry import (
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 from pybosl2.miscellaneous import Extrudable  # path_extrude / path_extrude2d, as methods
 from pybosl2.rounding import Roundable  # round_corners / smooth_path, as methods
+from pybosl2.skin import Sweepable
 from pybosl2.vectors import add_scalar, unit
 
 # ---------------------------------------------------------------------------
@@ -87,7 +88,7 @@ from pybosl2.vectors import add_scalar, unit
 # keeps the Region class.
 
 
-class Path(Distributable, Extrudable, Roundable, list):
+class Path(Distributable, Extrudable, Sweepable, Roundable, list):
     """A 2-D path: a list of [x, y] points, with every path operation as a method.
 
     Subclasses ``list`` deliberately -- the same trick as :class:`base_bgtk.Vec3`. Every place
@@ -1645,7 +1646,7 @@ class Path(Distributable, Extrudable, Roundable, list):
 # transforms (translate/move, the six directional moves including up/down, scale, mirror, rotate).
 
 
-class Path3D(Distributable, Extrudable, Roundable, list):
+class Path3D(Distributable, Extrudable, Sweepable, Roundable, list):
     """A 3-D path: a list of ``[x, y, z]`` points, with the path operations that make sense in 3-D.
 
     The 3-D counterpart of :class:`Path`. Like ``Path`` it subclasses ``list`` (so it stays a

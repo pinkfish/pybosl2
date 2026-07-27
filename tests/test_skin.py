@@ -11,7 +11,7 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path
+from pybosl2.paths import Path, Path3D
 from pybosl2.skin import (
     OSProfile,
     clockwise_polygon,
@@ -579,3 +579,25 @@ def test_bent_cutout_mask():
     r_min = np.min(radii)
     r_max = np.max(radii)
     assert math.isclose(r_max - r_min, 4.0, abs_tol=1e-4)
+
+
+def test_sweepable_mixin():
+    path = Path3D([[0, 0, 0], [0, 0, 10], [0, 10, 10]])
+    shape = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+    vnf1 = path.path_sweep(shape)
+    assert abs(vnf1.volume()) > 0
+
+    path2d = Path([[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)])
+    vnf2 = path2d.path_sweep2d(shape)
+    assert abs(vnf2.volume()) > 0
+
+    profile = Path(shape)
+    vnf3 = profile.linear_sweep(height=20)
+    assert abs(vnf3.volume()) > 0
+
+    prof = Path([[2, 0], [4, 0], [4, 5], [2, 5]])
+    vnf4 = prof.rotate_sweep(angle=180)
+    assert abs(vnf4.volume()) > 0
+
+    vnf5 = profile.spiral_sweep(height=10, radius=5, turns=2)
+    assert abs(vnf5.volume()) > 0

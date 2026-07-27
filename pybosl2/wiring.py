@@ -19,7 +19,6 @@ import math
 
 from pybosl2.paths import Path3D
 from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.skin import path_sweep
 
 __all__ = ["Wiring"]
 
@@ -133,7 +132,7 @@ class Wiring:
         for i in range(wires):
             ox, oy = offsets[i]
             prof = [[x + ox, y + oy] for x, y in profile]
-            wire = Bosl2Solid(path_sweep(prof, rounded_path).polyhedron())
+            wire = Bosl2Solid(rounded_path.path_sweep(prof).polyhedron())
             wire = wire.color(_WIRE_COLORS[(i + wirenum) % len(_WIRE_COLORS)])
             bundle = wire if bundle is None else (bundle | wire)
         assert bundle is not None

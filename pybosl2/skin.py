@@ -52,6 +52,30 @@ UP = Vec3([0.0, 0.0, 1.0])
 BACK = Vec3([0.0, 1.0, 0.0])
 
 
+class Sweepable:
+    """Mixin adding sweep methods to Path and Path3D."""
+
+    def path_sweep(self, shape, **kwargs):
+        """Sweep *shape* along this path (BOSL2 path_sweep())."""
+        return path_sweep(shape, self, **kwargs)
+
+    def path_sweep2d(self, shape, **kwargs):
+        """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d())."""
+        return path_sweep2d(shape, self, **kwargs)
+
+    def linear_sweep(self, **kwargs):
+        """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep())."""
+        return linear_sweep(self, **kwargs)
+
+    def rotate_sweep(self, **kwargs):
+        """Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep())."""
+        return rotate_sweep(self, **kwargs)
+
+    def spiral_sweep(self, height: float, **kwargs):
+        """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep())."""
+        return spiral_sweep(self, height, **kwargs)
+
+
 def _u(v: Sequence[float]) -> np.ndarray:
     a = np.asarray(v, dtype=float)
     sides = float(np.linalg.norm(a))

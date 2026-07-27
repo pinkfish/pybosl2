@@ -13,7 +13,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -145,31 +145,109 @@ class PyShape2D:
 
     # ---- booleans ----
 
-    def __or__(self, other: "PyShape2D") -> PyShape2D:
+    def __or__(self, other: PyShape2D) -> PyShape2D:
+        _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
-        new_fn = lambda x, y: lv.min(fa(x, y), fb(x, y))  # noqa: E731
+
+        def new_fn(x, y):
+            return lv.min(fa(x, y), fb(x, y))
+
         return self._wrap(
             new_fn,
             [min(self.mn[i], other.mn[i]) for i in range(2)],
             [max(self.mx[i], other.mx[i]) for i in range(2)],
         )
 
-    def __and__(self, other: "PyShape2D") -> PyShape2D:
+    def __and__(self, other: PyShape2D) -> PyShape2D:
+        _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
-        new_fn = lambda x, y: lv.max(fa(x, y), fb(x, y))  # noqa: E731
-        # The intersection can only live where BOTH boxes overlap -- so the meshing region
-        # (and its resolution budget) shrinks to the overlap, which is also what makes
-        # clipping a big tiling with a small bound rect cheap.
+
+        def new_fn(x, y):
+            return lv.max(fa(x, y), fb(x, y))
+
         return self._wrap(
             new_fn,
             [max(self.mn[i], other.mn[i]) for i in range(2)],
             [min(self.mx[i], other.mx[i]) for i in range(2)],
         )
 
-    def __sub__(self, other: "PyShape2D") -> PyShape2D:
+    def __sub__(self, other: PyShape2D) -> PyShape2D:
+        _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
-        new_fn = lambda x, y: lv.max(fa(x, y), -fb(x, y))  # noqa: E731
+
+        def new_fn(x, y):
+            return lv.max(fa(x, y), -fb(x, y))
+
         return self._wrap(new_fn, list(self.mn), list(self.mx))
+
+    def __ror__(self, other: PyShape2D) -> PyShape2D:
+        _check_operand_backend("sdf", other)
+        fa, fb = self._sdf_fn, other._sdf_fn
+
+        def new_fn(x, y):
+            return lv.min(fb(x, y), fa(x, y))
+
+        return self._wrap(
+            new_fn,
+            [min(other.mn[i], self.mn[i]) for i in range(2)],
+            [max(other.mx[i], self.mx[i]) for i in range(2)],
+        )
+
+    def __rand__(self, other: PyShape2D) -> PyShape2D:
+        _check_operand_backend("sdf", other)
+        fa, fb = self._sdf_fn, other._sdf_fn
+
+        def new_fn(x, y):
+            return lv.max(fb(x, y), fa(x, y))
+
+        return self._wrap(
+            new_fn,
+            [max(other.mn[i], self.mn[i]) for i in range(2)],
+            [min(other.mx[i], self.mx[i]) for i in range(2)],
+        )
+
+    def __rsub__(self, other: PyShape2D) -> PyShape2D:
+        _check_operand_backend("sdf", other)
+        fa, fb = self._sdf_fn, other._sdf_fn
+
+        def new_fn(x, y):
+            return lv.max(fb(x, y), -fa(x, y))
+
+        return self._wrap(new_fn, list(other.mn), list(other.mx))
+
+    def __add__(self, other: Any) -> PyShape2D:
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __radd__(self, other: Any) -> PyShape2D:
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __mul__(self, other: Any) -> PyShape2D:
+        return self.scale(other)
+
+    def __rmul__(self, other: Any) -> PyShape2D:
+        return self.scale(other)
+
+    @staticmethod
+    def union(shapes: list[PyShape2D]) -> PyShape2D:
+        """Union of many shapes as a balanced pairwise tree. A linear `a | b | c | ...` chain
+        nests one lambda per piece, so composing hundreds of pieces (a dense tiling, say)
+        overflows Python's recursion limit when the SDF is finally evaluated -- the tree keeps
+        the evaluation depth at log2(n) instead."""
+        shapes = list(shapes)
+        assert shapes, "union() needs at least one shape"
+        while len(shapes) > 1:
+            shapes = [shapes[i] | shapes[i + 1] if i + 1 < len(shapes) else shapes[i] for i in range(0, len(shapes), 2)]
+        return shapes[0]
+
+    union2d = union
 
     # ---- the ops SDFs are uniquely good at ----
 
@@ -247,6 +325,40 @@ class PyShape2D:
             [self.mx[0] + flare, self.mx[1] + flare, z0 + h],
             res if res is not None else self.res,
         )
+
+    def revolve_sdf(self, angle: float = 360.0, res: int = 10) -> PyShape:
+        """Revolve this 2-D profile around the Z axis, returning a 3-D PyShape."""
+        from pybosl2._sdf.skin import _revolve_sdf
+
+        return _revolve_sdf(self, angle=angle, res=res)
+
+    rotate_sweep = revolve_sdf
+
+    def linear_sweep_sdf(
+        self,
+        height: float = 1.0,
+        twist: float = 0.0,
+        scale=1.0,
+        shift=(0.0, 0.0),
+        center: bool = False,
+        slices: int | None = None,
+        res: int = 10,
+    ) -> PyShape:
+        """Extrude this 2-D SDF shape vertically with optional twist, scale, and XY shift."""
+        from pybosl2._sdf.skin import _linear_sweep_sdf
+
+        return _linear_sweep_sdf(
+            self,
+            height=height,
+            twist=twist,
+            scale=scale,
+            shift=shift,
+            center=center,
+            slices=slices,
+            res=res,
+        )
+
+    linear_sweep = linear_sweep_sdf
 
     def linear_extrude(self, height: float, center: bool = False) -> PyShape:
         """Native-spelling alias for extrude(), so migrated 2-D shapes keep working at existing

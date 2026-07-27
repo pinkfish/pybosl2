@@ -410,7 +410,7 @@ class Bezier(list):
         Uses the curve's exact derivatives as tangents (better end joints than path_sweep's
         approximation). *N* is ignored (present for signature parity with :meth:`bezpath_sweep`).
         """
-        from pybosl2.skin import path_sweep
+        from pybosl2.paths import Path3D
 
         _ = n_degree
         path = self.curve(splinesteps, endpoint)
@@ -453,7 +453,7 @@ class Bezier(list):
         transforms: bool = False,
     ):
         """Sweep the 2-D *shape* along this bezier PATH into a VNF (BOSL2 bezpath_sweep())."""
-        from pybosl2.skin import path_sweep
+        from pybosl2.paths import Path3D
 
         path = self.path_curve(splinesteps, n_degree, endpoint)
         bezpath = self.array
@@ -911,7 +911,7 @@ class BezierPatch(list):
 
 def _debug_tube(points, radius: float, sides: int = 8):
     """A thin native tube swept along *points* (a debug 'stroke'). Requires the native app."""
-    from pybosl2.skin import path_sweep
+    from pybosl2.paths import Path3D
 
     circ = [
         [
@@ -924,7 +924,7 @@ def _debug_tube(points, radius: float, sides: int = 8):
     dedup = [pts[0]] + [
         p for i, p in enumerate(pts[1:], 1) if np.linalg.norm(np.asarray(p) - np.asarray(pts[i - 1])) > 1e-9
     ]
-    return path_sweep(circ, dedup).polyhedron()
+    return Path3D(dedup).path_sweep(circ).polyhedron()
 
 
 def _sphere_at(p, diameter: float):

@@ -82,13 +82,13 @@ class SdfBackend:
 
     # -- n-ary CSG (min/max on the fields) -----------------------------------------------------
     def union(self, solids: Any) -> _s.PyShape:
-        return _s.union(*solids)
+        return _s.PyShape.union(*solids)
 
     def difference(self, solids: Any) -> _s.PyShape:
-        return _s.difference(*solids)
+        return _s.PyShape.difference(*solids)
 
     def intersection(self, solids: Any) -> _s.PyShape:
-        return _s.intersection(*solids)
+        return _s.PyShape.intersection(*solids)
 
 
 register_backend("sdf", cast("SolidBackend", SdfBackend()))

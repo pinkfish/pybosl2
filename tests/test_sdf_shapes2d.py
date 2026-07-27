@@ -196,7 +196,7 @@ class TestUnion2D:
 
     def test_matches_chained_union(self):
         discs = [sdf_s2d.circle2d(diameter=4).translate([i * 3, 0]) for i in range(5)]
-        shape = sdf_s2d.union2d(discs).extrude(2).mesh()
+        shape = sdf_s2d.PyShape2D.union(discs).extrude(2).mesh()
         for i in range(5):
             assert shape.sample(i * 3, 0, 1) < 0, f"disc {i} centre solid"
         assert shape.sample(0, 5, 1) > 0, "outside all discs"

@@ -759,6 +759,26 @@ class Bosl2Shape2D(Distributable, Colorable):
         _check_operand_backend("csg", other)
         return self._wrap(Bosl2Shape2D._unwrap(other) - self.shape)
 
+    def __add__(self, other) -> "Bosl2Shape2D":
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __radd__(self, other) -> "Bosl2Shape2D":
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __mul__(self, other) -> "Bosl2Shape2D":
+        return self.scale(other)
+
+    def __rmul__(self, other) -> "Bosl2Shape2D":
+        return self.scale(other)
+
     # ---- distributors (pybosl2/distributors.py) ----
 
     def _distribute(self, mats: Sequence[Sequence[Sequence[float]]]) -> "Bosl2Shape2D":
