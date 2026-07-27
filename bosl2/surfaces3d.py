@@ -323,6 +323,7 @@ def heightfield(
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
     """
+    _ = convexity
     sz = [size, size] if isinstance(size, (int, float)) else list(size)
     style_key = style if style in ("alt", "quincunx") else "default"
 
@@ -448,6 +449,7 @@ def cylindrical_heightfield(
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
     """
+    _ = convexity
     l_val = length if length is not None else (height if height is not None else height)
     assert l_val is not None and l_val > 0, "Must supply one of length= or height= as a finite positive number."
     r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter)
@@ -771,6 +773,7 @@ def textured_tile(
             s3.textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
     """
     from bosl2.texture import (
+        TextureType,
         is_heightfield_texture,
         is_vnf_texture,
         is_watertight_topology,
@@ -782,13 +785,14 @@ def textured_tile(
     )
     from bosl2.vnf import VNF
 
-    if isinstance(texture, str):  # resolve a name through the texture engine
+    if isinstance(texture, (str, TextureType)):  # resolve a name through the texture engine
         texture = _texture(texture, sides=sides, border=border, gap=gap, roughness=roughness, fn=fn)
 
     sz = [float(size[0]), float(size[1])]
     inset = 1.0 if tex_inset is True else float(tex_inset or 0)
 
     def resolve_reps(cell):
+        _ = cell
         if tex_reps is not None:
             return (
                 [int(tex_reps[0]), int(tex_reps[1])] if hasattr(tex_reps, "__len__") else [int(tex_reps), int(tex_reps)]

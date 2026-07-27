@@ -467,6 +467,7 @@ class PyShape:
             ~bosl2.exceptions.UnsupportedByBackend: always. Convert first
             (``shape.to_csg().projection()``) if a meshed projection is acceptable.
         """
+        _ = cut
         from bosl2.exceptions import UnsupportedByBackend
 
         raise UnsupportedByBackend(

@@ -1449,6 +1449,7 @@ def path_sweep2d(
     """
     from bosl2.paths import Path
 
+    _ = quality
     shape = Path(shape)
     path = Path(path)
     fullcaps = _norm_caps(caps, closed=closed)

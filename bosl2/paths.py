@@ -1270,7 +1270,7 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _tag_self_crossing_subpaths(path, nonzero: bool, closed: bool = True, eps: float = EPSILON) -> list:
-        subpaths = Path._split_path_at_self_crossings(path, closed=True, eps=eps)
+        subpaths = Path._split_path_at_self_crossings(path, closed=closed, eps=eps)
         out = []
         for subpath in subpaths:
             seg = Path._select(subpath, 0, 1)

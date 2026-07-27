@@ -97,6 +97,7 @@ _PREAMBLE = (
     "from bosl2.screw_drive import ScrewDrive\n"
     "from functools import reduce\n"
     "from bosl2.paths import Path, Path3D\n"
+    "from bosl2.rounding import _round_corners as round_corners, _smooth_path as smooth_path\n"
     "from bosl2.regions import Region\n"
     "from bosl2.constants import *\n"
 )

@@ -190,6 +190,7 @@ def _partition_subpath(cptype, fn=None, fa=None, fs=None):
 
 def _partition_cutpath(length, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None):
     """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
+    _ = h
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
     sub: list[list[float]] = (
         [list(p) for p in cutpath]

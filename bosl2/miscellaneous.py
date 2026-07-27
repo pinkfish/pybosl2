@@ -228,6 +228,7 @@ def chain_hull(*objects):
 
 def minkowski_difference(base, *diffs, size: float = 1000, convexity: int = 10):
     """Carve *diffs* out of the surface of *base* (BOSL2 minkowski_difference())."""
+    _ = (size, convexity)
     from pythonscad import cube as _cube
     from pythonscad import minkowski as _mink
 
@@ -413,6 +414,7 @@ class Miscellaneous(ABC):
         """Expand (or, for negative *radius*, contract) the surface of this solid by *radius* (BOSL2 offset3d()).
 
         Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly."""
+        _ = convexity
         from pythonscad import cube as _cube
         from pythonscad import minkowski as _mink
         from pythonscad import sphere as _sphere

@@ -24,10 +24,11 @@
 from __future__ import annotations
 
 import math
+from enum import Enum
 
 import numpy as np
 
-__all__ = ["texture", "TEXTURES", "is_heightfield_texture", "is_vnf_texture"]
+__all__ = ["texture", "TEXTURES", "is_heightfield_texture", "is_vnf_texture", "TextureType"]
 
 
 # --- small helpers mirroring the BOSL2 list utilities texture() uses ----------
@@ -610,8 +611,32 @@ TEXTURES = {
 }
 
 
+class TextureType(Enum):
+    RIBS = "ribs"
+    TRUNC_RIBS = "trunc_ribs"
+    WAVE_RIBS = "wave_ribs"
+    DIAMONDS = "diamonds"
+    PYRAMIDS = "pyramids"
+    TRUNC_PYRAMIDS = "trunc_pyramids"
+    HILLS = "hills"
+    BRICKS = "bricks"
+    ROUGH = "rough"
+    DIAMONDS_VNF = "diamonds_vnf"
+    PYRAMIDS_VNF = "pyramids_vnf"
+    TRUNC_PYRAMIDS_VNF = "trunc_pyramids_vnf"
+    CUBES = "cubes"
+    TRUNC_RIBS_VNF = "trunc_ribs_vnf"
+    CONES = "cones"
+    DOTS = "dots"
+    HEX_GRID = "hex_grid"
+    BRICKS_VNF = "bricks_vnf"
+    CHECKERS = "checkers"
+    TRUNC_DIAMONDS = "trunc_diamonds"
+    TRI_GRID = "tri_grid"
+
+
 def texture(
-    tex: str,
+    tex: str | TextureType,
     sides: int | None = None,
     border: float | None = None,
     gap: float | None = None,
@@ -642,9 +667,9 @@ def texture(
         raise ValueError("texture(): give 'border' or 'inset', not both.")
     if inset is not None:
         border = inset
-    key = tex
+    key = tex.value if isinstance(tex, TextureType) else tex
     if key not in TEXTURES:
-        raise ValueError(f"Unrecognized (or unported) texture name: {tex!r}; available: {sorted(TEXTURES)}")
+        raise ValueError(f"Unrecognized (or unported) texture name: {key!r}; available: {sorted(TEXTURES)}")
     builder, _kind = TEXTURES[key]
     return builder(sides=sides, border=border, gap=gap, roughness=roughness, fn=fn)
 
@@ -704,6 +729,7 @@ def is_watertight_topology(verts, faces) -> bool:
     """
     True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold).
     """
+    _ = verts
     from collections import Counter
 
     e = Counter()
@@ -748,17 +774,17 @@ def vnf_tile_to_solid(verts, faces, size, reps, tex_depth=1.0, inset=0.0):
     it into a watertight solid. Returns ``(verts, faces)`` for a polyhedron."""
     sx, sy = float(size[0]), float(size[1])
     nx, ny = int(reps[0]), int(reps[1])
-    V, F = [], []
+    v, f = [], []
     for i in range(nx):
         for j in range(ny):
-            off = len(V)
+            off = len(v)
             for vx, vy, vz in verts:
-                V.append([(i + vx) / nx * sx, (j + vy) / ny * sy, (vz - inset) * tex_depth])
-            for f in faces:
-                F.append([off + k for k in f])
-    V, F = _weld(V, F)
-    bottom = min(p[2] for p in V) - 0.1
-    return _close_to_base(V, F, bottom)
+                v.append([(i + vx) / nx * sx, (j + vy) / ny * sy, (vz - inset) * tex_depth])
+            for face in faces:
+                f.append([off + k for k in face])
+    v, f = _weld(v, f)
+    bottom = min(p[2] for p in v) - 0.1
+    return _close_to_base(v, f, bottom)
 
 
 def is_heightfield_texture(tex) -> bool:

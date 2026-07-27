@@ -279,6 +279,7 @@ def edge_profile(
                       isn't given
         center:       the box center in body's current frame; when given it's used directly
     """
+    _ = convexity
     assert size is not None, "size= (the box's size) must be given"
     assert children is not None, "children= (the 2-D mask path) must be given"
     edge_set = _edges(edges, except_edges or [])
@@ -383,6 +384,7 @@ def corner_profile(
         center:         the box center in body's current frame; when given it's used directly
         fn/fa/fs:    arc smoothness overrides
     """
+    _ = (children, convexity)
     if radius is None:
         assert diameter is not None, "corner_profile(): must give radius or diameter"
         radius = diameter / 2

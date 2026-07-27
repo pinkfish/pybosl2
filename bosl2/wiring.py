@@ -56,8 +56,8 @@ def _hex_offset_ring(d, lev):
     ``lev=0`` is the single centre point; ``lev>=1`` is a hexagon of ``6*lev`` points."""
     if lev == 0:
         return [[0.0, 0.0]]
-    R = lev * d  # hexagon circumradius; side length == R
-    corners = [(R * math.cos(math.radians(60 * k)), R * math.sin(math.radians(60 * k))) for k in range(6)]
+    r = lev * d  # hexagon circumradius; side length == r
+    corners = [(r * math.cos(math.radians(60 * k)), r * math.sin(math.radians(60 * k))) for k in range(6)]
     pts = []
     for k in range(6):  # subdivide each edge into lev segments
         x0, y0 = corners[k]

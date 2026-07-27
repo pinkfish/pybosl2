@@ -548,9 +548,6 @@ class Threading:
         starts: int = 1,
         left_handed: bool = False,
         profile=None,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
     ) -> Bosl2Solid:
         """A single helical thread ridge (no core), for adding threads onto your own cylinder
         (BOSL2 thread_helix()). The thread crest is at diameter *d*; give *thread_depth* and

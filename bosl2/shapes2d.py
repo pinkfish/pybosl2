@@ -78,6 +78,66 @@ else:
 # ---------------------------------------------------------------------------
 
 
+from enum import Enum
+
+
+class AnchorType(Enum):
+    HULL = "hull"
+    BOX = "box"
+    INTERSECT = "intersect"
+
+
+def _norm_atype(atype: str | AnchorType) -> AnchorType:
+    if isinstance(atype, AnchorType):
+        return atype
+    try:
+        return AnchorType(atype.lower())
+    except (ValueError, AttributeError):
+        raise ValueError(f"Invalid atype: {atype!r}. Expected one of {list(AnchorType)}") from None
+
+
+def _anchor_offset_generic(
+    points: Sequence[Sequence[float]],
+    anchor: Sequence[float],
+    atype: str | AnchorType,
+) -> list[float]:
+    atype_enum = _norm_atype(atype)
+    if atype_enum == AnchorType.BOX:
+        min_x = min(p[0] for p in points)
+        max_x = max(p[0] for p in points)
+        min_y = min(p[1] for p in points)
+        max_y = max(p[1] for p in points)
+        size = [max_x - min_x, max_y - min_y]
+        return _anchor_offset_box(size, anchor)
+    elif atype_enum == AnchorType.INTERSECT:
+        d = _dir2(anchor)
+        if d[0] == 0 and d[1] == 0:
+            return [0.0, 0.0]
+        best_t = 0.0
+        best_pt = [0.0, 0.0]
+        n = len(points)
+        for i in range(n):
+            p1 = points[i]
+            p2 = points[(i + 1) % n]
+            x1, y1 = p1[0], p1[1]
+            x2, y2 = p2[0], p2[1]
+            dx, dy = d[0], d[1]
+
+            denom = (y2 - y1) * dx - (x2 - x1) * dy
+            if abs(denom) > 1e-9:
+                u = (x1 * dy - y1 * dx) / denom
+                if 0.0 <= u <= 1.0:
+                    t = (x1 + u * (x2 - x1)) / dx if abs(dx) > 1e-9 else (y1 + u * (y2 - y1)) / dy
+                    if t >= 0.0 and t > best_t:
+                        best_t = t
+                        best_pt = [t * dx, t * dy]
+        if best_t > 0.0:
+            return [-best_pt[0], -best_pt[1]]
+        return _anchor_offset_hull(points, anchor)
+    else:
+        return _anchor_offset_hull(points, anchor)
+
+
 def _frag_count(
     radius: float,
     fn: int | None = None,
@@ -1164,7 +1224,7 @@ def ellipse(
     radius: float | Sequence[float] | None = None,
     diameter: float | Sequence[float] | None = None,
     realign: bool = False,
-    circum: bool = False,
+    circumscribe: bool = False,
     uniform: bool = False,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
@@ -1181,11 +1241,12 @@ def ellipse(
         radius:   radius of the circle, or pair of semi-axes of the ellipse
         diameter: diameter of the circle, or pair giving the full X/Y axis lengths
         realign:  shift the first polygon point off the X+ axis (default False)
-        circum:   circumscribe rather than inscribe the ideal ellipse (default False)
+        circumscribe: circumscribe rather than inscribe the ideal ellipse (default False)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides
     """
+    _ = uniform
     if radius is not None:
         rad = [float(radius), float(radius)] if isinstance(radius, (int, float)) else [float(v) for v in radius]
     elif diameter is not None:
@@ -1194,7 +1255,7 @@ def ellipse(
     else:
         rad = [1.0, 1.0]
     n = _frag_count(max(rad), fn, fa, fs)
-    scale = 1.0 / math.cos(math.pi / n) if circum else 1.0
+    scale = 1.0 / math.cos(math.pi / n) if circumscribe else 1.0
     start = (360.0 / n) / 2 if realign else 0.0
     path = [
         [
@@ -1601,7 +1662,7 @@ def star(
     align_pit: Sequence[float] | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    atype: str = "hull",
+    atype: str | AnchorType = AnchorType.HULL,
 ) -> Bosl2Shape2D:
     """An N-pointed star polygon, built directly with polygon().
 
@@ -1621,7 +1682,7 @@ def star(
         align_pit:      rotate so the first inner corner points in this 2-D direction (applied before spin)
         anchor:         anchor point (default CENTER)
         spin:           Z-axis rotation in degrees after anchor (default 0)
-        atype:          anchor method; only "hull" is implemented here (default "hull")
+        atype:          anchor method (default AnchorType.HULL)
     """
     rad = _pick_radius(radius1=outer_radius, diameter1=outer_diameter, radius=radius, diameter=diameter)
     if rad is None:
@@ -1646,7 +1707,7 @@ def star(
         extra_rot -= 180.0 / tips
     path = [_rotate2d(p, extra_rot) for p in path1] if extra_rot else path1
     shape = _opolygon(path)
-    offset = _anchor_offset_hull(path, anchor)
+    offset = _anchor_offset_generic(path, anchor, atype)
     return _finish(shape, offset, spin)
 
 
@@ -1672,7 +1733,7 @@ def teardrop2d(
     angle: float = 45,
     cap_height: float | None = None,
     diameter: float | None = None,
-    circum: bool = False,
+    circumscribe: bool = False,
     realign: bool = False,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
@@ -1682,21 +1743,23 @@ def teardrop2d(
 ) -> Bosl2Shape2D:
     """A 2-D teardrop shape, useful for 3D-printable horizontal holes, built directly with polygon().
 
-    Note: `circum` is approximated the same way as the inscribed case here (BOSL2's exact
-    ray-intersection construction for `circum=True` is not reproduced).
+    Note: `circumscribe` is approximated the same way as the inscribed case here.
 
     Args:
         radius:     radius of the circular part (default 1)
         angle:      angle of the hat walls from the Y axis in degrees (default 45)
         cap_height: height above center to truncate the shape (default: no truncation)
         diameter:   diameter of the circular portion (alternative to radius)
-        circum:     produce a circumscribing teardrop (default False)
+        circumscribe: produce a circumscribing teardrop (default False)
         realign:    flip whether the bottom is a point or a flat (default False)
         anchor:     anchor point (default CENTER)
         spin:       Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides
     """
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
+    if circumscribe:
+        n = _frag_count(rad, fn, fa, fs)
+        rad /= math.cos(math.pi / n)
     minheight = rad * math.sin(math.radians(angle))
     maxheight = rad / math.sin(math.radians(angle))
     if cap_height is not None:
@@ -1911,7 +1974,7 @@ def supershape(
     diameter: float | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
-    atype: str = "hull",
+    atype: str | AnchorType = AnchorType.HULL,
 ) -> Bosl2Shape2D:
     """A 2-D shape from the superformula, built directly with polygon().
 
@@ -1929,7 +1992,7 @@ def supershape(
         diameter: scale the shape to fit in a circle of this diameter
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
-        atype:  anchor method; only "hull" is implemented here (default "hull")
+        atype:  anchor method (default AnchorType.HULL)
     """
     n_pts = count if count is not None else math.ceil(360.0 / step)
     n1v = n1 if n1 is not None else 1
@@ -1949,7 +2012,7 @@ def supershape(
         for i in range(n_pts)
     ]
     shape = _opolygon(path)
-    offset = _anchor_offset_hull(path, anchor)
+    offset = _anchor_offset_generic(path, anchor, atype)
     return _finish(shape, offset, spin)
 
 

@@ -403,6 +403,7 @@ class Bezier(list):
         """
         from bosl2.skin import path_sweep
 
+        _ = N
         path = self.curve(splinesteps, endpoint)
         tang = self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))
         return path_sweep(
@@ -787,6 +788,7 @@ class BezierPatch(list):
 
     @staticmethod
     def _vnf_degenerate(patch, splinesteps: int, reverse: bool, return_edges: bool):
+        _ = return_edges
         patch = np.asarray(patch, dtype=float)
         R, C = patch.shape[0], patch.shape[1]
         row_degen = [BezierPatch._all_equal(patch[r]) for r in range(R)]

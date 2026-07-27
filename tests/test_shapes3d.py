@@ -25,6 +25,9 @@ from bosl2.shapes3d import (
     prismoid,
     sphere,
     textured_tile,
+    xcyl,
+    ycyl,
+    zcyl,
 )
 
 # unit-cube corner cloud, for exercising _anchor_offset_hull3 directly
@@ -251,3 +254,67 @@ def test_bounds_metadata_fallback_fails_loud_after_move():
     m._native_bounds = lambda: None
     with pytest.raises(ValueError, match="transformed since construction"):
         m.bounds()  # moved: refuse to return a stale centre
+
+
+def test_cyl_missing_args():
+    # Test that cyl and xcyl/ycyl/zcyl accept all the new parameters
+    # and construct without errors.
+    c = cyl(length=40, radius=10, extra=5, chamfer_angle=30, from_end=True)
+    assert isinstance(c, Bosl2Solid)
+
+    c2 = cyl(
+        height=50,
+        diameter=20,
+        extra1=2,
+        extra2=3,
+        chamfer_angle1=35,
+        chamfer_angle2=40,
+        from_end1=True,
+        from_end2=False,
+    )
+    assert isinstance(c2, Bosl2Solid)
+
+    c3 = cyl(radius1=12, radius2=8, chamfer=2, realign=True)
+    assert isinstance(c3, Bosl2Solid)
+
+    # Test xcyl, ycyl, zcyl
+    x = xcyl(length=40, radius=10, extra=2)
+    assert isinstance(x, Bosl2Solid)
+
+    y = ycyl(height=50, diameter=20, extra1=1)
+    assert isinstance(y, Bosl2Solid)
+
+    z = zcyl(radius1=12, radius2=8, chamfer=2)
+    assert isinstance(z, Bosl2Solid)
+
+    # Test texture parameters acceptance
+    c_tex_none = cyl(radius=10, height=20, texture="none", tex_size=5, tex_reps=4, tex_depth=2, tex_inset=True)
+    assert isinstance(c_tex_none, Bosl2Solid)
+
+    from bosl2.texture import TextureType
+
+    with pytest.raises(NotImplementedError):
+        cyl(radius=10, height=20, texture=TextureType.RIBS)
+
+    with pytest.raises(NotImplementedError):
+        xcyl(radius=10, height=20, texture="ribs")
+
+    # Test teardrop and clip_angle rounding
+    c_td = cyl(radius=10, height=20, rounding=2, teardrop=True, clip_angle=45)
+    assert isinstance(c_td, Bosl2Solid)
+
+    c_td_float = cyl(radius=10, height=20, rounding=2, teardrop=30, clip_angle=60)
+    assert isinstance(c_td_float, Bosl2Solid)
+
+
+def test_texture_enum():
+    from bosl2.bottlecaps import BottleCaps, BottleCapTexture
+    from bosl2.texture import TextureType, texture
+
+    # Test that texture resolved correctly with enum
+    t = texture(TextureType.RIBS)
+    assert isinstance(t, list)
+
+    # Test that cap constructs correctly with enum texture
+    cap = BottleCaps.pco1810_cap(texture=BottleCapTexture.RIBS)
+    assert isinstance(cap, Bosl2Solid)
