@@ -45,8 +45,8 @@ def _parse_module(filepath: Path) -> list[tuple[str, str, str | None]]:
 def _build_sidebar_html(members: list[tuple[str, str, str | None]], module_ref: str) -> str:
     """Build the sidebar HTML for a single module."""
     lines = [
-        '<aside class="sidebar" id="pysidebar-global">',
-        '<p class="sidebar-title">In this module</p>',
+        '<aside id="pysidebar-global">',
+        '<p class="pysidebar-title">In this module</p>',
         '<ul class="pysidebar-list">',
     ]
     for mtype, name, parent in members:
