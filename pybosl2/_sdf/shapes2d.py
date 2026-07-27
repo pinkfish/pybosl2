@@ -18,8 +18,7 @@ from typing import TYPE_CHECKING, Callable
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-import libfive as lv
-from numpy.typing import NDArray
+    from numpy.typing import NDArray
 
 from pybosl2._sdf._constants import CENTER
 from pybosl2._sdf._libfive import lv

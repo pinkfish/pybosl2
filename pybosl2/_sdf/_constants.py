@@ -16,15 +16,7 @@ from __future__ import annotations
 
 from typing import Any, SupportsIndex
 
-try:
-    from typing import override
-except ImportError:
-    try:
-        from typing_extensions import override
-    except ImportError:
-
-        def override(f: Any) -> Any:
-            return f
+from typing_extensions import override
 
 
 class Vec3(list[float]):

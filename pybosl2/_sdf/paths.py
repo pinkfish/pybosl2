@@ -20,7 +20,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -32,8 +32,10 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike, NDArray
 
+    _VecLike = Sequence[float] | NDArray[np.float64]
 
-def as_path_list(paths: list[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:
+
+def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:
     """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a
     list of (n, 2) float arrays (the multi-outline entry-point convention polygon2d()/
     region2d() accept)."""
@@ -467,34 +469,34 @@ def _arc_through(
 # ---------------------------------------------------------------------------
 
 
-def _v_sub(a: Sequence[float], b: Sequence[float]) -> NDArray[np.float64]:
+def _v_sub(a: _VecLike, b: _VecLike) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
 
 
-def _v_add(a: Sequence[float], b: Sequence[float]) -> NDArray[np.float64]:
+def _v_add(a: _VecLike, b: _VecLike) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) + np.asarray(b, dtype=float)
 
 
-def _v_scale(a: Sequence[float], s: float) -> NDArray[np.float64]:
+def _v_scale(a: _VecLike, s: float) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) * float(s)
 
 
-def _v_norm(a: Sequence[float]) -> float:
+def _v_norm(a: _VecLike) -> float:
     return float(np.linalg.norm(np.asarray(a, dtype=float)))
 
 
-def _v_unit(a: Sequence[float]) -> NDArray[np.float64]:
+def _v_unit(a: _VecLike) -> NDArray[np.float64]:
     arr = np.asarray(a, dtype=float)
     n = float(np.linalg.norm(arr))
     assert n > 1e-12, "cannot normalize a zero vector"
     return arr / n
 
 
-def _v_dot(a: Sequence[float], b: Sequence[float]) -> float:
+def _v_dot(a: _VecLike, b: _VecLike) -> float:
     return float(np.asarray(a, dtype=float) @ np.asarray(b, dtype=float))
 
 
-def _lerp_pt(a: Sequence[float], b: Sequence[float], t: float) -> NDArray[np.float64]:
+def _lerp_pt(a: _VecLike, b: _VecLike, t: float) -> NDArray[np.float64]:
     aa = np.asarray(a, dtype=float)
     return aa + (np.asarray(b, dtype=float) - aa) * float(t)
 
@@ -526,7 +528,13 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
 
     hs = np.asarray(h, dtype=float)
 
-    def dnu(f1: float, fc: float, f2: float, h1: float, h2: float) -> NDArray[np.float64]:
+    def dnu(
+        f1: NDArray[np.float64],
+        fc: NDArray[np.float64],
+        f2: NDArray[np.float64],
+        h1: float,
+        h2: float,
+    ) -> NDArray[np.float64]:
         g1 = _lerp_pt(fc, f1, h2 / h1) if h2 < h1 else f1
         g2 = _lerp_pt(fc, f2, h1 / h2) if h1 < h2 else f2
         return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (2 * min(h1, h2))
@@ -737,19 +745,19 @@ def path_length(path: ArrayLike, closed: bool = False) -> float:
     return total
 
 
-def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool = False) -> list[float] | None:
+def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool = False) -> list[list[Any]] | None:
     """The point(s) at the given arc-length distance(s) from the start of `path`, each as
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances
     requirement) as the bosl2 port's path_cut_points()."""
     path = as_points(path)
     if isinstance(cutdist, (int, float)):
-        return path_cut_points(path, [cutdist], closed)[0]
+        return path_cut_points(path, [cutdist], closed)[0]  # type: ignore[index, return-value]
     assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
 
-    def select(p: list, i: int) -> float:
-        return p[i % len(p)]
+    def select(p: NDArray[np.float64] | Sequence[float], i: int) -> NDArray[np.float64]:
+        return p[i % len(p)]  # type: ignore[return-value]
 
-    def cut_single(dist: float, ind: int, eps: float = 1e-7):
+    def cut_single(dist: float, ind: int, eps: float = 1e-7) -> list:
         while True:
             if ind == len(path) - (0 if closed else 1):
                 assert dist < eps, "Path is too short for specified cut distance"
@@ -760,15 +768,16 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
             dist -= d
             ind += 1
 
-    result: list = []
+    result: list[list] = []
     pind = 0
     dtotal = 0.0
     for dist in cutdist:
         lastpt = None if not result else result[-1][0]
-        dpartial = 0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))
+        dpartial = 0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))  # type: ignore[operator]
+        nextpoint: list
         if dist < dpartial + dtotal:
             t = (dist - dtotal) / dpartial
-            nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]
+            nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]  # type: ignore[arg-type]
         else:
             nextpoint = cut_single(dist - dtotal - dpartial, pind)
         result.append(nextpoint)
@@ -805,8 +814,8 @@ def _circlecorner(
     p2: Sequence[float],
     d: float,
     r: float,
-    fn: int | None = None,
-) -> list[list[float]]:
+    fn: float | None = None,
+) -> list[list[float] | NDArray[np.float64]]:
     prev = _v_unit(_v_sub(p0, p1))
     nxt = _v_unit(_v_sub(p2, p1))
     angle = _vector_angle3(p0, p1, p2) / 2
