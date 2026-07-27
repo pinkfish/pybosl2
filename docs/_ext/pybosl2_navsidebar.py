@@ -108,9 +108,9 @@ def _build_sidebar_html(members: list[tuple[str, str, str | None]], module_ref: 
 def _on_html_page_context(
     app: Sphinx,
     pagename: str,
-    templatename: str,
+    _templatename: str,
     context: dict,
-    doctree,
+    _doctree,
 ) -> None:
     """Inject a per-module sidebar into module pages only."""
     body = context.get("body")

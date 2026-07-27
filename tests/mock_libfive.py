@@ -1,50 +1,8 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# Copyright (c) 2026, pinkfish
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-
-# LibFile: pysolidfive/tests/mock_libfive.py
-#    A numeric-evaluation stand-in for the real `libfive` module (and just enough of
-#    `pythonscad`/`openscad` for pysolidfive to load -- pysolidfive itself has no pybosl2
-#    dependency, so nothing beyond this stand-in is needed), so pysolidfive's SDF math can be
-#    exercised and checked against hand-derived expected values without a real PythonSCAD/libfive
-#    build -- which this environment doesn't have.
-#
-#    Also shared, unmodified, by every other library's mock test suite in the parent repo's own
-#    tests/ directory (test_labels.py, test_base_bgtk.py, test_components.py, test_lids_base.py,
-#    test_sliding_box.py) -- those libraries build real geometry via native primitives/BOSL2/the
-#    pybosl2/ port rather than SDFs, so this mock only stands in for whatever small pysolidfive
-#    pieces they compose with, but they still need the same `libfive`/`pythonscad` stub installed
-#    before *anything* (including pysolidfive) gets imported in the same process.
-#
-#    Every libfive "Tree" here is a plain Python closure `(x, y, z) -> float`, built up the
-#    same way the real libfive Python bindings build a symbolic expression tree: each
-#    operator/function wraps its operands in a new closure rather than evaluating immediately.
-#    frep() doesn't mesh anything -- it just returns a `_FrepResult` that remembers the SDF
-#    closure and bounds, and exposes `.sample(x, y, z)` to evaluate it directly and
-#    `.translate(v)` to test the anchor/translate machinery.
-#
-#    This module must be imported (for its module-level `install()` side effect, or by calling
-#    `install()` explicitly) *before* `pysolidfive` is imported anywhere in the process, since
-#    pysolidfive does `import libfive as lv` / `from pythonscad import frep` at module load time.
-#    Import it as a flat top-level module (`import mock_libfive`, with this directory added to
-#    `sys.path`), not as `pysolidfive.tests.mock_libfive` -- the dotted form forces Python to
-#    import the *real* `pysolidfive` package first (to reach the `tests` submodule inside it),
-#    which fails before this stand-in ever gets a chance to install itself.
-#
-# FileGroup: pysolidfive
+# Licensed under the BSD 2-Clause License. See the LICENSE file in the project
+# root for the full license text.
+# SPDX-License-Identifier: BSD-2-Clause
 
 import math
 import sys
@@ -134,9 +92,9 @@ def _wrap2(f):
 
 sqrt = _wrap1(math.sqrt)
 square = _wrap1(lambda v: v * v)
-abs = _wrap1(__import__("builtins").abs)
-max = _wrap2(__import__("builtins").max)
-min = _wrap2(__import__("builtins").min)
+abs = _wrap1(__import__("builtins").abs)  # noqa: A001
+max = _wrap2(__import__("builtins").max)  # noqa: A001
+min = _wrap2(__import__("builtins").min)  # noqa: A001
 atan2 = _wrap2(math.atan2)
 
 
