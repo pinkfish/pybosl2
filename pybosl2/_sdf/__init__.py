@@ -92,4 +92,4 @@ class SdfBackend:
         return _s.intersection(*solids)
 
 
-register_backend("sdf", SdfBackend())
+register_backend("sdf", SdfBackend())  # type: ignore[arg-type]

@@ -732,7 +732,7 @@ def is_watertight_topology(verts, faces) -> bool:
     _ = verts
     from collections import Counter
 
-    e = Counter()
+    e: Counter = Counter()
     for f in faces:
         for i in range(len(f)):
             e[frozenset((f[i], f[(i + 1) % len(f)]))] += 1

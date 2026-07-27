@@ -416,14 +416,14 @@ class Bezier(list):
         path = self.curve(splinesteps, endpoint)
         tang = self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))
         return path_sweep(
-            shape,
-            path,
+            shape,  # type: ignore[arg-type]
+            path,  # type: ignore[arg-type]
             method=method,
             normal=normal,
             closed=closed,
             twist=twist,
             twist_by_length=twist_by_length,
-            scale=scale,
+            scale=scale,  # type: ignore[arg-type]
             scale_by_length=scale_by_length,
             symmetry=symmetry,
             last_normal=last_normal,
@@ -466,14 +466,14 @@ class Bezier(list):
         if endpoint:
             tang.append(Bezier(bezpath[(segs - 1) * n_degree : segs * n_degree + 1]).derivative(1.0))
         return path_sweep(
-            shape,
-            path,
+            shape,  # type: ignore[arg-type]
+            path,  # type: ignore[arg-type]
             method=method,
             normal=normal,
             closed=closed,
             twist=twist,
             twist_by_length=twist_by_length,
-            scale=scale,
+            scale=scale,  # type: ignore[arg-type]
             scale_by_length=scale_by_length,
             symmetry=symmetry,
             last_normal=last_normal,
@@ -730,7 +730,7 @@ class BezierPatch(list):
             return self.normals([u], v)[0]
         return self.normals(u, [v])[:, 0, :]
 
-    def reverse(self) -> "BezierPatch":
+    def reverse(self) -> "BezierPatch":  # type: ignore[override]
         """The patch with each row reversed (flips the surface orientation)."""
         return BezierPatch([list(reversed(row)) for row in self])
 

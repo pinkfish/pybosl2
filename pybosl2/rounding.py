@@ -208,7 +208,7 @@ def _round_corners(
         kv = [float(k)] * sides  # type: ignore[arg-type]
     else:
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < sides else [float(v) for v in k]  # type: ignore[arg-type]
+        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < sides else [float(v) for v in k]  # type: ignore[arg-type, union-attr]
     assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
     assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
 
@@ -423,7 +423,7 @@ class Roundable:
         from pybosl2.skin import _offset_sweep as _os
 
         return _os(
-            self,
+            self,  # type: ignore[arg-type]
             height=height,
             bottom=bottom,
             top=top,
@@ -445,7 +445,7 @@ class Roundable:
         from pybosl2.skin import _convex_offset_extrude as _coe
 
         return _coe(
-            self,
+            self,  # type: ignore[arg-type]
             height=height,
             bottom=bottom,
             top=top,
@@ -474,7 +474,7 @@ class Roundable:
         k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides")
 
         return _rp(
-            self,
+            self,  # type: ignore[arg-type]
             top=top,
             height=height,
             joint_top=joint_top,
@@ -499,7 +499,7 @@ class Roundable:
         from pybosl2.skin import _join_prism as _jp
 
         return _jp(
-            self,
+            self,  # type: ignore[arg-type]
             height=height,
             fillet=fillet,
             steps=steps,
@@ -521,7 +521,7 @@ class Roundable:
         from pybosl2.skin import _prism_connector as _pc
 
         return _pc(
-            self,
+            self,  # type: ignore[arg-type]
             length=length,
             fillet=fillet,
             fillet1=fillet1,
@@ -544,7 +544,7 @@ class Roundable:
         from pybosl2.skin import _attach_prism as _ap
 
         return _ap(
-            self,
+            self,  # type: ignore[arg-type]
             length=length,
             fillet=fillet,
             rounding=rounding,
@@ -565,7 +565,7 @@ class Roundable:
         return _bcm(
             radius=radius,
             thickness=thickness,
-            path=self,
+            path=self,  # type: ignore[arg-type]
             style=style,
         )
 

@@ -1186,9 +1186,9 @@ class Path(Distributable, Extrudable, Roundable, list):
                 start = max(min(cuts[i][1], len(path) - 1), 2)
                 plane = Path._path_plane(path, start, start - 2, closed)
             if plane is None:
-                out.append([1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else unit([-dirs[i][1], dirs[i][0], 0]))
+                out.append([1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else unit([-dirs[i][1], dirs[i][0], 0]))  # type: ignore[arg-type]
             else:
-                out.append(unit(cross(dirs[i], cross(plane[0], plane[1]))))
+                out.append(unit(cross(dirs[i], cross(plane[0], plane[1]))))  # type: ignore[arg-type]
         return out
 
     @staticmethod

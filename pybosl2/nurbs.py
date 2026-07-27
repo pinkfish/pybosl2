@@ -329,7 +329,7 @@ def nurbs_patch_points(
     u=None,
     v=None,
     weights=None,
-    type: str = ("clamped", "clamped"),  # noqa: A002
+    type: str | tuple[str, str] = ("clamped", "clamped"),  # noqa: A002
     mult=(None, None),
     knots=(None, None),
 ):
@@ -380,22 +380,23 @@ def nurbs_patch_points(
 
     degree = _force_list2(degree)
     type = _force_list2(type)  # noqa: A001
-    splinesteps = [None, None] if splinesteps is None else _force_list2(splinesteps)
+    splinesteps = [None, None] if splinesteps is None else _force_list2(splinesteps)  # type: ignore[assignment]
     mult = [mult, mult] if (mult is None or is_num(mult) or (mult and is_num(mult[0]))) else list(mult)
     knots = [knots, knots] if (knots is None or (knots and is_num(knots[0]))) else list(knots)
 
     if is_num(u) and is_num(v):
         inner = [
-            _nurbs_curve_pts(ctrl, degree[1], u=v, type=type[1], mult=mult[1], knots=knots[1])[0] for ctrl in patch
+            _nurbs_curve_pts(ctrl, degree[1], u=v, type=type[1], mult=mult[1], knots=knots[1])[0]
+            for ctrl in patch  # type: ignore[index]
         ]
-        return _nurbs_curve_pts(inner, degree[0], u=u, type=type[0], mult=mult[0], knots=knots[0])[0]
+        return _nurbs_curve_pts(inner, degree[0], u=u, type=type[0], mult=mult[0], knots=knots[0])[0]  # type: ignore[index]
 
     # sweep each control-column as a u-curve, then each resulting row as a v-curve
     vsplines = [
         _nurbs_curve_pts(
             _column(patch, i),
-            degree[0],
-            splinesteps=splinesteps[0],
+            degree[0],  # type: ignore[index]
+            splinesteps=splinesteps[0],  # type: ignore[index]
             u=u,
             type=type[0],
             mult=mult[0],
@@ -407,8 +408,8 @@ def nurbs_patch_points(
     for i in range(len(vsplines[0])):
         row = _nurbs_curve_pts(
             _column(vsplines, i),
-            degree[1],
-            splinesteps=splinesteps[1],
+            degree[1],  # type: ignore[index]
+            splinesteps=splinesteps[1],  # type: ignore[index]
             u=v,
             type=type[1],
             mult=mult[1],
@@ -614,6 +615,7 @@ def nurbs_elevate_degree(
 
     assert type in ("clamped", "open"), 'nurbs_elevate_degree: type must be "clamped" or "open".'
     assert is_num(times) and times >= 1, "times must be a positive integer."
+    assert degree is not None, "degree must be provided."
     sides = len(control)
     if knots is None and mult is None:
         xknots = (

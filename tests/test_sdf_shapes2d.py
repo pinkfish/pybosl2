@@ -60,8 +60,8 @@ class TestShape2D(unittest.TestCase):
         self.assertLess(shape.sample(5, 3, 1), 0, msg="interior at the anchored position")
 
     def test_polygon2d_concave(self):
-        L = [[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]]
-        shape = sdf_s2d.polygon2d(L).extrude(3).mesh()
+        pts = [[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]]
+        shape = sdf_s2d.polygon2d(pts).extrude(3).mesh()
         self.assertLess(shape.sample(5, 5, 1), 0)
         self.assertGreater(shape.sample(30, 30, 1), 0, msg="the notch is outside")
         self.assertAlmostEqual(shape.sample(20, 15, 1), 0, places=9, msg="on the notch face")

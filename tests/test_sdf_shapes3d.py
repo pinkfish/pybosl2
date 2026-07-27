@@ -690,13 +690,13 @@ class TestTeardropAndOnion(unittest.TestCase):
 
 class TestHeightfield(unittest.TestCase):
     def test_flat_heightfield(self):
-        shape = sdf_s3d.heightfield(lambda x, y: 5, size=[20, 20], bottom=-5, maxz=10).mesh()
+        shape = sdf_s3d.heightfield(lambda _x, _y: 5, size=[20, 20], bottom=-5, maxz=10).mesh()
         self.assertAlmostEqual(shape.sample(0, 0, 5), 0)
         self.assertLess(shape.sample(0, 0, 0), 0)
         self.assertGreater(shape.sample(0, 0, 10), 0)
 
     def test_varying_heightfield(self):
-        shape = sdf_s3d.heightfield(lambda x, y: x * 0.1, size=[20, 20], bottom=-5, maxz=10).mesh()
+        shape = sdf_s3d.heightfield(lambda x, _y: x * 0.1, size=[20, 20], bottom=-5, maxz=10).mesh()
         self.assertAlmostEqual(shape.sample(10, 0, 1), 0)
 
     def test_rejects_non_callable_data(self):

@@ -96,7 +96,7 @@ def _lv_hypot(a: LVTree, b: LVTree) -> LVTree:
     return lv.sqrt(a * a + b * b)
 
 
-def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | None) -> float:
+def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | list[str]) -> float:
     """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent
     per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one string for
     all four corners, or a per-corner list) -- given by `amount[i]` at each of its 4 corners.
@@ -350,15 +350,22 @@ def bezier_points(curve: ArrayLike, u: float) -> NDArray[np.float64]:
     return pts[0]
 
 
-def bezpath_points(bezpath: ArrayLike, splinesteps: int = 16, N: int = 3, endpoint: bool = True) -> NDArray[np.float64]:
-    """Sample a Bezier path (degree-N segments sharing endpoints, len % N == 1) into a point
+def bezpath_points(
+    bezpath: ArrayLike,
+    splinesteps: int = 16,
+    n_degree: int = 3,
+    endpoint: bool = True,
+) -> NDArray[np.float64]:
+    """Sample a Bezier path (degree-N segments sharing endpoints, len % n_degree == 1) into a point
     array -- same shape as the bosl2 port's bezpath_curve()."""
     bez = as_points(bezpath)
-    assert len(bez) % N == 1, f"A degree {N} bezier path should have a multiple of {N} points in it, plus 1."
-    segs = (len(bez) - 1) // N
+    assert len(bez) % n_degree == 1, (
+        f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
+    )
+    segs = (len(bez) - 1) // n_degree
     out = []
     for seg in range(segs):
-        ctrl = bez[seg * N : (seg + 1) * N + 1]
+        ctrl = bez[seg * n_degree : (seg + 1) * n_degree + 1]
         for i in range(splinesteps):
             out.append(bezier_points(ctrl, i / splinesteps))
     if endpoint:
@@ -366,17 +373,17 @@ def bezpath_points(bezpath: ArrayLike, splinesteps: int = 16, N: int = 3, endpoi
     return np.asarray(out, dtype=float)
 
 
-def egg_path(length: float, radius1: float, radius2: float, R: float, n: int = 90) -> NDArray[np.float64]:
+def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n: int = 90) -> NDArray[np.float64]:
     """The BOSL2-style egg outline: two end circles of radius radius1 (left) and radius2 (right), a
-    total length, and side arcs of radius R blending them -- as a closed point path.
+    total length, and side arcs of radius arc_radius blending them -- as a closed point path.
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density."""
     assert length > 0
-    assert length / 2 < R, "Side radius R must be larger than length/2"
+    assert length / 2 < arc_radius, "Side radius arc_radius must be larger than length/2"
     assert length > radius1 + radius2, "Length must be longer than radius1+radius2"
     c1 = [-length / 2 + radius1, 0.0]
     c2 = [length / 2 - radius2, 0.0]
-    m_pts = list(reversed(_circle_circle_intersection(R - radius1, c1, R - radius2, c2)))
-    assert len(m_pts) == 2, "egg_path(): circles do not intersect for the given length/radius1/radius2/R."
+    m_pts = list(reversed(_circle_circle_intersection(arc_radius - radius1, c1, arc_radius - radius2, c2)))
+    assert len(m_pts) == 2, "egg_path(): circles do not intersect for the given length/radius1/radius2/arc_radius."
     arcparms = []
     for m in m_pts:
         u1 = _unit2([c1[0] - m[0], c1[1] - m[1]])
@@ -503,14 +510,18 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
     scalar step or a per-segment step list (the non-uniform variant path_tangents() feeds
     with segment lengths)."""
     pts = np.asarray(data, dtype=float)
-    L = len(pts)
-    assert L >= 2
+    n_pts = len(pts)
+    assert n_pts >= 2
     if isinstance(h, (int, float)):
         if closed:
             return (np.roll(pts, -1, axis=0) - np.roll(pts, 1, axis=0)) / (2 * h)
-        first = pts[1] - pts[0] if L < 3 else 3 * (pts[1] - pts[0]) - (pts[2] - pts[1])
-        last = pts[L - 1] - pts[L - 2] if L < 3 else (pts[L - 3] - pts[L - 2]) - 3 * (pts[L - 2] - pts[L - 1])
-        mid = (pts[2:] - pts[:-2]) / (2 * h) if L > 2 else np.empty((0, pts.shape[1]))
+        first = pts[1] - pts[0] if n_pts < 3 else 3 * (pts[1] - pts[0]) - (pts[2] - pts[1])
+        last = (
+            pts[n_pts - 1] - pts[n_pts - 2]
+            if n_pts < 3
+            else (pts[n_pts - 3] - pts[n_pts - 2]) - 3 * (pts[n_pts - 2] - pts[n_pts - 1])
+        )
+        mid = (pts[2:] - pts[:-2]) / (2 * h) if n_pts > 2 else np.empty((0, pts.shape[1]))
         return np.vstack([[first / (2 * h)], mid, [last / (2 * h)]])
 
     hs = np.asarray(h, dtype=float)
@@ -521,24 +532,24 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
         return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (2 * min(h1, h2))
 
     if closed:
-        assert len(hs) == L
+        assert len(hs) == n_pts
         return np.asarray(
             [
                 dnu(
-                    pts[(L + i - 1) % L],
+                    pts[(n_pts + i - 1) % n_pts],
                     pts[i],
-                    pts[(i + 1) % L],
-                    hs[(i - 1) % L],
+                    pts[(i + 1) % n_pts],
+                    hs[(i - 1) % n_pts],
                     hs[i],
                 )
-                for i in range(L)
+                for i in range(n_pts)
             ]
         )
-    assert len(hs) == L - 1
+    assert len(hs) == n_pts - 1
     return np.vstack(
         [[(pts[1] - pts[0]) / hs[0]]]
-        + [[dnu(pts[i - 1], pts[i], pts[i + 1], hs[i - 1], hs[i])] for i in range(1, L - 1)]
-        + [[(pts[L - 1] - pts[L - 2]) / hs[L - 2]]]
+        + [[dnu(pts[i - 1], pts[i], pts[i + 1], hs[i - 1], hs[i])] for i in range(1, n_pts - 1)]
+        + [[(pts[n_pts - 1] - pts[n_pts - 2]) / hs[n_pts - 2]]]
     )
 
 

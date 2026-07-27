@@ -452,14 +452,14 @@ def _mock_cylinder(
     hh = float(h)
     z0, z1 = (-hh / 2, hh / 2) if center else (0.0, hh)
     res = _AabbSolid([-rad, -rad, z0], [rad, rad, z1])
-    res.is_cylindrical = True
+    res.is_cylindrical = True  # type: ignore[attr-defined]
     return res
 
 
 def _mock_sphere(r=None, d=None, **_k) -> Any:
     rad = float(r) if r is not None else (float(d) / 2 if d is not None else 1.0)
     res = _AabbSolid([-rad, -rad, -rad], [rad, rad, rad])
-    res.is_cylindrical = True
+    res.is_cylindrical = True  # type: ignore[attr-defined]
     return res
 
 
