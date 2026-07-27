@@ -1,31 +1,70 @@
-div.sidebar {
-    width: 220px;
-    float: right;
-    clear: right;
-    margin: 0 0 1em 1.5em;
-    font-size: 0.82em;
+#pysidebar-global {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 240px;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 900;
     background: var(--color-sidebar-background, #f8f9fa);
-    border: 1px solid var(--color-sidebar-border, #dee2e6);
-    border-radius: 6px;
-    padding: 10px 14px;
+    border-left: 1px solid var(--color-sidebar-border, #dee2e6);
+    padding: 14px 16px;
+    font-size: 0.80em;
 }
-div.sidebar p.sidebar-title {
+
+#pysidebar-global p.sidebar-title {
     font-weight: 700;
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
     padding-bottom: 6px;
     border-bottom: 1px solid var(--color-sidebar-border, #dee2e6);
+    position: sticky;
+    top: 0;
+    background: var(--color-sidebar-background, #f8f9fa);
+    z-index: 1;
 }
-div.sidebar ul {
-    padding-left: 14px;
+
+#pysidebar-global ul {
+    padding-left: 0;
     margin: 0;
+    list-style: none;
 }
-div.sidebar li {
+
+#pysidebar-global li {
     margin: 1px 0;
+    line-height: 1.35;
 }
-@media (max-width: 900px) {
-    div.sidebar {
-        float: none;
-        width: auto;
-        margin-left: 0;
+
+#pysidebar-global li.ps-class {
+    margin-top: 6px;
+}
+
+#pysidebar-global li.ps-class a {
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+#pysidebar-global li.ps-meth {
+    padding-left: 16px;
+}
+
+#pysidebar-global li.ps-meth a {
+    font-size: 0.92em;
+    color: var(--color-link, #356bb7);
+}
+
+#pysidebar-global li.ps-func a {
+    color: var(--color-link, #356bb7);
+}
+
+body {
+    margin-right: 255px;
+}
+
+@media (max-width: 1060px) {
+    body {
+        margin-right: 0;
+    }
+    #pysidebar-global {
+        display: none;
     }
 }
