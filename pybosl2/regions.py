@@ -190,13 +190,13 @@ class Region(list):
 
         The SDF backend's prism is the union of the outlines' fields, so it can only express a
         region of DISJOINT islands; a region with holes raises
-        :class:`~pybosl2.exceptions.UnsupportedByBackend` there.
+        :class:`~pybosl2.exceptions.UnsupportedByBackendError` there.
         """
         from pybosl2._backend import current_backend, get_backend
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
         if current_backend() != "csg" and self.holes:
-            raise UnsupportedByBackend(
+            raise UnsupportedByBackendError(
                 "linear_extrude (region with holes)",
                 current_backend(),
                 hint="the sdf prism unions its outlines' fields, so it cannot cut holes. Extrude "

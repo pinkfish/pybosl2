@@ -1836,11 +1836,11 @@ def egg(
     radius2 = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else None)
     if radius2 is None:
         raise ValueError("egg(): must give radius2 or diameter2")
-    R = arc_radius if arc_radius is not None else (arc_diameter / 2 if arc_diameter is not None else None)
-    if R is None:
+    arc_r = arc_radius if arc_radius is not None else (arc_diameter / 2 if arc_diameter is not None else None)
+    if arc_r is None:
         raise ValueError("egg(): must give arc_radius or arc_diameter")
     assert length is not None, "egg(): must give length"
-    path = _egg_path(length, radius1, radius2, R, fn, fa, fs)
+    path = _egg_path(length, radius1, radius2, arc_r, fn, fa, fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)

@@ -377,18 +377,18 @@ class ScrewDrive:
         if not (isinstance(size, int) and 0 <= size <= 4):
             raise ValueError(f"robertson size must be an int 0..4, got {size!r}")
         spec = _ROBERTSON[size]
-        M = spec.m * INCH  # across flats
-        T = spec.t * INCH  # depth
-        F = spec.f * INCH  # flat-to-taper transition
-        height = T + extra
-        m_slop = M + 2 * slop
-        m_top = m_slop + 2 * _adj_ang_to_opp(F + extra, angle)
-        m_bot = m_slop - 2 * _adj_ang_to_opp(T - F, angle)
+        across_flats = spec.m * INCH  # across flats
+        robertson_depth = spec.t * INCH  # depth
+        robertson_flat = spec.f * INCH  # flat-to-taper transition
+        height = robertson_depth + extra
+        m_slop = across_flats + 2 * slop
+        m_top = m_slop + 2 * _adj_ang_to_opp(robertson_flat + extra, angle)
+        m_bot = m_slop - 2 * _adj_ang_to_opp(robertson_depth - robertson_flat, angle)
         tapered = prismoid([m_bot, m_bot], [m_top, m_top], height=height, anchor=BOTTOM)
         cone = cyl(
             diameter1=0,
-            diameter2=m_slop / (T - F) * math.sqrt(2) * height,
+            diameter2=m_slop / (robertson_depth - robertson_flat) * math.sqrt(2) * height,
             height=height,
             anchor=BOTTOM,
         )
-        return (tapered & cone).down(T)
+        return (tapered & cone).down(robertson_depth)

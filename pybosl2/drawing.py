@@ -289,7 +289,7 @@ def _turtle(commands, state, index: int = 0):
 
 
 def _turtle_command(command, parm, parm2, state, index):
-    PATH, STEP, ANGLE, ARCS = 0, 1, 2, 3
+    path_idx, step_idx, ang_idx, arcs_idx = 0, 1, 2, 3
     if command == "repeat":
         assert isinstance(parm, (int, float)), f'"repeat" needs a count at index {index}'
         assert isinstance(parm2, (list, tuple)), f'"repeat" needs a command list at index {index}'
@@ -297,17 +297,17 @@ def _turtle_command(command, parm, parm2, state, index):
 
     parm = None if isinstance(parm, str) else parm
     parm2 = None if isinstance(parm2, str) else parm2
-    lastpt = np.asarray(state[PATH][-1], dtype=float)
-    step = np.asarray(state[STEP], dtype=float)
+    lastpt = np.asarray(state[path_idx][-1], dtype=float)
+    step = np.asarray(state[step_idx], dtype=float)
 
     def with_point(p):
         s = list(state)
-        s[PATH] = state[PATH] + [[float(p[0]), float(p[1])]]
+        s[path_idx] = state[path_idx] + [[float(p[0]), float(p[1])]]
         return s
 
     def with_step(v):
         s = list(state)
-        s[STEP] = [float(v[0]), float(v[1])]
+        s[step_idx] = [float(v[0]), float(v[1])]
         return s
 
     if command == "move":
@@ -333,12 +333,12 @@ def _turtle_command(command, parm, parm2, state, index):
         assert res is not None, f'"untily" never reaches the goal at index {index}'
         return with_point(res[0])
     if command in ("turn", "left"):
-        return with_step(_rot2(parm if parm is not None else state[ANGLE], step))
+        return with_step(_rot2(parm if parm is not None else state[ang_idx], step))
     if command == "right":
-        return with_step(_rot2(-(parm if parm is not None else state[ANGLE]), step))
+        return with_step(_rot2(-(parm if parm is not None else state[ang_idx]), step))
     if command == "angle":
         s = list(state)
-        s[ANGLE] = parm
+        s[ang_idx] = parm
         return s
     if command == "setdir":
         if isinstance(parm, (list, tuple, np.ndarray)):
@@ -352,7 +352,7 @@ def _turtle_command(command, parm, parm2, state, index):
         return with_step(step + unit(step) * parm)
     if command == "arcsteps":
         s = list(state)
-        s[ARCS] = parm
+        s[arcs_idx] = parm
         return s
     if command in ("arcleft", "arcright", "arcleftto", "arcrightto"):
         return _turtle_arc(command, parm, parm2, state, index)
@@ -360,15 +360,15 @@ def _turtle_command(command, parm, parm2, state, index):
 
 
 def _turtle_arc(command, parm, parm2, state, index):
-    PATH, STEP, ANGLE, ARCS = 0, 1, 2, 3
+    path_idx, step_idx, ang_idx, arcs_idx = 0, 1, 2, 3
     assert isinstance(parm, (int, float)), f'"{command}" needs a numeric radius at index {index}'
-    lastpt = np.asarray(state[PATH][-1], dtype=float)
-    step = np.asarray(state[STEP], dtype=float)
+    lastpt = np.asarray(state[path_idx][-1], dtype=float)
+    step = np.asarray(state[step_idx], dtype=float)
     lrsign = 1 if command in ("arcleft", "arcleftto") else -1
-    steps = _frag_count(abs(parm)) if state[ARCS] == 0 else int(state[ARCS])
+    steps = _frag_count(abs(parm)) if state[arcs_idx] == 0 else int(state[arcs_idx])
 
     if command in ("arcleft", "arcright"):
-        myangle = parm2 if parm2 is not None else state[ANGLE]
+        myangle = parm2 if parm2 is not None else state[ang_idx]
         radius = parm * (1 if myangle >= 0 else -1)
         center = lastpt + lrsign * radius * line_normal([0, 0], step)
         turn = math.copysign(1, parm) * lrsign * myangle
@@ -392,8 +392,8 @@ def _turtle_arc(command, parm, parm2, state, index):
         p_end = _rot2(turn, lastpt - center) + center
         arcpath = list(arc(steps, points=[lastpt, p_mid, p_end]))[1:]  # drop the shared first point
     s = list(state)
-    s[PATH] = state[PATH] + [[float(p[0]), float(p[1])] for p in arcpath]
-    s[STEP] = [float(rot_step[0]), float(rot_step[1])]
+    s[path_idx] = state[path_idx] + [[float(p[0]), float(p[1])] for p in arcpath]
+    s[step_idx] = [float(rot_step[0]), float(rot_step[1])]
     return s
 
 
@@ -581,12 +581,12 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
     around it. A 3-D path strokes on either backend -- see :func:`_stroke3d`.
     """
     from pybosl2._backend import current_backend
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.shapes2d import circle as _circle
     from pybosl2.shapes2d import square as _square
 
     if current_backend() != "csg":
-        raise UnsupportedByBackend(
+        raise UnsupportedByBackendError(
             "stroke (2-D path)",
             current_backend(),
             hint="a 2-D stroke is 2-D geometry, which only the csg backend has. Stroke a Path3D "
@@ -648,11 +648,11 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
 
     The sphere caps come from the backend-neutral facade, so they realize on whichever backend is
     active. The revolved caps (arrow/diamond/tail/...) are built by ``rotate_extrude()``, which
-    only the csg backend has, so they raise :class:`~pybosl2.exceptions.UnsupportedByBackend` under
+    only the csg backend has, so they raise :class:`~pybosl2.exceptions.UnsupportedByBackendError` under
     ``use_backend("sdf")``.
     """
     from pybosl2._backend import current_backend
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
 
     if style in (False, "butt", None):
         return None
@@ -664,7 +664,7 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
     if not polys:
         return None
     if current_backend() != "csg":
-        raise UnsupportedByBackend(
+        raise UnsupportedByBackendError(
             f"stroke(endcap={style!r})",
             current_backend(),
             hint="the revolved endcaps need rotate_extrude(), which the sdf backend has no "

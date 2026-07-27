@@ -512,13 +512,13 @@ class PyShape(Distributable):
         """Not available on the SDF backend -- an implicit field has no closed-form 2-D shadow.
 
         Raises:
-            ~pybosl2.exceptions.UnsupportedByBackend: always. Convert first
+            ~pybosl2.exceptions.UnsupportedByBackendError: always. Convert first
             (``shape.to_csg().projection()``) if a meshed projection is acceptable.
         """
         _ = cut
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
-        raise UnsupportedByBackend(
+        raise UnsupportedByBackendError(
             "projection",
             "sdf",
             hint="a signed-distance field has no closed-form 2-D shadow, and 2-D geometry is a "

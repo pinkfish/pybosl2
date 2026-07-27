@@ -133,21 +133,21 @@ def test_single_outline_region_extrudes_on_both_backends(backend):
 
 
 def test_region_with_holes_extrudes_only_on_csg():
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.regions import Region
 
     plate = Region.with_holes(SQUARE, [[5, 3], [15, 3], [15, 9], [5, 9]])
     assert plate.linear_extrude(height=5).backend == "csg"
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         plate.linear_extrude(height=5)
 
 
 def test_sdf_extrude_rejects_the_profile_shearing_options():
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.paths import Path
 
     for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
-        with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+        with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
             Path(SQUARE).linear_extrude(height=5, **kw)
     # ...but the CSG backend takes them all
     for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
@@ -169,10 +169,10 @@ def test_sdf_extrude_takes_the_rim_roundings():
 
 @pytest.mark.parametrize("call", ["polygon", "geometry", "fill", "hull", "rotate_extrude"])
 def test_path_2d_geometry_is_csg_only(call):
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.paths import Path
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         getattr(Path(SQUARE), call)()
 
 
@@ -202,18 +202,18 @@ def test_solid_hull_dispatches_on_active_backend(backend):
 
 
 def test_projection_is_csg_only():
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.shapes2d import Bosl2Shape2D
 
     assert isinstance(solid.cuboid([30, 20, 10]).projection(), Bosl2Shape2D)
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         solid.cuboid([30, 20, 10]).projection()
 
 
 def test_fill_is_csg_only_on_a_solid():
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
 
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         solid.cube(10).fill()
 
 
@@ -234,22 +234,22 @@ def test_stroke_of_a_3d_path_follows_the_active_backend(backend):
 
 
 def test_stroke_of_a_2d_path_is_csg_only():
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.paths import Path
     from pybosl2.shapes2d import Bosl2Shape2D
 
     flat = Path([[0, 0], [20, 0], [20, 20]], closed=False)
     assert isinstance(flat.stroke(width=3), Bosl2Shape2D)
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackend):
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         flat.stroke(width=3)
 
 
 def test_sdf_stroke_rejects_a_revolved_endcap():
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.paths import Path3D
 
     spine = Path3D([[0, 0, 0], [0, 0, 20]], closed=False)
     with use_backend("sdf"):
         assert spine.stroke(width=3, endcaps="round").backend == "sdf"  # sphere caps are shared
-        with pytest.raises(UnsupportedByBackend):
+        with pytest.raises(UnsupportedByBackendError):
             spine.stroke(width=3, endcaps="arrow")

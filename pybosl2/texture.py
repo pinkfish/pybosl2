@@ -522,11 +522,11 @@ def _tex_hex_grid_vnf(border: float | None = None, **_):
         [0.5, 5 / 6, 0],
         [1, 4 / 6, 0],
     ]
-    R = (0.5 - b) / math.cos(math.radians(30))  # ellipse(circum, $fn=6) vertex radius
+    vertex_radius = (0.5 - b) / math.cos(math.radians(30))
     top = [
         [
-            0.5 + R * math.cos(math.radians(-30 + 60 * i)),
-            0.5 + R * math.sin(math.radians(-30 + 60 * i)) * sc,
+            0.5 + vertex_radius * math.cos(math.radians(-30 + 60 * i)),
+            0.5 + vertex_radius * math.sin(math.radians(-30 + 60 * i)) * sc,
             1.0,
         ]
         for i in range(6)
@@ -674,29 +674,29 @@ def texture(
     return builder(sides=sides, border=border, gap=gap, roughness=roughness, fn=fn)
 
 
-def _weld(V, F, tol=1e-6):
+def _weld(verts, faces, tol=1e-6):
     """
     Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces.
     """
-    idx, newV, remap = {}, [], []
-    for p in V:
+    idx, new_verts, remap = {}, [], []
+    for p in verts:
         k = (round(p[0] / tol), round(p[1] / tol), round(p[2] / tol))
         if k not in idx:
-            idx[k] = len(newV)
-            newV.append([float(p[0]), float(p[1]), float(p[2])])
+            idx[k] = len(new_verts)
+            new_verts.append([float(p[0]), float(p[1]), float(p[2])])
         remap.append(idx[k])
-    newF = [[remap[i] for i in f] for f in F]
-    newF = [f for f in newF if len({*f}) >= 3]
-    return newV, newF
+    new_faces = [[remap[i] for i in f] for f in faces]
+    new_faces = [f for f in new_faces if len({*f}) >= 3]
+    return new_verts, new_faces
 
 
-def _close_to_base(V, F, bottom):
+def _close_to_base(verts, faces, bottom):
     """Close an open (top-only) surface into a solid by dropping its boundary loops to z=*bottom*
     with side walls and a flat bottom cap."""
-    V = [list(p) for p in V]
-    F = [list(f) for f in F]
+    verts = [list(p) for p in verts]
+    faces = [list(f) for f in faces]
     halfedges = set()
-    for f in F:
+    for f in faces:
         for i in range(len(f)):
             halfedges.add((f[i], f[(i + 1) % len(f)]))
     nxt = {a: b for (a, b) in halfedges if (b, a) not in halfedges}  # boundary half-edges, directed
@@ -713,16 +713,16 @@ def _close_to_base(V, F, bottom):
             continue
         base = {}
         for vi in loop:
-            base[vi] = len(V)
-            V.append([V[vi][0], V[vi][1], bottom])
-        L = len(loop)
-        for k in range(L):  # side walls
-            a, b = loop[k], loop[(k + 1) % L]
-            F.append([a, b, base[b], base[a]])
+            base[vi] = len(verts)
+            verts.append([verts[vi][0], verts[vi][1], bottom])
+        nloop = len(loop)
+        for k in range(nloop):  # side walls
+            a, b = loop[k], loop[(k + 1) % nloop]
+            faces.append([a, b, base[b], base[a]])
         bl = [base[vi] for vi in loop]  # bottom cap (fan, faces down)
-        for k in range(1, L - 1):
-            F.append([bl[0], bl[k + 1], bl[k]])
-    return V, F
+        for k in range(1, nloop - 1):
+            faces.append([bl[0], bl[k + 1], bl[k]])
+    return verts, faces
 
 
 def is_watertight_topology(verts, faces) -> bool:
@@ -745,16 +745,16 @@ def rasterize_vnf_texture(verts, faces, sides=24):
     A robust fallback for VNF tiles whose exact geometry can't be tiled watertight (pinch points,
     interior holes): the top (max-z) surface is captured; overhangs/undercuts are flattened.
     """
-    V = np.asarray([[float(p[0]), float(p[1]), float(p[2])] for p in verts])
+    verts_arr = np.asarray([[float(p[0]), float(p[1]), float(p[2])] for p in verts])
     tris = [[f[0], f[k], f[k + 1]] for f in faces for k in range(1, len(f) - 1)]
-    T = np.asarray(tris)
-    A, B, C = V[T[:, 0]], V[T[:, 1]], V[T[:, 2]]
-    ax, ay = A[:, 0], A[:, 1]
-    bx, by = B[:, 0], B[:, 1]
-    cx, cy = C[:, 0], C[:, 1]
+    tris_arr = np.asarray(tris)
+    tri_a, tri_b, tri_c = verts_arr[tris_arr[:, 0]], verts_arr[tris_arr[:, 1]], verts_arr[tris_arr[:, 2]]
+    ax, ay = tri_a[:, 0], tri_a[:, 1]
+    bx, by = tri_b[:, 0], tri_b[:, 1]
+    cx, cy = tri_c[:, 0], tri_c[:, 1]
     den = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
     den = np.where(np.abs(den) < 1e-12, 1e-12, den)
-    H = [[0.0] * sides for _ in range(sides)]
+    heightmap = [[0.0] * sides for _ in range(sides)]
     for gy in range(sides):
         vy = (gy + 0.5) / sides
         for gx in range(sides):
@@ -764,9 +764,9 @@ def rasterize_vnf_texture(verts, faces, sides=24):
             l3 = 1 - l1 - l2
             inside = (l1 >= -1e-9) & (l2 >= -1e-9) & (l3 >= -1e-9)
             if inside.any():
-                z = l1 * A[:, 2] + l2 * B[:, 2] + l3 * C[:, 2]
-                H[gy][gx] = float(z[inside].max())
-    return H
+                z = l1 * tri_a[:, 2] + l2 * tri_b[:, 2] + l3 * tri_c[:, 2]
+                heightmap[gy][gx] = float(z[inside].max())
+    return heightmap
 
 
 def vnf_tile_to_solid(verts, faces, size, reps, tex_depth=1.0, inset=0.0):

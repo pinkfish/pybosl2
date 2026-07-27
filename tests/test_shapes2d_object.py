@@ -163,9 +163,9 @@ def test_missing_attribute_raises_attribute_error():
 
 
 def test_sdf_only_feature_is_rejected_on_the_csg_backend():
-    from pybosl2.exceptions import UnsupportedByBackend
+    from pybosl2.exceptions import UnsupportedByBackendError
 
-    with pytest.raises(UnsupportedByBackend):
+    with pytest.raises(UnsupportedByBackendError):
         s2.square(10).round(2)
 
 

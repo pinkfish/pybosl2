@@ -7,8 +7,8 @@
 # LibFile: pybosl2/linear_bearings.py
 #    Pure-Python port of BOSL2's linear_bearings.scad: models of linear ball bearings that run along
 #    a rod, and the pillow-block housings that hold them. :meth:`LinearBearings.linear_bearing` is a
-#    generic bearing; :meth:`~LinearBearings.lmXuu_bearing` looks a standard LMxUU size up in
-#    :meth:`~LinearBearings.lmXuu_info` (a :class:`LinearBearingSpec` table). The housings clamp a
+#    generic bearing; :meth:`~LinearBearings.lmxuu_bearing` looks a standard LMxUU size up in
+#    :meth:`~LinearBearings.lmxuu_info` (a :class:`LinearBearingSpec` table). The housings clamp a
 #    bearing to a plate with a teardrop bore and a screw.
 #
 # FileSummary: Linear (LMxUU) ball bearings and their pillow-block housings.
@@ -31,7 +31,7 @@ def _union(shapes):
 
 @dataclass(frozen=True)
 class LinearBearingSpec:
-    """Dimensions of a standard LMxUU linear bearing (BOSL2 lmXuu_info())."""
+    """Dimensions of a standard LMxUU linear bearing (BOSL2 lmxuu_info())."""
 
     outer_diameter: float  # outer diameter
     length: float  # axial length
@@ -64,10 +64,10 @@ class LinearBearings:
     """Linear (LMxUU) ball bearings and pillow-block housings (BOSL2 linear_bearings.scad)."""
 
     @staticmethod
-    def lmXuu_info(size: int) -> LinearBearingSpec:
+    def lmxuu_info(size: int) -> LinearBearingSpec:
         """
         The :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2
-        lmXuu_info()).
+        lmxuu_info()).
         """
         try:
             return _LMXUU[int(size)]
@@ -135,9 +135,9 @@ class LinearBearings:
         return result.color(color) if color else result
 
     @staticmethod
-    def lmXuu_bearing(size: int = 8, color: str | None = "silver") -> Bosl2Solid:
-        """A standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmXuu_bearing())."""
-        spec = LinearBearings.lmXuu_info(size)
+    def lmxuu_bearing(size: int = 8, color: str | None = "silver") -> Bosl2Solid:
+        """A standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmxuu_bearing())."""
+        spec = LinearBearings.lmxuu_info(size)
         return LinearBearings.linear_bearing(
             length=spec.length, inner_diameter=size, outer_diameter=spec.outer_diameter, color=color
         )
@@ -193,7 +193,7 @@ class LinearBearings:
         return Bosl2Solid(body.shape, size=[length, outer_diameter, outer_diameter + tab / 2])
 
     @staticmethod
-    def lmXuu_housing(
+    def lmxuu_housing(
         size: int = 8,
         tab: float = 7,
         gap: float = 5,
@@ -204,8 +204,8 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmXuu_housing())."""
-        spec = LinearBearings.lmXuu_info(size)
+        """A pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmxuu_housing())."""
+        spec = LinearBearings.lmxuu_info(size)
         return LinearBearings.linear_bearing_housing(
             diameter=spec.outer_diameter,
             length=spec.length,

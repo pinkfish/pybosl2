@@ -351,7 +351,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
         Note:
             CSG only. The SDF backend's :meth:`~pybosl2._sdf.shapes3d.PyShape.projection` raises
-            :class:`~pybosl2.exceptions.UnsupportedByBackend` -- a distance field has no
+            :class:`~pybosl2.exceptions.UnsupportedByBackendError` -- a distance field has no
             closed-form 2-D shadow, and 2-D geometry is a CSG-backend notion.
 
         Examples:
@@ -389,9 +389,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
     def to_sdf(self) -> "Bosl2Solid":
         """CSG -> SDF conversion is not supported (would require lossy voxel-sampling)."""
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
-        raise UnsupportedByBackend(
+        raise UnsupportedByBackendError(
             "to_sdf",
             "csg",
             hint="a CSG tree has no signed-distance field; build the shape on the SDF backend "

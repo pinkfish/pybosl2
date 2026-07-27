@@ -30,7 +30,7 @@ from pybosl2._backend import (
     set_default_backend,
     use_backend,
 )
-from pybosl2.exceptions import CrossBackendError, UnsupportedByBackend
+from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
 
 # 3-D constructors both the CSG (pybosl2.shapes3d) and SDF (pybosl2._sdf.shapes3d) backends provide.
 _SHARED_3D = (
@@ -67,7 +67,7 @@ __all__ = [
     "current_backend",
     "Solid",
     "CrossBackendError",
-    "UnsupportedByBackend",
+    "UnsupportedByBackendError",
 ]
 
 
