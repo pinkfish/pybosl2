@@ -9,7 +9,7 @@
 # cuboid/cube/sphere/cyl-family/torus/tube/pie_slice/prismoid/rect_tube/wedge/octahedron/
 # convex_polyhedron/teardrop/onion/heightfield, the standalone cutters
 # (interior_fillet/rounding_edge_mask/polygon_extrude), and polygon_prism (the
-# offset_sweep-equivalent extrusion with rim treatments). See pysolidfive/__init__.py's
+# offset_sweep-equivalent extrusion with rim treatments). See pybosl2/_sdf/__init__.py's
 # module docstring for the design rationale.
 #
 
@@ -517,9 +517,10 @@ def union(*shapes: PyShape) -> PyShape:
     Examples:
         .. pythonscad-example::
 
-            a = pysolidfive.cuboid([20.0, 20.0, 10.0], rounding=3, res=10)
-            b = pysolidfive.sphere(radius=8, res=10).translate([0.0, 0.0, 8.0])
-            shape = pysolidfive.union(a, b)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            a = sdf_s3d.cuboid([20.0, 20.0, 10.0], rounding=3, res=10)
+            b = sdf_s3d.sphere(radius=8, res=10).translate([0.0, 0.0, 8.0])
+            shape = sdf_s3d.union(a, b)
             shape.show()
     """
     shs = _as_shape_list(shapes)
@@ -544,9 +545,10 @@ def intersection(*shapes: PyShape) -> PyShape:
     Examples:
         .. pythonscad-example::
 
-            a = pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, res=10)
-            b = pysolidfive.sphere(radius=12, res=10)
-            shape = pysolidfive.intersection(a, b)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            a = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4, res=10)
+            b = sdf_s3d.sphere(radius=12, res=10)
+            shape = sdf_s3d.intersection(a, b)
             shape.show()
     """
     shs = _as_shape_list(shapes)
@@ -573,10 +575,11 @@ def difference(shape: PyShape, *tools: PyShape) -> PyShape:
     Examples:
         .. pythonscad-example::
 
-            a = pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=3, res=10)
-            b = pysolidfive.zcyl(height=30, radius=5, res=10)
-            c = pysolidfive.xcyl(height=30, radius=5, res=10)
-            shape = pysolidfive.difference(a, b, c)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            a = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=3, res=10)
+            b = sdf_s3d.zcyl(height=30, radius=5, res=10)
+            c = sdf_s3d.xcyl(height=30, radius=5, res=10)
+            shape = sdf_s3d.difference(a, b, c)
             shape.show()
     """
     assert isinstance(shape, PyShape), f"difference() base must be a PyShape, got {type(shape).__name__}"
@@ -683,17 +686,19 @@ def hull(*shapes, directions: int = 64, res: int | None = None) -> PyShape:
     Examples:
         .. pythonscad-example::
 
-            a = pysolidfive.sphere(radius=6, res=10)
-            b = pysolidfive.sphere(radius=6, res=10).translate([18.0, 0.0, 0.0])
-            shape = pysolidfive.hull(a, b, directions=96)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            a = sdf_s3d.sphere(radius=6, res=10)
+            b = sdf_s3d.sphere(radius=6, res=10).translate([18.0, 0.0, 0.0])
+            shape = sdf_s3d.hull(a, b, directions=96)
             shape.show()
 
         Mixing shapes and raw points (the point pulls the hull out to a spike):
 
         .. pythonscad-example::
 
-            a = pysolidfive.cuboid([16.0, 16.0, 8.0], res=10)
-            shape = pysolidfive.hull(a, [[0.0, 0.0, 18.0]])
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            a = sdf_s3d.cuboid([16.0, 16.0, 8.0], res=10)
+            shape = sdf_s3d.hull(a, [[0.0, 0.0, 18.0]])
             shape.show()
     """
     args = list(shapes)
@@ -804,7 +809,7 @@ def cuboid(
     distance function (F-Rep) and returned as a PyShape (meshed lazily, via frep(), on first
     use) -- see pybosl2.shapes3d.cuboid() for the equivalent BOSL2-style mesh-CSG version
     (identical `edges=`/`except_edges=` semantics; both accept the same edge selector values,
-    since pysolidfive._edges's edge-set resolver is a byte-for-byte copy of pybosl2's own).
+    since pybosl2._sdf._edges's edge-set resolver is a byte-for-byte copy of pybosl2's own).
 
     `rounding` and `chamfer` are mutually exclusive in a single call (matching
     pybosl2.shapes3d.cuboid()); to mix both on different edges of the same cuboid, chain
@@ -825,12 +830,14 @@ def cuboid(
     Examples:
         .. pythonscad-example::
 
-            shape = pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4)
             shape.show()
 
         .. pythonscad-example::
 
-            shape = pysolidfive.cuboid([20.0, 20.0, 20.0], chamfer=4)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], chamfer=4)
             shape.show()
 
         Rounding only the 4 vertical edges (the per-axis-composition fallback path, not the
@@ -838,7 +845,8 @@ def cuboid(
 
         .. pythonscad-example::
 
-            shape = pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, edges="Z")
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4, edges="Z")
             shape.show()
     """
     if size is None:
@@ -995,7 +1003,8 @@ def sphere(
     Examples:
         .. pythonscad-example::
 
-            shape = pysolidfive.sphere(radius=10)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            shape = sdf_s3d.sphere(radius=10)
             shape.show()
     """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
@@ -1039,7 +1048,8 @@ def torus(
     Examples:
         .. pythonscad-example::
 
-            shape = pysolidfive.torus(major_radius=15, minor_radius=5)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            shape = sdf_s3d.torus(major_radius=15, minor_radius=5)
             shape.show()
     """
     _or = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
@@ -1193,7 +1203,8 @@ def cyl(
     Examples:
         .. pythonscad-example::
 
-            shape = pysolidfive.cyl(height=20, radius=8, rounding=2)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            shape = sdf_s3d.cyl(height=20, radius=8, rounding=2)
             shape.show()
     """
     length = length if length is not None else (height if height is not None else 1)
@@ -1506,7 +1517,7 @@ def prismoid(
     CAVEAT: unlike pybosl2.shapes3d.prismoid(), this pure-libfive port does not support
     rounding/chamfer of the vertical edges (deriving an exact SDF for a *tapered* box's
     independently-radiused vertical edges was out of scope here -- use
-    pybosl2.shapes3d.prismoid() for that, or pysolidfive.cuboid() for the non-tapered case). The SDF
+    pybosl2.shapes3d.prismoid() for that, or pybosl2._sdf.shapes3d.cuboid() for the non-tapered case). The SDF
     itself is built by linearly interpolating the local half-size/shift at each height `z`
     (clamped to the `[bottom, top]` range via min()/max(), so no true per-point conditional is
     needed) and taking the 2-D box distance in that local cross-section, intersected with the
@@ -1860,7 +1871,8 @@ def teardrop(
     Examples:
         .. pythonscad-example::
 
-            shape = pysolidfive.teardrop(height=10, radius=8)
+            import pybosl2._sdf.shapes3d as sdf_s3d
+            shape = sdf_s3d.teardrop(height=10, radius=8)
             shape.show()
     """
     length = height if height is not None else 1
@@ -1970,7 +1982,9 @@ def heightfield(
     """
     if size is None:
         size = [100, 100]
-    assert callable(data), "pysolidfive.heightfield() only supports callable data -- see the CAVEAT in its docstring."
+    assert callable(data), (
+        "pybosl2._sdf.shapes3d.heightfield() only supports callable data -- see the CAVEAT in its docstring."
+    )
     bx, by = size[0] / 2, size[1] / 2
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:

@@ -16,9 +16,10 @@ from __future__ import annotations
 from typing import Any
 
 from pybosl2._backend import register_backend
+from pybosl2._sdf import joiners, shapes2d, skin
 from pybosl2._sdf import shapes3d as _s
 
-__all__ = ["SdfBackend"]
+__all__ = ["SdfBackend", "shapes2d", "skin", "joiners"]
 
 
 class SdfBackend:

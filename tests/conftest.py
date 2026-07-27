@@ -39,7 +39,15 @@ def _install_mock() -> bool:
     return True
 
 
-if not _pythonscad_installed() and not _install_mock():
+def _libfive_installed() -> bool:
+    """True if the real `libfive` module is importable in this interpreter."""
+    try:
+        return importlib.util.find_spec("libfive") is not None
+    except (ImportError, ValueError):
+        return False
+
+
+if (not _pythonscad_installed() or not _libfive_installed()) and not _install_mock():
     import pytest
 
     pytest.skip(

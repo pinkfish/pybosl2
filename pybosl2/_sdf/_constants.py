@@ -5,12 +5,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Direction-vector constants (TOP/BOTTOM/LEFT/RIGHT/FRONT/BACK/CENTER/...), needed for
-# anchor=/edges= defaults throughout pysolidfive. Deliberately a vendored copy of the
-# relevant subset of pybosl2/constants.py rather than an import from it -- pysolidfive is meant
-# to stand alone (no pybosl2, and therefore no transitive numpy dependency; see the package
-# docstring in pysolidfive/__init__.py), the same way base_bgtk.py and pybosl2/constants.py
-# each carry their own independent copy of this same Vec3/direction-vector idiom instead of
-# sharing one.
+# anchor=/edges= defaults throughout the SDF backend. Deliberately a copy of the
+# relevant subset of pybosl2/constants.py rather than an import from it, the same way
+# base_bgtk.py and pybosl2/constants.py each carry their own independent copy of this same
+# Vec3/direction-vector idiom instead of sharing one.
 #
 
 
@@ -18,7 +16,15 @@ from __future__ import annotations
 
 from typing import Any, SupportsIndex
 
-from typing_extensions import override
+try:
+    from typing import override
+except ImportError:
+    try:
+        from typing_extensions import override
+    except ImportError:
+
+        def override(f: Any) -> Any:
+            return f
 
 
 class Vec3(list[float]):

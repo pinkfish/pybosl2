@@ -1,36 +1,21 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# Copyright (c) 2026, pinkfish
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+# Licensed under the BSD 2-Clause License. See the LICENSE file in the project
+# root for the full license text.
+# SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pysolidfive/joiners.py
-#    Joining hardware: knuckle_hinge() (a port of BOSL2 hinges.scad's knuckle_hinge, for the
-#    parameter subset this toolkit uses) and rabbit_clip() (a port of BOSL2 joiners.scad's
-#    rabbit_clip). Neither had a BOSL2 *function* form, so the osuse() FFI never exposed
-#    them -- every _bosl2.knuckle_hinge()/_bosl2.rabbit_clip() call site in the Python port
-#    raised AttributeError; these are the first working implementations.
+# LibFile: pybosl2/_sdf/joiners.py
+#    Joining hardware: knuckle_hinge() and rabbit_clip().
 #
-# FileGroup: pysolidfive
 
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from .paths import (
+from pybosl2._sdf.paths import (
     bezpath_points,
     circle_circle_tangents,
     line_normal,
@@ -38,8 +23,10 @@ from .paths import (
     path_tangents,
     path_to_bezpath,
 )
-from .shapes2d import PyShape2D, circle2d, polygon2d, rect2d, stroke2d
-from .shapes3d import PyShape
+from pybosl2._sdf.shapes2d import PyShape2D, circle2d, polygon2d, rect2d, stroke2d
+
+if TYPE_CHECKING:
+    from pybosl2._sdf.shapes3d import PyShape
 
 UP = [0.0, 0.0, 1.0]
 
@@ -103,6 +90,7 @@ def knuckle_hinge(
     `inner=False` one. anchor/spin/orient follow BOSL2 attachable() semantics against the
     same declared bounding box the original uses.
     """
+    _ = fill
     assert arm_angle == 90 and arm_height == 0, "only the arm_angle=90/arm_height=0 variant is ported"
     assert isinstance(segs, int) and segs >= 2
     assert offset >= knuckle_diam / 2, "offset must be at least the knuckle radius"
@@ -147,7 +135,7 @@ def knuckle_hinge(
 
 
 def rabbit_clip(
-    type: str,
+    type: str,  # noqa: A002
     length: float,
     width: float,
     snap: float,

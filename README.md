@@ -63,23 +63,6 @@ wheel:
   (set `PYTHONSCAD_BIN`, or install the app to `/Applications`).
 - App-only native ops (e.g. `roof()`) skip when the pip wheel does not provide them.
 
-## `pysolidfive` (bundled separate package)
-
-The repo also vendors [`pysolidfive`](pysolidfive/) — a small, self-contained
-libfive / signed-distance-function shape library for PythonSCAD. It is a **separate
-piece**: it does not depend on `pybosl2`, ships in the same wheel as its own top-level
-`pysolidfive` package, and keeps its own tests, docs, and `pyproject.toml`.
-
-Its test-suite runs against the numeric `mock_libfive` stand-in bundled in
-`pysolidfive/tests`, so it needs only `numpy` (no `pythonscad` wheel). It uses
-`unittest` rather than `pytest` — the package eagerly `import libfive`s at load, which
-is incompatible with pytest's package-based collection:
-
-```bash
-cd pysolidfive/tests
-python -m unittest discover -s . -t .
-```
-
 ## Documentation
 
 The API docs are built with Sphinx (autodoc + napoleon) straight from the module
