@@ -4,11 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Sphinx extension that generates a per-page fixed right-hand navigation sidebar
+"""Sphinx extension that generates a per-page right-hand navigation sidebar
 listing the current module's functions, classes, and methods.
 
 Class names are bold; methods are shown as ``.method`` (without the class prefix)
-and link into the page anchor.
+and link into the page anchor.  The sidebar is moved to the document level via
+a small inline script so that flexbox CSS can lay it out as a third column.
 """
 
 from __future__ import annotations
@@ -60,6 +61,15 @@ def _build_sidebar_html(members: list[tuple[str, str, str | None]], module_ref: 
             anchor = f"{module_ref}.{name}"
             lines.append(f'<li class="ps-func"><a href="#{anchor}">{name}</a></li>')
     lines.append("</ul></aside>")
+    lines.append(
+        "<script>"
+        "(function(){"
+        "var s=document.getElementById('pysidebar-global');"
+        "if(s){var d=document.querySelector('.document');"
+        "if(d)d.insertBefore(s,d.querySelector('.clearer'));"
+        "}})();"
+        "</script>"
+    )
     return "\n".join(lines)
 
 

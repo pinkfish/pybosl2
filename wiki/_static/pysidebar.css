@@ -1,15 +1,57 @@
-#pysidebar-global {
-    position: fixed;
-    right: 0;
+div.document {
+    display: flex;
+    align-items: flex-start;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+div.sphinxsidebar {
+    position: sticky;
     top: 0;
-    width: 190px;
+    left: 0;
+    width: 220px;
+    flex-shrink: 0;
     height: 100vh;
     overflow-y: auto;
-    z-index: 900;
+    margin: 0;
+    float: none;
+    padding: 20px 14px;
+    box-sizing: border-box;
+}
+
+div.documentwrapper {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+}
+
+div.bodywrapper {
+    margin: 0;
+}
+
+div.body {
+    padding: 0 30px;
+}
+
+div.clearer {
+    display: none;
+}
+
+#pysidebar-global {
+    width: 190px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
     background: var(--color-sidebar-background, #f8f9fa);
     border-left: 1px solid var(--color-sidebar-border, #dee2e6);
     padding: 14px 16px;
     font-size: 0.80em;
+    box-sizing: border-box;
     float: none;
     margin: 0;
 }
@@ -58,15 +100,23 @@
     color: var(--color-link, #356bb7);
 }
 
-body {
-    margin-right: 205px;
-}
-
 @media (max-width: 1060px) {
-    body {
-        margin-right: 0;
+    div.document {
+        display: block;
+    }
+    div.sphinxsidebar {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow-y: visible;
     }
     #pysidebar-global {
         display: none;
+    }
+    div.documentwrapper {
+        width: 100%;
+    }
+    div.bodywrapper {
+        margin: 0;
     }
 }
