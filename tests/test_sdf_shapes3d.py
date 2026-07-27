@@ -741,3 +741,28 @@ def _sharp_box_sdf(p, b):
 def _round_box_sdf(p, b, r):
     q = [abs(p[i]) - b[i] + r for i in range(3)]
     return math.hypot(*[max(0, v) for v in q]) + min(max(q[0], q[1], q[2]), 0) - r
+
+
+class TestSdfDistributors(unittest.TestCase):
+    def test_xcopies_on_sdf(self):
+        from pybosl2.solid import sphere, use_backend
+
+        with use_backend("sdf"):
+            s = sphere(radius=5)
+            # Distribute two copies of the sphere at x=-10 and x=10
+            distributed = s.xcopies(spacing=20, sides=2)
+
+            # The result must be a PyShape (on the SDF backend)
+            self.assertEqual(distributed.backend, "sdf")
+
+            # Check the bounding box: two spheres at [-10, 0, 0] and [10, 0, 0]
+            # Each has radius 5, so combined x should span from -15 to 15,
+            # y from -5 to 5, z from -5 to 5.
+            self.assertAlmostEqual(distributed.mn[0], -15.0)
+            self.assertAlmostEqual(distributed.mx[0], 15.0)
+
+            # Verify the shape is correctly Union-ed by sampling the points
+            mesh = distributed.mesh()
+            self.assertLess(mesh.sample(-10, 0, 0), 0)
+            self.assertLess(mesh.sample(10, 0, 0), 0)
+            self.assertGreater(mesh.sample(0, 0, 0), 0)

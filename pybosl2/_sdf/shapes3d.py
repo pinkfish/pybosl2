@@ -46,6 +46,7 @@ from pybosl2._sdf.paths import (
     as_path_list,
     as_points,
 )
+from pybosl2.distributors import Distributable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -141,7 +142,7 @@ def _cuboid_edge_sdf(
     return lv.max(lv.max(axis_sdf(0), axis_sdf(1)), axis_sdf(2))
 
 
-class PyShape:
+class PyShape(Distributable):
     """Wraps a libfive SDF, kept as a *symbolic* function of (x, y, z) rather than an
     already-evaluated tree or an already-meshed solid, plus the bounding box (`mn`/`mx`)
     frep() needs and (for cuboid-shaped instances) enough metadata to add more edge
@@ -370,6 +371,53 @@ class PyShape:
         new_mn = [min(c[i] for c in refl) for i in range(3)]
         new_mx = [max(c[i] for c in refl) for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
+
+    def multmatrix(self, matrix: Sequence[Sequence[float]] | np.ndarray) -> PyShape:
+        """Apply a 4x4 affine transformation matrix to the SDF, exact and free."""
+        import numpy as np
+
+        m = np.asarray(matrix, dtype=float)
+        assert m.shape == (4, 4), "multmatrix requires a 4x4 matrix"
+        try:
+            mt = np.linalg.inv(m)
+        except np.linalg.LinAlgError:
+            raise ValueError("multmatrix requires an invertible matrix") from None
+
+        fn = self._sdf_fn
+
+        def new_fn(x, y, z):
+            return fn(
+                mt[0, 0] * x + mt[0, 1] * y + mt[0, 2] * z + mt[0, 3],
+                mt[1, 0] * x + mt[1, 1] * y + mt[1, 2] * z + mt[1, 3],
+                mt[2, 0] * x + mt[2, 1] * y + mt[2, 2] * z + mt[2, 3],
+            )
+
+        corners = [
+            [
+                self.mn[0] if i & 1 == 0 else self.mx[0],
+                self.mn[1] if i & 2 == 0 else self.mx[1],
+                self.mn[2] if i & 4 == 0 else self.mx[2],
+            ]
+            for i in range(8)
+        ]
+        transformed = []
+        for c in corners:
+            cx = m[0, 0] * c[0] + m[0, 1] * c[1] + m[0, 2] * c[2] + m[0, 3]
+            cy = m[1, 0] * c[0] + m[1, 1] * c[1] + m[1, 2] * c[2] + m[1, 3]
+            cz = m[2, 0] * c[0] + m[2, 1] * c[1] + m[2, 2] * c[2] + m[2, 3]
+            transformed.append([cx, cy, cz])
+
+        new_mn = [min(c[i] for c in transformed) for i in range(3)]
+        new_mx = [max(c[i] for c in transformed) for i in range(3)]
+        return self._wrap(new_fn, new_mn, new_mx)
+
+    def _distribute(self, mats) -> PyShape:
+        """Union a multmatrix copy of this solid for each transform matrix."""
+        assert len(mats), "distributor produced no copies."
+        out = self.multmatrix(mats[0])
+        for m in mats[1:]:
+            out = out | self.multmatrix(m)
+        return out
 
     def to_sdf(self) -> PyShape:
         """This solid is already on the SDF backend -- returns self (the converter no-op)."""
