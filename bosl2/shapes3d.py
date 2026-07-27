@@ -332,7 +332,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         Examples:
             .. pythonscad-example::
 
-                capsule = sphere(radius=8).hull(sphere(radius=8).up(30))
+                capsule = s3.sphere(radius=8).hull(s3.sphere(radius=8).up(30))
                 capsule.show()
         """
         return Bosl2Solid(_ohull(self.shape, *[_as_native_3d(o) for o in others]))
@@ -357,7 +357,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
             .. pythonscad-example::
 
-                part = cuboid([30, 20, 10], rounding=3)
+                part = s3.cuboid([30, 20, 10], rounding=3)
                 part.projection().offset(radius=2).linear_extrude(height=2).show()
         """
         from bosl2.shapes2d import Bosl2Shape2D
