@@ -444,7 +444,7 @@ def _list_command(command, arcsteps, movescale, lastT, lastPre, index):
     Trot, shift = _rotpart(lastT), _transpart(lastT)
     v = _apply(Trot, RIGHT)
     xr, yr, zr = keys.get("xrot", 0), keys.get("yrot", 0), keys.get("zrot", 0)
-    rotM, todir = keys.get("rot", None), keys.get("todir", None)
+    rotM, todir = keys.get("rot"), keys.get("todir")
     absangle, absaxis = None, np.zeros(3)
     if head == "arc":
         nz = len([e for e in (xr, yr, zr) if e != 0]) + (rotM is not None) + (todir is not None)
@@ -479,9 +479,9 @@ def _list_command(command, arcsteps, movescale, lastT, lastPre, index):
 
     rollval = keys.get("roll", 0)
     rrollto, lrollto, rollto = (
-        keys.get("rrollto", None),
-        keys.get("lrollto", None),
-        keys.get("rollto", None),
+        keys.get("rrollto"),
+        keys.get("lrollto"),
+        keys.get("rollto"),
     )
     if rollval != 0:
         roll = rollval

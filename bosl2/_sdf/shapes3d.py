@@ -16,11 +16,9 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
-from numpy.typing import ArrayLike, NDArray
 
 from bosl2._backend import check_operand_backend as _check_operand_backend
 from bosl2._backend import unsupported_feature as _unsupported_feature
@@ -48,6 +46,11 @@ from bosl2._sdf.paths import (
     as_path_list,
     as_points,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from numpy.typing import ArrayLike, NDArray
 
 
 def _matmul3(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
@@ -229,8 +232,8 @@ class PyShape:
         Exact and cheap -- every SDF constructor records its tight ``mn``/``mx``, so no meshing is
         needed (unlike measuring a CSG solid). Matches :meth:`bosl2.shapes3d.Bosl2Solid.bounds`.
         """
-        center = [(a + b) / 2 for a, b in zip(self.mn, self.mx)]
-        size = [b - a for a, b in zip(self.mn, self.mx)]
+        center = [(a + b) / 2 for a, b in zip(self.mn, self.mx, strict=False)]
+        size = [b - a for a, b in zip(self.mn, self.mx, strict=False)]
         return center, size
 
     def mesh(self) -> Any:
@@ -245,9 +248,9 @@ class PyShape:
         plain unrounded box, whose every face is flush with the domain boundary).
         """
         if self._mesh_cache is None:
-            pad = [max(1e-3, (b - a) * 0.01) for a, b in zip(self.mn, self.mx)]
-            mn = [a - p for a, p in zip(self.mn, pad)]
-            mx = [b + p for b, p in zip(self.mx, pad)]
+            pad = [max(1e-3, (b - a) * 0.01) for a, b in zip(self.mn, self.mx, strict=False)]
+            mn = [a - p for a, p in zip(self.mn, pad, strict=False)]
+            mx = [b + p for b, p in zip(self.mx, pad, strict=False)]
             self._mesh_cache = native("frep")(self.sdf(), mn, mx, self.res)
         return self._mesh_cache
 
@@ -325,7 +328,7 @@ class PyShape:
         cuboid_size/cuboid_center metadata (so round()/chamfer() assert afterward), same
         rationale as rotate(): edge selectors are pre-transform concepts.
         """
-        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 3
+        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 3  # type: ignore[arg-type]
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
         smin = min(s)
@@ -464,6 +467,7 @@ class PyShape:
             ~bosl2.exceptions.UnsupportedByBackend: always. Convert first
             (``shape.to_csg().projection()``) if a meshed projection is acceptable.
         """
+        _ = cut
         from bosl2.exceptions import UnsupportedByBackend
 
         raise UnsupportedByBackend(
@@ -788,7 +792,7 @@ def _cuboid_flare_sdf(
 
 
 def cuboid(
-    size: float | list[float] = [1, 1, 1],
+    size: float | list[float] = None,
     rounding: float = 0,
     chamfer: float = 0,
     edges: str | list = "ALL",
@@ -837,6 +841,8 @@ def cuboid(
             shape = pysolidfive.cuboid([20.0, 20.0, 20.0], rounding=4, edges="Z")
             shape.show()
     """
+    if size is None:
+        size = [1, 1, 1]
     assert not (rounding and chamfer), "Cannot specify nonzero value for both rounding and chamfer"
     sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 3
     edge_set = _edges(edges, except_edges or [])
@@ -937,7 +943,7 @@ def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
 
 
 def wedge(
-    size: list[float] = [1, 1, 1],
+    size: list[float] = None,
     anchor: "Sequence[float] | None" = None,
     res: int = 10,
 ) -> PyShape:
@@ -947,6 +953,8 @@ def wedge(
         size:   [width, thickness, height]
         anchor: anchor point (default FRONT+LEFT+BOTTOM, matching bosl2.shapes3d.wedge())
     """
+    if size is None:
+        size = [1, 1, 1]
     if anchor is None:
         anchor = FRONT + LEFT + BOTTOM
     bx, by, bz = size[0] / 2, size[1] / 2, size[2] / 2
@@ -1047,7 +1055,7 @@ def torus(
     elif _or is not None and _r_min is not None:
         maj = _or - _r_min
     else:
-        assert False, "torus(): bad parameters."
+        raise AssertionError("torus(): bad parameters.")
     if _r_min is not None:
         minr = _r_min
     elif _ir is not None:
@@ -1055,7 +1063,7 @@ def torus(
     elif _or is not None:
         minr = _or - maj
     else:
-        assert False, "torus(): bad parameters."
+        raise AssertionError("torus(): bad parameters.")
 
     sdf_fn = lambda x, y, z: _lv_hypot(_lv_hypot(x, y) - maj, z) - minr  # noqa: E731
     outer = maj + minr
@@ -1488,7 +1496,7 @@ def prismoid(
     size1: list[float],
     size2: list[float],
     height: float | None = None,
-    shift: list[float] = [0, 0],
+    shift: list[float] = None,
     length: float | None = None,
     anchor: "Sequence[float]" = BOTTOM,
     res: int = 10,
@@ -1513,6 +1521,8 @@ def prismoid(
         anchor: anchor point (default BOTTOM)
         res:    libfive meshing resolution passed to frep() (default 10)
     """
+    if shift is None:
+        shift = [0, 0]
     height = height if height is not None else (length if length is not None else 1)
     bx1, by1 = size1[0] / 2, size1[1] / 2
     bx2, by2 = size2[0] / 2, size2[1] / 2
@@ -1634,7 +1644,7 @@ def interior_fillet(
 
     shape = PyShape(sdf_fn, [-rad * 2, -hb, -rad * 2], [rad * 2, hb, rad * 2], res)
     if any(anchor):
-        offset = [-a * b for a, b in zip(anchor, [rad * 2, hb, rad * 2])]
+        offset = [-a * b for a, b in zip(anchor, [rad * 2, hb, rad * 2], strict=False)]
         shape = shape.translate(offset)
     return shape
 
@@ -1936,7 +1946,7 @@ def onion(
 
 def heightfield(
     data: Callable[[Any, Any], Any],
-    size: list[float] = [100, 100],
+    size: list[float] = None,
     bottom: float = -20,
     maxz: float = 99,
     res: int = 10,
@@ -1958,6 +1968,8 @@ def heightfield(
         maxz:   maximum height to model, taller values are clamped (default 99)
         res:    libfive meshing resolution passed to frep() (default 10)
     """
+    if size is None:
+        size = [100, 100]
     assert callable(data), "pysolidfive.heightfield() only supports callable data -- see the CAVEAT in its docstring."
     bx, by = size[0] / 2, size[1] / 2
 

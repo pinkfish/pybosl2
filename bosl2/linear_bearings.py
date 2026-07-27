@@ -72,7 +72,7 @@ class LinearBearings:
         try:
             return _LMXUU[int(size)]
         except (KeyError, ValueError):
-            raise ValueError(f"Unsupported lmXuu linear bearing size: {size!r}")
+            raise ValueError(f"Unsupported lmXuu linear bearing size: {size!r}") from None
 
     @staticmethod
     def linear_bearing(

@@ -14,9 +14,13 @@
 # FileSummary: General numeric helpers and numerical calculus (BOSL2 math.scad).
 # FileGroup: BOSL2
 
-from collections.abc import Sequence
+
+from typing import TYPE_CHECKING
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # Default tolerance used throughout BOSL2 for floating-point comparisons.
 EPSILON = 1e-9

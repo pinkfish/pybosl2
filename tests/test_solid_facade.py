@@ -48,7 +48,7 @@ def test_facade_polyhedron_dispatches_on_active_backend():
     with use_backend("sdf"):
         s = solid.polyhedron(pts)  # sdf: convex hull of points, faces ignored
         assert s.backend == "sdf"
-    for cv, sv in zip(c.bounds()[1], s.bounds()[1]):
+    for cv, sv in zip(c.bounds()[1], s.bounds()[1], strict=False):
         assert abs(cv - sv) < 0.7  # both agree on the tetrahedron's bounding box
 
 

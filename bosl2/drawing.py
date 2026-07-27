@@ -26,9 +26,9 @@ from __future__ import annotations
 
 import math
 import operator
-from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import reduce
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -43,6 +43,9 @@ from bosl2.shapes2d import _frag_count, _pick_radius, arc
 from bosl2.solid import cyl as _cyl  # type: ignore[attr-defined]
 from bosl2.solid import sphere as _sphere  # type: ignore[attr-defined]
 from bosl2.vectors import unit
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = [
     "arc",
@@ -253,10 +256,7 @@ def turtle(
                            "move", 40, "arcleft", 8, "move", 40, "arcleft", 8])
             path.stroke(width=3, closed=True).linear_extrude(height=4).show()
     """
-    if state is None:
-        state = [[[0.0, 0.0]], [1.0, 0.0], 90.0, 0.0]
-    else:
-        state = list(state)
+    state = [[[0.0, 0.0]], [1.0, 0.0], 90.0, 0.0] if state is None else list(state)
     result = _turtle_repeat(list(commands), state, True, repeat)
     return result if full_state else Path(result[0], closed=False)
 

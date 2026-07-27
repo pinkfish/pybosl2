@@ -853,12 +853,18 @@ class Gears:
             shaft_diam=shaft_diam,
             shorten=shorten,
         ).shape
+        extrude_kw = {"height": thickness, "center": True, "twist": twist, "convexity": teeth}
+        if slices is not None:
+            extrude_kw["slices"] = slices
         if herringbone:
-            top = gear2d.linear_extrude(height=thickness / 2, twist=twist / 2, convexity=teeth)
-            bot = gear2d.linear_extrude(height=thickness / 2, twist=twist / 2, convexity=teeth).scale([1, 1, -1])
+            half_kw: dict[str, float | int] = {"height": thickness / 2, "twist": twist / 2, "convexity": teeth}
+            if slices is not None:
+                half_kw["slices"] = slices
+            top = gear2d.linear_extrude(**half_kw)
+            bot = gear2d.linear_extrude(**half_kw).scale([1, 1, -1])
             solid = top | bot
         else:
-            solid = gear2d.linear_extrude(height=thickness, center=True, twist=twist, convexity=teeth)
+            solid = gear2d.linear_extrude(**extrude_kw)
         result = Bosl2Solid(solid, size=[2 * outer_radius, 2 * outer_radius, thickness])
         return result.rotate([0, 0, gear_spin]) if gear_spin else result
 
@@ -1068,6 +1074,7 @@ class Gears:
         diam_pitch: float | None = None,
     ) -> Bosl2Solid:
         """A (potentially spiral) involute bevel gear (BOSL2 bevel_gear())."""
+        _ = hide
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         slices = 1 if cutter_radius == 0 else slices
         if mate_teeth is not None:

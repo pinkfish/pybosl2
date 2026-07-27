@@ -36,16 +36,16 @@ class Vec3(list[float]):
     def __add__(self, value: Any) -> Vec3:  # type: ignore[override]
         if not isinstance(value, list):
             return NotImplemented
-        return Vec3(a + b for a, b in zip(self, value))
+        return Vec3(a + b for a, b in zip(self, value, strict=False))
 
     def __radd__(self, value: list[float]) -> Vec3:
-        return Vec3(a + b for a, b in zip(value, self))
+        return Vec3(a + b for a, b in zip(value, self, strict=False))
 
     def __sub__(self, value: list[float]) -> Vec3:
-        return Vec3(a - b for a, b in zip(self, value))
+        return Vec3(a - b for a, b in zip(self, value, strict=False))
 
     def __rsub__(self, value: list[float]) -> Vec3:
-        return Vec3(a - b for a, b in zip(value, self))
+        return Vec3(a - b for a, b in zip(value, self, strict=False))
 
     def __neg__(self) -> Vec3:
         return Vec3(-a for a in self)

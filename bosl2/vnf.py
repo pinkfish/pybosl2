@@ -299,9 +299,9 @@ class VNF:
 
         faces: list = []
         if capfirst:
-            rng = list(range(0, rowstarts[0] - addcol)) if reverse else list(range(rowstarts[0] - 1 - addcol, -1, -1))
+            rng = list(range(rowstarts[0] - addcol)) if reverse else list(range(rowstarts[0] - 1 - addcol, -1, -1))
             faces.append(rng)
-        for i in range(0, plen - 1 + (1 if row_wrap else 0)):
+        for i in range(plen - 1 + (1 if row_wrap else 0)):
             j = (i + 1) % plen
             trimax = max(1, abs(len(st[i]) - len(st[j]))) if limit_bunching else float("inf")
             faces.extend(
@@ -336,3 +336,31 @@ class VNF:
     def geometry(self):
         """Alias of :meth:`polyhedron`, matching Path/Region's geometry() surface."""
         return self.polyhedron()
+
+
+def vnf_polyhedron(vnf: VNF):
+    """Render a :class:`VNF` to a PythonSCAD ``polyhedron`` (BOSL2 ``vnf_polyhedron()``).
+
+    A module-level convenience wrapper around :meth:`VNF.polyhedron` so existing
+    code using the BOSL2 OpenSCAD calling convention ``vnf_polyhedron(vnf)`` works
+    without any change.
+
+    Args:
+        vnf: the :class:`VNF` to render.
+
+    Returns:
+        A PythonSCAD ``polyhedron`` solid.
+
+    Examples:
+        Build a swept VNF and render it:
+
+        .. pythonscad-example::
+
+            sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
+            v = linear_sweep(sq, height=20)
+            vnf_polyhedron(v).show()
+    """
+    return vnf.polyhedron()
+
+
+__all__ = ["VNF", "vnf_polyhedron"]

@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import math
 
-from bosl2.rounding import round_corners
+from bosl2.paths import Path3D
 from bosl2.shapes3d import Bosl2Solid
 from bosl2.skin import path_sweep
 
@@ -56,8 +56,8 @@ def _hex_offset_ring(d, lev):
     ``lev=0`` is the single centre point; ``lev>=1`` is a hexagon of ``6*lev`` points."""
     if lev == 0:
         return [[0.0, 0.0]]
-    R = lev * d  # hexagon circumradius; side length == R
-    corners = [(R * math.cos(math.radians(60 * k)), R * math.sin(math.radians(60 * k))) for k in range(6)]
+    r = lev * d  # hexagon circumradius; side length == r
+    corners = [(r * math.cos(math.radians(60 * k)), r * math.sin(math.radians(60 * k))) for k in range(6)]
     pts = []
     for k in range(6):  # subdivide each edge into lev segments
         x0, y0 = corners[k]
@@ -119,7 +119,7 @@ class Wiring:
             raise ValueError("wire_bundle() needs at least one wire.")
         sides = max(_segs(wirediam / 2), 8)
         offsets = _hex_offsets(wires, wirediam)
-        rounded_path = round_corners(path, radius=rounding, closed=False, fn=(corner_steps + 1) * 4)
+        rounded_path = Path3D(path, closed=False).round_corners(radius=rounding, fn=(corner_steps + 1) * 4)
         radius = wirediam / 2
         profile = [
             [

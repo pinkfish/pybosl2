@@ -20,13 +20,17 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
-from numpy.typing import ArrayLike, NDArray
 
 from bosl2._sdf._edges import _pick_radius
 from bosl2._sdf._libfive import LVTree, lv
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from numpy.typing import ArrayLike, NDArray
 
 
 def as_path_list(paths: list[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:

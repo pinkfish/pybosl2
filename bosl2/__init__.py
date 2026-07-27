@@ -41,6 +41,6 @@
 
 # Version metadata. version.py has no heavy/native imports, so exposing it here is
 # safe despite the deliberate no-eager-submodule-import policy noted above.
-from bosl2.version import Version, __version__, version  # noqa: E402,F401
+from bosl2.version import Version, __version__, version
 
 __all__ = ["Version", "version", "__version__"]

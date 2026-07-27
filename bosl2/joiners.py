@@ -66,6 +66,7 @@ class Joiners:
                 (Joiners.dovetail("male", width=15, height=8, slide=30)
                  | Joiners.dovetail("female", width=15, height=8, slide=30).right(24)).show()
         """
+        _ = (fn, fa, fs)
         if angle is not None:
             slope = 1 / math.tan(math.radians(angle))
         hslop = slop if gender == "female" else 0.0
@@ -111,6 +112,7 @@ class Joiners:
                 from bosl2.joiners import Joiners
                 Joiners.snap_pin().show()
         """
+        _ = clearance
         shaft = cyl(height=length, diameter=diameter, fn=fn, fa=fa, fs=fs)
         # barb: a downward-facing ratchet lip at the tip (wide at its base, tapering to the shaft).
         barb = cyl(

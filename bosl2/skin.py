@@ -4,7 +4,6 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: bosl2/skin.py
 #    Pure-Python port of the surface generators from BOSL2's skin.scad, building
 #    VNFs (bosl2/vnf.py) that render via polyhedron(). No osuse()/BOSL2 runtime
 #    dependency.
@@ -33,12 +32,12 @@
 #    "fast_distance"/"tangent" vertex-matching methods (and associate_vertices()),
 #    and spiral_sweep()'s lead-in tapers.
 #
-# FileSummary: Skin/sweep/revolve 2-D profiles into VNF surfaces (BOSL2 skin.scad).
-# FileGroup: BOSL2
 
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Sequence, Union
 
 import numpy as np
@@ -666,6 +665,751 @@ def subdivide_and_slice(
 
 
 # ---------------------------------------------------------------------------------------------
+# os_circle() / offset_sweep() -- profile-based offset extrusion with rim roundovers
+# (BOSL2 rounding.scad: os_circle, offset_sweep)
+# ---------------------------------------------------------------------------------------------
+
+
+class OSType(Enum):
+    CIRCLE = "circle"
+    SMOOTH = "smooth"
+    TEARDROP = "teardrop"
+    CHAMFER = "chamfer"
+    FLAT = "flat"
+    PROFILE = "profile"
+
+
+@dataclass
+class OSProfile:
+    type: OSType
+    radius: float = 0.0
+    height: float = 0.0
+    extra: float = 0.0
+    cut: float = 0.0
+    curvature: float = 0.5
+    radius_sign: float = 1.0
+    max_angle: float = 45.0
+    width: float = 0.0
+    points: list[list[float]] = field(default_factory=list)
+
+    def get(self, key, default=None):
+        if key == "type":
+            return self.type.value
+        mapping = {
+            "r": "radius",
+            "h": "height",
+            "k": "curvature",
+            "r_sign": "radius_sign",
+        }
+        attr = mapping.get(key, key)
+        if hasattr(self, attr):
+            return getattr(self, attr)
+        return default
+
+    def __getitem__(self, key):
+        if key == "type":
+            return self.type.value
+        mapping = {
+            "r": "radius",
+            "h": "height",
+            "k": "curvature",
+            "r_sign": "radius_sign",
+        }
+        attr = mapping.get(key, key)
+        if hasattr(self, attr):
+            return getattr(self, attr)
+        raise KeyError(key)
+
+    def __contains__(self, key):
+        mapping = {
+            "r": "radius",
+            "h": "height",
+            "k": "curvature",
+            "r_sign": "radius_sign",
+        }
+        attr = mapping.get(key, key)
+        return hasattr(self, attr)
+
+
+def os_circle(radius: float | None = None, height: float | None = None, extra: float = 0.0, **kwargs) -> OSProfile:
+    """Circular roundover/flare profile for :func:`offset_sweep` (BOSL2 ``os_circle()``).
+
+    Describes the treatment applied to one rim of the extruded shape:
+
+    * ``radius > 0`` — inward roundover: the rim is eased in (material is *removed*
+      from the corner, yielding a convex fillet).
+    * ``radius < 0`` — outward flare: extra material is added outside the wall at
+      the rim (a concave cove).
+    * ``radius == 0`` — square / no treatment (same as passing ``None`` to
+      :func:`offset_sweep`).
+
+    Args:
+        radius: Roundover radius (positive = roundover, negative = flare).
+        height: Height of the rim treatment; defaults to ``abs(radius)``.  Should be
+                less than half the extrusion height.
+        extra:  Extra extension beyond the nominal arc (useful to close tiny gaps
+                from floating-point rounding; default 0).
+
+    Returns:
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+    """
+    r_val = radius if radius is not None else kwargs.get("r")
+    h_val = height if height is not None else kwargs.get("h")
+    assert r_val is not None, "os_circle(): radius is required."
+    h_res = float(h_val) if h_val is not None else abs(float(r_val))
+    return OSProfile(type=OSType.CIRCLE, radius=float(r_val), height=h_res, extra=float(extra))
+
+
+def os_smooth(
+    cut: float | None = None,
+    radius: float | None = None,
+    curvature: float | None = None,
+    extra: float = 0.0,
+    **kwargs,
+) -> OSProfile:
+    """Continuous curvature (Bézier) profile for :func:`offset_sweep` (BOSL2 ``os_smooth()``).
+
+    Uses a 4th-order Bézier curve to ease the transition between flat and curved edges,
+    avoiding sudden changes in curvature.
+
+    Args:
+        cut:       Depth of the roundover/flare.
+        radius:    Alternative to ``cut`` (aliases it).
+        curvature: Smoothness/curvature match parameter between 0 and 1 (default 0.5).
+        extra:     Extra extension beyond the nominal curve (default 0).
+
+    Returns:
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+    """
+    r_val = radius if radius is not None else kwargs.get("r")
+    k_val = curvature if curvature is not None else kwargs.get("k", 0.5)
+    val = float(cut) if cut is not None else (float(r_val) if r_val is not None else 1.0)
+    sign = 1.0 if val >= 0 else -1.0
+    return OSProfile(type=OSType.SMOOTH, cut=abs(val), curvature=float(k_val), radius_sign=sign, extra=float(extra))
+
+
+def os_teardrop(
+    radius: float | None = None,
+    height: float | None = None,
+    cut: float | None = None,
+    max_angle: float = 45.0,
+    extra: float = 0.0,
+    **kwargs,
+) -> OSProfile:
+    """Teardrop profile for :func:`offset_sweep` to avoid overhangs in 3D printing (BOSL2 ``os_teardrop()``).
+
+    Transitions from a 1/8th circle into a straight line at ``max_angle`` degrees
+    relative to the vertical wall, allowing support-free printing.
+
+    Args:
+        radius:    Radius of the circular portion.
+        height:    Total height of the treatment (defaults to ``abs(radius)``).
+        cut:       Alternative to ``radius`` (aliases it).
+        max_angle: Curvature transition angle relative to the wall (default 45.0).
+        extra:     Extra extension beyond the nominal curve (default 0).
+
+    Returns:
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+    """
+    r_arg = radius if radius is not None else kwargs.get("r")
+    h_arg = height if height is not None else kwargs.get("h")
+    r_val = float(r_arg) if r_arg is not None else (float(cut) if cut is not None else 1.0)
+    h_val = float(h_arg) if h_arg is not None else abs(r_val)
+    return OSProfile(type=OSType.TEARDROP, radius=r_val, height=h_val, max_angle=float(max_angle), extra=float(extra))
+
+
+def os_chamfer(
+    width: float | None = None,
+    height: float | None = None,
+    angle: float | None = None,
+    cut: float | None = None,
+    extra: float = 0.0,
+) -> OSProfile:
+    """Chamfer/bevel profile for :func:`offset_sweep` (BOSL2 ``os_chamfer()``).
+
+    Creates a flat bevel transition.
+
+    Args:
+        width:  Horizontal width of the chamfer.
+        height: Vertical height of the chamfer (defaults to ``width``).
+        angle:  Bevel angle in degrees. If given, overrides ``width``.
+        cut:    Bevel size (aliases both ``width`` and ``height``).
+        extra:  Extra extension beyond the nominal bevel (default 0).
+
+    Returns:
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+    """
+    if cut is not None:
+        w = float(cut)
+        h = float(cut)
+    else:
+        w = float(width) if width is not None else 1.0
+        h = float(height) if height is not None else w
+    if angle is not None:
+        w = h * math.tan(math.radians(float(angle)))
+    return OSProfile(type=OSType.CHAMFER, width=w, height=h, extra=float(extra))
+
+
+def os_flat() -> OSProfile:
+    """Flat end cap profile descriptor representing no treatment (BOSL2 ``os_flat()``)."""
+    return OSProfile(type=OSType.FLAT, radius=0.0, height=0.0)
+
+
+def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProfile:
+    """Custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
+
+    Accepts a list of 2D points `[[x, y], ...]` defining the profile:
+    - `x` is the inward radial offset (meaning `delta = -x`).
+    - `y` is the height `z`.
+
+    Args:
+        profile: Sequence of ``[x, y]`` points. The first must be ``[0, 0]``.
+        extra:   Extra extension (default 0).
+
+    Returns:
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+    """
+    pts = [[float(p[0]), float(p[1])] for p in profile]
+    assert pts and pts[0] == [0.0, 0.0], "os_profile(): First point of the profile must be [0, 0]."
+    return OSProfile(type=OSType.PROFILE, points=pts, extra=float(extra))
+
+
+def _offset_sweep(
+    path: Sequence[Sequence[float]],
+    height: float,
+    bottom=None,
+    top=None,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
+
+    Stacks a sequence of radially-offset outlines along the Z axis. The transition
+    from the vertical wall to the flat cap is determined by the *bottom* and *top*
+    profiles.
+
+    Supported profiles (offset specifiers):
+    - ``os_circle()``: Circular roundover/flare.
+    - ``os_smooth()``: Bezier-based continuous curvature G2 smoothing.
+    - ``os_teardrop()``: Teardrop profile for support-free 3D printing.
+    - ``os_chamfer()``: Straight bevel.
+    - ``os_flat()``: Flat cap.
+    - ``os_profile()``: User-defined custom 2D profile.
+
+    Args:
+        path:   The 2-D polygon to extrude (a closed path or point list).
+        height: Total extrusion height (Z from 0 to height).
+        bottom: Bottom-rim treatment descriptor (or ``None`` for square).
+        top:    Top-rim treatment descriptor (or ``None`` for square).
+        steps:  Number of slices/steps per rim treatment (default 16).
+        caps:   Cap the flat top and bottom (default True); bool or [bool, bool].
+        style:  ``vnf_vertex_array`` quad-subdivision style.
+
+    Returns:
+        A :class:`~bosl2.vnf.VNF`.
+    """
+    from bosl2.paths import Path as _Path
+
+    assert height > 0, "offset_sweep(): height must be positive."
+    fullcaps = _norm_caps(caps)
+
+    base = [[float(p[0]), float(p[1])] for p in path]
+
+    def _to_desc(j):
+        if j is None:
+            return None
+        if isinstance(j, (dict, OSProfile)):
+            return j
+        return os_circle(float(j))
+
+    bottom_desc = _to_desc(bottom)
+    top_desc = _to_desc(top)
+
+    # ---------------------------------------------------------------------------
+    # Build (delta, z) pairs for each level of the stack.
+    # ---------------------------------------------------------------------------
+
+    def _arc_column(desc, n: int):
+        """Return (deltas, zs) for one rim, length n+1."""
+        if desc is None:
+            return ([0.0], [0.0])
+        t = desc.get("type", "circle")
+        if t == "flat" or (t == "circle" and desc["r"] == 0.0):
+            return ([0.0], [0.0])
+
+        if t == "circle":
+            r = desc["r"]
+            h = abs(desc["h"])
+            ar = abs(r)
+            sign = -1.0 if r > 0 else 1.0
+            angles = [math.pi / 2 * i / n for i in range(n + 1)]
+            deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+            zs = [h * math.sin(a) for a in angles]
+            return (deltas, zs)
+
+        elif t == "teardrop":
+            r = desc["r"]
+            h = abs(desc["h"])
+            max_angle = desc.get("max_angle", 45.0)
+            ar = abs(r)
+            sign = -1.0 if r > 0 else 1.0
+            max_a_rad = math.radians(max_angle)
+
+            z_trans = ar * math.sin(max_a_rad)
+            delta_trans = ar * (1.0 - math.cos(max_a_rad))
+
+            if h <= z_trans:
+                limit_a = math.asin(h / ar) if ar > 0 else 0.0
+                angles = [limit_a * i / n for i in range(n + 1)]
+                deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+                zs = [h * math.sin(a) / math.sin(limit_a) if limit_a > 0 else 0.0 for a in angles]
+                return (deltas, zs)
+            else:
+                n_circ = n // 2
+                n_line = n - n_circ
+                deltas = []
+                zs = []
+                for i in range(n_circ):
+                    a = max_a_rad * i / n_circ
+                    deltas.append(sign * ar * (1.0 - math.cos(a)))
+                    zs.append(ar * math.sin(a))
+                for i in range(n_line + 1):
+                    curr_z = z_trans + (h - z_trans) * i / n_line
+                    curr_delta = delta_trans + (curr_z - z_trans) * math.tan(max_a_rad)
+                    deltas.append(sign * curr_delta)
+                    zs.append(curr_z)
+                return (deltas, zs)
+
+        elif t == "smooth":
+            cut = abs(desc["cut"])
+            k = desc["k"]
+            sign = -1.0 if desc["r_sign"] > 0 else 1.0
+            deltas = []
+            zs = []
+            for i in range(n + 1):
+                u = i / n
+                xu = 4.0 * k * cut * (u**3) * (1.0 - u) + cut * (u**4)
+                yu = cut * ((1.0 - u) ** 4) + 4.0 * k * cut * u * ((1.0 - u) ** 3)
+                deltas.append(sign * xu)
+                zs.append(cut - yu)
+            return (deltas, zs)
+
+        elif t == "chamfer":
+            w = desc["width"]
+            h = abs(desc["height"])
+            deltas = [-w * i / n for i in range(n + 1)]
+            zs = [h * i / n for i in range(n + 1)]
+            return (deltas, zs)
+
+        elif t == "profile":
+            pts = desc["points"]
+            pts_arr = np.asarray(pts, dtype=float)
+            zs_in = pts_arr[:, 1]
+            xs_in = pts_arr[:, 0]
+            z_min, z_max = zs_in[0], zs_in[-1]
+            zs = [z_min + (z_max - z_min) * i / n for i in range(n + 1)]
+            deltas = [-float(np.interp(z, zs_in, xs_in)) for z in zs]
+            return (deltas, zs)
+
+        return ([0.0], [0.0])
+
+    bot_deltas, bot_zs = _arc_column(bottom_desc, steps)
+    top_deltas, top_zs = _arc_column(top_desc, steps)
+
+    h_bot = bot_zs[-1]
+    h_top = top_zs[-1]
+    assert h_bot + h_top <= height, (
+        "offset_sweep(): the sum of the bottom and top rim heights exceeds the extrusion height."
+    )
+
+    # Assemble (delta, z) pairs for the complete column, bottom → top.
+    column: list[tuple[float, float]] = []
+
+    # Bottom rim.
+    for d, z in zip(bot_deltas, bot_zs, strict=False):
+        column.append((d, z))
+
+    # Middle straight wall (if there is room between the two rims).
+    mid_z_bot = column[-1][1]
+    mid_z_top = height - h_top
+    if mid_z_top > mid_z_bot + 1e-9:
+        column.append((column[-1][0], mid_z_top))
+
+    # Top rim (arc in reverse: from height-h_top up to height).
+    for d, z in zip(reversed(top_deltas), reversed(top_zs), strict=False):
+        column.append((d, height - z))
+
+    # De-duplicate consecutive identical entries.
+    deduped: list[tuple[float, float]] = [column[0]]
+    for pair in column[1:]:
+        prev = deduped[-1]
+        if abs(pair[0] - prev[0]) > 1e-12 or abs(pair[1] - prev[1]) > 1e-12:
+            deduped.append(pair)
+
+    # Build one 3-D ring per (delta, z) level.
+    profiles_3d: list[list[list[float]]] = []
+    for delta, z in deduped:
+        if abs(delta) < 1e-12:
+            ring: list[list[float]] = [[p[0], p[1], z] for p in base]
+        else:
+            off = list(_Path(base).offset(delta=delta))
+            ring = [[float(p[0]), float(p[1]), z] for p in off]
+        if ring:
+            profiles_3d.append(ring)
+
+    if len(profiles_3d) < 2:
+        return VNF([], [])
+
+    # Normalise all rings to the same vertex count.
+    maxn = max(len(r) for r in profiles_3d)
+    from bosl2.paths import Path as _Path2
+
+    norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
+
+    vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+    return vnf if vnf.volume() >= 0 else vnf.reverse()
+
+
+def _convex_offset_extrude(
+    path: Sequence[Sequence[float]],
+    height: float,
+    bottom=None,
+    top=None,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).
+
+    An alias for :func:`_offset_sweep` to match BOSL2's geometry-oriented name.
+    """
+    return _offset_sweep(path, height=height, bottom=bottom, top=top, steps=steps, caps=caps, style=style)
+
+
+def _rounded_prism(
+    bottom: Sequence[Sequence[float]],
+    top: Sequence[Sequence[float]] | None = None,
+    height: float | None = None,
+    joint_top: float | dict | None = None,
+    joint_bottom: float | dict | None = None,
+    joint_sides: float | list[float] | None = None,
+    curvature_sides: float | list[float] | None = None,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+    **kwargs,
+) -> VNF:
+    """Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).
+
+    Args:
+        bottom:          The bottom polygon path (2-D point sequence).
+        top:         The top polygon path (defaults to *bottom*).
+        height:      Prism height.
+        joint_top:   Rounding radius or specifier for the top rim.
+        joint_bottom: Rounding radius or specifier for the bottom rim.
+        joint_sides: Rounding radius or specifier for the vertical side corners.
+        curvature_sides: Continuous curvature parameter for side corners.
+        steps:       Arc slices for top/bottom rim treatments.
+        caps:        Cap bottom/top.
+        style:       Subdivision style.
+
+    Returns:
+        A :class:`~bosl2.vnf.VNF`.
+    """
+    from bosl2.paths import Path as _Path
+
+    joint_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot")
+    k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides")
+
+    # Coerce/normalize top and height
+    if top is None:
+        top = bottom
+
+    bot_z = [float(p[2]) if len(p) > 2 else 0.0 for p in bottom]
+    top_z = [float(p[2]) if len(p) > 2 else 0.0 for p in top]
+    z_diff = abs(max(top_z) - min(bot_z))
+    h_val = float(height) if height is not None else (z_diff if z_diff > 1e-9 else 1.0)
+
+    b_2d = [[float(p[0]), float(p[1])] for p in bottom]
+    t_2d = [[float(p[0]), float(p[1])] for p in top]
+
+    # Pre-round the side corners if requested
+    if joint_sides is not None:
+        from bosl2.rounding import _round_corners as _rc
+
+        m_sides = "smooth" if k_sides is not None else "circle"
+        kwargs_sides = {"method": m_sides}
+        if m_sides == "smooth":
+            kwargs_sides["joint"] = joint_sides
+            kwargs_sides["curvature"] = k_sides
+        else:
+            kwargs_sides["radius"] = joint_sides
+
+        b_rounded = _rc(b_2d, **kwargs_sides)
+        t_rounded = _rc(t_2d, **kwargs_sides)
+    else:
+        b_rounded = b_2d
+        t_rounded = t_2d
+
+    # Convert rim treatments to dict descriptors
+    def _to_desc(j):
+        if j is None:
+            return None
+        if isinstance(j, (dict, OSProfile)):
+            return j
+        return os_circle(float(j))
+
+    desc_top = _to_desc(joint_top)
+    desc_bot = _to_desc(joint_bot)
+
+    # Re-use the (delta, z) levels calculation from offset_sweep
+    def _arc_column(desc, n: int):
+        if desc is None:
+            return ([0.0], [0.0])
+        t = desc.get("type", "circle")
+        if t == "flat" or (t == "circle" and desc["r"] == 0.0):
+            return ([0.0], [0.0])
+
+        if t == "circle":
+            r = desc["r"]
+            h = abs(desc["h"])
+            ar = abs(r)
+            sign = -1.0 if r > 0 else 1.0
+            angles = [math.pi / 2 * i / n for i in range(n + 1)]
+            deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+            zs = [h * math.sin(a) for a in angles]
+            return (deltas, zs)
+
+        elif t == "teardrop":
+            r = desc["r"]
+            h = abs(desc["h"])
+            max_angle = desc.get("max_angle", 45.0)
+            ar = abs(r)
+            sign = -1.0 if r > 0 else 1.0
+            max_a_rad = math.radians(max_angle)
+
+            z_trans = ar * math.sin(max_a_rad)
+            delta_trans = ar * (1.0 - math.cos(max_a_rad))
+
+            if h <= z_trans:
+                limit_a = math.asin(h / ar) if ar > 0 else 0.0
+                angles = [limit_a * i / n for i in range(n + 1)]
+                deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+                zs = [h * math.sin(a) / math.sin(limit_a) if limit_a > 0 else 0.0 for a in angles]
+                return (deltas, zs)
+            else:
+                n_circ = n // 2
+                n_line = n - n_circ
+                deltas = []
+                zs = []
+                for i in range(n_circ):
+                    a = max_a_rad * i / n_circ
+                    deltas.append(sign * ar * (1.0 - math.cos(a)))
+                    zs.append(ar * math.sin(a))
+                for i in range(n_line + 1):
+                    curr_z = z_trans + (h - z_trans) * i / n_line
+                    curr_delta = delta_trans + (curr_z - z_trans) * math.tan(max_a_rad)
+                    deltas.append(sign * curr_delta)
+                    zs.append(curr_z)
+                return (deltas, zs)
+
+        elif t == "smooth":
+            cut = abs(desc["cut"])
+            k = desc["k"]
+            sign = -1.0 if desc["r_sign"] > 0 else 1.0
+            deltas = []
+            zs = []
+            for i in range(n + 1):
+                u = i / n
+                xu = 4.0 * k * cut * (u**3) * (1.0 - u) + cut * (u**4)
+                yu = cut * ((1.0 - u) ** 4) + 4.0 * k * cut * u * ((1.0 - u) ** 3)
+                deltas.append(sign * xu)
+                zs.append(cut - yu)
+            return (deltas, zs)
+
+        elif t == "chamfer":
+            w = desc["width"]
+            h = abs(desc["height"])
+            deltas = [-w * i / n for i in range(n + 1)]
+            zs = [h * i / n for i in range(n + 1)]
+            return (deltas, zs)
+
+        elif t == "profile":
+            pts = desc["points"]
+            pts_arr = np.asarray(pts, dtype=float)
+            zs_in = pts_arr[:, 1]
+            xs_in = pts_arr[:, 0]
+            z_min, z_max = zs_in[0], zs_in[-1]
+            zs = [z_min + (z_max - z_min) * i / n for i in range(n + 1)]
+            deltas = [-float(np.interp(z, zs_in, xs_in)) for z in zs]
+            return (deltas, zs)
+
+        return ([0.0], [0.0])
+
+    bot_deltas, bot_zs = _arc_column(desc_bot, steps)
+    top_deltas, top_zs = _arc_column(desc_top, steps)
+
+    h_bot = bot_zs[-1]
+    h_top = top_zs[-1]
+    assert h_bot + h_top <= h_val, (
+        "rounded_prism(): the sum of the bottom and top rim heights exceeds the prism height."
+    )
+
+    column: list[tuple[float, float]] = []
+
+    # Bottom rim.
+    for d, z in zip(bot_deltas, bot_zs, strict=False):
+        column.append((d, z))
+
+    # Middle straight wall.
+    mid_z_bot = column[-1][1]
+    mid_z_top = h_val - h_top
+    if mid_z_top > mid_z_bot + 1e-9:
+        column.append((column[-1][0], mid_z_top))
+
+    # Top rim.
+    for d, z in zip(reversed(top_deltas), reversed(top_zs), strict=False):
+        column.append((d, h_val - z))
+
+    # De-duplicate consecutive identical entries.
+    deduped: list[tuple[float, float]] = [column[0]]
+    for pair in column[1:]:
+        prev = deduped[-1]
+        if abs(pair[0] - prev[0]) > 1e-12 or abs(pair[1] - prev[1]) > 1e-12:
+            deduped.append(pair)
+
+    # Build one 3-D ring per level
+    profiles_3d = []
+    b_arr = np.asarray(b_rounded, dtype=float)
+    t_arr = np.asarray(t_rounded, dtype=float)
+    assert len(b_arr) == len(t_arr), "rounded_prism(): bottom and top polygons must have the same number of vertices."
+
+    for delta, z in deduped:
+        frac = z / h_val
+        base_z = (1.0 - frac) * b_arr + frac * t_arr
+        if abs(delta) < 1e-12:
+            ring = [[p[0], p[1], z] for p in base_z]
+        else:
+            off = list(_Path(base_z.tolist()).offset(delta=delta))
+            ring = [[float(p[0]), float(p[1]), z] for p in off]
+        if ring:
+            profiles_3d.append(ring)
+
+    if len(profiles_3d) < 2:
+        return VNF([], [])
+
+    # Normalise rings
+    maxn = max(len(r) for r in profiles_3d)
+    from bosl2.paths import Path as _Path2
+
+    norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
+    fullcaps = _norm_caps(caps)
+
+    vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+    return vnf if vnf.volume() >= 0 else vnf.reverse()
+
+
+def _join_prism(
+    polygon: Sequence[Sequence[float]],
+    height: float,
+    fillet: float = 0.0,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).
+
+    Uses :func:`_offset_sweep` with an outward bottom flare (os_circle(radius=-fillet))
+    to create the rounded fillet joint.
+    """
+    bottom_desc = os_circle(radius=-fillet) if fillet > 0 else None
+    return _offset_sweep(polygon, height=height, bottom=bottom_desc, steps=steps, caps=caps, style=style)
+
+
+def _prism_connector(
+    profile: Sequence[Sequence[float]],
+    length: float,
+    fillet: float = 0.0,
+    fillet1: float | None = None,
+    fillet2: float | None = None,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
+
+    Uses :func:`_offset_sweep` with outward flares at both ends (os_circle(radius=-fillet))
+    to create the filleted joints.
+    """
+    f1 = fillet1 if fillet1 is not None else fillet
+    f2 = fillet2 if fillet2 is not None else fillet
+    bot_desc = os_circle(radius=-f1) if f1 > 0 else None
+    top_desc = os_circle(radius=-f2) if f2 > 0 else None
+    return _offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+
+
+def _attach_prism(
+    profile: Sequence[Sequence[float]],
+    length: float,
+    fillet: float = 0.0,
+    rounding: float = 0.0,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
+
+    Uses :func:`_offset_sweep` with a bottom flare (os_circle(radius=-fillet)) and top
+    roundover (os_circle(radius=rounding)) to create the filleted joints.
+    """
+    bot_desc = os_circle(radius=-fillet) if fillet > 0 else None
+    top_desc = os_circle(radius=rounding) if rounding > 0 else None
+    return _offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+
+
+def _bent_cutout_mask(
+    radius: float,
+    thickness: float,
+    path: Sequence[Sequence[float]],
+    style: str = "min_edge",
+) -> VNF:
+    """Create a mask to generate a round-edged cutout in a cylindrical shell (BOSL2 bent_cutout_mask()).
+
+    Wraps a 2-D path around a cylinder of *radius* and extrudes it radially by *thickness*.
+
+    Args:
+        radius:    Radius of the cylinder to wrap around.
+        thickness: Radial thickness of the mask.
+        path:      2-D path/polygon defining the cutout profile.
+        style:     Subdivision style.
+    """
+    pts = [list(map(float, p)) for p in path]
+    if not pts:
+        return VNF([], [])
+
+    # Ensure closed loop
+    if len(pts) > 1 and np.allclose(pts[0], pts[-1], atol=1e-9):
+        pts.pop()
+
+    inner_ring = []
+    outer_ring = []
+
+    r_in = radius - thickness / 2.0
+    r_out = radius + thickness / 2.0
+
+    for x, y in pts:
+        theta = x / radius
+        c = math.cos(theta)
+        s = math.sin(theta)
+        inner_ring.append([r_in * c, r_in * s, y])
+        outer_ring.append([r_out * c, r_out * s, y])
+
+    vnf = VNF.vertex_array([inner_ring, outer_ring], cap1=True, cap2=True, col_wrap=True, style=style)
+    return vnf if vnf.volume() >= 0 else vnf.reverse()
+
+
+# ---------------------------------------------------------------------------------------------
 # path_sweep2d() -- sweep a 2-D shape along a 2-D path (creases allowed)
 # ---------------------------------------------------------------------------------------------
 
@@ -705,6 +1449,7 @@ def path_sweep2d(
     """
     from bosl2.paths import Path
 
+    _ = quality
     shape = Path(shape)
     path = Path(path)
     fullcaps = _norm_caps(caps, closed=closed)

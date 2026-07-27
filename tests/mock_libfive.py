@@ -49,8 +49,7 @@
 import math
 import sys
 import types
-from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 
 class Tree:
@@ -135,9 +134,9 @@ def _wrap2(f):
 
 sqrt = _wrap1(math.sqrt)
 square = _wrap1(lambda v: v * v)
-abs = _wrap1(__import__("builtins").abs)  # noqa: A001
-max = _wrap2(__import__("builtins").max)  # noqa: A001
-min = _wrap2(__import__("builtins").min)  # noqa: A001
+abs = _wrap1(__import__("builtins").abs)
+max = _wrap2(__import__("builtins").max)
+min = _wrap2(__import__("builtins").min)
 atan2 = _wrap2(math.atan2)
 
 
@@ -196,6 +195,9 @@ def frep(exp, mn, mx, res):
 # the AABB helpers below -- which need ordinary numeric min/max -- bind the real builtins.
 import builtins as _bi  # noqa: E402
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
 _bmin = _bi.min
 _bmax = _bi.max
 
@@ -232,12 +234,52 @@ class _AabbSolid:
         if mn is None or mx is None:
             return _AabbSolid()
         v = list(v) + [0.0] * (3 - len(v))
-        return _AabbSolid([mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)])
+        res = _AabbSolid([mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)])
+        if getattr(self, "is_cylindrical", False) is True:
+            res.is_cylindrical = True
+        return res
+
+    def scale(self, v):
+        mn, mx = self.mn, self.mx
+        if mn is None or mx is None:
+            return _AabbSolid()
+        import builtins
+
+        sv = [float(x) for x in v] if isinstance(v, (list, tuple)) else [float(v)] * 3
+        z_min = mn[2] if len(mn) > 2 else 0.0
+        z_max = mx[2] if len(mx) > 2 else 0.0
+        mn3 = [mn[0], mn[1], z_min]
+        mx3 = [mx[0], mx[1], z_max]
+        out_mn = [builtins.min(mn3[i] * sv[i], mx3[i] * sv[i]) for i in range(3)]
+        out_mx = [builtins.max(mn3[i] * sv[i], mx3[i] * sv[i]) for i in range(3)]
+        res = _AabbSolid(out_mn, out_mx)
+        if getattr(self, "is_cylindrical", False) is True and sv[0] == sv[1]:
+            res.is_cylindrical = True
+        return res
 
     def rotate(self, a, v=None):
         mn, mx = self.mn, self.mx
         if mn is None or mx is None:
             return _AabbSolid()
+        is_z_rot = False
+        if (
+            v is not None
+            and list(v) == [0, 0, 1]
+            or isinstance(a, (list, tuple))
+            and len(a) == 3
+            and a[0] == 0
+            and a[1] == 0
+        ):
+            is_z_rot = True
+        elif v is None and not isinstance(a, (list, tuple)):
+            # single angle with no vector defaults to Z rotation
+            is_z_rot = True
+
+        if getattr(self, "is_cylindrical", False) is True and is_z_rot:
+            res = _AabbSolid(self.mn, self.mx)
+            res.is_cylindrical = True
+            return res
+
         m = _rot_matrix(a, v)
         corners = [
             [
@@ -257,18 +299,22 @@ class _AabbSolid:
         o = other if isinstance(other, _AabbSolid) else _AabbSolid()
         smn, smx, omn, omx = self.mn, self.mx, o.mn, o.mx
         if smn is None or smx is None:
-            return _AabbSolid(o.mn, o.mx)
-        if omn is None or omx is None or mode == "sub":
-            return _AabbSolid(smn, smx)
-        if mode == "or":
-            return _AabbSolid(
+            res = _AabbSolid(o.mn, o.mx)
+        elif omn is None or omx is None or mode == "sub":
+            res = _AabbSolid(smn, smx)
+        elif mode == "or":
+            res = _AabbSolid(
                 [_bmin(smn[i], omn[i]) for i in range(3)],
                 [_bmax(smx[i], omx[i]) for i in range(3)],
             )
-        return _AabbSolid(
-            [_bmax(smn[i], omn[i]) for i in range(3)],
-            [_bmin(smx[i], omx[i]) for i in range(3)],
-        )
+        else:
+            res = _AabbSolid(
+                [_bmax(smn[i], omn[i]) for i in range(3)],
+                [_bmin(smx[i], omx[i]) for i in range(3)],
+            )
+        if getattr(self, "is_cylindrical", False) is True:
+            res.is_cylindrical = True
+        return res
 
     def __or__(self, other):
         return self._combine(other, "or")
@@ -301,9 +347,39 @@ class _AabbSolid:
         return _AabbSolid(out_mn, out_mx)
 
     def multmatrix(self, m):
-        # Shear (the only multmatrix bosl2 uses, for cyl/prism shift) doesn't grow the AABB
-        # enough to matter for anchoring tests; keep the box as-is.
-        return _AabbSolid(self.mn, self.mx)
+        mn, mx = self.mn, self.mx
+        if mn is None or mx is None:
+            return _AabbSolid()
+        z_min = mn[2] if len(mn) > 2 else 0.0
+        z_max = mx[2] if len(mx) > 2 else 0.0
+        corners = [
+            [
+                mn[0] if i & 1 == 0 else mx[0],
+                mn[1] if i & 2 == 0 else mx[1],
+                z_min if i & 4 == 0 else z_max,
+            ]
+            for i in range(8)
+        ]
+        transformed = []
+        for c in corners:
+            if len(m) >= 4 and len(m[0]) >= 4:
+                w = m[3][0] * c[0] + m[3][1] * c[1] + m[3][2] * c[2] + m[3][3]
+                w = w if w != 0 else 1.0
+                tx = (m[0][0] * c[0] + m[0][1] * c[1] + m[0][2] * c[2] + m[0][3]) / w
+                ty = (m[1][0] * c[0] + m[1][1] * c[1] + m[1][2] * c[2] + m[1][3]) / w
+                tz = (m[2][0] * c[0] + m[2][1] * c[1] + m[2][2] * c[2] + m[2][3]) / w
+            else:
+                tx = m[0][0] * c[0] + m[0][1] * c[1] + m[0][2] * c[2]
+                ty = m[1][0] * c[0] + m[1][1] * c[1] + m[1][2] * c[2]
+                tz = m[2][0] * c[0] + m[2][1] * c[1] + m[2][2] * c[2]
+            transformed.append([tx, ty, tz])
+        res = _AabbSolid(
+            [_bmin(c[i] for c in transformed) for i in range(3)],
+            [_bmax(c[i] for c in transformed) for i in range(3)],
+        )
+        if getattr(self, "is_cylindrical", False) is True:
+            res.is_cylindrical = True
+        return res
 
     def separate(self):
         # Native separate() splits disconnected lumps; the mock has a single AABB, so it is one part.
@@ -316,9 +392,46 @@ class _AabbSolid:
             return False
         return all(mn[i] <= float(point[i]) <= mx[i] for i in range(3))
 
+    def linear_extrude(self, height=1.0, center=False, **k):
+        mn, mx = self.mn, self.mx
+        if mn is None or mx is None:
+            return _AabbSolid()
+        z0, z1 = (-float(height) / 2, float(height) / 2) if center else (0.0, float(height))
+        # Support 2D bounds to 3D bounds promotion
+        z_min = mn[2] if len(mn) > 2 else 0.0
+        z_max = mx[2] if len(mx) > 2 else 0.0
+        return _AabbSolid([mn[0], mn[1], z_min + z0], [mx[0], mx[1], z_max + z1])
+
     def __getattr__(self, name):
-        # Permissive no-op for everything else (.show()/.mesh()/.linear_extrude()/...).
-        return lambda *a, **k: self
+        # Permissive no-op for standard output/display/query/transform methods
+        if name in (
+            "show",
+            "mesh",
+            "render",
+            "png",
+            "write",
+            "stl",
+            "save",
+            "plot",
+            "view",
+            "linear_extrude",
+            "rotate_extrude",
+            "minkowski",
+            "hull",
+            "fill",
+            "offset",
+            "highlight",
+            "background",
+            "path_extrude",
+            "projection",
+            "mirror",
+            "repair",
+            "wrap",
+            "pull",
+            "oversample",
+        ):
+            return lambda *a, **k: self
+        raise AttributeError(name)
 
 
 def _rot_matrix(a, v=None):
@@ -372,18 +485,24 @@ def _mock_cylinder(
             (d / 2 if d else None),
             (diameter1 / 2 if diameter1 else None),
             (diameter2 / 2 if diameter2 else None),
+            k.get("r1"),
+            k.get("r2"),
         )
         if v is not None
     ]
     rad = _bmax(rr) if rr else 1.0
     hh = float(h)
     z0, z1 = (-hh / 2, hh / 2) if center else (0.0, hh)
-    return _AabbSolid([-rad, -rad, z0], [rad, rad, z1])
+    res = _AabbSolid([-rad, -rad, z0], [rad, rad, z1])
+    res.is_cylindrical = True
+    return res
 
 
 def _mock_sphere(r=None, d=None, **k) -> Any:
     rad = float(r) if r is not None else (float(d) / 2 if d is not None else 1.0)
-    return _AabbSolid([-rad, -rad, -rad], [rad, rad, rad])
+    res = _AabbSolid([-rad, -rad, -rad], [rad, rad, rad])
+    res.is_cylindrical = True
+    return res
 
 
 def _mock_polyhedron(points=None, *a, **k) -> Any:
@@ -393,6 +512,18 @@ def _mock_polyhedron(points=None, *a, **k) -> Any:
     return _AabbSolid(
         [_bmin(p[i] for p in pts) for i in range(3)],
         [_bmax(p[i] for p in pts) for i in range(3)],
+    )
+
+
+def _mock_polygon(points=None, *a, **k) -> Any:
+    if not points:
+        return _AabbSolid()
+    pts = [[float(c) for c in p] for p in points]
+    x_coords = [p[0] for p in pts]
+    y_coords = [p[1] for p in pts]
+    return _AabbSolid(
+        [_bmin(x_coords), _bmin(y_coords), 0.0],
+        [_bmax(x_coords), _bmax(y_coords), 0.0],
     )
 
 
@@ -433,6 +564,20 @@ def _mock_minkowski(*solids, **k) -> Any:
     )
 
 
+def _mock_rotate_extrude(shape, *a, **k) -> Any:
+    inner = shape.shape if (hasattr(shape, "shape") and not callable(shape.shape)) else shape
+    if isinstance(inner, _AabbSolid) and inner.mn is not None and inner.mx is not None:
+        # 2D bounds: mn=[x0, y0], mx=[x1, y1]
+        x0, y0 = inner.mn[0], inner.mn[1]
+        x1, y1 = inner.mx[0], inner.mx[1]
+        import builtins
+
+        rad = builtins.max(builtins.abs(x0), builtins.abs(x1))
+        # Z-axis extrusion maps Y to Z, and revolves X on XY plane
+        return _AabbSolid([-rad, -rad, y0], [rad, rad, y1])
+    return _AabbSolid()
+
+
 def install():
     """Patch sys.modules with mock `libfive`/`pythonscad`/`openscad` modules, so `import pysolidfive`
     (and its `bosl2.shapes2d`/`bosl2.shapes3d` imports) succeed without a real PythonSCAD app.
@@ -447,20 +592,20 @@ def install():
     # testable); the 2-D/other builders return a permissive bbox-less _AabbSolid. pysolidfive
     # itself never calls any of these (it only builds SDFs and calls frep()).
     pythonscad_mock = types.ModuleType("pythonscad")
-    setattr(pythonscad_mock, "frep", frep)
-    setattr(pythonscad_mock, "cube", _mock_cube)
-    setattr(pythonscad_mock, "cylinder", _mock_cylinder)
-    setattr(pythonscad_mock, "sphere", _mock_sphere)
-    setattr(pythonscad_mock, "polyhedron", _mock_polyhedron)
-    setattr(pythonscad_mock, "hull", _mock_hull)
-    setattr(pythonscad_mock, "fill", _mock_fill)
-    setattr(pythonscad_mock, "minkowski", _mock_minkowski)
+    pythonscad_mock.frep = frep
+    pythonscad_mock.cube = _mock_cube
+    pythonscad_mock.cylinder = _mock_cylinder
+    pythonscad_mock.sphere = _mock_sphere
+    pythonscad_mock.polyhedron = _mock_polyhedron
+    pythonscad_mock.hull = _mock_hull
+    pythonscad_mock.fill = _mock_fill
+    pythonscad_mock.minkowski = _mock_minkowski
+    pythonscad_mock.rotate_extrude = _mock_rotate_extrude
+    pythonscad_mock.polygon = _mock_polygon
     for name in [
-        "rotate_extrude",
         "textmetrics",
         "square",
         "circle",
-        "polygon",
         "text",
         "osuse",
     ]:
@@ -471,14 +616,15 @@ def install():
     # The geometry free functions imported by name (cap_box_polygon.py does
     # `from openscad import hull, polygon`) get the same AABB-aware stand-ins.
     openscad_mock = types.ModuleType("openscad")
-    setattr(openscad_mock, "PyOpenSCAD", _AabbSolid)
-    setattr(openscad_mock, "PyOpenSCADVector", list)
-    setattr(openscad_mock, "cube", _mock_cube)
-    setattr(openscad_mock, "cylinder", _mock_cylinder)
-    setattr(openscad_mock, "sphere", _mock_sphere)
-    setattr(openscad_mock, "hull", _mock_hull)
-    setattr(openscad_mock, "fill", _mock_fill)
-    for name in ["polygon", "square", "circle"]:
+    openscad_mock.PyOpenSCAD = _AabbSolid
+    openscad_mock.PyOpenSCADVector = list
+    openscad_mock.cube = _mock_cube
+    openscad_mock.cylinder = _mock_cylinder
+    openscad_mock.sphere = _mock_sphere
+    openscad_mock.hull = _mock_hull
+    openscad_mock.fill = _mock_fill
+    openscad_mock.polygon = _mock_polygon
+    for name in ["square", "circle"]:
         setattr(openscad_mock, name, lambda *a, **k: _AabbSolid())
     sys.modules["openscad"] = openscad_mock
 

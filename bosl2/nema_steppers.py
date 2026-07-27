@@ -66,7 +66,7 @@ class NemaSteppers:
         try:
             return _NEMA[int(size)]
         except (KeyError, ValueError):
-            raise ValueError(f"Unsupported NEMA size: {size!r}")
+            raise ValueError(f"Unsupported NEMA size: {size!r}") from None
 
     @staticmethod
     def nema_stepper_motor(

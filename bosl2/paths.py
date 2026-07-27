@@ -46,10 +46,17 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+try:
+    import shapely  # noqa: F401  (presence check)
+
+    _SHAPELY = True
+except ImportError:
+    _SHAPELY = False
+
 if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this module
-    from bosl2._backend import Solid  # noqa: F401
-    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike  # noqa: F401
-    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
+    from bosl2._backend import Solid
+    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike
+    from bosl2.shapes3d import Bosl2Solid
 
 from bosl2.comparisons import approx
 from bosl2.distributors import (
@@ -153,6 +160,17 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     def area(self, signed: bool = False) -> float:
         """Enclosed area; *signed* keeps the sign (negative == clockwise)."""
+        if _SHAPELY and self.closed:
+            from shapely.geometry import LinearRing, Polygon
+
+            try:
+                poly = Polygon(self)
+                if signed:
+                    ring = LinearRing(self)
+                    return float(poly.area if ring.is_ccw else -poly.area)
+                return float(poly.area)
+            except Exception:
+                pass
         return float(Path._polygon_area(self, signed=signed))
 
     def is_clockwise(self) -> bool:
@@ -180,6 +198,15 @@ class Path(Distributable, Extrudable, Roundable, list):
         """
         if not self.closed:
             return False
+        if _SHAPELY:
+            from shapely.geometry import Point, Polygon
+
+            try:
+                poly = Polygon(self)
+                pt = Point(point[0], point[1])
+                return bool(poly.intersects(pt))
+            except Exception:
+                pass
         return Path._point_in_polygon(point, self) >= 0
 
     @property
@@ -189,6 +216,22 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     def is_simple(self) -> bool:
         """True if the path does not self-intersect."""
+        if _SHAPELY:
+            from shapely.geometry import LineString
+
+            try:
+                pts = [(float(pt[0]), float(pt[1])) for pt in self]
+                if self.closed:
+                    if len(pts) < 3:
+                        return True
+                    if not np.allclose(pts[0], pts[-1]):
+                        pts.append(pts[0])
+                else:
+                    if len(pts) < 2:
+                        return True
+                return bool(LineString(pts).is_simple)
+            except Exception:
+                pass
         return Path._is_path_simple(self, closed=self.closed)
 
     def closest_point(self, pt: Sequence[float]) -> list:
@@ -399,7 +442,8 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     def geometry(self) -> "Bosl2Shape2D":
         """2-D geometry -- the name :class:`Region` also exposes, so a caller that may
-        hold either a Path or a Region can ask for geometry without checking which it got."""
+        hold either a Path or a Region can ask for geometry without checking which it got.
+        """
         return self.polygon()
 
     def fill(self) -> "Bosl2Shape2D":
@@ -566,7 +610,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         e = end % sides
         if s <= e:
             return [lst[i] for i in range(s, e + 1)]
-        return [lst[i] for i in range(s, sides)] + [lst[i] for i in range(0, e + 1)]
+        return [lst[i] for i in range(s, sides)] + [lst[i] for i in range(e + 1)]
 
     @staticmethod
     def _pair(lst, wrap: bool = False) -> list:
@@ -693,9 +737,10 @@ class Path(Distributable, Extrudable, Roundable, list):
         for seg in segs:
             p0 = seg[0] - point
             p1 = seg[1] - point
-            if (p1[1] > eps and p0[1] <= eps) or (p1[1] <= eps and p0[1] > eps):
-                if -eps < p0[0] - p0[1] * (p1[0] - p0[0]) / (p1[1] - p0[1]):
-                    crossings += 1
+            if ((p1[1] > eps and p0[1] <= eps) or (p1[1] <= eps and p0[1] > eps)) and (
+                -eps < p0[0] - p0[1] * (p1[0] - p0[0]) / (p1[1] - p0[1])
+            ):
+                crossings += 1
         return 2 * (crossings % 2) - 1
 
     # -- Utility ---------------------------------------------------------------------------
@@ -796,7 +841,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         arr = np.asarray(p, dtype=float)
         plen = len(arr)
         result = []
-        for i in range(0, plen - 2):
+        for i in range(plen - 2):
             a1, a2 = arr[i], arr[i + 1]
             diameter = a2 - a1
             seg_normal = np.asarray(unit([-diameter[1], diameter[0]], [0.0, 0.0]))
@@ -936,7 +981,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         arr = np.asarray(path, dtype=float)
         sides = len(arr)
         end = sides - (2 if closed else 3)
-        for i in range(0, end + 1):
+        for i in range(end + 1):
             v1 = arr[i + 1] - arr[i]
             v2 = arr[(i + 2) % sides] - arr[i + 1]
             n1, n2 = float(np.hypot(*v1)), float(np.hypot(*v2))
@@ -1153,8 +1198,8 @@ class Path(Distributable, Extrudable, Roundable, list):
             if not is_collinear(path[ind], path[ind - 1], Path._select(path, i)):
                 p_i = Path._select(path, i)
                 return [
-                    [a - b for a, b in zip(p_i, path[ind - 1])],
-                    [a - b for a, b in zip(path[ind], path[ind - 1])],
+                    [a - b for a, b in zip(p_i, path[ind - 1], strict=False)],
+                    [a - b for a, b in zip(path[ind], path[ind - 1], strict=False)],
                 ]
             i -= 1
         return None
@@ -1166,23 +1211,23 @@ class Path(Distributable, Extrudable, Roundable, list):
         for ind in range(len(cuts)):
             nextind = cuts[ind][1]
             nextpath = unit(
-                [a - b for a, b in zip(Path._select(path, nextind + 1), Path._select(path, nextind))],
+                [a - b for a, b in zip(Path._select(path, nextind + 1), Path._select(path, nextind), strict=False)],
                 zeros,
             )
             thispath = unit(
-                [a - b for a, b in zip(Path._select(path, nextind), Path._select(path, nextind - 1))],
+                [a - b for a, b in zip(Path._select(path, nextind), Path._select(path, nextind - 1), strict=False)],
                 zeros,
             )
             lastpath = unit(
-                [a - b for a, b in zip(Path._select(path, nextind - 1), Path._select(path, nextind - 2))],
+                [a - b for a, b in zip(Path._select(path, nextind - 1), Path._select(path, nextind - 2), strict=False)],
                 zeros,
             )
             if nextind == len(path) and not closed:
                 nextdir = lastpath
             elif (nextind <= len(path) - 2 or closed) and approx(cuts[ind][0], Path._select(path, nextind), eps=eps):
-                nextdir = unit([a + b for a, b in zip(nextpath, thispath)])
+                nextdir = unit([a + b for a, b in zip(nextpath, thispath, strict=False)])
             elif (nextind > 1 or closed) and approx(cuts[ind][0], Path._select(path, nextind - 1), eps=eps):
-                nextdir = unit([a + b for a, b in zip(thispath, lastpath)])
+                nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
             else:
                 nextdir = thispath
             out.append(nextdir)
@@ -1225,7 +1270,7 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     @staticmethod
     def _tag_self_crossing_subpaths(path, nonzero: bool, closed: bool = True, eps: float = EPSILON) -> list:
-        subpaths = Path._split_path_at_self_crossings(path, closed=True, eps=eps)
+        subpaths = Path._split_path_at_self_crossings(path, closed=closed, eps=eps)
         out = []
         for subpath in subpaths:
             seg = Path._select(subpath, 0, 1)
@@ -1498,7 +1543,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         v1 = [p0[i] - p1[i] for i in range(dim)]
         v2 = [p2[i] - p1[i] for i in range(dim)]
         n1, n2 = math.hypot(*v1), math.hypot(*v2)
-        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2)) / (n1 * n2)))
+        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2, strict=False)) / (n1 * n2)))
         return math.degrees(math.acos(cosang))
 
     @staticmethod
@@ -1520,7 +1565,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         n1, n2 = math.hypot(*v1), math.hypot(*v2)
         prev = [x / n1 for x in v1]
         nxt = [x / n2 for x in v2]
-        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2)) / (n1 * n2)))
+        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2, strict=False)) / (n1 * n2)))
         angle = math.degrees(math.acos(cosang)) / 2
         start = [p1[i] + prev[i] * diameter for i in range(dim)]
         end = [p1[i] + nxt[i] * diameter for i in range(dim)]
@@ -1742,7 +1787,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         from bosl2.transforms import axis_angle_matrix
 
         if v is not None:
-            m = np.asarray(axis_angle_matrix(float(a), list(v)), dtype=float)
+            m = np.asarray(axis_angle_matrix(float(a), list(v)), dtype=float)  # type: ignore[type-var, arg-type]
         elif isinstance(a, (list, tuple, np.ndarray)):
             rx, ry, rz = (list(a) + [0, 0, 0])[:3]
             mx = np.asarray(axis_angle_matrix(rx, [1, 0, 0]), dtype=float)
@@ -1750,7 +1795,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
             mz = np.asarray(axis_angle_matrix(rz, [0, 0, 1]), dtype=float)
             m = mz @ my @ mx
         else:
-            m = np.asarray(axis_angle_matrix(float(a), [0, 0, 1]), dtype=float)
+            m = np.asarray(axis_angle_matrix(float(a), [0, 0, 1]), dtype=float)  # type: ignore[type-var, arg-type]
         return self._like(self.array @ m.T)
 
     rot = rotate

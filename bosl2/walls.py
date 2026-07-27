@@ -146,7 +146,7 @@ class Walls:
     @staticmethod
     def sparse_cuboid(
         size,
-        dir: str = "Y",
+        dir: str = "Y",  # noqa: A002
         strut: float = 5,
         maxang: float = 30,
         max_bridge: float = 20,

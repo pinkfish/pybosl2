@@ -24,13 +24,16 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from bosl2._helpers import union
 from bosl2.constants import BOTTOM, CENTER
 from bosl2.distributors import mirror_copy, xcopies, xflip_copy, ycopies, zcopies
 from bosl2.masking import chamfer_edge_mask
 from bosl2.shapes3d import Bosl2Solid, cuboid, prismoid, regular_prism
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = ["CubeTruss"]
 

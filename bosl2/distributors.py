@@ -30,13 +30,16 @@ from __future__ import annotations
 
 import math
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from bosl2._helpers import is_num, rot_from_to4, translate4
 from bosl2.constants import BACK, RIGHT, UP
 from bosl2.transforms import axis_angle_matrix
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = [
     "move_copies",
@@ -173,9 +176,7 @@ def line_copies(spacing=None, sides=None, length: float | None = None, p1=None, 
         cnt = 2
     if cnt <= 1:
         spc = np.zeros(3)
-    elif spacing is None and ll is not None:
-        spc = ll / (cnt - 1)
-    elif is_num(spacing) and ll is not None:
+    elif spacing is None and ll is not None or is_num(spacing) and ll is not None:
         spc = ll / (cnt - 1)
     else:
         spc = _scalar_vec3(spacing, 0.0)
@@ -733,7 +734,7 @@ class Distributable(ABC):
 # ---------------------------------------------------------------------------
 
 
-def distribute(children, spacing=None, sizes=None, dir=RIGHT, length: float | None = None):
+def distribute(children, spacing=None, sizes=None, dir=RIGHT, length: float | None = None):  # noqa: A002
     """Space a LIST of distinct solids out along *dir* so they don't overlap (BOSL2 distribute()).
 
     Unlike the copiers (which duplicate one shape), this lays out several different children in

@@ -11,10 +11,18 @@ import math
 import numpy as np
 import pytest
 
+from bosl2.paths import Path
 from bosl2.skin import (
+    OSProfile,
     clockwise_polygon,
     frame_map,
     linear_sweep,
+    os_chamfer,
+    os_circle,
+    os_flat,
+    os_profile,
+    os_smooth,
+    os_teardrop,
     path3d,
     path_sweep,
     path_sweep2d,
@@ -287,3 +295,276 @@ def test_rot_resample_rejects_even_smoothlen():
     tl = path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], [[0, 0, 0], [0, 0, 10]], transforms=True)
     with pytest.raises(AssertionError):
         rot_resample(tl, sides=6, smoothlen=2)
+
+
+# -- os_circle / offset_sweep ---------------------------------------------------------------
+
+_SQ20 = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
+
+
+def test_os_circle_returns_dict():
+    d = os_circle(r=3)
+    assert isinstance(d, OSProfile)
+    assert d["type"] == "circle"
+    assert d["r"] == 3.0
+    assert d["h"] == 3.0  # h defaults to abs(r)
+    assert d["extra"] == 0.0
+
+
+def test_os_circle_explicit_h():
+    d = os_circle(r=5, h=2)
+    assert d["h"] == 2.0
+
+
+def test_os_circle_negative_r():
+    d = os_circle(r=-4)
+    assert d["r"] == -4.0
+    assert d["h"] == 4.0
+
+
+def test_offset_sweep_plain_volume():
+    """No rim treatment → same volume as linear_sweep."""
+    vnf_os = Path(_SQ20).offset_sweep(height=10)
+    vnf_ls = linear_sweep(_SQ20, height=10)
+    assert _valid(vnf_os)
+    assert math.isclose(vnf_os.volume(), vnf_ls.volume(), rel_tol=1e-4)
+
+
+def test_offset_sweep_top_roundover_smaller_volume():
+    """Inward top roundover removes material → volume < plain extrusion."""
+    plain = Path(_SQ20).offset_sweep(height=20)
+    rounded = Path(_SQ20).offset_sweep(height=20, top=os_circle(radius=4))
+    assert _valid(rounded)
+    assert rounded.volume() > 0
+    assert rounded.volume() < plain.volume()
+
+
+def test_offset_sweep_bottom_roundover_smaller_volume():
+    """Inward bottom roundover removes material → volume < plain extrusion."""
+    plain = Path(_SQ20).offset_sweep(height=20)
+    rounded = Path(_SQ20).offset_sweep(height=20, bottom=os_circle(radius=4))
+    assert _valid(rounded)
+    assert rounded.volume() < plain.volume()
+
+
+def test_offset_sweep_both_ends_smaller_than_one():
+    """Both rims rounded → even less volume than a single rounded rim."""
+    one_end = Path(_SQ20).offset_sweep(height=20, top=os_circle(radius=3))
+    both = Path(_SQ20).offset_sweep(height=20, top=os_circle(radius=3), bottom=os_circle(radius=3))
+    assert _valid(both)
+    assert both.volume() < one_end.volume()
+
+
+def test_offset_sweep_flare_larger_volume():
+    """Outward flare (radius < 0) adds material → volume > plain extrusion."""
+    plain = Path(_SQ20).offset_sweep(height=20)
+    flared = Path(_SQ20).offset_sweep(height=20, bottom=os_circle(radius=-3))
+    assert _valid(flared)
+    assert flared.volume() > plain.volume()
+
+
+def test_offset_sweep_rejects_nonpositive_height():
+    with pytest.raises(AssertionError):
+        Path(_SQ20).offset_sweep(height=-5)
+
+
+def test_offset_sweep_rejects_oversized_rim():
+    """Rim heights summing to more than the extrusion height must fail."""
+    with pytest.raises(AssertionError):
+        Path(_SQ20).offset_sweep(height=10, top=os_circle(radius=6), bottom=os_circle(radius=6))
+
+
+def test_os_smooth_fields():
+    d1 = os_smooth(cut=4)
+    assert d1["type"] == "smooth"
+    assert d1["cut"] == 4.0
+    assert d1["k"] == 0.5
+    assert d1["r_sign"] == 1.0
+
+    d2 = os_smooth(r=-2, k=0.3)
+    assert d2["cut"] == 2.0
+    assert d2["k"] == 0.3
+    assert d2["r_sign"] == -1.0
+
+
+def test_os_teardrop_fields():
+    d1 = os_teardrop(r=3)
+    assert d1["type"] == "teardrop"
+    assert d1["r"] == 3.0
+    assert d1["h"] == 3.0
+    assert d1["max_angle"] == 45.0
+
+    d2 = os_teardrop(cut=2, h=4, max_angle=30.0)
+    assert d2["r"] == 2.0
+    assert d2["h"] == 4.0
+    assert d2["max_angle"] == 30.0
+
+
+def test_os_chamfer_fields():
+    d1 = os_chamfer(width=3)
+    assert d1["type"] == "chamfer"
+    assert d1["width"] == 3.0
+    assert d1["height"] == 3.0
+
+    d2 = os_chamfer(width=2, height=4)
+    assert d2["width"] == 2.0
+    assert d2["height"] == 4.0
+
+    d3 = os_chamfer(cut=2)
+    assert d3["width"] == 2.0
+    assert d3["height"] == 2.0
+
+    d4 = os_chamfer(height=5, angle=45)
+    assert math.isclose(d4["width"], 5.0)
+
+
+def test_os_flat_fields():
+    d = os_flat()
+    assert d["type"] == "flat"
+
+
+def test_os_profile_fields():
+    prof = [[0, 0], [1, 2], [3, 4]]
+    d = os_profile(prof)
+    assert d["type"] == "profile"
+    assert d["points"] == [[0.0, 0.0], [1.0, 2.0], [3.0, 4.0]]
+
+    with pytest.raises(AssertionError):
+        # Must start at [0,0]
+        os_profile([[1, 1]])
+
+
+def test_offset_sweep_smooth():
+    plain = Path(_SQ20).offset_sweep(height=20)
+    smoothed = Path(_SQ20).offset_sweep(height=20, top=os_smooth(cut=4))
+    assert _valid(smoothed)
+    assert smoothed.volume() < plain.volume()
+
+
+def test_offset_sweep_teardrop():
+    plain = Path(_SQ20).offset_sweep(height=20)
+    td = Path(_SQ20).offset_sweep(height=20, top=os_teardrop(radius=3))
+    assert _valid(td)
+    assert td.volume() < plain.volume()
+
+
+def test_offset_sweep_chamfer():
+    plain = Path(_SQ20).offset_sweep(height=20)
+    chamf = Path(_SQ20).offset_sweep(height=20, top=os_chamfer(width=3, height=3))
+    assert _valid(chamf)
+    assert chamf.volume() < plain.volume()
+
+
+def test_offset_sweep_flat():
+    plain = Path(_SQ20).offset_sweep(height=20)
+    flat_sweep = Path(_SQ20).offset_sweep(height=20, top=os_flat())
+    assert _valid(flat_sweep)
+    assert math.isclose(flat_sweep.volume(), plain.volume(), rel_tol=1e-4)
+
+
+def test_offset_sweep_profile():
+    plain = Path(_SQ20).offset_sweep(height=20)
+    # Custom profile: starts at [0,0], goes inward by 2 at z=3
+    prof = [[0.0, 0.0], [2.0, 3.0]]
+    prof_sweep = Path(_SQ20).offset_sweep(height=20, top=os_profile(prof))
+    assert _valid(prof_sweep)
+    assert prof_sweep.volume() < plain.volume()
+
+
+# -- convex_offset_extrude & rounded_prism --------------------------------------------------
+
+
+def test_convex_offset_extrude_alias():
+    v1 = Path(_SQ20).convex_offset_extrude(height=15, top=os_circle(radius=2))
+    v2 = Path(_SQ20).offset_sweep(height=15, top=os_circle(radius=2))
+    assert _valid(v1)
+    assert math.isclose(v1.volume(), v2.volume(), rel_tol=1e-9)
+
+
+def test_rounded_prism_plain():
+    """No rounding → volume == linear_sweep."""
+    plain = Path(_SQ20).rounded_prism(height=20)
+    expected = linear_sweep(_SQ20, height=20)
+    assert _valid(plain)
+    assert math.isclose(plain.volume(), expected.volume(), rel_tol=1e-4)
+
+
+def test_rounded_prism_rim_rounding():
+    """Top/bottom rim rounding removes volume."""
+    plain = Path(_SQ20).rounded_prism(height=20)
+    rounded = Path(_SQ20).rounded_prism(height=20, joint_top=3, joint_bottom=3)
+    assert _valid(rounded)
+    assert rounded.volume() < plain.volume()
+
+
+def test_rounded_prism_compat():
+    """Compatibility mapping for joint_bot and k_sides."""
+    v1 = Path(_SQ20).rounded_prism(height=20, joint_top=3, joint_bottom=3, joint_sides=2, curvature_sides=0.5)
+    v2 = Path(_SQ20).rounded_prism(height=20, joint_top=3, joint_bot=3, joint_sides=2, k_sides=0.5)
+    assert _valid(v1)
+    assert _valid(v2)
+    assert math.isclose(v1.volume(), v2.volume(), rel_tol=1e-9)
+
+
+def test_rounded_prism_side_rounding():
+    """Side rounding removes volume."""
+    plain = Path(_SQ20).rounded_prism(height=20)
+    rounded = Path(_SQ20).rounded_prism(height=20, joint_sides=2)
+    assert _valid(rounded)
+    assert rounded.volume() < plain.volume()
+
+
+def test_rounded_prism_tapered():
+    """Loft/prism with different top and bottom."""
+    top_sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
+    # Prism height=20 from bottom to top
+    prism = Path(_SQ20).rounded_prism(top=top_sq, height=20, joint_sides=1)
+    assert _valid(prism)
+    # Volume should be between bottom-extruded and top-extruded cubes
+    vol_bot = linear_sweep(_SQ20, height=20).volume()
+    vol_top = linear_sweep(top_sq, height=20).volume()
+    assert vol_top < prism.volume() < vol_bot
+
+
+# -- join_prism & prism_connector -----------------------------------------------------------
+
+
+def test_join_prism_fillet():
+    plain = Path(_SQ20).join_prism(height=20, fillet=0)
+    filleted = Path(_SQ20).join_prism(height=20, fillet=2)
+    assert _valid(filleted)
+    # Filleting at the bottom adds volume (outward flare)
+    assert filleted.volume() > plain.volume()
+
+
+def test_prism_connector_fillets():
+    plain = Path(_SQ20).prism_connector(length=20, fillet=0)
+    filleted = Path(_SQ20).prism_connector(length=20, fillet1=2, fillet2=2)
+    assert _valid(filleted)
+    # Filleting at both ends adds volume (outward flares)
+    assert filleted.volume() > plain.volume()
+
+
+# -- attach_prism & bent_cutout_mask --------------------------------------------------------
+
+
+def test_attach_prism_fillet_rounding():
+    plain = Path(_SQ20).attach_prism(length=20)
+    filleted_rounded = Path(_SQ20).attach_prism(length=20, fillet=2, rounding=2)
+    assert _valid(filleted_rounded)
+    # Fillet (adds volume at bottom) vs Roundover (removes volume at top)
+    # Let's verify it constructs a valid VNF with correct dimensions.
+    assert len(filleted_rounded.vertices) > len(plain.vertices)
+
+
+def test_bent_cutout_mask():
+    cutout = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
+    mask = Path(cutout).bent_cutout_mask(radius=30, thickness=4)
+    assert _valid(mask)
+    assert mask.volume() > 0
+    # Thickness check (roughly 4 in radius direction)
+    verts = np.asarray(mask.vertices)
+    radii = np.linalg.norm(verts[:, :2], axis=1)
+    r_min = np.min(radii)
+    r_max = np.max(radii)
+    assert math.isclose(r_max - r_min, 4.0, abs_tol=1e-4)

@@ -130,7 +130,7 @@ class BallBearings:
         try:
             return _BEARINGS[str(trade_size)]
         except KeyError:
-            raise ValueError(f"Unsupported ball bearing trade size: {trade_size!r}")
+            raise ValueError(f"Unsupported ball bearing trade size: {trade_size!r}") from None
 
     @staticmethod
     def ball_bearing(

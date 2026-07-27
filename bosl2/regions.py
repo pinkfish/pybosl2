@@ -15,7 +15,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -27,11 +26,58 @@ from bosl2.paths import (
 from bosl2.shapes3d import text3d
 
 if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would be circular
-    from bosl2._backend import Solid  # noqa: F401
-    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike  # noqa: F401
-    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
+    from collections.abc import Sequence
+
+    from shapely.geometry import Polygon as _ShapelyPolygon
+
+    from bosl2._backend import Solid
+    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike
+    from bosl2.shapes3d import Bosl2Solid
 
 __all__ = ["Path", "Path3D", "Region"]
+
+# ---------------------------------------------------------------------------
+# Optional shapely backend for accurate 2-D boolean set operations.
+# Presence is detected once at import time; no ImportError is raised here.
+# ---------------------------------------------------------------------------
+try:
+    import shapely  # noqa: F401  (presence check)
+
+    _SHAPELY = True
+except ImportError:  # pragma: no cover
+    _SHAPELY = False
+
+
+def _to_shapely(path: Path) -> "_ShapelyPolygon":  # type: ignore[name-defined]
+    """Convert a :class:`Path` (CCW ring) to a ``shapely.Polygon``."""
+    from shapely.geometry import Polygon as Poly
+
+    pts = [(float(p[0]), float(p[1])) for p in path]
+    return Poly(pts)
+
+
+def _from_shapely(geom) -> list[Path]:
+    """Extract paths (exterior + holes) from a shapely geometry.
+
+    Returns a list of :class:`Path` objects: outer ring first, then any holes.
+    Handles ``Polygon`` and ``MultiPolygon`` by taking the largest polygon.
+    """
+    from shapely.geometry import MultiPolygon, Polygon
+
+    if geom.is_empty:
+        return []
+    if isinstance(geom, MultiPolygon):
+        # Take the largest polygon by area.
+        geom = max(geom.geoms, key=lambda g: g.area)
+    if not isinstance(geom, Polygon):
+        return []
+    paths: list[Path] = []
+    exterior = list(geom.exterior.coords)[:-1]  # drop the closing repeat
+    paths.append(Path([[float(x), float(y)] for x, y in exterior]))
+    for interior in geom.interiors:
+        ring = list(interior.coords)[:-1]
+        paths.append(Path([[float(x), float(y)] for x, y in ring]))
+    return paths
 
 
 class Region(list):
@@ -219,6 +265,156 @@ class Region(list):
         from bosl2.drawing import dashed_stroke as _dashed
 
         return _dashed(self, dashpat=dashpat, **kwargs)  # type: ignore[return-value]
+
+    # -----------------------------------------------------------------------------------
+    # 2-D boolean set operations
+    # -----------------------------------------------------------------------------------
+
+    def _shapely_op(self, other: "Region", op: str) -> "Region":
+        """Run a boolean *op* ('intersection'/'union'/'difference') via shapely.
+
+        Both regions may have holes; each (outline, holes) pair is converted to a
+        ``shapely.Polygon`` with the holes as interior rings, the operation is applied,
+        and the result is converted back to a :class:`Region`.
+
+        For a *union* result that is a ``MultiPolygon``, all component polygons are
+        returned as separate outlines inside the Region (BOSL2 region semantics).
+        """
+        from shapely.geometry import MultiPolygon, Polygon
+
+        def _region_to_shapely(r: "Region"):
+            if not r:
+                return Polygon()
+            outer = [(float(p[0]), float(p[1])) for p in r.outline]
+            holes = [[(float(p[0]), float(p[1])) for p in h] for h in r.holes]
+            return Polygon(outer, holes)
+
+        a = _region_to_shapely(self)
+        b = _region_to_shapely(other)
+        result = getattr(a, op)(b)
+
+        if result.is_empty:
+            return Region([])
+
+        # Flatten MultiPolygon to a list of (exterior, [holes...]) tuples.
+        polys = list(result.geoms) if isinstance(result, MultiPolygon) else [result]
+        paths: list[Path] = []
+        for poly in polys:
+            exterior = list(poly.exterior.coords)[:-1]
+            paths.append(Path([[float(x), float(y)] for x, y in exterior]))
+            for interior in poly.interiors:
+                ring = list(interior.coords)[:-1]
+                paths.append(Path([[float(x), float(y)] for x, y in ring]))
+        return Region(paths)
+
+    def _geometry_op(self, other: "Region", op: str) -> "Bosl2Shape2D":
+        """Fallback: run the boolean op via the PythonSCAD geometry layer.
+
+        Returns a :class:`~bosl2.shapes2d.Bosl2Shape2D`; wrap in ``Region`` is not
+        possible without a point list, so the result is a geometry object.  Users can
+        call ``.linear_extrude()`` etc. on it directly.
+        """
+        a = self.geometry()
+        b = other.geometry()
+        if op == "intersection":
+            return a & b
+        if op == "union":
+            return a | b
+        # difference
+        return a - b
+
+    def intersection(self, other: "Region") -> "Region":
+        """The 2-D intersection of this region with *other* (the area they share).
+
+        When :mod:`shapely` is installed, the result is a :class:`Region` with exact
+        polygon coordinates.  Without shapely, a :class:`~bosl2.shapes2d.Bosl2Shape2D`
+        is returned instead (PythonSCAD CSG layer).
+
+        Args:
+            other: the region to intersect with.
+
+        Returns:
+            A :class:`Region` (shapely path) or :class:`~bosl2.shapes2d.Bosl2Shape2D`
+            (geometry fallback).
+
+        Examples:
+            Two overlapping squares share a rectangular strip:
+
+            .. pythonscad-example::
+
+                a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+                b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])
+                a.intersection(b).geometry().linear_extrude(height=3).show()
+        """
+        if _SHAPELY:
+            return self._shapely_op(other, "intersection")
+        return self._geometry_op(other, "intersection")  # type: ignore[return-value]
+
+    def union(self, other: "Region") -> "Region":
+        """The 2-D union of this region and *other* (all area covered by either).
+
+        When :mod:`shapely` is installed, the result is a :class:`Region` (one or more
+        outlines). Without shapely, a :class:`~bosl2.shapes2d.Bosl2Shape2D` is returned.
+
+        Args:
+            other: the region to union with.
+
+        Returns:
+            A :class:`Region` (shapely) or :class:`~bosl2.shapes2d.Bosl2Shape2D`
+            (geometry fallback).
+
+        Examples:
+            Two adjacent squares merge into an L-shape:
+
+            .. pythonscad-example::
+
+                a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
+                b = Region([[20, 0], [50, 0], [50, 30], [20, 30]])
+                a.union(b).geometry().linear_extrude(height=3).show()
+        """
+        if _SHAPELY:
+            return self._shapely_op(other, "union")
+        return self._geometry_op(other, "union")  # type: ignore[return-value]
+
+    def difference(self, other: "Region") -> "Region":
+        """The 2-D difference: *self* with the area of *other* subtracted.
+
+        When :mod:`shapely` is installed, the result is a :class:`Region` with exact
+        polygon coordinates (holes from *other*'s outline appear as holes in the
+        result).  Without shapely, a :class:`~bosl2.shapes2d.Bosl2Shape2D` is returned.
+
+        Args:
+            other: the region to subtract.
+
+        Returns:
+            A :class:`Region` (shapely) or :class:`~bosl2.shapes2d.Bosl2Shape2D`
+            (geometry fallback).
+
+        Examples:
+            Punch a rectangular notch out of a square:
+
+            .. pythonscad-example::
+
+                plate = Region([[0, 0], [60, 0], [60, 40], [0, 40]])
+                notch = Region([[20, 10], [40, 10], [40, 30], [20, 30]])
+                plate.difference(notch).geometry().linear_extrude(height=4).show()
+        """
+        if _SHAPELY:
+            return self._shapely_op(other, "difference")
+        return self._geometry_op(other, "difference")  # type: ignore[return-value]
+
+    # Operator overloads for convenience (mirror Bosl2Shape2D's &/|/- operators).
+    def __and__(self, other: "Region") -> "Region":
+        """``a & b``  →  ``a.intersection(b)``."""
+        return self.intersection(other)
+
+    def __or__(self, other: "Region") -> "Region":
+        """``a | b``  →  ``a.union(b)``."""
+        return self.union(other)
+
+    def __sub__(self, other: "Region") -> "Region":
+        """``a - b``  →  ``a.difference(b)``."""
+        return self.difference(other)
 
     def __repr__(self) -> str:
         return f"Region({len(self)} paths: {[len(p) for p in self]})"

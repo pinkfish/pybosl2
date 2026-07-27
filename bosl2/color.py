@@ -21,7 +21,10 @@ from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = ["hsl", "hsv", "rainbow", "rainbow_colors", "Colorable"]
 
@@ -141,7 +144,7 @@ def rainbow(
     """
     items = list(items)
     colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
-    return [obj.color(col) for obj, col in zip(items, colors)]
+    return [obj.color(col) for obj, col in zip(items, colors, strict=False)]
 
 
 # ---------------------------------------------------------------------------

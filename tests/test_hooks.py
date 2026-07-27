@@ -57,9 +57,9 @@ def test_wall_and_od_id_forms_equivalent():
 @pytest.mark.parametrize(
     "kw",
     [
-        dict(base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=0),  # solid paddle
-        dict(base_size=[50, 10], hole_z=25, outer_radius=25, inner_radius=15, hole="D"),  # D hole
-        dict(base_size=[40, 10], hole_z=25, outer_radius=25, inner_radius=0),  # narrow base
+        {"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 0},  # solid paddle
+        {"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 15, "hole": "D"},  # D hole
+        {"base_size": [40, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 0},  # narrow base
     ],
 )
 def test_variants_build(kw):

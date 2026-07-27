@@ -42,13 +42,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from bosl2._native import native
 
 if TYPE_CHECKING:
-    from openscad import PyOpenSCAD  # noqa: F401
+    from collections.abc import Sequence
+
+    from openscad import PyOpenSCAD
 from .constants import CENTER
 from .shapes2d import _frag_count, _polar_to_xy
 from .shapes3d import EDGE_OFFSETS, _anchor_offset_box3, _edges, _quantup
@@ -278,6 +279,7 @@ def edge_profile(
                       isn't given
         center:       the box center in body's current frame; when given it's used directly
     """
+    _ = convexity
     assert size is not None, "size= (the box's size) must be given"
     assert children is not None, "children= (the 2-D mask path) must be given"
     edge_set = _edges(edges, except_edges or [])
@@ -382,6 +384,7 @@ def corner_profile(
         center:         the box center in body's current frame; when given it's used directly
         fn/fa/fs:    arc smoothness overrides
     """
+    _ = (children, convexity)
     if radius is None:
         assert diameter is not None, "corner_profile(): must give radius or diameter"
         radius = diameter / 2

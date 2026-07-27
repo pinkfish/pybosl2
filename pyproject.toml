@@ -42,6 +42,13 @@ test = [
     "numpy",
     "pythonscad",
     "typing-extensions",
+    "shapely",
+]
+# Accurate 2-D boolean ops (Region.intersection/union/difference) on concave
+# polygons. Without this extra the operations fall back to the PythonSCAD
+# geometry layer.
+geo = [
+    "shapely>=2",
 ]
 # Build the API docs (Sphinx autodoc). Needs pythonscad because the geometry
 # modules import it at load time, before autodoc can read their docstrings.
@@ -49,6 +56,7 @@ docs = [
     "sphinx>=7",
     "numpy",
     "pythonscad",
+    "shapely",
 ]
 
 [project.urls]
@@ -72,11 +80,16 @@ target-version = "py311"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["N", "E", "F", "I", "B", "SIM", "RUF100", "A", "C4", "CPY", "PIE", "PYI", "SLOT", "TID", "TC", "ARG", "NPY", "PD"]
 
 [tool.ruff.lint.per-file-ignores]
 # Embedded CSS/SVG/JS string literals in the spec-sheet generator are inherently long.
 "docs/_specgen.py" = ["E501"]
+"docs/conf.py" = ["A001"]
+"tests/mock_libfive.py" = ["A001", "CPY001"]
+"tests/**" = ["N", "ARG"]
+"docs/**" = ["N", "ARG"]
+"bosl2/**" = ["N"]
 
 [tool.ruff.format]
 # Use double quotes for strings

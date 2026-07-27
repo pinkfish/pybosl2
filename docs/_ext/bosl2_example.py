@@ -56,7 +56,7 @@ from stl_viewer import stl_viewer_html  # noqa: E402
 # than failing to import if the helper (or its deps) is unavailable.
 try:
     sys.path.insert(0, str(_REPO_ROOT / "pysolidfive" / "tests"))
-    from render_pysolidfive import render_script  # noqa: E402
+    from render_pysolidfive import render_script
 except ImportError:
     from types import SimpleNamespace
 
@@ -89,7 +89,6 @@ _PREAMBLE = (
     "from bosl2.partitions import partition_path, partition_mask, partition_cut_mask\n"
     "from bosl2.miscellaneous import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
     "from bosl2.nurbs import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
-    "from bosl2.rounding import round_corners, smooth_path\n"
     "from bosl2.isosurface import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, mb_octahedron, mb_connector\n"  # noqa: E501
     "from bosl2.threading import Threading\n"
     "from bosl2.screws import Screws\n"

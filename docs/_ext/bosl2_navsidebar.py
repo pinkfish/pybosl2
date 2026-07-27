@@ -17,8 +17,15 @@ from __future__ import annotations
 import ast
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from sphinx.application import Sphinx
+from sphinx.util import logging
+
+if TYPE_CHECKING:
+    from docutils import nodes
+    from sphinx.application import Sphinx
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_module(filepath: Path) -> list[tuple[str, str, str | None]]:

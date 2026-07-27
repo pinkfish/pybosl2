@@ -158,3 +158,24 @@ def test_ring_requires_valid_params():
         ring(radius=10)
     with pytest.raises(AssertionError):
         ring(radius=10, ring_width=0)
+
+
+def test_star_and_supershape_atype_enum():
+    from bosl2.constants import LEFT, RIGHT
+    from bosl2.shapes2d import AnchorType, star, supershape
+
+    # Test star atype
+    s1 = star(tips=5, radius=10, atype=AnchorType.BOX, anchor=RIGHT)
+    s2 = star(tips=5, radius=10, atype=AnchorType.HULL, anchor=RIGHT)
+    s3 = star(tips=5, radius=10, atype=AnchorType.INTERSECT, anchor=RIGHT)
+    assert s1 is not None
+    assert s2 is not None
+    assert s3 is not None
+
+    # Test supershape atype
+    f1 = supershape(m1=4, radius=10, atype="box", anchor=LEFT)
+    f2 = supershape(m1=4, radius=10, atype="hull", anchor=LEFT)
+    f3 = supershape(m1=4, radius=10, atype="intersect", anchor=LEFT)
+    assert f1 is not None
+    assert f2 is not None
+    assert f3 is not None

@@ -32,5 +32,5 @@ def approx(a, b, eps: float = EPSILON) -> bool:
     if isinstance(a, _VECTOR_TYPES) and isinstance(b, _VECTOR_TYPES):
         if len(a) != len(b):
             return False
-        return all(approx(x, y, eps) for x, y in zip(a, b))
+        return all(approx(x, y, eps) for x, y in zip(a, b, strict=False))
     return bool(np.array_equal(a, b))

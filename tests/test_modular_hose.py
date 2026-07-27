@@ -37,9 +37,9 @@ def test_bad_type_raises():
 
 
 @pytest.mark.parametrize("size", [0.25, 0.5, 0.75])
-@pytest.mark.parametrize("type", ["segment", "ball", "socket"])
-def test_builds(size, type):
-    assert isinstance(MH.modular_hose(size, type), Bosl2Solid)
+@pytest.mark.parametrize("hose_type", ["segment", "ball", "socket"])
+def test_builds(size, hose_type):
+    assert isinstance(MH.modular_hose(size, hose_type), Bosl2Solid)
 
 
 def test_bigger_size_bigger_hose():

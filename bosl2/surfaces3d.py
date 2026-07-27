@@ -18,7 +18,6 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
@@ -38,7 +37,9 @@ from bosl2.shapes3d import (
 )
 
 if TYPE_CHECKING:
-    from openscad import PyOpenSCAD  # noqa: F401
+    from collections.abc import Sequence
+
+    from openscad import PyOpenSCAD
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import cube as _ocube
@@ -221,7 +222,7 @@ def _heightfield_reorient_tris(
             parent[node] = root
         return root
 
-    for a, b, nf in zip(fa_, fb_, need_flip):
+    for a, b, nf in zip(fa_, fb_, need_flip, strict=False):
         ra, rb = find(a), find(b)
         if ra != rb:
             pa = parity[a] if a != ra else 0
@@ -322,6 +323,7 @@ def heightfield(
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
     """
+    _ = convexity
     sz = [size, size] if isinstance(size, (int, float)) else list(size)
     style_key = style if style in ("alt", "quincunx") else "default"
 
@@ -447,6 +449,7 @@ def cylindrical_heightfield(
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
     """
+    _ = convexity
     l_val = length if length is not None else (height if height is not None else height)
     assert l_val is not None and l_val > 0, "Must supply one of length= or height= as a finite positive number."
     r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter)
@@ -519,7 +522,7 @@ def cylindrical_heightfield(
                 idx(radius, c + 1),
                 style_key,
             )
-    faces.append(list(range(0, cols)))
+    faces.append(list(range(cols)))
     faces.append(list(range((ylen - 1) * cols, ylen * cols)))
 
     shape, pts = _heightfield_polyhedron(pts, faces)
@@ -633,7 +636,7 @@ def plot_revolution(
             else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else None))
         )
     )
-    theta = list(float(a) for a in angle)  # type: ignore[arg-type]
+    theta = [float(a) for a in angle]  # type: ignore[arg-type]
     assert len(theta) > 1, "plot_revolution(): angle must have at least 2 values."
     if path is not None:
         prof = [[float(p[0]), float(p[1])] for p in path]
@@ -770,6 +773,7 @@ def textured_tile(
             s3.textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
     """
     from bosl2.texture import (
+        TextureType,
         is_heightfield_texture,
         is_vnf_texture,
         is_watertight_topology,
@@ -781,13 +785,14 @@ def textured_tile(
     )
     from bosl2.vnf import VNF
 
-    if isinstance(texture, str):  # resolve a name through the texture engine
+    if isinstance(texture, (str, TextureType)):  # resolve a name through the texture engine
         texture = _texture(texture, sides=sides, border=border, gap=gap, roughness=roughness, fn=fn)
 
     sz = [float(size[0]), float(size[1])]
     inset = 1.0 if tex_inset is True else float(tex_inset or 0)
 
     def resolve_reps(cell):
+        _ = cell
         if tex_reps is not None:
             return (
                 [int(tex_reps[0]), int(tex_reps[1])] if hasattr(tex_reps, "__len__") else [int(tex_reps), int(tex_reps)]
@@ -828,7 +833,7 @@ def ruler(
     labels: bool = False,
     pipscale: float = 1 / 3,
     maxscale: float | None = None,
-    colors: list[str] = ["black", "white"],
+    colors: list[str] = None,
     alpha: float = 1.0,
     unit: float = 1,
     inch: bool = False,
@@ -856,6 +861,8 @@ def ruler(
     """
     from .shapes2d import _opolygon
 
+    if colors is None:
+        colors = ["black", "white"]
     assert depth <= 5, "Cannot render scales smaller than depth=5"
     assert len(colors) == 2, "'colors' must contain a list of exactly two colors."
 
@@ -888,9 +895,7 @@ def ruler(
 
             if i == 0 and idx % 10 == 0 and idx != 0:
                 mark = 0
-            elif i == 0 and idx % 10 == 9 and idx != count - 1:
-                mark = 1
-            elif idx % 10 == 4:
+            elif i == 0 and idx % 10 == 9 and idx != count - 1 or idx % 10 == 4:
                 mark = 1
             elif idx % 10 == 5:
                 mark = 0
