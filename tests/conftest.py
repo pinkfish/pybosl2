@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# pytest fixtures/setup for the bosl2 package test-suite.
+# pytest fixtures/setup for the pybosl2 package test-suite.
 #
-# The bosl2 package imports FFI-free (native primitives are lazy handles from bosl2/_native.py), so
+# The pybosl2 package imports FFI-free (native primitives are lazy handles from pybosl2/_native.py), so
 # the modules load without `pythonscad`; the FFI is only needed once a test actually *constructs*
 # geometry. The supported setup is a venv with the real `pythonscad` wheel installed (`pip install
 # -e .[test]`), which provides genuine `pythonscad`/`openscad` modules. If that wheel is not
-# installed, we fall back to bosl2's own numeric mock (tests/mock_libfive.py) so the pure-Python
+# installed, we fall back to pybosl2's own numeric mock (tests/mock_libfive.py) so the pure-Python
 # suite can still run without PythonSCAD at all. The mock is owned by this package -- no reach into
 # the sibling pysolidfive package's test tree.
 
@@ -28,7 +28,7 @@ def _pythonscad_installed() -> bool:
 
 
 def _install_mock() -> bool:
-    """Install bosl2's own numeric native mock (tests/mock_libfive.py); return success."""
+    """Install pybosl2's own numeric native mock (tests/mock_libfive.py); return success."""
     mock_dir = os.path.dirname(__file__)
     if not os.path.isfile(os.path.join(mock_dir, "mock_libfive.py")):
         return False

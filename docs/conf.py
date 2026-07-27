@@ -4,25 +4,25 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: bosl2/docs/conf.py
-#    Sphinx configuration for the pure-Python bosl2 port's API docs. Build with:
+# LibFile: pybosl2/docs/conf.py
+#    Sphinx configuration for the pure-Python pybosl2 port's API docs. Build with:
 #
 #        python3 -m pip install sphinx        # once
-#        make -C bosl2/docs html              # -> bosl2/wiki/ (checked in)
+#        make -C pybosl2/docs html              # -> pybosl2/wiki/ (checked in)
 #
 #    Set PYTHONSCAD_BIN to a real PythonSCAD binary to get rendered images and exported STL
-#    meshes in the ``bosl2-example`` blocks; without it the build still succeeds and shows source
-#    only (see docs/_ext/bosl2_example.py). Unchanged examples reuse their cached image/STL.
+#    meshes in the ``pybosl2-example`` blocks; without it the build still succeeds and shows source
+#    only (see docs/_ext/pybosl2_example.py). Unchanged examples reuse their cached image/STL.
 #
-#    Before autodoc touches the bosl2 modules, this file puts the repo root on sys.path so
-#    ``import bosl2`` resolves. bosl2 itself imports FFI-free (native primitives are lazy handles
-#    from bosl2/_native.py), but autodoc *constructs* geometry when it runs the docstring examples,
+#    Before autodoc touches the pybosl2 modules, this file puts the repo root on sys.path so
+#    ``import pybosl2`` resolves. pybosl2 itself imports FFI-free (native primitives are lazy handles
+#    from pybosl2/_native.py), but autodoc *constructs* geometry when it runs the docstring examples,
 #    which needs the real ``pythonscad``/``openscad`` modules. The supported setup is a venv with
 #    the real ``pythonscad`` wheel installed (``pip install -e .[test]``); if that is not present we
-#    fall back to bosl2's own tests/mock_libfive.py stand-ins -- the same fallback the test-suite's
+#    fall back to pybosl2's own tests/mock_libfive.py stand-ins -- the same fallback the test-suite's
 #    conftest uses (no reach into the sibling pysolidfive package).
 #
-# FileGroup: bosl2
+# FileGroup: pybosl2
 
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ except ImportError:
     pass
 
 if not _have_pythonscad:
-    _mock_dir = _REPO_ROOT / "tests"  # bosl2's own native mock (not the sibling pysolidfive's)
+    _mock_dir = _REPO_ROOT / "tests"  # pybosl2's own native mock (not the sibling pysolidfive's)
     if (_mock_dir / "mock_libfive.py").is_file():
         sys.path.insert(0, str(_mock_dir))
         import mock_libfive  # noqa: F401  -- installs pythonscad/openscad/libfive stubs
@@ -58,15 +58,15 @@ if not _have_pythonscad:
             "`pip install -e .[test]`, or provide tests/mock_libfive.py in the repo"
         )
 
-project = "bosl2 (PythonSCAD port)"
+project = "pybosl2 (PythonSCAD port)"
 copyright = "2026, pinkfish"
 author = "pinkfish"
 
 # Keep the docs version in sync with the code's single source of truth
-# (bosl2/version.py) without importing the package.
+# (pybosl2/version.py) without importing the package.
 import re as _re  # noqa: E402
 
-_version_src = (_DOCS_DIR.parent / "bosl2" / "version.py").read_text()
+_version_src = (_DOCS_DIR.parent / "pybosl2" / "version.py").read_text()
 release = _re.search(r'__version__ = "([^"]+)"', _version_src).group(1)
 version = release
 
@@ -76,11 +76,11 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
     "stl_viewer",
-    "bosl2_example",
-    "bosl2_navsidebar",
+    "pybosl2_example",
+    "pybosl2_navsidebar",
 ]
 
-# bosl2's docstrings use Google-style Args:/Returns:/Example: sections throughout.
+# pybosl2's docstrings use Google-style Args:/Returns:/Example: sections throughout.
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_use_param = True

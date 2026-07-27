@@ -10,9 +10,9 @@ side, meshing via libfive just to fail)."""
 
 import pytest
 
-from bosl2 import solid
-from bosl2._backend import supports, use_backend
-from bosl2.exceptions import UnsupportedByBackend
+from pybosl2 import solid
+from pybosl2._backend import supports, use_backend
+from pybosl2.exceptions import UnsupportedByBackend
 
 
 @pytest.mark.parametrize("feature", ["attach", "anchor_point", "align", "edge_mask", "face_profile"])

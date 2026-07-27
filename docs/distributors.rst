@@ -4,24 +4,24 @@ Distributors: copiers & reflected copies
 Pure-Python port of BOSL2's ``distributors.scad`` -- the "copiers" that duplicate a shape into a
 line, grid, ring, arc, sphere, or path pattern, plus the reflected-copy helpers. Each copier is a
 module-level function returning a list of 4x4 transformation matrices (BOSL2's function form), and
-a matching **method** on every geometry object via the :class:`~bosl2.distributors.Distributable`
+a matching **method** on every geometry object via the :class:`~pybosl2.distributors.Distributable`
 mixin.
 
 What a copier returns depends on the object it is called on:
 
-* :class:`~bosl2.shapes3d.Bosl2Solid` -- the **union** of the transformed geometry copies (a new
+* :class:`~pybosl2.shapes3d.Bosl2Solid` -- the **union** of the transformed geometry copies (a new
   solid), matching BOSL2's module form::
 
       cuboid([10, 10, 10]).grid_copies(n=[3, 3], spacing=30)   # 9 cubes, unioned
       cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)                 # a ring of 6 cubes
       part.right(20).xflip_copy()                              # part + its mirror image
 
-* :class:`~bosl2.paths.Path` / :class:`~bosl2.paths.Path3D` -- a plain ``list`` of the transformed
+* :class:`~pybosl2.paths.Path` / :class:`~pybosl2.paths.Path3D` -- a plain ``list`` of the transformed
   path copies (BOSL2's function form). A 2-D ``Path`` only supports the in-plane copiers; one that
   would lift it out of the XY plane (``zcopies``, ``xrot_copies``, ``sphere_copies``, ...) raises,
   directing you to ``Path3D``.
 
-Every copier's matrices are pinned to the real BOSL2 output in ``tests/test_bosl2_reorient.py``.
+Every copier's matrices are pinned to the real BOSL2 output in ``tests/test_pybosl2_reorient.py``.
 
 Coverage of BOSL2 ``distributors.scad``
 ---------------------------------------
@@ -35,13 +35,13 @@ Coverage of BOSL2 ``distributors.scad``
      - Notes
    * - ``move_copies``
      - ported
-     - :func:`~bosl2.distributors.move_copies` -- a copy at each given offset.
+     - :func:`~pybosl2.distributors.move_copies` -- a copy at each given offset.
    * - ``xcopies`` / ``ycopies`` / ``zcopies``
      - ported
      - spacing/``n``/``l``/``sp`` and the explicit-position-list form.
    * - ``line_copies``
      - ported
-     - :func:`~bosl2.distributors.line_copies` -- along a line by spacing, length, or ``p1``/``p2``.
+     - :func:`~pybosl2.distributors.line_copies` -- along a line by spacing, length, or ``p1``/``p2``.
    * - ``grid_copies``
      - ported
      - square and staggered (hex) grids, ``size``/``n``/``spacing``, ``axes=``, and an ``inside=``
@@ -60,14 +60,14 @@ Coverage of BOSL2 ``distributors.scad``
      - golden-spiral spread over a sphere/ellipsoid (``ovoid_spread`` alias not ported).
    * - ``path_copies``
      - ported
-     - :func:`~bosl2.distributors.path_copies` -- along a 2-D/3-D path, oriented to it
+     - :func:`~pybosl2.distributors.path_copies` -- along a 2-D/3-D path, oriented to it
        (``path_spread`` alias not ported).
    * - ``mirror_copy`` / ``xflip_copy`` / ``yflip_copy`` / ``zflip_copy``
      - ported
      - the original plus one reflected copy.
    * - ``distribute`` / ``xdistribute`` / ``ydistribute`` / ``zdistribute``
      - ported
-     - :func:`~bosl2.distributors.distribute` -- lay a **list of distinct** solids out so they
+     - :func:`~pybosl2.distributors.distribute` -- lay a **list of distinct** solids out so they
        don't overlap (sizes taken from each child's bounding box if not given).
    * - ``$pos`` / ``$idx`` / ``$ang`` / ``$row`` / ``$col`` side-effect variables
      - not ported
@@ -99,10 +99,10 @@ Copies of a 2-D outline along an arc, extruded together:
 
 API reference
 -------------
-.. automodule:: bosl2.distributors
+.. automodule:: pybosl2.distributors
    :members:
    :undoc-members:
    :exclude-members: Distributable
 
-.. autoclass:: bosl2.distributors.Distributable
+.. autoclass:: pybosl2.distributors.Distributable
    :members:

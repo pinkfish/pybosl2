@@ -107,7 +107,7 @@ def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode:
     """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent
     per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one string for
     all four corners, or a per-corner list) -- given by `amount[i]` at each of its 4 corners.
-    `amount` is indexed the same way as bosl2.shapes3d.EDGE_OFFSETS's per-axis rows:
+    `amount` is indexed the same way as pybosl2.shapes3d.EDGE_OFFSETS's per-axis rows:
     [(-,-), (+,-), (-,+), (+,+)] in (u, v) sign.
     """
     corner_modes = [mode] * 4 if isinstance(mode, str) else list(mode)
@@ -332,7 +332,7 @@ def supershape_path(
     diameter: float | None = None,
 ) -> NDArray[np.float64]:
     """The superformula outline as a closed point path -- same parameters and sampling as the
-    bosl2 port's supershape() (which builds a polygon() from the identical path)."""
+    pybosl2 port's supershape() (which builds a polygon() from the identical path)."""
     n_pts = n if n is not None else math.ceil(360.0 / step)
     n1v = n1 if n1 is not None else 1
     m2v = m2 if m2 is not None else m1
@@ -359,7 +359,7 @@ def bezier_points(curve: ArrayLike, u: float) -> NDArray[np.float64]:
 
 def bezpath_points(bezpath: ArrayLike, splinesteps: int = 16, N: int = 3, endpoint: bool = True) -> NDArray[np.float64]:
     """Sample a Bezier path (degree-N segments sharing endpoints, len % N == 1) into a point
-    array -- same shape as the bosl2 port's bezpath_curve()."""
+    array -- same shape as the pybosl2 port's bezpath_curve()."""
     bez = as_points(bezpath)
     assert len(bez) % N == 1, f"A degree {N} bezier path should have a multiple of {N} points in it, plus 1."
     segs = (len(bez) - 1) // N
@@ -376,7 +376,7 @@ def bezpath_points(bezpath: ArrayLike, splinesteps: int = 16, N: int = 3, endpoi
 def egg_path(length: float, radius1: float, radius2: float, R: float, n: int = 90) -> NDArray[np.float64]:
     """The BOSL2-style egg outline: two end circles of radius radius1 (left) and radius2 (right), a
     total length, and side arcs of radius R blending them -- as a closed point path.
-    Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density."""
+    Mirrors the pybosl2 port's _egg_path() construction, with a fixed arc sampling density."""
     assert length > 0
     assert R > length / 2, "Side radius R must be larger than length/2"
     assert length > radius1 + radius2, "Length must be longer than radius1+radius2"
@@ -501,7 +501,7 @@ def _lerp_pt(a: Sequence[float], b: Sequence[float], t: float) -> NDArray[np.flo
 
 def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]:
     """Unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --
-    byte-for-byte the bosl2 port's convention."""
+    byte-for-byte the pybosl2 port's convention."""
     return _v_unit([p1[1] - p2[1], p2[0] - p1[0]])
 
 
@@ -674,7 +674,7 @@ def path_to_bezpath(
 
 def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: ArrayLike) -> NDArray[np.float64]:
     """Tangent lines between two circles, each returned as a [point_on_circle1,
-    point_on_circle2] pair -- same construction and ORDERING as bosl2's port (rabbit_clip()
+    point_on_circle2] pair -- same construction and ORDERING as pybosl2's port (rabbit_clip()
     indexes [0][1], so the ordering matters): 2 external tangents, then 2 internal ones if
     the circles don't overlap."""
     cp1 = np.asarray(cp1, dtype=float)
@@ -719,7 +719,7 @@ def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
 
 
 # ---------------------------------------------------------------------------
-# Section: Polygon-path utilities (pure-python ports of the bosl2 helpers the
+# Section: Polygon-path utilities (pure-python ports of the pybosl2 helpers the
 # cap-box polygon machinery needs -- byte-for-byte the same geometry, minus numpy)
 # ---------------------------------------------------------------------------
 
@@ -736,7 +736,7 @@ def path_length(path: ArrayLike, closed: bool = False) -> float:
 def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool = False) -> list[float] | None:
     """The point(s) at the given arc-length distance(s) from the start of `path`, each as
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances
-    requirement) as the bosl2 port's path_cut_points()."""
+    requirement) as the pybosl2 port's path_cut_points()."""
     path = as_points(path)
     if isinstance(cutdist, (int, float)):
         return path_cut_points(path, [cutdist], closed)[0]
@@ -774,7 +774,7 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
 
 
 def path_normals(path: ArrayLike, closed: bool = False) -> NDArray[np.float64]:
-    """The 2-D normal (to the RIGHT of travel, matching the bosl2 port) at each path point."""
+    """The 2-D normal (to the RIGHT of travel, matching the pybosl2 port) at each path point."""
     tangents = path_tangents(path, closed=closed)
     return np.stack([tangents[:, 1], -tangents[:, 0]], axis=1)
 
@@ -831,7 +831,7 @@ def round_corners(
     path: ArrayLike, radius=None, r=None, closed: bool = True, fn: float | None = None
 ) -> NDArray[np.float64]:
     """Round every corner of a 2-D path to the given radius, inserting a tangent arc at each
-    vertex -- the bosl2 port's round_corners() (radius method), pure python."""
+    vertex -- the pybosl2 port's round_corners() (radius method), pure python."""
     path = as_points(path)
     n = len(path)
     assert n > 2, f"Path has length {n}. Length must be 3 or more."

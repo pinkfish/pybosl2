@@ -4,11 +4,11 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/comparisons.py: the approx() approximate-equality helper."""
+"""Tests for pybosl2/comparisons.py: the approx() approximate-equality helper."""
 
 import numpy as np
 
-from bosl2.comparisons import approx
+from pybosl2.comparisons import approx
 
 
 def test_scalar_equal_and_close():

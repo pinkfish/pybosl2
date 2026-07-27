@@ -4,19 +4,19 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for the bosl2.version module: the Version class and the package version metadata."""
+"""Tests for the pybosl2.version module: the Version class and the package version metadata."""
 
 import pytest
 
-import bosl2
-from bosl2.version import Version, __version__, version
+import pybosl2
+from pybosl2.version import Version, __version__, version
 
 
 def test_package_exposes_version_metadata():
     assert isinstance(__version__, str)
-    assert bosl2.__version__ == __version__
-    assert isinstance(bosl2.version, Version)
-    assert isinstance(bosl2.Version, type)
+    assert pybosl2.__version__ == __version__
+    assert isinstance(pybosl2.version, Version)
+    assert isinstance(pybosl2.Version, type)
 
 
 def test_default_version_parses():

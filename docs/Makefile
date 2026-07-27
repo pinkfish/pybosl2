@@ -1,17 +1,17 @@
-# Minimal sphinx-build Makefile for the bosl2 (PythonSCAD port) API docs.
+# Minimal sphinx-build Makefile for the pybosl2 (PythonSCAD port) API docs.
 #
 # Usage (from the repo root):
 #   python3 -m pip install sphinx
-#   make -C bosl2/docs html
+#   make -C pybosl2/docs html
 #
-# The built HTML lands in bosl2/wiki/ (a sibling of this docs/ source directory), which is meant
+# The built HTML lands in pybosl2/wiki/ (a sibling of this docs/ source directory), which is meant
 # to be CHECKED IN -- the browsable copy of the docs kept in the repo -- so rebuild and commit it
 # together with any docstring/docs-source change. The doctree pickles (_build/), the rendered
 # preview cache (_generated/) and the exported STL cache (_stl/) stay untracked.
 #
 # Set PYTHONSCAD_BIN to a real PythonSCAD binary to get rendered images and downloadable STL
-# meshes in the bosl2-example blocks; without it the build still succeeds and shows source only
-# (see docs/_ext/bosl2_example.py). Unchanged examples reuse their cached image/STL.
+# meshes in the pybosl2-example blocks; without it the build still succeeds and shows source only
+# (see docs/_ext/pybosl2_example.py). Unchanged examples reuse their cached image/STL.
 
 SPHINXOPTS    ?= --keep-going
 SPHINXBUILD   ?= python3 -m sphinx

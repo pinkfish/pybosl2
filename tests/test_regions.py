@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/regions.py: the Region (outline + holes) list subclass."""
+"""Tests for pybosl2/regions.py: the Region (outline + holes) list subclass."""
 
 import numpy as np
 import pytest
 
-from bosl2.paths import Path
-from bosl2.regions import _SHAPELY, Region
+from pybosl2.paths import Path
+from pybosl2.regions import _SHAPELY, Region
 
 SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]
 HOLE = [[20, 20], [60, 20], [60, 40], [20, 40]]

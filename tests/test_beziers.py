@@ -4,15 +4,15 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/beziers.py: the Bezier curve/path API and BezierPatch surfaces."""
+"""Tests for pybosl2/beziers.py: the Bezier curve/path API and BezierPatch surfaces."""
 
 import math
 
 import numpy as np
 import pytest
 
-from bosl2.beziers import Bezier, BezierPatch
-from bosl2.vnf import VNF
+from pybosl2.beziers import Bezier, BezierPatch
+from pybosl2.vnf import VNF
 
 CUBIC = [[0, 0], [5, 35], [60, -25], [80, 0]]
 PATCH = [

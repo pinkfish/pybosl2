@@ -1,6 +1,6 @@
 Numeric helpers (math)
 ======================
-.. automodule:: bosl2.math
+.. automodule:: pybosl2.math
    :members:
    :undoc-members:
    :show-inheritance:

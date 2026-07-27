@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.linear_bearings: LMxUU bearings, the size table, and pillow-block housings."""
+"""Tests for pybosl2.linear_bearings: LMxUU bearings, the size table, and pillow-block housings."""
 
 import pytest
 
-from bosl2.linear_bearings import LinearBearings as LB
-from bosl2.linear_bearings import LinearBearingSpec
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.linear_bearings import LinearBearings as LB
+from pybosl2.linear_bearings import LinearBearingSpec
+from pybosl2.shapes3d import Bosl2Solid
 
 
 def _size(s):

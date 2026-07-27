@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.nema_steppers: NEMA stepper-motor models, mount masks, and the size table."""
+"""Tests for pybosl2.nema_steppers: NEMA stepper-motor models, mount masks, and the size table."""
 
 import pytest
 
-from bosl2.nema_steppers import NemaSpec
-from bosl2.nema_steppers import NemaSteppers as N
-from bosl2.shapes3d import Bosl2Solid, cuboid
+from pybosl2.nema_steppers import NemaSpec
+from pybosl2.nema_steppers import NemaSteppers as N
+from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 
 def _size(s):

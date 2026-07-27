@@ -119,7 +119,7 @@ class TestPathSamplers(unittest.TestCase):
 
 class TestPolygonPathUtils(unittest.TestCase):
     """path_length/path_cut_points/path_normals/round_corners: pure-python ports of the
-    bosl2 helpers the cap-box polygon machinery uses."""
+    pybosl2 helpers the cap-box polygon machinery uses."""
 
     def test_path_length_and_cut_points(self):
         path = [[0, 0], [10, 0], [10, 10]]
@@ -133,7 +133,7 @@ class TestPolygonPathUtils(unittest.TestCase):
         self.assertAlmostEqual(single[0][0], 5.0)
 
     def test_path_normals_two_point_segment(self):
-        # A segment heading +x: the bosl2 port's normal points to the RIGHT of travel
+        # A segment heading +x: the pybosl2 port's normal points to the RIGHT of travel
         # (-y).
         n = pysolidfive.path_normals([[0, 0], [10, 0]])
         self.assertAlmostEqual(n[0][0], 0.0)

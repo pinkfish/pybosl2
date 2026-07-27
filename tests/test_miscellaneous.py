@@ -4,17 +4,17 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/miscellaneous.py: the path extrusions (path_extrude2d / path_extrude on Path /
+"""Tests for pybosl2/miscellaneous.py: the path extrusions (path_extrude2d / path_extrude on Path /
 Path3D, taking a 2-D profile object rather than children), and the bounding-box / hull / minkowski
 helpers. Native geometry is mocked, so these check the API surface (types, profile forms, error
 cases); geometric correctness is verified in test_stl_render.py."""
 
 import pytest
 
-import bosl2.shapes2d as s2
-from bosl2 import miscellaneous as M
-from bosl2.paths import Path, Path3D
-from bosl2.shapes3d import Bosl2Solid, cuboid, sphere
+import pybosl2.shapes2d as s2
+from pybosl2 import miscellaneous as M
+from pybosl2.paths import Path, Path3D
+from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
 L_PATH = Path([[0, 0], [40, 0], [40, 40]], closed=False)
 PATH3 = Path3D([[0, 0, 0], [20, 0, 10], [20, 20, 20]], closed=False)
@@ -31,7 +31,7 @@ def test_path_extrude2d_accepts_various_profiles():
     # native shape, a Path, a Region, a Bosl2Solid, and a factory all work as the profile
     assert isinstance(L_PATH.path_extrude2d(s2.circle(radius=3)), Bosl2Solid)
     assert isinstance(L_PATH.path_extrude2d(Path([[-2, -4], [2, -4], [2, 4], [-2, 4]])), Bosl2Solid)
-    from bosl2.regions import Region
+    from pybosl2.regions import Region
 
     assert isinstance(
         L_PATH.path_extrude2d(Region([[[-2, -4], [2, -4], [2, 4], [-2, 4]]])),

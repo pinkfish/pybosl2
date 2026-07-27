@@ -2,7 +2,7 @@
 
 Python ports of the [BOSL2](https://github.com/BelfrySCAD/BOSL2) OpenSCAD library,
 for use with [PythonSCAD](https://pythonscad.org). The package is imported as
-`bosl2`, with one module per wrapped/ported `.scad` file so each Python module can
+`pybosl2`, with one module per wrapped/ported `.scad` file so each Python module can
 be read side by side with its OpenSCAD source.
 
 Most modules (constants, math, vectors, paths, shapes2d, …) are standalone pure-Python
@@ -34,8 +34,8 @@ the plain OpenSCAD builtins with BOSL2's anchor/spin/orient-aware versions, so t
 package is deliberately not wildcard-re-exported):
 
 ```python
-import bosl2.shapes3d as s3
-import bosl2.shapes2d as s2
+import pybosl2.shapes3d as s3
+import pybosl2.shapes2d as s2
 
 part = s3.cuboid([20, 20, 10]).up(5)
 ```
@@ -46,7 +46,7 @@ The test-suite runs against a real, pip-installed `pythonscad` in a virtualenv:
 
 ```bash
 python -m venv .venv          # create from outside the repo dir, or the local
-                              # bosl2/math.py etc. can shadow stdlib modules
+                              # pybosl2/math.py etc. can shadow stdlib modules
 source .venv/bin/activate
 pip install -e '.[test]'      # installs pybosl2 + pytest + numpy + pythonscad
 pytest
@@ -67,7 +67,7 @@ wheel:
 
 The repo also vendors [`pysolidfive`](pysolidfive/) — a small, self-contained
 libfive / signed-distance-function shape library for PythonSCAD. It is a **separate
-piece**: it does not depend on `bosl2`, ships in the same wheel as its own top-level
+piece**: it does not depend on `pybosl2`, ships in the same wheel as its own top-level
 `pysolidfive` package, and keeps its own tests, docs, and `pyproject.toml`.
 
 Its test-suite runs against the numeric `mock_libfive` stand-in bundled in

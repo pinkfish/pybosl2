@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/rounding.py: round_corners (circle/smooth/chamfer x radius/cut/joint/width) and
+"""Tests for pybosl2/rounding.py: round_corners (circle/smooth/chamfer x radius/cut/joint/width) and
 smooth_path, on Path / Path3D. Numeric output is pinned to real BOSL2 in
 tests/test_bosl2_reorient.py; here we check the method surface, dimensions, and error handling."""
 
 import numpy as np
 import pytest
 
-from bosl2.paths import Path, Path3D
+from pybosl2.paths import Path, Path3D
 
 SQ = [[0, 0], [40, 0], [40, 30], [0, 30]]
 P3 = [[0, 0, 0], [40, 0, 0], [40, 40, 20], [0, 40, 20]]
@@ -188,7 +188,7 @@ def test_offset_stroke_returns_region_or_solid():
     res = Path(p).offset_stroke(width=2)
     assert res is not None
     # Depending on whether shapely is installed, it is either a Region or a Solid (CSG).
-    from bosl2.regions import _SHAPELY, Region
+    from pybosl2.regions import _SHAPELY, Region
 
     if _SHAPELY:
         assert isinstance(res, Region)

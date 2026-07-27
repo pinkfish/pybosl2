@@ -28,7 +28,7 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      # autodoc imports the bosl2 modules, which import the pythonscad C extension;
+      # autodoc imports the pybosl2 modules, which import the pythonscad C extension;
       # it dlopens these system libraries at import time.  The same libraries are
       # needed by the PythonSCAD AppImage for headless STL rendering.
       - name: Install system libraries for the pythonscad wheel

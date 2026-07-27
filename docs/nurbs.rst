@@ -6,10 +6,10 @@ curve, sample a NURBS surface patch, mesh a patch into a VNF, and elevate a curv
 three flavours -- ``"clamped"``, ``"open"`` and ``"closed"`` -- are supported, with weights
 (rational NURBS), knot multiplicities, and explicit knot vectors.
 
-:func:`~bosl2.nurbs.nurbs_curve` returns a :class:`~bosl2.paths.Path` (2-D control points) or
-:class:`~bosl2.paths.Path3D` (3-D), so the result carries the full path/extrude/stroke API;
-:func:`~bosl2.nurbs.nurbs_vnf` returns a :class:`~bosl2.vnf.VNF`. Every case is pinned
-point-for-point to the real BOSL2 output in ``tests/test_bosl2_reorient.py`` -- including the
+:func:`~pybosl2.nurbs.nurbs_curve` returns a :class:`~pybosl2.paths.Path` (2-D control points) or
+:class:`~pybosl2.paths.Path3D` (3-D), so the result carries the full path/extrude/stroke API;
+:func:`~pybosl2.nurbs.nurbs_vnf` returns a :class:`~pybosl2.vnf.VNF`. Every case is pinned
+point-for-point to the real BOSL2 output in ``tests/test_pybosl2_reorient.py`` -- including the
 classic rational-NURBS sphere.
 
 The first argument to any of these may be a NURBS parameter list
@@ -27,23 +27,23 @@ Coverage of BOSL2 ``nurbs.scad``
      - Notes
    * - ``nurbs_curve``
      - ported
-     - :func:`~bosl2.nurbs.nurbs_curve` -- clamped/open/closed, weights, mult, explicit knots,
+     - :func:`~pybosl2.nurbs.nurbs_curve` -- clamped/open/closed, weights, mult, explicit knots,
        ``splinesteps`` or ``u``. Returns a Path / Path3D (a scalar ``u`` returns one point).
    * - ``nurbs_patch_points``
      - ported
-     - :func:`~bosl2.nurbs.nurbs_patch_points` -- sample a surface on a grid (``splinesteps`` or
+     - :func:`~pybosl2.nurbs.nurbs_patch_points` -- sample a surface on a grid (``splinesteps`` or
        ``u``/``v``); per-direction degree/type/mult/knots.
    * - ``nurbs_vnf``
      - ported
-     - :func:`~bosl2.nurbs.nurbs_vnf` -- mesh a patch (built on ``vnf_vertex_array``), with
+     - :func:`~pybosl2.nurbs.nurbs_vnf` -- mesh a patch (built on ``vnf_vertex_array``), with
        ``style`` / ``reverse`` / ``caps``.
    * - ``nurbs_elevate_degree``
      - ported
-     - :func:`~bosl2.nurbs.nurbs_elevate_degree` -- raise a clamped/open curve's degree (collocation
+     - :func:`~pybosl2.nurbs.nurbs_elevate_degree` -- raise a clamped/open curve's degree (collocation
        at Greville points).
    * - ``is_nurbs_patch``
      - ported
-     - :func:`~bosl2.nurbs.is_nurbs_patch`.
+     - :func:`~pybosl2.nurbs.is_nurbs_patch`.
    * - ``nurbs_interp`` / ``nurbs_interp_surface``
      - not ported
      - the constrained least-squares *interpolation* solvers (fit a NURBS through given points with
@@ -89,6 +89,6 @@ A sphere as a rational NURBS surface (weights + repeated knots):
 
 API reference
 -------------
-.. automodule:: bosl2.nurbs
+.. automodule:: pybosl2.nurbs
    :members:
    :undoc-members:

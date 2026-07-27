@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/shapes3d.py: the Bosl2Solid wrapper, its transforms and bbox anchoring.
+"""Tests for pybosl2/shapes3d.py: the Bosl2Solid wrapper, its transforms and bbox anchoring.
 
 The native primitives are mocked (see conftest); the mock's cube/cylinder/sphere track an
 axis-aligned bounding box, so Bosl2Solid's bbox-backed anchoring math is numerically exercised.
@@ -13,8 +13,8 @@ axis-aligned bounding box, so Bosl2Solid's bbox-backed anchoring math is numeric
 import numpy as np
 import pytest
 
-from bosl2.constants import BOTTOM, CENTER, FRONT, RIGHT, TOP
-from bosl2.shapes3d import (
+from pybosl2.constants import BOTTOM, CENTER, FRONT, RIGHT, TOP
+from pybosl2.shapes3d import (
     Bosl2Solid,
     _anchor_offset_hull3,
     cuboid,
@@ -151,7 +151,7 @@ def test_plot3d_surface_and_solid():
 
 
 def test_orient_reorient_return_bosl2solid():
-    from bosl2.constants import RIGHT, TOP
+    from pybosl2.constants import RIGHT, TOP
 
     c = cuboid([40, 30, 20])
     assert isinstance(c.orient(RIGHT), Bosl2Solid)
@@ -291,7 +291,7 @@ def test_cyl_missing_args():
     c_tex_none = cyl(radius=10, height=20, texture="none", tex_size=5, tex_reps=4, tex_depth=2, tex_inset=True)
     assert isinstance(c_tex_none, Bosl2Solid)
 
-    from bosl2.texture import TextureType
+    from pybosl2.texture import TextureType
 
     with pytest.raises(NotImplementedError):
         cyl(radius=10, height=20, texture=TextureType.RIBS)
@@ -308,8 +308,8 @@ def test_cyl_missing_args():
 
 
 def test_texture_enum():
-    from bosl2.bottlecaps import BottleCaps, BottleCapTexture
-    from bosl2.texture import TextureType, texture
+    from pybosl2.bottlecaps import BottleCaps, BottleCapTexture
+    from pybosl2.texture import TextureType, texture
 
     # Test that texture resolved correctly with enum
     t = texture(TextureType.RIBS)

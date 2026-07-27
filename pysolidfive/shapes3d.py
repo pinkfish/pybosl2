@@ -92,7 +92,7 @@ def _rotation_matrix(a: float, v: list[float] | None = None) -> list[list[float]
 def _rounded_box_sdf(x: float, y: float, z: float, size: list[float], r: float):
     """Exact SDF for a box uniformly rounded on every edge and corner: the Minkowski sum of a
     box (shrunk by `r` on every side) with a sphere of radius `r` -- the same construction
-    bosl2.shapes3d.cuboid() itself special-cases via a real minkowski() for edges="ALL". Unlike
+    pybosl2.shapes3d.cuboid() itself special-cases via a real minkowski() for edges="ALL". Unlike
     _cuboid_edge_sdf()'s general per-axis-plane composition (max() of three independently
     rounded-rectangle extrusions, which only *approximates* the true corner blend and leaves a
     visible seam where the three rounded faces meet), this is a single closed-form expression
@@ -165,10 +165,10 @@ class PyShape:
         intersects (max()) the requested treatment into the *current* SDF rather than
         rebuilding from scratch, edges can be built up incrementally with different
         treatments -- e.g. `cuboid(size).round(2, edges="Z").chamfer(1, edges=[TOP+LEFT])`
-        -- which a single bosl2.shapes3d.cuboid() call can't do (rounding/chamfer are
+        -- which a single pybosl2.shapes3d.cuboid() call can't do (rounding/chamfer are
         mutually exclusive there, one radius for the whole call).
 
-    CAVEAT: like bosl2.shapes3d.Bosl2Solid, this is a plain Python wrapper (composition),
+    CAVEAT: like pybosl2.shapes3d.Bosl2Solid, this is a plain Python wrapper (composition),
     not a subclass of the real native PyOpenSCAD type. round()/chamfer() additionally only
     make sense for cuboid-shaped instances (built by cuboid(), or by a prior round()/
     chamfer() call on one) -- they assert if `cuboid_size` isn't set, the same restriction
@@ -278,7 +278,7 @@ class PyShape:
 
         Unlike translate(), this drops cuboid_size/cuboid_center metadata (so round()/chamfer()
         assert afterward) -- edges="TOP"/"LEFT"/etc. are global-frame selectors, evaluated
-        before any rotation, the same order bosl2's own anchor/edges-then-spin/orient applies
+        before any rotation, the same order pybosl2's own anchor/edges-then-spin/orient applies
         them in, so treating edges post-rotation wouldn't mean what it looks like it means.
         """
         m = _rotation_matrix(a, v)
@@ -422,7 +422,7 @@ class PyShape:
 def _as_shape_list(shapes: tuple) -> list[PyShape]:
     """Varargs-or-single-iterable: `union(a, b)` and `union([a, b])` both work, matching the
     two calling conventions the box libraries already mix (OpenSCAD-style children vs.
-    bosl2-style list arguments)."""
+    pybosl2-style list arguments)."""
     if len(shapes) == 1 and isinstance(shapes[0], (list, tuple)):
         shapes = tuple(shapes[0])
     out = list(shapes)
@@ -735,12 +735,12 @@ def cuboid(
 ) -> PyShape:
     """A cuboid with optional per-edge rounding or chamfering, built as a libfive signed
     distance function (F-Rep) and returned as a PyShape (meshed lazily, via frep(), on first
-    use) -- see bosl2.shapes3d.cuboid() for the equivalent BOSL2-style mesh-CSG version
+    use) -- see pybosl2.shapes3d.cuboid() for the equivalent BOSL2-style mesh-CSG version
     (identical `edges=`/`except_edges=` semantics; both accept the same edge selector values,
-    since pysolidfive._edges's edge-set resolver is a byte-for-byte copy of bosl2's own).
+    since pysolidfive._edges's edge-set resolver is a byte-for-byte copy of pybosl2's own).
 
     `rounding` and `chamfer` are mutually exclusive in a single call (matching
-    bosl2.shapes3d.cuboid()); to mix both on different edges of the same cuboid, chain
+    pybosl2.shapes3d.cuboid()); to mix both on different edges of the same cuboid, chain
     PyShape.round()/.chamfer() calls instead, e.g.
     `cuboid(size).round(2, edges="Z").chamfer(1, edges=[TOP+LEFT])`.
 
@@ -882,14 +882,14 @@ def wedge(
 
     Args:
         size:   [width, thickness, height]
-        anchor: anchor point (default FRONT+LEFT+BOTTOM, matching bosl2.shapes3d.wedge())
+        anchor: anchor point (default FRONT+LEFT+BOTTOM, matching pybosl2.shapes3d.wedge())
     """
     if anchor is None:
         anchor = FRONT + LEFT + BOTTOM
     bx, by, bz = size[0] / 2, size[1] / 2, size[2] / 2
     # The triangular cross-section (right angle at Y-,Z-, hypotenuse from (Y+,Z-) to (Y-,Z+))
     # lies in the (Y, Z) plane; X is the uniform extrusion axis -- verified directly against
-    # bosl2.shapes3d.wedge()'s vertex list (every vertex has a fixed X, so the triangle's
+    # pybosl2.shapes3d.wedge()'s vertex list (every vertex has a fixed X, so the triangle's
     # actual shape only varies over Y/Z).
     nlen = math.hypot(by, bz)
 
@@ -943,7 +943,7 @@ def spheroid(
     res: int = 10,
 ) -> PyShape:
     """An approximate sphere; this pure-libfive port just builds a plain sphere() (matching
-    bosl2.shapes3d.spheroid()'s own choice to ignore style/dual for its pure-Python port)."""
+    pybosl2.shapes3d.spheroid()'s own choice to ignore style/dual for its pure-Python port)."""
     return sphere(radius=radius, diameter=diameter, anchor=anchor, res=res)
 
 
@@ -962,7 +962,7 @@ def torus(
     """A torus (donut) shape, as a libfive SDF (`length(vec2(length(p.xy)-major_radius, p.z)) - minor_radius`).
 
     Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python
-    keyword `or`; it is exposed here as `outer_radius` instead. See bosl2.shapes3d.torus() for
+    keyword `or`; it is exposed here as `outer_radius` instead. See pybosl2.shapes3d.torus() for
     the full parameter set this mirrors.
 
     Examples:
@@ -1037,7 +1037,7 @@ def _cylinder_sdf(x, y, z, h: float, radius1: float, radius2: float, shift: list
 def _cyl_edge_sdf(axial, radial, h: float, radius1: float, radius2: float, amt1: float, amt2: float, mode: str):
     """_cylinder_sdf(), plus independent rounding/chamfer treatment of the bottom (amt1) and
     top (amt2) rim, using the same per-candidate-quadrant masking technique as
-    bosl2.shapes3d.cuboid() (but only 2 candidates -- top/bottom -- since the radial
+    pybosl2.shapes3d.cuboid() (but only 2 candidates -- top/bottom -- since the radial
     coordinate has no sign ambiguity to select between, unlike a rectangle's 4 corners)."""
     hb = h / 2
     wall = _wall_line_sdf(radial, axial, radius1, radius2, hb)
@@ -1108,12 +1108,12 @@ def cyl(
     res: int = 10,
 ) -> PyShape:
     """A cylinder/cone with optional rounding or chamfering of its end rims, as a libfive SDF.
-    See bosl2.shapes3d.cyl() for the full BOSL2-style version this mirrors (circum=/realign=/
+    See pybosl2.shapes3d.cyl() for the full BOSL2-style version this mirrors (circum=/realign=/
     texture= aren't supported here; shift= is, for oblique cones, but not combined with
     rounding/chamfer).
 
     `rounding`/`chamfer` (and their `1`/`2` bottom/top variants) are mutually exclusive, same
-    as bosl2.shapes3d.cyl().
+    as pybosl2.shapes3d.cyl().
 
     Examples:
         .. pythonscad-example::
@@ -1428,10 +1428,10 @@ def prismoid(
 ) -> PyShape:
     """A rectangular prismoid (truncated pyramid), as a libfive SDF.
 
-    CAVEAT: unlike bosl2.shapes3d.prismoid(), this pure-libfive port does not support
+    CAVEAT: unlike pybosl2.shapes3d.prismoid(), this pure-libfive port does not support
     rounding/chamfer of the vertical edges (deriving an exact SDF for a *tapered* box's
     independently-radiused vertical edges was out of scope here -- use
-    bosl2.shapes3d.prismoid() for that, or pysolidfive.cuboid() for the non-tapered case). The SDF
+    pybosl2.shapes3d.prismoid() for that, or pysolidfive.cuboid() for the non-tapered case). The SDF
     itself is built by linearly interpolating the local half-size/shift at each height `z`
     (clamped to the `[bottom, top]` range via min()/max(), so no true per-point conditional is
     needed) and taking the 2-D box distance in that local cross-section, intersected with the
@@ -1485,7 +1485,7 @@ def rect_tube(
 ) -> PyShape:
     """A rectangular tube (a rectangle with a rectangular hole through it), as a libfive SDF
     (outer rounded-rect-extrusion minus inner rounded-rect-extrusion, reusing
-    bosl2.shapes3d.cuboid()'s per-edge machinery for each). Only the 4 vertical edges are
+    pybosl2.shapes3d.cuboid()'s per-edge machinery for each). Only the 4 vertical edges are
     ever rounded (`edges="Z"`, matching the "rounded rectangular tube" look BOSL2's own
     rect_tube() produces) -- there's no per-edge selection here, just one outer radius and
     one inner radius (default: same as the outer).
@@ -1543,10 +1543,10 @@ def interior_fillet(
     libfive SDF: the wedge between the two faces, minus a cylindrical arc of radius `radius`
     positioned so it's tangent to both. Extruded along Y for length `length`.
 
-    CAVEAT: simplified relative to bosl2.shapes3d.interior_fillet() -- no `overlap=` flap (an
+    CAVEAT: simplified relative to pybosl2.shapes3d.interior_fillet() -- no `overlap=` flap (an
     SDF union is already watertight without one) and no independent anchor-face alignment;
     the wedge's first face lies along the local +X/Z=0 half-plane. See
-    bosl2.shapes3d.interior_fillet() for the exact BOSL2-compatible anchor/orientation.
+    pybosl2.shapes3d.interior_fillet() for the exact BOSL2-compatible anchor/orientation.
     """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     half = math.radians(angle / 2)
@@ -1583,7 +1583,7 @@ def rounding_edge_mask(
     """A standalone 3-D edge-rounding CUTTER of length `length`, as a libfive SDF, for subtracting
     from another PyShape to round over a sharp 90-degree edge that isn't part of a cuboid()'s
     own edge/corner treatment -- e.g. an edge exposed by an earlier cut, or any other edge you'diameter
-    otherwise position by hand. Matches bosl2.masking.rounding_edge_mask()'s local-frame
+    otherwise position by hand. Matches pybosl2.masking.rounding_edge_mask()'s local-frame
     convention exactly (same `.rotate(...).translate(...)` call sites work unchanged): origin at
     the sharp edge, +X/+Y extending into the material (with a small `excess` skirt past 0 on
     each so the cutter fully bridges the material being cut), centered along its own Z axis over
@@ -1592,7 +1592,7 @@ def rounding_edge_mask(
     Built the same way interior_fillet() builds its wedge-minus-circle cutter: a square corner
     (`box`) minus a circle tangent to both its flat sides.
 
-    CAVEAT: simplified relative to bosl2.masking.rounding_edge_mask() -- one radius for the
+    CAVEAT: simplified relative to pybosl2.masking.rounding_edge_mask() -- one radius for the
     whole length (no radius1/radius2 taper).
     """
     length = length if length is not None else (height if height is not None else 1)
@@ -1611,7 +1611,7 @@ def rounding_edge_mask(
 def polygon_extrude(pts: list[list[float]], length: float, res: int = 10) -> PyShape:
     """Extrude an arbitrary CONVEX 2-D polygon `pts` (either winding order) along Z by
     `length`, centered -- for a custom edge-profile cutter with no simple closed form (like
-    bosl2.shapes3d.Bosl2Solid.edge_profile_asym()'s `children=` path, but swept here by hand
+    pybosl2.shapes3d.Bosl2Solid.edge_profile_asym()'s `children=` path, but swept here by hand
     with an explicit rotate()/translate() rather than an automatic per-edge sweep).
 
     As a libfive SDF, this is the max() of each edge's signed half-plane distance -- exact at
@@ -1776,7 +1776,7 @@ def teardrop(
     union of a circle and a "roof" of two planes meeting at the apex, tangent to the circle,
     extruded along Y for thickness `h`.
 
-    CAVEAT: simplified relative to bosl2.shapes3d.teardrop() -- no `chamfer=`/`circum=`/
+    CAVEAT: simplified relative to pybosl2.shapes3d.teardrop() -- no `chamfer=`/`circum=`/
     `realign=` support. `cap_height` (truncation height) is supported since it's a plain top-slab
     intersection.
 
@@ -1838,7 +1838,7 @@ def onion(
     """An onion-dome shape (a sphere with a conical cap), as a libfive SDF: the union of a
     sphere and a cone tangent to it, revolved around Z.
 
-    CAVEAT: simplified relative to bosl2.shapes3d.onion() -- no `circum=`/`realign=` support.
+    CAVEAT: simplified relative to pybosl2.shapes3d.onion() -- no `circum=`/`realign=` support.
     """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     ang_rad = math.radians(angle)
@@ -1876,12 +1876,12 @@ def heightfield(
 ) -> PyShape:
     """A 3-D surface from a height function, as a libfive SDF.
 
-    CAVEAT: unlike bosl2.shapes3d.heightfield(), `data` must be a *callable* `f(x, y) -> z`
+    CAVEAT: unlike pybosl2.shapes3d.heightfield(), `data` must be a *callable* `f(x, y) -> z`
     built from ordinary arithmetic/libfive-supported math (it gets called directly with
     libfive coordinate trees, so it becomes part of the symbolic expression) -- a 2-D array of
     height samples isn't supported, since there's no closed-form way to "look up" an arbitrary
     grid of numbers inside a libfive expression (no gather/index primitive is exposed). Use
-    bosl2.shapes3d.heightfield() for array data. `xrange=`/`yrange=`/`style=` aren't
+    pybosl2.shapes3d.heightfield() for array data. `xrange=`/`yrange=`/`style=` aren't
     applicable here since there's no discrete grid to sample.
 
     Args:
@@ -1925,7 +1925,7 @@ def regular_prism(
     res: int = 10,
 ) -> PyShape:
     """A regular num_sides-gon prism (equilateral, equiangular cross-section), as a libfive SDF
-    built on polygon_prism(). Mirrors bosl2.shapes3d.regular_prism().
+    built on polygon_prism(). Mirrors pybosl2.shapes3d.regular_prism().
 
     Size is controlled by one of the radius/diameter/side parameters, in BOSL2 priority order:
     inner_radius/inner_diameter > outer_radius/outer_diameter > r/d > side.  The ``or``/``outer_radius``

@@ -4,10 +4,10 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/drawing.py: the path generators (arc/catenary/helix/turtle) and the
+"""Tests for pybosl2/drawing.py: the path generators (arc/catenary/helix/turtle) and the
 renderers (stroke/dashed_stroke). The native primitives are mocked (see conftest), so the
 render tests here only assert that geometry is produced; the geometry itself is checked against
-the real app in bosl2/tests/test_stl_render.py, and the generators are pinned to real-BOSL2
+the real app in pybosl2/tests/test_stl_render.py, and the generators are pinned to real-BOSL2
 ground truth in tests/test_bosl2_reorient.py."""
 
 import math
@@ -15,7 +15,7 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.drawing import (
+from pybosl2.drawing import (
     _ENDCAP_DEFAULTS,
     _endcap_polys,
     _endcap_trim,
@@ -26,8 +26,8 @@ from bosl2.drawing import (
     stroke,
     turtle,
 )
-from bosl2.paths import Path, Path3D
-from bosl2.regions import Region
+from pybosl2.paths import Path, Path3D
+from pybosl2.regions import Region
 
 # -- arc returns a Path -------------------------------------------------------------------
 
@@ -267,7 +267,7 @@ def test_every_style_in_defaults_table():
 
 
 def test_endcap_defaults_are_structured():
-    from bosl2.drawing import EndcapSpec
+    from pybosl2.drawing import EndcapSpec
 
     spec = _ENDCAP_DEFAULTS["arrow"]
     assert isinstance(spec, EndcapSpec)

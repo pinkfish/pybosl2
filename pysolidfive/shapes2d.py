@@ -326,7 +326,7 @@ def supershape2d(
     res: int = 10,
 ) -> PyShape2D:
     """A superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
-    parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d()."""
+    parameters and sampling as the pybosl2 port's supershape()) and turned into a polygon2d()."""
     return polygon2d(
         _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),
         res=res,

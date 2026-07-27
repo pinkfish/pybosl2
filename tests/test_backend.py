@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for the dual-backend selection machinery (bosl2/_backend.py) and its exceptions
-(bosl2/exceptions.py). Milestone 1 of the CSG/SDF merge: the foundation, no dispatch yet."""
+"""Tests for the dual-backend selection machinery (pybosl2/_backend.py) and its exceptions
+(pybosl2/exceptions.py). Milestone 1 of the CSG/SDF merge: the foundation, no dispatch yet."""
 
 import pytest
 
-from bosl2 import _backend
-from bosl2.exceptions import Bosl2Error, CrossBackendError, UnsupportedByBackend
+from pybosl2 import _backend
+from pybosl2.exceptions import Bosl2Error, CrossBackendError, UnsupportedByBackend
 
 
 def test_default_backend_is_csg():
@@ -46,7 +46,7 @@ def test_unknown_backend_raises():
 
 
 def test_bosl2solid_is_csg_backend_and_conforms_to_solid_protocol():
-    from bosl2.shapes3d import Bosl2Solid, cuboid
+    from pybosl2.shapes3d import Bosl2Solid, cuboid
 
     box = cuboid([10, 10, 10])
     assert box.backend == "csg"

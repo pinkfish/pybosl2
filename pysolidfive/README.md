@@ -27,7 +27,7 @@ shape.show()
 
 ## Design
 
-- Self-contained: no dependency on `bosl2` (and therefore no transitive `numpy` dependency).
+- Self-contained: no dependency on `pybosl2` (and therefore no transitive `numpy` dependency).
   Everything it needs -- direction-vector constants, the `edges=` selector mini-language,
   anchor-offset math -- is vendored locally (`_constants.py`, `_edges.py`).
 - Every shape function returns a `PyShape`: a lazy wrapper around a symbolic SDF that composes

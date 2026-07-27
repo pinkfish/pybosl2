@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.wiring: routed wire bundles."""
+"""Tests for pybosl2.wiring: routed wire bundles."""
 
 import itertools
 import math
@@ -12,8 +12,8 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.shapes3d import Bosl2Solid
-from bosl2.wiring import Wiring, _hex_offset_ring, _hex_offsets
+from pybosl2.shapes3d import Bosl2Solid
+from pybosl2.wiring import Wiring, _hex_offset_ring, _hex_offsets
 
 _PATH = [[50, 0, -50], [50, 50, -50], [0, 50, -50], [0, 0, -50], [0, 0, 0]]
 

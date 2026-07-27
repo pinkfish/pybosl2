@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.polyhedra: the five Platonic solids."""
+"""Tests for pybosl2.polyhedra: the five Platonic solids."""
 
 import math
 
 import pytest
 
-from bosl2.polyhedra import Polyhedra as P
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.polyhedra import Polyhedra as P
+from pybosl2.shapes3d import Bosl2Solid
 
 _COUNTS = {
     "tetrahedron": (4, 4),

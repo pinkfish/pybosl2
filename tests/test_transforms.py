@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/transforms.py: polar_to_xy and the affine reorient/apply machinery."""
+"""Tests for pybosl2/transforms.py: polar_to_xy and the affine reorient/apply machinery."""
 
 import math
 
 import numpy as np
 
-from bosl2.constants import CENTER, LEFT, UP
-from bosl2.transforms import (
+from pybosl2.constants import CENTER, LEFT, UP
+from pybosl2.transforms import (
     apply,
     axis_angle_matrix,
     polar_to_xy,
@@ -104,7 +104,7 @@ def test_rot_decode_identity_is_zero_angle():
 
 
 def test_rot_decode_axis_is_vec3():
-    from bosl2.constants import Vec3
+    from pybosl2.constants import Vec3
 
     _, axis, center, axial = rot_decode(rot_about_axis(30, [1, 0, 0], center=[0, 2, 0]))
     assert isinstance(axis, Vec3) and isinstance(center, Vec3) and isinstance(axial, Vec3)

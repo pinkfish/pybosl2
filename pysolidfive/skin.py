@@ -17,13 +17,13 @@
 
 # LibFile: pysolidfive/skin.py
 #    SDF-based sweep / skin / loft / revolve operations, mirroring the geometry-construction
-#    endpoints of bosl2/skin.py.  Instead of building polyhedron VNFs from triangulated
+#    endpoints of pybosl2/skin.py.  Instead of building polyhedron VNFs from triangulated
 #    profile rings, each function here returns a PyShape whose signed-distance field
 #    directly represents the swept or lofted volume.  The target use -- end caps, closed
 #    sweeps, partial revolutions, twist/scale interpolation -- is the same; only the
 #    meshing strategy differs.
 #
-#    Ported from bosl2/skin.py (copyright pinkfish, BSD-2-Clause).  The original's VNF
+#    Ported from pybosl2/skin.py (copyright pinkfish, BSD-2-Clause).  The original's VNF
 #    triangulation (VNF.vertex_array, tri_array, _lofttri) is replaced here by natural
 #    SDF constructs.  All coordinate / frame / transform math is preserved.
 #
@@ -42,7 +42,7 @@ from pysolidfive.shapes2d import PyShape2D
 from pysolidfive.shapes3d import PyShape
 
 # ---------------------------------------------------------------------------
-#  pure-math helpers (same as bosl2/skin.py, ported without VNF dependency)
+#  pure-math helpers (same as pybosl2/skin.py, ported without VNF dependency)
 # ---------------------------------------------------------------------------
 
 
@@ -133,7 +133,7 @@ def revolve_sdf(
     the Z axis and its Y coordinate as the height.  A full 360° revolution produces
     a watertight solid; a partial revolution is end-capped to the axis.
 
-    This is the SDF analogue of bosl2.skin.rotate_sweep(): the revolved volume is
+    This is the SDF analogue of pybosl2.skin.rotate_sweep(): the revolved volume is
     represented directly as a signed-distance field rather than as a triangulated mesh.
 
     Args:

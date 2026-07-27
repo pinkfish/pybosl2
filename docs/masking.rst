@@ -1,6 +1,6 @@
 Edge/corner masking
 ===================
-.. automodule:: bosl2.masking
+.. automodule:: pybosl2.masking
    :members:
    :undoc-members:
    :show-inheritance:

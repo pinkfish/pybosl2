@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/threading.py: the thread profiles (ported verbatim from BOSL2) and the
+"""Tests for pybosl2/threading.py: the thread profiles (ported verbatim from BOSL2) and the
 Threading rod/nut builders. Native geometry is mocked, so these check the profiles numerically and
 that every builder returns a Bosl2Solid; the real geometry (watertight rods/nuts with the right
 major/minor diameter and length) is verified in test_stl_render.py."""
@@ -14,8 +14,8 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.shapes3d import Bosl2Solid
-from bosl2.threading import (
+from pybosl2.shapes3d import Bosl2Solid
+from pybosl2.threading import (
     Threading,
     _buttress_profile,
     _iso_profile,
@@ -65,7 +65,7 @@ def test_impossible_trapezoid_raises():
 
 
 def test_thread_profile_is_structured_dataclass():
-    from bosl2.threading import ThreadProfile
+    from pybosl2.threading import ThreadProfile
 
     iso = _iso_profile()
     assert isinstance(iso, ThreadProfile)

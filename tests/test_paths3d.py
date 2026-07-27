@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.paths.Path3D: the 3-D path object -- construction, measurement, the 3-D
+"""Tests for pybosl2.paths.Path3D: the 3-D path object -- construction, measurement, the 3-D
 transforms (move / directional / scale / rotate / mirror), resampling/cutting, and the drop-to-2-D
 conversion. The numeric kernels are shared with Path (and pinned to real BOSL2 elsewhere); these
 tests focus on the 3-D object surface."""
@@ -14,7 +14,7 @@ import math
 import numpy as np
 import pytest
 
-from bosl2.paths import Path, Path3D
+from pybosl2.paths import Path, Path3D
 
 SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 

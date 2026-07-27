@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Milestone 3 of the CSG/SDF merge: the backend-neutral facade (bosl2/solid.py). The same
+"""Milestone 3 of the CSG/SDF merge: the backend-neutral facade (pybosl2/solid.py). The same
 constructor call obeys the active backend and both backends agree on the resulting geometry."""
 
 import pytest
 
-from bosl2 import solid
-from bosl2._backend import Solid, current_backend, use_backend
+from pybosl2 import solid
+from pybosl2._backend import Solid, current_backend, use_backend
 
 
 def test_facade_defaults_to_csg():
@@ -53,7 +53,7 @@ def test_facade_polyhedron_dispatches_on_active_backend():
 
 
 def test_facade_construct_rejects_unknown_shape():
-    from bosl2._backend import get_backend
+    from pybosl2._backend import get_backend
 
     with pytest.raises(ValueError, match="no shape constructor"):
         get_backend().construct("definitely_not_a_shape")

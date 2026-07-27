@@ -2,9 +2,9 @@ Rounding: round_corners & smooth_path
 =====================================
 
 Pure-Python port of the path-rounding core of BOSL2's ``rounding.scad``:
-:func:`~bosl2.rounding.round_corners` rounds every corner of a path, and
-:func:`~bosl2.rounding.smooth_path` fits a continuous-curvature curve through a path. Both work on
-2-D and 3-D paths and are methods on :class:`~bosl2.paths.Path` and :class:`~bosl2.paths.Path3D`::
+:func:`~pybosl2.rounding.round_corners` rounds every corner of a path, and
+:func:`~pybosl2.rounding.smooth_path` fits a continuous-curvature curve through a path. Both work on
+2-D and 3-D paths and are methods on :class:`~pybosl2.paths.Path` and :class:`~pybosl2.paths.Path3D`::
 
     Path([[0, 0], [40, 0], [40, 30], [0, 30]]).round_corners(radius=5)
     Path([[0, 0], [40, 0], [40, 30], [0, 30]]).round_corners(method="smooth", joint=8)
@@ -15,7 +15,7 @@ Pure-Python port of the path-rounding core of BOSL2's ``rounding.scad``:
 ``"chamfer"`` (a straight bevel) -- sized by exactly one of ``radius``/``r`` (circle only), ``cut``
 (depth toward the corner), ``joint`` (distance back along each edge), or ``width`` (chamfer only).
 ``k`` (smooth only) tunes the curvature match. Both functions are pinned point-for-point to the
-real BOSL2 output in ``tests/test_bosl2_reorient.py``; the circle case is bit-identical to the
+real BOSL2 output in ``tests/test_pybosl2_reorient.py``; the circle case is bit-identical to the
 toolkit's original ``round_corners``.
 
 Coverage of BOSL2 ``rounding.scad``
@@ -30,11 +30,11 @@ Coverage of BOSL2 ``rounding.scad``
      - Notes
    * - ``round_corners``
      - ported
-     - :func:`~bosl2.rounding.round_corners` -- all three methods, all four size measures, open/closed,
+     - :func:`~pybosl2.rounding.round_corners` -- all three methods, all four size measures, open/closed,
        2-D and 3-D. The roundover-overflow (scale-factor) check is included.
    * - ``smooth_path``
      - ported (``method="edges"``)
-     - :func:`~bosl2.rounding.smooth_path` -- a bezier fit through the points; the
+     - :func:`~pybosl2.rounding.smooth_path` -- a bezier fit through the points; the
        ``method="corners"`` variant is not ported.
    * - ``path_join``
      - not ported
@@ -68,10 +68,10 @@ A wiggly path smoothed into a flowing ribbon:
 
 API reference
 -------------
-.. automodule:: bosl2.rounding
+.. automodule:: pybosl2.rounding
    :members:
    :undoc-members:
    :exclude-members: Roundable
 
-.. autoclass:: bosl2.rounding.Roundable
+.. autoclass:: pybosl2.rounding.Roundable
    :members:

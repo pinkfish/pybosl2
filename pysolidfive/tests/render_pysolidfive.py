@@ -26,10 +26,10 @@
 #    compare_images(), and find_pythonscad_binary() are generic subprocess/skip-gracefully
 #    plumbing, not pysolidfive-specific; only render_pysolidfive_shape() itself is.
 #
-#    Some of those *other* libraries' real-render tests (anything that imports bosl2, e.g.
+#    Some of those *other* libraries' real-render tests (anything that imports pybosl2, e.g.
 #    cap_box.py/sliding_box.py) can hit a hardened-runtime code-signing check on this machine's
-#    installed PythonSCAD.app that rejects the numpy build bosl2.shapes3d/bosl2.shapes2d
-#    transitively depend on (bosl2.vectors/bosl2.geometry -> numpy) -- an environment problem,
+#    installed PythonSCAD.app that rejects the numpy build pybosl2.shapes3d/pybosl2.shapes2d
+#    transitively depend on (pybosl2.vectors/pybosl2.geometry -> numpy) -- an environment problem,
 #    not a correctness bug. pysolidfive itself has no such dependency (see
 #    pysolidfive/__init__.py's module docstring), so pysolidfive/tests/test_pysolidfive_render.py
 #    isn't affected by this. render_script() detects the failure (from either cause) from the
@@ -51,7 +51,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # PythonSCAD-dev is preferred: the plain app's hardened runtime rejects the installed numpy,
-# while the dev build allows it (matches bosl2/tests/render_stl.py's discovery order).
+# while the dev build allows it (matches pybosl2/tests/render_stl.py's discovery order).
 _CANDIDATE_BINARIES = [
     "/Applications/PythonSCAD-dev.app/Contents/MacOS/PythonSCAD",
     "/Applications/PythonSCAD.app/Contents/MacOS/PythonSCAD",

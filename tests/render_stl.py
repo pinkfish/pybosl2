@@ -4,10 +4,10 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Real-render helpers for the STL tests (bosl2/tests/test_stl_render.py).
+"""Real-render helpers for the STL tests (pybosl2/tests/test_stl_render.py).
 
 Unlike the mock-based unit tests, these drive the REAL PythonSCAD binary in a subprocess to build
-a bosl2 object, export it to an STL mesh, and then load that mesh back to measure it (bounding
+a pybosl2 object, export it to an STL mesh, and then load that mesh back to measure it (bounding
 box, triangle count, volume, surface area, watertightness). The subprocess runs the real
 `pythonscad` module, so the parent-process mock (installed by conftest) is irrelevant to it.
 
@@ -27,11 +27,11 @@ from pathlib import Path
 
 import numpy as np
 
-# bosl2/tests/render_stl.py -> bosl2/tests -> bosl2 -> repo root.
+# pybosl2/tests/render_stl.py -> pybosl2/tests -> pybosl2 -> repo root.
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # PythonSCAD-dev is preferred: the plain app's hardened runtime rejects the installed numpy, which
-# every bosl2 module imports (see CLAUDE.md), so nearly all bosl2 renders fail under it.
+# every pybosl2 module imports (see CLAUDE.md), so nearly all pybosl2 renders fail under it.
 _CANDIDATE_BINARIES = [
     "/Applications/PythonSCAD-dev.app/Contents/MacOS/PythonSCAD",
     "/Applications/PythonSCAD.app/Contents/MacOS/PythonSCAD",
@@ -64,42 +64,42 @@ _PREAMBLE = (
     "import sys, math\n"
     f"sys.path.insert(0, {str(REPO_ROOT)!r})\n"
     "import numpy as np\n"
-    "import bosl2.shapes3d as s3\n"
-    "import bosl2.shapes2d as s2\n"
-    "from bosl2.beziers import Bezier, BezierPatch\n"
-    "from bosl2.skin import path_sweep, path_sweep2d, sweep, skin, linear_sweep, rotate_sweep, "
+    "import pybosl2.shapes3d as s3\n"
+    "import pybosl2.shapes2d as s2\n"
+    "from pybosl2.beziers import Bezier, BezierPatch\n"
+    "from pybosl2.skin import path_sweep, path_sweep2d, sweep, skin, linear_sweep, rotate_sweep, "
     "spiral_sweep, rot_resample\n"
-    "from bosl2.drawing import arc, catenary, helix, turtle, stroke, dashed_stroke\n"
-    "from bosl2.distributors import distribute, xdistribute, ydistribute, zdistribute\n"
-    "from bosl2.color import hsl, hsv, rainbow, rainbow_colors\n"
-    "from bosl2.partitions import partition_path, partition_mask, partition_cut_mask\n"
-    "from bosl2.miscellaneous import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
-    "from bosl2.nurbs import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
-    "from bosl2.isosurface import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, "
+    "from pybosl2.drawing import arc, catenary, helix, turtle, stroke, dashed_stroke\n"
+    "from pybosl2.distributors import distribute, xdistribute, ydistribute, zdistribute\n"
+    "from pybosl2.color import hsl, hsv, rainbow, rainbow_colors\n"
+    "from pybosl2.partitions import partition_path, partition_mask, partition_cut_mask\n"
+    "from pybosl2.miscellaneous import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
+    "from pybosl2.nurbs import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
+    "from pybosl2.isosurface import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, "
     "mb_octahedron, mb_connector\n"
-    "from bosl2.threading import Threading\n"
-    "from bosl2.screws import Screws\n"
+    "from pybosl2.threading import Threading\n"
+    "from pybosl2.screws import Screws\n"
     # parts library classes, so examples can be terse (Gears.spur_gear(...).show())
-    "from bosl2.gears import Gears\n"
-    "from bosl2.walls import Walls\n"
-    "from bosl2.hooks import Hooks\n"
-    "from bosl2.wiring import Wiring\n"
-    "from bosl2.polyhedra import Polyhedra\n"
-    "from bosl2.hinges import Hinges\n"
-    "from bosl2.joiners import Joiners\n"
-    "from bosl2.cubetruss import CubeTruss\n"
-    "from bosl2.ball_bearings import BallBearings\n"
-    "from bosl2.linear_bearings import LinearBearings\n"
-    "from bosl2.modular_hose import ModularHose\n"
-    "from bosl2.nema_steppers import NemaSteppers\n"
-    "from bosl2.sliders import Sliders\n"
-    "from bosl2.bottlecaps import BottleCaps\n"
-    "from bosl2.screw_drive import ScrewDrive\n"
+    "from pybosl2.gears import Gears\n"
+    "from pybosl2.walls import Walls\n"
+    "from pybosl2.hooks import Hooks\n"
+    "from pybosl2.wiring import Wiring\n"
+    "from pybosl2.polyhedra import Polyhedra\n"
+    "from pybosl2.hinges import Hinges\n"
+    "from pybosl2.joiners import Joiners\n"
+    "from pybosl2.cubetruss import CubeTruss\n"
+    "from pybosl2.ball_bearings import BallBearings\n"
+    "from pybosl2.linear_bearings import LinearBearings\n"
+    "from pybosl2.modular_hose import ModularHose\n"
+    "from pybosl2.nema_steppers import NemaSteppers\n"
+    "from pybosl2.sliders import Sliders\n"
+    "from pybosl2.bottlecaps import BottleCaps\n"
+    "from pybosl2.screw_drive import ScrewDrive\n"
     "from functools import reduce\n"
-    "from bosl2.paths import Path, Path3D\n"
-    "from bosl2.rounding import _round_corners as round_corners, _smooth_path as smooth_path\n"
-    "from bosl2.regions import Region\n"
-    "from bosl2.constants import *\n"
+    "from pybosl2.paths import Path, Path3D\n"
+    "from pybosl2.rounding import _round_corners as round_corners, _smooth_path as smooth_path\n"
+    "from pybosl2.regions import Region\n"
+    "from pybosl2.constants import *\n"
 )
 
 
@@ -131,7 +131,7 @@ def render_stl_script(
     """Run a full python-mode *script_source* (ending in ``.show()``) in the real app, exporting STL.
 
     The lower-level entry point behind :func:`render_object`; also used by the docs
-    ``bosl2-example`` directive to generate a downloadable STL for each example.
+    ``pybosl2-example`` directive to generate a downloadable STL for each example.
     """
     binary = find_pythonscad_binary()
     if binary is None:

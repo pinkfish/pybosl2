@@ -4,12 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.cubetruss: segment/truss geometry and the cubetruss_dist length helper."""
+"""Tests for pybosl2.cubetruss: segment/truss geometry and the cubetruss_dist length helper."""
 
 import pytest
 
-from bosl2.cubetruss import CubeTruss as CT
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.cubetruss import CubeTruss as CT
+from pybosl2.shapes3d import Bosl2Solid
 
 
 def _size(solid):
@@ -133,7 +133,7 @@ def test_uclip_dual_wider_than_single():
 
 
 def test_clips_add_material_on_the_named_face():
-    from bosl2.constants import FRONT, RIGHT
+    from pybosl2.constants import FRONT, RIGHT
 
     plain = _size(CT.cubetruss(extents=3, fn=None, fa=None, fs=None))
     front = _size(CT.cubetruss(extents=3, clips=FRONT, fn=None, fa=None, fs=None))

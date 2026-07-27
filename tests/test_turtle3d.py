@@ -4,15 +4,15 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.turtle3d (the Turtle class) and the debug_polygon/debug_region methods."""
+"""Tests for pybosl2.turtle3d (the Turtle class) and the debug_polygon/debug_region methods."""
 
 import numpy as np
 import pytest
 
-from bosl2.paths import Path
-from bosl2.regions import Region
-from bosl2.shapes3d import Bosl2Solid
-from bosl2.turtle3d import Turtle
+from pybosl2.paths import Path
+from pybosl2.regions import Region
+from pybosl2.shapes3d import Bosl2Solid
+from pybosl2.turtle3d import Turtle
 
 
 def test_square_path_closes():

@@ -4,13 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/geometry.py: cross, collinearity, line ops, bounds, intersection."""
+"""Tests for pybosl2/geometry.py: cross, collinearity, line ops, bounds, intersection."""
 
 import math
 
 import numpy as np
 
-from bosl2.geometry import (
+from pybosl2.geometry import (
     _is_point_on_segment,
     cross,
     general_line_intersection,

@@ -4,9 +4,9 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/constants.py: the Vec3 direction constants and their arithmetic."""
+"""Tests for pybosl2/constants.py: the Vec3 direction constants and their arithmetic."""
 
-from bosl2.constants import (
+from pybosl2.constants import (
     BACK,
     BOTTOM,
     CENTER,

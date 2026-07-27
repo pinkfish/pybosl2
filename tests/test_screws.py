@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/screws.py: the metric dimension tables (transcribed verbatim from screws.scad)
+"""Tests for pybosl2/screws.py: the metric dimension tables (transcribed verbatim from screws.scad)
 and the Screws screw/nut/screw_hole builders. Native geometry is mocked, so these check the resolved
 dimensions numerically and that every builder returns a Bosl2Solid; the real assembled geometry
 (watertight screws with the right head/shaft, matching nuts, hole cutters) is verified in
@@ -14,8 +14,8 @@ import math
 
 import pytest
 
-from bosl2.screws import Screws, _lookup_pitch, _nut_dims, _parse_spec
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.screws import Screws, _lookup_pitch, _nut_dims, _parse_spec
+from pybosl2.shapes3d import Bosl2Solid
 
 # -- spec parsing / pitch lookup ----------------------------------------------------------
 

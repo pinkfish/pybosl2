@@ -4,15 +4,15 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/skin.py: frame_map, sweep and path_sweep frame methods."""
+"""Tests for pybosl2/skin.py: frame_map, sweep and path_sweep frame methods."""
 
 import math
 
 import numpy as np
 import pytest
 
-from bosl2.paths import Path
-from bosl2.skin import (
+from pybosl2.paths import Path
+from pybosl2.skin import (
     OSProfile,
     clockwise_polygon,
     frame_map,

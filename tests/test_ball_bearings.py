@@ -4,14 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.ball_bearings: the trade-size table (as BearingSpec dataclasses) and the
+"""Tests for pybosl2.ball_bearings: the trade-size table (as BearingSpec dataclasses) and the
 ball_bearing() cartridge model."""
 
 import pytest
 
-from bosl2.ball_bearings import BallBearings as BB
-from bosl2.ball_bearings import BearingSpec
-from bosl2.shapes3d import Bosl2Solid
+from pybosl2.ball_bearings import BallBearings as BB
+from pybosl2.ball_bearings import BearingSpec
+from pybosl2.shapes3d import Bosl2Solid
 
 
 def _size(solid):

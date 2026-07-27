@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2/distributors.py: the copier matrix generators and the Distributable methods on
+"""Tests for pybosl2/distributors.py: the copier matrix generators and the Distributable methods on
 Path / Path3D / Bosl2Solid. The matrices themselves are pinned to real BOSL2 in
 tests/test_bosl2_reorient.py; here we check the object-level behaviour (what each host returns and
 how the copies are placed). Native geometry is mocked, so Bosl2Solid tests assert type/union, not
@@ -13,9 +13,9 @@ mesh geometry (that is covered in test_stl_render.py)."""
 import numpy as np
 import pytest
 
-from bosl2 import distributors as D
-from bosl2.paths import Path, Path3D
-from bosl2.shapes3d import Bosl2Solid, cuboid
+from pybosl2 import distributors as D
+from pybosl2.paths import Path, Path3D
+from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 # -- matrix generators --------------------------------------------------------------------
 

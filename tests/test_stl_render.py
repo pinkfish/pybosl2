@@ -4,11 +4,11 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Real-render STL tests: build bosl2 objects in the real PythonSCAD app, export them to STL,
+"""Real-render STL tests: build pybosl2 objects in the real PythonSCAD app, export them to STL,
 and verify the produced mesh's geometry (bounding box, volume, triangle count, watertightness).
 
 These need the PythonSCAD app; they SKIP when no binary is found (set PYTHONSCAD_BIN). Run just
-these with: ``PYTHONSCAD_BIN=/path/to/PythonSCAD python3 -m pytest bosl2/tests/test_stl_render.py``.
+these with: ``PYTHONSCAD_BIN=/path/to/PythonSCAD python3 -m pytest pybosl2/tests/test_stl_render.py``.
 """
 
 import math
@@ -154,7 +154,7 @@ def test_sdf_path_sweep_tube_volume(tmp_path):
     # The libfive/SDF-backend sweep: a 32-gon circle (r=2) swept straight along z 0..30 meshes to a
     # watertight prism whose volume matches the exact 32-gon x height (the sign/zero-set is correct).
     setup = (
-        "from bosl2._sdf.shapes3d import path_sweep\n"
+        "from pybosl2._sdf.shapes3d import path_sweep\n"
         "circle = [[2*math.cos(t), 2*math.sin(t)] for t in np.linspace(0, 2*math.pi, 32, endpoint=False)]\n"
         "pathz = [[0, 0, z] for z in np.linspace(0, 30, 60)]\n"
     )
@@ -169,7 +169,7 @@ def test_sdf_concave_profile_sweep_volume(tmp_path):
     # A concave (L-shaped) profile swept straight: meshes watertight with the notch carved out, so
     # the volume equals the L's area (8x8 minus a 5x5 corner = 39) times the height.
     setup = (
-        "from bosl2._sdf.shapes3d import path_sweep\n"
+        "from pybosl2._sdf.shapes3d import path_sweep\n"
         "L = [[0,0],[8,0],[8,3],[3,3],[3,8],[0,8]]\n"
         "pathz = [[0, 0, z] for z in np.linspace(0, 20, 40)]\n"
     )
@@ -181,7 +181,7 @@ def test_sdf_concave_profile_sweep_volume(tmp_path):
 def test_sdf_bezier_sweep_watertight(tmp_path):
     # A profile swept along a curved 3-D Bezier as a libfive SDF meshes to a closed solid.
     setup = (
-        "from bosl2._sdf.shapes3d import bezier_sweep\n"
+        "from pybosl2._sdf.shapes3d import bezier_sweep\n"
         "circle = [[2*math.cos(t), 2*math.sin(t)] for t in np.linspace(0, 2*math.pi, 24, endpoint=False)]\n"
     )
     m = _render(

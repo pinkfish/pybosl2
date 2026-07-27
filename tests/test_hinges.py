@@ -4,12 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for bosl2.hinges: living (folding) hinges, knuckle hinges, and snap connectors."""
+"""Tests for pybosl2.hinges: living (folding) hinges, knuckle hinges, and snap connectors."""
 
 import pytest
 
-from bosl2.hinges import Hinges as H
-from bosl2.shapes3d import Bosl2Solid, cuboid
+from pybosl2.hinges import Hinges as H
+from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 
 def _size(s):
