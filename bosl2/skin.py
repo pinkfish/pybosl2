@@ -36,6 +36,8 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass, field
+from enum import Enum
 from typing import Sequence, Union
 
 import numpy as np
@@ -668,7 +670,48 @@ def subdivide_and_slice(
 # ---------------------------------------------------------------------------------------------
 
 
-def os_circle(r: float, h: float | None = None, extra: float = 0.0) -> dict:
+class OSType(Enum):
+    CIRCLE = "circle"
+    SMOOTH = "smooth"
+    TEARDROP = "teardrop"
+    CHAMFER = "chamfer"
+    FLAT = "flat"
+    PROFILE = "profile"
+
+
+@dataclass
+class OSProfile:
+    type: OSType
+    r: float = 0.0
+    h: float = 0.0
+    extra: float = 0.0
+    cut: float = 0.0
+    k: float = 0.5
+    r_sign: float = 1.0
+    max_angle: float = 45.0
+    width: float = 0.0
+    height: float = 0.0
+    points: list[list[float]] = field(default_factory=list)
+
+    def get(self, key, default=None):
+        if key == "type":
+            return self.type.value
+        if hasattr(self, key):
+            return getattr(self, key)
+        return default
+
+    def __getitem__(self, key):
+        if key == "type":
+            return self.type.value
+        if hasattr(self, key):
+            return getattr(self, key)
+        raise KeyError(key)
+
+    def __contains__(self, key):
+        return hasattr(self, key)
+
+
+def os_circle(r: float, h: float | None = None, extra: float = 0.0) -> OSProfile:
     """Circular roundover/flare profile for :func:`offset_sweep` (BOSL2 ``os_circle()``).
 
     Describes the treatment applied to one rim of the extruded shape:
@@ -688,10 +731,10 @@ def os_circle(r: float, h: float | None = None, extra: float = 0.0) -> dict:
                from floating-point rounding; default 0).
 
     Returns:
-        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
     h_val = float(h) if h is not None else abs(float(r))
-    return {"type": "circle", "r": float(r), "h": h_val, "extra": float(extra)}
+    return OSProfile(type=OSType.CIRCLE, r=float(r), h=h_val, extra=float(extra))
 
 
 def os_smooth(
@@ -699,7 +742,7 @@ def os_smooth(
     r: float | None = None,
     k: float = 0.5,
     extra: float = 0.0,
-) -> dict:
+) -> OSProfile:
     """Continuous curvature (Bézier) profile for :func:`offset_sweep` (BOSL2 ``os_smooth()``).
 
     Uses a 4th-order Bézier curve to ease the transition between flat and curved edges,
@@ -712,11 +755,11 @@ def os_smooth(
         extra: Extra extension beyond the nominal curve (default 0).
 
     Returns:
-        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
     val = float(cut) if cut is not None else (float(r) if r is not None else 1.0)
     sign = 1.0 if val >= 0 else -1.0
-    return {"type": "smooth", "cut": abs(val), "k": float(k), "r_sign": sign, "extra": float(extra)}
+    return OSProfile(type=OSType.SMOOTH, cut=abs(val), k=float(k), r_sign=sign, extra=float(extra))
 
 
 def os_teardrop(
@@ -725,7 +768,7 @@ def os_teardrop(
     cut: float | None = None,
     max_angle: float = 45.0,
     extra: float = 0.0,
-) -> dict:
+) -> OSProfile:
     """Teardrop profile for :func:`offset_sweep` to avoid overhangs in 3D printing (BOSL2 ``os_teardrop()``).
 
     Transitions from a 1/8th circle into a straight line at ``max_angle`` degrees
@@ -739,11 +782,11 @@ def os_teardrop(
         extra:     Extra extension beyond the nominal curve (default 0).
 
     Returns:
-        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
     r_val = float(r) if r is not None else (float(cut) if cut is not None else 1.0)
     h_val = float(h) if h is not None else abs(r_val)
-    return {"type": "teardrop", "r": r_val, "h": h_val, "max_angle": float(max_angle), "extra": float(extra)}
+    return OSProfile(type=OSType.TEARDROP, r=r_val, h=h_val, max_angle=float(max_angle), extra=float(extra))
 
 
 def os_chamfer(
@@ -752,7 +795,7 @@ def os_chamfer(
     angle: float | None = None,
     cut: float | None = None,
     extra: float = 0.0,
-) -> dict:
+) -> OSProfile:
     """Chamfer/bevel profile for :func:`offset_sweep` (BOSL2 ``os_chamfer()``).
 
     Creates a flat bevel transition.
@@ -765,7 +808,7 @@ def os_chamfer(
         extra:  Extra extension beyond the nominal bevel (default 0).
 
     Returns:
-        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
     if cut is not None:
         w = float(cut)
@@ -775,15 +818,15 @@ def os_chamfer(
         h = float(height) if height is not None else w
     if angle is not None:
         w = h * math.tan(math.radians(float(angle)))
-    return {"type": "chamfer", "width": w, "height": h, "extra": float(extra)}
+    return OSProfile(type=OSType.CHAMFER, width=w, height=h, extra=float(extra))
 
 
-def os_flat() -> dict:
+def os_flat() -> OSProfile:
     """Flat end cap profile descriptor representing no treatment (BOSL2 ``os_flat()``)."""
-    return {"type": "flat", "r": 0.0, "h": 0.0}
+    return OSProfile(type=OSType.FLAT, r=0.0, h=0.0)
 
 
-def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> dict:
+def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProfile:
     """Custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
 
     Accepts a list of 2D points `[[x, y], ...]` defining the profile:
@@ -795,11 +838,11 @@ def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> dict:
         extra:   Extra extension (default 0).
 
     Returns:
-        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+        A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
     pts = [[float(p[0]), float(p[1])] for p in profile]
     assert pts and pts[0] == [0.0, 0.0], "os_profile(): First point of the profile must be [0, 0]."
-    return {"type": "profile", "points": pts, "extra": float(extra)}
+    return OSProfile(type=OSType.PROFILE, points=pts, extra=float(extra))
 
 
 def offset_sweep(
@@ -1010,23 +1053,24 @@ def rounded_prism(
     top: Sequence[Sequence[float]] | None = None,
     height: float | None = None,
     joint_top: float | dict | None = None,
-    joint_bot: float | dict | None = None,
+    joint_bottom: float | dict | None = None,
     joint_sides: float | list[float] | None = None,
-    k_sides: float | list[float] | None = None,
+    curvature_sides: float | list[float] | None = None,
     steps: int = 16,
     caps: CapsSpec = None,
     style: str = "min_edge",
+    **kwargs,
 ) -> VNF:
     """Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).
 
     Args:
-        bottom:      The bottom polygon path (2-D point sequence).
+        bottom:          The bottom polygon path (2-D point sequence).
         top:         The top polygon path (defaults to *bottom*).
         height:      Prism height.
         joint_top:   Rounding radius or specifier for the top rim.
-        joint_bot:   Rounding radius or specifier for the bottom rim.
+        joint_bottom: Rounding radius or specifier for the bottom rim.
         joint_sides: Rounding radius or specifier for the vertical side corners.
-        k_sides:     Continuous curvature parameter for side corners.
+        curvature_sides: Continuous curvature parameter for side corners.
         steps:       Arc slices for top/bottom rim treatments.
         caps:        Cap bottom/top.
         style:       Subdivision style.
@@ -1035,6 +1079,9 @@ def rounded_prism(
         A :class:`~bosl2.vnf.VNF`.
     """
     from bosl2.paths import Path as _Path
+
+    joint_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot", None)
+    k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides", None)
 
     # Coerce/normalize top and height
     if top is None:
@@ -1052,8 +1099,16 @@ def rounded_prism(
     if joint_sides is not None:
         from bosl2.rounding import round_corners as _rc
 
-        b_rounded = _rc(b_2d, radius=joint_sides, k=k_sides)
-        t_rounded = _rc(t_2d, radius=joint_sides, k=k_sides)
+        m_sides = "smooth" if k_sides is not None else "circle"
+        kwargs_sides = {"method": m_sides}
+        if m_sides == "smooth":
+            kwargs_sides["joint"] = joint_sides
+            kwargs_sides["curvature"] = k_sides
+        else:
+            kwargs_sides["radius"] = joint_sides
+
+        b_rounded = _rc(b_2d, **kwargs_sides)
+        t_rounded = _rc(t_2d, **kwargs_sides)
     else:
         b_rounded = b_2d
         t_rounded = t_2d

@@ -77,6 +77,8 @@ def test_width_requires_chamfer_method():
 
 def test_k_requires_smooth_method():
     with pytest.raises(AssertionError):
+        round_corners(SQ, method="circle", cut=3, curvature=0.5)
+    with pytest.raises(AssertionError):
         round_corners(SQ, method="circle", cut=3, k=0.5)
 
 
@@ -196,3 +198,49 @@ def test_offset_stroke_returns_region_or_solid():
     else:
         # returns native geometry Solid
         assert hasattr(res, "color")
+
+
+# -- Path instances method tests -----------------------------------------------------------
+
+
+def test_path_methods_on_path_object():
+    p = Path([[0, 0], [10, 0], [10, 10]], closed=False)
+
+    # 1. offset_stroke
+    res_stroke = p.offset_stroke(width=2)
+    assert res_stroke is not None
+
+    # 2. offset_sweep
+    res_sweep = p.offset_sweep(height=10)
+    assert res_sweep is not None
+    assert res_sweep.volume() > 0
+
+    # 3. convex_offset_extrude
+    res_extrude = p.convex_offset_extrude(height=10)
+    assert res_extrude is not None
+
+    # 4. rounded_prism
+    res_rp = p.rounded_prism(height=10)
+    assert res_rp is not None
+
+    # 5. join_prism
+    res_jp = p.join_prism(height=10, fillet=2)
+    assert res_jp is not None
+
+    # 6. prism_connector
+    res_pc = p.prism_connector(length=10, fillet=2)
+    assert res_pc is not None
+
+    # 7. attach_prism
+    res_ap = p.attach_prism(length=10, fillet=2, rounding=2)
+    assert res_ap is not None
+
+    # 8. bent_cutout_mask
+    res_bcm = p.bent_cutout_mask(radius=30, thickness=4)
+    assert res_bcm is not None
+
+    # 9. path_join method
+    other = Path([[10, 10], [20, 20]], closed=False)
+    res_pj = p.path_join([other], relocate=True)
+    assert len(res_pj) == 4
+    np.testing.assert_allclose(res_pj, [[0, 0], [10, 0], [10, 10], [20, 20]])

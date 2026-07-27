@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from bosl2.skin import (
+    OSProfile,
     attach_prism,
     bent_cutout_mask,
     clockwise_polygon,
@@ -309,7 +310,7 @@ _SQ20 = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
 
 def test_os_circle_returns_dict():
     d = os_circle(r=3)
-    assert isinstance(d, dict)
+    assert isinstance(d, OSProfile)
     assert d["type"] == "circle"
     assert d["r"] == 3.0
     assert d["h"] == 3.0  # h defaults to abs(r)
@@ -497,9 +498,18 @@ def test_rounded_prism_plain():
 def test_rounded_prism_rim_rounding():
     """Top/bottom rim rounding removes volume."""
     plain = rounded_prism(_SQ20, height=20)
-    rounded = rounded_prism(_SQ20, height=20, joint_top=3, joint_bot=3)
+    rounded = rounded_prism(_SQ20, height=20, joint_top=3, joint_bottom=3)
     assert _valid(rounded)
     assert rounded.volume() < plain.volume()
+
+
+def test_rounded_prism_compat():
+    """Compatibility mapping for joint_bot and k_sides."""
+    v1 = rounded_prism(_SQ20, height=20, joint_top=3, joint_bottom=3, joint_sides=2, curvature_sides=0.5)
+    v2 = rounded_prism(_SQ20, height=20, joint_top=3, joint_bot=3, joint_sides=2, k_sides=0.5)
+    assert _valid(v1)
+    assert _valid(v2)
+    assert math.isclose(v1.volume(), v2.volume(), rel_tol=1e-9)
 
 
 def test_rounded_prism_side_rounding():
