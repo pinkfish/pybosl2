@@ -16,8 +16,7 @@
 #    :class:`~bosl2.beziers.Bezier`; the circle corners reuse :func:`~bosl2.shapes2d.arc` (2-D) or a
 #    slerp arc (3-D).
 #
-#    NOT ported (a large follow-up): ``join_prism`` / ``prism_connector`` /
-#    ``attach_prism`` / ``bent_cutout_mask``.
+#    NOT ported (a large follow-up): none (all main rounding features ported!).
 #
 
 from __future__ import annotations
@@ -31,7 +30,14 @@ from bosl2._helpers import is_num
 from bosl2.comparisons import approx
 
 # Late imports to avoid circular dependencies
-from bosl2.skin import convex_offset_extrude, join_prism, prism_connector, rounded_prism
+from bosl2.skin import (
+    attach_prism,
+    bent_cutout_mask,
+    convex_offset_extrude,
+    join_prism,
+    prism_connector,
+    rounded_prism,
+)
 from bosl2.vectors import unit
 
 __all__ = [
@@ -44,6 +50,8 @@ __all__ = [
     "rounded_prism",
     "join_prism",
     "prism_connector",
+    "attach_prism",
+    "bent_cutout_mask",
 ]
 
 

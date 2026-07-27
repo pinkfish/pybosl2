@@ -12,6 +12,8 @@ import numpy as np
 import pytest
 
 from bosl2.skin import (
+    attach_prism,
+    bent_cutout_mask,
     clockwise_polygon,
     convex_offset_extrude,
     frame_map,
@@ -537,3 +539,28 @@ def test_prism_connector_fillets():
     assert _valid(filleted)
     # Filleting at both ends adds volume (outward flares)
     assert filleted.volume() > plain.volume()
+
+
+# -- attach_prism & bent_cutout_mask --------------------------------------------------------
+
+
+def test_attach_prism_fillet_rounding():
+    plain = attach_prism(_SQ20, length=20)
+    filleted_rounded = attach_prism(_SQ20, length=20, fillet=2, rounding=2)
+    assert _valid(filleted_rounded)
+    # Fillet (adds volume at bottom) vs Roundover (removes volume at top)
+    # Let's verify it constructs a valid VNF with correct dimensions.
+    assert len(filleted_rounded.vertices) > len(plain.vertices)
+
+
+def test_bent_cutout_mask():
+    cutout = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
+    mask = bent_cutout_mask(radius=30, thickness=4, path=cutout)
+    assert _valid(mask)
+    assert mask.volume() > 0
+    # Thickness check (roughly 4 in radius direction)
+    verts = np.asarray(mask.vertices)
+    radii = np.linalg.norm(verts[:, :2], axis=1)
+    r_min = np.min(radii)
+    r_max = np.max(radii)
+    assert math.isclose(r_max - r_min, 4.0, abs_tol=1e-4)

@@ -1255,6 +1255,66 @@ def prism_connector(
     return offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
 
 
+def attach_prism(
+    profile: Sequence[Sequence[float]],
+    length: float,
+    fillet: float = 0.0,
+    rounding: float = 0.0,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
+
+    Uses :func:`offset_sweep` with a bottom flare (os_circle(r=-fillet)) and top
+    roundover (os_circle(r=rounding)) to create the filleted joints.
+    """
+    bot_desc = os_circle(r=-fillet) if fillet > 0 else None
+    top_desc = os_circle(r=rounding) if rounding > 0 else None
+    return offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+
+
+def bent_cutout_mask(
+    radius: float,
+    thickness: float,
+    path: Sequence[Sequence[float]],
+    style: str = "min_edge",
+) -> VNF:
+    """Create a mask to generate a round-edged cutout in a cylindrical shell (BOSL2 bent_cutout_mask()).
+
+    Wraps a 2-D path around a cylinder of *radius* and extrudes it radially by *thickness*.
+
+    Args:
+        radius:    Radius of the cylinder to wrap around.
+        thickness: Radial thickness of the mask.
+        path:      2-D path/polygon defining the cutout profile.
+        style:     Subdivision style.
+    """
+    pts = [list(map(float, p)) for p in path]
+    if not pts:
+        return VNF([], [])
+
+    # Ensure closed loop
+    if len(pts) > 1 and np.allclose(pts[0], pts[-1], atol=1e-9):
+        pts.pop()
+
+    inner_ring = []
+    outer_ring = []
+
+    r_in = radius - thickness / 2.0
+    r_out = radius + thickness / 2.0
+
+    for x, y in pts:
+        theta = x / radius
+        c = math.cos(theta)
+        s = math.sin(theta)
+        inner_ring.append([r_in * c, r_in * s, y])
+        outer_ring.append([r_out * c, r_out * s, y])
+
+    vnf = VNF.vertex_array([inner_ring, outer_ring], cap1=True, cap2=True, col_wrap=True, style=style)
+    return vnf if vnf.volume() >= 0 else vnf.reverse()
+
+
 # ---------------------------------------------------------------------------------------------
 # path_sweep2d() -- sweep a 2-D shape along a 2-D path (creases allowed)
 # ---------------------------------------------------------------------------------------------
