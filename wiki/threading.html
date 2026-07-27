@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=6d9441cd" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=d8dbfb90" />
     <script src="_static/documentation_options.js?v=1c28bd9a"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -138,6 +138,8 @@
           <div class="body" role="main">
 
   <aside id="pysidebar-global">
+<button class="ps-toggle" title="Toggle sidebar"></button>
+<div class="ps-content">
 <p class="pysidebar-title">In this module</p>
 <ul class="pysidebar-list">
 <li class="ps-class"><a href="#bosl2.threading.Threading.ThreadProfile"><strong>ThreadProfile</strong></a></li>
@@ -158,8 +160,8 @@
 <li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.buttress_threaded_rod">.buttress_threaded_rod</a></li>
 <li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.buttress_threaded_nut">.buttress_threaded_nut</a></li>
 <li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.thread_helix">.thread_helix</a></li>
-</ul></aside>
-<script>(function(){var s=document.getElementById('pysidebar-global');if(s){var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));}})();</script><section id="threading-screw-threads-rods-nuts">
+</ul></div></aside>
+<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="threading-screw-threads-rods-nuts">
 <h1>Threading: screw threads, rods &amp; nuts<a class="headerlink" href="#threading-screw-threads-rods-nuts" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/index.html">Parts catalog &rarr;</a></b>

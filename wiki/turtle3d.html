@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=6d9441cd" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=d8dbfb90" />
     <script src="_static/documentation_options.js?v=1c28bd9a"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -138,6 +138,8 @@
           <div class="body" role="main">
 
   <aside id="pysidebar-global">
+<button class="ps-toggle" title="Toggle sidebar"></button>
+<div class="ps-content">
 <p class="pysidebar-title">In this module</p>
 <ul class="pysidebar-list">
 <li class="ps-class"><a href="#bosl2.turtle3d.Turtle.Turtle"><strong>Turtle</strong></a></li>
@@ -146,8 +148,8 @@
 <li class="ps-meth"><a href="#bosl2.turtle3d.Turtle.Turtle.transforms">.transforms</a></li>
 <li class="ps-meth"><a href="#bosl2.turtle3d.Turtle.Turtle.full_state">.full_state</a></li>
 <li class="ps-meth"><a href="#bosl2.turtle3d.Turtle.Turtle.turtle3d">.turtle3d</a></li>
-</ul></aside>
-<script>(function(){var s=document.getElementById('pysidebar-global');if(s){var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));}})();</script><section id="turtle-3-d">
+</ul></div></aside>
+<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="turtle-3-d">
 <h1>Turtle (3-D)<a class="headerlink" href="#turtle-3-d" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">turtle3d.scad</span></code> as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle</span></code> class. A turtle
 walks through 3-D space carrying an orientation frame; a flat list of commands drives it, and the

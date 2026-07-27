@@ -8,8 +8,8 @@
 listing the current module's functions, classes, and methods.
 
 Class names are bold; methods are shown as ``.method`` (without the class prefix)
-and link into the page anchor.  The sidebar is moved to the document level via
-a small inline script so that flexbox CSS can lay it out as a third column.
+and link into the page anchor.  The sidebar includes a collapse/expand toggle
+and defaults to collapsed on narrow screens.
 """
 
 from __future__ import annotations
@@ -47,7 +47,17 @@ def _build_sidebar_html(members: list[tuple[str, str, str | None]], module_ref: 
     """Build the sidebar HTML for a single module."""
     lines = [
         '<aside id="pysidebar-global">',
+        '<div class="ps-header">',
         '<p class="pysidebar-title">In this module</p>',
+        '<button class="ps-toggle" title="Toggle sidebar">'
+        '<svg width="14" height="14" viewBox="0 0 24 24"'
+        ' fill="none" stroke="currentColor" stroke-width="2.5"'
+        ' stroke-linecap="round" stroke-linejoin="round">'
+        '<polyline points="15 18 9 12 15 6"/>'
+        "</svg>"
+        "</button>",
+        "</div>",
+        '<div class="ps-content">',
         '<ul class="pysidebar-list">',
     ]
     for mtype, name, parent in members:
@@ -60,14 +70,30 @@ def _build_sidebar_html(members: list[tuple[str, str, str | None]], module_ref: 
         elif mtype == "func":
             anchor = f"{module_ref}.{name}"
             lines.append(f'<li class="ps-func"><a href="#{anchor}">{name}</a></li>')
-    lines.append("</ul></aside>")
+    lines.append("</ul></div></aside>")
     lines.append(
         "<script>"
         "(function(){"
         "var s=document.getElementById('pysidebar-global');"
-        "if(s){var d=document.querySelector('.document');"
+        "if(!s)return;"
+        "var d=document.querySelector('.document');"
         "if(d)d.insertBefore(s,d.querySelector('.clearer'));"
-        "}})();"
+        "var btn=s.querySelector('.ps-toggle');"
+        "var saved=localStorage.getItem('ps-collapsed');"
+        "var narrow=window.matchMedia('(max-width:1060px)');"
+        "function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}"
+        "function toggle(){"
+        "var v=!s.classList.contains('collapsed');"
+        "apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');"
+        "}"
+        "if(narrow.matches){apply(saved==='0'?false:true);}"
+        "else{apply(saved==='1');}"
+        "btn.onclick=toggle;"
+        "narrow.onchange=function(e){"
+        "if(e.matches&&saved!=='0')apply(true);"
+        "else if(!e.matches&&saved!=='1')apply(false);"
+        "};"
+        "})();"
         "</script>"
     )
     return "\n".join(lines)
