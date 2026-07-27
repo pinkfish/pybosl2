@@ -1,31 +1,173 @@
-div.sidebar {
+div.document {
+    display: flex;
+    align-items: flex-start;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+div.sphinxsidebar {
+    position: sticky;
+    top: 0;
+    left: 0;
     width: 220px;
-    float: right;
-    clear: right;
-    margin: 0 0 1em 1.5em;
-    font-size: 0.82em;
-    background: var(--color-sidebar-background, #f8f9fa);
-    border: 1px solid var(--color-sidebar-border, #dee2e6);
-    border-radius: 6px;
-    padding: 10px 14px;
+    flex-shrink: 0;
+    height: 100vh;
+    overflow-y: auto;
+    margin: 0;
+    float: none;
+    padding: 20px 14px;
+    box-sizing: border-box;
 }
-div.sidebar p.sidebar-title {
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--color-sidebar-border, #dee2e6);
+
+div.documentwrapper {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    width: auto;
 }
-div.sidebar ul {
-    padding-left: 14px;
+
+div.bodywrapper {
     margin: 0;
 }
-div.sidebar li {
-    margin: 1px 0;
+
+div.body {
+    padding: 0 30px;
 }
-@media (max-width: 900px) {
-    div.sidebar {
-        float: none;
+
+div.clearer {
+    display: none;
+}
+
+#pysidebar-global {
+    width: 190px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--color-sidebar-background, #f8f9fa);
+    border-left: 1px solid var(--color-sidebar-border, #dee2e6);
+    padding: 0;
+    font-size: 0.80em;
+    box-sizing: border-box;
+    float: none;
+    margin: 0;
+    transition: width 0.2s ease;
+}
+
+#pysidebar-global .ps-header {
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--color-sidebar-background, #f8f9fa);
+    border-bottom: 1px solid var(--color-sidebar-border, #dee2e6);
+    padding: 8px 12px;
+    gap: 6px;
+    z-index: 2;
+}
+
+#pysidebar-global .pysidebar-title {
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+}
+
+#pysidebar-global .ps-toggle {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 3px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#pysidebar-global .ps-toggle:hover {
+    background: var(--color-sidebar-border, #dee2e6);
+}
+
+#pysidebar-global .ps-content {
+    padding: 10px 16px 14px 16px;
+}
+
+#pysidebar-global ul {
+    padding-left: 0;
+    margin: 0;
+    list-style: none;
+}
+
+#pysidebar-global li {
+    margin: 1px 0;
+    line-height: 1.35;
+}
+
+#pysidebar-global li.ps-class {
+    margin-top: 6px;
+}
+
+#pysidebar-global li.ps-class a {
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+#pysidebar-global li.ps-meth {
+    padding-left: 16px;
+}
+
+#pysidebar-global li.ps-meth a {
+    font-size: 0.92em;
+    color: var(--color-link, #356bb7);
+}
+
+#pysidebar-global li.ps-func a {
+    color: var(--color-link, #356bb7);
+}
+
+#pysidebar-global.collapsed {
+    width: 28px;
+    overflow: hidden;
+}
+
+#pysidebar-global.collapsed .ps-header {
+    border-bottom: none;
+    padding: 8px 4px;
+    justify-content: center;
+}
+
+#pysidebar-global.collapsed .pysidebar-title {
+    display: none;
+}
+
+#pysidebar-global.collapsed .ps-toggle svg {
+    transform: rotate(180deg);
+}
+
+#pysidebar-global.collapsed .ps-content {
+    display: none;
+}
+
+@media (max-width: 1060px) {
+    div.document {
+        display: block;
+    }
+    div.sphinxsidebar {
+        position: static;
         width: auto;
-        margin-left: 0;
+        height: auto;
+        overflow-y: visible;
+    }
+    div.documentwrapper {
+        width: 100%;
+    }
+    div.bodywrapper {
+        margin: 0;
     }
 }

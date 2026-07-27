@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bosl2.rounding &#8212; bosl2 (PythonSCAD port) 0.5.1 documentation</title>
+    <title>bosl2.rounding &#8212; bosl2 (PythonSCAD port) 0.6.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="../../_static/pysidebar.css?v=963abc2f" />
-    <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pysidebar.css?v=d8dbfb90" />
+    <script src="../../_static/documentation_options.js?v=1c28bd9a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -38,6 +38,10 @@
 
 
 <h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../backends.html">CSG &amp; SDF backends</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../shapes3d.html">3-D shapes</a></li>
@@ -324,19 +328,19 @@
     <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;chamfer&quot;</span> <span class="ow">or</span> <span class="n">measure</span> <span class="o">!=</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s1">&#39;width is allowed only with method=&quot;chamfer&quot;.&#39;</span>
 
     <span class="k">if</span> <span class="n">is_num</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
-        <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sides</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">sides</span><span class="p">:</span>
-        <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+        <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sides</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">sides</span><span class="p">:</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>  <span class="c1"># type: ignore[union-attr]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
+        <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>  <span class="c1"># type: ignore[union-attr]</span>
     <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span> <span class="o">*</span> <span class="n">sides</span>
     <span class="k">elif</span> <span class="n">is_num</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="s1">&#39;k is only allowed with method=&quot;smooth&quot;.&#39;</span>
-        <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sides</span>
+        <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sides</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="s1">&#39;k is only allowed with method=&quot;smooth&quot;.&#39;</span>
-        <span class="n">kv</span> <span class="o">=</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">sides</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+        <span class="n">kv</span> <span class="o">=</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">sides</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parm</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">measure</span><span class="si">}</span><span class="s2"> must be nonnegative.&quot;</span>
     <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kv</span><span class="p">),</span> <span class="s2">&quot;k must be in [0, 1].&quot;</span>
 
@@ -505,7 +509,7 @@
             <span class="n">joint</span><span class="o">=</span><span class="n">joint</span><span class="p">,</span>
             <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
             <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
-            <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span>
+            <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span>  <span class="c1"># type: ignore[attr-defined]</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -529,7 +533,7 @@
             <span class="n">relsize</span><span class="o">=</span><span class="n">relsize</span><span class="p">,</span>
             <span class="n">splinesteps</span><span class="o">=</span><span class="n">splinesteps</span><span class="p">,</span>
             <span class="n">uniform</span><span class="o">=</span><span class="n">uniform</span><span class="p">,</span>
-            <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span>
+            <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="p">)</span></div>
 </div>
 

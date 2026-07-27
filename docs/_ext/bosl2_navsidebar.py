@@ -4,10 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Sphinx extension that auto-generates a right-hand navigation sidebar on every
-module page from the Python source.  Class names link to their section anchor;
-method/function names are listed as plain labels (the Sphinx HTML builder for
-``autoclass`` does not emit per-method fragment IDs).
+"""Sphinx extension that generates a per-page right-hand navigation sidebar
+listing the current module's functions, classes, and methods.
+
+Class names are bold; methods are shown as ``.method`` (without the class prefix)
+and link into the page anchor.  The sidebar includes a collapse/expand toggle
+and defaults to collapsed on narrow screens.
 """
 
 from __future__ import annotations
@@ -27,7 +29,11 @@ logger = logging.getLogger(__name__)
 
 
 def _parse_module(filepath: Path) -> list[tuple[str, str, str | None]]:
-    """Return list of ``(type, name, parent)`` for public members."""
+    """Return list of ``(type, name, parent)`` for public members.
+
+    *type* is one of ``func``, ``class``, ``meth``.
+    *parent* is the class name for methods, ``None`` otherwise.
+    """
     try:
         tree = ast.parse(filepath.read_text(encoding="utf-8"))
     except Exception:
@@ -44,26 +50,72 @@ def _parse_module(filepath: Path) -> list[tuple[str, str, str | None]]:
     return members
 
 
-def _build_html(members: list[tuple[str, str, str | None]], module_ref: str) -> str:
-    """Build the sidebar HTML."""
-    lines = ['<aside class="sidebar"><p class="sidebar-title">Navigation</p>', '<ul class="pysidebar-list">']
+def _build_sidebar_html(members: list[tuple[str, str, str | None]], module_ref: str) -> str:
+    """Build the sidebar HTML for a single module."""
+    lines = [
+        '<aside id="pysidebar-global">',
+        '<div class="ps-header">',
+        '<p class="pysidebar-title">In this module</p>',
+        '<button class="ps-toggle" title="Toggle sidebar">'
+        '<svg width="14" height="14" viewBox="0 0 24 24"'
+        ' fill="none" stroke="currentColor" stroke-width="2.5"'
+        ' stroke-linecap="round" stroke-linejoin="round">'
+        '<polyline points="15 18 9 12 15 6"/>'
+        "</svg>"
+        "</button>",
+        "</div>",
+        '<div class="ps-content">',
+        '<ul class="pysidebar-list">',
+    ]
     for mtype, name, parent in members:
         if mtype == "class":
-            target = f"{module_ref}.{name}"
-            lines.append(f'<li class="ps-class"><a href="#{target}"><strong>{name}</strong></a></li>')
+            anchor = f"{module_ref}.{name}"
+            lines.append(f'<li class="ps-class"><a href="#{anchor}"><strong>{name}</strong></a></li>')
         elif mtype == "meth":
-            lines.append(f'<li class="ps-meth"><span>{parent}.{name}</span></li>')
+            anchor = f"{module_ref}.{parent}.{name}"
+            lines.append(f'<li class="ps-meth"><a href="#{anchor}">.{name}</a></li>')
         elif mtype == "func":
-            lines.append(f'<li class="ps-func"><span>{name}</span></li>')
-    lines.append("</ul></aside>")
+            anchor = f"{module_ref}.{name}"
+            lines.append(f'<li class="ps-func"><a href="#{anchor}">{name}</a></li>')
+    lines.append("</ul></div></aside>")
+    lines.append(
+        "<script>"
+        "(function(){"
+        "var s=document.getElementById('pysidebar-global');"
+        "if(!s)return;"
+        "var d=document.querySelector('.document');"
+        "if(d)d.insertBefore(s,d.querySelector('.clearer'));"
+        "var btn=s.querySelector('.ps-toggle');"
+        "var saved=localStorage.getItem('ps-collapsed');"
+        "var narrow=window.matchMedia('(max-width:1060px)');"
+        "function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}"
+        "function toggle(){"
+        "var v=!s.classList.contains('collapsed');"
+        "apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');"
+        "}"
+        "if(narrow.matches){apply(saved==='0'?false:true);}"
+        "else{apply(saved==='1');}"
+        "btn.onclick=toggle;"
+        "narrow.onchange=function(e){"
+        "if(e.matches&&saved!=='0')apply(true);"
+        "else if(!e.matches&&saved!=='1')apply(false);"
+        "};"
+        "})();"
+        "</script>"
+    )
     return "\n".join(lines)
 
 
 def _on_html_page_context(
-    app: Sphinx, pagename: str, templatename: str, context: dict, doctree: nodes.document
+    app: Sphinx,
+    pagename: str,
+    templatename: str,
+    context: dict,
+    doctree,  # noqa: ANN001
 ) -> None:
-    """Inject the sidebar HTML into the page body at build time."""
-    if not context.get("body"):
+    """Inject a per-module sidebar into module pages only."""
+    body = context.get("body")
+    if not body:
         return
 
     src = app.env.doc2path(pagename)
@@ -78,11 +130,10 @@ def _on_html_page_context(
 
     module_ref = m.group(1)
     parts = module_ref.split(".")
-    if parts[0] == "bosl2" and len(parts) >= 2:
-        filepath = Path(app.srcdir).parent / "bosl2" / f"{parts[1]}.py"
-    else:
+    if parts[0] != "bosl2" or len(parts) < 2:
         return
 
+    filepath = Path(app.srcdir).parent / "bosl2" / f"{parts[1]}.py"
     if not filepath.is_file():
         return
 
@@ -90,8 +141,8 @@ def _on_html_page_context(
     if not members:
         return
 
-    sidebar_html = _build_html(members, module_ref)
-    context["body"] = sidebar_html + context["body"]
+    sidebar_html = _build_sidebar_html(members, module_ref)
+    context["body"] = sidebar_html + body
 
 
 def setup(app: Sphinx) -> None:
