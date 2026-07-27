@@ -4,12 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for pybosl2.sliders: V-groove sliders and rails."""
+"""Tests for pybosl2.sliders: V-groove sliders and railSliders."""
 
 import pytest
 
 from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.sliders import Sliders as S
+from pybosl2.sliders import Sliders
 
 
 def _size(solid):
@@ -25,11 +25,11 @@ def _size(solid):
     ],
 )
 def test_slider_builds(kw):
-    assert isinstance(S.slider(**kw, fn=None, fa=None, fs=None), Bosl2Solid)
+    assert isinstance(Sliders.slider(**kw, fn=None, fa=None, fs=None), Bosl2Solid)
 
 
 def test_rail_envelope():
-    radius = S.rail(length=100, w=10, height=10)
+    radius = Sliders.rail(length=100, w=10, height=10)
     assert isinstance(radius, Bosl2Solid)
     w, length, height = _size(radius)
     assert w == pytest.approx(10, abs=0.1)
@@ -38,11 +38,11 @@ def test_rail_envelope():
 
 
 def test_rail_length_scales():
-    assert _size(S.rail(length=100, w=10, height=10))[1] > _size(S.rail(length=40, w=10, height=10))[1]
+    assert _size(Sliders.rail(length=100, w=10, height=10))[1] > _size(Sliders.rail(length=40, w=10, height=10))[1]
 
 
 def test_slider_slop_widens_fit():
     # more slop -> a slightly larger slider footprint
-    tight = _size(S.slider(length=30, slop=0.0, fn=None, fa=None, fs=None))
-    loose = _size(S.slider(length=30, slop=0.4, fn=None, fa=None, fs=None))
+    tight = _size(Sliders.slider(length=30, slop=0.0, fn=None, fa=None, fs=None))
+    loose = _size(Sliders.slider(length=30, slop=0.4, fn=None, fa=None, fs=None))
     assert loose[1] >= tight[1]

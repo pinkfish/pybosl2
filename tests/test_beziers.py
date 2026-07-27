@@ -74,8 +74,8 @@ def test_closest_point():
 
 
 def test_length_positive_and_ge_chord():
-    L = Bezier(CUBIC).length()
-    assert math.dist([0, 0], [80, 0]) < L
+    length_ = Bezier(CUBIC).length()
+    assert math.dist([0, 0], [80, 0]) < length_
 
 
 def test_line_intersection_finds_endpoints_on_axis():

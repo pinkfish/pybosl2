@@ -40,7 +40,7 @@ def test_parse_number_and_dict():
     "thread,expected",
     [("coarse", 1.5), ("fine", 1.25), ("extra fine", 1.0), ("super fine", 0.75)],
 )
-def test_pitch_classes_M10(thread, expected):
+def test_pitch_classes_m10(thread, expected):
     assert _lookup_pitch(10, thread) == expected
 
 

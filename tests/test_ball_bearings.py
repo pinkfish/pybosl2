@@ -9,8 +9,7 @@ ball_bearing() cartridge model."""
 
 import pytest
 
-from pybosl2.ball_bearings import BallBearings as BB
-from pybosl2.ball_bearings import BearingSpec
+from pybosl2.ball_bearings import BallBearings, BearingSpec
 from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -20,7 +19,7 @@ def _size(solid):
 
 
 def test_info_returns_dataclass():
-    spec = BB.ball_bearing_info("608")
+    spec = BallBearings.ball_bearing_info("608")
     assert isinstance(spec, BearingSpec)
     assert (spec.inner_diameter, spec.outer_diameter, spec.width, spec.shielded) == (
         8,
@@ -31,8 +30,8 @@ def test_info_returns_dataclass():
 
 
 def test_zz_variant_is_shielded_same_dims():
-    open_ = BB.ball_bearing_info("6902")
-    zz = BB.ball_bearing_info("6902ZZ")
+    open_ = BallBearings.ball_bearing_info("6902")
+    zz = BallBearings.ball_bearing_info("6902ZZ")
     assert not open_.shielded and zz.shielded
     assert (zz.inner_diameter, zz.outer_diameter, zz.width) == (
         open_.inner_diameter,
@@ -42,14 +41,14 @@ def test_zz_variant_is_shielded_same_dims():
 
 
 def test_imperial_size_uses_inches():
-    r8 = BB.ball_bearing_info("R8")
+    r8 = BallBearings.ball_bearing_info("R8")
     assert r8.inner_diameter == pytest.approx(0.5 * 25.4)
     assert r8.outer_diameter == pytest.approx(9 / 8 * 25.4)
 
 
 def test_unknown_size_raises():
     with pytest.raises(ValueError):
-        BB.ball_bearing_info("nope")
+        BallBearings.ball_bearing_info("nope")
 
 
 @pytest.mark.parametrize(
@@ -62,12 +61,12 @@ def test_unknown_size_raises():
     ],
 )
 def test_ball_bearing_builds(kw):
-    assert isinstance(BB.ball_bearing(**kw), Bosl2Solid)
+    assert isinstance(BallBearings.ball_bearing(**kw), Bosl2Solid)
 
 
 @pytest.mark.skip(reason="pre-existing: Bosl2Solid size differs after param rename")
 def test_envelope_matches_od_and_width():
-    b = BB.ball_bearing("6205")  # inner_diameter 25, outer_diameter 52, width 15
+    b = BallBearings.ball_bearing("6205")  # inner_diameter 25, outer_diameter 52, width 15
     w, _wy, hgt = _size(b)
     assert w == pytest.approx(52, abs=0.5)
     assert hgt == pytest.approx(15, abs=0.01)
@@ -75,4 +74,4 @@ def test_envelope_matches_od_and_width():
 
 def test_requires_size_or_dims():
     with pytest.raises(ValueError):
-        BB.ball_bearing()
+        BallBearings.ball_bearing()

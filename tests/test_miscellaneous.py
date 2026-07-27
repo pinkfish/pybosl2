@@ -12,7 +12,7 @@ cases); geometric correctness is verified in test_stl_render.py."""
 import pytest
 
 import pybosl2.shapes2d as s2
-from pybosl2 import miscellaneous as M
+from pybosl2 import miscellaneous as m
 from pybosl2.paths import Path, Path3D
 from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
@@ -77,46 +77,46 @@ def test_path_extrude_factory_profile():
 
 
 def test_extrude_from_to():
-    assert isinstance(M.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30]), Bosl2Solid)
+    assert isinstance(m.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30]), Bosl2Solid)
     assert isinstance(
-        M.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2),
+        m.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2),
         Bosl2Solid,
     )
 
 
 def test_extrude_from_to_same_point_raises():
     with pytest.raises(AssertionError):
-        M.extrude_from_to(s2.circle(radius=4), [1, 2, 3], [1, 2, 3])
+        m.extrude_from_to(s2.circle(radius=4), [1, 2, 3], [1, 2, 3])
 
 
 def test_cylindrical_extrude():
     assert isinstance(
-        M.cylindrical_extrude(s2.square([20, 8]), inner_radius=25, outer_radius=30),
+        m.cylindrical_extrude(s2.square([20, 8]), inner_radius=25, outer_radius=30),
         Bosl2Solid,
     )
     assert isinstance(
-        M.cylindrical_extrude(s2.square([20, 8]), inner_diameter=50, outer_diameter=60, spin=45),
+        m.cylindrical_extrude(s2.square([20, 8]), inner_diameter=50, outer_diameter=60, spin=45),
         Bosl2Solid,
     )
 
 
 def test_cylindrical_extrude_needs_radii():
     with pytest.raises(AssertionError):
-        M.cylindrical_extrude(s2.square([20, 8]), inner_radius=25)
+        m.cylindrical_extrude(s2.square([20, 8]), inner_radius=25)
 
 
 def test_chain_hull():
-    assert isinstance(M.chain_hull(cuboid([5, 5, 5]), sphere(radius=4).right(20)), Bosl2Solid)
+    assert isinstance(m.chain_hull(cuboid([5, 5, 5]), sphere(radius=4).right(20)), Bosl2Solid)
     assert isinstance(
-        M.chain_hull([cuboid([5, 5, 5]), sphere(radius=4), cuboid([3, 3, 3])]),
+        m.chain_hull([cuboid([5, 5, 5]), sphere(radius=4), cuboid([3, 3, 3])]),
         Bosl2Solid,
     )
     # single object passes through
-    assert isinstance(M.chain_hull(cuboid([5, 5, 5])), Bosl2Solid)
+    assert isinstance(m.chain_hull(cuboid([5, 5, 5])), Bosl2Solid)
 
 
 def test_minkowski_difference():
-    assert isinstance(M.minkowski_difference(cuboid([40, 40, 40]), sphere(radius=8)), Bosl2Solid)
+    assert isinstance(m.minkowski_difference(cuboid([40, 40, 40]), sphere(radius=8)), Bosl2Solid)
 
 
 # -- Bosl2Solid methods -------------------------------------------------------------------

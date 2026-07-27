@@ -65,7 +65,7 @@ def test_sweep_builds_ffi_free():
     assert len(size) == 3 and all(v > 0 for v in size)
 
 
-def test_straight_tube_geometry(numeric_lv):
+def test_straight_tube_geometry(_numeric_lv):
     tube = sdf.path_sweep(CIRCLE, [[0, 0, z] for z in np.linspace(0, 30, 40)])
     # a radius-2 circle swept 0..30 along z: bounds exactly [4, 4, 30], no overshoot past the ends
     sx, sy, sz = tube.bounds()[1]
@@ -78,7 +78,7 @@ def test_straight_tube_geometry(numeric_lv):
     assert f(0, 0, 0.5) < 0  # just inside the start cap
 
 
-def test_bezier_tube_watertight_along_path(numeric_lv):
+def test_bezier_tube_watertight_along_path(_numeric_lv):
     cp = [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]]
     tube = sdf.bezier_sweep(CIRCLE, cp, splinesteps=48)
     f = _field(tube)
@@ -88,7 +88,7 @@ def test_bezier_tube_watertight_along_path(numeric_lv):
     assert all(f(px, py, pz) < 0 for px, py, pz in pts)
 
 
-def test_twist_keeps_it_a_solid(numeric_lv):
+def test_twist_keeps_it_a_solid(_numeric_lv):
     square = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
     tube = sdf.path_sweep(square, [[0, 0, z] for z in np.linspace(0, 20, 30)], twist=90)
     f = _field(tube)
@@ -100,12 +100,12 @@ def test_twist_keeps_it_a_solid(numeric_lv):
     assert f(2.7, 0, 10) < 0 and tube.mx[0] >= 2.7  # solid material there, and inside the domain
 
 
-def test_concave_profile_notch_is_carved(numeric_lv):
+def test_concave_profile_notch_is_carved(_numeric_lv):
     # An L-shaped (concave) profile: the removed top-right quadrant must read OUTSIDE, while both
     # arms read inside -- i.e. the sweep honours the concavity (via _polygon_sdf_xy), not just a hull.
-    L = [[0, 0], [4, 0], [4, 2], [2, 2], [2, 4], [0, 4]]
+    profile = [[0, 0], [4, 0], [4, 2], [2, 2], [2, 4], [0, 4]]
     path = [[0, 0, z] for z in np.linspace(0, 10, 30)]
-    tube = sdf.path_sweep(L, path)
+    tube = sdf.path_sweep(profile, path)
     uv = _frame_probe(tube, path)
     assert uv(1, 1) < 0 and uv(3, 1) < 0 and uv(1, 3) < 0  # both solid arms
     assert uv(2.5, 2.5) > 0 and uv(3.5, 3.5) > 0  # the concave notch is empty

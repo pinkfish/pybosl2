@@ -13,7 +13,7 @@ mesh geometry (that is covered in test_stl_render.py)."""
 import numpy as np
 import pytest
 
-from pybosl2 import distributors as D
+from pybosl2 import distributors as d
 from pybosl2.paths import Path, Path3D
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
@@ -21,46 +21,46 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 
 def test_move_copies_matrices():
-    mats = D.move_copies([[0, 0, 0], [10, 0, 0], [0, 5, 0]])
+    mats = d.move_copies([[0, 0, 0], [10, 0, 0], [0, 5, 0]])
     assert len(mats) == 3
     np.testing.assert_allclose(mats[1][:3, 3], [10, 0, 0], atol=1e-9)  # translation column
 
 
 def test_xcopies_centered_by_default():
-    mats = D.xcopies(20, sides=3)
+    mats = d.xcopies(20, sides=3)
     xs = sorted(m[0, 3] for m in mats)
     np.testing.assert_allclose(xs, [-20, 0, 20], atol=1e-9)  # centered on origin
 
 
 def test_xcopies_explicit_positions():
-    mats = D.xcopies([1, 2, 3, 5, 7])
+    mats = d.xcopies([1, 2, 3, 5, 7])
     xs = [m[0, 3] for m in mats]
     np.testing.assert_allclose(xs, [1, 2, 3, 5, 7], atol=1e-9)
 
 
 def test_grid_copies_count_and_stagger():
-    assert len(D.grid_copies(sides=[3, 4], spacing=10)) == 12
+    assert len(d.grid_copies(sides=[3, 4], spacing=10)) == 12
     # a staggered grid drops/offsets alternate columns per row
-    assert len(D.grid_copies(spacing=8, sides=[4, 3], stagger=True)) == 6
+    assert len(d.grid_copies(spacing=8, sides=[4, 3], stagger=True)) == 6
 
 
 def test_grid_copies_inside_polygon_filters():
     # only centers inside the small square survive
     poly = [[-6, -6], [6, -6], [6, 6], [-6, 6]]
-    mats = D.grid_copies(spacing=5, sides=[9, 9], inside=poly)
+    mats = d.grid_copies(spacing=5, sides=[9, 9], inside=poly)
     assert 0 < len(mats) < 81
     for m in mats:
         assert -6 <= m[0, 3] <= 6 and -6 <= m[1, 3] <= 6
 
 
 def test_arc_copies_positions_on_circle():
-    mats = D.arc_copies(sides=4, radius=10, sa=0, ea=360)
+    mats = d.arc_copies(sides=4, radius=10, sa=0, ea=360)
     # first copy sits on +X at radius 10
     np.testing.assert_allclose(mats[0][:3, 3], [10, 0, 0], atol=1e-9)
 
 
 def test_mirror_copy_is_original_plus_reflection():
-    mats = D.mirror_copy([1, 0, 0])
+    mats = d.mirror_copy([1, 0, 0])
     assert len(mats) == 2
     np.testing.assert_allclose(mats[0], np.eye(4), atol=1e-9)  # the original
     np.testing.assert_allclose(mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9)  # X reflection
@@ -151,6 +151,6 @@ def test_solid_path_copies_returns_solid():
 
 def test_distribute_returns_solid():
     a, b, c = cuboid([10, 10, 10]), cuboid([20, 20, 20]), cuboid([5, 5, 5])
-    assert isinstance(D.xdistribute([a, b, c], spacing=5), Bosl2Solid)
-    assert isinstance(D.ydistribute([a, b], sizes=[10, 20]), Bosl2Solid)
-    assert isinstance(D.zdistribute([a, b, c], length=100), Bosl2Solid)
+    assert isinstance(d.xdistribute([a, b, c], spacing=5), Bosl2Solid)
+    assert isinstance(d.ydistribute([a, b], sizes=[10, 20]), Bosl2Solid)
+    assert isinstance(d.zdistribute([a, b, c], length=100), Bosl2Solid)
