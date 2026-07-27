@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 from bosl2.paths import Path, Path3D
-from bosl2.rounding import round_corners, smooth_path
+from bosl2.rounding import offset_stroke, path_join, round_corners, smooth_path
 
 SQ = [[0, 0], [40, 0], [40, 30], [0, 30]]
 P3 = [[0, 0, 0], [40, 0, 0], [40, 40, 20], [0, 40, 20]]
@@ -137,3 +137,62 @@ def test_smooth_path_3d():
 def test_smooth_path_method_on_path():
     p = Path([[0, 0], [10, 30], [30, -10]], closed=False)
     assert isinstance(p.smooth_path(relsize=0.4), Path)
+
+
+# -- path_join ----------------------------------------------------------------------------
+
+
+def test_path_join_plain_concatenation():
+    p1 = [[0, 0], [10, 0]]
+    p2 = [[10, 0], [20, 10]]
+    res = path_join([p1, p2], relocate=True)
+    assert isinstance(res, Path)
+    # The common point is merged, so 10,0 is not repeated twice.
+    assert len(res) == 3
+    np.testing.assert_allclose(res, [[0, 0], [10, 0], [20, 10]])
+
+
+def test_path_join_relocate_false():
+    p1 = [[0, 0], [10, 0]]
+    p2 = [[10, 0], [20, 10]]
+    res = path_join([p1, p2], relocate=False)
+    # Relocate=False preserves duplicate endpoints
+    assert len(res) == 4
+    np.testing.assert_allclose(res, [[0, 0], [10, 0], [10, 0], [20, 10]])
+
+
+def test_path_join_with_rounding():
+    # Corner at [10,0] is rounded
+    p1 = [[0, 0], [10, 0]]
+    p2 = [[10, 0], [10, 10]]
+    res = path_join([p1, p2], radius=2)
+    assert len(res) > 3
+    # Endpoints must remain same as originals
+    np.testing.assert_allclose(res[0], [0, 0], atol=1e-9)
+    np.testing.assert_allclose(res[-1], [10, 10], atol=1e-9)
+
+
+def test_path_join_3d():
+    p1 = [[0, 0, 0], [10, 0, 0]]
+    p2 = [[10, 0, 0], [20, 10, 10]]
+    res = path_join([p1, p2], radius=1)
+    assert isinstance(res, Path3D)
+
+
+# -- offset_stroke ------------------------------------------------------------------------
+
+
+def test_offset_stroke_returns_region_or_solid():
+    p = [[0, 0], [10, 0], [10, 10]]
+    res = offset_stroke(p, width=2)
+    assert res is not None
+    # Depending on whether shapely is installed, it is either a Region or a Solid (CSG).
+    from bosl2.regions import _SHAPELY, Region
+
+    if _SHAPELY:
+        assert isinstance(res, Region)
+        # Should have outline and bounds
+        assert len(res.outline) > 0
+    else:
+        # returns native geometry Solid
+        assert hasattr(res, "color")

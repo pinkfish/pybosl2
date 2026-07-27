@@ -16,16 +16,16 @@
 #    :class:`~bosl2.beziers.Bezier`; the circle corners reuse :func:`~bosl2.shapes2d.arc` (2-D) or a
 #    slerp arc (3-D).
 #
-#    NOT ported (a large follow-up): ``path_join``, and the 3-D generators ``offset_stroke`` /
-#    ``offset_sweep`` (+ the ``os_*`` profiles) / ``convex_offset_extrude`` / ``rounded_prism`` /
+#    NOT ported (a large follow-up): ``convex_offset_extrude`` / ``rounded_prism`` /
 #    ``join_prism`` / ``prism_connector`` / ``attach_prism`` / ``bent_cutout_mask``.
 #
-# FileSummary: Path rounding: round_corners (circle/smooth/chamfer) and smooth_path.
+# FileSummary: Path rounding: round_corners (circle/smooth/chamfer), smooth_path, path_join and offset_stroke.
 # FileGroup: BOSL2
 
 from __future__ import annotations
 
 import math
+from typing import Any, Sequence
 
 import numpy as np
 
@@ -33,7 +33,7 @@ from bosl2._helpers import is_num
 from bosl2.comparisons import approx
 from bosl2.vectors import unit
 
-__all__ = ["round_corners", "smooth_path", "Roundable"]
+__all__ = ["round_corners", "smooth_path", "Roundable", "path_join", "offset_stroke"]
 
 
 # ---------------------------------------------------------------------------
@@ -385,3 +385,156 @@ class Roundable:
             uniform=uniform,
             closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
         )
+
+
+def path_join(
+    paths: Sequence[Sequence[Sequence[float]]],
+    radius: float | list[float] | None = None,
+    cut: float | list[float] | None = None,
+    joint: float | list[float] | None = None,
+    k: float | list[float] | None = None,
+    relocate: bool = True,
+    closed: bool = False,
+) -> Any:
+    """Join multiple paths end-to-end with optional rounding at the joint connections (BOSL2 path_join()).
+
+    Consecutive endpoints are merged if they are within a tolerance (and *relocate* is True).
+    The joints between adjacent paths are rounded using the same options as
+    :func:`round_corners`.
+
+    Args:
+        paths:    A sequence of 2-D or 3-D paths (each a sequence of points).
+        radius:   Rounding radius at joints (mutually exclusive with cut/joint).
+        cut:      Cut parameter for joint rounding.
+        joint:    Joint parameter for joint rounding.
+        k:        Continuous curvature (smooth) parameter for joints.
+        relocate: Merge consecutive endpoints if they are close (default True).
+        closed:   Close the resulting joined path (default False).
+
+    Returns:
+        A :class:`~bosl2.paths.Path` or :class:`~bosl2.paths.Path3D` depending on the input dimensions.
+    """
+    from bosl2.paths import Path as _Path
+    from bosl2.paths import Path3D as _Path3D
+
+    if not paths:
+        return _Path([])
+
+    # Concatenate paths
+    pts = [list(map(float, pt)) for pt in paths[0]]
+    joint_indices = []
+
+    for p in paths[1:]:
+        p_pts = [list(map(float, pt)) for pt in p]
+        if not p_pts:
+            continue
+        if relocate and np.allclose(pts[-1], p_pts[0], atol=1e-9):
+            joint_indices.append(len(pts) - 1)
+            pts.extend(p_pts[1:])
+        else:
+            joint_indices.append(len(pts) - 1)
+            pts.extend(p_pts)
+
+    if closed and len(pts) > 2:
+        if relocate and np.allclose(pts[-1], pts[0], atol=1e-9):
+            pts.pop()
+        joint_indices.append(len(pts) - 1)
+
+    # Determine dimension
+    dim = len(pts[0])
+    cls = _Path3D if dim == 3 else _Path
+
+    # If no rounding requested, return the joined path as-is
+    given = [
+        (m, v)
+        for m, v in (
+            ("radius", radius),
+            ("cut", cut),
+            ("joint", joint),
+        )
+        if v is not None
+    ]
+    if not given:
+        return cls(pts, closed=closed)
+
+    measure, size = given[0]
+    # Build a per-corner size list
+    sides = len(pts)
+    size_list = [0.0] * sides
+
+    # Map input size to joint indices
+    if isinstance(size, (list, tuple, np.ndarray)):
+        # Assign elements sequentially to the joints
+        for i, idx in enumerate(joint_indices):
+            if i < len(size):
+                size_list[idx] = float(size[i])
+    else:
+        for idx in joint_indices:
+            size_list[idx] = float(size)
+
+    # Do the same for k if given
+    k_list = None
+    if k is not None:
+        k_list = [0.5] * sides
+        if isinstance(k, (list, tuple, np.ndarray)):
+            for i, idx in enumerate(joint_indices):
+                if i < len(k):
+                    k_list[idx] = float(k[i])
+        else:
+            for idx in joint_indices:
+                k_list[idx] = float(k)
+
+    # Call round_corners with the per-corner sizes
+    kwargs = {measure: size_list, "closed": closed}
+    if k_list is not None:
+        kwargs["k"] = k_list
+
+    return round_corners(pts, **kwargs)
+
+
+def offset_stroke(
+    path,
+    width: float = 1.0,
+    closed: bool = False,
+    endcap: str = "round",
+    joint: str = "round",
+) -> Any:
+    """Offset a 2-D path by *width* to create a thickened outline Region (BOSL2 offset_stroke()).
+
+    If *closed* is True, the path is treated as a closed loop.
+    When :mod:`shapely` is installed, returns a :class:`Region` containing the coordinates
+    of the outline. Without shapely, falls back to PythonSCAD geometry (CSG shape).
+    """
+    from bosl2.paths import Path as _Path
+    from bosl2.regions import _SHAPELY, Region, _from_shapely
+
+    # Coerce to Path
+    p = path if isinstance(path, _Path) else _Path(path)
+
+    if _SHAPELY:
+        from shapely.geometry import LineString
+
+        pts = [(float(pt[0]), float(pt[1])) for pt in p]
+        if not pts:
+            return Region([])
+
+        # Map endcap/join style strings
+        cap_map = {"round": 1, "flat": 2, "square": 3, "butt": 2}
+        join_map = {"round": 1, "mitre": 2, "bevel": 3, "miter": 2}
+
+        c_style = cap_map.get(endcap.lower() if isinstance(endcap, str) else "round", 1)
+        j_style = join_map.get(joint.lower() if isinstance(joint, str) else "round", 1)
+
+        # For a closed loop, append first point to ensure it's closed
+        if closed and len(pts) > 1 and pts[0] != pts[-1]:
+            line = LineString(pts + [pts[0]])
+        else:
+            line = LineString(pts)
+
+        geom = line.buffer(width / 2.0, cap_style=c_style, join_style=j_style)
+        return Region(_from_shapely(geom))
+    else:
+        # Fallback to stroke() geometry
+        from bosl2.drawing import stroke
+
+        return stroke(p, width=width, closed=closed, endcaps=endcap, joints=joint)
