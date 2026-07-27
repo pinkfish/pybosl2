@@ -378,26 +378,27 @@ def nurbs_patch_points(
         )
         return [[list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in row] for row in pts]
 
-    degree = _force_list2(degree)
-    type = _force_list2(type)  # noqa: A001
-    splinesteps = [None, None] if splinesteps is None else _force_list2(splinesteps)  # type: ignore[assignment]
+    degree_list = _force_list2(degree)
+    type_list = _force_list2(type)
+    splinesteps_list = [None, None] if splinesteps is None else _force_list2(splinesteps)  # type: ignore[assignment]
     mult = [mult, mult] if (mult is None or is_num(mult) or (mult and is_num(mult[0]))) else list(mult)
     knots = [knots, knots] if (knots is None or (knots and is_num(knots[0]))) else list(knots)
 
     if is_num(u) and is_num(v):
         inner = [
-            _nurbs_curve_pts(ctrl, degree[1], u=v, type=type[1], mult=mult[1], knots=knots[1])[0] for ctrl in patch
+            _nurbs_curve_pts(ctrl, degree_list[1], u=v, type=type_list[1], mult=mult[1], knots=knots[1])[0]
+            for ctrl in patch
         ]
-        return _nurbs_curve_pts(inner, degree[0], u=u, type=type[0], mult=mult[0], knots=knots[0])[0]
+        return _nurbs_curve_pts(inner, degree_list[0], u=u, type=type_list[0], mult=mult[0], knots=knots[0])[0]
 
     # sweep each control-column as a u-curve, then each resulting row as a v-curve
     vsplines = [
         _nurbs_curve_pts(
             _column(patch, i),
-            degree[0],  # type: ignore[index]
-            splinesteps=splinesteps[0],  # type: ignore[index]
+            degree_list[0],
+            splinesteps=splinesteps_list[0],
             u=u,
-            type=type[0],
+            type=type_list[0],
             mult=mult[0],
             knots=knots[0],
         )
@@ -407,10 +408,10 @@ def nurbs_patch_points(
     for i in range(len(vsplines[0])):
         row = _nurbs_curve_pts(
             _column(vsplines, i),
-            degree[1],  # type: ignore[index]
-            splinesteps=splinesteps[1],  # type: ignore[index]
+            degree_list[1],
+            splinesteps=splinesteps_list[1],
             u=v,
-            type=type[1],
+            type=type_list[1],
             mult=mult[1],
             knots=knots[1],
         )

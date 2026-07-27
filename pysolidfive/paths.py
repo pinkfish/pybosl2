@@ -110,7 +110,9 @@ def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode:
     `amount` is indexed the same way as pybosl2.shapes3d.EDGE_OFFSETS's per-axis rows:
     [(-,-), (+,-), (-,+), (+,+)] in (u, v) sign.
     """
-    corner_modes = [mode] * 4 if isinstance(mode, str) else (list(mode) if mode is not None else [None] * 4)
+    corner_modes: list[str | None] = (
+        [mode] * 4 if isinstance(mode, str) else (list(mode) if mode is not None else [None] * 4)
+    )
     candidates = []
     for ci, (su, sv, a) in enumerate(((-1, -1, amount[0]), (1, -1, amount[1]), (-1, 1, amount[2]), (1, 1, amount[3]))):
         cmode = corner_modes[ci]
