@@ -21,7 +21,7 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Sequence
+from typing import Any, Sequence, cast
 
 import numpy as np
 
@@ -196,19 +196,17 @@ def _round_corners(
     assert method == "chamfer" or measure != "width", 'width is allowed only with method="chamfer".'
 
     if is_num(size):
-        parm = [float(size)] * sides  # type: ignore[arg-type]
-    elif len(size) < sides:  # type: ignore[arg-type]
-        parm = [0.0] + [float(v) for v in size] + [0.0]  # type: ignore[union-attr]
-    else:
-        parm = [float(v) for v in size]  # type: ignore[union-attr]
+        parm = [float(size)] * sides
+    elif isinstance(size, (list, tuple, np.ndarray)):
+        parm = [0.0] + [float(v) for v in size] + [0.0] if len(size) < sides else [float(v) for v in size]
     if k is None:
         kv = [0.5] * sides
     elif is_num(k):
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = [float(k)] * sides  # type: ignore[arg-type]
-    else:
+        kv = [float(k)] * sides
+    elif isinstance(k, (list, tuple, np.ndarray)):
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < sides else [float(v) for v in k]  # type: ignore[arg-type, union-attr]
+        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < sides else [float(v) for v in k]
     assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
     assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
 
@@ -423,7 +421,7 @@ class Roundable:
         from pybosl2.skin import _offset_sweep as _os
 
         return _os(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             height=height,
             bottom=bottom,
             top=top,
@@ -445,7 +443,7 @@ class Roundable:
         from pybosl2.skin import _convex_offset_extrude as _coe
 
         return _coe(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             height=height,
             bottom=bottom,
             top=top,
@@ -474,7 +472,7 @@ class Roundable:
         k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides")
 
         return _rp(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             top=top,
             height=height,
             joint_top=joint_top,
@@ -499,7 +497,7 @@ class Roundable:
         from pybosl2.skin import _join_prism as _jp
 
         return _jp(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             height=height,
             fillet=fillet,
             steps=steps,
@@ -521,7 +519,7 @@ class Roundable:
         from pybosl2.skin import _prism_connector as _pc
 
         return _pc(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             length=length,
             fillet=fillet,
             fillet1=fillet1,
@@ -544,7 +542,7 @@ class Roundable:
         from pybosl2.skin import _attach_prism as _ap
 
         return _ap(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             length=length,
             fillet=fillet,
             rounding=rounding,
@@ -565,7 +563,7 @@ class Roundable:
         return _bcm(
             radius=radius,
             thickness=thickness,
-            path=self,  # type: ignore[arg-type]
+            path=cast("Sequence[Sequence[float]]", self),
             style=style,
         )
 

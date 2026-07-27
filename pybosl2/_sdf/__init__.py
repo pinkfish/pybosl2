@@ -13,10 +13,9 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
-from pybosl2._backend import register_backend
-from pybosl2._sdf import joiners, shapes2d, skin
+from pybosl2._backend import SolidBackend, register_backend
 from pybosl2._sdf import shapes3d as _s
 
 __all__ = ["SdfBackend", "shapes2d", "skin", "joiners"]
@@ -92,4 +91,4 @@ class SdfBackend:
         return _s.intersection(*solids)
 
 
-register_backend("sdf", SdfBackend())  # type: ignore[arg-type]
+register_backend("sdf", cast("SolidBackend", SdfBackend()))

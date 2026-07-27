@@ -266,6 +266,17 @@ def _pick_radius(
     diameter: float | None = None,
     dflt: None = None,
 ) -> float | None: ...
+@overload
+def _pick_radius(
+    radius1: float | None = None,
+    diameter1: float | None = None,
+    radius2: float | None = None,
+    diameter2: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
+    *,
+    dflt: float | None = None,
+) -> float | None: ...
 def _pick_radius(
     radius1=None,
     diameter1=None,
@@ -1164,11 +1175,16 @@ def arc(
     assert arc_r is not None, "arc() needs radius=/diameter=, points=, corner=, or width=/thickness="
     if isinstance(angle, (list, tuple, np.ndarray)):
         assert start is None, "start= is not allowed with angle=[start, end]"
-        calc_start = float(angle[0])  # type: ignore[arg-type]
-        calc_angle = float(angle[1]) - float(angle[0])  # type: ignore[arg-type]
+        calc_start = float(angle[0])
+        calc_angle = float(angle[1]) - float(angle[0])
+    elif isinstance(angle, (int, float)):
+        calc_angle = float(angle)
+        calc_start = 0.0 if start is None else float(start)
+    elif angle is None:
+        calc_angle = 360.0
+        calc_start = 0.0 if start is None else float(start)
     else:
-        calc_angle = 360.0 if angle is None else float(angle)  # type: ignore[arg-type]
-        calc_start = 0.0 if start is None else float(start)  # type: ignore[arg-type]
+        raise TypeError(f"angle must be a number, a [start, end] pair, or None, got {type(angle)}")
     calc_center = (0.0, 0.0) if center is None else center
     point_count = count if count is not None else math.ceil(_frag_count(arc_r, fn, fa, fs) * abs(calc_angle) / 360) + 1
     out = _arc_points(point_count, arc_r, calc_start, calc_angle, calc_center, endpoint=endpoint)
@@ -1366,6 +1382,7 @@ def regular_ngon(
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / math.sin(math.radians(180.0 / sides)) if side is not None else None
+    dflt_val: float = side_s if side_s is not None else 0.0
     rad = _pick_radius(
         radius1=ir_s,
         diameter1=id_s,
@@ -1373,7 +1390,7 @@ def regular_ngon(
         diameter2=outer_diameter,
         radius=radius,
         diameter=diameter,
-        dflt=side_s if side_s is not None else 0.0,  # type: ignore[arg-type]
+        dflt=dflt_val,
     )
     if rad is None:
         raise ValueError(
@@ -2398,7 +2415,7 @@ def shell2d(
         children=base.offset(delta=th[1], fn=fn, fa=fa, fs=fs),
         fn=fn,
         fa=fa,
-        fs=fs,  # type: ignore[arg-type]
+        fs=fs,
     )
     inner_shape = round2d(
         outer_radius=irad[1],
@@ -2406,6 +2423,6 @@ def shell2d(
         children=base.offset(delta=th[0], fn=fn, fa=fa, fs=fs),
         fn=fn,
         fa=fa,
-        fs=fs,  # type: ignore[arg-type]
+        fs=fs,
     )
     return outer_shape - inner_shape
