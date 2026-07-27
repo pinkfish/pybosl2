@@ -173,9 +173,7 @@ def line_copies(spacing=None, sides=None, length: float | None = None, p1=None, 
         cnt = 2
     if cnt <= 1:
         spc = np.zeros(3)
-    elif spacing is None and ll is not None:
-        spc = ll / (cnt - 1)
-    elif is_num(spacing) and ll is not None:
+    elif spacing is None and ll is not None or is_num(spacing) and ll is not None:
         spc = ll / (cnt - 1)
     else:
         spc = _scalar_vec3(spacing, 0.0)

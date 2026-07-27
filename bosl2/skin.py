@@ -753,8 +753,8 @@ def os_circle(radius: float | None = None, height: float | None = None, extra: f
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    r_val = radius if radius is not None else kwargs.get("r", None)
-    h_val = height if height is not None else kwargs.get("h", None)
+    r_val = radius if radius is not None else kwargs.get("r")
+    h_val = height if height is not None else kwargs.get("h")
     assert r_val is not None, "os_circle(): radius is required."
     h_res = float(h_val) if h_val is not None else abs(float(r_val))
     return OSProfile(type=OSType.CIRCLE, radius=float(r_val), height=h_res, extra=float(extra))
@@ -781,7 +781,7 @@ def os_smooth(
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    r_val = radius if radius is not None else kwargs.get("r", None)
+    r_val = radius if radius is not None else kwargs.get("r")
     k_val = curvature if curvature is not None else kwargs.get("k", 0.5)
     val = float(cut) if cut is not None else (float(r_val) if r_val is not None else 1.0)
     sign = 1.0 if val >= 0 else -1.0
@@ -811,8 +811,8 @@ def os_teardrop(
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    r_arg = radius if radius is not None else kwargs.get("r", None)
-    h_arg = height if height is not None else kwargs.get("h", None)
+    r_arg = radius if radius is not None else kwargs.get("r")
+    h_arg = height if height is not None else kwargs.get("h")
     r_val = float(r_arg) if r_arg is not None else (float(cut) if cut is not None else 1.0)
     h_val = float(h_arg) if h_arg is not None else abs(r_val)
     return OSProfile(type=OSType.TEARDROP, radius=r_val, height=h_val, max_angle=float(max_angle), extra=float(extra))
@@ -1119,8 +1119,8 @@ def _rounded_prism(
     """
     from bosl2.paths import Path as _Path
 
-    joint_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot", None)
-    k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides", None)
+    joint_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot")
+    k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides")
 
     # Coerce/normalize top and height
     if top is None:

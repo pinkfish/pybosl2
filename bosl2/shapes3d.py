@@ -1179,8 +1179,8 @@ def cuboid(
         return shape.translate(p1)
 
     edge_set = _edges(edges, except_edges or [])
-    chamfer_v = 0 if not chamfer else chamfer
-    rounding_v = 0 if not rounding else rounding
+    chamfer_v = chamfer if chamfer else 0
+    rounding_v = rounding if rounding else 0
     assert not (chamfer_v and rounding_v), "Cannot specify nonzero value for both chamfer and rounding"
 
     corners8 = [[xa, ya, za] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)]

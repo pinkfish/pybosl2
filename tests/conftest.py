@@ -39,12 +39,11 @@ def _install_mock() -> bool:
     return True
 
 
-if not _pythonscad_installed():
-    if not _install_mock():
-        import pytest
+if not _pythonscad_installed() and not _install_mock():
+    import pytest
 
-        pytest.skip(
-            "neither the real `pythonscad` wheel nor the numeric mock is available; "
-            "run `pip install -e .[test]` in a venv to install PythonSCAD",
-            allow_module_level=True,
-        )
+    pytest.skip(
+        "neither the real `pythonscad` wheel nor the numeric mock is available; "
+        "run `pip install -e .[test]` in a venv to install PythonSCAD",
+        allow_module_level=True,
+    )

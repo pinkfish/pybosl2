@@ -97,7 +97,7 @@ def test_twist_keeps_it_a_solid(numeric_lv):
     # include it (regression: bounds were computed from the un-rotated profile bbox and clipped it)
     corner = 2 * math.sqrt(2)
     assert tube.mx[0] >= corner - 0.05 and tube.mn[0] <= -corner + 0.05
-    assert f(2.7, 0, 10) < 0 and 2.7 <= tube.mx[0]  # solid material there, and inside the domain
+    assert f(2.7, 0, 10) < 0 and tube.mx[0] >= 2.7  # solid material there, and inside the domain
 
 
 def test_concave_profile_notch_is_carved(numeric_lv):

@@ -890,9 +890,7 @@ def ruler(
 
             if i == 0 and idx % 10 == 0 and idx != 0:
                 mark = 0
-            elif i == 0 and idx % 10 == 9 and idx != count - 1:
-                mark = 1
-            elif idx % 10 == 4:
+            elif i == 0 and idx % 10 == 9 and idx != count - 1 or idx % 10 == 4:
                 mark = 1
             elif idx % 10 == 5:
                 mark = 0

@@ -737,9 +737,10 @@ class Path(Distributable, Extrudable, Roundable, list):
         for seg in segs:
             p0 = seg[0] - point
             p1 = seg[1] - point
-            if (p1[1] > eps and p0[1] <= eps) or (p1[1] <= eps and p0[1] > eps):
-                if -eps < p0[0] - p0[1] * (p1[0] - p0[0]) / (p1[1] - p0[1]):
-                    crossings += 1
+            if ((p1[1] > eps and p0[1] <= eps) or (p1[1] <= eps and p0[1] > eps)) and (
+                -eps < p0[0] - p0[1] * (p1[0] - p0[0]) / (p1[1] - p0[1])
+            ):
+                crossings += 1
         return 2 * (crossings % 2) - 1
 
     # -- Utility ---------------------------------------------------------------------------

@@ -170,7 +170,7 @@ def _round_corners(
     """
     from bosl2.paths import Path, Path3D
 
-    k = curvature if curvature is not None else kwargs.get("k", None)
+    k = curvature if curvature is not None else kwargs.get("k")
 
     assert method in (
         "circle",
@@ -361,7 +361,7 @@ class Roundable:
         **kwargs,
     ):
         """Round every corner of this path (see :func:`round_corners`)."""
-        curv = curvature if curvature is not None else kwargs.get("k", None)
+        curv = curvature if curvature is not None else kwargs.get("k")
         return _round_corners(
             self,
             method=method,
@@ -470,8 +470,8 @@ class Roundable:
         """Rounded prism between this path and a top path (BOSL2 rounded_prism())."""
         from bosl2.skin import _rounded_prism as _rp
 
-        j_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot", None)
-        k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides", None)
+        j_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot")
+        k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides")
 
         return _rp(
             self,
@@ -581,7 +581,7 @@ class Roundable:
         **kwargs,
     ):
         """Join multiple paths to this path end-to-end (see :func:`path_join`)."""
-        curv = curvature if curvature is not None else kwargs.get("k", None)
+        curv = curvature if curvature is not None else kwargs.get("k")
         return _path_join(
             [self] + list(other_paths),
             radius=radius,
@@ -625,7 +625,7 @@ def _path_join(
     from bosl2.paths import Path as _Path
     from bosl2.paths import Path3D as _Path3D
 
-    k = curvature if curvature is not None else kwargs.get("k", None)
+    k = curvature if curvature is not None else kwargs.get("k")
 
     if not paths:
         return _Path([])
@@ -736,10 +736,7 @@ def _offset_stroke(
         j_style = join_map.get(joint.lower() if isinstance(joint, str) else "round", 1)
 
         # For a closed loop, append first point to ensure it's closed
-        if closed and len(pts) > 1 and pts[0] != pts[-1]:
-            line = LineString(pts + [pts[0]])
-        else:
-            line = LineString(pts)
+        line = LineString(pts + [pts[0]]) if closed and len(pts) > 1 and pts[0] != pts[-1] else LineString(pts)
 
         geom = line.buffer(width / 2.0, cap_style=c_style, join_style=j_style)
         return Region(_from_shapely(geom))

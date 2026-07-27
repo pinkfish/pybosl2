@@ -175,10 +175,7 @@ _ROBERTSON = {
 
 def _phillips_num(size) -> int:
     """Parse a Phillips size (int 0..4 or a string like ``"#2"``) into its integer number."""
-    if isinstance(size, str):
-        count = int(size.lstrip("#"))
-    else:
-        count = int(size)
+    count = int(size.lstrip("#")) if isinstance(size, str) else int(size)
     if count < 0 or count > 4:
         raise ValueError(f"phillips size must be #0..#4, got {size!r}")
     return count

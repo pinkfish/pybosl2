@@ -253,10 +253,7 @@ def turtle(
                            "move", 40, "arcleft", 8, "move", 40, "arcleft", 8])
             path.stroke(width=3, closed=True).linear_extrude(height=4).show()
     """
-    if state is None:
-        state = [[[0.0, 0.0]], [1.0, 0.0], 90.0, 0.0]
-    else:
-        state = list(state)
+    state = [[[0.0, 0.0]], [1.0, 0.0], 90.0, 0.0] if state is None else list(state)
     result = _turtle_repeat(list(commands), state, True, repeat)
     return result if full_state else Path(result[0], closed=False)
 
