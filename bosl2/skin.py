@@ -689,17 +689,117 @@ def os_circle(r: float, h: float | None = None, extra: float = 0.0) -> dict:
 
     Returns:
         A descriptor ``dict`` consumed by :func:`offset_sweep`.
-
-    Examples:
-        A rounded-top extrusion:
-
-        .. pythonscad-example::
-
-            sq = [[-15, -15], [15, -15], [15, 15], [-15, 15]]
-            offset_sweep(sq, height=30, top=os_circle(r=6)).polyhedron().show()
     """
     h_val = float(h) if h is not None else abs(float(r))
     return {"type": "circle", "r": float(r), "h": h_val, "extra": float(extra)}
+
+
+def os_smooth(
+    cut: float | None = None,
+    r: float | None = None,
+    k: float = 0.5,
+    extra: float = 0.0,
+) -> dict:
+    """Continuous curvature (Bézier) profile for :func:`offset_sweep` (BOSL2 ``os_smooth()``).
+
+    Uses a 4th-order Bézier curve to ease the transition between flat and curved edges,
+    avoiding sudden changes in curvature.
+
+    Args:
+        cut:   Depth of the roundover/flare.
+        r:     Alternative to ``cut`` (aliases it).
+        k:     Smoothness/curvature match parameter between 0 and 1 (default 0.5).
+        extra: Extra extension beyond the nominal curve (default 0).
+
+    Returns:
+        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+    """
+    val = float(cut) if cut is not None else (float(r) if r is not None else 1.0)
+    sign = 1.0 if val >= 0 else -1.0
+    return {"type": "smooth", "cut": abs(val), "k": float(k), "r_sign": sign, "extra": float(extra)}
+
+
+def os_teardrop(
+    r: float | None = None,
+    h: float | None = None,
+    cut: float | None = None,
+    max_angle: float = 45.0,
+    extra: float = 0.0,
+) -> dict:
+    """Teardrop profile for :func:`offset_sweep` to avoid overhangs in 3D printing (BOSL2 ``os_teardrop()``).
+
+    Transitions from a 1/8th circle into a straight line at ``max_angle`` degrees
+    relative to the vertical wall, allowing support-free printing.
+
+    Args:
+        r:         Radius of the circular portion.
+        h:         Total height of the treatment (defaults to ``abs(r)``).
+        cut:       Alternative to ``r`` (aliases it).
+        max_angle: Curvature transition angle relative to the wall (default 45.0).
+        extra:     Extra extension beyond the nominal curve (default 0).
+
+    Returns:
+        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+    """
+    r_val = float(r) if r is not None else (float(cut) if cut is not None else 1.0)
+    h_val = float(h) if h is not None else abs(r_val)
+    return {"type": "teardrop", "r": r_val, "h": h_val, "max_angle": float(max_angle), "extra": float(extra)}
+
+
+def os_chamfer(
+    width: float | None = None,
+    height: float | None = None,
+    angle: float | None = None,
+    cut: float | None = None,
+    extra: float = 0.0,
+) -> dict:
+    """Chamfer/bevel profile for :func:`offset_sweep` (BOSL2 ``os_chamfer()``).
+
+    Creates a flat bevel transition.
+
+    Args:
+        width:  Horizontal width of the chamfer.
+        height: Vertical height of the chamfer (defaults to ``width``).
+        angle:  Bevel angle in degrees. If given, overrides ``width``.
+        cut:    Bevel size (aliases both ``width`` and ``height``).
+        extra:  Extra extension beyond the nominal bevel (default 0).
+
+    Returns:
+        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+    """
+    if cut is not None:
+        w = float(cut)
+        h = float(cut)
+    else:
+        w = float(width) if width is not None else 1.0
+        h = float(height) if height is not None else w
+    if angle is not None:
+        w = h * math.tan(math.radians(float(angle)))
+    return {"type": "chamfer", "width": w, "height": h, "extra": float(extra)}
+
+
+def os_flat() -> dict:
+    """Flat end cap profile descriptor representing no treatment (BOSL2 ``os_flat()``)."""
+    return {"type": "flat", "r": 0.0, "h": 0.0}
+
+
+def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> dict:
+    """Custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
+
+    Accepts a list of 2D points `[[x, y], ...]` defining the profile:
+    - `x` is the inward radial offset (meaning `delta = -x`).
+    - `y` is the height `z`.
+
+    Args:
+        profile: Sequence of ``[x, y]`` points. The first must be ``[0, 0]``.
+        extra:   Extra extension (default 0).
+
+    Returns:
+        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+    """
+    pts = [[float(p[0]), float(p[1])] for p in profile]
+    assert pts and pts[0] == [0.0, 0.0], "os_profile(): First point of the profile must be [0, 0]."
+    return {"type": "profile", "points": pts, "extra": float(extra)}
 
 
 def offset_sweep(
@@ -711,43 +811,31 @@ def offset_sweep(
     caps: CapsSpec = None,
     style: str = "min_edge",
 ) -> VNF:
-    """Extrude a 2-D outline to *height* with optional circular roundovers on each rim (BOSL2 ``offset_sweep()``).
+    """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
 
-    Stacks a sequence of radially-offset outlines along the Z axis.  At each rim
-    the offset follows a quarter-circle arc so the transition from the vertical
-    wall to the flat cap is smooth (roundover) or flared (cove).  The middle
-    section is a plain vertical wall.
+    Stacks a sequence of radially-offset outlines along the Z axis. The transition
+    from the vertical wall to the flat cap is determined by the *bottom* and *top*
+    profiles.
 
-    Only the ``os_circle`` profile is ported; the remaining BOSL2 profiles
-    (``os_smooth``, ``os_teardrop``, ``os_profile``, ``os_flat``, ``os_mask``)
-    are not-yet-ported.
+    Supported profiles (offset specifiers):
+    - ``os_circle()``: Circular roundover/flare.
+    - ``os_smooth()``: Bezier-based continuous curvature G2 smoothing.
+    - ``os_teardrop()``: Teardrop profile for support-free 3D printing.
+    - ``os_chamfer()``: Straight bevel.
+    - ``os_flat()``: Flat cap.
+    - ``os_profile()``: User-defined custom 2D profile.
 
     Args:
         path:   The 2-D polygon to extrude (a closed path or point list).
         height: Total extrusion height (Z from 0 to height).
-        bottom: Bottom-rim descriptor from :func:`os_circle` (or ``None`` for square).
-        top:    Top-rim descriptor from :func:`os_circle` (or ``None`` for square).
-        steps:  Number of arc-slices per rim treatment (default 16).
+        bottom: Bottom-rim treatment descriptor (or ``None`` for square).
+        top:    Top-rim treatment descriptor (or ``None`` for square).
+        steps:  Number of slices/steps per rim treatment (default 16).
         caps:   Cap the flat top and bottom (default True); bool or [bool, bool].
         style:  ``vnf_vertex_array`` quad-subdivision style.
 
     Returns:
         A :class:`~bosl2.vnf.VNF`.
-
-    Examples:
-        Square bottom, rounded top:
-
-        .. pythonscad-example::
-
-            sq = [[-20, -20], [20, -20], [20, 20], [-20, 20]]
-            offset_sweep(sq, height=40, top=os_circle(r=8)).polyhedron().show()
-
-        Both ends rounded:
-
-        .. pythonscad-example::
-
-            sq = [[-20, -20], [20, -20], [20, 20], [-20, 20]]
-            offset_sweep(sq, height=40, bottom=os_circle(r=6), top=os_circle(r=6)).polyhedron().show()
     """
     from bosl2.paths import Path as _Path
 
@@ -758,28 +846,91 @@ def offset_sweep(
 
     # ---------------------------------------------------------------------------
     # Build (delta, z) pairs for each level of the stack.
-    #
-    # At each rim a quarter-circle arc is sampled with *steps+1* points.
-    # For an inward roundover (r > 0):
-    #   delta(t) = -r * (1 - cos(t))   [shrinks the profile; maximum at t=pi/2]
-    #   z(t)     = h * sin(t)          [rises from 0 to h]
-    # For an outward flare (r < 0):
-    #   delta(t) = |r| * (1 - cos(t))  [expands the profile]
-    #   z(t)     = h * sin(t)
     # ---------------------------------------------------------------------------
 
     def _arc_column(desc, n: int):
         """Return (deltas, zs) for one rim, length n+1."""
-        if desc is None or desc["r"] == 0:
+        if desc is None:
             return ([0.0], [0.0])
-        r = desc["r"]
-        h = abs(desc["h"])
-        ar = abs(r)
-        sign = -1.0 if r > 0 else 1.0  # positive r → inward → delta shrinks
-        angles = [math.pi / 2 * i / n for i in range(n + 1)]
-        deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
-        zs = [h * math.sin(a) for a in angles]
-        return (deltas, zs)
+        t = desc.get("type", "circle")
+        if t == "flat" or (t == "circle" and desc["r"] == 0.0):
+            return ([0.0], [0.0])
+
+        if t == "circle":
+            r = desc["r"]
+            h = abs(desc["h"])
+            ar = abs(r)
+            sign = -1.0 if r > 0 else 1.0
+            angles = [math.pi / 2 * i / n for i in range(n + 1)]
+            deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+            zs = [h * math.sin(a) for a in angles]
+            return (deltas, zs)
+
+        elif t == "teardrop":
+            r = desc["r"]
+            h = abs(desc["h"])
+            max_angle = desc.get("max_angle", 45.0)
+            ar = abs(r)
+            sign = -1.0 if r > 0 else 1.0
+            max_a_rad = math.radians(max_angle)
+
+            z_trans = ar * math.sin(max_a_rad)
+            delta_trans = ar * (1.0 - math.cos(max_a_rad))
+
+            if h <= z_trans:
+                limit_a = math.asin(h / ar) if ar > 0 else 0.0
+                angles = [limit_a * i / n for i in range(n + 1)]
+                deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+                zs = [h * math.sin(a) / math.sin(limit_a) if limit_a > 0 else 0.0 for a in angles]
+                return (deltas, zs)
+            else:
+                n_circ = n // 2
+                n_line = n - n_circ
+                deltas = []
+                zs = []
+                for i in range(n_circ):
+                    a = max_a_rad * i / n_circ
+                    deltas.append(sign * ar * (1.0 - math.cos(a)))
+                    zs.append(ar * math.sin(a))
+                for i in range(n_line + 1):
+                    curr_z = z_trans + (h - z_trans) * i / n_line
+                    curr_delta = delta_trans + (curr_z - z_trans) * math.tan(max_a_rad)
+                    deltas.append(sign * curr_delta)
+                    zs.append(curr_z)
+                return (deltas, zs)
+
+        elif t == "smooth":
+            cut = abs(desc["cut"])
+            k = desc["k"]
+            sign = -1.0 if desc["r_sign"] > 0 else 1.0
+            deltas = []
+            zs = []
+            for i in range(n + 1):
+                u = i / n
+                xu = 4.0 * k * cut * (u**3) * (1.0 - u) + cut * (u**4)
+                yu = cut * ((1.0 - u) ** 4) + 4.0 * k * cut * u * ((1.0 - u) ** 3)
+                deltas.append(sign * xu)
+                zs.append(cut - yu)
+            return (deltas, zs)
+
+        elif t == "chamfer":
+            w = desc["width"]
+            h = abs(desc["height"])
+            deltas = [-w * i / n for i in range(n + 1)]
+            zs = [h * i / n for i in range(n + 1)]
+            return (deltas, zs)
+
+        elif t == "profile":
+            pts = desc["points"]
+            pts_arr = np.asarray(pts, dtype=float)
+            zs_in = pts_arr[:, 1]
+            xs_in = pts_arr[:, 0]
+            z_min, z_max = zs_in[0], zs_in[-1]
+            zs = [z_min + (z_max - z_min) * i / n for i in range(n + 1)]
+            deltas = [-float(np.interp(z, zs_in, xs_in)) for z in zs]
+            return (deltas, zs)
+
+        return ([0.0], [0.0])
 
     bot_deltas, bot_zs = _arc_column(bottom, steps)
     top_deltas, top_zs = _arc_column(top, steps)

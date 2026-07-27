@@ -16,7 +16,12 @@ from bosl2.skin import (
     frame_map,
     linear_sweep,
     offset_sweep,
+    os_chamfer,
     os_circle,
+    os_flat,
+    os_profile,
+    os_smooth,
+    os_teardrop,
     path3d,
     path_sweep,
     path_sweep2d,
@@ -366,3 +371,100 @@ def test_offset_sweep_rejects_oversized_rim():
     """Rim heights summing to more than the extrusion height must fail."""
     with pytest.raises(AssertionError):
         offset_sweep(_SQ20, height=10, top=os_circle(r=6), bottom=os_circle(r=6))
+
+
+def test_os_smooth_fields():
+    d1 = os_smooth(cut=4)
+    assert d1["type"] == "smooth"
+    assert d1["cut"] == 4.0
+    assert d1["k"] == 0.5
+    assert d1["r_sign"] == 1.0
+
+    d2 = os_smooth(r=-2, k=0.3)
+    assert d2["cut"] == 2.0
+    assert d2["k"] == 0.3
+    assert d2["r_sign"] == -1.0
+
+
+def test_os_teardrop_fields():
+    d1 = os_teardrop(r=3)
+    assert d1["type"] == "teardrop"
+    assert d1["r"] == 3.0
+    assert d1["h"] == 3.0
+    assert d1["max_angle"] == 45.0
+
+    d2 = os_teardrop(cut=2, h=4, max_angle=30.0)
+    assert d2["r"] == 2.0
+    assert d2["h"] == 4.0
+    assert d2["max_angle"] == 30.0
+
+
+def test_os_chamfer_fields():
+    d1 = os_chamfer(width=3)
+    assert d1["type"] == "chamfer"
+    assert d1["width"] == 3.0
+    assert d1["height"] == 3.0
+
+    d2 = os_chamfer(width=2, height=4)
+    assert d2["width"] == 2.0
+    assert d2["height"] == 4.0
+
+    d3 = os_chamfer(cut=2)
+    assert d3["width"] == 2.0
+    assert d3["height"] == 2.0
+
+    d4 = os_chamfer(height=5, angle=45)
+    assert math.isclose(d4["width"], 5.0)
+
+
+def test_os_flat_fields():
+    d = os_flat()
+    assert d["type"] == "flat"
+
+
+def test_os_profile_fields():
+    prof = [[0, 0], [1, 2], [3, 4]]
+    d = os_profile(prof)
+    assert d["type"] == "profile"
+    assert d["points"] == [[0.0, 0.0], [1.0, 2.0], [3.0, 4.0]]
+
+    with pytest.raises(AssertionError):
+        # Must start at [0,0]
+        os_profile([[1, 1]])
+
+
+def test_offset_sweep_smooth():
+    plain = offset_sweep(_SQ20, height=20)
+    smoothed = offset_sweep(_SQ20, height=20, top=os_smooth(cut=4))
+    assert _valid(smoothed)
+    assert smoothed.volume() < plain.volume()
+
+
+def test_offset_sweep_teardrop():
+    plain = offset_sweep(_SQ20, height=20)
+    td = offset_sweep(_SQ20, height=20, top=os_teardrop(r=3))
+    assert _valid(td)
+    assert td.volume() < plain.volume()
+
+
+def test_offset_sweep_chamfer():
+    plain = offset_sweep(_SQ20, height=20)
+    chamf = offset_sweep(_SQ20, height=20, top=os_chamfer(width=3, height=3))
+    assert _valid(chamf)
+    assert chamf.volume() < plain.volume()
+
+
+def test_offset_sweep_flat():
+    plain = offset_sweep(_SQ20, height=20)
+    flat_sweep = offset_sweep(_SQ20, height=20, top=os_flat())
+    assert _valid(flat_sweep)
+    assert math.isclose(flat_sweep.volume(), plain.volume(), rel_tol=1e-4)
+
+
+def test_offset_sweep_profile():
+    plain = offset_sweep(_SQ20, height=20)
+    # Custom profile: starts at [0,0], goes inward by 2 at z=3
+    prof = [[0.0, 0.0], [2.0, 3.0]]
+    prof_sweep = offset_sweep(_SQ20, height=20, top=os_profile(prof))
+    assert _valid(prof_sweep)
+    assert prof_sweep.volume() < plain.volume()
