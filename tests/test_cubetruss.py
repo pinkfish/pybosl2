@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2.cubetruss import CubeTruss as CT
+from pybosl2.cubetruss import CubeTruss
 from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -18,9 +18,9 @@ def _size(solid):
 
 
 def test_cubetruss_dist():
-    assert CT.cubetruss_dist(3, 1) == 3 * 27 + 3  # 30-strut default: 3*(30-3)+1*3
-    assert CT.cubetruss_dist(1, 0) == 27
-    assert CT.cubetruss_dist(2, 1, size=40, strut=4) == 2 * 36 + 4
+    assert CubeTruss.cubetruss_dist(3, 1) == 3 * 27 + 3  # 30-strut default: 3*(30-3)+1*3
+    assert CubeTruss.cubetruss_dist(1, 0) == 27
+    assert CubeTruss.cubetruss_dist(2, 1, size=40, strut=4) == 2 * 36 + 4
 
 
 @pytest.mark.parametrize(
@@ -33,7 +33,7 @@ def test_cubetruss_dist():
     ],
 )
 def test_segment_is_a_cube(kw, expect):
-    seg = CT.cubetruss_segment(**kw, fn=None, fa=None, fs=None)
+    seg = CubeTruss.cubetruss_segment(**kw, fn=None, fa=None, fs=None)
     assert isinstance(seg, Bosl2Solid)
     w, length, height = _size(seg)
     assert w == pytest.approx(expect, abs=0.01)
@@ -42,43 +42,43 @@ def test_segment_is_a_cube(kw, expect):
 
 
 def test_cubetruss_length_matches_dist():
-    truss = CT.cubetruss(extents=3, fn=None, fa=None, fs=None)
+    truss = CubeTruss.cubetruss(extents=3, fn=None, fa=None, fs=None)
     assert isinstance(truss, Bosl2Solid)
     w, length, height = _size(truss)
-    assert length == pytest.approx(CT.cubetruss_dist(3, 1), abs=0.5)
+    assert length == pytest.approx(CubeTruss.cubetruss_dist(3, 1), abs=0.5)
     assert w == pytest.approx(30, abs=0.5)
 
 
 def test_cubetruss_3d_extents():
-    truss = CT.cubetruss(extents=[2, 3, 2], fn=None, fa=None, fs=None)
+    truss = CubeTruss.cubetruss(extents=[2, 3, 2], fn=None, fa=None, fs=None)
     w, length, height = _size(truss)
-    assert w == pytest.approx(CT.cubetruss_dist(2, 1), abs=0.5)
-    assert length == pytest.approx(CT.cubetruss_dist(3, 1), abs=0.5)
-    assert height == pytest.approx(CT.cubetruss_dist(2, 1), abs=0.5)
+    assert w == pytest.approx(CubeTruss.cubetruss_dist(2, 1), abs=0.5)
+    assert length == pytest.approx(CubeTruss.cubetruss_dist(3, 1), abs=0.5)
+    assert height == pytest.approx(CubeTruss.cubetruss_dist(2, 1), abs=0.5)
 
 
 def test_bracing_adds_material():
-    braced = CT.cubetruss_segment(bracing=True, fn=None, fa=None, fs=None)
-    plain = CT.cubetruss_segment(bracing=False, fn=None, fa=None, fs=None)
+    braced = CubeTruss.cubetruss_segment(bracing=True, fn=None, fa=None, fs=None)
+    plain = CubeTruss.cubetruss_segment(bracing=False, fn=None, fa=None, fs=None)
     # both are the same 30mm cube envelope; bracing changes interior, not bounds
     assert _size(braced)[0] == pytest.approx(_size(plain)[0], abs=0.01)
 
 
 def test_corner_symmetric_extents():
-    c = CT.cubetruss_corner(extents=2, fn=None, fa=None, fs=None)
+    c = CubeTruss.cubetruss_corner(extents=2, fn=None, fa=None, fs=None)
     w, length, height = _size(c)
-    expect = CT.cubetruss_dist(3, 1)  # arm 2 + central 1
+    expect = CubeTruss.cubetruss_dist(3, 1)  # arm 2 + central 1
     for v in (w, length, height):
         assert v == pytest.approx(expect, abs=0.5)
 
 
 def test_corner_asymmetric_extents():
     # [+X, +Y, -X, -Y, +Z] arm counts
-    c = CT.cubetruss_corner(extents=[2, 3, 0, 0, 1], fn=None, fa=None, fs=None)
+    c = CubeTruss.cubetruss_corner(extents=[2, 3, 0, 0, 1], fn=None, fa=None, fs=None)
     w, length, height = _size(c)
-    assert w == pytest.approx(CT.cubetruss_dist(2 + 1 + 0, 1), abs=0.5)
-    assert length == pytest.approx(CT.cubetruss_dist(3 + 1 + 0, 1), abs=0.5)
-    assert height == pytest.approx(CT.cubetruss_dist(1 + 1, 1), abs=0.5)
+    assert w == pytest.approx(CubeTruss.cubetruss_dist(2 + 1 + 0, 1), abs=0.5)
+    assert length == pytest.approx(CubeTruss.cubetruss_dist(3 + 1 + 0, 1), abs=0.5)
+    assert height == pytest.approx(CubeTruss.cubetruss_dist(1 + 1, 1), abs=0.5)
 
 
 @pytest.mark.parametrize(
@@ -90,8 +90,8 @@ def test_corner_asymmetric_extents():
         ([2, 2, 3], 2, 2, 3),
     ],
 )
-def test_support_envelope(extents, ex, ey, ez):
-    s = CT.cubetruss_support(extents=extents, fn=None, fa=None, fs=None)
+def test_support_envelope(extents, ex, _ey, ez):
+    s = CubeTruss.cubetruss_support(extents=extents, fn=None, fa=None, fs=None)
     assert isinstance(s, Bosl2Solid)
     w, length, height = _size(s)
     assert w == pytest.approx((30 - 3) * ex + 3, abs=0.5)  # width across the X copies
@@ -104,14 +104,14 @@ def test_support_envelope(extents, ex, ey, ez):
 @pytest.mark.parametrize(
     "obj",
     [
-        CT.cubetruss_clip(extents=1, fn=None, fa=None, fs=None),
-        CT.cubetruss_clip(extents=2, slop=0.1, fn=None, fa=None, fs=None),
-        CT.cubetruss_uclip(dual=True, fn=None, fa=None, fs=None),
-        CT.cubetruss_uclip(dual=False, fn=None, fa=None, fs=None),
-        CT.cubetruss_foot(w=1, fn=None, fa=None, fs=None),
-        CT.cubetruss_foot(w=3, fn=None, fa=None, fs=None),
-        CT.cubetruss_joiner(w=1, vert=True, fn=None, fa=None, fs=None),
-        CT.cubetruss_joiner(w=1, vert=False, fn=None, fa=None, fs=None),
+        CubeTruss.cubetruss_clip(extents=1, fn=None, fa=None, fs=None),
+        CubeTruss.cubetruss_clip(extents=2, slop=0.1, fn=None, fa=None, fs=None),
+        CubeTruss.cubetruss_uclip(dual=True, fn=None, fa=None, fs=None),
+        CubeTruss.cubetruss_uclip(dual=False, fn=None, fa=None, fs=None),
+        CubeTruss.cubetruss_foot(w=1, fn=None, fa=None, fs=None),
+        CubeTruss.cubetruss_foot(w=3, fn=None, fa=None, fs=None),
+        CubeTruss.cubetruss_joiner(w=1, vert=True, fn=None, fa=None, fs=None),
+        CubeTruss.cubetruss_joiner(w=1, vert=False, fn=None, fa=None, fs=None),
     ],
 )
 def test_accessory_builds(obj):
@@ -120,29 +120,30 @@ def test_accessory_builds(obj):
 
 def test_foot_span_scales_with_w():
     assert (
-        _size(CT.cubetruss_foot(w=3, fn=None, fa=None, fs=None))[0]
-        > _size(CT.cubetruss_foot(w=1, fn=None, fa=None, fs=None))[0]
+        _size(CubeTruss.cubetruss_foot(w=3, fn=None, fa=None, fs=None))[0]
+        > _size(CubeTruss.cubetruss_foot(w=1, fn=None, fa=None, fs=None))[0]
     )
 
 
 def test_uclip_dual_wider_than_single():
     assert (
-        _size(CT.cubetruss_uclip(dual=True, fn=None, fa=None, fs=None))[0]
-        > _size(CT.cubetruss_uclip(dual=False, fn=None, fa=None, fs=None))[0]
+        _size(CubeTruss.cubetruss_uclip(dual=True, fn=None, fa=None, fs=None))[0]
+        > _size(CubeTruss.cubetruss_uclip(dual=False, fn=None, fa=None, fs=None))[0]
     )
 
 
 def test_clips_add_material_on_the_named_face():
     from pybosl2.constants import FRONT, RIGHT
 
-    plain = _size(CT.cubetruss(extents=3, fn=None, fa=None, fs=None))
-    front = _size(CT.cubetruss(extents=3, clips=FRONT, fn=None, fa=None, fs=None))
-    right = _size(CT.cubetruss(extents=[2, 3], clips=RIGHT, fn=None, fa=None, fs=None))
+    plain = _size(CubeTruss.cubetruss(extents=3, fn=None, fa=None, fs=None))
+    front = _size(CubeTruss.cubetruss(extents=3, clips=FRONT, fn=None, fa=None, fs=None))
+    right = _size(CubeTruss.cubetruss(extents=[2, 3], clips=RIGHT, fn=None, fa=None, fs=None))
     assert front[1] > plain[1]  # FRONT clip extends +/-Y
-    assert right[0] > _size(CT.cubetruss(extents=[2, 3], fn=None, fa=None, fs=None))[0]  # RIGHT clip extends +/-X
+    plain_right = _size(CubeTruss.cubetruss(extents=[2, 3], fn=None, fa=None, fs=None))[0]
+    assert right[0] > plain_right  # RIGHT clip extends +/-X
 
 
 def test_clips_none_matches_plain():
-    assert _size(CT.cubetruss(extents=3, clips=None, fn=None, fa=None, fs=None)) == pytest.approx(
-        _size(CT.cubetruss(extents=3, fn=None, fa=None, fs=None))
+    assert _size(CubeTruss.cubetruss(extents=3, clips=None, fn=None, fa=None, fs=None)) == pytest.approx(
+        _size(CubeTruss.cubetruss(extents=3, fn=None, fa=None, fs=None))
     )

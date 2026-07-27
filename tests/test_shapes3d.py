@@ -146,8 +146,8 @@ def test_plot3d_surface_and_solid():
 
     xs = list(range(-9, 10, 3))
     ys = list(range(-9, 10, 3))
-    assert isinstance(plot3d(lambda x, y: math.cos(x / 6), xs, ys), Bosl2Solid)
-    assert isinstance(plot3d(lambda x, y: math.cos(x / 6), xs, ys, base=0), Bosl2Solid)
+    assert isinstance(plot3d(lambda x, _y: math.cos(x / 6), xs, ys), Bosl2Solid)
+    assert isinstance(plot3d(lambda x, _y: math.cos(x / 6), xs, ys, base=0), Bosl2Solid)
 
 
 def test_orient_reorient_return_bosl2solid():
@@ -200,7 +200,7 @@ def test_fillet_rejects_non_right_angle():
 def test_plot_revolution_taper_and_path():
     import math
 
-    def _f(a, z):
+    def _f(a, _z):
         return 2 * math.sin(math.radians(a))
 
     assert isinstance(
