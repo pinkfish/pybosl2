@@ -25,6 +25,10 @@ from __future__ import annotations
 
 import math
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 import numpy as np
 
@@ -586,7 +590,7 @@ def _tex_hex_grid_vnf(border: float | None = None, **_):
 
 
 # name -> (builder, kind) where kind is "heightfield" or "vnf"
-TEXTURES = {
+TEXTURES: dict[str, tuple[Callable[..., list[list[float]]], str]] = {
     "ribs": (_tex_ribs, "heightfield"),
     "trunc_ribs": (_tex_trunc_ribs, "heightfield"),
     "wave_ribs": (_tex_wave_ribs, "heightfield"),

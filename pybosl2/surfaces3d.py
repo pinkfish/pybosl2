@@ -324,7 +324,7 @@ def heightfield(
         orient:    direction to rotate the top towards (default UP)
     """
     _ = convexity
-    sz = [size, size] if isinstance(size, (int, float)) else list(size)
+    sz = [size, size] if isinstance(size, (int, float)) else list(size)  # type: ignore[arg-type]
     style_key = style if style in ("alt", "quincunx") else "default"
 
     if callable(data):
