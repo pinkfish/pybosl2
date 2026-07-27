@@ -16,11 +16,9 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
-from numpy.typing import ArrayLike, NDArray
 
 from bosl2._backend import check_operand_backend as _check_operand_backend
 from bosl2._backend import unsupported_feature as _unsupported_feature
@@ -48,6 +46,11 @@ from bosl2._sdf.paths import (
     as_path_list,
     as_points,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from numpy.typing import ArrayLike, NDArray
 
 
 def _matmul3(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:

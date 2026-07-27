@@ -15,7 +15,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -27,9 +26,13 @@ from bosl2.paths import (
 from bosl2.shapes3d import text3d
 
 if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would be circular
-    from bosl2._backend import Solid  # noqa: F401
-    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike  # noqa: F401
-    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
+    from collections.abc import Sequence
+
+    from shapely.geometry import Polygon as _ShapelyPolygon
+
+    from bosl2._backend import Solid
+    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike
+    from bosl2.shapes3d import Bosl2Solid
 
 __all__ = ["Path", "Path3D", "Region"]
 
@@ -39,7 +42,6 @@ __all__ = ["Path", "Path3D", "Region"]
 # ---------------------------------------------------------------------------
 try:
     import shapely  # noqa: F401  (presence check)
-    from shapely.geometry import Polygon as _ShapelyPolygon
 
     _SHAPELY = True
 except ImportError:  # pragma: no cover

@@ -179,7 +179,7 @@ def get_backend(name: str | None = None) -> "SolidBackend":
     key = name or current_backend()
     if key not in _registry:
         if key == "csg":
-            import bosl2._csg  # noqa: F401  -- registers the CSG backend on import
+            import bosl2._csg
         elif key == "sdf":
             import bosl2._sdf  # noqa: F401  -- registers the SDF backend on import
     try:

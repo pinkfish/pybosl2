@@ -283,7 +283,7 @@ class ModularHose:
     @staticmethod
     def modular_hose(
         size: float,
-        type: str = "segment",
+        type: str = "segment",  # noqa: A002
         clearance: float | list = 0,
         waist_len: float | None = None,
         fn: int | None = None,

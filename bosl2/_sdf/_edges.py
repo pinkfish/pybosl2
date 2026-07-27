@@ -9,7 +9,7 @@
 # bosl2._edges_lang and the radius/diameter resolver (`_pick_radius`) from bosl2.shapes2d, so both
 # backends share one implementation of each (see M6). This module re-exports them for convenience.
 import math
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 # ---------------------------------------------------------------------------
 # cuboid() edge-set machinery -- the shared mini-language in bosl2._edges_lang (used by both
@@ -17,7 +17,7 @@ from collections.abc import Sequence
 # bosl2._sdf.shapes3d can keep importing these names from here. Importing _edges_lang (pure Python,
 # no numpy/native) keeps the SDF backend from depending on the large bosl2.shapes3d CSG module.
 # ---------------------------------------------------------------------------
-from bosl2._edges_lang import (  # noqa: E402, F401
+from bosl2._edges_lang import (  # noqa: F401
     _MAJOR_AXIS_VALID,
     EDGE_OFFSETS,
     EDGES_ALL,
@@ -31,6 +31,9 @@ from bosl2._edges_lang import (  # noqa: E402, F401
 # The shared radius-priority resolver (radius1 > d1/2 > radius2 > d2/2 > radius > d/2 > dflt).
 # Re-exported so bosl2._sdf.paths and bosl2._sdf.shapes3d can import it from here as before.
 from bosl2.shapes2d import _pick_radius  # noqa: F401
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # ---------------------------------------------------------------------------
 # Anchor-offset helpers, one per primitive family (SDF-backend specific)

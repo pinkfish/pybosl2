@@ -18,7 +18,6 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Callable
 
 import numpy as np
@@ -38,7 +37,9 @@ from bosl2.shapes3d import (
 )
 
 if TYPE_CHECKING:
-    from openscad import PyOpenSCAD  # noqa: F401
+    from collections.abc import Sequence
+
+    from openscad import PyOpenSCAD
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import cube as _ocube
@@ -519,7 +520,7 @@ def cylindrical_heightfield(
                 idx(radius, c + 1),
                 style_key,
             )
-    faces.append(list(range(0, cols)))
+    faces.append(list(range(cols)))
     faces.append(list(range((ylen - 1) * cols, ylen * cols)))
 
     shape, pts = _heightfield_polyhedron(pts, faces)
@@ -633,7 +634,7 @@ def plot_revolution(
             else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else None))
         )
     )
-    theta = list(float(a) for a in angle)  # type: ignore[arg-type]
+    theta = [float(a) for a in angle]  # type: ignore[arg-type]
     assert len(theta) > 1, "plot_revolution(): angle must have at least 2 values."
     if path is not None:
         prof = [[float(p[0]), float(p[1])] for p in path]

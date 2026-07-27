@@ -254,7 +254,7 @@ def truss_svg(cubes=3):
         _top = f"{bx},{by} {bx + ex},{by + ey} {bx + ex - ex},{by + ey + s * 0.0} "  # placeholder
 
         # define 8 corners
-        def P(dx, dy, dz):
+        def P(dx, dy, dz, bx=bx, by=by):
             return (bx + dx * ex + dy * (-ex) + dz * 0, by + dx * ey + dy * ey - dz * s)
 
         A = (bx, by)
@@ -601,26 +601,26 @@ def hook_svg():
 # --------------------------------------------------------------------------
 
 MODULES = {
-    "gears": dict(
-        title="gears",
-        tests=52,
-        svg=gear_svg(20),
-        subtitle=(
+    "gears": {
+        "title": "gears",
+        "tests": 52,
+        "svg": gear_svg(20),
+        "subtitle": (
             "Involute spur gears whose teeth are <em>rack-carved with a real undercut</em>, "
             "the way the current BOSL2 does it — plus helical, herringbone, rack, ring, bevel and worm."
         ),
-        part="spur_gear(mod=5, teeth=20, thickness=8, helical=20)",
-        code='Gears.<span class="k">spur_gear</span>(mod=5, teeth=20, thickness=8, helical=20, shaft_diam=6)',
-        metrics=[
+        "part": "spur_gear(mod=5, teeth=20, thickness=8, helical=20)",
+        "code": 'Gears.<span class="k">spur_gear</span>(mod=5, teeth=20, thickness=8, helical=20, shaft_diam=6)',
+        "metrics": [
             ("helical spur · z=20", 5640, "69,617.1", "116×116×8"),
             ("undercut spur · z=8", 2300, "11,984.0", "55×55×8"),
         ],
-        note=(
+        "note": (
             "A 20-tooth helical gear meshes at <b>gear_dist()</b>; the 8-tooth gear picks up "
             '<b>profile_shift="auto"</b> so its flanks don\'t undercut. Both close watertight.'
         ),
-        proof=None,
-        tags=[
+        "proof": None,
+        "tags": [
             "undercut",
             "profile_shift",
             "helical",
@@ -631,177 +631,177 @@ MODULES = {
             "worm",
             "gear_dist()",
         ],
-    ),
-    "hinges": dict(
-        title="hinges",
-        tests=6,
-        svg=hinge_svg(5),
-        subtitle=(
+    },
+    "hinges": {
+        "title": "hinges",
+        "tests": 6,
+        "svg": hinge_svg(5),
+        "subtitle": (
             "A print-in-place living-hinge mask, an interlocking knuckle hinge with a pin bore, "
             "and snap lock / socket connectors."
         ),
-        part="knuckle_hinge_pair(fold=…)",
-        code='Hinges.<span class="k">knuckle_hinge_pair</span>(fold=60)',
-        metrics=[
+        "part": "knuckle_hinge_pair(fold=…)",
+        "code": 'Hinges.<span class="k">knuckle_hinge_pair</span>(fold=60)',
+        "metrics": [
             ("flat · 0°", 1576, "5,929.1", "40×46×6"),
             ("folded · 60°", 1748, "5,927.9", "40×36×24"),
         ],
-        note=(
+        "note": (
             "Two leaves meshed around one pin, exported as a single mesh. Folding re-triangulates "
             "the surface but moves mass rigidly."
         ),
-        proof=(
+        "proof": (
             "0.02%",
             "<b>&Delta;volume across the fold = 1.2 mm&sup3;.</b> A rigid rotation, not a "
             "distortion — the pin bore and knuckle mesh stay closed.",
         ),
-        tags=["renders watertight", "living hinge", "knuckle", "snap-lock"],
-    ),
-    "cubetruss": dict(
-        title="cubetruss",
-        tests=26,
-        svg=truss_svg(3),
-        subtitle=(
+        "tags": ["renders watertight", "living hinge", "knuckle", "snap-lock"],
+    },
+    "cubetruss": {
+        "title": "cubetruss",
+        "tests": 26,
+        "svg": truss_svg(3),
+        "subtitle": (
             "Modular cube-truss segments, the trusses tiled from them (with end clips), "
             "L/T corners, diagonal supports, and the printed clip family."
         ),
-        part="cubetruss(extents=3)",
-        code='CubeTruss.<span class="k">cubetruss</span>(extents=3)',
-        metrics=[("3-segment truss", 1456, "15,456.6", "30×84×30")],
-        note=(
+        "part": "cubetruss(extents=3)",
+        "code": 'CubeTruss.<span class="k">cubetruss</span>(extents=3)',
+        "metrics": [("3-segment truss", 1456, "15,456.6", "30×84×30")],
+        "note": (
             "Each 30 mm cube is lightened with octagonal tunnels through all three axes and braced; "
             "the assembly is one watertight solid. Length = cubetruss_dist(3,1) = 84 mm."
         ),
-        proof=None,
-        tags=["segment", "corner", "support", "clip", "foot", "joiner"],
-    ),
-    "joiners": dict(
-        title="joiners",
-        tests=8,
-        svg=dovetail_svg(),
-        subtitle=(
+        "proof": None,
+        "tags": ["segment", "corner", "support", "clip", "foot", "joiner"],
+    },
+    "joiners": {
+        "title": "joiners",
+        "tests": 8,
+        "svg": dovetail_svg(),
+        "subtitle": (
             "Shapes that connect two separately-printed parts: a tapered-or-straight dovetail "
             "joint — male tenon or female socket — and a press-and-click snap pin."
         ),
-        part='dovetail("male", width=15, height=8, slide=30)',
-        code='Joiners.<span class="k">dovetail</span>("male", width=15, height=8, slide=30)',
-        metrics=[
+        "part": 'dovetail("male", width=15, height=8, slide=30)',
+        "code": 'Joiners.<span class="k">dovetail</span>("male", width=15, height=8, slide=30)',
+        "metrics": [
             ("male dovetail", 12, "3,920.0", "18×30×8"),
             ("snap pin", 1718, "199.5", "6×6×15"),
         ],
-        note=(
+        "note": (
             'The dovetail flares to <span class="mono">w + 2·h/slope</span> at the top so it '
             "resists pulling apart; a taper lets a long joint slide home and wedge tight. The "
             "female is the same shape grown by <b>slop</b> for a press fit."
         ),
-        proof=None,
-        tags=["dovetail", "taper", "male / female", "snap-pin", "socket"],
-    ),
-    "ball_bearings": dict(
-        title="ball_bearings",
-        tests=10,
-        svg=bearing_svg(9),
-        subtitle=(
+        "proof": None,
+        "tags": ["dovetail", "taper", "male / female", "snap-pin", "socket"],
+    },
+    "ball_bearings": {
+        "title": "ball_bearings",
+        "tests": 10,
+        "svg": bearing_svg(9),
+        "subtitle": (
             "Standard cartridge models from a trade-size name — shielded (ZZ) or open, "
             "with the balls modelled rolling in the race."
         ),
-        part='ball_bearing("608")',
-        code='BallBearings.<span class="k">ball_bearing</span>("608")',
-        metrics=[("608 · open", 2328, "1,640.6", "22×22×7")],
-        note=(
+        "part": 'ball_bearing("608")',
+        "code": 'BallBearings.<span class="k">ball_bearing</span>("608")',
+        "metrics": [("608 · open", 2328, "1,640.6", "22×22×7")],
+        "note": (
             "The open 608 skate bearing: inner and outer races, a toroidal ball groove, and 9 balls "
             "spaced around it — one watertight assembly. 136 trade sizes are tabulated."
         ),
-        proof=None,
-        tags=["136 sizes", "608", "6902ZZ", "R8", "open / shielded"],
-    ),
-    "modular_hose": dict(
-        title="modular_hose",
-        tests=16,
-        svg=hose_svg(),
-        subtitle=(
+        "proof": None,
+        "tags": ["136 sizes", "608", "6902ZZ", "R8", "open / shielded"],
+    },
+    "modular_hose": {
+        "title": "modular_hose",
+        "tests": 16,
+        "svg": hose_svg(),
+        "subtitle": (
             'The ball-and-socket segments of a modular "Loc-Line" style adjustable hose — '
             'a ball end, a socket end, or a full segment, for the 1/4", 1/2" and 3/4" sizes.'
         ),
-        part='modular_hose(0.5, "segment")',
-        code='ModularHose.<span class="k">modular_hose</span>(0.5, "segment")',
-        metrics=[
+        "part": 'modular_hose(0.5, "segment")',
+        "code": 'ModularHose.<span class="k">modular_hose</span>(0.5, "segment")',
+        "metrics": [
             ('1/2" segment', 2760, "3,432.6", "25×25×30"),
             ('1/2" ball end', 1500, "1,465.7", "22×21×13"),
         ],
-        note=(
+        "note": (
             "The ball/socket cross-section is the exact turtle-path profile BOSL2 uses, revolved "
             "into a segment. Segments chain into a bendy hose; <b>clearance</b> loosens the joint."
         ),
-        proof=None,
-        tags=["ball & socket", '1/4" · 1/2" · 3/4"', "clearance fit", "through bore"],
-    ),
-    "nema_steppers": dict(
-        title="nema_steppers",
-        tests=13,
-        svg=nema_svg(),
-        subtitle=(
+        "proof": None,
+        "tags": ["ball & socket", '1/4" · 1/2" · 3/4"', "clearance fit", "through bore"],
+    },
+    "nema_steppers": {
+        "title": "nema_steppers",
+        "tests": 13,
+        "svg": nema_svg(),
+        "subtitle": (
             "Models of NEMA-standard stepper motors — body, plinth, shaft and mounting holes — "
             "plus the bolt-pattern mask to difference out of a mounting plate."
         ),
-        part="nema_stepper_motor(17)",
-        code='NemaSteppers.<span class="k">nema_stepper_motor</span>(17)',
-        metrics=[
+        "part": "nema_stepper_motor(17)",
+        "code": 'NemaSteppers.<span class="k">nema_stepper_motor</span>(17)',
+        "metrics": [
             ("NEMA 17 motor", 300, "43,714.4", "42×42×44"),
             ("NEMA 23 motor", 456, "79,389.8", "57×57×44"),
         ],
-        note=(
+        "note": (
             "NEMA 17 is the 3-D-printer classic: a 42.3 mm body on a 31 mm bolt circle with a 5 mm "
             'shaft. Eight sizes (NEMA 6 → 42) are tabulated as a <span class="mono">NemaSpec</span>.'
         ),
-        proof=None,
-        tags=["NEMA 6 → 42", "mount mask", "bolt pattern", "shaft + plinth"],
-    ),
-    "linear_bearings": dict(
-        title="linear_bearings",
-        tests=10,
-        svg=linear_bearing_svg(),
-        subtitle=(
+        "proof": None,
+        "tags": ["NEMA 6 → 42", "mount mask", "bolt pattern", "shaft + plinth"],
+    },
+    "linear_bearings": {
+        "title": "linear_bearings",
+        "tests": 10,
+        "svg": linear_bearing_svg(),
+        "subtitle": (
             "LMxUU linear ball bearings that run along a rod, plus the pillow-block housings "
             "that clamp them to a plate with a teardrop bore and a screw."
         ),
-        part="lmXuu_bearing(8)",
-        code='LinearBearings.<span class="k">lmXuu_bearing</span>(8)',
-        metrics=[
+        "part": "lmXuu_bearing(8)",
+        "code": 'LinearBearings.<span class="k">lmXuu_bearing</span>(8)',
+        "metrics": [
             ("LM8UU bearing", 816, "2,997.1", "15×15×24"),
             ("LM8UU housing", 508, "6,499.2", "27×24×25"),
         ],
-        note=(
+        "note": (
             "The bearing is four nested shells modelling the outer race, liner and ball tracks; "
             "the housing prints without support thanks to its teardrop bore. 17 LMxUU sizes are tabulated."
         ),
-        proof=None,
-        tags=["LMxUU", "17 sizes", "pillow-block", "teardrop bore"],
-    ),
-    "polyhedra": dict(
-        title="polyhedra",
-        tests=19,
-        svg=poly_svg(),
-        subtitle=(
+        "proof": None,
+        "tags": ["LMxUU", "17 sizes", "pillow-block", "teardrop bore"],
+    },
+    "polyhedra": {
+        "title": "polyhedra",
+        "tests": 19,
+        "svg": poly_svg(),
+        "subtitle": (
             "The five Platonic solids as watertight polyhedra — sized by circumradius, diameter, "
             "inradius or side. The dodecahedron is built as the dual of the icosahedron."
         ),
-        part='regular_polyhedron("dodecahedron", side=12)',
-        code='Polyhedra.<span class="k">regular_polyhedron</span>("dodecahedron", side=12)',
-        metrics=[
+        "part": 'regular_polyhedron("dodecahedron", side=12)',
+        "code": 'Polyhedra.<span class="k">regular_polyhedron</span>("dodecahedron", side=12)',
+        "metrics": [
             ("dodecahedron · side=12", 36, "13,241.9", "31×31×31"),
             ("icosahedron · r=15", 20, "8,559.5", "26×26×26"),
         ],
-        note=(
+        "note": (
             "Vertices come from exact &phi;-based coordinates, normalised to a unit circumradius and "
             "scaled to the requested size. Every one closes watertight, winding included."
         ),
-        proof=(
+        "proof": (
             "V&minus;E+F=2",
             "<b>Euler's formula holds for all five.</b> The icosahedron's 12 "
             "vertices, 30 edges and 20 faces satisfy it — the test suite checks each solid.",
         ),
-        tags=[
+        "tags": [
             "tetrahedron",
             "cube",
             "octahedron",
@@ -809,31 +809,31 @@ MODULES = {
             "icosahedron",
             "dual",
         ],
-    ),
-    "walls": dict(
-        title="walls",
-        tests=12,
-        svg=wall_svg(),
-        subtitle=(
+    },
+    "walls": {
+        "title": "walls",
+        "tests": 12,
+        "svg": wall_svg(),
+        "subtitle": (
             "FDM-optimised walls that use less plastic and print without support: a cross-braced "
             "sparse wall, a corrugated wall, thick-edged thinning walls and triangles, and struts."
         ),
-        part="sparse_wall(h=50, l=100, thick=4)",
-        code='Walls.<span class="k">sparse_wall</span>(h=50, l=100, thick=4)',
-        metrics=[
+        "part": "sparse_wall(h=50, l=100, thick=4)",
+        "code": 'Walls.<span class="k">sparse_wall</span>(h=50, l=100, thick=4)',
+        "metrics": [
             ("sparse wall · l=100", 280, "12,007.0", "4×101×50"),
             ("thinning wall · l=80", 44, "9,422.6", "4×80×50"),
         ],
-        note=(
+        "note": (
             "The diagonal braces are held under <b>maxang</b> from vertical so every overhang prints "
             "clean; the thinning wall is BOSL2's exact 24-point polyhedron, transcribed and closed watertight."
         ),
-        proof=(
+        "proof": (
             "40%",
             "<b>The sparse lattice fills its 4×100×50 envelope with 12,007 mm&sup3;</b> — 40% "
             "less plastic than the 20,000 mm&sup3; solid wall, and it needs no support.",
         ),
-        tags=[
+        "tags": [
             "sparse",
             "corrugated",
             "thinning-wall",
@@ -841,70 +841,70 @@ MODULES = {
             "narrowing-strut",
             "support-free",
         ],
-    ),
-    "wiring": dict(
-        title="wiring",
-        tests=11,
-        svg=wire_svg(13),
-        subtitle=(
+    },
+    "wiring": {
+        "title": "wiring",
+        "tests": 11,
+        "svg": wire_svg(13),
+        "subtitle": (
             "A routed bundle of round wires: hex-packed in cross-section and swept along a path "
             "whose corners are rounded, each wire coloured from a 17-entry table."
         ),
-        part="wire_bundle(path, wires=13, rounding=10)",
-        code='Wiring.<span class="k">wire_bundle</span>(path, wires=13, rounding=10)',
-        metrics=[
+        "part": "wire_bundle(path, wires=13, rounding=10)",
+        "code": 'Wiring.<span class="k">wire_bundle</span>(path, wires=13, rounding=10)',
+        "metrics": [
             ("1 wire · watertight", 796, "529.0", "52×52×51"),
             ("13-wire bundle", 10348, "6,877.0", "60×60×55"),
         ],
-        note=(
+        "note": (
             "The wires pack into the optimal hex arrangement (rings of 1, 6, 12, …) and each sweeps "
             "along the rounded route as its own tube — kept separate and coloured, exactly as BOSL2 draws them."
         ),
-        proof=(
+        "proof": (
             "529.0 mm³ ×13",
             "<b>One wire seals watertight at 796 triangles.</b> Thirteen of them, "
             "hex-packed and tangent, are 13 independent tubes — 13 × 529.0 = 6,877 mm&sup3; of copper, no overlap.",
         ),
-        tags=[
+        "tags": [
             "hex-packed",
             "path-sweep",
             "rounded corners",
             "17 colours",
             "separate tubes",
         ],
-    ),
-    "hooks": dict(
-        title="hooks",
-        tests=14,
-        svg=hook_svg(),
-        subtitle=(
+    },
+    "hooks": {
+        "title": "hooks",
+        "tests": 14,
+        "svg": hook_svg(),
+        "subtitle": (
             "A ring hook: a rectangular mounting base that flares up and joins tangentially to a "
             "Y-axis cylinder — the ring — with a round, D-shaped or custom through-hole."
         ),
-        part="ring_hook([50, 10], 25, or_=25, ir=20)",
-        code='Hooks.<span class="k">ring_hook</span>([50, 10], 25, or_=25, ir=20)',
-        metrics=[
+        "part": "ring_hook([50, 10], 25, or_=25, ir=20)",
+        "code": 'Hooks.<span class="k">ring_hook</span>([50, 10], 25, or_=25, ir=20)',
+        "metrics": [
             ("ring · ir=20", 208, "9,771.2", "50×10×50"),
             ("D-hole ring", 144, "18,737.4", "50×10×50"),
         ],
-        note=(
+        "note": (
             "Give exactly two of <b>or/od</b>, <b>ir/id</b> and <b>wall</b> to size the ring. The "
             "base flares to the tangent points computed by <b>circle_point_tangents()</b>, so the "
             "paddle meets the cylinder seamlessly. Circle, D and custom-path holes all close watertight."
         ),
-        proof=(
+        "proof": (
             "tangent join",
             "<b>The base corners must lie outside the ring</b> so a tangent exists; "
             "the flare follows it exactly. Verified watertight for round, D and octagonal holes.",
         ),
-        tags=[
+        "tags": [
             "ring hook",
             "tangent base",
             "circle / D / custom hole",
             "or·ir·wall",
             "solid paddle",
         ],
-    ),
+    },
 }
 
 # gallery order and the modules that only get an API link (no rendered spec sheet)

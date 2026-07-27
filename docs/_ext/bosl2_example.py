@@ -56,7 +56,7 @@ from stl_viewer import stl_viewer_html  # noqa: E402
 # than failing to import if the helper (or its deps) is unavailable.
 try:
     sys.path.insert(0, str(_REPO_ROOT / "pysolidfive" / "tests"))
-    from render_pysolidfive import render_script  # noqa: E402
+    from render_pysolidfive import render_script
 except ImportError:
     from types import SimpleNamespace
 

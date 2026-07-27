@@ -51,7 +51,7 @@ if not _have_pythonscad:
     _mock_dir = _REPO_ROOT / "tests"  # bosl2's own native mock (not the sibling pysolidfive's)
     if (_mock_dir / "mock_libfive.py").is_file():
         sys.path.insert(0, str(_mock_dir))
-        import mock_libfive  # noqa: E402,F401  -- installs pythonscad/openscad/libfive stubs
+        import mock_libfive  # noqa: F401  -- installs pythonscad/openscad/libfive stubs
     else:
         raise RuntimeError(
             "docs build needs the pythonscad native modules: install the wheel with "

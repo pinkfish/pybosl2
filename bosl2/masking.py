@@ -42,13 +42,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from bosl2._native import native
 
 if TYPE_CHECKING:
-    from openscad import PyOpenSCAD  # noqa: F401
+    from collections.abc import Sequence
+
+    from openscad import PyOpenSCAD
 from .constants import CENTER
 from .shapes2d import _frag_count, _polar_to_xy
 from .shapes3d import EDGE_OFFSETS, _anchor_offset_box3, _edges, _quantup

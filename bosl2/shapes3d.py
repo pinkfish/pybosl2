@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import math
 import numbers
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -32,9 +31,11 @@ import numpy as np
 from bosl2._native import native
 
 if TYPE_CHECKING:
-    from openscad import PyOpenSCAD  # noqa: F401
+    from collections.abc import Sequence
 
-    from bosl2.shapes2d import Bosl2Shape2D  # noqa: F401
+    from openscad import PyOpenSCAD
+
+    from bosl2.shapes2d import Bosl2Shape2D
 from bosl2._backend import check_operand_backend as _check_operand_backend
 from bosl2._backend import unsupported_feature as _unsupported_feature
 from bosl2.color import Colorable

@@ -45,9 +45,9 @@ from bosl2._native import native
 # captured under private names first.
 
 if TYPE_CHECKING:
-    from openscad import PyOpenSCAD  # noqa: F401
+    from openscad import PyOpenSCAD
 
-    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
+    from bosl2.shapes3d import Bosl2Solid
 from bosl2._backend import check_operand_backend as _check_operand_backend
 from bosl2._backend import unsupported_feature as _unsupported_feature
 from bosl2.color import Colorable

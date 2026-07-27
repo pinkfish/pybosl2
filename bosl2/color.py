@@ -21,7 +21,10 @@ from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = ["hsl", "hsv", "rainbow", "rainbow_colors", "Colorable"]
 

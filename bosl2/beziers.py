@@ -824,7 +824,7 @@ class BezierPatch(list):
             rowcount += list(reversed(list(range(3, splinesteps + 1, 2))))
             bpatch = np.asarray([Bezier(patch[:, i, :]).points(samplepts) for i in range(C)])
             pts = [[bpatch[0][0]]]
-            for j in range(0, splinesteps - 1):
+            for j in range(splinesteps - 1):
                 pts.append(_tolist(Bezier(bpatch[:, j + 1, :]).points(list(lerpn(0, 1, rowcount[j])))))
             pts.append([bpatch[0][-1]])
             vnf = VNF.tri_array(pts, reverse=not reverse)

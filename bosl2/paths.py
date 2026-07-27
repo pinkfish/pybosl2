@@ -54,9 +54,9 @@ except ImportError:
     _SHAPELY = False
 
 if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this module
-    from bosl2._backend import Solid  # noqa: F401
-    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike  # noqa: F401
-    from bosl2.shapes3d import Bosl2Solid  # noqa: F401
+    from bosl2._backend import Solid
+    from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike
+    from bosl2.shapes3d import Bosl2Solid
 
 from bosl2.comparisons import approx
 from bosl2.distributors import (
@@ -610,7 +610,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         e = end % sides
         if s <= e:
             return [lst[i] for i in range(s, e + 1)]
-        return [lst[i] for i in range(s, sides)] + [lst[i] for i in range(0, e + 1)]
+        return [lst[i] for i in range(s, sides)] + [lst[i] for i in range(e + 1)]
 
     @staticmethod
     def _pair(lst, wrap: bool = False) -> list:
@@ -841,7 +841,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         arr = np.asarray(p, dtype=float)
         plen = len(arr)
         result = []
-        for i in range(0, plen - 2):
+        for i in range(plen - 2):
             a1, a2 = arr[i], arr[i + 1]
             diameter = a2 - a1
             seg_normal = np.asarray(unit([-diameter[1], diameter[0]], [0.0, 0.0]))
@@ -981,7 +981,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         arr = np.asarray(path, dtype=float)
         sides = len(arr)
         end = sides - (2 if closed else 3)
-        for i in range(0, end + 1):
+        for i in range(end + 1):
             v1 = arr[i + 1] - arr[i]
             v2 = arr[(i + 2) % sides] - arr[i + 1]
             n1, n2 = float(np.hypot(*v1)), float(np.hypot(*v2))

@@ -299,9 +299,9 @@ class VNF:
 
         faces: list = []
         if capfirst:
-            rng = list(range(0, rowstarts[0] - addcol)) if reverse else list(range(rowstarts[0] - 1 - addcol, -1, -1))
+            rng = list(range(rowstarts[0] - addcol)) if reverse else list(range(rowstarts[0] - 1 - addcol, -1, -1))
             faces.append(rng)
-        for i in range(0, plen - 1 + (1 if row_wrap else 0)):
+        for i in range(plen - 1 + (1 if row_wrap else 0)):
             j = (i + 1) % plen
             trimax = max(1, abs(len(st[i]) - len(st[j]))) if limit_bunching else float("inf")
             faces.extend(

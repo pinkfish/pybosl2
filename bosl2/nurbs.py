@@ -135,7 +135,7 @@ def _nurbs_curve_pts(
     u=None,
     mult=None,
     weights=None,
-    type="clamped",
+    type="clamped",  # noqa: A002
     knots=None,
 ):
     """The list of raw points on a NURBS curve (numpy arrays); wrapped by :func:`nurbs_curve`."""
@@ -237,7 +237,7 @@ def nurbs_curve(
     u=None,
     mult=None,
     weights=None,
-    type: str = "clamped",
+    type: str = "clamped",  # noqa: A002
     knots=None,
 ):
     """Evaluate a NURBS curve, returning its points (BOSL2 nurbs_curve()).
@@ -304,12 +304,12 @@ def is_nurbs_patch(x) -> bool:
     )
 
 
-def _valid_surface_type(type) -> bool:
-    if type in ("closed", "clamped", "open"):
+def _valid_surface_type(surface_type) -> bool:
+    if surface_type in ("closed", "clamped", "open"):
         return True
-    if not isinstance(type, (list, tuple)) or len(type) != 2:
+    if not isinstance(surface_type, (list, tuple)) or len(surface_type) != 2:
         return False
-    return _valid_surface_type(type[0]) and _valid_surface_type(type[1])
+    return _valid_surface_type(surface_type[0]) and _valid_surface_type(surface_type[1])
 
 
 def _force_list2(x):
@@ -329,7 +329,7 @@ def nurbs_patch_points(
     u=None,
     v=None,
     weights=None,
-    type: str = ("clamped", "clamped"),
+    type: str = ("clamped", "clamped"),  # noqa: A002
     mult=(None, None),
     knots=(None, None),
 ):
@@ -379,7 +379,7 @@ def nurbs_patch_points(
         return [[list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in row] for row in pts]
 
     degree = _force_list2(degree)
-    type = _force_list2(type)
+    type = _force_list2(type)  # noqa: A001
     splinesteps = [None, None] if splinesteps is None else _force_list2(splinesteps)
     mult = [mult, mult] if (mult is None or is_num(mult) or (mult and is_num(mult[0]))) else list(mult)
     knots = [knots, knots] if (knots is None or (knots and is_num(knots[0]))) else list(knots)
@@ -423,7 +423,7 @@ def nurbs_vnf(
     degree: int | None = None,
     splinesteps: int = 16,
     weights=None,
-    type: str = "clamped",
+    type: str = "clamped",  # noqa: A002
     mult=None,
     knots=None,
     style: str = "default",
@@ -479,7 +479,7 @@ def nurbs_vnf(
         )
     assert is_nurbs_patch(patch), "patch must be a rectangular array of points."
     assert _valid_surface_type(type), 'type must be "closed", "clamped", "open", or a pair of those.'
-    type = _force_list2(type)
+    type = _force_list2(type)  # noqa: A001
     havecaps = any(c for c in (caps, cap1, cap2))
     assert not havecaps or type in (["clamped", "closed"], ["closed", "clamped"]), (
         'caps require type ["clamped","closed"] or ["closed","clamped"].'
@@ -572,7 +572,13 @@ def _elevate_once(ctrl, p, U):
 
 
 def nurbs_elevate_degree(
-    control, degree: int | None = None, knots=None, type: str = "clamped", times: int = 1, weights=None, mult=None
+    control,
+    degree: int | None = None,
+    knots=None,
+    type: str = "clamped",  # noqa: A002
+    times: int = 1,
+    weights=None,
+    mult=None,
 ):
     """Raise a NURBS/B-spline curve's degree by *times*, returning a parameter list (BOSL2 nurbs_elevate_degree()).
 

@@ -26,9 +26,9 @@ from __future__ import annotations
 
 import math
 import operator
-from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import reduce
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -43,6 +43,9 @@ from bosl2.shapes2d import _frag_count, _pick_radius, arc
 from bosl2.solid import cyl as _cyl  # type: ignore[attr-defined]
 from bosl2.solid import sphere as _sphere  # type: ignore[attr-defined]
 from bosl2.vectors import unit
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = [
     "arc",

@@ -49,8 +49,7 @@
 import math
 import sys
 import types
-from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 
 class Tree:
@@ -135,9 +134,9 @@ def _wrap2(f):
 
 sqrt = _wrap1(math.sqrt)
 square = _wrap1(lambda v: v * v)
-abs = _wrap1(__import__("builtins").abs)  # noqa: A001
-max = _wrap2(__import__("builtins").max)  # noqa: A001
-min = _wrap2(__import__("builtins").min)  # noqa: A001
+abs = _wrap1(__import__("builtins").abs)
+max = _wrap2(__import__("builtins").max)
+min = _wrap2(__import__("builtins").min)
 atan2 = _wrap2(math.atan2)
 
 
@@ -195,6 +194,9 @@ def frep(exp, mn, mx, res):
 # This module shadows the builtins min/max/abs with SDF-Tree-returning wrappers (above), so
 # the AABB helpers below -- which need ordinary numeric min/max -- bind the real builtins.
 import builtins as _bi  # noqa: E402
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 _bmin = _bi.min
 _bmax = _bi.max
