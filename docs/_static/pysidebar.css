@@ -2,7 +2,7 @@
     position: fixed;
     right: 0;
     top: 0;
-    width: 240px;
+    width: 190px;
     height: 100vh;
     overflow-y: auto;
     z-index: 900;
@@ -57,7 +57,7 @@
 }
 
 body {
-    margin-right: 255px;
+    margin-right: 205px;
 }
 
 @media (max-width: 1060px) {
