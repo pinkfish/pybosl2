@@ -1197,8 +1197,8 @@ class Path(Distributable, Extrudable, Roundable, list):
             if not is_collinear(path[ind], path[ind - 1], Path._select(path, i)):
                 p_i = Path._select(path, i)
                 return [
-                    [a - b for a, b in zip(p_i, path[ind - 1])],
-                    [a - b for a, b in zip(path[ind], path[ind - 1])],
+                    [a - b for a, b in zip(p_i, path[ind - 1], strict=False)],
+                    [a - b for a, b in zip(path[ind], path[ind - 1], strict=False)],
                 ]
             i -= 1
         return None
@@ -1210,23 +1210,23 @@ class Path(Distributable, Extrudable, Roundable, list):
         for ind in range(len(cuts)):
             nextind = cuts[ind][1]
             nextpath = unit(
-                [a - b for a, b in zip(Path._select(path, nextind + 1), Path._select(path, nextind))],
+                [a - b for a, b in zip(Path._select(path, nextind + 1), Path._select(path, nextind), strict=False)],
                 zeros,
             )
             thispath = unit(
-                [a - b for a, b in zip(Path._select(path, nextind), Path._select(path, nextind - 1))],
+                [a - b for a, b in zip(Path._select(path, nextind), Path._select(path, nextind - 1), strict=False)],
                 zeros,
             )
             lastpath = unit(
-                [a - b for a, b in zip(Path._select(path, nextind - 1), Path._select(path, nextind - 2))],
+                [a - b for a, b in zip(Path._select(path, nextind - 1), Path._select(path, nextind - 2), strict=False)],
                 zeros,
             )
             if nextind == len(path) and not closed:
                 nextdir = lastpath
             elif (nextind <= len(path) - 2 or closed) and approx(cuts[ind][0], Path._select(path, nextind), eps=eps):
-                nextdir = unit([a + b for a, b in zip(nextpath, thispath)])
+                nextdir = unit([a + b for a, b in zip(nextpath, thispath, strict=False)])
             elif (nextind > 1 or closed) and approx(cuts[ind][0], Path._select(path, nextind - 1), eps=eps):
-                nextdir = unit([a + b for a, b in zip(thispath, lastpath)])
+                nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
             else:
                 nextdir = thispath
             out.append(nextdir)
@@ -1542,7 +1542,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         v1 = [p0[i] - p1[i] for i in range(dim)]
         v2 = [p2[i] - p1[i] for i in range(dim)]
         n1, n2 = math.hypot(*v1), math.hypot(*v2)
-        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2)) / (n1 * n2)))
+        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2, strict=False)) / (n1 * n2)))
         return math.degrees(math.acos(cosang))
 
     @staticmethod
@@ -1564,7 +1564,7 @@ class Path(Distributable, Extrudable, Roundable, list):
         n1, n2 = math.hypot(*v1), math.hypot(*v2)
         prev = [x / n1 for x in v1]
         nxt = [x / n2 for x in v2]
-        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2)) / (n1 * n2)))
+        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2, strict=False)) / (n1 * n2)))
         angle = math.degrees(math.acos(cosang)) / 2
         start = [p1[i] + prev[i] * diameter for i in range(dim)]
         end = [p1[i] + nxt[i] * diameter for i in range(dim)]
@@ -1786,7 +1786,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
         from bosl2.transforms import axis_angle_matrix
 
         if v is not None:
-            m = np.asarray(axis_angle_matrix(float(a), list(v)), dtype=float)
+            m = np.asarray(axis_angle_matrix(float(a), list(v)), dtype=float)  # type: ignore[type-var, arg-type]
         elif isinstance(a, (list, tuple, np.ndarray)):
             rx, ry, rz = (list(a) + [0, 0, 0])[:3]
             mx = np.asarray(axis_angle_matrix(rx, [1, 0, 0]), dtype=float)
@@ -1794,7 +1794,7 @@ class Path3D(Distributable, Extrudable, Roundable, list):
             mz = np.asarray(axis_angle_matrix(rz, [0, 0, 1]), dtype=float)
             m = mz @ my @ mx
         else:
-            m = np.asarray(axis_angle_matrix(float(a), [0, 0, 1]), dtype=float)
+            m = np.asarray(axis_angle_matrix(float(a), [0, 0, 1]), dtype=float)  # type: ignore[type-var, arg-type]
         return self._like(self.array @ m.T)
 
     rot = rotate

@@ -48,16 +48,16 @@ class Vec3(list):
     """
 
     def __add__(self, other):
-        return Vec3(a + b for a, b in zip(self, other))
+        return Vec3(a + b for a, b in zip(self, other, strict=False))
 
     def __radd__(self, other):
-        return Vec3(a + b for a, b in zip(other, self))
+        return Vec3(a + b for a, b in zip(other, self, strict=False))
 
     def __sub__(self, other):
-        return Vec3(a - b for a, b in zip(self, other))
+        return Vec3(a - b for a, b in zip(self, other, strict=False))
 
     def __rsub__(self, other):
-        return Vec3(a - b for a, b in zip(other, self))
+        return Vec3(a - b for a, b in zip(other, self, strict=False))
 
     def __neg__(self):
         return Vec3(-a for a in self)

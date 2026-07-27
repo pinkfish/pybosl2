@@ -541,7 +541,7 @@ def metaballs(
     def field(pts):
         homo = np.hstack([pts, np.ones((len(pts), 1))])
         total = np.zeros(len(pts))
-        for (t, ball), inv in zip(pairs, invs):
+        for (_t, ball), inv in zip(pairs, invs, strict=False):
             local = (inv @ homo.T).T[:, :3]
             total += ball.field(local)
         return total

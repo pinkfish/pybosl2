@@ -495,7 +495,7 @@ def nurbs_vnf(
         weights=weights,
     )
     if flip:
-        pts = [list(row) for row in zip(*pts)]
+        pts = [list(row) for row in zip(*pts, strict=False)]
     return VNF.vertex_array(
         pts,
         style=style,

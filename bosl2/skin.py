@@ -1027,7 +1027,7 @@ def _offset_sweep(
     column: list[tuple[float, float]] = []
 
     # Bottom rim.
-    for d, z in zip(bot_deltas, bot_zs):
+    for d, z in zip(bot_deltas, bot_zs, strict=False):
         column.append((d, z))
 
     # Middle straight wall (if there is room between the two rims).
@@ -1037,7 +1037,7 @@ def _offset_sweep(
         column.append((column[-1][0], mid_z_top))
 
     # Top rim (arc in reverse: from height-h_top up to height).
-    for d, z in zip(reversed(top_deltas), reversed(top_zs)):
+    for d, z in zip(reversed(top_deltas), reversed(top_zs), strict=False):
         column.append((d, height - z))
 
     # De-duplicate consecutive identical entries.
@@ -1259,7 +1259,7 @@ def _rounded_prism(
     column: list[tuple[float, float]] = []
 
     # Bottom rim.
-    for d, z in zip(bot_deltas, bot_zs):
+    for d, z in zip(bot_deltas, bot_zs, strict=False):
         column.append((d, z))
 
     # Middle straight wall.
@@ -1269,7 +1269,7 @@ def _rounded_prism(
         column.append((column[-1][0], mid_z_top))
 
     # Top rim.
-    for d, z in zip(reversed(top_deltas), reversed(top_zs)):
+    for d, z in zip(reversed(top_deltas), reversed(top_zs), strict=False):
         column.append((d, h_val - z))
 
     # De-duplicate consecutive identical entries.

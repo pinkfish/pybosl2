@@ -89,7 +89,6 @@ _PREAMBLE = (
     "from bosl2.partitions import partition_path, partition_mask, partition_cut_mask\n"
     "from bosl2.miscellaneous import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
     "from bosl2.nurbs import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
-    "from bosl2.rounding import round_corners, smooth_path\n"
     "from bosl2.isosurface import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, mb_octahedron, mb_connector\n"  # noqa: E501
     "from bosl2.threading import Threading\n"
     "from bosl2.screws import Screws\n"

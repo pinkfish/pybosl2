@@ -829,7 +829,7 @@ def _anchor_offset_hull3(points: Sequence[Sequence[float]], anchor: Sequence[flo
     projs = [p[0] * a[0] + p[1] * a[1] + p[2] * a[2] for p in points]
     m = max(projs)
     eps = 1e-7 * (1.0 + abs(m))
-    tied = [p for p, pr in zip(points, projs) if pr >= m - eps]
+    tied = [p for p, pr in zip(points, projs, strict=False) if pr >= m - eps]
     sides = len(tied)
     return [-sum(p[i] for p in tied) / sides for i in range(3)]
 
@@ -1380,7 +1380,7 @@ def _rect_tube_rounding(
         iri
         if iri is not None
         else (max(0.0, (ri if ri is not None else 0.0) - wall) if alternative[i] is None else 0.0)
-        for i, (iri, ri) in enumerate(zip(inner_radius, radius))
+        for i, (iri, ri) in enumerate(zip(inner_radius, radius, strict=False))
     ]
 
 
@@ -2452,7 +2452,7 @@ def torus(
     elif _or is not None and _r_min is not None:
         maj_rad = _or - _r_min
     else:
-        assert False, "torus(): bad parameters."
+        raise AssertionError("torus(): bad parameters.")
 
     if _r_min is not None:
         min_rad = _r_min
@@ -2461,7 +2461,7 @@ def torus(
     elif _or is not None:
         min_rad = _or - maj_rad
     else:
-        assert False, "torus(): bad parameters."
+        raise AssertionError("torus(): bad parameters.")
 
     use_anchor = anchor
     if center is not None:
@@ -2545,7 +2545,7 @@ def teardrop(
 
     solids = [_opolyhedron(pts, [list(range(len(pts)))]) for pts in slices]
     shape = solids[0]
-    for a, b in zip(solids, solids[1:]):
+    for a, b in zip(solids, solids[1:], strict=False):
         piece = _ohull(a, b)
         shape = piece if shape is solids[0] else (shape | piece)
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor, axis=1)
@@ -2672,7 +2672,7 @@ def _cut_interp(pathcut: list, path: Sequence[Sequence[float]], data: Sequence[S
         c = entry[0]
         i = max(range(len(b)), key=lambda k: abs(b[k] - a[k]))
         factor = (c[i] - a[i]) / (b[i] - a[i])
-        out.append([(1 - factor) * da + factor * db for da, db in zip(data[idx - 1], data[idx])])
+        out.append([(1 - factor) * da + factor * db for da, db in zip(data[idx - 1], data[idx], strict=False)])
     return out
 
 
@@ -2805,7 +2805,7 @@ def path_text(
     elif textmetrics:
         lsize = [_otextmetrics(ch, font=font, size=size)["advance"][0] for ch in text]
     else:
-        assert False, "path_text(): textmetrics disabled -- must specify lettersize."
+        raise AssertionError("path_text(): textmetrics disabled -- must specify lettersize.")
 
     kern_list = [float(kern)] * (sides - 1) if isinstance(kern, (int, float)) else [float(v) for v in kern]
     assert len(kern_list) == sides - 1, "path_text(): kern must be a scalar or a list of length len(text)-1."
@@ -2845,11 +2845,11 @@ def path_text(
         tangent = pts[i][2]
         if toppts is not None:
             tt = toppts[i]
-            proj = sum(a * b for a, b in zip(tangent, tt)) / sum(v * v for v in tt)
+            proj = sum(a * b for a, b in zip(tangent, tt, strict=False)) / sum(v * v for v in tt)
             adjustment = [proj * v for v in tt]
         elif usernorm:
             nn = normpts[i]
-            proj = sum(a * b for a, b in zip(tangent, nn)) / sum(v * v for v in nn)
+            proj = sum(a * b for a, b in zip(tangent, nn, strict=False)) / sum(v * v for v in nn)
             adjustment = [proj * v for v in nn]
         else:
             adjustment = [0.0] * dim

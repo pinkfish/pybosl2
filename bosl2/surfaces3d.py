@@ -221,7 +221,7 @@ def _heightfield_reorient_tris(
             parent[node] = root
         return root
 
-    for a, b, nf in zip(fa_, fb_, need_flip):
+    for a, b, nf in zip(fa_, fb_, need_flip, strict=False):
         ra, rb = find(a), find(b)
         if ra != rb:
             pa = parity[a] if a != ra else 0
@@ -828,7 +828,7 @@ def ruler(
     labels: bool = False,
     pipscale: float = 1 / 3,
     maxscale: float | None = None,
-    colors: list[str] = ["black", "white"],
+    colors: list[str] = None,
     alpha: float = 1.0,
     unit: float = 1,
     inch: bool = False,
@@ -856,6 +856,8 @@ def ruler(
     """
     from .shapes2d import _opolygon
 
+    if colors is None:
+        colors = ["black", "white"]
     assert depth <= 5, "Cannot render scales smaller than depth=5"
     assert len(colors) == 2, "'colors' must contain a list of exactly two colors."
 

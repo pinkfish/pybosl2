@@ -141,7 +141,7 @@ def rainbow(
     """
     items = list(items)
     colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
-    return [obj.color(col) for obj, col in zip(items, colors)]
+    return [obj.color(col) for obj, col in zip(items, colors, strict=False)]
 
 
 # ---------------------------------------------------------------------------

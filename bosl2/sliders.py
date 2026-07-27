@@ -69,7 +69,7 @@ class Sliders:
                 chamfer=2,
                 edges=[RIGHT],
                 except_edges=[BOTTOM],
-                anchor=[b + le for b, le in zip(BOTTOM, LEFT)],
+                anchor=[b + le for b, le in zip(BOTTOM, LEFT, strict=False)],
             )
             parts.append(wallcube.multmatrix(m.tolist()))
         bev_h = height / 2 * math.tan(math.radians(angle))

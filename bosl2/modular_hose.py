@@ -274,7 +274,7 @@ def _size_index(size):
     try:
         return _SIZES[size]
     except KeyError:
-        raise ValueError('modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").')
+        raise ValueError('modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").') from None
 
 
 class ModularHose:

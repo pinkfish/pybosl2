@@ -65,7 +65,7 @@ def test_shared_constructor_builds_on_backend(name, backend):
     size = s.bounds()[1]
     assert len(size) == 3 and all(v > 0 for v in size), f"{name} on {backend}: degenerate bounds {size}"
     if expected is not None:
-        for got, want in zip(size, expected):
+        for got, want in zip(size, expected, strict=False):
             assert abs(got - want) < TOL, f"{name} on {backend}: size {size} != nominal {expected}"
 
 
@@ -78,7 +78,7 @@ def test_both_backends_agree_on_bounds(name):
     assert csg.backend == "csg" and sdf.backend == "sdf"
     if not agree:
         return  # bounds() legitimately differ (SDF reports a conservative construction domain)
-    for c, s in zip(csg.bounds()[1], sdf.bounds()[1]):
+    for c, s in zip(csg.bounds()[1], sdf.bounds()[1], strict=False):
         assert abs(c - s) < TOL, f"{name}: backends disagree on bounds ({c} vs {s})"
 
 
@@ -108,7 +108,7 @@ def test_path_linear_extrude_dispatches_on_active_backend(backend):
         s = Path(SQUARE).linear_extrude(height=5)
     assert s.backend == backend
     assert isinstance(s, Solid)
-    for got, want in zip(s.bounds()[1], [20, 12, 5]):
+    for got, want in zip(s.bounds()[1], [20, 12, 5], strict=False):
         assert abs(got - want) < TOL, f"path extrude on {backend}: size {s.bounds()[1]}"
 
 
@@ -128,7 +128,7 @@ def test_single_outline_region_extrudes_on_both_backends(backend):
     with use_backend(backend):
         s = Region([SQUARE]).linear_extrude(height=5)
     assert s.backend == backend
-    for got, want in zip(s.bounds()[1], [20, 12, 5]):
+    for got, want in zip(s.bounds()[1], [20, 12, 5], strict=False):
         assert abs(got - want) < TOL
 
 
@@ -197,7 +197,7 @@ def test_solid_hull_dispatches_on_active_backend(backend):
     with use_backend(backend):
         capsule = solid.cube(10).hull(solid.cube(10).translate([0, 0, 30]))
     assert capsule.backend == backend
-    for got, want in zip(capsule.bounds()[1], [10, 10, 40]):
+    for got, want in zip(capsule.bounds()[1], [10, 10, 40], strict=False):
         assert abs(got - want) < TOL, f"hull on {backend}: size {capsule.bounds()[1]}"
 
 

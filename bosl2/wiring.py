@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import math
 
-from bosl2.rounding import round_corners
+from bosl2.paths import Path3D
 from bosl2.shapes3d import Bosl2Solid
 from bosl2.skin import path_sweep
 
@@ -119,7 +119,7 @@ class Wiring:
             raise ValueError("wire_bundle() needs at least one wire.")
         sides = max(_segs(wirediam / 2), 8)
         offsets = _hex_offsets(wires, wirediam)
-        rounded_path = round_corners(path, radius=rounding, closed=False, fn=(corner_steps + 1) * 4)
+        rounded_path = Path3D(path, closed=False).round_corners(radius=rounding, fn=(corner_steps + 1) * 4)
         radius = wirediam / 2
         profile = [
             [

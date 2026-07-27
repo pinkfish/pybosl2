@@ -447,14 +447,14 @@ def install():
     # testable); the 2-D/other builders return a permissive bbox-less _AabbSolid. pysolidfive
     # itself never calls any of these (it only builds SDFs and calls frep()).
     pythonscad_mock = types.ModuleType("pythonscad")
-    setattr(pythonscad_mock, "frep", frep)
-    setattr(pythonscad_mock, "cube", _mock_cube)
-    setattr(pythonscad_mock, "cylinder", _mock_cylinder)
-    setattr(pythonscad_mock, "sphere", _mock_sphere)
-    setattr(pythonscad_mock, "polyhedron", _mock_polyhedron)
-    setattr(pythonscad_mock, "hull", _mock_hull)
-    setattr(pythonscad_mock, "fill", _mock_fill)
-    setattr(pythonscad_mock, "minkowski", _mock_minkowski)
+    pythonscad_mock.frep = frep
+    pythonscad_mock.cube = _mock_cube
+    pythonscad_mock.cylinder = _mock_cylinder
+    pythonscad_mock.sphere = _mock_sphere
+    pythonscad_mock.polyhedron = _mock_polyhedron
+    pythonscad_mock.hull = _mock_hull
+    pythonscad_mock.fill = _mock_fill
+    pythonscad_mock.minkowski = _mock_minkowski
     for name in [
         "rotate_extrude",
         "textmetrics",
@@ -471,13 +471,13 @@ def install():
     # The geometry free functions imported by name (cap_box_polygon.py does
     # `from openscad import hull, polygon`) get the same AABB-aware stand-ins.
     openscad_mock = types.ModuleType("openscad")
-    setattr(openscad_mock, "PyOpenSCAD", _AabbSolid)
-    setattr(openscad_mock, "PyOpenSCADVector", list)
-    setattr(openscad_mock, "cube", _mock_cube)
-    setattr(openscad_mock, "cylinder", _mock_cylinder)
-    setattr(openscad_mock, "sphere", _mock_sphere)
-    setattr(openscad_mock, "hull", _mock_hull)
-    setattr(openscad_mock, "fill", _mock_fill)
+    openscad_mock.PyOpenSCAD = _AabbSolid
+    openscad_mock.PyOpenSCADVector = list
+    openscad_mock.cube = _mock_cube
+    openscad_mock.cylinder = _mock_cylinder
+    openscad_mock.sphere = _mock_sphere
+    openscad_mock.hull = _mock_hull
+    openscad_mock.fill = _mock_fill
     for name in ["polygon", "square", "circle"]:
         setattr(openscad_mock, name, lambda *a, **k: _AabbSolid())
     sys.modules["openscad"] = openscad_mock
