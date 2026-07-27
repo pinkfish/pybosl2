@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=112b5530" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
     <script src="_static/documentation_options.js?v=1c28bd9a"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -138,7 +138,11 @@
           <div class="body" role="main">
 
   <aside id="pysidebar-global">
+<div class="ps-header">
 <p class="pysidebar-title">In this module</p>
+<button class="ps-toggle" title="Toggle sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+</div>
+<div class="ps-content">
 <ul class="pysidebar-list">
 <li class="ps-func"><a href="#bosl2.skin.path3d">path3d</a></li>
 <li class="ps-func"><a href="#bosl2.skin.clockwise_polygon">clockwise_polygon</a></li>
@@ -153,7 +157,8 @@
 <li class="ps-func"><a href="#bosl2.skin.subdivide_and_slice">subdivide_and_slice</a></li>
 <li class="ps-func"><a href="#bosl2.skin.path_sweep2d">path_sweep2d</a></li>
 <li class="ps-func"><a href="#bosl2.skin.rot_resample">rot_resample</a></li>
-</ul></aside><section id="sweeps-skin">
+</ul></div></aside>
+<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="sweeps-skin">
 <h1>Sweeps (skin)<a class="headerlink" href="#sweeps-skin" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of the surface generators from BOSL2’s <code class="docutils literal notranslate"><span class="pre">skin.scad</span></code> — every one builds a
 <a class="reference internal" href="vnf.html#bosl2.vnf.VNF" title="bosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> you render with <code class="docutils literal notranslate"><span class="pre">.polyhedron()</span></code>.</p>
@@ -341,13 +346,13 @@ path. See BOSL2 path_sweep() for the full semantics.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-1d146f3caad44950bf1d3c4438d81d34" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3e2d4a3545d64b5392ec2267b575637b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-1d146f3caad44950bf1d3c4438d81d34");
+const el = document.getElementById("stlviewer-3e2d4a3545d64b5392ec2267b575637b");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -471,13 +476,13 @@ are not ported.</p></li>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-8da71f8c236e420bb7e8ac92a531b551" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-da61b9efde464e9880699a61deec17af" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-8da71f8c236e420bb7e8ac92a531b551");
+const el = document.getElementById("stlviewer-da61b9efde464e9880699a61deec17af");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -554,13 +559,13 @@ native <code class="docutils literal notranslate"><span class="pre">linear_extru
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-a9f9acd9b5a74065af0112a88937488d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-b9f2ceaa1c484fe1bff54054d71769d5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-a9f9acd9b5a74065af0112a88937488d");
+const el = document.getElementById("stlviewer-b9f2ceaa1c484fe1bff54054d71769d5");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -634,13 +639,13 @@ to the axis. A full 360-degree revolution loops seamlessly; a partial angle end-
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b2d887968a384d1d95e44da7880f7a9f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-b1ed2ed170e341768cfa769ad6f0cab1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b2d887968a384d1d95e44da7880f7a9f");
+const el = document.getElementById("stlviewer-b1ed2ed170e341768cfa769ad6f0cab1");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -720,13 +725,13 @@ small wire cross-section becomes a spring/thread. The lead-in taper options are 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-6b6f9380408f4bedb955673a8eeb8144" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c454b36fd25f4bc793b2ab19af833d3e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-6b6f9380408f4bedb955673a8eeb8144");
+const el = document.getElementById("stlviewer-c454b36fd25f4bc793b2ab19af833d3e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -825,13 +830,13 @@ of the path will still fold, so keep the shape’s X extent below the path’s t
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-1ec993375ecc4fdfa7348bf565189772" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-15e92ff2306e4600a755423580dce25a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-1ec993375ecc4fdfa7348bf565189772");
+const el = document.getElementById("stlviewer-15e92ff2306e4600a755423580dce25a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
