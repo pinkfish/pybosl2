@@ -31,6 +31,7 @@ from collections.abc import Sequence
 from typing import Callable
 
 import libfive as lv
+from numpy.typing import NDArray
 
 from pysolidfive._constants import CENTER
 from pysolidfive.paths import (
@@ -116,7 +117,7 @@ class PyShape2D:
         )
 
     def scale(self, v: float | Sequence[float]) -> PyShape2D:
-        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 2  # type: ignore[arg-type]
+        s = [float(v), float(v)] if isinstance(v, (int, float)) else [float(a) for a in v]
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
         smin = min(s)
@@ -328,16 +329,16 @@ def supershape2d(
     """A superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
     parameters and sampling as the pybosl2 port's supershape()) and turned into a polygon2d()."""
     return polygon2d(
-        _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),  # type: ignore[arg-type]
+        _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),
         res=res,
     )
 
 
-def polygon2d(paths: list[list[float]], res: int = 10) -> PyShape2D:
+def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PyShape2D:
     """An arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
     Accepts any array-like path spelling (per the numpy-paths convention)."""
-    path_list = as_path_list(paths)  # type: ignore[arg-type]
+    path_list = as_path_list(paths)
     for p in path_list:
         assert len(p) >= 3, f"polygon2d(): every path needs >= 3 points, got {len(p)}"
 
@@ -415,7 +416,9 @@ def union2d(shapes: list[PyShape2D]) -> PyShape2D:
     return shapes[0]
 
 
-def stroke2d(path: list[list[float]], width: float = 1, closed: bool = False, res: int = 10) -> PyShape2D:
+def stroke2d(
+    path: Sequence[Sequence[float]] | NDArray, width: float = 1, closed: bool = False, res: int = 10
+) -> PyShape2D:
     """A path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
     the min over the segments' capsule SDFs (distance-to-segment minus width/2)."""
     pts = as_points(path)
@@ -576,7 +579,7 @@ def regular_ngon2d(
         diameter2=outer_diameter,
         radius=radius,
         diameter=diameter,
-        dflt=side_s,  # type: ignore[arg-type]
+        dflt=side_s if side_s is not None else 1,
     )
     if rad is None:
         raise ValueError(

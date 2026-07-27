@@ -682,8 +682,8 @@ class Partitionable(ABC):
         v3 = _as_vec3(v)
         if center is None:
             cpv = np.zeros(3)
-        elif is_num(center):
-            cpv = float(center) * unit(v3)  # type: ignore[arg-type]
+        elif isinstance(center, (int, float, np.integer, np.floating)) and not isinstance(center, bool):
+            cpv = float(center) * unit(v3)
         else:
             cpv = _as_vec3(center)
         if s is None:

@@ -25,6 +25,8 @@
 #    algorithm so both libraries still accept identical edge selectors.
 #
 # FileGroup: pysolidfive
+from __future__ import annotations
+
 import math
 from collections.abc import Sequence
 
@@ -120,7 +122,7 @@ def _is_plain_vector(v: list | None) -> bool:
     )
 
 
-def _edges(v, except_: list | None = None) -> list[list[int]]:
+def _edges(v, except_: str | list | None = None) -> list[list[int]]:
     if except_ is None:
         except_ = []
     if v == []:

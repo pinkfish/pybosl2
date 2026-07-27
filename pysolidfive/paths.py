@@ -40,7 +40,7 @@ from numpy.typing import ArrayLike, NDArray
 from pysolidfive._edges import _pick_radius
 
 
-def as_path_list(paths: list[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:
+def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:
     """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a
     list of (n, 2) float arrays (the multi-outline entry-point convention polygon2d()/
     region2d() accept)."""
@@ -103,7 +103,7 @@ def _lv_hypot(a: float, b: float):
     return lv.sqrt(a * a + b * b)
 
 
-def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | None) -> float:
+def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | list[str] | None) -> float:
     """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent
     per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one string for
     all four corners, or a per-corner list) -- given by `amount[i]` at each of its 4 corners.
@@ -764,11 +764,17 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     pind = 0
     dtotal = 0.0
     for dist in cutdist:
-        lastpt = None if not result else result[-1][0]
-        dpartial = 0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))  # type: ignore[operator]
+        if not result:
+            nextpoint = cut_single(dist - dtotal, pind)
+            result.append(nextpoint)
+            dtotal = dist
+            pind = nextpoint[1]  # type: ignore[assignment]
+            continue
+        lastpt: NDArray[np.float64] = result[-1][0]
+        dpartial = float(np.linalg.norm(select(path, pind) - lastpt))
         if dist < dpartial + dtotal:
             t = (dist - dtotal) / dpartial
-            nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]  # type: ignore[arg-type]
+            nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]
         else:
             nextpoint = cut_single(dist - dtotal - dpartial, pind)
         result.append(nextpoint)

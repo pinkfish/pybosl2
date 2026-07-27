@@ -220,7 +220,7 @@ def rabbit_clip(
         # offset_stroke(rounded, width=[thickness, 0]): a ribbon between the path and its
         # offset `thickness` to the LEFT of travel -- built as a stroke2d along the midline.
         midline = offset_polyline(rounded, thickness / 2)
-        profile: PyShape2D = stroke2d(midline, width=thickness, res=res)  # type: ignore[arg-type]
+        profile: PyShape2D = stroke2d(midline, width=thickness, res=res)
     else:
         withclearance = offset_polyline(rounded, -clearance)
         # np.vstack, NOT `list + ndarray`: the latter silently BROADCASTS (adds the closure
@@ -232,7 +232,7 @@ def rabbit_clip(
                 [[-withclearance[0][0], -extra]],
             ]
         )
-        profile = polygon2d(finalpath, res=res)  # type: ignore[arg-type]
+        profile = polygon2d(finalpath, res=res)
 
     if lock:
         lock_poly = np.array(
@@ -243,9 +243,9 @@ def rabbit_clip(
                 [sidepath[2][0], sidepath[1][1] + lock_clearance],
             ]
         )
-        lock_shape = polygon2d(lock_poly + [clearance, 0.0], res=res)  # type: ignore[arg-type]
+        lock_shape = polygon2d(lock_poly + [clearance, 0.0], res=res)
         # lock=True mirrors the lock tab to both sides (BOSL2 xflip_copy()).
-        profile = profile | lock_shape | polygon2d(lock_poly * [-1.0, 1.0] - [clearance, 0.0], res=res)  # type: ignore[arg-type]
+        profile = profile | lock_shape | polygon2d(lock_poly * [-1.0, 1.0] - [clearance, 0.0], res=res)
 
     solid = profile.extrude(depth, center=True)
     # xrot(90) * translate([0, -dy/2, -depth/2]) on the pre-extruded profile centers the

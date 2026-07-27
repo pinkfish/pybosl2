@@ -75,12 +75,13 @@ def _axis_angle_matrix(deg: float, axis: list[float]) -> list[list[float]]:
     ]
 
 
-def _rotation_matrix(a: float, v: list[float] | None = None) -> list[list[float]]:
+def _rotation_matrix(a: float | list[float], v: list[float] | None = None) -> list[list[float]]:
     """3x3 rotation matrix matching the real rotate(obj, a, v)'s two calling conventions:
     `a` a lone angle (degrees) with an explicit axis `v`, or (v is None) `a` a 3-vector of Euler
     angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
     rotate([x, y, z]) uses."""
     if v is not None:
+        assert isinstance(a, (int, float)), "rotate(angle, axis) expects a scalar angle"
         return _axis_angle_matrix(a, v)
     ax, ay, az = a  # type: ignore[misc,has-type]
     rx = _axis_angle_matrix(ax, [1, 0, 0])  # type: ignore[has-type]
@@ -137,7 +138,7 @@ def _cuboid_edge_sdf(x, y, z, size: list[float], amounts: list[list[float]], mod
 
     def axis_sdf(axis: int):
         pa, pb = axes_perp[axis]
-        d2d = _rect2d(p[pa], p[pb], b[pa], b[pb], amounts[axis], modes[axis])  # type: ignore[arg-type]
+        d2d = _rect2d(p[pa], p[pb], b[pa], b[pb], amounts[axis], modes[axis])
         slab = lv.abs(p[axis]) - b[axis]
         return lv.max(d2d, slab)
 
@@ -281,7 +282,7 @@ class PyShape:
         before any rotation, the same order pybosl2's own anchor/edges-then-spin/orient applies
         them in, so treating edges post-rotation wouldn't mean what it looks like it means.
         """
-        m = _rotation_matrix(a, v)  # type: ignore[arg-type]
+        m = _rotation_matrix(a, v)
         mt = [[m[j][i] for j in range(3)] for i in range(3)]  # transpose == inverse for a rotation
         fn = self._sdf_fn
         new_fn = lambda x, y, z: fn(  # noqa: E731
@@ -310,7 +311,7 @@ class PyShape:
         cuboid_size/cuboid_center metadata (so round()/chamfer() assert afterward), same
         rationale as rotate(): edge selectors are pre-transform concepts.
         """
-        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 3  # type: ignore[arg-type]
+        s = [float(v), float(v), float(v)] if isinstance(v, (int, float)) else [float(a) for a in v]
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
         smin = min(s)
@@ -382,7 +383,7 @@ class PyShape:
         assert self.cuboid_edge_amounts is not None and self.cuboid_edge_modes is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
         )
-        edge_set = _edges(edges, except_edges or [])  # type: ignore[arg-type]
+        edge_set = _edges(edges, except_edges or [])
         amounts = [row[:] for row in self.cuboid_edge_amounts]
         modes = [row[:] for row in self.cuboid_edge_modes]
         for a in range(3):

@@ -190,7 +190,7 @@ def path_sweep(
     closed: bool = False,
     twist: float = 0.0,
     twist_by_length: bool = True,
-    scale: tuple[float, float] = (1.0, 1.0),
+    scale: Any = (1.0, 1.0),
     scale_by_length: bool = True,
     symmetry: int = 1,
     last_normal: Sequence[float] | None = None,
@@ -255,8 +255,8 @@ def path_sweep(
         spathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
 
     # Resolve the per-cross-section scale [sx, sy].
-    if np.isscalar(scale) or (np.ndim(scale) == 1 and len(scale) == 2):
-        s = [float(scale), float(scale)] if np.isscalar(scale) else [float(scale[0]), float(scale[1])]  # type: ignore[arg-type, call-overload, index]
+    if isinstance(scale, (int, float)) or (np.ndim(scale) == 1 and len(scale) == 2):
+        s = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]  # type: ignore[index]
         if not scale_by_length:
             scalevals = [
                 [float(v) for v in ((1 - i / (npts - 1)) * np.array([1.0, 1.0]) + (i / (npts - 1)) * np.array(s))]
@@ -265,9 +265,9 @@ def path_sweep(
         else:
             scalevals = [
                 [float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))] for f in spathfrac[:npts]
-            ]  # type: ignore[arg-type]
+            ]
     else:
-        scalevals = [[float(x), float(x)] if np.isscalar(x) else [float(x[0]), float(x[1])] for x in scale]  # type: ignore[arg-type, index]
+        scalevals = [[float(x), float(x)] if isinstance(x, (int, float)) else [float(x[0]), float(x[1])] for x in scale]  # type: ignore[index]
     scale_list = [_scale4([sv[0], sv[1], 1.0]) for sv in scalevals]
     if closed:
         scale_list.append(_scale4([scalevals[0][0], scalevals[0][1], 1.0]))

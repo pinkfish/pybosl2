@@ -1152,7 +1152,7 @@ class Path(Distributable, Extrudable, Roundable, list):
                 t = (dists[dind] - dtotal) / dpartial
                 nextpoint = [lerp(lastpt, Path._select(path, pind), t), pind]
             else:
-                nextpoint = Path._path_cut_single(path, dists[dind] - dtotal - dpartial, closed, pind)  # type: ignore[arg-type]
+                nextpoint = Path._path_cut_single(path, dists[dind] - dtotal - dpartial, closed, pind)
             result.append(nextpoint)
             dtotal = dists[dind]  # type: ignore[assignment]
             pind = nextpoint[1]
@@ -1186,9 +1186,11 @@ class Path(Distributable, Extrudable, Roundable, list):
                 start = max(min(cuts[i][1], len(path) - 1), 2)
                 plane = Path._path_plane(path, start, start - 2, closed)
             if plane is None:
-                out.append([1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else unit([-dirs[i][1], dirs[i][0], 0]))  # type: ignore[arg-type]
+                out.append(
+                    [1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else list(unit([-dirs[i][1], dirs[i][0], 0]))
+                )
             else:
-                out.append(unit(cross(dirs[i], cross(plane[0], plane[1]))))  # type: ignore[arg-type]
+                out.append(list(unit(cross(dirs[i], cross(plane[0], plane[1])))))
         return out
 
     @staticmethod
@@ -1438,11 +1440,14 @@ class Path(Distributable, Extrudable, Roundable, list):
         assert (radius is None) != (delta is None), (
             f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}"
         )
-        assert closed, "offset() only supports closed polygons"
+        assert closed, "Open paths are not supported by _offset()"
         pts = np.asarray(path, dtype=float)
-        assert len(pts) >= 3, f"offset() needs at least 3 points, got {len(pts)}"
-
-        amount = float(radius if radius is not None else delta)  # type: ignore[arg-type]
+        if radius is not None:
+            amount = float(radius)
+        elif delta is not None:
+            amount = float(delta)
+        else:
+            raise AssertionError("offset() needs exactly one of radius= or delta=")
         use_round = radius is not None
         if amount == 0:
             return [[float(x), float(y)] for x, y in pts]

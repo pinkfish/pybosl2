@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import numpy as np
 
@@ -76,7 +76,7 @@ def _rotation_matrix(a: float | Sequence[float], v: list[float] | None = None) -
     angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
     rotate([x, y, z]) uses."""
     if v is not None:
-        return _axis_angle_matrix(a, v)  # type: ignore[arg-type]
+        return _axis_angle_matrix(cast("float", a), v)
     ax, ay, az = a  # type: ignore[misc]
     rx = _axis_angle_matrix(ax, [1, 0, 0])
     ry = _axis_angle_matrix(ay, [0, 1, 0])
@@ -328,7 +328,7 @@ class PyShape:
         cuboid_size/cuboid_center metadata (so round()/chamfer() assert afterward), same
         rationale as rotate(): edge selectors are pre-transform concepts.
         """
-        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 3  # type: ignore[arg-type]
+        s = [float(v)] * 3 if isinstance(v, (int, float)) else [float(a) for a in v]
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
         smin = min(s)
@@ -1759,8 +1759,10 @@ def polygon_prism(
         rounding_bottom: bottom-rim treatment, same convention (default 0)
         res:             libfive meshing resolution passed to frep() (default 10)
     """
-    assert len(paths) >= 1, "polygon_prism(): paths must not be empty"  # type: ignore[arg-type]
-    path_list = as_path_list(paths)  # type: ignore[arg-type]
+    if not isinstance(paths, (list, np.ndarray)):
+        raise TypeError(f"polygon_prism(): paths must be a list of points or numpy array, got {type(paths).__name__}")
+    assert len(paths) >= 1, "polygon_prism(): paths must not be empty"
+    path_list = as_path_list(paths)
     for p in path_list:
         assert len(p) >= 3, f"polygon_prism(): every path needs >= 3 points, got {len(p)}"
     assert height > 0, f"polygon_prism(): height must be > 0, height={height}"
@@ -2028,14 +2030,14 @@ def regular_prism(
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / _m.sin(_m.radians(180.0 / num_sides)) if side is not None else None
-    rad = _pick_radius(  # type: ignore[misc]
+    rad = _pick_radius(
         radius1=ir_s,
         diameter1=id_s,
         radius2=outer_radius,
         diameter2=outer_diameter,
         radius=radius,
         diameter=diameter,
-        dflt=side_s,  # type: ignore[arg-type]
+        dflt=side_s,
     )
     if rad is None:
         raise ValueError(

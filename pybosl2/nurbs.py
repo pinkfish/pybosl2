@@ -386,10 +386,9 @@ def nurbs_patch_points(
 
     if is_num(u) and is_num(v):
         inner = [
-            _nurbs_curve_pts(ctrl, degree[1], u=v, type=type[1], mult=mult[1], knots=knots[1])[0]
-            for ctrl in patch  # type: ignore[index]
+            _nurbs_curve_pts(ctrl, degree[1], u=v, type=type[1], mult=mult[1], knots=knots[1])[0] for ctrl in patch
         ]
-        return _nurbs_curve_pts(inner, degree[0], u=u, type=type[0], mult=mult[0], knots=knots[0])[0]  # type: ignore[index]
+        return _nurbs_curve_pts(inner, degree[0], u=u, type=type[0], mult=mult[0], knots=knots[0])[0]
 
     # sweep each control-column as a u-curve, then each resulting row as a v-curve
     vsplines = [

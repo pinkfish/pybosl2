@@ -28,7 +28,7 @@ import math
 import operator
 from dataclasses import dataclass
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -831,9 +831,9 @@ def dashed_stroke(
     from pybosl2.regions import Region
 
     if isinstance(path, Region):
-        out: list[Path] = []
+        out: list[Any] = []
         for p in path:
-            out.extend(dashed_stroke(p, dashpat, closed=True, fit=fit, mindash=mindash))  # type: ignore[arg-type]
+            out.extend(dashed_stroke(list(p), dashpat, closed=True, fit=fit, mindash=mindash))
         return out  # type: ignore[return-value]
 
     raw = [list(map(float, p)) for p in path]
