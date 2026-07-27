@@ -214,9 +214,9 @@ def bearing_svg(nballs=9):
 
 def linear_bearing_svg():
     # longitudinal cutaway: cylindrical shell, axial bore + shaft, two rows of balls
-    cx, cy, L = 230, 118, 300
+    cx, cy, length_ = 230, 118, 300
     od, idd = 116, 62
-    x0, x1 = cx - L / 2, cx + L / 2
+    x0, x1 = cx - length_ / 2, cx + length_ / 2
     yo0, yo1 = cy - od / 2, cy + od / 2
     yi0, yi1 = cy - idd / 2, cy + idd / 2
     dots = ""
@@ -224,15 +224,15 @@ def linear_bearing_svg():
     ycen_t = (yo0 + yi0) / 2
     ycen_b = (yo1 + yi1) / 2
     for i in range(7):
-        x = x0 + (i + 0.5) * L / 7
+        x = x0 + (i + 0.5) * length_ / 7
         for yc in (ycen_t, ycen_b):
             dots += (
                 f'<circle cx="{x:.1f}" cy="{yc:.1f}" r="{br:.1f}" '
                 f'fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/>'
             )
     body = (
-        f'<rect x="{x0}" y="{yo0}" width="{L}" height="{od}" rx="8" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<rect x="{x0 - 14}" y="{yi0}" width="{L + 28}" height="{idd}" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.4"/>'
+        f'<rect x="{x0}" y="{yo0}" width="{length_}" height="{od}" rx="8" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        f'<rect x="{x0 - 14}" y="{yi0}" width="{length_ + 28}" height="{idd}" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.4"/>'
         f'<line x1="{x0 - 26}" y1="{cy}" x2="{x1 + 26}" y2="{cy}" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/>'
         f"{dots}"
         f'<text x="{cx}" y="{yo1 + 22}" text-anchor="middle" fill="var(--ink-dim)" '
@@ -254,23 +254,23 @@ def truss_svg(cubes=3):
         _top = f"{bx},{by} {bx + ex},{by + ey} {bx + ex - ex},{by + ey + s * 0.0} "  # placeholder
 
         # define 8 corners
-        def P(dx, dy, dz, bx=bx, by=by):
+        def point(dx, dy, dz, bx=bx, by=by):
             return (bx + dx * ex + dy * (-ex) + dz * 0, by + dx * ey + dy * ey - dz * s)
 
-        A = (bx, by)
-        B = (bx + ex, by + ey)
-        _C = (bx, by + s)
-        D = (bx + ex, by + ey + s)
-        E = (bx - ex, by + ey)
-        F = (bx - ex, by + ey + s)
-        # top rhombus A B E and the front faces
+        a_pt = (bx, by)
+        b_pt = (bx + ex, by + ey)
+        _c_pt = (bx, by + s)
+        d_pt = (bx + ex, by + ey + s)
+        e_pt = (bx - ex, by + ey)
+        f_pt = (bx - ex, by + ey + s)
+        # top rhombus a_pt b_pt e_pt and the front faces
         out += (
-            f'<polygon points="{A[0]:.0f},{A[1]:.0f} {B[0]:.0f},{B[1]:.0f} {A[0]:.0f},{A[1] + 0:.0f}" fill="none"/>'
-            f'<polygon points="{A[0]:.0f},{A[1]:.0f} {B[0]:.0f},{B[1]:.0f} {(B[0] - ex):.0f},{(B[1]):.0f} {E[0]:.0f},{E[1]:.0f}" '
+            f'<polygon points="{a_pt[0]:.0f},{a_pt[1]:.0f} {b_pt[0]:.0f},{b_pt[1]:.0f} {a_pt[0]:.0f},{a_pt[1] + 0:.0f}" fill="none"/>'
+            f'<polygon points="{a_pt[0]:.0f},{a_pt[1]:.0f} {b_pt[0]:.0f},{b_pt[1]:.0f} {(b_pt[0] - ex):.0f},{(b_pt[1]):.0f} {e_pt[0]:.0f},{e_pt[1]:.0f}" '
             f'fill="color-mix(in srgb,var(--accent) 16%,var(--panel-2))" stroke="var(--ink-dim)" stroke-width="1.3"/>'
-            f'<polygon points="{E[0]:.0f},{E[1]:.0f} {(B[0] - ex):.0f},{B[1]:.0f} {D[0] - ex:.0f},{D[1]:.0f} {F[0]:.0f},{F[1]:.0f}" '
+            f'<polygon points="{e_pt[0]:.0f},{e_pt[1]:.0f} {(b_pt[0] - ex):.0f},{b_pt[1]:.0f} {d_pt[0] - ex:.0f},{d_pt[1]:.0f} {f_pt[0]:.0f},{f_pt[1]:.0f}" '
             f'fill="var(--panel)" stroke="var(--ink-dim)" stroke-width="1.3"/>'
-            f'<polygon points="{(B[0] - ex):.0f},{B[1]:.0f} {B[0]:.0f},{B[1]:.0f} {D[0]:.0f},{D[1]:.0f} {D[0] - ex:.0f},{D[1]:.0f}" '
+            f'<polygon points="{(b_pt[0] - ex):.0f},{b_pt[1]:.0f} {b_pt[0]:.0f},{b_pt[1]:.0f} {d_pt[0]:.0f},{d_pt[1]:.0f} {d_pt[0] - ex:.0f},{d_pt[1]:.0f}" '
             f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.3"/>'
         )
     body = out + (
@@ -373,7 +373,7 @@ def hose_svg():
     )
 
 
-def hinge_svg(segs=5):
+def hinge_svg(_segs=5):
     body = """
     <defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
       <line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/></pattern></defs>
@@ -398,7 +398,7 @@ def poly_svg():
     # a real icosahedron: rotate the phi-based vertices, project, and paint the faces
     # back-to-front, shading each by depth so the solid reads in 3-D.
     phi = (1 + 5**0.5) / 2
-    V = [
+    vertices = [
         (-1, phi, 0),
         (1, phi, 0),
         (-1, -phi, 0),
@@ -412,7 +412,7 @@ def poly_svg():
         (-phi, 0, -1),
         (-phi, 0, 1),
     ]
-    F = [
+    faces = [
         [0, 11, 5],
         [0, 5, 1],
         [0, 1, 7],
@@ -434,22 +434,22 @@ def poly_svg():
         [8, 6, 7],
         [9, 8, 1],
     ]
-    m = max(sum(c * c for c in v) ** 0.5 for v in V)
+    m = max(sum(c * c for c in v) ** 0.5 for v in vertices)
     ax, ay = math.radians(-22), math.radians(31)
-    R = []
-    for x, y, z in V:
+    rotated = []
+    for x, y, z in vertices:
         x, y, z = x / m, y / m, z / m
         x, z = x * math.cos(ay) + z * math.sin(ay), -x * math.sin(ay) + z * math.cos(ay)
         y, z = y * math.cos(ax) - z * math.sin(ax), y * math.sin(ax) + z * math.cos(ax)
-        R.append((x, y, z))
+        rotated.append((x, y, z))
     cx, cy, s = 230, 112, 92
-    P = [(cx + s * p[0], cy - s * p[1]) for p in R]
+    projected = [(cx + s * p[0], cy - s * p[1]) for p in rotated]
     body = ""
-    for i in sorted(range(len(F)), key=lambda i: sum(R[v][2] for v in F[i])):  # far first
-        f = F[i]
-        depth = sum(R[v][2] for v in f) / 3  # -1 (back) .. 1 (front)
+    for i in sorted(range(len(faces)), key=lambda i: sum(rotated[v][2] for v in faces[i])):  # far first
+        f = faces[i]
+        depth = sum(rotated[v][2] for v in f) / 3  # -1 (back) .. 1 (front)
         pct = int(14 + (depth + 1) / 2 * 30)
-        pts = " ".join(f"{P[v][0]:.1f},{P[v][1]:.1f}" for v in f)
+        pts = " ".join(f"{projected[v][0]:.1f},{projected[v][1]:.1f}" for v in f)
         body += (
             f'<polygon points="{pts}" fill="color-mix(in srgb,var(--accent) {pct}%,var(--panel))" '
             f'stroke="var(--ink-dim)" stroke-width="1.2" stroke-linejoin="round"/>'
@@ -566,29 +566,29 @@ def hook_svg():
     tx, tz = max(tans, key=lambda t: t[1])
     scale, cx, basey = 2.4, 230, 206
 
-    def X(x):
+    def to_x(x):
         return cx + x * scale
 
-    def Y(z):
+    def to_y(z):
         return basey - z * scale
 
-    paddle = f"{X(-bx / 2):.1f},{Y(0):.1f} {X(bx / 2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f} {X(-tx):.1f},{Y(tz):.1f}"
+    paddle = f"{to_x(-bx / 2):.1f},{to_y(0):.1f} {to_x(bx / 2):.1f},{to_y(0):.1f} {to_x(tx):.1f},{to_y(tz):.1f} {to_x(-tx):.1f},{to_y(tz):.1f}"
     body = (
-        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ro * scale:.1f}" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        f'<circle cx="{to_x(0):.1f}" cy="{to_y(hole_z):.1f}" r="{ro * scale:.1f}" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
         f'<polygon points="{paddle}" fill="var(--panel-2)" stroke="none"/>'
-        f'<polyline points="{X(-tx):.1f},{Y(tz):.1f} {X(-bx / 2):.1f},{Y(0):.1f} {X(bx / 2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f}" '
+        f'<polyline points="{to_x(-tx):.1f},{to_y(tz):.1f} {to_x(-bx / 2):.1f},{to_y(0):.1f} {to_x(bx / 2):.1f},{to_y(0):.1f} {to_x(tx):.1f},{to_y(tz):.1f}" '
         f'fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ri * scale:.1f}" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.6"/>'
+        f'<circle cx="{to_x(0):.1f}" cy="{to_y(hole_z):.1f}" r="{ri * scale:.1f}" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.6"/>'
         # tangent construction + points
-        f'<line x1="{X(bx / 2):.1f}" y1="{Y(0):.1f}" x2="{X(tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
-        f'<line x1="{X(-bx / 2):.1f}" y1="{Y(0):.1f}" x2="{X(-tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
-        f'<circle cx="{X(tx):.1f}" cy="{Y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
-        f'<circle cx="{X(-tx):.1f}" cy="{Y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
+        f'<line x1="{to_x(bx / 2):.1f}" y1="{to_y(0):.1f}" x2="{to_x(tx):.1f}" y2="{to_y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
+        f'<line x1="{to_x(-bx / 2):.1f}" y1="{to_y(0):.1f}" x2="{to_x(-tx):.1f}" y2="{to_y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
+        f'<circle cx="{to_x(tx):.1f}" cy="{to_y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
+        f'<circle cx="{to_x(-tx):.1f}" cy="{to_y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
         # hole_z dimension
-        f'<line x1="{X(-bx / 2) - 14:.1f}" y1="{Y(0):.1f}" x2="{X(-bx / 2) - 14:.1f}" y2="{Y(hole_z):.1f}" stroke="var(--ink-dim)" stroke-width="1"/>'
-        f'<text x="{X(-bx / 2) - 20:.1f}" y="{Y(hole_z / 2) + 3:.1f}" text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">hole_z</text>'
-        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="2.2" fill="var(--accent)"/>'
-        f'<text x="{X(0):.1f}" y="{basey + 18:.1f}" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">base flares along the ring tangent</text>'
+        f'<line x1="{to_x(-bx / 2) - 14:.1f}" y1="{to_y(0):.1f}" x2="{to_x(-bx / 2) - 14:.1f}" y2="{to_y(hole_z):.1f}" stroke="var(--ink-dim)" stroke-width="1"/>'
+        f'<text x="{to_x(-bx / 2) - 20:.1f}" y="{to_y(hole_z / 2) + 3:.1f}" text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">hole_z</text>'
+        f'<circle cx="{to_x(0):.1f}" cy="{to_y(hole_z):.1f}" r="2.2" fill="var(--accent)"/>'
+        f'<text x="{to_x(0):.1f}" y="{basey + 18:.1f}" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">base flares along the ring tangent</text>'
     )
     return _svg(
         body,

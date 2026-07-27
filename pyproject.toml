@@ -85,9 +85,7 @@ select = ["N", "E", "F", "I", "B", "SIM", "RUF100", "A", "C4", "CPY", "PIE", "PY
 # Embedded CSS/SVG/JS string literals in the spec-sheet generator are inherently long.
 "docs/_specgen.py" = ["E501"]
 "docs/conf.py" = ["A001"]
-"tests/mock_libfive.py" = ["A001", "CPY001"]
 "tests/**" = ["N", "ARG"]
-"docs/**" = ["N", "ARG"]
 "pybosl2/**" = ["N"]
 
 [tool.ruff.format]
