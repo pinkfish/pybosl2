@@ -110,7 +110,7 @@ def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode:
     `amount` is indexed the same way as pybosl2.shapes3d.EDGE_OFFSETS's per-axis rows:
     [(-,-), (+,-), (-,+), (+,+)] in (u, v) sign.
     """
-    corner_modes = [mode] * 4 if isinstance(mode, str) else list(mode)
+    corner_modes = [mode] * 4 if isinstance(mode, str) else (list(mode) if mode is not None else [None] * 4)
     candidates = []
     for ci, (su, sv, a) in enumerate(((-1, -1, amount[0]), (1, -1, amount[1]), (-1, 1, amount[2]), (1, 1, amount[3]))):
         cmode = corner_modes[ci]
@@ -467,34 +467,36 @@ def _arc_through(
 # ---------------------------------------------------------------------------
 
 
-def _v_sub(a: Sequence[float], b: Sequence[float]) -> NDArray[np.float64]:
+def _v_sub(a: Sequence[float] | NDArray[np.float64], b: Sequence[float] | NDArray[np.float64]) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
 
 
-def _v_add(a: Sequence[float], b: Sequence[float]) -> NDArray[np.float64]:
+def _v_add(a: Sequence[float] | NDArray[np.float64], b: Sequence[float] | NDArray[np.float64]) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) + np.asarray(b, dtype=float)
 
 
-def _v_scale(a: Sequence[float], s: float) -> NDArray[np.float64]:
+def _v_scale(a: Sequence[float] | NDArray[np.float64], s: float) -> NDArray[np.float64]:
     return np.asarray(a, dtype=float) * float(s)
 
 
-def _v_norm(a: Sequence[float]) -> float:
+def _v_norm(a: Sequence[float] | NDArray[np.float64]) -> float:
     return float(np.linalg.norm(np.asarray(a, dtype=float)))
 
 
-def _v_unit(a: Sequence[float]) -> NDArray[np.float64]:
+def _v_unit(a: Sequence[float] | NDArray[np.float64]) -> NDArray[np.float64]:
     arr = np.asarray(a, dtype=float)
     n = float(np.linalg.norm(arr))
     assert n > 1e-12, "cannot normalize a zero vector"
     return arr / n
 
 
-def _v_dot(a: Sequence[float], b: Sequence[float]) -> float:
+def _v_dot(a: Sequence[float] | NDArray[np.float64], b: Sequence[float] | NDArray[np.float64]) -> float:
     return float(np.asarray(a, dtype=float) @ np.asarray(b, dtype=float))
 
 
-def _lerp_pt(a: Sequence[float], b: Sequence[float], t: float) -> NDArray[np.float64]:
+def _lerp_pt(
+    a: Sequence[float] | NDArray[np.float64], b: Sequence[float] | NDArray[np.float64], t: float
+) -> NDArray[np.float64]:
     aa = np.asarray(a, dtype=float)
     return aa + (np.asarray(b, dtype=float) - aa) * float(t)
 
@@ -522,7 +524,9 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
 
     hs = np.asarray(h, dtype=float)
 
-    def dnu(f1: float, fc: float, f2: float, h1: float, h2: float) -> NDArray[np.float64]:
+    def dnu(
+        f1: NDArray[np.float64], fc: NDArray[np.float64], f2: NDArray[np.float64], h1: float, h2: float
+    ) -> NDArray[np.float64]:
         g1 = _lerp_pt(fc, f1, h2 / h1) if h2 < h1 else f1
         g2 = _lerp_pt(fc, f2, h1 / h2) if h1 < h2 else f2
         return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (2 * min(h1, h2))
@@ -739,10 +743,10 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     requirement) as the pybosl2 port's path_cut_points()."""
     path = as_points(path)
     if isinstance(cutdist, (int, float)):
-        return path_cut_points(path, [cutdist], closed)[0]
+        return path_cut_points(path, [cutdist], closed)[0]  # type: ignore[index, return-value]
     assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
 
-    def select(p: list, i: int) -> float:
+    def select(p: NDArray[np.float64], i: int) -> NDArray[np.float64]:
         return p[i % len(p)]
 
     def cut_single(dist: float, ind: int, eps: float = 1e-7):
@@ -761,15 +765,15 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     dtotal = 0.0
     for dist in cutdist:
         lastpt = None if not result else result[-1][0]
-        dpartial = 0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))
+        dpartial = 0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))  # type: ignore[operator]
         if dist < dpartial + dtotal:
             t = (dist - dtotal) / dpartial
-            nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]
+            nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]  # type: ignore[arg-type]
         else:
             nextpoint = cut_single(dist - dtotal - dpartial, pind)
         result.append(nextpoint)
         dtotal = dist
-        pind = nextpoint[1]
+        pind = nextpoint[1]  # type: ignore[assignment]
     return result
 
 
@@ -809,7 +813,7 @@ def _circlecorner(
     start = _v_add(p1, _v_scale(prev, d))
     end = _v_add(p1, _v_scale(nxt, d))
     if abs(angle - 90) < 1e-9:
-        return [start, end]
+        return [start.tolist(), end.tolist()]
     bis = _v_unit(_v_add(prev, nxt))
     center = _v_add(p1, _v_scale(bis, r / math.sin(math.radians(angle))))
     n = max(3, math.ceil((90 - angle) / 180 * _frag_count(r, fn)))
@@ -817,7 +821,7 @@ def _circlecorner(
     a1 = math.degrees(math.atan2(end[1] - center[1], end[0] - center[0]))
     delta = (a1 - a0 + 180) % 360 - 180
     if n <= 1:
-        return [start]
+        return [start.tolist()]
     return [
         [
             center[0] + r * math.cos(math.radians(a0 + i * delta / (n - 1))),
@@ -855,7 +859,7 @@ def round_corners(
             out.append(path[i])
             continue
         p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
-        out.extend(_circlecorner(p0, p1, p2, dk[i][0], dk[i][1], fn))
+        out.extend(_circlecorner(p0, p1, p2, dk[i][0], dk[i][1], int(fn) if fn is not None else None))
     # drop consecutive duplicates (arc endpoints can coincide with straight-segment ends)
     cleaned: list = []
     for q in out:

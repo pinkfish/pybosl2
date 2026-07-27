@@ -38,7 +38,7 @@ class Vec3(list):
     the PyOpenSCAD FFI boundary -- unchanged.
     """
 
-    def __add__(self, other: "Vec3 | list[float]") -> "Vec3":
+    def __add__(self, other: "Vec3 | list[float]") -> "Vec3":  # type: ignore[override]
         return Vec3(a + b for a, b in zip(self, other))
 
     def __radd__(self, other: "Vec3 | list[float]") -> "Vec3":

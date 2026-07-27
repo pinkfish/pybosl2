@@ -1160,8 +1160,8 @@ def arc(
         return Path(out, closed=wedge)
 
     # -- radius + angle (with optional [start, end] range) -----------------------------------
-    arc_radius: float | None = _pick_radius(radius=radius, diameter=diameter)
-    assert arc_radius is not None, "arc() needs radius=/diameter=, points=, corner=, or width=/thickness="
+    arc_r: float | None = _pick_radius(radius=radius, diameter=diameter)
+    assert arc_r is not None, "arc() needs radius=/diameter=, points=, corner=, or width=/thickness="
     if isinstance(angle, (list, tuple, np.ndarray)):
         assert start is None, "start= is not allowed with angle=[start, end]"
         calc_start = float(angle[0])  # type: ignore[arg-type]
@@ -1170,10 +1170,8 @@ def arc(
         calc_angle = 360.0 if angle is None else float(angle)  # type: ignore[arg-type]
         calc_start = 0.0 if start is None else float(start)  # type: ignore[arg-type]
     calc_center = (0.0, 0.0) if center is None else center
-    point_count = (
-        count if count is not None else math.ceil(_frag_count(arc_radius, fn, fa, fs) * abs(calc_angle) / 360) + 1
-    )
-    out = _arc_points(point_count, arc_radius, calc_start, calc_angle, calc_center, endpoint=endpoint)
+    point_count = count if count is not None else math.ceil(_frag_count(arc_r, fn, fa, fs) * abs(calc_angle) / 360) + 1
+    out = _arc_points(point_count, arc_r, calc_start, calc_angle, calc_center, endpoint=endpoint)
     if wedge:
         out = [list(calc_center)] + out
     return Path(out, closed=wedge)

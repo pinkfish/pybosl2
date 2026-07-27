@@ -76,8 +76,8 @@ def _rotation_matrix(a: float | Sequence[float], v: list[float] | None = None) -
     angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
     rotate([x, y, z]) uses."""
     if v is not None:
-        return _axis_angle_matrix(a, v)
-    ax, ay, az = a
+        return _axis_angle_matrix(a, v)  # type: ignore[arg-type]
+    ax, ay, az = a  # type: ignore[misc]
     rx = _axis_angle_matrix(ax, [1, 0, 0])
     ry = _axis_angle_matrix(ay, [0, 1, 0])
     rz = _axis_angle_matrix(az, [0, 0, 1])
@@ -792,7 +792,7 @@ def _cuboid_flare_sdf(
 
 
 def cuboid(
-    size: float | list[float] = None,
+    size: float | list[float] | None = None,
     rounding: float = 0,
     chamfer: float = 0,
     edges: str | list = "ALL",
@@ -943,7 +943,7 @@ def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
 
 
 def wedge(
-    size: list[float] = None,
+    size: list[float] | None = None,
     anchor: "Sequence[float] | None" = None,
     res: int = 10,
 ) -> PyShape:
@@ -1496,7 +1496,7 @@ def prismoid(
     size1: list[float],
     size2: list[float],
     height: float | None = None,
-    shift: list[float] = None,
+    shift: list[float] | None = None,
     length: float | None = None,
     anchor: "Sequence[float]" = BOTTOM,
     res: int = 10,
@@ -1759,8 +1759,8 @@ def polygon_prism(
         rounding_bottom: bottom-rim treatment, same convention (default 0)
         res:             libfive meshing resolution passed to frep() (default 10)
     """
-    assert len(paths) >= 1, "polygon_prism(): paths must not be empty"
-    path_list = as_path_list(paths)
+    assert len(paths) >= 1, "polygon_prism(): paths must not be empty"  # type: ignore[arg-type]
+    path_list = as_path_list(paths)  # type: ignore[arg-type]
     for p in path_list:
         assert len(p) >= 3, f"polygon_prism(): every path needs >= 3 points, got {len(p)}"
     assert height > 0, f"polygon_prism(): height must be > 0, height={height}"
@@ -1946,7 +1946,7 @@ def onion(
 
 def heightfield(
     data: Callable[[Any, Any], Any],
-    size: list[float] = None,
+    size: list[float] | None = None,
     bottom: float = -20,
     maxz: float = 99,
     res: int = 10,
@@ -2028,14 +2028,14 @@ def regular_prism(
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / _m.sin(_m.radians(180.0 / num_sides)) if side is not None else None
-    rad = _pick_radius(
+    rad = _pick_radius(  # type: ignore[misc]
         radius1=ir_s,
         diameter1=id_s,
         radius2=outer_radius,
         diameter2=outer_diameter,
         radius=radius,
         diameter=diameter,
-        dflt=side_s,
+        dflt=side_s,  # type: ignore[arg-type]
     )
     if rad is None:
         raise ValueError(
@@ -2194,9 +2194,9 @@ def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float 
             base = p[i] + fu * norm[i] + fv * binorm[i]
             world.append(base + ext_fwd[i] * tang[i])
             world.append(base - ext_back[i] * tang[i])
-    world = np.asarray(world)
-    mn = world.min(axis=0).tolist()
-    mx = world.max(axis=0).tolist()
+    world_arr = np.asarray(world)
+    mn = world_arr.min(axis=0).tolist()
+    mx = world_arr.max(axis=0).tolist()
     return PyShape(sdf_fn, mn, mx, res)
 
 

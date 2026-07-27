@@ -116,7 +116,7 @@ class PyShape2D:
         )
 
     def scale(self, v: float | Sequence[float]) -> PyShape2D:
-        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 2
+        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 2  # type: ignore[arg-type]
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
         smin = min(s)
@@ -328,7 +328,7 @@ def supershape2d(
     """A superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
     parameters and sampling as the pybosl2 port's supershape()) and turned into a polygon2d()."""
     return polygon2d(
-        _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),
+        _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),  # type: ignore[arg-type]
         res=res,
     )
 
@@ -337,7 +337,7 @@ def polygon2d(paths: list[list[float]], res: int = 10) -> PyShape2D:
     """An arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
     Accepts any array-like path spelling (per the numpy-paths convention)."""
-    path_list = as_path_list(paths)
+    path_list = as_path_list(paths)  # type: ignore[arg-type]
     for p in path_list:
         assert len(p) >= 3, f"polygon2d(): every path needs >= 3 points, got {len(p)}"
 
@@ -383,7 +383,7 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:
 
     depths = []
     for i, p in enumerate(cleaned):
-        depth = sum(1 for j, q in enumerate(cleaned) if j != i and contains(q, p[0]))
+        depth = sum(1 for j, q in enumerate(cleaned) if j != i and contains(q, p[0]))  # type: ignore[misc,arg-type]
         depths.append(depth)
 
     def sdf_fn(x, y):
@@ -576,7 +576,7 @@ def regular_ngon2d(
         diameter2=outer_diameter,
         radius=radius,
         diameter=diameter,
-        dflt=side_s,
+        dflt=side_s,  # type: ignore[arg-type]
     )
     if rad is None:
         raise ValueError(
@@ -672,11 +672,11 @@ def trapezoid2d(
     assert defined == 3, "Must give exactly 3 of height, width1, width2, and angle."
 
     if height is None:
-        height = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))
+        height = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))  # type: ignore[operator,arg-type]
     if width1 is None:
-        width1 = width2 + 2 * (height * _m.tan(_m.radians(angle)) + shift)
+        width1 = width2 + 2 * (height * _m.tan(_m.radians(angle)) + shift)  # type: ignore[operator,arg-type]
     if width2 is None:
-        width2 = width1 - 2 * (height * _m.tan(_m.radians(angle)) + shift)
+        width2 = width1 - 2 * (height * _m.tan(_m.radians(angle)) + shift)  # type: ignore[operator,arg-type]
     assert width1 >= 0 and width2 >= 0 and height > 0, "Degenerate trapezoid geometry."
 
     pts = [

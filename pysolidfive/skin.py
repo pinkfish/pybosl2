@@ -64,9 +64,9 @@ def clockwise_polygon(poly: list[list[float]]) -> list:
 
 def _scale4(s: float | list[float]) -> np.ndarray:
     m = np.eye(4)
-    m[0, 0], m[1, 1] = float(s[0]), float(s[1])
-    if len(s) > 2:
-        m[2, 2] = float(s[2])
+    m[0, 0], m[1, 1] = float(s[0]), float(s[1])  # type: ignore[index]
+    if len(s) > 2:  # type: ignore[arg-type]
+        m[2, 2] = float(s[2])  # type: ignore[index]
     return m
 
 

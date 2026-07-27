@@ -82,10 +82,10 @@ def _rotation_matrix(a: float, v: list[float] | None = None) -> list[list[float]
     rotate([x, y, z]) uses."""
     if v is not None:
         return _axis_angle_matrix(a, v)
-    ax, ay, az = a
-    rx = _axis_angle_matrix(ax, [1, 0, 0])
-    ry = _axis_angle_matrix(ay, [0, 1, 0])
-    rz = _axis_angle_matrix(az, [0, 0, 1])
+    ax, ay, az = a  # type: ignore[misc,has-type]
+    rx = _axis_angle_matrix(ax, [1, 0, 0])  # type: ignore[has-type]
+    ry = _axis_angle_matrix(ay, [0, 1, 0])  # type: ignore[has-type]
+    rz = _axis_angle_matrix(az, [0, 0, 1])  # type: ignore[has-type]
     return _matmul3(_matmul3(rz, ry), rx)
 
 
@@ -137,7 +137,7 @@ def _cuboid_edge_sdf(x, y, z, size: list[float], amounts: list[list[float]], mod
 
     def axis_sdf(axis: int):
         pa, pb = axes_perp[axis]
-        d2d = _rect2d(p[pa], p[pb], b[pa], b[pb], amounts[axis], modes[axis])
+        d2d = _rect2d(p[pa], p[pb], b[pa], b[pb], amounts[axis], modes[axis])  # type: ignore[arg-type]
         slab = lv.abs(p[axis]) - b[axis]
         return lv.max(d2d, slab)
 
@@ -281,7 +281,7 @@ class PyShape:
         before any rotation, the same order pybosl2's own anchor/edges-then-spin/orient applies
         them in, so treating edges post-rotation wouldn't mean what it looks like it means.
         """
-        m = _rotation_matrix(a, v)
+        m = _rotation_matrix(a, v)  # type: ignore[arg-type]
         mt = [[m[j][i] for j in range(3)] for i in range(3)]  # transpose == inverse for a rotation
         fn = self._sdf_fn
         new_fn = lambda x, y, z: fn(  # noqa: E731
@@ -310,7 +310,7 @@ class PyShape:
         cuboid_size/cuboid_center metadata (so round()/chamfer() assert afterward), same
         rationale as rotate(): edge selectors are pre-transform concepts.
         """
-        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 3
+        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 3  # type: ignore[arg-type]
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
         smin = min(s)
@@ -382,7 +382,7 @@ class PyShape:
         assert self.cuboid_edge_amounts is not None and self.cuboid_edge_modes is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
         )
-        edge_set = _edges(edges, except_edges or [])
+        edge_set = _edges(edges, except_edges or [])  # type: ignore[arg-type]
         amounts = [row[:] for row in self.cuboid_edge_amounts]
         modes = [row[:] for row in self.cuboid_edge_modes]
         for a in range(3):
@@ -855,7 +855,7 @@ def convex_polyhedron(points: list[list[float]], res: int = 10) -> PyShape:
     count -- entirely fine for the tens-of-vertices solids this is for, and it happens once in
     Python at construction time, not per SDF evaluation.
     """
-    points = np.asarray(points, dtype=float)
+    points = np.asarray(points, dtype=float)  # type: ignore[assignment]
     pts = [[float(v) for v in p] for p in points]
     n = len(pts)
     assert n >= 4, f"convex_polyhedron() needs at least 4 points, got {n}"
@@ -1623,7 +1623,7 @@ def polygon_extrude(pts: list[list[float]], length: float, res: int = 10) -> PyS
     CAVEAT: `pts` must describe a CONVEX polygon. A concave vertex's half-plane doesn't bound
     the shape there, so both the sign and the surface would come out wrong.
     """
-    pts = as_points(pts)
+    pts = as_points(pts)  # type: ignore[assignment]
     area2 = sum(
         pts[i][0] * pts[(i + 1) % len(pts)][1] - pts[(i + 1) % len(pts)][0] * pts[i][1] for i in range(len(pts))
     )
@@ -1795,12 +1795,12 @@ def teardrop(
 
     def profile_sdf(u: float, v: float, radius: list[float]):
         circle = _lv_hypot(u, v) - radius
-        right = u * sin_a + v * cos_a - radius
-        left = -u * sin_a + v * cos_a - radius
+        right = u * sin_a + v * cos_a - radius  # type: ignore[operator]
+        left = -u * sin_a + v * cos_a - radius  # type: ignore[operator]
         # The roof planes are only tangent to (and so only a valid boundary of) the circle
         # at v >= radius*cos_a (their tangent height); below that they cut into the disk, so
         # mask them out there and let the circle govern instead.
-        v_tangent = radius * cos_a
+        v_tangent = radius * cos_a  # type: ignore[operator]
         roof = lv.max(right, left) + _PENALTY * lv.max(0, v_tangent - v)
         d = lv.min(circle, roof)
         if cap_height is not None:

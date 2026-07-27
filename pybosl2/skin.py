@@ -38,7 +38,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Sequence, Union
+from typing import Any, Sequence, Union
 
 import numpy as np
 
@@ -256,7 +256,7 @@ def path_sweep(
 
     # Resolve the per-cross-section scale [sx, sy].
     if np.isscalar(scale) or (np.ndim(scale) == 1 and len(scale) == 2):
-        s = [float(scale), float(scale)] if np.isscalar(scale) else [float(scale[0]), float(scale[1])]  # type: ignore[arg-type]
+        s = [float(scale), float(scale)] if np.isscalar(scale) else [float(scale[0]), float(scale[1])]  # type: ignore[arg-type, call-overload, index]
         if not scale_by_length:
             scalevals = [
                 [float(v) for v in ((1 - i / (npts - 1)) * np.array([1.0, 1.0]) + (i / (npts - 1)) * np.array(s))]
@@ -267,7 +267,7 @@ def path_sweep(
                 [float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))] for f in spathfrac[:npts]
             ]  # type: ignore[arg-type]
     else:
-        scalevals = [[float(x), float(x)] if np.isscalar(x) else [float(x[0]), float(x[1])] for x in scale]  # type: ignore[arg-type]
+        scalevals = [[float(x), float(x)] if np.isscalar(x) else [float(x[0]), float(x[1])] for x in scale]  # type: ignore[arg-type, index]
     scale_list = [_scale4([sv[0], sv[1], 1.0]) for sv in scalevals]
     if closed:
         scale_list.append(_scale4([scalevals[0][0], scalevals[0][1], 1.0]))
@@ -361,7 +361,9 @@ def _reindex_polygon(reference: Sequence[Sequence[float]], poly: Sequence[Sequen
     return np.roll(p, -best_k, axis=0).tolist()
 
 
-def slice_profiles(profiles: Sequence[Sequence[float]], slices: int, closed: bool = False) -> list[list[float]]:
+def slice_profiles(
+    profiles: Sequence[Sequence[Sequence[float]]], slices: int, closed: bool = False
+) -> list[list[list[float]]]:
     """Interpolate *slices* extra profiles between each consecutive pair (BOSL2 slice_profiles()).
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
@@ -645,12 +647,12 @@ def spiral_sweep(
 
 
 def subdivide_and_slice(
-    profiles: Sequence[Sequence[float]],
+    profiles: Sequence[Sequence[Sequence[float]]],
     slices: int,
     numpoints=None,
     method: str = "length",
     closed: bool = False,
-) -> list[list[float]]:
+) -> list[list[list[float]]]:
     """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
@@ -1145,7 +1147,7 @@ def _rounded_prism(
         from pybosl2.rounding import _round_corners as _rc
 
         m_sides = "smooth" if k_sides is not None else "circle"
-        kwargs_sides = {"method": m_sides}
+        kwargs_sides: dict[str, Any] = {"method": m_sides}
         if m_sides == "smooth":
             kwargs_sides["joint"] = joint_sides
             kwargs_sides["curvature"] = k_sides

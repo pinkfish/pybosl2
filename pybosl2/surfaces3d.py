@@ -636,7 +636,7 @@ def plot_revolution(
             else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else None))
         )
     )
-    theta = [float(a) for a in angle]  # type: ignore[arg-type]
+    theta = [float(a) for a in angle]  # type: ignore[union-attr, attr-defined]
     assert len(theta) > 1, "plot_revolution(): angle must have at least 2 values."
     if path is not None:
         prof = [[float(p[0]), float(p[1])] for p in path]
@@ -833,7 +833,7 @@ def ruler(
     labels: bool = False,
     pipscale: float = 1 / 3,
     maxscale: float | None = None,
-    colors: list[str] = None,
+    colors: list[str] | None = None,
     alpha: float = 1.0,
     unit: float = 1,
     inch: bool = False,

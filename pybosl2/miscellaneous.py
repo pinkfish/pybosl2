@@ -315,7 +315,7 @@ class Extrudable:
             parts.append(corner)
         # rounded caps on the open ends
         if caps and not is_closed:
-            for a, b in ((pts[0], pts[1]), (pts[-1], pts[-2])):  # type: ignore[misc]
+            for a, b in ((pts[0], pts[1]), (pts[-1], pts[-2])):  # type: ignore[assignment]
                 cap = _planar_half(factory(), keep_positive_x=True, s=s).rotate_extrude(angle=180)
                 cap = cap.multmatrix(rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist())
                 cap = cap.translate([a[0], a[1], 0])
@@ -350,7 +350,7 @@ class Extrudable:
             # (frame_i @ UP == dir_i); this is the discrete rotation-minimizing frame.
             acc = rot_from_to4(vec1, vec2) @ acc
             rotmats.append(acc)
-        interp = rot_resample(rotmats, sides=2, method="count")
+        interp = rot_resample(rotmats, sides=2, method="count")  # type: ignore[arg-type]
         eps = 1e-4
         factory = _profile_factory(profile)
         parts = []

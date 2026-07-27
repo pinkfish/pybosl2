@@ -246,12 +246,12 @@ def compare_images(path_a: Path, path_b: Path) -> float:
     from PIL import Image
 
     with Image.open(path_a) as img_a, Image.open(path_b) as img_b:
-        img_a = img_a.convert("RGB")
-        img_b = img_b.convert("RGB")
-        if img_a.size != img_b.size:
-            img_b = img_b.resize(img_a.size)
+        img_a_rgb = img_a.convert("RGB")
+        img_b_rgb = img_b.convert("RGB")
+        if img_a_rgb.size != img_b_rgb.size:
+            img_b_rgb = img_b_rgb.resize(img_a_rgb.size)
 
-        pixels_a = img_a.tobytes()
-        pixels_b = img_b.tobytes()
+        pixels_a = img_a_rgb.tobytes()
+        pixels_b = img_b_rgb.tobytes()
         total = sum(abs(a - b) for a, b in zip(pixels_a, pixels_b))
         return total / len(pixels_a)

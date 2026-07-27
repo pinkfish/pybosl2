@@ -96,7 +96,7 @@ def _lv_hypot(a: LVTree, b: LVTree) -> LVTree:
     return lv.sqrt(a * a + b * b)
 
 
-def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | None) -> float:
+def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | list[str]) -> float:
     """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent
     per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one string for
     all four corners, or a per-corner list) -- given by `amount[i]` at each of its 4 corners.
