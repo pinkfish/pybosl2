@@ -46,6 +46,13 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+try:
+    import shapely  # noqa: F401  (presence check)
+
+    _SHAPELY = True
+except ImportError:
+    _SHAPELY = False
+
 if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this module
     from bosl2._backend import Solid  # noqa: F401
     from bosl2.shapes2d import Bosl2Shape2D, Shape2DLike  # noqa: F401
@@ -153,6 +160,17 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     def area(self, signed: bool = False) -> float:
         """Enclosed area; *signed* keeps the sign (negative == clockwise)."""
+        if _SHAPELY and self.closed:
+            from shapely.geometry import LinearRing, Polygon
+
+            try:
+                poly = Polygon(self)
+                if signed:
+                    ring = LinearRing(self)
+                    return float(poly.area if ring.is_ccw else -poly.area)
+                return float(poly.area)
+            except Exception:
+                pass
         return float(Path._polygon_area(self, signed=signed))
 
     def is_clockwise(self) -> bool:
@@ -180,6 +198,15 @@ class Path(Distributable, Extrudable, Roundable, list):
         """
         if not self.closed:
             return False
+        if _SHAPELY:
+            from shapely.geometry import Point, Polygon
+
+            try:
+                poly = Polygon(self)
+                pt = Point(point[0], point[1])
+                return bool(poly.intersects(pt))
+            except Exception:
+                pass
         return Path._point_in_polygon(point, self) >= 0
 
     @property
@@ -189,6 +216,22 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     def is_simple(self) -> bool:
         """True if the path does not self-intersect."""
+        if _SHAPELY:
+            from shapely.geometry import LineString
+
+            try:
+                pts = [(float(pt[0]), float(pt[1])) for pt in self]
+                if self.closed:
+                    if len(pts) < 3:
+                        return True
+                    if not np.allclose(pts[0], pts[-1]):
+                        pts.append(pts[0])
+                else:
+                    if len(pts) < 2:
+                        return True
+                return bool(LineString(pts).is_simple)
+            except Exception:
+                pass
         return Path._is_path_simple(self, closed=self.closed)
 
     def closest_point(self, pt: Sequence[float]) -> list:
@@ -399,7 +442,8 @@ class Path(Distributable, Extrudable, Roundable, list):
 
     def geometry(self) -> "Bosl2Shape2D":
         """2-D geometry -- the name :class:`Region` also exposes, so a caller that may
-        hold either a Path or a Region can ask for geometry without checking which it got."""
+        hold either a Path or a Region can ask for geometry without checking which it got.
+        """
         return self.polygon()
 
     def fill(self) -> "Bosl2Shape2D":

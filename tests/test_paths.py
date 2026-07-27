@@ -301,3 +301,29 @@ def test_point_in_polygon_static():
 def test_path_length_static_accepts_3d():
     # the static kernel works on raw 3-D arrays (used by shapes3d.path_text)
     assert math.isclose(Path._path_length([[0, 0, 0], [0, 0, 3], [0, 4, 3]]), 7.0)
+
+
+def test_shapely_backed_path_methods():
+    from bosl2.paths import _SHAPELY
+
+    if not _SHAPELY:
+        pytest.skip("shapely is not installed")
+
+    # contains
+    p = Path(SQUARE)
+    assert p.contains([40, 30]) is True
+    assert p.contains([100, 100]) is False
+
+    # area
+    assert math.isclose(p.area(), 4800.0)
+    assert math.isclose(p.area(signed=True), 4800.0)
+
+    # clockwise vs counter-clockwise signed area
+    cw_p = Path([[0, 60], [80, 60], [80, 0], [0, 0]])
+    assert cw_p.is_clockwise() is True
+    assert math.isclose(cw_p.area(signed=True), -4800.0)
+
+    # is_simple
+    assert p.is_simple() is True
+    figure8 = Path([[0, 0], [2, 2], [0, 2], [2, 0]])
+    assert figure8.is_simple() is False
