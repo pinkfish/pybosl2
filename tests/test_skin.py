@@ -13,7 +13,9 @@ import pytest
 
 from bosl2.skin import (
     clockwise_polygon,
+    convex_offset_extrude,
     frame_map,
+    join_prism,
     linear_sweep,
     offset_sweep,
     os_chamfer,
@@ -25,8 +27,10 @@ from bosl2.skin import (
     path3d,
     path_sweep,
     path_sweep2d,
+    prism_connector,
     rot_resample,
     rotate_sweep,
+    rounded_prism,
     skin,
     slice_profiles,
     spiral_sweep,
@@ -468,3 +472,68 @@ def test_offset_sweep_profile():
     prof_sweep = offset_sweep(_SQ20, height=20, top=os_profile(prof))
     assert _valid(prof_sweep)
     assert prof_sweep.volume() < plain.volume()
+
+
+# -- convex_offset_extrude & rounded_prism --------------------------------------------------
+
+
+def test_convex_offset_extrude_alias():
+    v1 = convex_offset_extrude(_SQ20, height=15, top=os_circle(r=2))
+    v2 = offset_sweep(_SQ20, height=15, top=os_circle(r=2))
+    assert _valid(v1)
+    assert math.isclose(v1.volume(), v2.volume(), rel_tol=1e-9)
+
+
+def test_rounded_prism_plain():
+    """No rounding → volume == linear_sweep."""
+    plain = rounded_prism(_SQ20, height=20)
+    expected = linear_sweep(_SQ20, height=20)
+    assert _valid(plain)
+    assert math.isclose(plain.volume(), expected.volume(), rel_tol=1e-4)
+
+
+def test_rounded_prism_rim_rounding():
+    """Top/bottom rim rounding removes volume."""
+    plain = rounded_prism(_SQ20, height=20)
+    rounded = rounded_prism(_SQ20, height=20, joint_top=3, joint_bot=3)
+    assert _valid(rounded)
+    assert rounded.volume() < plain.volume()
+
+
+def test_rounded_prism_side_rounding():
+    """Side rounding removes volume."""
+    plain = rounded_prism(_SQ20, height=20)
+    rounded = rounded_prism(_SQ20, height=20, joint_sides=2)
+    assert _valid(rounded)
+    assert rounded.volume() < plain.volume()
+
+
+def test_rounded_prism_tapered():
+    """Loft/prism with different top and bottom."""
+    top_sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
+    # Prism height=20 from bottom to top
+    prism = rounded_prism(_SQ20, top=top_sq, height=20, joint_sides=1)
+    assert _valid(prism)
+    # Volume should be between bottom-extruded and top-extruded cubes
+    vol_bot = linear_sweep(_SQ20, height=20).volume()
+    vol_top = linear_sweep(top_sq, height=20).volume()
+    assert vol_top < prism.volume() < vol_bot
+
+
+# -- join_prism & prism_connector -----------------------------------------------------------
+
+
+def test_join_prism_fillet():
+    plain = join_prism(_SQ20, height=20, fillet=0)
+    filleted = join_prism(_SQ20, height=20, fillet=2)
+    assert _valid(filleted)
+    # Filleting at the bottom adds volume (outward flare)
+    assert filleted.volume() > plain.volume()
+
+
+def test_prism_connector_fillets():
+    plain = prism_connector(_SQ20, length=20, fillet=0)
+    filleted = prism_connector(_SQ20, length=20, fillet1=2, fillet2=2)
+    assert _valid(filleted)
+    # Filleting at both ends adds volume (outward flares)
+    assert filleted.volume() > plain.volume()

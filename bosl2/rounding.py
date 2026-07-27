@@ -16,11 +16,9 @@
 #    :class:`~bosl2.beziers.Bezier`; the circle corners reuse :func:`~bosl2.shapes2d.arc` (2-D) or a
 #    slerp arc (3-D).
 #
-#    NOT ported (a large follow-up): ``convex_offset_extrude`` / ``rounded_prism`` /
-#    ``join_prism`` / ``prism_connector`` / ``attach_prism`` / ``bent_cutout_mask``.
+#    NOT ported (a large follow-up): ``join_prism`` / ``prism_connector`` /
+#    ``attach_prism`` / ``bent_cutout_mask``.
 #
-# FileSummary: Path rounding: round_corners (circle/smooth/chamfer), smooth_path, path_join and offset_stroke.
-# FileGroup: BOSL2
 
 from __future__ import annotations
 
@@ -31,9 +29,22 @@ import numpy as np
 
 from bosl2._helpers import is_num
 from bosl2.comparisons import approx
+
+# Late imports to avoid circular dependencies
+from bosl2.skin import convex_offset_extrude, join_prism, prism_connector, rounded_prism
 from bosl2.vectors import unit
 
-__all__ = ["round_corners", "smooth_path", "Roundable", "path_join", "offset_stroke"]
+__all__ = [
+    "round_corners",
+    "smooth_path",
+    "Roundable",
+    "path_join",
+    "offset_stroke",
+    "convex_offset_extrude",
+    "rounded_prism",
+    "join_prism",
+    "prism_connector",
+]
 
 
 # ---------------------------------------------------------------------------
@@ -169,7 +180,11 @@ def round_corners(
     """
     from bosl2.paths import Path, Path3D
 
-    assert method in ("circle", "smooth", "chamfer"), 'method must be "circle", "smooth" or "chamfer".'
+    assert method in (
+        "circle",
+        "smooth",
+        "chamfer",
+    ), 'method must be "circle", "smooth" or "chamfer".'
     given = [
         (m, v)
         for m, v in (
@@ -219,11 +234,11 @@ def round_corners(
         if method == "chamfer":
             dk.append(
                 [
-                    parm[i]
-                    if measure == "joint"
-                    else parm[i] / math.cos(ar)
-                    if measure == "cut"
-                    else parm[i] / math.sin(ar) / 2
+                    (
+                        parm[i]
+                        if measure == "joint"
+                        else (parm[i] / math.cos(ar) if measure == "cut" else parm[i] / math.sin(ar) / 2)
+                    )
                 ]
             )  # width
         elif method == "smooth":

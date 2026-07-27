@@ -989,6 +989,272 @@ def offset_sweep(
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
+def convex_offset_extrude(
+    path: Sequence[Sequence[float]],
+    height: float,
+    bottom=None,
+    top=None,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).
+
+    An alias for :func:`offset_sweep` to match BOSL2's geometry-oriented name.
+    """
+    return offset_sweep(path, height=height, bottom=bottom, top=top, steps=steps, caps=caps, style=style)
+
+
+def rounded_prism(
+    bottom: Sequence[Sequence[float]],
+    top: Sequence[Sequence[float]] | None = None,
+    height: float | None = None,
+    joint_top: float | dict | None = None,
+    joint_bot: float | dict | None = None,
+    joint_sides: float | list[float] | None = None,
+    k_sides: float | list[float] | None = None,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).
+
+    Args:
+        bottom:      The bottom polygon path (2-D point sequence).
+        top:         The top polygon path (defaults to *bottom*).
+        height:      Prism height.
+        joint_top:   Rounding radius or specifier for the top rim.
+        joint_bot:   Rounding radius or specifier for the bottom rim.
+        joint_sides: Rounding radius or specifier for the vertical side corners.
+        k_sides:     Continuous curvature parameter for side corners.
+        steps:       Arc slices for top/bottom rim treatments.
+        caps:        Cap bottom/top.
+        style:       Subdivision style.
+
+    Returns:
+        A :class:`~bosl2.vnf.VNF`.
+    """
+    from bosl2.paths import Path as _Path
+
+    # Coerce/normalize top and height
+    if top is None:
+        top = bottom
+
+    bot_z = [float(p[2]) if len(p) > 2 else 0.0 for p in bottom]
+    top_z = [float(p[2]) if len(p) > 2 else 0.0 for p in top]
+    z_diff = abs(max(top_z) - min(bot_z))
+    h_val = float(height) if height is not None else (z_diff if z_diff > 1e-9 else 1.0)
+
+    b_2d = [[float(p[0]), float(p[1])] for p in bottom]
+    t_2d = [[float(p[0]), float(p[1])] for p in top]
+
+    # Pre-round the side corners if requested
+    if joint_sides is not None:
+        from bosl2.rounding import round_corners as _rc
+
+        b_rounded = _rc(b_2d, radius=joint_sides, k=k_sides)
+        t_rounded = _rc(t_2d, radius=joint_sides, k=k_sides)
+    else:
+        b_rounded = b_2d
+        t_rounded = t_2d
+
+    # Convert rim treatments to dict descriptors
+    def _to_desc(j):
+        if j is None:
+            return None
+        if isinstance(j, dict):
+            return j
+        return os_circle(float(j))
+
+    desc_top = _to_desc(joint_top)
+    desc_bot = _to_desc(joint_bot)
+
+    # Re-use the (delta, z) levels calculation from offset_sweep
+    def _arc_column(desc, n: int):
+        if desc is None:
+            return ([0.0], [0.0])
+        t = desc.get("type", "circle")
+        if t == "flat" or (t == "circle" and desc["r"] == 0.0):
+            return ([0.0], [0.0])
+
+        if t == "circle":
+            r = desc["r"]
+            h = abs(desc["h"])
+            ar = abs(r)
+            sign = -1.0 if r > 0 else 1.0
+            angles = [math.pi / 2 * i / n for i in range(n + 1)]
+            deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+            zs = [h * math.sin(a) for a in angles]
+            return (deltas, zs)
+
+        elif t == "teardrop":
+            r = desc["r"]
+            h = abs(desc["h"])
+            max_angle = desc.get("max_angle", 45.0)
+            ar = abs(r)
+            sign = -1.0 if r > 0 else 1.0
+            max_a_rad = math.radians(max_angle)
+
+            z_trans = ar * math.sin(max_a_rad)
+            delta_trans = ar * (1.0 - math.cos(max_a_rad))
+
+            if h <= z_trans:
+                limit_a = math.asin(h / ar) if ar > 0 else 0.0
+                angles = [limit_a * i / n for i in range(n + 1)]
+                deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+                zs = [h * math.sin(a) / math.sin(limit_a) if limit_a > 0 else 0.0 for a in angles]
+                return (deltas, zs)
+            else:
+                n_circ = n // 2
+                n_line = n - n_circ
+                deltas = []
+                zs = []
+                for i in range(n_circ):
+                    a = max_a_rad * i / n_circ
+                    deltas.append(sign * ar * (1.0 - math.cos(a)))
+                    zs.append(ar * math.sin(a))
+                for i in range(n_line + 1):
+                    curr_z = z_trans + (h - z_trans) * i / n_line
+                    curr_delta = delta_trans + (curr_z - z_trans) * math.tan(max_a_rad)
+                    deltas.append(sign * curr_delta)
+                    zs.append(curr_z)
+                return (deltas, zs)
+
+        elif t == "smooth":
+            cut = abs(desc["cut"])
+            k = desc["k"]
+            sign = -1.0 if desc["r_sign"] > 0 else 1.0
+            deltas = []
+            zs = []
+            for i in range(n + 1):
+                u = i / n
+                xu = 4.0 * k * cut * (u**3) * (1.0 - u) + cut * (u**4)
+                yu = cut * ((1.0 - u) ** 4) + 4.0 * k * cut * u * ((1.0 - u) ** 3)
+                deltas.append(sign * xu)
+                zs.append(cut - yu)
+            return (deltas, zs)
+
+        elif t == "chamfer":
+            w = desc["width"]
+            h = abs(desc["height"])
+            deltas = [-w * i / n for i in range(n + 1)]
+            zs = [h * i / n for i in range(n + 1)]
+            return (deltas, zs)
+
+        elif t == "profile":
+            pts = desc["points"]
+            pts_arr = np.asarray(pts, dtype=float)
+            zs_in = pts_arr[:, 1]
+            xs_in = pts_arr[:, 0]
+            z_min, z_max = zs_in[0], zs_in[-1]
+            zs = [z_min + (z_max - z_min) * i / n for i in range(n + 1)]
+            deltas = [-float(np.interp(z, zs_in, xs_in)) for z in zs]
+            return (deltas, zs)
+
+        return ([0.0], [0.0])
+
+    bot_deltas, bot_zs = _arc_column(desc_bot, steps)
+    top_deltas, top_zs = _arc_column(desc_top, steps)
+
+    h_bot = bot_zs[-1]
+    h_top = top_zs[-1]
+    assert h_bot + h_top <= h_val, (
+        "rounded_prism(): the sum of the bottom and top rim heights exceeds the prism height."
+    )
+
+    column: list[tuple[float, float]] = []
+
+    # Bottom rim.
+    for d, z in zip(bot_deltas, bot_zs):
+        column.append((d, z))
+
+    # Middle straight wall.
+    mid_z_bot = column[-1][1]
+    mid_z_top = h_val - h_top
+    if mid_z_top > mid_z_bot + 1e-9:
+        column.append((column[-1][0], mid_z_top))
+
+    # Top rim.
+    for d, z in zip(reversed(top_deltas), reversed(top_zs)):
+        column.append((d, h_val - z))
+
+    # De-duplicate consecutive identical entries.
+    deduped: list[tuple[float, float]] = [column[0]]
+    for pair in column[1:]:
+        prev = deduped[-1]
+        if abs(pair[0] - prev[0]) > 1e-12 or abs(pair[1] - prev[1]) > 1e-12:
+            deduped.append(pair)
+
+    # Build one 3-D ring per level
+    profiles_3d = []
+    b_arr = np.asarray(b_rounded, dtype=float)
+    t_arr = np.asarray(t_rounded, dtype=float)
+    assert len(b_arr) == len(t_arr), "rounded_prism(): bottom and top polygons must have the same number of vertices."
+
+    for delta, z in deduped:
+        frac = z / h_val
+        base_z = (1.0 - frac) * b_arr + frac * t_arr
+        if abs(delta) < 1e-12:
+            ring = [[p[0], p[1], z] for p in base_z]
+        else:
+            off = list(_Path(base_z.tolist()).offset(delta=delta))
+            ring = [[float(p[0]), float(p[1]), z] for p in off]
+        if ring:
+            profiles_3d.append(ring)
+
+    if len(profiles_3d) < 2:
+        return VNF([], [])
+
+    # Normalise rings
+    maxn = max(len(r) for r in profiles_3d)
+    from bosl2.paths import Path as _Path2
+
+    norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
+    fullcaps = _norm_caps(caps)
+
+    vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+    return vnf if vnf.volume() >= 0 else vnf.reverse()
+
+
+def join_prism(
+    polygon: Sequence[Sequence[float]],
+    height: float,
+    fillet: float = 0.0,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).
+
+    Uses :func:`offset_sweep` with an outward bottom flare (os_circle(r=-fillet))
+    to create the rounded fillet joint.
+    """
+    bottom_desc = os_circle(r=-fillet) if fillet > 0 else None
+    return offset_sweep(polygon, height=height, bottom=bottom_desc, steps=steps, caps=caps, style=style)
+
+
+def prism_connector(
+    profile: Sequence[Sequence[float]],
+    length: float,
+    fillet: float = 0.0,
+    fillet1: float | None = None,
+    fillet2: float | None = None,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
+
+    Uses :func:`offset_sweep` with outward flares at both ends (os_circle(r=-fillet))
+    to create the filleted joints.
+    """
+    f1 = fillet1 if fillet1 is not None else fillet
+    f2 = fillet2 if fillet2 is not None else fillet
+    bot_desc = os_circle(r=-f1) if f1 > 0 else None
+    top_desc = os_circle(r=-f2) if f2 > 0 else None
+    return offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+
+
 # ---------------------------------------------------------------------------------------------
 # path_sweep2d() -- sweep a 2-D shape along a 2-D path (creases allowed)
 # ---------------------------------------------------------------------------------------------
