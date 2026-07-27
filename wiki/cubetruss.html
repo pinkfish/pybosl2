@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Cube trusses &#8212; bosl2 (PythonSCAD port) 0.6.1 documentation</title>
+    <title>Cube trusses &#8212; bosl2 (PythonSCAD port) 0.6.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=963abc2f" />
-    <script src="_static/documentation_options.js?v=2bd037f0"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
+    <script src="_static/documentation_options.js?v=1c28bd9a"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -137,19 +137,25 @@
 
           <div class="body" role="main">
 
-  <aside class="sidebar"><p class="sidebar-title">Navigation</p>
+  <aside id="pysidebar-global">
+<div class="ps-header">
+<p class="pysidebar-title">In this module</p>
+<button class="ps-toggle" title="Toggle sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+</div>
+<div class="ps-content">
 <ul class="pysidebar-list">
 <li class="ps-class"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss"><strong>CubeTruss</strong></a></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss_dist</span></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss_segment</span></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss</span></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss_support</span></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss_corner</span></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss_clip</span></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss_foot</span></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss_uclip</span></li>
-<li class="ps-meth"><span>CubeTruss.cubetruss_joiner</span></li>
-</ul></aside><section id="cube-trusses">
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss_dist">.cubetruss_dist</a></li>
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss_segment">.cubetruss_segment</a></li>
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss">.cubetruss</a></li>
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss_support">.cubetruss_support</a></li>
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss_corner">.cubetruss_corner</a></li>
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss_clip">.cubetruss_clip</a></li>
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss_foot">.cubetruss_foot</a></li>
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss_uclip">.cubetruss_uclip</a></li>
+<li class="ps-meth"><a href="#bosl2.cubetruss.CubeTruss.CubeTruss.cubetruss_joiner">.cubetruss_joiner</a></li>
+</ul></div></aside>
+<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="cube-trusses">
 <h1>Cube trusses<a class="headerlink" href="#cube-trusses" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/cubetruss.html">Spec sheet &rarr;</a></b>
@@ -174,13 +180,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d1f5096f969e40999d22ae698025fb43" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-61e46f567489428a85ad72dc0c6cfe19" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d1f5096f969e40999d22ae698025fb43");
+const el = document.getElementById("stlviewer-61e46f567489428a85ad72dc0c6cfe19");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -229,13 +235,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-a248e1d573f44c2faf183d040d82786c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-914b8668cefe4c2186bb24c517a40db7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-a248e1d573f44c2faf183d040d82786c");
+const el = document.getElementById("stlviewer-914b8668cefe4c2186bb24c517a40db7");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -285,13 +291,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-17aefd4ef943480dab57e5a85614aa70" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-abfe38d2b6134908afea399238552a66" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-17aefd4ef943480dab57e5a85614aa70");
+const el = document.getElementById("stlviewer-abfe38d2b6134908afea399238552a66");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -340,13 +346,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-99196f50486f48428da2eb6df7784eb0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7911198cd1e5470db317ae3f6605357e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-99196f50486f48428da2eb6df7784eb0");
+const el = document.getElementById("stlviewer-7911198cd1e5470db317ae3f6605357e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -395,13 +401,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-81c56458b9294b1fbc888b93306fc5b3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-236d658866544fceb75b6bb4fc244783" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-81c56458b9294b1fbc888b93306fc5b3");
+const el = document.getElementById("stlviewer-236d658866544fceb75b6bb4fc244783");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -450,13 +456,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-a51329c24c07443dae584b11feae6f2e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8bd76f86268a4b369e1c73afa549372a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-a51329c24c07443dae584b11feae6f2e");
+const el = document.getElementById("stlviewer-8bd76f86268a4b369e1c73afa549372a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -506,13 +512,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-63611bc984b4482d9cff67330097bf72" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-75dfb781e42f4111ba9264a37bc735e3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-63611bc984b4482d9cff67330097bf72");
+const el = document.getElementById("stlviewer-75dfb781e42f4111ba9264a37bc735e3");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -561,13 +567,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-4ba7f4794af5498aaa09c60e49c2823a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c9868f66752d41899ada608f109c13d0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-4ba7f4794af5498aaa09c60e49c2823a");
+const el = document.getElementById("stlviewer-c9868f66752d41899ada608f109c13d0");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -617,13 +623,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7f69d86e092f4afd9f77c15697c49c06" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-b1ff359df7ea402791a2805db83d1e4f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7f69d86e092f4afd9f77c15697c49c06");
+const el = document.getElementById("stlviewer-b1ff359df7ea402791a2805db83d1e4f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -672,13 +678,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-93866773d41849d1ab1bf57528094a9a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-f64d095693a14702aca6e5765c755b81" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-93866773d41849d1ab1bf57528094a9a");
+const el = document.getElementById("stlviewer-f64d095693a14702aca6e5765c755b81");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -727,13 +733,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e2330677e98c466c9a88212bc9fead90" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-a128a01a7e23475d87c2ce462adc8726" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e2330677e98c466c9a88212bc9fead90");
+const el = document.getElementById("stlviewer-a128a01a7e23475d87c2ce462adc8726");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -783,13 +789,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-41fbfd1680d04330aac22bc31d613bca" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-26136912a0344b83a942ae5449238040" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-41fbfd1680d04330aac22bc31d613bca");
+const el = document.getElementById("stlviewer-26136912a0344b83a942ae5449238040");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -838,13 +844,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d692640959a740c5bac68fac8264b06e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ed940343d2864df19ae22e230afc748d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d692640959a740c5bac68fac8264b06e");
+const el = document.getElementById("stlviewer-ed940343d2864df19ae22e230afc748d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -894,13 +900,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3dffdea59a034413b18f848e5fddd568" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c9e2266aee0d491c805fee44cba39c9d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3dffdea59a034413b18f848e5fddd568");
+const el = document.getElementById("stlviewer-c9e2266aee0d491c805fee44cba39c9d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -949,13 +955,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-683af009b1124a6a9eec4f2b8986b721" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8575427a38a54671ab3987d42745b5d4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-683af009b1124a6a9eec4f2b8986b721");
+const el = document.getElementById("stlviewer-8575427a38a54671ab3987d42745b5d4");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1005,13 +1011,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-34baa834b92d4b3caca443ee485d2ce9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-6aefe6badc394b1eabccd75877b61564" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-34baa834b92d4b3caca443ee485d2ce9");
+const el = document.getElementById("stlviewer-6aefe6badc394b1eabccd75877b61564");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1060,13 +1066,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-6bc4fa3744a542f4bc18bc4c3d4244df" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-60e43ae32ce84ced881817ef11beda0c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-6bc4fa3744a542f4bc18bc4c3d4244df");
+const el = document.getElementById("stlviewer-60e43ae32ce84ced881817ef11beda0c");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1116,13 +1122,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-74d929ac4d2741ec8afdcd3136963dbc" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-aa0cbfd431c944d79f8ddaf91475fecb" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-74d929ac4d2741ec8afdcd3136963dbc");
+const el = document.getElementById("stlviewer-aa0cbfd431c944d79f8ddaf91475fecb");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1171,13 +1177,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-f9c9f60694534dac8b27b00670ba1551" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-67fb30a5a1444ff1b45c793c76ea7906" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-f9c9f60694534dac8b27b00670ba1551");
+const el = document.getElementById("stlviewer-67fb30a5a1444ff1b45c793c76ea7906");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
