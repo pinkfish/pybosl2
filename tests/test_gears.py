@@ -85,11 +85,11 @@ def test_spur_gear2d_builds():
     ],
 )
 def test_spur_gear_builds(kw):
-    assert isinstance(G.spur_gear(**kw), Bosl2Solid)
+    assert isinstance(G.spur_gear(**kw, fn=None, fa=None, fs=None), Bosl2Solid)
 
 
 def test_spur_gear_envelope_matches_outer_radius():
-    g = G.spur_gear(pitch=5, teeth=20, thickness=8)
+    g = G.spur_gear(pitch=5, teeth=20, thickness=8, fn=None, fa=None, fs=None)
     width, _, height = _size(g)
     expect = 2 * G.outer_radius(5, 20)
     assert width == pytest.approx(expect, abs=0.5)
@@ -131,7 +131,7 @@ def test_rack_height_too_small_raises():
 
 @pytest.mark.skip(reason="pre-existing: outer_radius computes unexpectedly after param rename")
 def test_ring_gear_builds_as_annulus():
-    ring = G.ring_gear(pitch=5, teeth=20, thickness=6, backing=3)
+    ring = G.ring_gear(pitch=5, teeth=20, thickness=6, backing=3, fn=None, fa=None, fs=None)
     assert isinstance(ring, Bosl2Solid)
     width, _, height = _size(ring)
     expect = 2 * (G.outer_radius(circ_pitch=5, teeth=20, internal=True) + 3)
@@ -165,12 +165,12 @@ def test_ring_gear_builds_as_annulus():
     ],
 )
 def test_bevel_gear_builds(kw):
-    assert isinstance(G.bevel_gear(**kw), Bosl2Solid)
+    assert isinstance(G.bevel_gear(**kw, fn=None, fa=None, fs=None), Bosl2Solid)
 
 
 def test_bevel_gear_envelope():
     # diameter is near the pitch diameter (cone tapers, teeth add a little); thickness > 0.
-    g = G.bevel_gear(pitch=5, teeth=20, face_width=10, pitch_angle=45, cutter_radius=0)
+    g = G.bevel_gear(pitch=5, teeth=20, face_width=10, pitch_angle=45, cutter_radius=0, fn=None, fa=None, fs=None)
     width, _, height = _size(g)
     assert width == pytest.approx(2 * G.pitch_radius(5, 20), abs=3)
     assert height > 1
@@ -178,8 +178,8 @@ def test_bevel_gear_envelope():
 
 def test_bevel_mate_teeth_sets_pitch_angle():
     # mate_teeth derives pitch_angle = atan(teeth/mate); a smaller ratio -> shallower cone -> thinner.
-    steep = _size(G.bevel_gear(pitch=5, teeth=20, face_width=8, mate_teeth=10))[2]
-    shallow = _size(G.bevel_gear(pitch=5, teeth=10, face_width=8, mate_teeth=40))[2]
+    steep = _size(G.bevel_gear(pitch=5, teeth=20, face_width=8, mate_teeth=10, fn=None, fa=None, fs=None))[2]
+    shallow = _size(G.bevel_gear(pitch=5, teeth=10, face_width=8, mate_teeth=40, fn=None, fa=None, fs=None))[2]
     assert steep != pytest.approx(shallow, abs=0.1)
 
 
@@ -212,18 +212,18 @@ def test_worm_length():
     ],
 )
 def test_worm_gear_builds(kw):
-    assert isinstance(G.worm_gear(**kw), Bosl2Solid)
+    assert isinstance(G.worm_gear(**kw, fn=None, fa=None, fs=None), Bosl2Solid)
 
 
 def test_worm_gear_thickness_matches_helper():
-    g = G.worm_gear(pitch=5, teeth=30, worm_diam=25)
+    g = G.worm_gear(pitch=5, teeth=30, worm_diam=25, fn=None, fa=None, fs=None)
     thick = _size(g)[2]
     assert thick == pytest.approx(G.worm_gear_thickness(5, 30, 25), abs=0.5)
 
 
 def test_worm_arc_out_of_range_raises():
     with pytest.raises(AssertionError):
-        G.worm_gear(pitch=5, teeth=30, worm_diam=25, worm_arc=90)
+        G.worm_gear(pitch=5, teeth=30, worm_diam=25, worm_arc=90, fn=None, fa=None, fs=None)
 
 
 # -- herringbone --------------------------------------------------------------
@@ -239,11 +239,13 @@ def test_worm_arc_out_of_range_raises():
     ],
 )
 def test_herringbone_builds(kw):
-    assert isinstance(G.herringbone_gear(**kw), Bosl2Solid)
+    assert isinstance(G.herringbone_gear(**kw, fn=None, fa=None, fs=None), Bosl2Solid)
 
 
 def test_herringbone_envelope_matches_spur():
-    height = G.herringbone_gear(mod=5, teeth=20, thickness=10)  # no helical -> matches the spur envelope
+    height = G.herringbone_gear(
+        mod=5, teeth=20, thickness=10, fn=None, fa=None, fs=None
+    )  # no helical -> matches the spur envelope
     width, _, hgt = _size(height)
     assert width == pytest.approx(2 * G.outer_radius(mod=5, teeth=20), abs=1.5)
     assert hgt == pytest.approx(10, abs=0.01)
@@ -291,11 +293,11 @@ def test_gear_dist_rack_uses_pitch_radius():
 
 def test_spur_gear_new_api_builds():
     assert isinstance(
-        G.spur_gear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15),
+        G.spur_gear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15, fn=None, fa=None, fs=None),
         Bosl2Solid,
     )
     assert isinstance(
-        G.spur_gear(mod=5, teeth=16, thickness=35, helical=-20, herringbone=True),
+        G.spur_gear(mod=5, teeth=16, thickness=35, helical=-20, herringbone=True, fn=None, fa=None, fs=None),
         Bosl2Solid,
     )
     assert isinstance(G.spur_gear2d(mod=5, teeth=30, gear_spin=45), Bosl2Shape2D)
@@ -341,9 +343,11 @@ def _size2d(shape):
 
 @pytest.mark.parametrize("ps", [0.4, "auto"])
 def test_profile_shift_gears_build(ps):
-    assert isinstance(G.spur_gear(pitch=5, teeth=8, thickness=6, profile_shift=ps), Bosl2Solid)
+    assert isinstance(
+        G.spur_gear(pitch=5, teeth=8, thickness=6, profile_shift=ps, fn=None, fa=None, fs=None), Bosl2Solid
+    )
     assert isinstance(G.spur_gear2d(pitch=5, teeth=8, profile_shift=ps), Bosl2Shape2D)
     assert isinstance(
-        G.herringbone_gear(pitch=5, teeth=8, thickness=6, helical=20, profile_shift=ps),
+        G.herringbone_gear(pitch=5, teeth=8, thickness=6, helical=20, profile_shift=ps, fn=None, fa=None, fs=None),
         Bosl2Solid,
     )

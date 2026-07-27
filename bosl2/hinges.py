@@ -89,7 +89,7 @@ class Hinges:
         # the flat leaf plate, merging into the lower part of the knuckle line
         ydir = -1 if inner else 1
         plate_w = arm + knuckle_diam / 2
-        parts.append(cuboid([length, plate_w, thick]).back(ydir * plate_w / 2))
+        parts.append(cuboid([length, plate_w, thick], fn=fn, fa=fa, fs=fs).back(ydir * plate_w / 2))
         leaf = union(parts)
         leaf = leaf - cyl(height=length + 1, diameter=pin_diam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0])  # pin bore
         return Bosl2Solid(leaf.shape, size=[length, plate_w + knuckle_diam / 2, knuckle_diam])
@@ -173,7 +173,7 @@ class Hinges:
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hingegap / 2
-        post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick]).up((snapdiam / 2 + thick) / 2)
+        post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick], fn=fn, fa=fa, fs=fs).up((snapdiam / 2 + thick) / 2)
         ridge = cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).up(snapdiam / 2 + thick)
         return Bosl2Solid((post | ridge).back(snap_x).shape, size=[snaplen, snapdiam, 2 * thick])
 
@@ -193,7 +193,7 @@ class Hinges:
         """The receiving socket for a :meth:`snap_lock` tab (BOSL2 snap_socket())."""
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hingegap / 2
-        post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick]).up((snapdiam / 2 + thick) / 2)
+        post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick], fn=fn, fa=fa, fs=fs).up((snapdiam / 2 + thick) / 2)
         ridge = cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).up(snapdiam / 2 + thick)
         divot = (
             sphere(diameter=snapdiam * 0.8, fn=fn, fa=fa, fs=fs)

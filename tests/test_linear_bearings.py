@@ -40,7 +40,9 @@ def test_lmXuu_bearing_envelope(size, outer_diameter, length):
 
 
 def test_generic_bearing_builds():
-    assert isinstance(LB.linear_bearing(length=24, outer_diameter=15, inner_diameter=8), Bosl2Solid)
+    assert isinstance(
+        LB.linear_bearing(length=24, outer_diameter=15, inner_diameter=8, fn=None, fa=None, fs=None), Bosl2Solid
+    )
 
 
 @pytest.mark.parametrize("kw", [{}, {"size": 12}, {"size": 20}])

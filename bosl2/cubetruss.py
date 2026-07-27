@@ -80,10 +80,12 @@ def _clip_placement(vec, extents):
     raise ValueError(f"cubetruss(clips=): unsupported clip direction {vec!r} (use FRONT/BACK/LEFT/RIGHT)")
 
 
-def _octagon_tunnel(size, strut, h):
+def _octagon_tunnel(size, strut, h, fn: int | None = None, fa: float | None = None, fs: float | None = None):
     """A long octagonal-prism cutter for the axial lightening tunnels (BOSL2 cylinder($fn=8))."""
     oct_d = (min(h, size) - 2 * strut) / math.cos(math.radians(180 / 8))
-    return regular_prism(8, diameter=oct_d, height=max(h, size) + 1, anchor=CENTER).rotate([0, 0, 180 / 8])
+    return regular_prism(8, diameter=oct_d, height=max(h, size) + 1, anchor=CENTER, fn=fn, fa=fa, fs=fs).rotate(
+        [0, 0, 180 / 8]
+    )
 
 
 class CubeTruss:
@@ -109,6 +111,9 @@ class CubeTruss:
         size: float | None = None,
         strut: float | None = None,
         bracing: bool | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A single cubetruss cube segment (BOSL2 cubetruss_segment()).
 
@@ -127,18 +132,22 @@ class CubeTruss:
         crossthick = strut / math.sqrt(2)
         voffset = 0.333
 
-        body = cuboid([size, size, height]) - cuboid([size - 2 * strut, size - 2 * strut, height - 2 * strut])
+        body = cuboid([size, size, height], fn=fn, fa=fa, fs=fs) - cuboid(
+            [size - 2 * strut, size - 2 * strut, height - 2 * strut], fn=fn, fa=fa, fs=fs
+        )
         # Octagonal tunnels through the X, Y and Z axes.
-        body = body - _octagon_tunnel(size, strut, height).rotate([90, 0, 0])  # along Y
-        body = body - _octagon_tunnel(size, strut, height).rotate([90, 0, 0]).rotate([0, 0, 90])  # along X
-        body = body - _octagon_tunnel(size, strut, height)  # along Z
+        body = body - _octagon_tunnel(size, strut, height, fn=fn, fa=fa, fs=fs).rotate([90, 0, 0])  # along Y
+        body = body - _octagon_tunnel(size, strut, height, fn=fn, fa=fa, fs=fs).rotate([90, 0, 0]).rotate(
+            [0, 0, 90]
+        )  # along X
+        body = body - _octagon_tunnel(size, strut, height, fn=fn, fa=fa, fs=fs)  # along Z
 
         if bracing:
             hex_d = (min(height, size) - 2 * strut) / math.cos(math.radians(180 / 6)) - 2 * voffset
             for i in (-1, 1):
-                brace = cuboid([crossthick, (size - strut) * math.sqrt(2), height])
+                brace = cuboid([crossthick, (size - strut) * math.sqrt(2), height], fn=fn, fa=fa, fs=fs)
                 hole = (
-                    regular_prism(6, diameter=hex_d, height=crossthick + 1, anchor=CENTER)
+                    regular_prism(6, diameter=hex_d, height=crossthick + 1, anchor=CENTER, fn=fn, fa=fa, fs=fs)
                     .rotate([0, 0, 180 / 6])
                     .rotate([0, 90, 0])
                     .scale([1, 1.3, 1])
@@ -156,6 +165,9 @@ class CubeTruss:
         strut: float | None = None,
         clipthick: float | None = None,
         slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A truss assembled from a grid of cube segments (BOSL2 cubetruss()).
 
@@ -186,7 +198,7 @@ class CubeTruss:
         for zrow in range(hh):
             for xcol in range(w):
                 for ycol in range(length):
-                    seg = CubeTruss.cubetruss_segment(size=size, strut=strut, bracing=bracing)
+                    seg = CubeTruss.cubetruss_segment(size=size, strut=strut, bracing=bracing, fn=fn, fa=fa, fs=fs)
                     seg = (
                         seg.up((zrow - (hh - 1) / 2) * step)
                         .right((xcol - (w - 1) / 2) * step)
@@ -205,6 +217,9 @@ class CubeTruss:
                         strut=strut,
                         clipthick=clipthick,
                         slop=slop,
+                        fn=fn,
+                        fa=fa,
+                        fs=fs,
                     )
                     segs.append(
                         clip.forward((exy * step + strut) / 2).up((zrow - (exz - 1) / 2) * step).rotate([0, 0, zang])
@@ -223,6 +238,9 @@ class CubeTruss:
         extents: int | Sequence[int] = 1,
         size: float | None = None,
         strut: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A diagonal support truss -- a block cut on the diagonal and lightened (BOSL2 cubetruss_support()).
 
@@ -251,19 +269,21 @@ class CubeTruss:
 
         def octprism(length: float, rot):
             # cyl(diameter=octid, circum=true, realign=true, $fn=8): an octagon across-flats octid, +half facet.
-            p = regular_prism(8, inner_diameter=octid, height=length, anchor=CENTER).rotate([0, 0, 180 / 8])
+            p = regular_prism(8, inner_diameter=octid, height=length, anchor=CENTER, fn=fn, fa=fa, fs=fs).rotate(
+                [0, 0, 180 / 8]
+            )
             return p.rotate(rot) if rot else p
 
         def hollow_cell():
             return (
                 octprism(size + 1, [0, 90, 0])  # X-axis tunnel
                 | octprism(size + 1, None)  # Z-axis tunnel
-                | cuboid([octid, octid, octid])
+                | cuboid([octid, octid, octid], fn=fn, fa=fa, fs=fs)
             )  # central cube
 
         pieces = []
         for mx in xcopies(step, sides=ex):
-            base = cuboid([size, length, height]).half_of(v=v, s=smax)
+            base = cuboid([size, length, height], fn=fn, fa=fa, fs=fs).half_of(v=v, s=smax)
             cells = [
                 hollow_cell().multmatrix((my @ mz).tolist())
                 for my in ycopies(step, sides=ey)
@@ -283,6 +303,9 @@ class CubeTruss:
         bracing: bool | None = None,
         size: float | None = None,
         strut: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A corner truss with arms jutting out in one or more directions (BOSL2 cubetruss_corner()).
 
@@ -308,7 +331,7 @@ class CubeTruss:
         step = size - strut
 
         def seg():
-            return CubeTruss.cubetruss_segment(size=size, strut=strut, bracing=bracing)
+            return CubeTruss.cubetruss_segment(size=size, strut=strut, bracing=bracing, fn=fn, fa=fa, fs=fs)
 
         segs = [seg().up(step * zcol) for zcol in range(height)]  # central column
         for d in range(4):  # +X, +Y, -X, -Y arms
@@ -335,6 +358,9 @@ class CubeTruss:
         strut: float | None = None,
         clipthick: float | None = None,
         slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A pair of snap clips for the end of a truss (BOSL2 cubetruss_clip())."""
         size = CUBETRUSS_SIZE if size is None else size
@@ -349,16 +375,22 @@ class CubeTruss:
                 [clipthick, clipheight],
                 [clipthick, clipheight - cliplen * 2],
                 height=cliplen,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             ).rotate([90, 0, 0])
             hook = hook - _cmask(clipheight + 0.1, clipthick).right(clipthick / 2)
             hook = hook.back(strut).right(clipthick / 2 - 0.01)
             if slop > 0:
-                hook = hook - cuboid([slop, strut * 3, size]).forward(strut * 3 / 2)
+                hook = hook - cuboid([slop, strut * 3, size], fn=fn, fa=fa, fs=fs).forward(strut * 3 / 2)
             lip = (
                 prismoid(
                     [clipheight - cliplen * 2, strut / 2],
                     [clipheight - cliplen * 2 - 2 * clipsize, strut / 2],
                     height=clipsize + 0.01,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
                 .rotate([0, -90, 0])
                 .forward(strut * 1.25 + slop)
@@ -369,7 +401,7 @@ class CubeTruss:
                 strut * 1.6
             )
             for mz in zcopies(clipheight - strut, sides=2):
-                clip = clip - cuboid([clipthick * 3, cliplen * 2, strut]).multmatrix(mz.tolist())
+                clip = clip - cuboid([clipthick * 3, cliplen * 2, strut], fn=fn, fa=fa, fs=fs).multmatrix(mz.tolist())
             for mz in zcopies(clipheight - 2 * strut, sides=2):
                 clip = clip - _cmask(cliplen * 2, clipthick, orient="BACK").right(clipthick).multmatrix(mz.tolist())
             return clip
@@ -391,6 +423,9 @@ class CubeTruss:
         strut: float | None = None,
         clipthick: float | None = None,
         slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A foot that clips onto the bottom of a truss for support (BOSL2 cubetruss_foot())."""
         size = CUBETRUSS_SIZE if size is None else size
@@ -405,6 +440,9 @@ class CubeTruss:
             [span + 2 * clipthick, size - 2 * strut, clipthick],
             chamfer=strut,
             edges="Z",
+            fn=fn,
+            fa=fa,
+            fs=fs,
         ).up(clipthick / 2)
         parts.append(base)
         for mx in xcopies(span + clipthick, sides=2):
@@ -414,6 +452,9 @@ class CubeTruss:
                     [clipthick, size / 3.5],
                     height=wall_h,
                     anchor=BOTTOM,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
                 .up(clipthick - 0.01)
                 .multmatrix(mx.tolist())
@@ -425,6 +466,9 @@ class CubeTruss:
                     [0.1, size / 3.5],
                     height=clipsize * 3,
                     anchor=BOTTOM,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
                 .up(clipthick + strut + slop * 2)
                 .multmatrix(mx.tolist())
@@ -437,6 +481,9 @@ class CubeTruss:
                     radius2=(cyld - 4 * slop - 1) / 2,
                     height=strut,
                     anchor=BOTTOM,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
                 .rotate([0, 0, 180 / 8])
                 .up(clipthick - 0.01)
@@ -446,7 +493,9 @@ class CubeTruss:
                     my.tolist()
                 )
             for mz in [-45, 45]:
-                plug = plug - cuboid([size * 3, strut / math.sqrt(2) + 2 * slop, size * 3]).rotate([0, 0, mz])
+                plug = plug - cuboid([size * 3, strut / math.sqrt(2) + 2 * slop, size * 3], fn=fn, fa=fa, fs=fs).rotate(
+                    [0, 0, mz]
+                )
             parts.append(plug.right((xcol - (w - 1) / 2) * (size - strut)))
         result = _union(parts).down(clipthick)
         s = [span + 2 * clipthick, size - 2 * strut, strut + clipthick]
@@ -459,6 +508,9 @@ class CubeTruss:
         strut: float | None = None,
         clipthick: float | None = None,
         slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A U-shaped clip that joins two trusses face to face (BOSL2 cubetruss_uclip())."""
         size = CUBETRUSS_SIZE if size is None else size
@@ -467,13 +519,18 @@ class CubeTruss:
         clipsize = 0.5
         nd = 2 if dual else 1
         s = [nd * strut + 2 * clipthick + slop, strut + 2 * clipthick, size / 3.5]
-        body = cuboid(s) - cuboid([nd * strut + slop, strut + 2 * clipthick, size + 1]).back(clipthick)
+        body = cuboid(s, fn=fn, fa=fa, fs=fs) - cuboid(
+            [nd * strut + slop, strut + 2 * clipthick, size + 1], fn=fn, fa=fa, fs=fs
+        ).back(clipthick)
         prism = (
             prismoid(
                 [size / 3.5, clipthick * 1.87],
                 [size / 3.5, 0.1],
                 height=clipsize,
                 anchor=BOTTOM,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
             .back_half()
             .rotate([0, -90, 0])
@@ -491,6 +548,9 @@ class CubeTruss:
         strut: float | None = None,
         clipthick: float | None = None,
         slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A joiner that clips two trusses end to end (BOSL2 cubetruss_joiner())."""
         size = CUBETRUSS_SIZE if size is None else size
@@ -498,16 +558,18 @@ class CubeTruss:
         clipthick = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
         clipsize = 0.5
         span = w * (size - strut) + strut
-        parts = [cuboid([span + 2 * clipthick, size, clipthick]).up(clipthick / 2)]
+        parts = [cuboid([span + 2 * clipthick, size, clipthick], fn=fn, fa=fa, fs=fs).up(clipthick / 2)]
         for mx in xcopies(span + clipthick, sides=2):
             parts.append(
-                cuboid([clipthick, size, clipthick + strut * 3 / 4])
+                cuboid([clipthick, size, clipthick + strut * 3 / 4], fn=fn, fa=fa, fs=fs)
                 .up((clipthick + strut * 3 / 4) / 2)
                 .multmatrix(mx.tolist())
             )
         for my in ycopies(size, sides=2):
             parts.append(
-                CubeTruss.cubetruss_foot(w=w, size=size, strut=strut, clipthick=clipthick, slop=slop)
+                CubeTruss.cubetruss_foot(
+                    w=w, size=size, strut=strut, clipthick=clipthick, slop=slop, fn=fn, fa=fa, fs=fs
+                )
                 .up((strut + clipthick) / 2)
                 .multmatrix(my.tolist())
             )
@@ -519,6 +581,9 @@ class CubeTruss:
                         [clipthick, 2 * strut + 2 * clipthick],
                         height=size * 0.6,
                         anchor=BOTTOM,
+                        fn=fn,
+                        fa=fa,
+                        fs=fs,
                     )
                     .up(clipthick - 0.01)
                     .multmatrix(mx.tolist())
@@ -529,6 +594,9 @@ class CubeTruss:
                     [size / 3.5 - 4 * 2 * clipsize, 0.1],
                     height=2 * clipsize,
                     anchor=BOTTOM,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
                 .back_half()
                 .rotate([0, -90, 0])

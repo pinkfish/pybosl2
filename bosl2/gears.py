@@ -815,6 +815,9 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A 3-D involute spur gear -- helical and/or herringbone, with an optional shaft bore (BOSL2 spur_gear()).
 
@@ -860,11 +863,11 @@ class Gears:
             half_kw: dict[str, float | int] = {"height": thickness / 2, "twist": twist / 2, "convexity": teeth}
             if slices is not None:
                 half_kw["slices"] = slices
-            top = gear2d.linear_extrude(**half_kw)
-            bot = gear2d.linear_extrude(**half_kw).scale([1, 1, -1])
+            top = gear2d.linear_extrude(**half_kw, fn=fn, fa=fa, fs=fs)
+            bot = gear2d.linear_extrude(**half_kw, fn=fn, fa=fa, fs=fs).scale([1, 1, -1])
             solid = top | bot
         else:
-            solid = gear2d.linear_extrude(**extrude_kw)
+            solid = gear2d.linear_extrude(**extrude_kw, fn=fn, fa=fa, fs=fs)
         result = Bosl2Solid(solid, size=[2 * outer_radius, 2 * outer_radius, thickness])
         return result.rotate([0, 0, gear_spin]) if gear_spin else result
 
@@ -886,6 +889,9 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """
         A herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``.
@@ -908,6 +914,9 @@ class Gears:
             mod=mod,
             pitch=pitch,
             diam_pitch=diam_pitch,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
 
     @staticmethod
@@ -924,6 +933,9 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """
         An internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2
@@ -943,7 +955,7 @@ class Gears:
             internal=True,
             profile_shift=profile_shift,
         )
-        body = cylinder(height=thickness, diameter=2 * outer_radius, center=True)
+        body = cylinder(height=thickness, diameter=2 * outer_radius, center=True, fn=fn, fa=fa, fs=fs)
         return Bosl2Solid((body - cavity).shape, size=[2 * outer_radius, 2 * outer_radius, thickness])
 
     # -- rack --------------------------------------------------------------
@@ -1072,6 +1084,9 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A (potentially spiral) involute bevel gear (BOSL2 bevel_gear())."""
         _ = hide
@@ -1144,7 +1159,7 @@ class Gears:
         vnf = VNF([[x, y, z - cpz] for x, y, z in vnf.vertices], vnf.faces)
         solid = Bosl2Solid(vnf.polyhedron(), size=[2 * pr, 2 * pr, thickness])
         if shaft_diam and shaft_diam > 0:
-            solid = solid - cylinder(height=2 * thickness + 1, diameter=shaft_diam, center=True)
+            solid = solid - cylinder(height=2 * thickness + 1, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
         return solid
 
     # -- worm & worm gear --------------------------------------------------
@@ -1210,6 +1225,9 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A worm gear, hobbed to mesh a matching :meth:`worm` (BOSL2 worm_gear())."""
         assert 10 <= worm_arc <= 60, "worm_gear(): worm_arc must be between 10 and 60 degrees."
@@ -1268,5 +1286,5 @@ class Gears:
             vnf = _vnf_xflip(vnf)
         solid = Bosl2Solid(vnf.polyhedron(), size=[2 * p, 2 * p, thickness])
         if shaft_diam and shaft_diam > 0:
-            solid = solid - cylinder(height=worm_diam, diameter=shaft_diam, center=True)
+            solid = solid - cylinder(height=worm_diam, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
         return solid

@@ -80,6 +80,9 @@ class LinearBearings:
         outer_diameter: float = 15,
         inner_diameter: float = 8,
         color: str | None = "silver",
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A generic linear ball-bearing cartridge, bore *inner_diameter* / outer *outer_diameter* / length *length*
         (BOSL2 linear_bearing()).
@@ -98,21 +101,33 @@ class LinearBearings:
                     inner_diameter=inner_diameter,
                     outer_diameter=outer_diameter,
                     height=length - 1,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 ),
                 tube(
                     inner_diameter=outer_diameter - 1,
                     outer_diameter=outer_diameter,
                     height=length,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 ),
                 tube(
                     inner_diameter=inner_diameter,
                     outer_diameter=inner_diameter + 1,
                     height=length,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 ),
                 tube(
                     inner_diameter=inner_diameter + 2,
                     outer_diameter=outer_diameter - 2,
                     height=length,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 ),
             ]
         )
@@ -156,8 +171,10 @@ class LinearBearings:
                 teardrop(diameter=outer_diameter, height=length, fn=fn, fa=fa, fs=fs).rotate(
                     [0, 90, 0]
                 ),  # teardrop shell, axis along X
-                cuboid([length, outer_diameter, outer_diameter / 2]).down(outer_diameter / 4),  # base
-                cuboid([length, ogap, outer_diameter / 2 + tab / 2]).up(
+                cuboid([length, outer_diameter, outer_diameter / 2], fn=fn, fa=fa, fs=fs).down(
+                    outer_diameter / 4
+                ),  # base
+                cuboid([length, ogap, outer_diameter / 2 + tab / 2], fn=fn, fa=fa, fs=fs).up(
                     (outer_diameter / 2 + tab / 2) / 2
                 ),  # clamp tabs
             ]
@@ -165,7 +182,7 @@ class LinearBearings:
         body = body - teardrop(diameter=diameter, height=length + 0.1, fn=fn, fa=fa, fs=fs).rotate(
             [0, 90, 0]
         )  # bearing bore
-        body = body - cuboid([length + 0.1, gap, outer_diameter])  # split gap
+        body = body - cuboid([length + 0.1, gap, outer_diameter], fn=fn, fa=fa, fs=fs)  # split gap
         # clamp screw across the tabs (a simple clearance hole)
         from bosl2.screws import Screws
 

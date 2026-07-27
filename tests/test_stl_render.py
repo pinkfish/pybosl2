@@ -1612,7 +1612,9 @@ def test_pie_slice_builds(tmp_path):
 
 
 def test_spur_gear_builds(tmp_path):
-    m = _render_golden(tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6)", name="spurgear")
+    m = _render_golden(
+        tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6, fn=None, fa=None, fs=None)", name="spurgear"
+    )
     assert m.watertight
     assert m.volume > 0
 

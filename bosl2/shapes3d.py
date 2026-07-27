@@ -2966,6 +2966,9 @@ def text3d(
     anchor: str = "baseline[-1,0,-1]",
     spin: float = 0,
     orient: Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 text3d() -- 3-D extruded text, with anchor/spin/orient support.
 
@@ -2997,10 +3000,13 @@ def text3d(
         direction=direction,
         language=language,
         script=script,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
     # .shape: _text2d() hands back a Bosl2Shape2D, but everything below works on raw natives
     # (_finish3) and the result is wrapped once, at the end.
-    shape = flat.shape.linear_extrude(height=height, center=True)
+    shape = flat.shape.linear_extrude(height=height, center=True, fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_box3([size, size, height], [0, 0, av[2]])
     shape = _finish3(shape, offset, spin, orient)
     return Bosl2Solid(shape, size=None, anchor=anchor)
@@ -3020,6 +3026,9 @@ def path_text(
     center: bool = False,
     textmetrics: bool = False,
     kern: float | Sequence[float] = 0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 path_text() -- places text characters along a path.
 
@@ -3115,14 +3124,16 @@ def path_text(
 
         # .shape: the letters are composed as raw natives and wrapped once, at the end.
         glyph = (
-            _text2d(ch, size=size, font=font, halign="left", valign="baseline").translate([-lsize[i] / 2.0, 0]).shape
+            _text2d(ch, size=size, font=font, halign="left", valign="baseline", fn=fn, fa=fa, fs=fs)
+            .translate([-lsize[i] / 2.0, 0])
+            .shape
         )
 
         if dim == 3:
             z_axis = None if toppts is not None else normpts[i]
             y_axis = toppts[i] if toppts is not None else None
             m = _frame_map(x=x_axis, y=y_axis, z=z_axis)
-            letter = glyph.linear_extrude(height=th).translate([0.0, 0.0, offset - th / 2.0])
+            letter = glyph.linear_extrude(height=th, fn=fn, fa=fa, fs=fs).translate([0.0, 0.0, offset - th / 2.0])
         else:
             y_axis = toppts[i] if toppts is not None else [-v for v in normpts[i]]
             m = _frame_map(x=_point3d(x_axis), y=_point3d(y_axis))

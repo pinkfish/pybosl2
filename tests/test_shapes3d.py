@@ -316,5 +316,5 @@ def test_texture_enum():
     assert isinstance(t, list)
 
     # Test that cap constructs correctly with enum texture
-    cap = BottleCaps.pco1810_cap(texture=BottleCapTexture.RIBS)
+    cap = BottleCaps.pco1810_cap(texture=BottleCapTexture.RIBS, fn=None, fa=None, fs=None)
     assert isinstance(cap, Bosl2Solid)

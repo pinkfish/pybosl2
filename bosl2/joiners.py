@@ -66,7 +66,6 @@ class Joiners:
                 (Joiners.dovetail("male", width=15, height=8, slide=30)
                  | Joiners.dovetail("female", width=15, height=8, slide=30).right(24)).show()
         """
-        _ = (fn, fa, fs)
         if angle is not None:
             slope = 1 / math.tan(math.radians(angle))
         hslop = slop if gender == "female" else 0.0
@@ -78,11 +77,11 @@ class Joiners:
             if back_width is None:
                 back_width = width - 2 * slide * math.tan(math.radians(taper))
             wb = back_width + 2 * hslop
-            front = prismoid([w, 0.02], [w + flare, 0.02], height=height).back(slide / 2)
-            back = prismoid([wb, 0.02], [wb + flare, 0.02], height=height).forward(slide / 2)
+            front = prismoid([w, 0.02], [w + flare, 0.02], height=height, fn=fn, fa=fa, fs=fs).back(slide / 2)
+            back = prismoid([wb, 0.02], [wb + flare, 0.02], height=height, fn=fn, fa=fa, fs=fs).forward(slide / 2)
             body = Bosl2Solid(_ohull(front.shape, back.shape))
         else:
-            body = prismoid([w, slide], [w + flare, slide], height=height)
+            body = prismoid([w, slide], [w + flare, slide], height=height, fn=fn, fa=fa, fs=fs)
 
         return Bosl2Solid(body.shape, size=[w + flare, slide, height])
 
@@ -125,7 +124,7 @@ class Joiners:
         ).up(length / 2 - snap / 2)
         tip = sphere(diameter=diameter, fn=fn, fa=fa, fs=fs).up(length / 2)
         pin = shaft | barb | tip
-        pin = pin - cuboid([diameter + 2 * nub_depth + 1, slot, length + snap])  # flex slot
+        pin = pin - cuboid([diameter + 2 * nub_depth + 1, slot, length + snap], fn=fn, fa=fa, fs=fs)  # flex slot
         return Bosl2Solid(pin.shape, size=[diameter + 2 * nub_depth, diameter, length + diameter / 2])
 
     @staticmethod

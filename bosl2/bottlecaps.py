@@ -314,7 +314,7 @@ def _pco1881_profile(diameter: "BottleThreadSpec"):
     )
 
 
-def _neck_thread(diameter: "BottleThreadSpec"):
+def _neck_thread(diameter: "BottleThreadSpec", fn: int | None = None, fa: float | None = None, fs: float | None = None):
     """The neck's external thread ridge with its two thread breaks (BOSL2 thread_helix + prismoids).
 
     The lead-in ``taper`` BOSL2 applies is not reproduced (this port's thread_helix has no taper).
@@ -339,18 +339,28 @@ def _neck_thread(diameter: "BottleThreadSpec"):
                 height=thread_h + 0.1,
                 anchor=BOTTOM,
                 orient=RIGHT,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
             cuts.append(block.multmatrix((m_out @ m_in).tolist()))
     return thread - union(cuts)
 
 
-def _build_neck(diameter: "BottleThreadSpec", profile, bottom_half: bool):
+def _build_neck(
+    diameter: "BottleThreadSpec",
+    profile,
+    bottom_half: bool,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+):
     height = diameter.support_h + diameter.neck_h
     body = Bosl2Solid(
-        _orotate_extrude(_opolygon([[float(x), float(y)] for x, y in profile])),
+        _orotate_extrude(_opolygon([[float(x), float(y)] for x, y in profile]), fn=fn),
         size=[diameter.support_d, diameter.support_d, height],
     )
-    thread = _neck_thread(diameter)
+    thread = _neck_thread(diameter, fn=fn, fa=fa, fs=fs)
     if bottom_half:
         thread = thread.bottom_half()
     thread = thread.up(height - diameter.lip_h)
@@ -363,12 +373,19 @@ class BottleCapTexture(Enum):
     CHECKERS = "checkers"
 
 
-def _build_cap(diameter: "BottleThreadSpec", wall: float, texture: str | BottleCapTexture):
+def _build_cap(
+    diameter: "BottleThreadSpec",
+    wall: float,
+    texture: str | BottleCapTexture,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+):
     _ = texture.value if isinstance(texture, BottleCapTexture) else texture
     w = diameter.cap_id + 2 * wall
     height = diameter.cap_tamper_ring_h + wall
-    outer = cyl(diameter=w, length=height, anchor=BOTTOM)
-    bore = cyl(diameter=diameter.cap_id, height=height, anchor=BOTTOM).up(wall)
+    outer = cyl(diameter=w, length=height, anchor=BOTTOM, fn=fn, fa=fa, fs=fs)
+    bore = cyl(diameter=diameter.cap_id, height=height, anchor=BOTTOM, fn=fn, fa=fa, fs=fs).up(wall)
     shell = outer - bore
     turns = diameter.cap_turns / 360
     H = turns * diameter.cap_thread_pitch
@@ -394,23 +411,35 @@ class BottleCaps:
     """
 
     @staticmethod
-    def pco1810_neck() -> Bosl2Solid:
+    def pco1810_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
         """A PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck())."""
-        return _build_neck(_PCO1810, _pco1810_profile(_PCO1810), bottom_half=True)
+        return _build_neck(_PCO1810, _pco1810_profile(_PCO1810), bottom_half=True, fn=fn, fa=fa, fs=fs)
 
     @staticmethod
-    def pco1810_cap(wall: float = 2, texture: str | BottleCapTexture = BottleCapTexture.NONE) -> Bosl2Solid:
+    def pco1810_cap(
+        wall: float = 2,
+        texture: str | BottleCapTexture = BottleCapTexture.NONE,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Bosl2Solid:
         """A cap for a PCO-1810 bottle (BOSL2 pco1810_cap()). ``texture`` other than ``"none"`` falls
         back to a plain wall (surface texturing is not in this port)."""
-        return _build_cap(_PCO1810, wall, texture)
+        return _build_cap(_PCO1810, wall, texture, fn=fn, fa=fa, fs=fs)
 
     @staticmethod
-    def pco1881_neck() -> Bosl2Solid:
+    def pco1881_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
         """A PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck())."""
-        return _build_neck(_PCO1881, _pco1881_profile(_PCO1881), bottom_half=False)
+        return _build_neck(_PCO1881, _pco1881_profile(_PCO1881), bottom_half=False, fn=fn, fa=fa, fs=fs)
 
     @staticmethod
-    def pco1881_cap(wall: float = 2, texture: str | BottleCapTexture = BottleCapTexture.NONE) -> Bosl2Solid:
+    def pco1881_cap(
+        wall: float = 2,
+        texture: str | BottleCapTexture = BottleCapTexture.NONE,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> Bosl2Solid:
         """A cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``"none"`` falls
         back to a plain wall (surface texturing is not in this port)."""
-        return _build_cap(_PCO1881, wall, texture)
+        return _build_cap(_PCO1881, wall, texture, fn=fn, fa=fa, fs=fs)

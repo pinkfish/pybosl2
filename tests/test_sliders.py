@@ -25,7 +25,7 @@ def _size(solid):
     ],
 )
 def test_slider_builds(kw):
-    assert isinstance(S.slider(**kw), Bosl2Solid)
+    assert isinstance(S.slider(**kw, fn=None, fa=None, fs=None), Bosl2Solid)
 
 
 def test_rail_envelope():
@@ -43,6 +43,6 @@ def test_rail_length_scales():
 
 def test_slider_slop_widens_fit():
     # more slop -> a slightly larger slider footprint
-    tight = _size(S.slider(length=30, slop=0.0))
-    loose = _size(S.slider(length=30, slop=0.4))
+    tight = _size(S.slider(length=30, slop=0.0, fn=None, fa=None, fs=None))
+    loose = _size(S.slider(length=30, slop=0.4, fn=None, fa=None, fs=None))
     assert loose[1] >= tight[1]

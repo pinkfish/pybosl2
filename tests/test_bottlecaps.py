@@ -21,7 +21,7 @@ def _size(solid):
 
 
 def test_pco1810_neck_envelope():
-    neck = BC.pco1810_neck()
+    neck = BC.pco1810_neck(fn=None, fa=None, fs=None)
     assert isinstance(neck, Bosl2Solid)
     w, _wy, hgt = _size(neck)
     assert w == pytest.approx(33.0, abs=0.2)  # support ring diameter
@@ -29,7 +29,7 @@ def test_pco1810_neck_envelope():
 
 
 def test_pco1881_neck_envelope():
-    neck = BC.pco1881_neck()
+    neck = BC.pco1881_neck(fn=None, fa=None, fs=None)
     assert isinstance(neck, Bosl2Solid)
     w, _wy, hgt = _size(neck)
     assert w == pytest.approx(33.0, abs=0.2)
@@ -37,7 +37,7 @@ def test_pco1881_neck_envelope():
 
 
 def test_pco1810_cap_envelope():
-    cap = BC.pco1810_cap(wall=2)
+    cap = BC.pco1810_cap(wall=2, fn=None, fa=None, fs=None)
     assert isinstance(cap, Bosl2Solid)
     w, _wy, hgt = _size(cap)
     assert w == pytest.approx(28.58 + 2 * 2, abs=0.3)  # cap_id + 2*wall
@@ -45,7 +45,7 @@ def test_pco1810_cap_envelope():
 
 
 def test_pco1881_cap_envelope():
-    cap = BC.pco1881_cap(wall=2)
+    cap = BC.pco1881_cap(wall=2, fn=None, fa=None, fs=None)
     assert isinstance(cap, Bosl2Solid)
     w, _wy, hgt = _size(cap)
     assert w == pytest.approx(28.58 + 2 * 2, abs=0.3)
@@ -53,7 +53,7 @@ def test_pco1881_cap_envelope():
 
 
 def test_wall_thickness_changes_cap_size():
-    thin, thick = BC.pco1881_cap(wall=1), BC.pco1881_cap(wall=3)
+    thin, thick = BC.pco1881_cap(wall=1, fn=None, fa=None, fs=None), BC.pco1881_cap(wall=3, fn=None, fa=None, fs=None)
     assert _size(thick)[0] > _size(thin)[0]
     assert _size(thick)[2] > _size(thin)[2]
 
@@ -61,9 +61,9 @@ def test_wall_thickness_changes_cap_size():
 def test_texture_falls_back_to_plain():
     # Textures aren't supported by this port; the builder still succeeds (plain wall).
     for tex in ("none", "knurled", "ribbed"):
-        assert isinstance(BC.pco1881_cap(texture=tex), Bosl2Solid)
+        assert isinstance(BC.pco1881_cap(texture=tex, fn=None, fa=None, fs=None), Bosl2Solid)
 
 
 def test_neck_and_cap_are_distinct_pieces():
     # Sanity: a cap is wider than tall here, a neck taller than the cap.
-    assert _size(BC.pco1810_neck())[2] > _size(BC.pco1810_cap())[2]
+    assert _size(BC.pco1810_neck(fn=None, fa=None, fs=None))[2] > _size(BC.pco1810_cap(fn=None, fa=None, fs=None))[2]

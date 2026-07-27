@@ -2277,6 +2277,9 @@ def text(
     script: str = "latin",
     anchor: str = "baseline",
     spin: float = 0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Shape2D:
     """2-D text, built directly with the builtin text() (which already supports halign/valign).
 
@@ -2305,6 +2308,9 @@ def text(
         direction=direction,
         language=language,
         script=script,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
     return _finish(shape, [0.0, 0.0], spin)
 
