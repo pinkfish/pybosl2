@@ -227,7 +227,7 @@ def test_getattr_no_recursion_when_shape_unset():
     # a half-built object (via __new__, or during unpickling) must not blow the stack
     obj = Bosl2Solid.__new__(Bosl2Solid)
     with pytest.raises(AttributeError):
-        obj.anything
+        _ = obj.anything
 
 
 def test_native_passthrough_op_keeps_wrapper_and_chains():

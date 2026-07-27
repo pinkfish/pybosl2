@@ -302,7 +302,7 @@ class ScrewDrive:
         try:
             return _TORX[int(size)]
         except (KeyError, ValueError):
-            raise ValueError(f"Unsupported Torx size: {size!r}")
+            raise ValueError(f"Unsupported Torx size: {size!r}") from None
 
     @staticmethod
     def torx_diam(size: int) -> float:

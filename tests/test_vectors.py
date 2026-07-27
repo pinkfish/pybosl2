@@ -52,5 +52,5 @@ def test_unit_zero_with_default_error_value():
 
 
 def test_unit_zero_without_error_raises():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         unit([0, 0, 0])

@@ -52,7 +52,7 @@ def _dual(verts, faces):
         t = t / np.linalg.norm(t)
         b = np.cross(sides, t)
 
-        def angle(fi):
+        def angle(fi, sides=sides, b=b, t=t):
             diameter = centroids[fi] - sides * float(np.dot(centroids[fi], sides))
             return math.atan2(float(np.dot(diameter, b)), float(np.dot(diameter, t)))
 

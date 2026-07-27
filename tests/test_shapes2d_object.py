@@ -159,7 +159,7 @@ def test_unknown_native_method_falls_through_still_wrapped():
 
 def test_missing_attribute_raises_attribute_error():
     with pytest.raises(AttributeError):
-        s2.square(10).definitely_not_a_native_method
+        _ = s2.square(10).definitely_not_a_native_method
 
 
 def test_sdf_only_feature_is_rejected_on_the_csg_backend():
