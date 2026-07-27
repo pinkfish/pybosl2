@@ -1677,3 +1677,19 @@ def test_sliders_rail_builds(tmp_path):
     m = _render(tmp_path, "Sliders.rail(length=40, w=10, height=10)", name="slider_rail")
     assert m.watertight
     assert m.volume > 0
+
+
+def test_sdf_backend_real_render(tmp_path):
+    # Tests that shapes constructed under the "sdf" active backend
+    # correctly delegate to the libfive backend and mesh/render.
+    setup = (
+        "from pybosl2.solid import cuboid, sphere, use_backend\n"
+        "def build_shape():\n"
+        "    with use_backend('sdf'):\n"
+        "        a = cuboid([20, 20, 20], rounding=3, res=10)\n"
+        "        b = sphere(radius=12, res=10).translate([0, 0, 10])\n"
+        "        return a | b\n"
+    )
+    m = _render(tmp_path, "build_shape()", setup=setup, name="sdf_backend_real_render")
+    assert m.watertight
+    assert m.volume > 0

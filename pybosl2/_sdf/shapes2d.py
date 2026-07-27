@@ -1,39 +1,26 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# Copyright (c) 2026, pinkfish
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+# Licensed under the BSD 2-Clause License. See the LICENSE file in the project
+# root for the full license text.
+# SPDX-License-Identifier: BSD-2-Clause
 
-
-# LibFile: pysolidfive/shapes2d.py
+# LibFile: pybosl2/_sdf/shapes2d.py
 #    The 2-D layer: PyShape2D (the lazy symbolic 2-D SDF, extruded to a specific height to
 #    become a PyShape) and its constructors -- circle2d/rect2d/polygon2d/stroke2d/
-#    hull2d_discs/supershape2d. See pysolidfive/__init__.py's module docstring for the design
-#    rationale.
+#    hull2d_discs/supershape2d.
 #
-# FileGroup: pysolidfive
 
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
 
-import libfive as lv
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-from pysolidfive._constants import CENTER
-from pysolidfive.paths import (
+from pybosl2._sdf._constants import CENTER
+from pybosl2._sdf._libfive import lv
+from pybosl2._sdf.paths import (
     _PENALTY,
     _collinear,
     _halfplane_max_sdf,
@@ -46,10 +33,10 @@ from pysolidfive.paths import (
     as_path_list,
     as_points,
 )
-from pysolidfive.paths import (
+from pybosl2._sdf.paths import (
     supershape_path as _supershape_path,
 )
-from pysolidfive.shapes3d import PyShape
+from pybosl2._sdf.shapes3d import PyShape
 
 # ---------------------------------------------------------------------------
 # Section: 2-D shapes (PyShape2D) -- symbolic 2-D SDFs that extrude into PyShapes
@@ -326,7 +313,7 @@ def supershape2d(
     res: int = 10,
 ) -> PyShape2D:
     """A superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
-    parameters and sampling as the pybosl2 port's supershape()) and turned into a polygon2d()."""
+    parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d()."""
     return polygon2d(
         _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),
         res=res,
@@ -668,6 +655,7 @@ def trapezoid2d(
     """
     import math as _m
 
+    _ = anchor
     defined = sum(x is not None for x in (height, width1, width2, angle))
     assert defined == 3, "Must give exactly 3 of height, width1, width2, and angle."
 

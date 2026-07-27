@@ -427,8 +427,8 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     # The distributors.scad copiers, inherited from Distributable, resolve to _distribute(), which
     # for a solid means: multmatrix a copy for each transform and union them into one new solid.
     # This reuses the wrapped native handle across the copies, which is safe for direct-CSG solids
-    # (the norm here); a pysolidfive/frep-backed shape must instead be distributed via a factory to
-    # avoid the frep handle-reuse segfault (see the SDF-vs-direct note in CLAUDE.md).
+    # (the norm here); an SDF-backed shape must instead be distributed via a factory to
+    # avoid the frep handle-reuse segfault.
 
     def _distribute(self, mats) -> "Bosl2Solid":
         """Union a multmatrix copy of this solid for each transform matrix (BOSL2's module form)."""

@@ -1,45 +1,29 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# Copyright (c) 2026, pinkfish
 #
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+# Licensed under the BSD 2-Clause License. See the LICENSE file in the project
+# root for the full license text.
+# SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pysolidfive/skin.py
+# LibFile: pybosl2/_sdf/skin.py
 #    SDF-based sweep / skin / loft / revolve operations, mirroring the geometry-construction
-#    endpoints of pybosl2/skin.py.  Instead of building polyhedron VNFs from triangulated
-#    profile rings, each function here returns a PyShape whose signed-distance field
-#    directly represents the swept or lofted volume.  The target use -- end caps, closed
-#    sweeps, partial revolutions, twist/scale interpolation -- is the same; only the
-#    meshing strategy differs.
+#    endpoints of pybosl2/skin.py.
 #
-#    Ported from pybosl2/skin.py (copyright pinkfish, BSD-2-Clause).  The original's VNF
-#    triangulation (VNF.vertex_array, tri_array, _lofttri) is replaced here by natural
-#    SDF constructs.  All coordinate / frame / transform math is preserved.
-#
-# FileGroup: pysolidfive
 
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-import libfive as lv
 import numpy as np
 
-from pysolidfive.paths import _lv_hypot
-from pysolidfive.shapes2d import PyShape2D
-from pysolidfive.shapes3d import PyShape
+from pybosl2._sdf._libfive import lv
+from pybosl2._sdf.paths import _lv_hypot
+from pybosl2._sdf.shapes3d import PyShape
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pybosl2._sdf.shapes2d import PyShape2D
 
 # ---------------------------------------------------------------------------
 #  pure-math helpers (same as pybosl2/skin.py, ported without VNF dependency)
@@ -133,7 +117,7 @@ def revolve_sdf(
     the Z axis and its Y coordinate as the height.  A full 360° revolution produces
     a watertight solid; a partial revolution is end-capped to the axis.
 
-    This is the SDF analogue of pybosl2.skin.rotate_sweep(): the revolved volume is
+    This is the SDF analogue of bosl2.skin.rotate_sweep(): the revolved volume is
     represented directly as a signed-distance field rather than as a triangulated mesh.
 
     Args:
@@ -195,6 +179,7 @@ def linear_sweep_sdf(
         slices:   number of intermediate slabs (auto-chosen if None)
         res:      meshing resolution (default 10)
     """
+    _ = slices
     sf = shape2d._sdf_fn
     has_modifiers = (
         abs(twist) > 1e-9
@@ -301,11 +286,6 @@ def skin_sdf(
         return d_result
 
     return PyShape(sdf_fn, [-max_r, -max_r, zs[0]], [max_r, max_r, zs[-1]], res)
-
-
-# ---------------------------------------------------------------------------
-#  VNF extraction from PyShape (SDF → mesh conversion)
-# ---------------------------------------------------------------------------
 
 
 def mesh_to_vnf(shape: PyShape) -> tuple[list[list[float]], list[list[int]]]:

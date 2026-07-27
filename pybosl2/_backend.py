@@ -8,7 +8,7 @@
 #
 # pybosl2 realizes solids through one of two backends:
 #   * "csg" -- exact CSG via PythonSCAD's native primitives (the default; today's Bosl2Solid).
-#   * "sdf" -- F-Rep / signed-distance via libfive (the merged pysolidfive engine).
+#   * "sdf" -- F-Rep / signed-distance via libfive.
 #
 # The active backend is a thread/async-safe context value (a contextvars.ContextVar) so it can be
 # overridden for a block with ``use_backend("sdf")`` or changed globally with
