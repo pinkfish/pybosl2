@@ -489,7 +489,7 @@ class Screws:
         elif drive == "slot":
             width = size if size else max(0.6, info["diameter"] / 6)
             length = (info["head_size"] or info["diameter"]) + 2
-            rec = cuboid([length, width, depth + eps])
+            rec = cuboid([length, width, depth + eps], fn=fn, fa=fa, fs=fs)
         else:
             return None
         # place the recess so its open mouth is flush with the top of the head (or shaft top for setscrews)

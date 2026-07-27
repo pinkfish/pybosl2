@@ -840,6 +840,9 @@ def ruler(
     anchor: Sequence[float] = LEFT + BACK + TOP,
     spin: float = 0,
     orient: Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 ruler() -- a ruler for measuring objects in the viewport.
 
@@ -907,7 +910,7 @@ def ruler(
                 markwidth = marklength * 0.4
                 tri = _opolygon([[0, 0], [flip * markwidth, -marklength], [0, -marklength * 0.9]])
                 piece = (
-                    tri.linear_extrude(height=thickness + scale / 100, convexity=2, center=True)
+                    tri.linear_extrude(height=thickness + scale / 100, convexity=2, center=True, fn=fn, fa=fa, fs=fs)
                     .translate([x0 + mark * scale, y0 + widths[i], 0])
                     .color(colors[1 - idx % 2], alpha=alpha)
                 )
@@ -919,10 +922,13 @@ def ruler(
                     size=fontsize,
                     halign="left",
                     valign="baseline",
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
                 piece = (
                     lbl.translate([0, scale * 0.02, 0])
-                    .linear_extrude(height=thickness + scale / 100, convexity=2, center=True)
+                    .linear_extrude(height=thickness + scale / 100, convexity=2, center=True, fn=fn, fa=fa, fs=fs)
                     .translate([x0, y0, 0])
                     .color(colors[(idx + 1) % 2], alpha=alpha)
                 )

@@ -96,9 +96,12 @@ class NemaSteppers:
                 [s.motor_width, s.motor_width, height],
                 chamfer=2 if size >= 8 else 0.5,
                 edges="Z",
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
         else:
-            body = cuboid([s.motor_width, s.motor_width, height], rounding=s.screw_size, edges="Z")
+            body = cuboid([s.motor_width, s.motor_width, height], rounding=s.screw_size, edges="Z", fn=fn, fa=fa, fs=fs)
         body = body.down(height / 2)  # mounting face at z=0, body below
         for sx in (-1, 1):
             for sy in (-1, 1):  # blind mounting holes at the corners
@@ -153,7 +156,7 @@ class NemaSteppers:
                 return [
                     cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).back(length / 2).right(cx).back(cy),
                     cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).forward(length / 2).right(cx).back(cy),
-                    cuboid([d, length, depth]).right(cx).back(cy),
+                    cuboid([d, length, depth], fn=fn, fa=fa, fs=fs).right(cx).back(cy),
                 ]
             return [cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)]
 

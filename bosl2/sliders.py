@@ -41,6 +41,9 @@ class Sliders:
         wall: float = 5,
         angle: float = 30,
         slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A slider that rides in a matching :meth:`rail` V-groove (BOSL2 slider()).
 
@@ -61,6 +64,9 @@ class Sliders:
                 edges=[FRONT, BACK],
                 except_edges=[BOTTOM],
                 anchor=BOTTOM,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
         ]
         for m in xflip_copy(offset=w / 2 + slop):
@@ -70,6 +76,9 @@ class Sliders:
                 edges=[RIGHT],
                 except_edges=[BOTTOM],
                 anchor=[b + le for b, le in zip(BOTTOM, LEFT, strict=False)],
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
             parts.append(wallcube.multmatrix(m.tolist()))
         bev_h = height / 2 * math.tan(math.radians(angle))
@@ -80,6 +89,9 @@ class Sliders:
                 height=bev_h + 0.01,
                 orient=LEFT,
                 anchor=BOTTOM,
+                fn=fn,
+                fa=fa,
+                fs=fs,
             )
             parts.append(slid.up(base + height / 2).multmatrix(m.tolist()))
         result = _union(parts).down(base + height / 2).rotate([0, 0, 90])

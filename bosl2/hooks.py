@@ -133,7 +133,7 @@ class Hooks:
         tx, tz = max(tangents, key=lambda t: t[1])
 
         base = prismoid(
-            [bx, w], [2 * tx, w], height=tz, rounding=rounding if rounding else 0
+            [bx, w], [2 * tx, w], height=tz, rounding=rounding if rounding else 0, fn=fn, fa=fa, fs=fs
         )  # anchor=BOTTOM: base on z=0
         ring = (
             cyl(
@@ -163,6 +163,6 @@ def _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, fn, fa=None, fs=Non
     rnd = hole_rounding if hole_rounding else None
     bore = cyl(height=L, radius=ri, rounding=rnd, fn=fn, fa=fa, fs=fs).rotate([90, 0, 0]).up(hole_z)
     if hole == "D":  # keep the upper half -> flat-bottomed D-hole
-        upper = cuboid([2 * ri + 2, L + 2, 2 * ri]).up(hole_z + ri)
+        upper = cuboid([2 * ri + 2, L + 2, 2 * ri], fn=fn, fa=fa, fs=fs).up(hole_z + ri)
         bore = bore & upper
     return bore

@@ -202,9 +202,9 @@ def _nut_solid(
     """A nut: a hex/square body with a threaded hole cut by a matching thread 'tap'."""
 
     if shape == "hex":
-        body = regular_prism(6, height=h, inner_diameter=nutwidth)
+        body = regular_prism(6, height=h, inner_diameter=nutwidth, fn=fn, fa=fa, fs=fs)
     elif shape == "square":
-        body = cuboid([nutwidth, nutwidth, h])
+        body = cuboid([nutwidth, nutwidth, h], fn=fn, fa=fa, fs=fs)
     else:
         raise AssertionError('nut shape must be "hex" or "square".')
     if pitch == 0:
@@ -548,11 +548,16 @@ class Threading:
         starts: int = 1,
         left_handed: bool = False,
         profile=None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Bosl2Solid:
         """A single helical thread ridge (no core), for adding threads onto your own cylinder
         (BOSL2 thread_helix()). The thread crest is at diameter *d*; give *thread_depth* and
         *flank_angle*, or an explicit *profile*."""
         from bosl2.skin import spiral_sweep
+
+        _ = (fn, fa, fs)
 
         assert pitch > 0 and d > 0, "thread_helix(): d and pitch must be positive."
         if profile is None:
