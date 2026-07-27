@@ -1047,7 +1047,7 @@ def test_threaded_square_nut(tmp_path):
 def test_thread_helix_ridge(tmp_path):
     m = _render(
         tmp_path,
-        "Threading.thread_helix(20, 4, turns=3, fa=6, fs=1)",
+        "Threading.thread_helix(20, 4, turns=3)",
         name="threadhelix",
     )
     assert m.volume > 0
