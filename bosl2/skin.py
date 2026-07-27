@@ -4,7 +4,6 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: bosl2/skin.py
 #    Pure-Python port of the surface generators from BOSL2's skin.scad, building
 #    VNFs (bosl2/vnf.py) that render via polyhedron(). No osuse()/BOSL2 runtime
 #    dependency.
@@ -33,8 +32,6 @@
 #    "fast_distance"/"tangent" vertex-matching methods (and associate_vertices()),
 #    and spiral_sweep()'s lead-in tapers.
 #
-# FileSummary: Skin/sweep/revolve 2-D profiles into VNF surfaces (BOSL2 skin.scad).
-# FileGroup: BOSL2
 
 from __future__ import annotations
 
@@ -663,6 +660,182 @@ def subdivide_and_slice(
     assert numpoints >= maxsize, "subdivide_and_slice(): numpoints is smaller than the largest profile."
     fixed = [Path._subdivide_path(p, sides=numpoints, closed=True, method=method) for p in profiles]
     return slice_profiles(fixed, slices, closed)
+
+
+# ---------------------------------------------------------------------------------------------
+# os_circle() / offset_sweep() -- profile-based offset extrusion with rim roundovers
+# (BOSL2 rounding.scad: os_circle, offset_sweep)
+# ---------------------------------------------------------------------------------------------
+
+
+def os_circle(r: float, h: float | None = None, extra: float = 0.0) -> dict:
+    """Circular roundover/flare profile for :func:`offset_sweep` (BOSL2 ``os_circle()``).
+
+    Describes the treatment applied to one rim of the extruded shape:
+
+    * ``r > 0`` — inward roundover: the rim is eased in (material is *removed*
+      from the corner, yielding a convex fillet).
+    * ``r < 0`` — outward flare: extra material is added outside the wall at
+      the rim (a concave cove).
+    * ``r == 0`` — square / no treatment (same as passing ``None`` to
+      :func:`offset_sweep`).
+
+    Args:
+        r:     Roundover radius (positive = roundover, negative = flare).
+        h:     Height of the rim treatment; defaults to ``abs(r)``.  Should be
+               less than half the extrusion height.
+        extra: Extra extension beyond the nominal arc (useful to close tiny gaps
+               from floating-point rounding; default 0).
+
+    Returns:
+        A descriptor ``dict`` consumed by :func:`offset_sweep`.
+
+    Examples:
+        A rounded-top extrusion:
+
+        .. pythonscad-example::
+
+            sq = [[-15, -15], [15, -15], [15, 15], [-15, 15]]
+            offset_sweep(sq, height=30, top=os_circle(r=6)).polyhedron().show()
+    """
+    h_val = float(h) if h is not None else abs(float(r))
+    return {"type": "circle", "r": float(r), "h": h_val, "extra": float(extra)}
+
+
+def offset_sweep(
+    path: Sequence[Sequence[float]],
+    height: float,
+    bottom=None,
+    top=None,
+    steps: int = 16,
+    caps: CapsSpec = None,
+    style: str = "min_edge",
+) -> VNF:
+    """Extrude a 2-D outline to *height* with optional circular roundovers on each rim (BOSL2 ``offset_sweep()``).
+
+    Stacks a sequence of radially-offset outlines along the Z axis.  At each rim
+    the offset follows a quarter-circle arc so the transition from the vertical
+    wall to the flat cap is smooth (roundover) or flared (cove).  The middle
+    section is a plain vertical wall.
+
+    Only the ``os_circle`` profile is ported; the remaining BOSL2 profiles
+    (``os_smooth``, ``os_teardrop``, ``os_profile``, ``os_flat``, ``os_mask``)
+    are not-yet-ported.
+
+    Args:
+        path:   The 2-D polygon to extrude (a closed path or point list).
+        height: Total extrusion height (Z from 0 to height).
+        bottom: Bottom-rim descriptor from :func:`os_circle` (or ``None`` for square).
+        top:    Top-rim descriptor from :func:`os_circle` (or ``None`` for square).
+        steps:  Number of arc-slices per rim treatment (default 16).
+        caps:   Cap the flat top and bottom (default True); bool or [bool, bool].
+        style:  ``vnf_vertex_array`` quad-subdivision style.
+
+    Returns:
+        A :class:`~bosl2.vnf.VNF`.
+
+    Examples:
+        Square bottom, rounded top:
+
+        .. pythonscad-example::
+
+            sq = [[-20, -20], [20, -20], [20, 20], [-20, 20]]
+            offset_sweep(sq, height=40, top=os_circle(r=8)).polyhedron().show()
+
+        Both ends rounded:
+
+        .. pythonscad-example::
+
+            sq = [[-20, -20], [20, -20], [20, 20], [-20, 20]]
+            offset_sweep(sq, height=40, bottom=os_circle(r=6), top=os_circle(r=6)).polyhedron().show()
+    """
+    from bosl2.paths import Path as _Path
+
+    assert height > 0, "offset_sweep(): height must be positive."
+    fullcaps = _norm_caps(caps)
+
+    base = [[float(p[0]), float(p[1])] for p in path]
+
+    # ---------------------------------------------------------------------------
+    # Build (delta, z) pairs for each level of the stack.
+    #
+    # At each rim a quarter-circle arc is sampled with *steps+1* points.
+    # For an inward roundover (r > 0):
+    #   delta(t) = -r * (1 - cos(t))   [shrinks the profile; maximum at t=pi/2]
+    #   z(t)     = h * sin(t)          [rises from 0 to h]
+    # For an outward flare (r < 0):
+    #   delta(t) = |r| * (1 - cos(t))  [expands the profile]
+    #   z(t)     = h * sin(t)
+    # ---------------------------------------------------------------------------
+
+    def _arc_column(desc, n: int):
+        """Return (deltas, zs) for one rim, length n+1."""
+        if desc is None or desc["r"] == 0:
+            return ([0.0], [0.0])
+        r = desc["r"]
+        h = abs(desc["h"])
+        ar = abs(r)
+        sign = -1.0 if r > 0 else 1.0  # positive r → inward → delta shrinks
+        angles = [math.pi / 2 * i / n for i in range(n + 1)]
+        deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
+        zs = [h * math.sin(a) for a in angles]
+        return (deltas, zs)
+
+    bot_deltas, bot_zs = _arc_column(bottom, steps)
+    top_deltas, top_zs = _arc_column(top, steps)
+
+    h_bot = bot_zs[-1]
+    h_top = top_zs[-1]
+    assert h_bot + h_top <= height, (
+        "offset_sweep(): the sum of the bottom and top rim heights exceeds the extrusion height."
+    )
+
+    # Assemble (delta, z) pairs for the complete column, bottom → top.
+    column: list[tuple[float, float]] = []
+
+    # Bottom rim.
+    for d, z in zip(bot_deltas, bot_zs):
+        column.append((d, z))
+
+    # Middle straight wall (if there is room between the two rims).
+    mid_z_bot = column[-1][1]
+    mid_z_top = height - h_top
+    if mid_z_top > mid_z_bot + 1e-9:
+        column.append((column[-1][0], mid_z_top))
+
+    # Top rim (arc in reverse: from height-h_top up to height).
+    for d, z in zip(reversed(top_deltas), reversed(top_zs)):
+        column.append((d, height - z))
+
+    # De-duplicate consecutive identical entries.
+    deduped: list[tuple[float, float]] = [column[0]]
+    for pair in column[1:]:
+        prev = deduped[-1]
+        if abs(pair[0] - prev[0]) > 1e-12 or abs(pair[1] - prev[1]) > 1e-12:
+            deduped.append(pair)
+
+    # Build one 3-D ring per (delta, z) level.
+    profiles_3d: list[list[list[float]]] = []
+    for delta, z in deduped:
+        if abs(delta) < 1e-12:
+            ring: list[list[float]] = [[p[0], p[1], z] for p in base]
+        else:
+            off = list(_Path(base).offset(delta=delta))
+            ring = [[float(p[0]), float(p[1]), z] for p in off]
+        if ring:
+            profiles_3d.append(ring)
+
+    if len(profiles_3d) < 2:
+        return VNF([], [])
+
+    # Normalise all rings to the same vertex count.
+    maxn = max(len(r) for r in profiles_3d)
+    from bosl2.paths import Path as _Path2
+
+    norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
+
+    vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+    return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
 # ---------------------------------------------------------------------------------------------

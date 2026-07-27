@@ -42,6 +42,13 @@ test = [
     "numpy",
     "pythonscad",
     "typing-extensions",
+    "shapely",
+]
+# Accurate 2-D boolean ops (Region.intersection/union/difference) on concave
+# polygons. Without this extra the operations fall back to the PythonSCAD
+# geometry layer.
+geo = [
+    "shapely>=2",
 ]
 # Build the API docs (Sphinx autodoc). Needs pythonscad because the geometry
 # modules import it at load time, before autodoc can read their docstrings.
@@ -49,6 +56,7 @@ docs = [
     "sphinx>=7",
     "numpy",
     "pythonscad",
+    "shapely",
 ]
 
 [project.urls]

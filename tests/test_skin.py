@@ -15,6 +15,8 @@ from bosl2.skin import (
     clockwise_polygon,
     frame_map,
     linear_sweep,
+    offset_sweep,
+    os_circle,
     path3d,
     path_sweep,
     path_sweep2d,
@@ -287,3 +289,80 @@ def test_rot_resample_rejects_even_smoothlen():
     tl = path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], [[0, 0, 0], [0, 0, 10]], transforms=True)
     with pytest.raises(AssertionError):
         rot_resample(tl, sides=6, smoothlen=2)
+
+
+# -- os_circle / offset_sweep ---------------------------------------------------------------
+
+_SQ20 = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
+
+
+def test_os_circle_returns_dict():
+    d = os_circle(r=3)
+    assert isinstance(d, dict)
+    assert d["type"] == "circle"
+    assert d["r"] == 3.0
+    assert d["h"] == 3.0  # h defaults to abs(r)
+    assert d["extra"] == 0.0
+
+
+def test_os_circle_explicit_h():
+    d = os_circle(r=5, h=2)
+    assert d["h"] == 2.0
+
+
+def test_os_circle_negative_r():
+    d = os_circle(r=-4)
+    assert d["r"] == -4.0
+    assert d["h"] == 4.0
+
+
+def test_offset_sweep_plain_volume():
+    """No rim treatment → same volume as linear_sweep."""
+    vnf_os = offset_sweep(_SQ20, height=10)
+    vnf_ls = linear_sweep(_SQ20, height=10)
+    assert _valid(vnf_os)
+    assert math.isclose(vnf_os.volume(), vnf_ls.volume(), rel_tol=1e-4)
+
+
+def test_offset_sweep_top_roundover_smaller_volume():
+    """Inward top roundover removes material → volume < plain extrusion."""
+    plain = offset_sweep(_SQ20, height=20)
+    rounded = offset_sweep(_SQ20, height=20, top=os_circle(r=4))
+    assert _valid(rounded)
+    assert rounded.volume() > 0
+    assert rounded.volume() < plain.volume()
+
+
+def test_offset_sweep_bottom_roundover_smaller_volume():
+    """Inward bottom roundover removes material → volume < plain extrusion."""
+    plain = offset_sweep(_SQ20, height=20)
+    rounded = offset_sweep(_SQ20, height=20, bottom=os_circle(r=4))
+    assert _valid(rounded)
+    assert rounded.volume() < plain.volume()
+
+
+def test_offset_sweep_both_ends_smaller_than_one():
+    """Both rims rounded → even less volume than a single rounded rim."""
+    one_end = offset_sweep(_SQ20, height=20, top=os_circle(r=3))
+    both = offset_sweep(_SQ20, height=20, top=os_circle(r=3), bottom=os_circle(r=3))
+    assert _valid(both)
+    assert both.volume() < one_end.volume()
+
+
+def test_offset_sweep_flare_larger_volume():
+    """Outward flare (r < 0) adds material → volume > plain extrusion."""
+    plain = offset_sweep(_SQ20, height=20)
+    flared = offset_sweep(_SQ20, height=20, bottom=os_circle(r=-3))
+    assert _valid(flared)
+    assert flared.volume() > plain.volume()
+
+
+def test_offset_sweep_rejects_nonpositive_height():
+    with pytest.raises(AssertionError):
+        offset_sweep(_SQ20, height=-5)
+
+
+def test_offset_sweep_rejects_oversized_rim():
+    """Rim heights summing to more than the extrusion height must fail."""
+    with pytest.raises(AssertionError):
+        offset_sweep(_SQ20, height=10, top=os_circle(r=6), bottom=os_circle(r=6))
