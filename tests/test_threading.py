@@ -123,9 +123,9 @@ def test_nut_with_zero_pitch_is_plain_hole():
 
 
 def test_thread_helix_builds():
-    assert isinstance(Threading.thread_helix(20, 4, turns=3, fn=None, fa=None, fs=None), Bosl2Solid)
+    assert isinstance(Threading.thread_helix(20, 4, turns=3), Bosl2Solid)
     assert isinstance(
-        Threading.thread_helix(20, 4, thread_depth=1.5, flank_angle=20, turns=2, fn=None, fa=None, fs=None),
+        Threading.thread_helix(20, 4, thread_depth=1.5, flank_angle=20, turns=2),
         Bosl2Solid,
     )
 

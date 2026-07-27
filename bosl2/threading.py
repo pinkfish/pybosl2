@@ -548,16 +548,17 @@ class Threading:
         starts: int = 1,
         left_handed: bool = False,
         profile=None,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
     ) -> Bosl2Solid:
         """A single helical thread ridge (no core), for adding threads onto your own cylinder
         (BOSL2 thread_helix()). The thread crest is at diameter *d*; give *thread_depth* and
-        *flank_angle*, or an explicit *profile*."""
-        from bosl2.skin import spiral_sweep
+        *flank_angle*, or an explicit *profile*.
 
-        _ = (fn, fa, fs)
+        .. note::
+            This function does not accept ``fn``/``fa``/``fs`` — it builds its geometry
+            entirely through :func:`~bosl2.skin.spiral_sweep` (VNF / polyhedron output),
+            which has no arc-based primitives and therefore no smoothing resolution to control.
+        """
+        from bosl2.skin import spiral_sweep
 
         assert pitch > 0 and d > 0, "thread_helix(): d and pitch must be positive."
         if profile is None:
