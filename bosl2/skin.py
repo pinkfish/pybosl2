@@ -682,66 +682,90 @@ class OSType(Enum):
 @dataclass
 class OSProfile:
     type: OSType
-    r: float = 0.0
-    h: float = 0.0
+    radius: float = 0.0
+    height: float = 0.0
     extra: float = 0.0
     cut: float = 0.0
-    k: float = 0.5
-    r_sign: float = 1.0
+    curvature: float = 0.5
+    radius_sign: float = 1.0
     max_angle: float = 45.0
     width: float = 0.0
-    height: float = 0.0
     points: list[list[float]] = field(default_factory=list)
 
     def get(self, key, default=None):
         if key == "type":
             return self.type.value
-        if hasattr(self, key):
-            return getattr(self, key)
+        mapping = {
+            "r": "radius",
+            "h": "height",
+            "k": "curvature",
+            "r_sign": "radius_sign",
+        }
+        attr = mapping.get(key, key)
+        if hasattr(self, attr):
+            return getattr(self, attr)
         return default
 
     def __getitem__(self, key):
         if key == "type":
             return self.type.value
-        if hasattr(self, key):
-            return getattr(self, key)
+        mapping = {
+            "r": "radius",
+            "h": "height",
+            "k": "curvature",
+            "r_sign": "radius_sign",
+        }
+        attr = mapping.get(key, key)
+        if hasattr(self, attr):
+            return getattr(self, attr)
         raise KeyError(key)
 
     def __contains__(self, key):
-        return hasattr(self, key)
+        mapping = {
+            "r": "radius",
+            "h": "height",
+            "k": "curvature",
+            "r_sign": "radius_sign",
+        }
+        attr = mapping.get(key, key)
+        return hasattr(self, attr)
 
 
-def os_circle(r: float, h: float | None = None, extra: float = 0.0) -> OSProfile:
+def os_circle(radius: float | None = None, height: float | None = None, extra: float = 0.0, **kwargs) -> OSProfile:
     """Circular roundover/flare profile for :func:`offset_sweep` (BOSL2 ``os_circle()``).
 
     Describes the treatment applied to one rim of the extruded shape:
 
-    * ``r > 0`` — inward roundover: the rim is eased in (material is *removed*
+    * ``radius > 0`` — inward roundover: the rim is eased in (material is *removed*
       from the corner, yielding a convex fillet).
-    * ``r < 0`` — outward flare: extra material is added outside the wall at
+    * ``radius < 0`` — outward flare: extra material is added outside the wall at
       the rim (a concave cove).
-    * ``r == 0`` — square / no treatment (same as passing ``None`` to
+    * ``radius == 0`` — square / no treatment (same as passing ``None`` to
       :func:`offset_sweep`).
 
     Args:
-        r:     Roundover radius (positive = roundover, negative = flare).
-        h:     Height of the rim treatment; defaults to ``abs(r)``.  Should be
-               less than half the extrusion height.
-        extra: Extra extension beyond the nominal arc (useful to close tiny gaps
-               from floating-point rounding; default 0).
+        radius: Roundover radius (positive = roundover, negative = flare).
+        height: Height of the rim treatment; defaults to ``abs(radius)``.  Should be
+                less than half the extrusion height.
+        extra:  Extra extension beyond the nominal arc (useful to close tiny gaps
+                from floating-point rounding; default 0).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    h_val = float(h) if h is not None else abs(float(r))
-    return OSProfile(type=OSType.CIRCLE, r=float(r), h=h_val, extra=float(extra))
+    r_val = radius if radius is not None else kwargs.get("r", None)
+    h_val = height if height is not None else kwargs.get("h", None)
+    assert r_val is not None, "os_circle(): radius is required."
+    h_res = float(h_val) if h_val is not None else abs(float(r_val))
+    return OSProfile(type=OSType.CIRCLE, radius=float(r_val), height=h_res, extra=float(extra))
 
 
 def os_smooth(
     cut: float | None = None,
-    r: float | None = None,
-    k: float = 0.5,
+    radius: float | None = None,
+    curvature: float | None = None,
     extra: float = 0.0,
+    **kwargs,
 ) -> OSProfile:
     """Continuous curvature (Bézier) profile for :func:`offset_sweep` (BOSL2 ``os_smooth()``).
 
@@ -749,25 +773,28 @@ def os_smooth(
     avoiding sudden changes in curvature.
 
     Args:
-        cut:   Depth of the roundover/flare.
-        r:     Alternative to ``cut`` (aliases it).
-        k:     Smoothness/curvature match parameter between 0 and 1 (default 0.5).
-        extra: Extra extension beyond the nominal curve (default 0).
+        cut:       Depth of the roundover/flare.
+        radius:    Alternative to ``cut`` (aliases it).
+        curvature: Smoothness/curvature match parameter between 0 and 1 (default 0.5).
+        extra:     Extra extension beyond the nominal curve (default 0).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    val = float(cut) if cut is not None else (float(r) if r is not None else 1.0)
+    r_val = radius if radius is not None else kwargs.get("r", None)
+    k_val = curvature if curvature is not None else kwargs.get("k", 0.5)
+    val = float(cut) if cut is not None else (float(r_val) if r_val is not None else 1.0)
     sign = 1.0 if val >= 0 else -1.0
-    return OSProfile(type=OSType.SMOOTH, cut=abs(val), k=float(k), r_sign=sign, extra=float(extra))
+    return OSProfile(type=OSType.SMOOTH, cut=abs(val), curvature=float(k_val), radius_sign=sign, extra=float(extra))
 
 
 def os_teardrop(
-    r: float | None = None,
-    h: float | None = None,
+    radius: float | None = None,
+    height: float | None = None,
     cut: float | None = None,
     max_angle: float = 45.0,
     extra: float = 0.0,
+    **kwargs,
 ) -> OSProfile:
     """Teardrop profile for :func:`offset_sweep` to avoid overhangs in 3D printing (BOSL2 ``os_teardrop()``).
 
@@ -775,18 +802,20 @@ def os_teardrop(
     relative to the vertical wall, allowing support-free printing.
 
     Args:
-        r:         Radius of the circular portion.
-        h:         Total height of the treatment (defaults to ``abs(r)``).
-        cut:       Alternative to ``r`` (aliases it).
+        radius:    Radius of the circular portion.
+        height:    Total height of the treatment (defaults to ``abs(radius)``).
+        cut:       Alternative to ``radius`` (aliases it).
         max_angle: Curvature transition angle relative to the wall (default 45.0).
         extra:     Extra extension beyond the nominal curve (default 0).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    r_val = float(r) if r is not None else (float(cut) if cut is not None else 1.0)
-    h_val = float(h) if h is not None else abs(r_val)
-    return OSProfile(type=OSType.TEARDROP, r=r_val, h=h_val, max_angle=float(max_angle), extra=float(extra))
+    r_arg = radius if radius is not None else kwargs.get("r", None)
+    h_arg = height if height is not None else kwargs.get("h", None)
+    r_val = float(r_arg) if r_arg is not None else (float(cut) if cut is not None else 1.0)
+    h_val = float(h_arg) if h_arg is not None else abs(r_val)
+    return OSProfile(type=OSType.TEARDROP, radius=r_val, height=h_val, max_angle=float(max_angle), extra=float(extra))
 
 
 def os_chamfer(
@@ -823,7 +852,7 @@ def os_chamfer(
 
 def os_flat() -> OSProfile:
     """Flat end cap profile descriptor representing no treatment (BOSL2 ``os_flat()``)."""
-    return OSProfile(type=OSType.FLAT, r=0.0, h=0.0)
+    return OSProfile(type=OSType.FLAT, radius=0.0, height=0.0)
 
 
 def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProfile:
@@ -845,7 +874,7 @@ def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProf
     return OSProfile(type=OSType.PROFILE, points=pts, extra=float(extra))
 
 
-def offset_sweep(
+def _offset_sweep(
     path: Sequence[Sequence[float]],
     height: float,
     bottom=None,
@@ -886,6 +915,16 @@ def offset_sweep(
     fullcaps = _norm_caps(caps)
 
     base = [[float(p[0]), float(p[1])] for p in path]
+
+    def _to_desc(j):
+        if j is None:
+            return None
+        if isinstance(j, (dict, OSProfile)):
+            return j
+        return os_circle(float(j))
+
+    bottom_desc = _to_desc(bottom)
+    top_desc = _to_desc(top)
 
     # ---------------------------------------------------------------------------
     # Build (delta, z) pairs for each level of the stack.
@@ -975,8 +1014,8 @@ def offset_sweep(
 
         return ([0.0], [0.0])
 
-    bot_deltas, bot_zs = _arc_column(bottom, steps)
-    top_deltas, top_zs = _arc_column(top, steps)
+    bot_deltas, bot_zs = _arc_column(bottom_desc, steps)
+    top_deltas, top_zs = _arc_column(top_desc, steps)
 
     h_bot = bot_zs[-1]
     h_top = top_zs[-1]
@@ -1032,7 +1071,7 @@ def offset_sweep(
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
-def convex_offset_extrude(
+def _convex_offset_extrude(
     path: Sequence[Sequence[float]],
     height: float,
     bottom=None,
@@ -1043,12 +1082,12 @@ def convex_offset_extrude(
 ) -> VNF:
     """Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).
 
-    An alias for :func:`offset_sweep` to match BOSL2's geometry-oriented name.
+    An alias for :func:`_offset_sweep` to match BOSL2's geometry-oriented name.
     """
-    return offset_sweep(path, height=height, bottom=bottom, top=top, steps=steps, caps=caps, style=style)
+    return _offset_sweep(path, height=height, bottom=bottom, top=top, steps=steps, caps=caps, style=style)
 
 
-def rounded_prism(
+def _rounded_prism(
     bottom: Sequence[Sequence[float]],
     top: Sequence[Sequence[float]] | None = None,
     height: float | None = None,
@@ -1097,7 +1136,7 @@ def rounded_prism(
 
     # Pre-round the side corners if requested
     if joint_sides is not None:
-        from bosl2.rounding import round_corners as _rc
+        from bosl2.rounding import _round_corners as _rc
 
         m_sides = "smooth" if k_sides is not None else "circle"
         kwargs_sides = {"method": m_sides}
@@ -1117,7 +1156,7 @@ def rounded_prism(
     def _to_desc(j):
         if j is None:
             return None
-        if isinstance(j, dict):
+        if isinstance(j, (dict, OSProfile)):
             return j
         return os_circle(float(j))
 
@@ -1271,7 +1310,7 @@ def rounded_prism(
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
-def join_prism(
+def _join_prism(
     polygon: Sequence[Sequence[float]],
     height: float,
     fillet: float = 0.0,
@@ -1281,14 +1320,14 @@ def join_prism(
 ) -> VNF:
     """Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).
 
-    Uses :func:`offset_sweep` with an outward bottom flare (os_circle(r=-fillet))
+    Uses :func:`_offset_sweep` with an outward bottom flare (os_circle(radius=-fillet))
     to create the rounded fillet joint.
     """
-    bottom_desc = os_circle(r=-fillet) if fillet > 0 else None
-    return offset_sweep(polygon, height=height, bottom=bottom_desc, steps=steps, caps=caps, style=style)
+    bottom_desc = os_circle(radius=-fillet) if fillet > 0 else None
+    return _offset_sweep(polygon, height=height, bottom=bottom_desc, steps=steps, caps=caps, style=style)
 
 
-def prism_connector(
+def _prism_connector(
     profile: Sequence[Sequence[float]],
     length: float,
     fillet: float = 0.0,
@@ -1300,17 +1339,17 @@ def prism_connector(
 ) -> VNF:
     """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
 
-    Uses :func:`offset_sweep` with outward flares at both ends (os_circle(r=-fillet))
+    Uses :func:`_offset_sweep` with outward flares at both ends (os_circle(radius=-fillet))
     to create the filleted joints.
     """
     f1 = fillet1 if fillet1 is not None else fillet
     f2 = fillet2 if fillet2 is not None else fillet
-    bot_desc = os_circle(r=-f1) if f1 > 0 else None
-    top_desc = os_circle(r=-f2) if f2 > 0 else None
-    return offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+    bot_desc = os_circle(radius=-f1) if f1 > 0 else None
+    top_desc = os_circle(radius=-f2) if f2 > 0 else None
+    return _offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
 
 
-def attach_prism(
+def _attach_prism(
     profile: Sequence[Sequence[float]],
     length: float,
     fillet: float = 0.0,
@@ -1321,15 +1360,15 @@ def attach_prism(
 ) -> VNF:
     """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
 
-    Uses :func:`offset_sweep` with a bottom flare (os_circle(r=-fillet)) and top
-    roundover (os_circle(r=rounding)) to create the filleted joints.
+    Uses :func:`_offset_sweep` with a bottom flare (os_circle(radius=-fillet)) and top
+    roundover (os_circle(radius=rounding)) to create the filleted joints.
     """
-    bot_desc = os_circle(r=-fillet) if fillet > 0 else None
-    top_desc = os_circle(r=rounding) if rounding > 0 else None
-    return offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+    bot_desc = os_circle(radius=-fillet) if fillet > 0 else None
+    top_desc = os_circle(radius=rounding) if rounding > 0 else None
+    return _offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
 
 
-def bent_cutout_mask(
+def _bent_cutout_mask(
     radius: float,
     thickness: float,
     path: Sequence[Sequence[float]],

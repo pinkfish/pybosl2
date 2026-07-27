@@ -29,28 +29,10 @@ from bosl2._helpers import is_num
 from bosl2.comparisons import approx
 
 # Late imports to avoid circular dependencies
-from bosl2.skin import (
-    attach_prism,
-    bent_cutout_mask,
-    convex_offset_extrude,
-    join_prism,
-    prism_connector,
-    rounded_prism,
-)
 from bosl2.vectors import unit
 
 __all__ = [
-    "round_corners",
-    "smooth_path",
     "Roundable",
-    "path_join",
-    "offset_stroke",
-    "convex_offset_extrude",
-    "rounded_prism",
-    "join_prism",
-    "prism_connector",
-    "attach_prism",
-    "bent_cutout_mask",
 ]
 
 
@@ -153,7 +135,7 @@ def _circlecorner(points, parm, fn=None, fa=None, fs=None):
 # ---------------------------------------------------------------------------
 
 
-def round_corners(
+def _round_corners(
     path,
     method: str = "circle",
     radius: float | None = None,
@@ -313,7 +295,7 @@ def _dedup(pts, eps=1e-9):
 # ---------------------------------------------------------------------------
 
 
-def smooth_path(
+def _smooth_path(
     path,
     tangents=None,
     size=None,
@@ -380,7 +362,7 @@ class Roundable:
     ):
         """Round every corner of this path (see :func:`round_corners`)."""
         curv = curvature if curvature is not None else kwargs.get("k", None)
-        return round_corners(
+        return _round_corners(
             self,
             method=method,
             radius=radius,
@@ -402,7 +384,7 @@ class Roundable:
         closed: bool | None = None,
     ):
         """Fit a smooth continuous-curvature curve through this path (see :func:`smooth_path`)."""
-        return smooth_path(
+        return _smooth_path(
             self,
             tangents=tangents,
             size=size,
@@ -420,7 +402,7 @@ class Roundable:
         joint: str = "round",
     ):
         """Offset this 2-D path to create a thickened outline Region (BOSL2 offset_stroke())."""
-        return offset_stroke(
+        return _offset_stroke(
             self,
             width=width,
             closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
@@ -438,7 +420,7 @@ class Roundable:
         style: str = "min_edge",
     ):
         """Offset sweep/extrusion of this 2-D shape (BOSL2 offset_sweep())."""
-        from bosl2.skin import offset_sweep as _os
+        from bosl2.skin import _offset_sweep as _os
 
         return _os(
             self,
@@ -460,7 +442,7 @@ class Roundable:
         style: str = "min_edge",
     ):
         """Offset sweep/extrusion of this 2-D shape (BOSL2 convex_offset_extrude())."""
-        from bosl2.skin import convex_offset_extrude as _coe
+        from bosl2.skin import _convex_offset_extrude as _coe
 
         return _coe(
             self,
@@ -486,7 +468,7 @@ class Roundable:
         **kwargs,
     ):
         """Rounded prism between this path and a top path (BOSL2 rounded_prism())."""
-        from bosl2.skin import rounded_prism as _rp
+        from bosl2.skin import _rounded_prism as _rp
 
         j_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot", None)
         k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides", None)
@@ -514,7 +496,7 @@ class Roundable:
         style: str = "min_edge",
     ):
         """Join this prism to a base plane with a filleted transition (BOSL2 join_prism())."""
-        from bosl2.skin import join_prism as _jp
+        from bosl2.skin import _join_prism as _jp
 
         return _jp(
             self,
@@ -536,7 +518,7 @@ class Roundable:
         style: str = "min_edge",
     ):
         """Construct a filleted prism connecting two objects (BOSL2 prism_connector())."""
-        from bosl2.skin import prism_connector as _pc
+        from bosl2.skin import _prism_connector as _pc
 
         return _pc(
             self,
@@ -559,7 +541,7 @@ class Roundable:
         style: str = "min_edge",
     ):
         """Attach a filleted prism with optional rounded end (BOSL2 attach_prism())."""
-        from bosl2.skin import attach_prism as _ap
+        from bosl2.skin import _attach_prism as _ap
 
         return _ap(
             self,
@@ -578,7 +560,7 @@ class Roundable:
         style: str = "min_edge",
     ):
         """Create a mask to generate a round-edged cutout in a cylindrical shell (BOSL2 bent_cutout_mask())."""
-        from bosl2.skin import bent_cutout_mask as _bcm
+        from bosl2.skin import _bent_cutout_mask as _bcm
 
         return _bcm(
             radius=radius,
@@ -600,7 +582,7 @@ class Roundable:
     ):
         """Join multiple paths to this path end-to-end (see :func:`path_join`)."""
         curv = curvature if curvature is not None else kwargs.get("k", None)
-        return path_join(
+        return _path_join(
             [self] + list(other_paths),
             radius=radius,
             cut=cut,
@@ -612,7 +594,7 @@ class Roundable:
         )
 
 
-def path_join(
+def _path_join(
     paths: Sequence[Sequence[Sequence[float]]],
     radius: float | list[float] | None = None,
     cut: float | list[float] | None = None,
@@ -717,10 +699,10 @@ def path_join(
     if k_list is not None:
         kwargs["k"] = k_list
 
-    return round_corners(pts, **kwargs)
+    return _round_corners(pts, **kwargs)
 
 
-def offset_stroke(
+def _offset_stroke(
     path,
     width: float = 1.0,
     closed: bool = False,
