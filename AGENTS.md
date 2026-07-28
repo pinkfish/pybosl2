@@ -41,13 +41,12 @@ from typing import Protocol, TypeVar
 
 T = TypeVar("T", covariant=True)
 
+
 class Renderable(Protocol[T]):
     def render(self) -> str: ...
 
-def process_items(
-    items: Sequence[Renderable[str]],
-    config: Mapping[str, int | float]
-) -> list[str]:
+
+def process_items(items: Sequence[Renderable[str]], config: Mapping[str, int | float]) -> list[str]:
     """Process a sequence of generic renderable items based on local configuration details."""
     results: list[str] = []
     limit: int | float = config.get("max_length", 100)
@@ -66,8 +65,9 @@ def process_items(
 # AVOID: Missing types, legacy Union/List syntax, and implicit Any usage.
 from typing import List, Union
 
+
 def process_items(items, config: dict):
-    results = [] # Untyped empty collection
+    results = []  # Untyped empty collection
     for item in items:
         results.append(item.render())
     return results
