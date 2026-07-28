@@ -74,7 +74,7 @@ def test_closest_point():
 
 
 def test_length_positive_and_ge_chord():
-    length_ = Bezier(CUBIC).length()
+    length_ = Bezier(CUBIC).arc_length()
     assert math.dist([0, 0], [80, 0]) < length_
 
 
@@ -100,7 +100,7 @@ def test_path_curve_and_points():
 
 def test_path_length_and_closest_point():
     bp = Bezier([[0, 0], [1, 1], [2, 0], [3, 1], [4, 0], [5, 1], [6, 0]])
-    assert bp.path_length(n_degree=3) > 0
+    assert bp.path_arc_length(n_degree=3) > 0
     seg, u = bp.path_closest_point([3, 0], n_degree=3)
     assert isinstance(seg, int)
     assert 0.0 <= u <= 1.0

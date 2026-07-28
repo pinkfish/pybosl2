@@ -44,9 +44,13 @@ def test_array_property():
 
 def test_bounds_width_length():
     p = Path(SQUARE)
-    np.testing.assert_allclose(p.bounds(), [[0, 0], [80, 60]])
-    assert p.width == 80
-    assert p.length_y == 60
+    bounds = p.bounds()
+    assert bounds.min_x == 0
+    assert bounds.min_y == 0
+    assert bounds.max_x == 80
+    assert bounds.max_y == 60
+    assert bounds.width == 80
+    assert bounds.length == 60
 
 
 def test_area():
@@ -152,8 +156,8 @@ def test_deduplicated():
     assert len(p.deduplicated()) == 3
 
 
-def test_reversed_path():
-    p = Path(SQUARE).reversed_path()
+def test_reverse():
+    p = Path(SQUARE).reverse()
     np.testing.assert_allclose(p[0], SQUARE[-1])
 
 

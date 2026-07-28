@@ -1588,9 +1588,9 @@ def _path_sweep2d(
     shp: Path = shape if isinstance(shape, Path) else Path(shape)
     p: Path = path if isinstance(path, Path) else Path(path)
     fullcaps = _norm_caps(caps, closed=closed)
-    profile = shp if not shp.is_clockwise() else shp.reversed_path()  # ccw_polygon
+    profile = shp if not shp.is_clockwise() else shp.reverse()  # ccw_polygon
     flip = -1.0 if (closed and p.is_clockwise()) else 1.0
-    pth = p if flip > 0 else p.reversed_path()
+    pth = p if flip > 0 else p.reverse()
 
     # For each profile point, offset the path by -flip*x and lift the result to z=y.
     per_point = []

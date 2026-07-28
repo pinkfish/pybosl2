@@ -48,9 +48,11 @@ if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this m
 
     from pybosl2._backend import Solid
     from pybosl2.beziers import Bezier
+    from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
+from pybosl2.bounds import Bounds2D, Bounds3D
 from pybosl2.comparisons import approx
 from pybosl2.distributors import (
     Distributable,
@@ -137,10 +139,10 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     def __iter__(self):
         return iter(self._points)
 
-    def __array__(self, dtype: type | None = None, copy: bool | None = None) -> np.ndarray:
-        if dtype is None:
-            return self._points
-        return self._points.astype(dtype)
+    def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
+        if copy:
+            return self._points.copy()
+        return self._points
 
     def _like(self, points: Sequence | np.ndarray) -> "Path":
         return Path(points, closed=self.closed)
@@ -148,11 +150,13 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     @property
     def array(self) -> np.ndarray:
         """The points as an (N, 2) numpy array, for doing your own vectorised maths."""
+
         return self._points
 
     @property
     def to_list(self) -> list[list[float]]:
         """The points as a list of ``[x, y]`` plain-Python-float pairs."""
+
         return self._points.tolist()
 
     @classmethod
@@ -167,22 +171,23 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     # -- measurement -----------------------------------------------------------------------
 
-    def bounds(self) -> np.ndarray:
-        """[[min_x, min_y], [max_x, max_y]]."""
+    def bounds(self) -> Bounds2D:
+        """Axis-aligned bounding box with pre-computed width and length.
+
+        Returns a :class:`Bounds2D` named tuple with ``min_x``, ``min_y``,
+        ``max_x``, ``max_y``, ``width``, and ``length`` fields.
+        """
         pts = self.array
-        return np.array([pts.min(axis=0), pts.max(axis=0)])
-
-    @property
-    def width(self) -> float:
-        """Width of the bounding rectangle (max_x - min_x)."""
-        b = self.bounds()
-        return float(b[1][0] - b[0][0])
-
-    @property
-    def length_y(self) -> float:
-        """Height of the bounding rectangle (max_y - min_y)."""
-        b = self.bounds()
-        return float(b[1][1] - b[0][1])
+        min_pt = pts.min(axis=0)
+        max_pt = pts.max(axis=0)
+        return Bounds2D(
+            float(min_pt[0]),
+            float(min_pt[1]),
+            float(max_pt[0]),
+            float(max_pt[1]),
+            float(max_pt[0] - min_pt[0]),
+            float(max_pt[1] - min_pt[1]),
+        )
 
     def area(self, signed: bool = False) -> float:
         """Enclosed area; *signed* keeps the sign (negative == clockwise).
@@ -205,20 +210,24 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     def is_clockwise(self) -> bool:
         """True if the polygon winds clockwise (negative signed area)."""
+
         return self.area(signed=True) < 0
 
     def perimeter(self) -> float:
         """Total length around the path."""
+
         return float(Path._path_length(self, closed=self.closed))
 
     length = perimeter
 
     def segment_lengths(self) -> np.ndarray:
         """Length of each segment, as an ndarray."""
+
         return Path._path_segment_lengths(self, closed=self.closed)
 
     def length_fractions(self) -> np.ndarray:
         """Cumulative length fraction at each point, as an ndarray."""
+
         return Path._path_length_fractions(self, closed=self.closed)
 
     def contains(self, point: Sequence[float]) -> bool:
@@ -253,10 +262,12 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     @property
     def is_closed(self) -> bool:
         """True if the first and last points of the path coincide."""
+
         return bool(Path._is_closed_path(self))
 
     def is_simple(self) -> bool:
         """True if the path does not self-intersect."""
+
         if _SHAPELY:
             from shapely.geometry import LineString
 
@@ -301,10 +312,12 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     def curvature(self) -> np.ndarray:
         """Curvature at each point, as an ndarray."""
+
         return Path._path_curvature(self, closed=self.closed)
 
     def torsion(self) -> np.ndarray:
         """Numeric torsion estimate of a 3-D path at each point, as an ndarray."""
+
         return Path._path_torsion(self, closed=self.closed)
 
     def cut_points(self, cutdist: float, direction: bool = False) -> list:
@@ -368,23 +381,44 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     # bit-identical to the old _round_corners kernel kept below.
 
     def merge_collinear(self) -> "Path":
-        """Drop points that lie on a straight run."""
+        """Drop points that lie on a straight run between their neighbours.
+
+        Simplifies the path by removing vertices where three consecutive
+        points are collinear, keeping only the meaningful corners.
+        """
+
         return self._like(Path._path_merge_collinear(self, closed=self.closed))
 
     def close(self) -> "Path":
-        """Append the start point if the path isn't already closed."""
+        """Append the start point if the path is not already closed.
+
+        Returns a new Path with the first point appended to the end, making
+        it a closed polygon. Has no effect if the path is already closed.
+        """
+
         return self._like(Path._close_path(self))
 
     def cleanup(self) -> "Path":
-        """Drop a duplicate closing point if present."""
+        """Drop a duplicate closing point if present.
+
+        If the first and last points coincide this returns a new Path with
+        the duplicate removed, turning the path into an open one.
+        """
+
         return self._like(Path._cleanup_path(self))
 
-    def reversed_path(self) -> "Path":
-        """The same outline wound the other way."""
+    def reverse(self) -> "Path":
+        """The same outline wound the other way.
+
+        Returns a new Path with all points in reverse order, flipping the
+        winding direction (clockwise becomes counter-clockwise and vice-versa).
+        """
+
         return self._like(list(reversed(self)))
 
     def deduplicated(self) -> "Path":
         """Drop consecutive repeated points (:meth:`_deduplicate`)."""
+
         return self._like(Path._deduplicate(self, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path":
@@ -542,8 +576,14 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     # -- conversion ------------------------------------------------------------------------
 
-    def to_region(self):
-        """This path as a single-outline Region."""
+    def to_region(self) -> Region:
+        """This path as a single-outline Region.
+
+        Returns a :class:`~pybosl2.regions.Region` containing just this
+        path as its only outline. Useful as a gateway to 2-D Boolean
+        operations (union, intersection, difference) on polygons.
+        """
+
         from pybosl2.regions import Region  # local: Region imports Path from here
 
         return Region([self])
@@ -636,6 +676,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     def fill(self) -> "Bosl2Shape2D":
         """This path as 2-D geometry with every hole filled in -- only the outermost outline
+
         survives (OpenSCAD ``fill()``). For a self-intersecting path this closes up the interior
         loops that ``polygon()`` would leave as holes.
 
@@ -646,6 +687,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     def hull(self, *others: Bosl2Shape2D) -> Bosl2Shape2D:
         """The 2-D convex hull of this path, optionally together with *others* (more paths,
+
         regions, 2-D shapes or point lists) -- OpenSCAD ``hull()``.
 
         Args:
@@ -660,6 +702,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
         """Extrude this path *height* along +Z into a 3-D solid, **on whichever backend is
+
         active**: a :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend, a
         :class:`~pybosl2._sdf.shapes3d.PyShape` under ``use_backend("sdf")``::
 
@@ -688,6 +731,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
         """Revolve this path about the Y axis into a 3-D solid; see
+
         :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
 
         Args:
@@ -707,6 +751,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     def debug_polygon(self, size: float = 1, vertices: bool = True):
         """A debug view of this polygon: the filled outline (as a thin flat solid) with each vertex
+
         labelled by its index in red (BOSL2 debug_polygon()). Set *size* for the label size.
 
         Args:
@@ -876,6 +921,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     @staticmethod
     def _repeat(val, sides: int) -> list:
         """*val* repeated *sides* times."""
+
         return [val for _ in range(sides)]
 
     @staticmethod
@@ -1848,10 +1894,10 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     def __iter__(self):
         return iter(self._points)
 
-    def __array__(self, dtype: type | None = None, copy: bool | None = None) -> np.ndarray:
-        if dtype is None:
-            return self._points
-        return self._points.astype(dtype)
+    def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
+        if copy:
+            return self._points.copy()
+        return self._points
 
     def _like(self, points: Sequence | np.ndarray) -> "Path3D":
         return Path3D(points, closed=self.closed)
@@ -1859,11 +1905,13 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     @property
     def array(self) -> np.ndarray:
         """The points as an (N, 3) numpy array, for doing your own vectorised maths."""
+
         return self._points
 
     @property
     def to_list(self) -> list[list[float]]:
         """The points as a list of ``[x, y, z]`` plain-Python-float triples."""
+
         return self._points.tolist()
 
     @classmethod
@@ -1878,28 +1926,44 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
 
     # -- measurement -----------------------------------------------------------------------
 
-    def bounds(self) -> np.ndarray:
-        """[[min_x, min_y, min_z], [max_x, max_y, max_z]]."""
+    def bounds(self) -> Bounds3D:
+        """Axis-aligned bounding box with pre-computed width, length, and height."""
         pts = self.array
-        return np.array([pts.min(axis=0), pts.max(axis=0)])
+        min_pt = pts.min(axis=0)
+        max_pt = pts.max(axis=0)
+        return Bounds3D(
+            float(min_pt[0]),
+            float(min_pt[1]),
+            float(min_pt[2]),
+            float(max_pt[0]),
+            float(max_pt[1]),
+            float(max_pt[2]),
+            float(max_pt[0] - min_pt[0]),
+            float(max_pt[1] - min_pt[1]),
+            float(max_pt[2] - min_pt[2]),
+        )
 
     def perimeter(self) -> float:
         """Total length along the path."""
+
         return float(Path._path_length(self, closed=self.closed))
 
     length = perimeter
 
     def segment_lengths(self) -> np.ndarray:
         """Length of each segment, as an ndarray."""
+
         return Path._path_segment_lengths(self, closed=self.closed)
 
     def length_fractions(self) -> np.ndarray:
         """Cumulative length fraction at each point, as an ndarray."""
+
         return Path._path_length_fractions(self, closed=self.closed)
 
     @property
     def is_closed(self) -> bool:
         """True if the first and last points of the path coincide."""
+
         return bool(Path._is_closed_path(self))
 
     def closest_point(self, pt: Sequence[float]) -> list:
@@ -1928,10 +1992,12 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
 
     def curvature(self) -> np.ndarray:
         """Curvature at each point, as an ndarray."""
+
         return Path._path_curvature(self, closed=self.closed)
 
     def torsion(self) -> np.ndarray:
         """Numeric torsion estimate at each point, as an ndarray."""
+
         return Path._path_torsion(self, closed=self.closed)
 
     def cut_points(self, cutdist: float, direction: bool = False) -> list:
@@ -1949,19 +2015,34 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     # -- derived paths ---------------------------------------------------------------------
 
     def close(self) -> "Path3D":
-        """Append the start point if the path isn't already closed."""
+        """Append the start point if the path is not already closed.
+
+        Returns a new Path3D with the first point appended to the end, making
+        it a closed loop. Has no effect if already closed.
+        """
+
         return self._like(Path._close_path(self))
 
     def cleanup(self) -> "Path3D":
-        """Drop a duplicate closing point if present."""
+        """Drop a duplicate closing point if present.
+
+        If the first and last points coincide this returns a new Path3D with
+        the duplicate removed, turning the path into an open one.
+        """
+
         return self._like(Path._cleanup_path(self))
 
-    def reversed_path(self) -> "Path3D":
-        """The same path wound the other way."""
+    def reverse(self) -> "Path3D":
+        """The same path wound the other way.
+
+        Returns a new Path3D with all points in reverse order.
+        """
+
         return self._like(list(reversed(self)))
 
     def deduplicated(self) -> "Path3D":
         """Drop consecutive repeated points."""
+
         return self._like(Path._deduplicate(self, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path3D":
@@ -2018,6 +2099,7 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
 
     def rotate(self, a: "float | Sequence[float]", v: Sequence[float] | None = None) -> "Path3D":
         """Rotate the points. ``rotate(angle, axis)`` spins about *axis*; ``rotate(angle)`` about +Z;
+
         ``rotate([rx, ry, rz])`` applies the OpenSCAD X-then-Y-then-Z Euler rotation.
 
         Args:

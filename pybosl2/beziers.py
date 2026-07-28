@@ -280,7 +280,7 @@ class Bezier:
             return (a + b) / 2
         return self.closest_point(pt, max_err, a, b)
 
-    def length(self, start_u: float = 0.0, end_u: float = 1.0, max_deflect: float = 0.01) -> float:
+    def arc_length(self, start_u: float = 0.0, end_u: float = 1.0, max_deflect: float = 0.01) -> float:
         """Approximate arc length of the curve between *start_u* and *end_u*.
 
         Uses adaptive subdivision to compute the length: samples the curve,
@@ -304,7 +304,7 @@ class Bezier:
             return float(Path._path_length(path))
         return float(
             sum(
-                self.length(
+                self.arc_length(
                     lerp(start_u, end_u, i / segs),
                     lerp(start_u, end_u, (i + 1) / segs),
                     max_deflect,
@@ -418,7 +418,7 @@ class Bezier:
         curve = Bezier(self.array[seg * n_degree : (seg + 1) * n_degree + 1])
         return (seg, curve.closest_point(new_pt, max_err=max_err))
 
-    def path_length(self, n_degree: int = 3, max_deflect: float = 0.001) -> float:
+    def path_arc_length(self, n_degree: int = 3, max_deflect: float = 0.001) -> float:
         """Approximate arc length of this bezier PATH.
 
         Sums the adaptive arc length of each individual degree-*N* curve
@@ -435,7 +435,7 @@ class Bezier:
         nsegs = (len(self) - 1) // n_degree
         return float(
             sum(
-                Bezier(self.array[seg * n_degree : (seg + 1) * n_degree + 1]).length(max_deflect=max_deflect)
+                Bezier(self.array[seg * n_degree : (seg + 1) * n_degree + 1]).arc_length(max_deflect=max_deflect)
                 for seg in range(nsegs)
             )
         )

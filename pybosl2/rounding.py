@@ -70,7 +70,7 @@ def _bezcorner(points, parm, fn=0, fs=2.0):
     else:
         ctrl = _smooth_bez_fill(points, float(parm))
     bez = Bezier([[float(c) for c in p] for p in ctrl])
-    sides = max(3, fn if fn and fn > 0 else math.ceil(bez.length() / fs))
+    sides = max(3, fn if fn and fn > 0 else math.ceil(bez.arc_length() / fs))
     return [[float(c) for c in p] for p in bez.curve(sides, endpoint=True)]
 
 
