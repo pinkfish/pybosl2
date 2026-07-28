@@ -44,7 +44,10 @@ point-valued methods return numpy ndarrays.
 from __future__ import annotations
 
 import math
-from typing import Sequence
+from typing import TYPE_CHECKING, Any, Sequence
+
+if TYPE_CHECKING:
+    from pybosl2.paths import Path
 
 import numpy as np
 
@@ -135,7 +138,7 @@ class Bezier:
 
     # -- curve evaluation ------------------------------------------------------------------
 
-    def points(self, u):
+    def points(self, u: float | Sequence[float] | np.ndarray) -> np.ndarray:
         """Evaluate this curve at parameter(s) *u* (each in [0, 1]).
 
         Returns an ndarray of points (or a length-dim ndarray for a scalar
@@ -143,11 +146,11 @@ class Bezier:
         with a single matrix multiply for maximum performance.
         """
         scalar = isinstance(u, (int, float, np.floating, np.integer))
-        us = [u] if scalar else list(u)
+        us = [u] if scalar else list(u)  # type: ignore[arg-type]
         p = self.array
         sides = len(self) - 1
         mp = Bezier._matrix(sides) @ p
-        powers = np.array([[uv**k for k in range(sides + 1)] for uv in us])
+        powers = np.array([[uv**k for k in range(sides + 1)] for uv in us])  # type: ignore[operator]
         result = powers @ mp
         return result[0] if scalar else result
 
@@ -166,7 +169,7 @@ class Bezier:
         """
         return self.points(lerpn(0, 1, splinesteps + 1, endpoint))
 
-    def derivative(self, u, order: int = 1):
+    def derivative(self, u: float | Sequence[float] | np.ndarray, order: int = 1) -> np.ndarray:
         """Compute the *order*-th derivative of the curve at parameter(s) *u*.
 
         Returns an ndarray of derivative vectors. For order 0 this is
@@ -182,7 +185,7 @@ class Bezier:
             return Bezier(dpts).points(u)
         return Bezier(dpts).derivative(u, order - 1)
 
-    def tangent(self, u):
+    def tangent(self, u: float | Sequence[float] | np.ndarray) -> np.ndarray:
         """Unit tangent vector(s) at parameter(s) *u*.
 
         Returns an ndarray of normalized derivative vectors. For a scalar *u*
@@ -194,7 +197,7 @@ class Bezier:
             return np.asarray(_unit(res), dtype=float)
         return np.array([_unit(v) for v in res])
 
-    def curvature(self, u):
+    def curvature(self, u: float | Sequence[float] | np.ndarray) -> np.ndarray:
         """Curvature value(s) at parameter(s) *u* (inverse tangent-circle radius).
 
         Computes the scalar curvature κ = |r' × r''| / |r'|³ at each
@@ -202,18 +205,18 @@ class Bezier:
         of *u* values returns a numpy array of floats.
         """
         scalar = isinstance(u, (int, float, np.floating, np.integer))
-        us = [u] if scalar else list(u)
-        diameter1 = np.atleast_2d(np.asarray(self.derivative(us, 1), dtype=float))
-        diameter2 = np.atleast_2d(np.asarray(self.derivative(us, 2), dtype=float))
+        us = [u] if scalar else list(u)  # type: ignore[arg-type]
+        diameter1 = np.atleast_2d(np.asarray(self.derivative(us, 1), dtype=float))  # type: ignore[arg-type, type-var]
+        diameter2 = np.atleast_2d(np.asarray(self.derivative(us, 2), dtype=float))  # type: ignore[arg-type, type-var]
         out = []
         for i in range(len(us)):
             n1 = float(np.linalg.norm(diameter1[i]))
             n2 = float(np.linalg.norm(diameter2[i]))
             val = math.sqrt(max((n1 * n2) ** 2 - float(diameter1[i] @ diameter2[i]) ** 2, 0.0)) / (n1**3)
             out.append(val)
-        return out[0] if scalar else np.array(out)
+        return out[0] if scalar else np.array(out)  # type: ignore[return-value]
 
-    def closest_point(self, pt, max_err: float = 0.01, u: float = 0.0, end_u: float = 1.0) -> float:
+    def closest_point(self, pt: np.ndarray, max_err: float = 0.01, u: float = 0.0, end_u: float = 1.0) -> float:
         """The parameter *u* of the point on this curve closest to *pt*.
 
         Uses recursive bisection to find the curve parameter that minimizes
@@ -274,7 +277,7 @@ class Bezier:
             )
         )
 
-    def line_intersection(self, line) -> list:
+    def line_intersection(self, line: np.ndarray) -> list[float]:
         """The *u* values where this 2-D curve crosses *line* (two points).
 
         Computes the intersection parameters in [0, 1] by finding the real
@@ -290,7 +293,7 @@ class Bezier:
 
     # -- bezier path evaluation ------------------------------------------------------------
 
-    def path_points(self, curveind: int, u, n_degree: int = 3):
+    def path_points(self, curveind: int, u: float | Sequence[float] | np.ndarray, n_degree: int = 3) -> np.ndarray:
         """Evaluate curve number *curveind* of this bezier PATH at parameter(s) *u*.
 
         Extracts the control points for the given segment of a degree-*N*
@@ -329,7 +332,7 @@ class Bezier:
             out.append(bezpath[-1:])
         return np.concatenate(out, axis=0)
 
-    def path_closest_point(self, pt: Sequence[float], n_degree: int = 3, max_err: float = 0.01) -> tuple[int, float]:
+    def path_closest_point(self, pt: np.ndarray, n_degree: int = 3, max_err: float = 0.01) -> tuple[int, float]:
         """Find the closest position on this bezier PATH to *pt*.
 
         Returns a tuple ``[segnum, u]`` where *segnum* is the 0-based curve
@@ -401,7 +404,7 @@ class Bezier:
             )
         )
 
-    def path_offset(self, offset: Sequence[float], n_degree: int = 3) -> Bezier:
+    def path_offset(self, offset: np.ndarray, n_degree: int = 3) -> Bezier:
         """Close this 2-D bezier PATH with a reversed copy offset by *offset*.
 
         Returns a new Bezier that pairs the original path with an offset
@@ -426,9 +429,9 @@ class Bezier:
     @classmethod
     def from_path(
         cls,
-        path: Sequence[Sequence[float]],
+        path: Path,
         closed: bool = False,
-        tangents: Sequence[Sequence[float]] | None = None,
+        tangents: Path | None = None,
         uniform: bool = False,
         size: float | None = None,
         relsize: float | None = None,
@@ -503,7 +506,7 @@ class Bezier:
         n_degree: int = 3,
         method: str = "incremental",
         endpoint: bool = True,
-        normal: Sequence[float] | None = None,
+        normal: np.ndarray | None = None,
         closed: bool = False,
         twist: float = 0.0,
         twist_by_length: bool = True,
@@ -533,12 +536,12 @@ class Bezier:
 
         _ = n_degree
         path = self.curve(splinesteps, endpoint)
-        tang = self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))
+        tang: list[Sequence[float]] = self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))  # type: ignore[assignment]
         return _path_sweep(
             shape,  # type: ignore[arg-type]
             path,  # type: ignore[arg-type]
             method=method,
-            normal=normal,
+            normal=normal,  # type: ignore[arg-type]
             closed=closed,
             twist=twist,
             twist_by_length=twist_by_length,
@@ -593,7 +596,7 @@ class Bezier:
         bezpath = self.array
         segs = (len(bezpath) - 1) // n_degree
         step = 1 / splinesteps
-        tang = []
+        tang: list[np.ndarray] = []
         for seg in range(segs):
             ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
             tang.extend(ctrl.derivative([i * step for i in range(splinesteps)]))
@@ -611,7 +614,7 @@ class Bezier:
             scale_by_length=scale_by_length,
             symmetry=symmetry,
             last_normal=last_normal,
-            tangent=tang,
+            tangent=tang,  # type: ignore[arg-type]
             caps=caps,
             style=style,
             transforms=transforms,
@@ -620,7 +623,7 @@ class Bezier:
     # -- control-point construction (BOSL2 bez_begin/bez_tang/bez_joint/bez_end) ------------
 
     @staticmethod
-    def begin(pt, angle, radius: float | None = None, phi: float | None = None) -> np.ndarray:
+    def begin(pt: np.ndarray, angle, radius: float | None = None, phi: float | None = None) -> np.ndarray:
         """Starting endpoint and control point of a cubic bezier path.
 
         Returns a (2, dim) ndarray of [endpoint, control_point]. For 2-D
@@ -633,7 +636,7 @@ class Bezier:
 
     @staticmethod
     def tang(
-        pt,
+        pt: np.ndarray,
         angle,
         radius1: float | None = None,
         radius2: float | None = None,
@@ -656,7 +659,7 @@ class Bezier:
 
     @staticmethod
     def joint(
-        pt,
+        pt: np.ndarray,
         angle1,
         angle2,
         radius1: float | None = None,
@@ -682,7 +685,7 @@ class Bezier:
         )
 
     @staticmethod
-    def end(pt, angle, radius: float | None = None, phi: float | None = None) -> np.ndarray:
+    def end(pt: np.ndarray, angle, radius: float | None = None, phi: float | None = None) -> np.ndarray:
         """Approaching control point and endpoint of a cubic bezier path.
 
         Returns a (2, dim) ndarray of [control_point, endpoint], the mirror
@@ -693,7 +696,7 @@ class Bezier:
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
         return np.stack([pt + Bezier._ctrl_offset(len(pt), angle, radius, phi), pt])
 
-    def debug(self, width: float = 1.0, n_degree: int = 3):
+    def debug(self, width: float = 1.0, n_degree: int = 3) -> Any:
         """Visualize this bezier PATH as native geometry (BOSL2 debug_bezier).
 
         Renders the swept curve (cyan), control net (green), and control
@@ -711,7 +714,7 @@ class Bezier:
                 path.debug(width=0.5)
         """
         result = _debug_tube(self.path_curve(n_degree=n_degree), width / 2.0).color("cyan")
-        result = result | _debug_tube([list(p) for p in self], width / 2.0).color("green")
+        result = result | _debug_tube(np.asarray([list(p) for p in self]), width / 2.0).color("green")
         for k, p in enumerate(self):
             marker = (
                 _sphere_at(p, width * 2.25).color("blue")
@@ -722,7 +725,7 @@ class Bezier:
         return result
 
     @staticmethod
-    def flatten(groups) -> "Bezier":
+    def flatten(groups: Sequence[np.ndarray]) -> "Bezier":
         """Concatenate control-point groups into one Bezier.
 
         Flattens a list of ndarray groups (from :meth:`begin`, :meth:`tang`,
@@ -731,10 +734,10 @@ class Bezier:
         """
         if len(groups) > 0 and isinstance(groups[0], np.ndarray):
             return Bezier(np.concatenate(groups, axis=0))
-        out = []
+        out: list[np.ndarray] = []
         for x in groups:
             out.extend(x)
-        return Bezier(out)
+        return Bezier(out)  # type: ignore[arg-type]
 
     # -- internals -------------------------------------------------------------------------
 
@@ -752,30 +755,34 @@ class Bezier:
         return radius * np.array([math.cos(th) * math.sin(ph), math.sin(th) * math.sin(ph), math.cos(ph)])
 
     @staticmethod
-    def _ctrl_offset(point_dim: int, angle, radius, phi) -> np.ndarray:
+    def _ctrl_offset(
+        point_dim: int, angle: float | Sequence[float], radius: float | None, phi: float | None
+    ) -> np.ndarray:
         if isinstance(angle, (list, tuple, np.ndarray)):
             direction = np.asarray(angle, dtype=float)
             return direction if radius is None else radius * np.asarray(_unit(direction), dtype=float)
         assert radius is not None, "radius must be given when angle is a scalar, not a direction vector"
         if point_dim == 3:
-            return Bezier._spherical_to_xyz(radius, angle, 90.0 if phi is None else phi)
-        rad = math.radians(angle)
+            return Bezier._spherical_to_xyz(radius, angle, 90.0 if phi is None else phi)  # type: ignore[arg-type]
+        rad = math.radians(angle)  # type: ignore[arg-type]
         return radius * np.array([math.cos(rad), math.sin(rad)])
 
     @staticmethod
-    def _dir_and_dist(point_dim: int, angle, radius, phi) -> "tuple[np.ndarray, float]":
+    def _dir_and_dist(
+        point_dim: int, angle: float | Sequence[float], radius: float | None, phi: float | None
+    ) -> "tuple[np.ndarray, float]":
         if isinstance(angle, (list, tuple, np.ndarray)):
             direction = np.asarray(angle, dtype=float)
             dist = float(np.linalg.norm(direction)) if radius is None else radius
             return np.asarray(_unit(direction), dtype=float), dist
         assert radius is not None, "radius must be given when angle is a scalar, not a direction vector"
         if point_dim == 3:
-            return Bezier._spherical_to_xyz(1.0, angle, 90.0 if phi is None else phi), radius
-        rad = math.radians(angle)
+            return Bezier._spherical_to_xyz(1.0, angle, 90.0 if phi is None else phi), radius  # type: ignore[arg-type]
+        rad = math.radians(angle)  # type: ignore[arg-type]
         return np.array([math.cos(rad), math.sin(rad)]), radius
 
     @staticmethod
-    def _real_roots(coeffs) -> list:
+    def _real_roots(coeffs: Sequence[float] | np.ndarray) -> list[float]:
         c = list(coeffs)
         while len(c) > 1 and abs(c[0]) < 1e-14:
             c = c[1:]
@@ -818,7 +825,7 @@ class BezierPatch:
 
     _rows: np.ndarray
 
-    def __init__(self, rows: Sequence[Sequence[Sequence[float]]] = ()) -> None:
+    def __init__(self, rows: np.ndarray = ()) -> None:  # type: ignore[assignment]
         """Initialize with a 2-D grid of 3-D control points.
 
         Accepts a list of rows where each row is a list of [x, y, z] control
@@ -848,7 +855,7 @@ class BezierPatch:
         return iter(self._rows)
 
     @classmethod
-    def from_list(cls, rows: Sequence[Sequence[Sequence[float]]]) -> BezierPatch:
+    def from_list(cls, rows: np.ndarray) -> BezierPatch:
         """Create a BezierPatch from a plain list of control-point rows."""
         return cls(rows)
 
@@ -863,7 +870,7 @@ class BezierPatch:
         return self._rows
 
     @staticmethod
-    def is_patch(x) -> bool:
+    def is_patch(x: Any) -> bool:
         """Check if *x* looks like a bezier patch.
 
         Returns True if *x* is a rectangular 2-D array of point vectors
@@ -885,7 +892,7 @@ class BezierPatch:
 
     # -- evaluation ------------------------------------------------------------------------
 
-    def points(self, u, v):
+    def points(self, u: float | Sequence[float] | np.ndarray, v: float | Sequence[float] | np.ndarray) -> np.ndarray:
         """Sample the patch at parameter(s) *u* and *v*.
 
         *u* is the inner/column axis and *v* is the outer/row axis. Scalar
@@ -904,7 +911,7 @@ class BezierPatch:
         su = isinstance(u, (int, float, np.floating, np.integer))
         sv = isinstance(v, (int, float, np.floating, np.integer))
         if not su and not sv:
-            ulist, vlist = list(u), list(v)
+            ulist, vlist = list(u), list(v)  # type: ignore[arg-type]
             vbezes = np.array([Bezier(patch[:, i, :]).points(ulist) for i in range(ncols)])  # (ncols, lenu, dim)
             return np.array(
                 [Bezier(vbezes[:, i, :]).points(vlist) for i in range(vbezes.shape[1])]
@@ -913,10 +920,10 @@ class BezierPatch:
             row_pts = np.array([Bezier(patch[r]).points(v) for r in range(nrows)])  # (nrows, dim)
             return Bezier(row_pts).points(u)
         if su:
-            return self.points([u], v)[0]
-        return self.points(u, [v])[:, 0, :]
+            return self.points([u], v)[0]  # type: ignore[list-item]
+        return self.points(u, [v])[:, 0, :]  # type: ignore[list-item]
 
-    def normals(self, u, v):
+    def normals(self, u: float | Sequence[float] | np.ndarray, v: float | Sequence[float] | np.ndarray) -> np.ndarray:
         """Unit surface normal(s) at parameter(s) *u*, *v*.
 
         Same shape rules as :meth:`points`: scalar inputs return a single
@@ -928,7 +935,7 @@ class BezierPatch:
         su = isinstance(u, (int, float, np.floating, np.integer))
         sv = isinstance(v, (int, float, np.floating, np.integer))
         if not su and not sv:
-            ulist, vlist = list(u), list(v)
+            ulist, vlist = list(u), list(v)  # type: ignore[arg-type]
             vbezes = np.array([Bezier(patch[:, i, :]).points(ulist) for i in range(ncols)])  # (ncols, lenu, dim)
             dvbezes = np.array([Bezier(patch[:, i, :]).derivative(ulist) for i in range(ncols)])  # (ncols, lenu, dim)
             lenu = vbezes.shape[1]
@@ -945,8 +952,8 @@ class BezierPatch:
             dv = Bezier(np.array([Bezier(patch[r]).derivative(v) for r in range(nrows)])).points(u)
             return np.asarray(_unit(np.cross(du, dv)), dtype=float)
         if su:
-            return self.normals([u], v)[0]
-        return self.normals(u, [v])[:, 0, :]
+            return self.normals([u], v)[0]  # type: ignore[list-item]
+        return self.normals(u, [v])[:, 0, :]  # type: ignore[list-item]
 
     def reverse(self) -> "BezierPatch":  # type: ignore[override]
         """Reverse each row of the patch, flipping the surface orientation.
@@ -954,7 +961,7 @@ class BezierPatch:
         Returns a new BezierPatch with the same control points but each row
         in reversed order, which flips the face normals for VNF meshing.
         """
-        return BezierPatch([list(reversed(row)) for row in self])
+        return BezierPatch([list(reversed(row)) for row in self])  # type: ignore[arg-type]
 
     # -- meshing ---------------------------------------------------------------------------
 
@@ -978,7 +985,7 @@ class BezierPatch:
         return VNF.vertex_array(self.points(uvals, vvals), style=style, reverse=False)
 
     @staticmethod
-    def to_vnf(patches, splinesteps: int = 16, style: str = "default") -> VNF:
+    def to_vnf(patches: np.ndarray | Sequence[np.ndarray], splinesteps: int = 16, style: str = "default") -> VNF:
         """Convert one or more patches into a single VNF (BOSL2 bezier_vnf).
 
         Accepts either a single patch (2-D control-point array) or a list
@@ -993,7 +1000,7 @@ class BezierPatch:
                 BezierPatch.to_vnf([p1, p2], splinesteps=16).polyhedron().show()
         """
         if BezierPatch.is_patch(patches):
-            return BezierPatch(patches).vnf(splinesteps, style)
+            return BezierPatch(patches).vnf(splinesteps, style)  # type: ignore[arg-type]
         return VNF.join([BezierPatch(p).vnf(splinesteps, style) for p in patches])
 
     @staticmethod
@@ -1020,7 +1027,7 @@ class BezierPatch:
         xform = np.eye(4)
         xform[:3, 3] = np.asarray(trans, dtype=float)
         m = (xform @ base).tolist()
-        return BezierPatch([_apply(m, row) for row in patch])
+        return BezierPatch([_apply(m, row) for row in patch])  # type: ignore[arg-type]
 
     def sheet(self, delta: float, splinesteps: int = 16, style: str = "default") -> VNF:
         """Offset the patch along surface normals to form a thin sheet (BOSL2 bezier_sheet).
@@ -1050,7 +1057,9 @@ class BezierPatch:
         vnf = VNF.vertex_array(allpoints, col_wrap=True, caps=True, style=style)
         return vnf.reverse() if diameter[0] < diameter[1] else vnf
 
-    def vnf_degenerate(self, splinesteps: int = 16, reverse: bool = False, return_edges: bool = False):
+    def vnf_degenerate(
+        self, splinesteps: int = 16, reverse: bool = False, return_edges: bool = False
+    ) -> VNF | tuple[VNF, list[list[list[float]]]]:
         """Mesh a degenerate patch (BOSL2 bezier_vnf_degenerate_patch).
 
         Handles patches where some corners or edges are collapsed, avoiding
@@ -1062,12 +1071,14 @@ class BezierPatch:
         return result if return_edges else result[0]
 
     @staticmethod
-    def _all_equal(row, eps: float = EPSILON) -> bool:
+    def _all_equal(row: np.ndarray, eps: float = EPSILON) -> bool:
         a = np.asarray(row, dtype=float)
         return bool(np.all(np.linalg.norm(a - a[0], axis=1) <= eps))
 
     @staticmethod
-    def _vnf_degenerate(patch, splinesteps: int, reverse: bool, return_edges: bool):
+    def _vnf_degenerate(
+        patch: np.ndarray, splinesteps: int, reverse: bool, return_edges: bool
+    ) -> tuple[VNF, list[list[list[float]]]]:
         _ = return_edges
         patch = np.asarray(patch, dtype=float)
         nrows, ncols = patch.shape[0], patch.shape[1]
@@ -1082,13 +1093,13 @@ class BezierPatch:
             return [list(p) for p in pts]
 
         if all(row_degen) and all(col_degen):
-            return [empty, [[patch[0][0].tolist()] for _ in range(4)]]
+            return (empty, [[patch[0][0].tolist()] for _ in range(4)])
         if all(row_degen):
             ptl = _tolist(Bezier(patch[:, 0, :]).points(samplepts))
-            return [empty, [ptl, ptl, [ptl[0]], [ptl[-1]]]]
+            return (empty, [ptl, ptl, [ptl[0]], [ptl[-1]]])
         if all(col_degen):
             ptl = _tolist(Bezier(patch[0]).points(samplepts))
-            return [empty, [[ptl[0]], [ptl[-1]], ptl, ptl]]
+            return (empty, [[ptl[0]], [ptl[-1]], ptl, ptl])
         if not top_degen and not bot_degen and not left_degen and not right_degen:
             pts = BezierPatch(patch).points(samplepts, samplepts)
             vnf = VNF.vertex_array(pts, reverse=not reverse)
@@ -1098,31 +1109,31 @@ class BezierPatch:
                 list(pts[0]),
                 list(pts[-1]),
             ]
-            return [vnf, edges]
+            return (vnf, edges)
         if top_degen and bot_degen:
             rowcount = list(range(3, splinesteps + 1, 2))
             if splinesteps % 2 == 0:
                 rowcount.append(splinesteps + 1)
             rowcount += list(reversed(list(range(3, splinesteps + 1, 2))))
             bpatch = np.asarray([Bezier(patch[:, i, :]).points(samplepts) for i in range(ncols)])
-            pts = [[bpatch[0][0]]]
+            dpts = [[bpatch[0][0]]]
             for j in range(splinesteps - 1):
-                pts.append(_tolist(Bezier(bpatch[:, j + 1, :]).points(list(lerpn(0, 1, rowcount[j])))))
-            pts.append([bpatch[0][-1]])
-            vnf = VNF.tri_array(pts, reverse=not reverse)
-            return [
+                dpts.append(_tolist(Bezier(bpatch[:, j + 1, :]).points(list(lerpn(0, 1, rowcount[j])))))
+            dpts.append([bpatch[0][-1]])
+            vnf = VNF.tri_array(dpts, reverse=not reverse)
+            return (
                 vnf,
                 [
-                    [row[0] for row in pts],
-                    [row[-1] for row in pts],
-                    list(pts[0]),
-                    list(pts[-1]),
+                    [row[0] for row in dpts],
+                    [row[-1] for row in dpts],
+                    list(dpts[0]),
+                    list(dpts[-1]),
                 ],
-            ]
+            )
         if bot_degen:
             res = BezierPatch._vnf_degenerate(patch[::-1], splinesteps, not reverse, True)
             e = res[1]
-            return [res[0], [e[0][::-1], e[1][::-1], e[3], e[2]]]
+            return (res[0], [e[0][::-1], e[1][::-1], e[3], e[2]])
         if top_degen:
             full_degen = nrows >= 4 and all(row_degen[1 : int(math.ceil(nrows / 2 - 1)) + 1])
             rowmax = (
@@ -1131,23 +1142,23 @@ class BezierPatch:
                 else [2 * j if j <= splinesteps / 2 else splinesteps for j in range(splinesteps + 1)]
             )
             bpatch = np.asarray([Bezier(patch[:, i, :]).points(samplepts) for i in range(ncols)])
-            pts = [[bpatch[0][0]]]
+            dpts = [[bpatch[0][0]]]
             for j in range(1, splinesteps + 1):
-                pts.append(_tolist(Bezier(bpatch[:, j, :]).points(list(lerpn(0, 1, rowmax[j] + 1)))))
-            vnf = VNF.tri_array(pts, reverse=not reverse)
-            return [
+                dpts.append(_tolist(Bezier(bpatch[:, j, :]).points(list(lerpn(0, 1, rowmax[j] + 1)))))
+            vnf = VNF.tri_array(dpts, reverse=not reverse)
+            return (
                 vnf,
                 [
-                    [row[0] for row in pts],
-                    [row[-1] for row in pts],
-                    list(pts[0]),
-                    list(pts[-1]),
+                    [row[0] for row in dpts],
+                    [row[-1] for row in dpts],
+                    list(dpts[0]),
+                    list(dpts[-1]),
                 ],
-            ]
+            )
         # left or right degeneracy: transpose and recurse
         res = BezierPatch._vnf_degenerate(np.transpose(patch, (1, 0, 2)), splinesteps, not reverse, True)
         e = res[1]
-        return [res[0], [e[2], e[3], e[0], e[1]]]
+        return (res[0], [e[2], e[3], e[0], e[1]])
 
     # -- debugging visualization (BOSL2 debug_bezier_patches) ------------------------------
 
@@ -1173,7 +1184,7 @@ class BezierPatch:
                 patch.debug(splinesteps=8, showcps=True, showpatch=True)
         """
         return debug_bezier_patches(
-            [self],
+            [self],  # type: ignore[list-item]
             size=size,
             splinesteps=splinesteps,
             showcps=showcps,
@@ -1183,7 +1194,7 @@ class BezierPatch:
         )
 
 
-def _debug_tube(points, radius: float, sides: int = 8):
+def _debug_tube(points: np.ndarray, radius: float, sides: int = 8) -> Any:
     from pybosl2.paths import Path3D
 
     circ = [
@@ -1200,7 +1211,7 @@ def _debug_tube(points, radius: float, sides: int = 8):
     return Path3D(dedup).path_sweep(circ).polyhedron()  # type: ignore[union-attr, arg-type]
 
 
-def _sphere_at(p, diameter: float):
+def _sphere_at(p: np.ndarray, diameter: float) -> Any:
     from pythonscad import sphere
 
     p3 = [float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0]
@@ -1208,7 +1219,7 @@ def _sphere_at(p, diameter: float):
 
 
 def debug_bezier_patches(
-    patches,
+    patches: np.ndarray | Sequence[np.ndarray],
     size=None,
     splinesteps: int = 16,
     showcps: bool = True,
@@ -1221,14 +1232,14 @@ def debug_bezier_patches(
     A functional port of BOSL2's debug_bezier_patches() module -- returns a combined native solid
     (requires the real app; builds on VNF.polyhedron() and the ported path_sweep tube).
     """
-    plist = patches if not BezierPatch.is_patch(patches) else [patches]
+    plist = patches if not BezierPatch.is_patch(patches) else [patches]  # type: ignore[list-item]
     result = None
 
-    def _add(a, b):
+    def _add(a: Any, b: Any) -> Any:
         return b if a is None else (a | b)
 
     for patch in plist:
-        bp = BezierPatch(patch)
+        bp = BezierPatch(patch)  # type: ignore[arg-type]
         arr = bp.array
         sz = (
             size
@@ -1246,12 +1257,12 @@ def debug_bezier_patches(
                     if i < nrows - 1:
                         result = _add(
                             result,
-                            _debug_tube([arr[i][j], arr[i + 1][j]], sz / 2).color("cyan"),
+                            _debug_tube(np.asarray([arr[i][j], arr[i + 1][j]]), sz / 2).color("cyan"),
                         )
                     if j < ncols - 1:
                         result = _add(
                             result,
-                            _debug_tube([arr[i][j], arr[i][j + 1]], sz / 2).color("cyan"),
+                            _debug_tube(np.asarray([arr[i][j], arr[i][j + 1]]), sz / 2).color("cyan"),
                         )
         if showpatch or showdots:
             vnf = bp.vnf(splinesteps=splinesteps, style=style)
@@ -1259,5 +1270,5 @@ def debug_bezier_patches(
                 result = _add(result, vnf.polyhedron())
             if showdots:
                 for v in vnf.vertices:
-                    result = _add(result, _sphere_at(v, sz).color("blue"))
+                    result = _add(result, _sphere_at(np.asarray(v), sz).color("blue"))  # type: ignore[arg-type]
     return result

@@ -22,11 +22,8 @@ UNIT = [[0, 0], [10, 0], [10, 10], [0, 10]]
 
 def test_is_a_list_of_plain_floats():
     p = Path(np.asarray(SQUARE, dtype=float))
-    assert isinstance(p, list)
-    assert p == [[float(x), float(y)] for x, y in SQUARE]
-    for pt in p:
-        for v in pt:
-            assert isinstance(v, float)
+    assert isinstance(p, Path)
+    assert p.to_list == [[float(x), float(y)] for x, y in SQUARE]
 
 
 def test_rejects_non_xy_points():

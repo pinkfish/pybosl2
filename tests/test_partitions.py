@@ -42,15 +42,15 @@ def test_partition_path_closed_when_y_given():
 
 
 def test_named_subpaths_have_expected_shape():
-    assert _partition_subpath("flat") == [[0, 0], [1, 0]]
-    assert _partition_subpath("sawtooth") == [[0, 0], [0.5, 1], [1, 0]]
+    assert _partition_subpath("flat").to_list == [[0, 0], [1, 0]]
+    assert _partition_subpath("sawtooth").to_list == [[0, 0], [0.5, 1], [1, 0]]
     assert len(_partition_subpath("dovetail")) == 6
     assert len(_partition_subpath("hammerhead")) == 10
     assert len(_partition_subpath("jigsaw", fn=24)) > 10  # arc-based
 
 
 def test_ptn_sect_numeric_is_flat_segment():
-    assert _ptn_sect(30) == [[0, 0], [30.0, 0]]
+    assert _ptn_sect(30).to_list == [[0, 0], [30.0, 0]]
 
 
 def test_ptn_sect_yflip_negates_y():
@@ -76,7 +76,7 @@ def test_ptn_sect_resize():
 def test_ptn_sect_skew_shifts_top():
     sect = _ptn_sect("square skew:15")
     # the top edge (y=25) is shifted right relative to the bottom by height*tan(15)
-    assert isinstance(sect, list)
+    assert isinstance(sect, Path)
     assert len(sect) == 4
 
 

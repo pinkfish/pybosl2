@@ -71,7 +71,7 @@ def test_arc_corner_is_tangent_fillet():
     assert isinstance(c, Path)
     # tangent points sit 3 up the y-leg and 3 along the x-leg
     np.testing.assert_allclose(
-        sorted([c[0].tolist() if hasattr(c[0], "tolist") else c[0], c[-1]]),
+        sorted([c[0].tolist(), c[-1].tolist()]),
         sorted([[0.0, 3.0], [3.0, 0.0]]),
         atol=1e-9,
     )

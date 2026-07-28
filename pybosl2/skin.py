@@ -190,7 +190,7 @@ def _u_nd(v: np.ndarray) -> np.ndarray:
     return v / sides if sides else v
 
 
-def path3d(path: Sequence[Sequence[float]]) -> list[list[float]]:
+def path3d(path: Sequence[Sequence[float]] | Path | Path3D) -> list[list[float]]:
     """Pad a 2-D (or 3-D) point list to 3-D with z=0.
 
     The coordinates are converted to plain Python floats, not left as whatever the input held: a
@@ -201,7 +201,7 @@ def path3d(path: Sequence[Sequence[float]]) -> list[list[float]]:
     return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
 
 
-def clockwise_polygon(poly: Sequence[Sequence[float]]) -> list[Sequence[float]]:
+def clockwise_polygon(poly: Sequence[Sequence[float]] | Path) -> list[Sequence[float]]:
     """*poly* wound clockwise (reversed if its signed area is positive/CCW)."""
     from pybosl2.paths import Path
 
@@ -310,8 +310,8 @@ def sweep(
 
 
 def _path_sweep(
-    shape: Sequence[Sequence[float]],
-    path: Sequence[Sequence[float]],
+    shape: Sequence[Sequence[float]] | Path,
+    path: Sequence[Sequence[float]] | Path | Path3D,
     method: str = "incremental",
     normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
     closed: bool = False,
@@ -590,7 +590,7 @@ def skin(
 
 
 def _linear_sweep(
-    region: Sequence[Sequence[float]],
+    region: Sequence[Sequence[float]] | Path,
     height: float | None = None,
     twist: float = 0.0,
     scale=1,
@@ -647,7 +647,7 @@ def _linear_sweep(
 
 
 def _rotate_sweep(
-    shape: Sequence[Sequence[float]],
+    shape: Sequence[Sequence[float]] | Path,
     angle: float = 360.0,
     caps: CapsSpec = None,
     closed: bool | None = None,
@@ -701,7 +701,7 @@ def _rotate_sweep(
 
 
 def _spiral_sweep(
-    poly: Sequence[Sequence[float]],
+    poly: Sequence[Sequence[float]] | Path,
     height: float,
     radius: float | None = None,
     turns: float = 1.0,
@@ -1550,8 +1550,8 @@ def _bent_cutout_mask(
 
 
 def _path_sweep2d(
-    shape: Sequence[Sequence[float]],
-    path: Sequence[Sequence[float]],
+    shape: Sequence[Sequence[float]] | Path,
+    path: Sequence[Sequence[float]] | Path,
     closed: bool = False,
     caps: CapsSpec = None,
     quality: int = 1,
@@ -1585,12 +1585,12 @@ def _path_sweep2d(
     from pybosl2.paths import Path
 
     _ = quality
-    shape = Path(shape)
-    path = Path(path)
+    shp: Path = shape if isinstance(shape, Path) else Path(shape)
+    p: Path = path if isinstance(path, Path) else Path(path)
     fullcaps = _norm_caps(caps, closed=closed)
-    profile = shape if not shape.is_clockwise() else shape.reversed_path()  # ccw_polygon
-    flip = -1.0 if (closed and path.is_clockwise()) else 1.0
-    pth = path if flip > 0 else path.reversed_path()
+    profile = shp if not shp.is_clockwise() else shp.reversed_path()  # ccw_polygon
+    flip = -1.0 if (closed and p.is_clockwise()) else 1.0
+    pth = p if flip > 0 else p.reversed_path()
 
     # For each profile point, offset the path by -flip*x and lift the result to z=y.
     per_point = []

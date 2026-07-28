@@ -21,9 +21,9 @@ SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 
 def test_construction_requires_3d_points():
     p = Path3D(SQUARE_LOOP)
-    assert isinstance(p, list)
+    assert isinstance(p, Path3D)
     assert len(p) == 4
-    assert p[0] == [0.0, 0.0, 0.0]
+    np.testing.assert_array_equal(p[0], [0.0, 0.0, 0.0])
     with pytest.raises(AssertionError):
         Path3D([[0, 0], [1, 1]])  # 2-D points rejected
 

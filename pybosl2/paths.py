@@ -91,7 +91,7 @@ from pybosl2.vectors import add_scalar, unit
 # keeps the Region class.
 
 
-class Path(Distributable, Extrudable, Sweepable, Roundable, list):
+class Path(Distributable, Extrudable, Sweepable, Roundable):
     """A 2-D path: a list of [x, y] points, with every path operation as a method.
 
     Subclasses ``list`` deliberately -- the same trick as :class:`base_bgtk.Vec3`. Every place
@@ -127,23 +127,48 @@ class Path(Distributable, Extrudable, Sweepable, Roundable, list):
             plate.show()
     """
 
-    def __init__(self, points: Sequence = (), closed: bool = True) -> None:
-        pts = np.asarray(list(points), dtype=float)
+    def __init__(self, points: Sequence | np.ndarray = (), closed: bool = True) -> None:
+        pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
-            super().__init__()
+            self._points: np.ndarray = np.empty((0, 2), dtype=np.float64)
         else:
-            assert pts.ndim == 2 and pts.shape[1] == 2, f"Path needs [x, y] points, got shape {pts.shape}"
-            # plain floats: the native polygon()/FFI boundary rejects numpy scalars
-            super().__init__([[float(x), float(y)] for x, y in pts])
+            assert pts.ndim == 2, f"Path needs a list of [x, y] points, got {pts.ndim}D array"
+            assert pts.shape[1] == 2, f"Path needs [x, y] points, got shape {pts.shape}"
+            assert pts.dtype == np.float64, f"Path needs float64 points, got {pts.dtype}"
+            self._points = pts
         self.closed = closed
 
-    def _like(self, points) -> "Path":
+    def __len__(self) -> int:
+        return len(self._points)
+
+    def __getitem__(self, key: int | slice | tuple) -> np.ndarray:
+        return self._points[key]
+
+    def __iter__(self):
+        return iter(self._points)
+
+    def __array__(self, dtype: type | None = None, copy: bool | None = None) -> np.ndarray:
+        if dtype is None:
+            return self._points
+        return self._points.astype(dtype)
+
+    def _like(self, points: Sequence | np.ndarray) -> "Path":
         return Path(points, closed=self.closed)
 
     @property
     def array(self) -> np.ndarray:
         """The points as an (N, 2) numpy array, for doing your own vectorised maths."""
-        return np.asarray(self, dtype=float)
+        return self._points
+
+    @property
+    def to_list(self) -> list[list[float]]:
+        """The points as a list of ``[x, y]`` plain-Python-float pairs."""
+        return self._points.tolist()
+
+    @classmethod
+    def from_list(cls, lst: Sequence, closed: bool = True) -> "Path":
+        """Create a Path from a plain list of ``[x, y]`` coordinate pairs."""
+        return cls(lst, closed=closed)
 
     # -- measurement -----------------------------------------------------------------------
 
@@ -1649,7 +1674,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable, list):
 # transforms (translate/move, the six directional moves including up/down, scale, mirror, rotate).
 
 
-class Path3D(Distributable, Extrudable, Sweepable, Roundable, list):
+class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     """A 3-D path: a list of ``[x, y, z]`` points, with the path operations that make sense in 3-D.
 
     The 3-D counterpart of :class:`Path`. Like ``Path`` it subclasses ``list`` (so it stays a
@@ -1674,22 +1699,48 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable, list):
             coil.stroke(width=4).show()
     """
 
-    def __init__(self, points: Sequence = (), closed: bool = True) -> None:
-        pts = np.asarray(list(points), dtype=float)
+    def __init__(self, points: Sequence | np.ndarray = (), closed: bool = True) -> None:
+        pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
-            super().__init__()
+            self._points: np.ndarray = np.empty((0, 3), dtype=np.float64)
         else:
-            assert pts.ndim == 2 and pts.shape[1] == 3, f"Path3D needs [x, y, z] points, got shape {pts.shape}"
-            super().__init__([[float(x), float(y), float(z)] for x, y, z in pts])
+            assert pts.ndim == 2, f"Path3D needs a list of [x, y, z] points, got {pts.ndim}D array"
+            assert pts.shape[1] == 3, f"Path3D needs [x, y, z] points, got shape {pts.shape}"
+            assert pts.dtype == np.float64, f"Path3D needs float64 points, got {pts.dtype}"
+            self._points = pts
         self.closed = closed
 
-    def _like(self, points) -> "Path3D":
+    def __len__(self) -> int:
+        return len(self._points)
+
+    def __getitem__(self, key: int | slice | tuple) -> np.ndarray:
+        return self._points[key]
+
+    def __iter__(self):
+        return iter(self._points)
+
+    def __array__(self, dtype: type | None = None, copy: bool | None = None) -> np.ndarray:
+        if dtype is None:
+            return self._points
+        return self._points.astype(dtype)
+
+    def _like(self, points: Sequence | np.ndarray) -> "Path3D":
         return Path3D(points, closed=self.closed)
 
     @property
     def array(self) -> np.ndarray:
         """The points as an (N, 3) numpy array, for doing your own vectorised maths."""
-        return np.asarray(self, dtype=float)
+        return self._points
+
+    @property
+    def to_list(self) -> list[list[float]]:
+        """The points as a list of ``[x, y, z]`` plain-Python-float triples."""
+        return self._points.tolist()
+
+    @classmethod
+    def from_list(cls, lst: Sequence, closed: bool = True) -> "Path3D":
+        """Create a Path3D from a plain list of ``[x, y, z]`` coordinate triples."""
+        return cls(lst, closed=closed)
 
     # -- measurement -----------------------------------------------------------------------
 

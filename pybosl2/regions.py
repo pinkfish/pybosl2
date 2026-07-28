@@ -105,7 +105,7 @@ class Region(list):
 
     def __init__(self, paths: Sequence = ()) -> None:
         items = list(paths)
-        if items and not isinstance(items[0], (list, tuple, np.ndarray)):
+        if items and not isinstance(items[0], (list, tuple, np.ndarray, Path)):
             raise TypeError(f"Region needs paths, got {type(items[0]).__name__}")
         # a bare point list ([[x, y], ...]) is one outline, not a list of paths
         if items and np.asarray(items[0], dtype=float).ndim == 1:
