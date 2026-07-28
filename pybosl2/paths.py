@@ -4,41 +4,30 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/paths.py
-#    Pure-Python port of BOSL2's paths.scad: path length, resampling,
-#    tangents/normals/curvature/torsion, cutting paths into subpaths, and
-#    splitting self-intersecting polygons into simple polygons. No
-#    osuse()/BOSL2 runtime dependency -- built on pybosl2/math.py,
-#    pybosl2/vectors.py, pybosl2/comparisons.py and pybosl2/geometry.py (also
-#    pure-Python ports), the same way paths.scad depends on math.scad/
-#    vectors.scad/comparisons.scad/geometry.scad. The lists.scad helpers it
-#    needs (select/pair/list_head/list_tail/slice) are private staticmethods
-#    on Path rather than a separate module.
-#
-#    Every path operation lives on the :class:`Path` class -- there are no
-#    module-level path functions. The public ergonomic API is instance
-#    methods/properties (``Path(pts).offset(...)``, ``path.is_closed``); the
-#    numeric kernels and graph algorithms are private ``@staticmethod``s on
-#    the same class so they can also run on raw point arrays that are not
-#    ``Path`` instances (e.g. the 3-D paths pybosl2/shapes3d.py's path_text()
-#    feeds through ``Path._path_length()`` / ``Path._path_cut_points()``).
-#
-#    The numeric path-math functions (length, self-intersection detection,
-#    tangents/normals/curvature/torsion, closest-point) convert their input
-#    path to a numpy array, use vectorized numpy operations internally, and
-#    return real ndarrays -- this mirrors how BOSL2 itself vectorizes these
-#    computations across all path points at once (e.g. `vals = path*seg_normal`).
-#    Input paths themselves may be plain list[list[float]] or ndarrays (accepted
-#    everywhere via np.asarray()). The graph/traversal algorithms (fragment
-#    assembly for polygon_parts(), path cutting) stay as plain-Python lists
-#    of points/indices, since they're inherently sequential/branchy rather
-#    than bulk array math -- individual points flowing through them may
-#    themselves be ndarrays (e.g. from lerp()), which works transparently
-#    since pybosl2/comparisons.py's approx()/deduplicate() and every point
-#    comparison in this file use np.array_equal() rather than a bare `==`.
-#
-# FileSummary: Operations on paths: length, resampling, tangents, splitting into subpaths.
-# FileGroup: BOSL2
+"""Operations on 2-D and 3-D paths: length, resampling, tangents/normals/curvature/torsion, cutting and splitting.
+
+Pure-Python port of BOSL2's paths.scad. Every path operation lives on the :class:`Path` class --
+there are no module-level path functions. The public ergonomic API is instance methods/properties
+(``Path(pts).offset(...)``, ``path.is_closed``); the numeric kernels and graph algorithms are
+private ``@staticmethod``s on the same class so they can also run on raw point arrays that are not
+``Path`` instances (e.g. the 3-D paths pybosl2/shapes3d.py's path_text() feeds through
+``Path._path_length()`` / ``Path._path_cut_points()``).
+
+The numeric path-math functions (length, self-intersection detection, tangents/normals/curvature/
+torsion, closest-point) convert their input path to a numpy array, use vectorised numpy operations
+internally, and return real ndarrays -- this mirrors how BOSL2 itself vectorises these computations
+across all path points at once (e.g. ``vals = path*seg_normal``). Input paths themselves may be
+plain ``list[list[float]]`` or ndarrays (accepted everywhere via ``np.asarray()``). The graph/
+traversal algorithms (fragment assembly for polygon_parts(), path cutting) stay as plain-Python
+lists of points/indices, since they're inherently sequential/branchy rather than bulk array math --
+individual points flowing through them may themselves be ndarrays (e.g. from lerp()), which works
+transparently since pybosl2/comparisons.py's approx()/deduplicate() and every point comparison in
+this file use ``np.array_equal()`` rather than a bare ``==``.
+
+The :class:`Path3D` class extends these operations to 3-D paths, carrying the dimension-independent
+measurements (length, tangents, normals, curvature, torsion), resampling/cutting, and 3-D transforms
+while omitting inherently 2-D operations like polygon/area/offset.
+"""
 
 from __future__ import annotations
 
@@ -180,11 +169,13 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @property
     def width(self) -> float:
+        """Width of the bounding rectangle (max_x - min_x)."""
         b = self.bounds()
         return float(b[1][0] - b[0][0])
 
     @property
     def length_y(self) -> float:
+        """Height of the bounding rectangle (max_y - min_y)."""
         b = self.bounds()
         return float(b[1][1] - b[0][1])
 
@@ -204,6 +195,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         return float(Path._polygon_area(self, signed=signed))
 
     def is_clockwise(self) -> bool:
+        """True if the polygon winds clockwise (negative signed area)."""
         return self.area(signed=True) < 0
 
     def perimeter(self) -> float:
@@ -225,6 +217,13 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
         Containment is only meaningful for a closed polygon, so an open path (``closed=False``)
         always returns False rather than testing.
+
+        Examples:
+            .. pythonscad-example::
+
+                rect = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                result = rect.contains([40, 30])
+                print("inside:", result)
         """
         if not self.closed:
             return False
@@ -284,8 +283,12 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         """Numeric torsion estimate of a 3-D path at each point, as an ndarray."""
         return Path._path_torsion(self, closed=self.closed)
 
-    def cut_points(self, cutdist: float, direction: bool = False):
-        """Point(s) at the given distance(s) along the path."""
+    def cut_points(self, cutdist: float, direction: bool = False) -> list:
+        """Point(s) at the given distance(s) along the path.
+
+        Returns a list of ``[point, next_index, ...]`` entries; a single float *cutdist* returns
+        a single entry instead of a list.
+        """
         return Path._path_cut_points(self, cutdist, closed=self.closed, direction=direction)
 
     # -- derived paths ---------------------------------------------------------------------
@@ -299,10 +302,17 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         fa: float | None = None,
         fs: float | None = None,
     ) -> "Path":
-        """Offset by *radius* (rounded joins) or *delta* (sharp/chamfered). See :meth:`_offset`.
+        """Offset by *radius* (rounded joins) or *delta* (sharp/chamfered).
 
         Prefer ``.polygon().offset(...)`` (native, Manifold-side) when you only need geometry;
         this is for when the result is needed as points.
+
+        Examples:
+            .. pythonscad-example::
+
+                outline = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                inset = outline.offset(radius=-3)
+                inset.polygon().linear_extrude(height=4).show()
         """
         return self._like(
             Path._offset(
@@ -346,11 +356,32 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         return self._like(Path._subdivide_path(self, closed=self.closed, **kwargs))
 
     def resample(self, **kwargs: Any) -> "Path":
-        """Resample to evenly spaced points."""
+        """Resample to evenly spaced points.
+
+        Accepts *sides* (target point count) or *spacing* (approximate spacing between points).
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                sampled = pts.resample(sides=20)
+                sampled.stroke(width=1).show()
+        """
         return self._like(Path._resample_path(self, closed=self.closed, **kwargs))
 
     def cut(self, cutdist: float) -> list["Path"]:
-        """Split the path at the given distance(s), returning the sub-paths."""
+        """Split the path at the given distance(s), returning the sub-paths.
+
+        *cutdist* may be a single distance or a list of ascending distances.
+
+        Examples:
+            .. pythonscad-example::
+
+                outline = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                pieces = outline.cut(50)
+                for piece in pieces:
+                    piece.stroke(width=1).show()
+        """
         return [self._like(sub) for sub in Path._path_cut(self, cutdist, closed=self.closed)]
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list["Path"]:
@@ -440,6 +471,13 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         """Cubic bezier PATH through every point of this path (BOSL2 path_to_bezpath).
 
         Delegates to :func:`pybosl2.beziers.create_bezier`.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [40, 30], [80, 0], [120, 30]])
+                curve = pts.to_bezier(size=10)
+                curve.stroke(width=2).linear_extrude(h=3).show()
         """
         from pybosl2.beziers import create_bezier  # local: keep the import graph acyclic
 
@@ -454,6 +492,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     # The extruders below, which end in a 3-D solid, DO work on both.
 
     def _require_csg(self, feature: str) -> None:
+        # Raise UnsupportedByBackendError if the active backend is not "csg".
         from pybosl2._backend import current_backend
         from pybosl2.exceptions import UnsupportedByBackendError
 
@@ -478,6 +517,12 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         Raises:
             ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` -- see the note
             above :meth:`linear_extrude`, which works on both backends.
+
+        Examples:
+            .. pythonscad-example::
+
+                shape = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                shape.polygon().linear_extrude(height=5).show()
         """
         from pythonscad import polygon as _polygon
 
@@ -487,8 +532,10 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         return Bosl2Shape2D(_polygon([[float(x), float(y)] for x, y in self]))
 
     def geometry(self) -> "Bosl2Shape2D":
-        """2-D geometry -- the name :class:`Region` also exposes, so a caller that may
-        hold either a Path or a Region can ask for geometry without checking which it got.
+        """2-D geometry of this path.
+
+        The name :class:`Region` also exposes this, so a caller that may hold either a Path or a
+        Region can ask for geometry without checking which it got.
         """
         return self.polygon()
 
@@ -526,6 +573,12 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         CSG backend takes the native ``center``/``twist``/``scale``/``slices``/``convexity`` (see
         :meth:`~pybosl2.shapes2d.Bosl2Shape2D.linear_extrude`); the SDF backend takes ``center``
         plus ``rounding_top``/``rounding_bottom``/``res``, and rejects the profile-shearing ones.
+
+        Examples:
+            .. pythonscad-example::
+
+                plate = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                plate.linear_extrude(height=4).show()
         """
         from pybosl2._backend import get_backend
 
@@ -572,8 +625,15 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     # -- drawing (pybosl2/drawing.py) --------------------------------------------------------
 
     def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any):
-        """
-        Draw this path as a solid line of the given *width* (see :func:`pybosl2.drawing.stroke`).
+        """Draw this path as a solid line of the given *width*.
+
+        Delegates to :func:`pybosl2.drawing.stroke`.
+
+        Examples:
+            .. pythonscad-example::
+
+                square = square(50)
+                square.stroke(width=2).show()
         """
         from pybosl2.drawing import stroke as _stroke
 
@@ -603,11 +663,8 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     # -- distributors (pybosl2/distributors.py) ----------------------------------------------
 
     def _distribute(self, mats) -> list["Path"]:
-        """Apply each copier matrix, returning the list of 2-D copies (BOSL2's function form).
-
-        Raises if a copier would lift the 2-D path out of the XY plane -- use :class:`Path3D` for
-        those (``zcopies``, ``xrot_copies``, ``sphere_copies``, ...).
-        """
+        # Apply each copier matrix, returning the list of 2-D copies (BOSL2's function form).
+        # Raises if a copier lifts the 2-D path out of the XY plane; use Path3D for those.
         if not len(self):
             return [self._like([]) for _ in mats]
         pts3 = np.hstack([self.array, np.zeros((len(self), 1))])
@@ -638,12 +695,8 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _select(lst, start, end=None):
-        """Circular list indexing/slicing (BOSL2 Path._select()).
-
-        ``_select(lst, i)`` returns ``lst[i]`` wrapping i modulo len; ``_select(lst, [i, ...])``
-        returns the wrapped elements; ``_select(lst, s, e)`` returns the inclusive circular slice
-        from s to e, wrapping past the end when s > e.
-        """
+        # Circular list indexing/slicing (BOSL2 Path._select()). Wraps index modulo len;
+        # slice form returns inclusive circular slice from start to end, wrapping past end.
         sides = len(lst)
         if sides == 0:
             return []
@@ -660,7 +713,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _pair(lst, wrap: bool = False) -> list:
-        """List of consecutive (lst[i], lst[i+1]) pairs; if *wrap*, also (last, first)."""
+        # List of consecutive (lst[i], lst[i+1]) pairs; if wrap, also (last, first).
         length = len(lst) - 1
         if length < 1:
             return []
@@ -671,7 +724,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _list_head(lst, to: int = -2) -> list:
-        """Elements of *lst* up to and including index *to* (BOSL2 Path._list_head())."""
+        # Elements of lst up to and including index to (BOSL2 Path._list_head()).
         if to < 0:
             return lst[: len(lst) + to + 1]
         if to < len(lst):
@@ -680,7 +733,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _list_tail(lst, frm: int = 1) -> list:
-        """Elements of *lst* starting at index *frm* (may be negative; BOSL2 Path._list_tail())."""
+        # Elements of lst starting at index frm (may be negative; BOSL2 Path._list_tail()).
         if frm < 0:
             frm = frm + len(lst)
         if frm < 0:
@@ -689,10 +742,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _slice(lst, start: int = 0, end: int = -1) -> list:
-        """
-        ``lst[start..end]`` inclusive, negative indices from the end, clamped (BOSL2
-        Path._slice()).
-        """
+        # lst[start..end] inclusive, negative indices from the end, clamped (BOSL2 Path._slice()).
         if not lst:
             return []
         length = len(lst)
@@ -709,11 +759,8 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _deduplicate(lst, closed: bool = False, eps: float = EPSILON) -> list:
-        """Remove consecutive (approximately) duplicate entries from *lst* (BOSL2 deduplicate()).
-
-        If *closed*, the last entry is also compared (wrapping) against the first; otherwise the
-        true last entry is always kept.
-        """
+        # Remove consecutive (approximately) duplicate entries from lst (BOSL2 deduplicate()).
+        # If closed, the last entry is also compared (wrapping) against the first.
         length = len(lst)
         if length == 0:
             return []
@@ -733,7 +780,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _polygon_area(poly, signed: bool = False) -> float:
-        """Area of a 2-D polygon (shoelace formula). Only 2-D polygons are supported."""
+        # Area of a 2-D polygon (shoelace formula).
         arr = np.asarray(poly, dtype=float)
         sides = len(arr)
         if sides < 3:
@@ -745,7 +792,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _point_in_polygon(point, poly, nonzero: bool = False, eps: float = EPSILON) -> int:
-        """Test whether *point* is inside 2-D polygon *poly*: 1 inside, -1 outside, 0 boundary."""
+        # Whether point is inside 2-D polygon poly: 1 inside, -1 outside, 0 boundary.
         point = np.asarray(point, dtype=float)
         box = pointlist_bounds(poly)
         if (
@@ -793,22 +840,22 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _is_closed_path(path, eps: float = EPSILON) -> bool:
-        """True if the first and last points of *path* coincide."""
+        # True if the first and last points of path coincide.
         return approx(path[0], path[-1], eps=eps)
 
     @staticmethod
     def _close_path(path, eps: float = EPSILON) -> list:
-        """Append the start point to *path* if it isn't already closed."""
+        # Append the start point to path if it isn't already closed.
         return path if Path._is_closed_path(path, eps=eps) else list(path) + [path[0]]
 
     @staticmethod
     def _cleanup_path(path, eps: float = EPSILON) -> list:
-        """Drop the last point of *path* if it coincides with the first."""
+        # Drop the last point of path if it coincides with the first.
         return path[:-1] if Path._is_closed_path(path, eps=eps) else path
 
     @staticmethod
     def _path_select(path, s1: int, u1: float, s2: int, u2: float, closed: bool = False) -> list:
-        """Portion of *path* from the u1 fraction of segment s1 to the u2 fraction of segment s2."""
+        # Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
         lp = len(path)
         limit = lp - (0 if closed else 1)
         u1 = 0.0 if s1 < 0 else (1.0 if s1 > limit else u1)
@@ -825,7 +872,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_merge_collinear(path, closed: bool | None = None, eps: float = EPSILON) -> list:
-        """Remove unnecessary sequential collinear points from *path* (or 1-region)."""
+        # Remove unnecessary sequential collinear points from path (or 1-region).
         if closed is None:
             closed = False
         if len(path) <= 2:
@@ -843,7 +890,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_length(path, closed: bool | None = None) -> float:
-        """Total length of *path* (or 1-region)."""
+        # Total length of path (or 1-region).
         if closed is None:
             closed = False
         if len(path) < 2:
@@ -856,7 +903,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_segment_lengths(path, closed: bool | None = None) -> np.ndarray:
-        """Length of each segment of *path* (or 1-region), as an ndarray."""
+        # Length of each segment of path (or 1-region), as an ndarray.
         if closed is None:
             closed = False
         arr = np.asarray(path, dtype=float)
@@ -867,9 +914,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_length_fractions(path, closed: bool | None = None) -> np.ndarray:
-        """
-        Distance fraction of each point in *path* along the path (0 at the start, 1 at the end).
-        """
+        # Distance fraction of each point in path along the path (0 at start, 1 at end).
         if closed is None:
             closed = False
         lengths = np.concatenate(([0.0], Path._path_segment_lengths(path, closed)))
@@ -879,10 +924,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_self_intersections(path, closed: bool = True, eps: float = EPSILON) -> list:
-        """
-        All self-intersection points of *path*: list of [POINT, SEGNUM1, PROPORTION1, SEGNUM2,
-        PROPORTION2].
-        """
+        # All self-intersection points of path: list of [POINT, SEGNUM1, PROPORTION1, SEGNUM2, PROPORTION2].
         p = Path._close_path(path, eps=eps) if closed else path
         arr = np.asarray(p, dtype=float)
         plen = len(arr)
@@ -914,18 +956,12 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _scad_round(x: float) -> float:
-        """
-        Round half away from zero, matching OpenSCAD's round() (unlike Python's
-        round-half-to-even).
-        """
+        # Round half away from zero, matching OpenSCAD's round().
         return math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
 
     @staticmethod
     def _sum_preserving_round(data: Sequence[float]) -> list[float]:
-        """
-        Round every entry to an integer, carrying the rounding error forward so the sum is
-        preserved.
-        """
+        # Round every entry to an integer, carrying the rounding error forward so the sum is preserved.
         out = list(data)
         error = 0.0
         for i in range(len(out) - 1):
@@ -945,10 +981,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         exact: bool | None = None,
         method: str | None = None,
     ) -> list:
-        """
-        Subdivide *path* to produce a more finely sampled path; see BOSL2 subdivide_path() for
-        the full option set.
-        """
+        # Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
         assert sum(x is not None for x in (sides, refine, maxlen)) == 1, (
             "Must give exactly one of sides, refine, and maxlen"
         )
@@ -999,7 +1032,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _resample_path(path, sides=None, spacing=None, closed: bool = True) -> list:
-        """Uniformly resample *path* to *sides* points, or to a spacing near *spacing*."""
+        # Uniformly resample path to sides points, or to a spacing near spacing.
         assert (sides is None) != (spacing is None), "Must define exactly one of sides and spacing"
         length = Path._path_length(path, closed)
         if sides is not None:
@@ -1018,10 +1051,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _is_path_simple(path, closed: bool | None = None, eps: float = EPSILON) -> bool:
-        """
-        True if the 2D *path* has no self-intersections (repeated points are not considered
-        intersections).
-        """
+        # True if the 2D path has no self-intersections (repeated points are not intersections).
         if closed is None:
             closed = False
         arr = np.asarray(path, dtype=float)
@@ -1037,10 +1067,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_closest_point(path, pt: Sequence[float], closed: bool = True) -> list:
-        """
-        [SEGNUM, POINT]: the closest path segment to *pt*, and the closest point (an ndarray) on
-        it.
-        """
+        # [SEGNUM, POINT]: the closest path segment to pt, and the closest point on it.
         pts = [line_closest_point(seg, pt) for seg in Path._pair(path, closed)]
         dists = np.linalg.norm(np.asarray(pts, dtype=float) - np.asarray(pt, dtype=float), axis=1)
         min_seg = int(np.argmin(dists))
@@ -1048,7 +1075,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_tangents(path, closed: bool | None = None, uniform: bool = True) -> np.ndarray:
-        """Normalized tangent vector at each point of *path*, as an ndarray."""
+        # Normalized tangent vector at each point of path, as an ndarray.
         if closed is None:
             closed = False
         if not uniform:
@@ -1064,10 +1091,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_normals(path, tangents=None, closed: bool | None = None) -> np.ndarray:
-        """
-        Normal vector (perpendicular to the tangent, in the plane of the curve) at each point of
-        *path*, as an ndarray.
-        """
+        # Normal vector (perpendicular to tangent, in the plane of the curve) at each point of path.
         if closed is None:
             closed = False
         if tangents is None:
@@ -1095,7 +1119,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_curvature(path, closed: bool | None = None) -> np.ndarray:
-        """Numeric curvature estimate of *path* at each point, as an ndarray."""
+        # Numeric curvature estimate of path at each point, as an ndarray.
         if closed is None:
             closed = False
         diameter1 = np.asarray(deriv(path, closed=closed), dtype=float)
@@ -1108,7 +1132,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_torsion(path, closed: bool = False) -> np.ndarray:
-        """Numeric torsion estimate of a 3D *path* at each point, as an ndarray."""
+        # Numeric torsion estimate of a 3D path at each point, as an ndarray.
         diameter1 = np.asarray(deriv(path, closed=closed), dtype=float)
         diameter2 = np.asarray(deriv2(path, closed=closed), dtype=float)
         d3 = np.asarray(deriv3(path, closed=closed), dtype=float)
@@ -1121,10 +1145,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_cut(path, cutdist, closed: bool | None = None) -> list:
-        """
-        Cut *path* into subpaths at the given ascending list of distances (or a single
-        distance).
-        """
+        # Cut path into subpaths at the given ascending list of distances (or a single distance).
         if isinstance(cutdist, (int, float)):
             return Path._path_cut(path, [cutdist], closed)
         if closed is None:
@@ -1139,6 +1160,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_cut_getpaths(path, cutlist, closed: bool) -> list:
+        # Reconstruct sub-paths from the output of _path_cut_points().
         cuts = len(cutlist)
         result = []
         seg0 = list(Path._list_head(path, cutlist[0][1] - 1))
@@ -1165,10 +1187,8 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_cut_points(path, cutdist, closed: bool = False, direction: bool = False):
-        """
-        Cut *path* at the given distance(s) from the start; returns [[point, next_index], ...]
-        (or a single entry if *cutdist* is a scalar).
-        """
+        # Cut path at given distance(s) from start; returns [[point, next_index], ...]
+        # (or a single entry if cutdist is a scalar).
         long_enough = len(path) >= (3 if closed else 2)
         assert long_enough, (
             "Two points needed to define a path" if len(path) < 2 else "Closed path must include three points"
@@ -1188,6 +1208,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_cut_points_recurse(path, dists: Sequence[float], closed: bool = False) -> list:
+        # Walk the path accumulating distance until each cut distance is reached.
         result: list[Any] = []
         pind = 0
         dtotal = 0
@@ -1206,6 +1227,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_cut_single(path, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> list:
+        # Find the single cut point at distance dist from segment ind.
         while True:
             if ind == len(path) - (0 if closed else 1):
                 assert dist < eps, "Path is too short for specified cut distance"
@@ -1221,6 +1243,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_cuts_normals(path, cuts, dirs, closed: bool = False) -> list:
+        # Compute normals at each cut point (perpendicular to the direction, in local plane).
         out = []
         dim = len(path[0])
         for i in range(len(cuts)):
@@ -1241,6 +1264,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_plane(path, ind: int, i: int, closed: bool = False):
+        # Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
         lower = -1 if closed else 0
         while i >= lower:
             if not is_collinear(path[ind], path[ind - 1], Path._select(path, i)):
@@ -1254,6 +1278,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _path_cuts_dir(path, cuts, closed: bool = False, eps: float = 1e-2) -> list:
+        # Compute direction vectors at each cut point (blended from adjacent segments).
         out = []
         zeros = [0] * len(path[0])
         for ind in range(len(cuts)):
@@ -1283,7 +1308,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _cut_to_seg_u_form(pathcut, path, closed: bool) -> list:
-        """Convert path_cut_points() output to [segment, u] form usable with _path_select()."""
+        # Convert path_cut_points() output to [segment, u] form usable with _path_select().
         lastind = len(path) - (0 if closed else 1)
         out = []
         for entry in pathcut:
@@ -1300,7 +1325,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _split_path_at_self_crossings(path, closed: bool = True, eps: float = EPSILON) -> list:
-        """Split a 2D *path* into subpaths wherever it crosses itself."""
+        # Split a 2D path into subpaths wherever it crosses itself.
         path = Path._cleanup_path(path, eps=eps)
         raw = []
         for a in Path._path_self_intersections(path, closed=closed, eps=eps):
@@ -1318,6 +1343,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _tag_self_crossing_subpaths(path, nonzero: bool, closed: bool = True, eps: float = EPSILON) -> list:
+        # Tag each subpath as "I" (inside) or "O" (outside) the original polygon.
         subpaths = Path._split_path_at_self_crossings(path, closed=closed, eps=eps)
         out = []
         for subpath in subpaths:
@@ -1334,11 +1360,13 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _modang(x: float) -> float:
+        # Modulo-angle helper: wraps to [-180, 180).
         xx = x % 360
         return xx - 360 if xx > 180 else xx
 
     @staticmethod
     def _extreme_angle_fragment(seg, fragments: list, rightmost: bool = True, eps: float = EPSILON):
+        # Pick the fragment with the most extreme turning angle from the given segment.
         if not fragments:
             return [None, []]
         delta = [seg[1][0] - seg[0][0], seg[1][1] - seg[0][1]]
@@ -1371,9 +1399,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         startfrag: int = 0,
         eps: float = EPSILON,
     ) -> list:
-        """
-        Assemble *fragments* into one closed polygon path; returns [path, remaining_fragments].
-        """
+        # Assemble fragments into one closed polygon path; returns [path, remaining_fragments].
         if len(fragments) == 0:
             return [[], []]
         if len(fragments) == 1:
@@ -1402,9 +1428,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _assemble_path_fragments(fragments: list, eps: float = EPSILON) -> list:
-        """
-        Assemble *fragments* into complete closed polygon paths, discarding any with area < eps.
-        """
+        # Assemble fragments into complete closed polygon paths, discarding any with area < eps.
         finished = []
         frags = fragments
         while len(frags) > 0:
@@ -1431,7 +1455,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         fa: float | None = None,
         fs: float | None = None,
     ) -> int:
-        """OpenSCAD's $fn/$fa/$fs segment count for a circle of radius *radius* (BOSL2's segs())."""
+        # OpenSCAD's $fn/$fa/$fs segment count for a circle of given radius (BOSL2's segs()).
         if fn is not None and fn >= 3:
             return int(math.floor(fn))
         fa = fa if fa else 12.0
@@ -1449,40 +1473,12 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         fa: float | None = None,
         fs: float | None = None,
     ) -> list[list[float]]:
-        """Offset a closed polygon by *radius* (rounded joins) or *delta* (sharp/chamfered joins).
-
-        The pure-Python/numpy equivalent of BOSL2's ``offset()``, returning POINTS. Verified to
-        match the real BOSL2 exactly over every path shape and variant the toolkit uses -- square,
-        concave, hexagon, a 6-point box outline and a triangle, crossed with radius/delta, inward and
-        outward, chamfered and not (see tests/test_bosl2_offset.py, 45 cases).
-
-        Positive grows the polygon, negative shrinks it, for either winding (the signed area picks
-        the sign convention). At each vertex the two offset edges either overlap -- and are simply
-        intersected (a mitre) -- or open a gap, which is filled with an arc (``radius=``), a sharp mitre
-        (``delta=``) or a flat cut (``delta=`` + ``chamfer=True``, the cut sitting \\|delta\\| from
-        the original vertex, square to the corner bisector).
-
-        **Prefer PythonSCAD's native 2-D ``offset()`` when you only need geometry** -- it is
-        Manifold-side and handles self-intersection properly. Reach for this only when the offset
-        outline is needed as POINTS, e.g. to walk a box's wall segments.
-
-        Usage::
-
-            Path([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(radius=-2)
-            path.offset(delta=2, chamfer=True)
-
-        Args:
-            radius:       offset distance with rounded joins (mutually exclusive with *delta*)
-            delta:   offset distance with sharp joins
-            chamfer: with *delta*, flatten the corner instead of mitring it (default False)
-            closed:  the path is a closed polygon (default True; open paths are not supported)
-
-        Note:
-            No self-intersection cleanup: an offset large enough to collapse a feature (roughly
-            half the narrowest neck) can fold the outline back on itself. That is well beyond the
-            wall-thickness insets this is used for, but it is why geometry work should use the
-            native offset() instead.
-        """
+        # Offset a closed polygon by radius (rounded joins) or delta (sharp/chamfered joins).
+        # Pure-Python/numpy equivalent of BOSL2's offset(), returning POINTS. Positive grows the
+        # polygon, negative shrinks it. Prefer PS's native 2-D offset() for geometry; use this
+        # only when the offset outline is needed as points.
+        #
+        # No self-intersection cleanup: large offsets can fold the outline back on itself.
         assert (radius is None) != (delta is None), (
             f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}"
         )
@@ -1590,6 +1586,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _vector_angle3(p0: list[float], p1: list[float], p2: list[float]) -> float:
+        # Interior angle at p1 of the triplet (p0, p1, p2) in degrees, any dimension.
         dim = len(p1)
         v1 = [p0[i] - p1[i] for i in range(dim)]
         v2 = [p2[i] - p1[i] for i in range(dim)]
@@ -1606,6 +1603,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         fa=None,
         fs=None,
     ) -> list[list[float]]:
+        # Build the arc points for one rounded corner of a 2-D path.
         # local: shapes2d imports pythonscad, which paths.py must stay importable without
         from pybosl2.shapes2d import _arc_points, _frag_count
 
@@ -1641,15 +1639,8 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         fa: float | None = None,
         fs: float | None = None,
     ) -> list[list[float]]:
-        """Round every corner of a 2-D *path* to the given radius, inserting an arc at each vertex.
-
-        Args:
-            path:   2-D path to round the corners of
-            radius: rounding radius, a scalar (applied to every corner) or a per-vertex list
-            radius:      synonym for radius
-            closed: if True, treat path as a closed polygon (default True)
-            fn/fa/fs: arc smoothness overrides
-        """
+        # Round every corner of a 2-D path to the given radius, inserting an arc at each vertex.
+        # radius can be a scalar or a per-vertex list.
         sides = len(path)
         assert sides > 2, f"Path has length {sides}. Length must be 3 or more."
         size = radius if radius is not None else radius
@@ -1805,8 +1796,12 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
         """Numeric torsion estimate at each point, as an ndarray."""
         return Path._path_torsion(self, closed=self.closed)
 
-    def cut_points(self, cutdist: float, direction: bool = False):
-        """Point(s) at the given distance(s) along the path."""
+    def cut_points(self, cutdist: float, direction: bool = False) -> list:
+        """Point(s) at the given distance(s) along the path.
+
+        Returns a list of ``[point, next_index, ...]`` entries; a single float *cutdist* returns
+        a single entry instead of a list.
+        """
         return Path._path_cut_points(self, cutdist, closed=self.closed, direction=direction)
 
     # -- derived paths ---------------------------------------------------------------------
@@ -1913,13 +1908,24 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     # -- conversion / rendering ------------------------------------------------------------
 
     def path2d(self) -> "Path":
-        """Drop the Z coordinate, giving a 2-D :class:`Path` (the XY projection)."""
+        """Drop the Z coordinate, giving a 2-D :class:`Path` (the XY projection).
+
+        Useful when a 3-D sweep path needs 2-D operations like :meth:`~Path.contains` or
+        :meth:`~Path.polygon`.
+
+        Examples:
+            .. pythonscad-example::
+
+                sweep_path = helix(turns=3, height=60, radius=20)
+                flat = sweep_path.path2d()
+                flat.stroke(width=2).linear_extrude(h=1).show()
+        """
         return Path(self.array[:, :2].tolist(), closed=self.closed)
 
     def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any):
-        """
-        Draw this 3-D path as a solid tube of the given *width* (see
-        :func:`pybosl2.drawing.stroke`).
+        """Draw this 3-D path as a solid tube of the given *width*.
+
+        Delegates to :func:`pybosl2.drawing.stroke`.
         """
         from pybosl2.drawing import stroke as _stroke
 
@@ -1949,7 +1955,7 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     # -- distributors (pybosl2/distributors.py) ----------------------------------------------
 
     def _distribute(self, mats) -> list["Path3D"]:
-        """Apply each copier matrix, returning the list of 3-D copies (BOSL2's function form)."""
+        # Apply each copier matrix, returning the list of 3-D copies (BOSL2's function form).
         if not len(self):
             return [self._like([]) for _ in mats]
         pts3 = self.array
