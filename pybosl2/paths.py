@@ -157,7 +157,12 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
     @classmethod
     def from_list(cls, lst: Sequence, closed: bool = True) -> "Path":
-        """Create a Path from a plain list of ``[x, y]`` coordinate pairs."""
+        """Create a Path from a plain list of ``[x, y]`` coordinate pairs.
+
+        Args:
+            lst: A sequence of ``[x, y]`` coordinate pairs.
+            closed: Whether the path is a closed polygon.
+        """
         return cls(lst, closed=closed)
 
     # -- measurement -----------------------------------------------------------------------
@@ -180,7 +185,11 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         return float(b[1][1] - b[0][1])
 
     def area(self, signed: bool = False) -> float:
-        """Enclosed area; *signed* keeps the sign (negative == clockwise)."""
+        """Enclosed area; *signed* keeps the sign (negative == clockwise).
+
+        Args:
+            signed: If True, preserve the sign so negative indicates clockwise winding.
+        """
         if _SHAPELY and self.closed:
             from shapely.geometry import LinearRing, Polygon
 
@@ -217,6 +226,9 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
         Containment is only meaningful for a closed polygon, so an open path (``closed=False``)
         always returns False rather than testing.
+
+        Args:
+            point: An ``[x, y]`` coordinate to test for containment.
 
         Examples:
             .. pythonscad-example::
@@ -264,15 +276,27 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         return Path._is_path_simple(self, closed=self.closed)
 
     def closest_point(self, pt: Sequence[float]) -> list:
-        """[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point on it."""
+        """[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point on it.
+
+        Args:
+            pt: The query point to find the closest approach to.
+        """
         return Path._path_closest_point(self, pt, closed=self.closed)
 
     def tangents(self, uniform: bool = True) -> np.ndarray:
-        """Unit tangent at each point, as an ndarray."""
+        """Unit tangent at each point, as an ndarray.
+
+        Args:
+            uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
+        """
         return Path._path_tangents(self, closed=self.closed, uniform=uniform)
 
     def normals(self, tangents=None) -> np.ndarray:
-        """Unit normal at each point, as an ndarray."""
+        """Unit normal at each point, as an ndarray.
+
+        Args:
+            tangents: Optional pre-computed tangent vectors; computed automatically if None.
+        """
         return Path._path_normals(self, tangents=tangents, closed=self.closed)
 
     def curvature(self) -> np.ndarray:
@@ -288,6 +312,10 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
         Returns a list of ``[point, next_index, ...]`` entries; a single float *cutdist* returns
         a single entry instead of a list.
+
+        Args:
+            cutdist: A single distance or a list of ascending distances from the start.
+            direction: If True, also include direction and normal at each cut point.
         """
         return Path._path_cut_points(self, cutdist, closed=self.closed, direction=direction)
 
@@ -306,6 +334,14 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
         Prefer ``.polygon().offset(...)`` (native, Manifold-side) when you only need geometry;
         this is for when the result is needed as points.
+
+        Args:
+            radius: Offset distance with rounded joins (positive grows, negative shrinks).
+            delta: Offset distance with sharp/chamfered joins (mutually exclusive with radius).
+            chamfer: If True, use chamfered rather than sharp joins when delta is given.
+            fn: Number of facets for rounded sections (overrides fa/fs).
+            fa: Minimum angle in degrees for circle fragments.
+            fs: Minimum size for circle fragments.
 
         Examples:
             .. pythonscad-example::
@@ -352,13 +388,21 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         return self._like(Path._deduplicate(self, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path":
-        """Insert points along the path."""
+        """Insert points along the path.
+
+        Args:
+            **kwargs: Passed through to the subdivide kernel; must include exactly one of
+                *sides* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
+        """
         return self._like(Path._subdivide_path(self, closed=self.closed, **kwargs))
 
     def resample(self, **kwargs: Any) -> "Path":
         """Resample to evenly spaced points.
 
         Accepts *sides* (target point count) or *spacing* (approximate spacing between points).
+
+        Args:
+            **kwargs: Must include exactly one of *sides* or *spacing*.
 
         Examples:
             .. pythonscad-example::
@@ -374,6 +418,9 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
         *cutdist* may be a single distance or a list of ascending distances.
 
+        Args:
+            cutdist: A single distance or a list of ascending distances from the start.
+
         Examples:
             .. pythonscad-example::
 
@@ -385,11 +432,20 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         return [self._like(sub) for sub in Path._path_cut(self, cutdist, closed=self.closed)]
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list["Path"]:
-        """Split this 2-D path into subpaths wherever it crosses itself."""
+        """Split this 2-D path into subpaths wherever it crosses itself.
+
+        Args:
+            eps: Epsilon for numerical comparisons.
+        """
         return [self._like(sub) for sub in Path._split_path_at_self_crossings(self, closed=self.closed, eps=eps)]
 
     def polygon_parts(self, nonzero: bool = False, eps: float = EPSILON) -> list["Path"]:
-        """Split a possibly self-intersecting polygon into non-intersecting simple polygons."""
+        """Split a possibly self-intersecting polygon into non-intersecting simple polygons.
+
+        Args:
+            nonzero: If True, use non-zero winding rule instead of even-odd.
+            eps: Epsilon for numerical comparisons.
+        """
         poly = Path._cleanup_path(self, eps=eps)
         tagged = Path._tag_self_crossing_subpaths(poly, nonzero=nonzero, closed=True, eps=eps)
         kept = [sub[1] for sub in tagged if sub[0] == "O"]
@@ -402,7 +458,11 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     # forward/fwd is -Y.
 
     def translate(self, v: Sequence[float]) -> "Path":
-        """Translate every point by *v* (2-D; a 1-vector shifts X only)."""
+        """Translate every point by *v* (2-D; a 1-vector shifts X only).
+
+        Args:
+            v: A 2-D translation vector ``[dx, dy]``; a 1-vector shifts X only.
+        """
         pts = self.array
         vv = np.zeros(2)
         va = np.asarray(v, dtype=float)
@@ -412,7 +472,11 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     move = translate
 
     def rot(self, a: float) -> "Path":
-        """Rotate every point by *a* degrees about the origin (Z axis)."""
+        """Rotate every point by *a* degrees about the origin (Z axis).
+
+        Args:
+            a: Rotation angle in degrees.
+        """
         rad = math.radians(a)
         c, s = math.cos(rad), math.sin(rad)
         rotmat = np.array([[c, -s], [s, c]])
@@ -421,7 +485,11 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     rotate = rot
 
     def mirror(self, v: Sequence[float]) -> "Path":
-        """Reflect every point across the line through the origin with normal *v*."""
+        """Reflect every point across the line through the origin with normal *v*.
+
+        Args:
+            v: The normal vector of the reflection line through the origin.
+        """
         sides = np.asarray(v, dtype=float)
         sides = sides / np.linalg.norm(sides)
         pts = self.array
@@ -429,25 +497,45 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         return self._like(pts - 2 * np.outer(diameter, sides))
 
     def yflip(self, y: float = 0.0) -> "Path":
-        """Reflect every point across the horizontal line Y=*y* (default: the X axis)."""
+        """Reflect every point across the horizontal line Y=*y* (default: the X axis).
+
+        Args:
+            y: The Y coordinate of the horizontal reflection line.
+        """
         pts = self.array.copy()
         pts[:, 1] = 2 * y - pts[:, 1]
         return self._like(pts)
 
     def right(self, x: float) -> "Path":
-        """Translate by *x* along +X."""
+        """Translate by *x* along +X.
+
+        Args:
+            x: Distance to translate along +X.
+        """
         return self.translate([x, 0.0])
 
     def left(self, x: float) -> "Path":
-        """Translate by *x* along -X."""
+        """Translate by *x* along -X.
+
+        Args:
+            x: Distance to translate along -X.
+        """
         return self.translate([-x, 0.0])
 
     def back(self, y: float) -> "Path":
-        """Translate by *y* along +Y."""
+        """Translate by *y* along +Y.
+
+        Args:
+            y: Distance to translate along +Y.
+        """
         return self.translate([0.0, y])
 
     def forward(self, y: float) -> "Path":
-        """Translate by *y* along -Y (BOSL2 fwd())."""
+        """Translate by *y* along -Y (BOSL2 fwd()).
+
+        Args:
+            y: Distance to translate along -Y.
+        """
         return self.translate([0.0, -y])
 
     fwd = forward
@@ -471,6 +559,13 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         """Cubic bezier PATH through every point of this path (BOSL2 path_to_bezpath).
 
         Delegates to :func:`pybosl2.beziers.create_bezier`.
+
+        Args:
+            closed: Whether the resulting bezier path should be closed.
+            tangents: Optional pre-computed tangent vectors for each point.
+            uniform: If True, use uniform parameterisation; see :meth:`tangents`.
+            size: Absolute size of the tangent handles.
+            relsize: Relative size of the tangent handles as a fraction of segment length.
 
         Examples:
             .. pythonscad-example::
@@ -553,6 +648,9 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         """The 2-D convex hull of this path, optionally together with *others* (more paths,
         regions, 2-D shapes or point lists) -- OpenSCAD ``hull()``.
 
+        Args:
+            *others: Additional paths, regions, 2-D shapes or point lists to hull together.
+
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D` (csg backend only).
         """
@@ -574,6 +672,10 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         :meth:`~pybosl2.shapes2d.Bosl2Shape2D.linear_extrude`); the SDF backend takes ``center``
         plus ``rounding_top``/``rounding_bottom``/``res``, and rejects the profile-shearing ones.
 
+        Args:
+            height: The extrusion height along +Z.
+            **kwargs: Backend-specific extrusion options (center, twist, scale, slices, etc.).
+
         Examples:
             .. pythonscad-example::
 
@@ -587,6 +689,10 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
         """Revolve this path about the Y axis into a 3-D solid; see
         :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
+
+        Args:
+            angle: The sweep angle in degrees (default 360 for a full revolution).
+            **kwargs: Additional options forwarded to the backend extruder.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
@@ -602,6 +708,10 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
     def debug_polygon(self, size: float = 1, vertices: bool = True):
         """A debug view of this polygon: the filled outline (as a thin flat solid) with each vertex
         labelled by its index in red (BOSL2 debug_polygon()). Set *size* for the label size.
+
+        Args:
+            size: Label size for the vertex indices.
+            vertices: If False, show only the filled outline without labels.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
@@ -629,6 +739,11 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
 
         Delegates to :func:`pybosl2.drawing.stroke`.
 
+        Args:
+            width: The line width.
+            closed: Override the path's closed setting; uses the path's own if None.
+            **kwargs: Additional options passed to the stroke function.
+
         Examples:
             .. pythonscad-example::
 
@@ -650,7 +765,13 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         closed: bool | None = None,
         **kwargs: Any,
     ) -> "list[Path | Path3D]":
-        """Break this path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`)."""
+        """Break this path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`).
+
+        Args:
+            dashpat: Sequence of dash/gap lengths alternating.
+            closed: Override the path's closed setting; uses the path's own if None.
+            **kwargs: Additional options passed to the dashed_stroke function.
+        """
         from pybosl2.drawing import dashed_stroke as _dashed
 
         return _dashed(  # type: ignore[return-value]
@@ -1747,7 +1868,12 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
 
     @classmethod
     def from_list(cls, lst: Sequence, closed: bool = True) -> "Path3D":
-        """Create a Path3D from a plain list of ``[x, y, z]`` coordinate triples."""
+        """Create a Path3D from a plain list of ``[x, y, z]`` coordinate triples.
+
+        Args:
+            lst: A sequence of ``[x, y, z]`` coordinate triples.
+            closed: Whether the path is a closed loop.
+        """
         return cls(lst, closed=closed)
 
     # -- measurement -----------------------------------------------------------------------
@@ -1777,15 +1903,27 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
         return bool(Path._is_closed_path(self))
 
     def closest_point(self, pt: Sequence[float]) -> list:
-        """[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point on it."""
+        """[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point on it.
+
+        Args:
+            pt: The query point to find the closest approach to.
+        """
         return Path._path_closest_point(self, pt, closed=self.closed)
 
     def tangents(self, uniform: bool = True) -> np.ndarray:
-        """Unit tangent at each point, as an ndarray."""
+        """Unit tangent at each point, as an ndarray.
+
+        Args:
+            uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
+        """
         return Path._path_tangents(self, closed=self.closed, uniform=uniform)
 
     def normals(self, tangents=None) -> np.ndarray:
-        """Unit normal at each point (in the local plane of the curve), as an ndarray."""
+        """Unit normal at each point (in the local plane of the curve), as an ndarray.
+
+        Args:
+            tangents: Optional pre-computed tangent vectors; computed automatically if None.
+        """
         return Path._path_normals(self, tangents=tangents, closed=self.closed)
 
     def curvature(self) -> np.ndarray:
@@ -1801,6 +1939,10 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
 
         Returns a list of ``[point, next_index, ...]`` entries; a single float *cutdist* returns
         a single entry instead of a list.
+
+        Args:
+            cutdist: A single distance or a list of ascending distances from the start.
+            direction: If True, also include direction and normal at each cut point.
         """
         return Path._path_cut_points(self, cutdist, closed=self.closed, direction=direction)
 
@@ -1823,15 +1965,28 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
         return self._like(Path._deduplicate(self, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path3D":
-        """Insert points along the path."""
+        """Insert points along the path.
+
+        Args:
+            **kwargs: Passed through to the subdivide kernel; must include exactly one of
+                *sides* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
+        """
         return self._like(Path._subdivide_path(self, closed=self.closed, **kwargs))
 
     def resample(self, **kwargs: Any) -> "Path3D":
-        """Resample to evenly spaced points."""
+        """Resample to evenly spaced points.
+
+        Args:
+            **kwargs: Must include exactly one of *sides* or *spacing*.
+        """
         return self._like(Path._resample_path(self, closed=self.closed, **kwargs))
 
     def cut(self, cutdist: float) -> list["Path3D"]:
-        """Split the path at the given distance(s), returning the sub-paths."""
+        """Split the path at the given distance(s), returning the sub-paths.
+
+        Args:
+            cutdist: A single distance or a list of ascending distances from the start.
+        """
         return [self._like(sub) for sub in Path._path_cut(self, cutdist, closed=self.closed)]
 
     # -- transforms ------------------------------------------------------------------------
@@ -1840,7 +1995,11 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     # forward are +/-Y, up/down are +/-Z. Every method returns a NEW Path3D.
 
     def translate(self, v: Sequence[float]) -> "Path3D":
-        """Translate every point by *v* (a shorter vector pads with zeros)."""
+        """Translate every point by *v* (a shorter vector pads with zeros).
+
+        Args:
+            v: A 3-D translation vector ``[dx, dy, dz]``; shorter vectors pad with zeros.
+        """
         vv = np.zeros(3)
         va = np.asarray(v, dtype=float)
         vv[: min(3, len(va))] = va[: min(3, len(va))]
@@ -1849,13 +2008,22 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     move = translate
 
     def scale(self, v: "float | Sequence[float]") -> "Path3D":
-        """Scale every point by a scalar or a per-axis ``[sx, sy, sz]`` factor."""
+        """Scale every point by a scalar or a per-axis ``[sx, sy, sz]`` factor.
+
+        Args:
+            v: A uniform scalar or a per-axis ``[sx, sy, sz]`` scale factor.
+        """
         s = np.asarray([v, v, v] if isinstance(v, (int, float)) else list(v), dtype=float)
         return self._like(self.array * s)
 
     def rotate(self, a: "float | Sequence[float]", v: Sequence[float] | None = None) -> "Path3D":
         """Rotate the points. ``rotate(angle, axis)`` spins about *axis*; ``rotate(angle)`` about +Z;
-        ``rotate([rx, ry, rz])`` applies the OpenSCAD X-then-Y-then-Z Euler rotation."""
+        ``rotate([rx, ry, rz])`` applies the OpenSCAD X-then-Y-then-Z Euler rotation.
+
+        Args:
+            a: A single angle in degrees, or ``[rx, ry, rz]`` Euler angles.
+            v: An optional rotation axis vector; if None and *a* is scalar, rotates about +Z.
+        """
         from pybosl2.transforms import axis_angle_matrix
 
         if v is not None:
@@ -1873,36 +2041,64 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
     rot = rotate
 
     def mirror(self, v: Sequence[float]) -> "Path3D":
-        """Reflect every point across the plane through the origin with normal *v*."""
+        """Reflect every point across the plane through the origin with normal *v*.
+
+        Args:
+            v: The normal vector of the reflection plane through the origin.
+        """
         sides = np.asarray(v, dtype=float)
         sides = sides / np.linalg.norm(sides)
         pts = self.array
         return self._like(pts - 2 * np.outer(pts @ sides, sides))
 
     def right(self, x: float) -> "Path3D":
-        """Translate by *x* along +X."""
+        """Translate by *x* along +X.
+
+        Args:
+            x: Distance to translate along +X.
+        """
         return self.translate([x, 0.0, 0.0])
 
     def left(self, x: float) -> "Path3D":
-        """Translate by *x* along -X."""
+        """Translate by *x* along -X.
+
+        Args:
+            x: Distance to translate along -X.
+        """
         return self.translate([-x, 0.0, 0.0])
 
     def back(self, y: float) -> "Path3D":
-        """Translate by *y* along +Y."""
+        """Translate by *y* along +Y.
+
+        Args:
+            y: Distance to translate along +Y.
+        """
         return self.translate([0.0, y, 0.0])
 
     def forward(self, y: float) -> "Path3D":
-        """Translate by *y* along -Y (BOSL2 fwd())."""
+        """Translate by *y* along -Y (BOSL2 fwd()).
+
+        Args:
+            y: Distance to translate along -Y.
+        """
         return self.translate([0.0, -y, 0.0])
 
     fwd = forward
 
     def up(self, z: float) -> "Path3D":
-        """Translate by *z* along +Z."""
+        """Translate by *z* along +Z.
+
+        Args:
+            z: Distance to translate along +Z.
+        """
         return self.translate([0.0, 0.0, z])
 
     def down(self, z: float) -> "Path3D":
-        """Translate by *z* along -Z."""
+        """Translate by *z* along -Z.
+
+        Args:
+            z: Distance to translate along -Z.
+        """
         return self.translate([0.0, 0.0, -z])
 
     # -- conversion / rendering ------------------------------------------------------------
@@ -1926,6 +2122,11 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
         """Draw this 3-D path as a solid tube of the given *width*.
 
         Delegates to :func:`pybosl2.drawing.stroke`.
+
+        Args:
+            width: The tube diameter.
+            closed: Override the path's closed setting; uses the path's own if None.
+            **kwargs: Additional options passed to the stroke function.
         """
         from pybosl2.drawing import stroke as _stroke
 
@@ -1942,7 +2143,13 @@ class Path3D(Distributable, Extrudable, Sweepable, Roundable):
         closed: bool | None = None,
         **kwargs: Any,
     ) -> "list[Path | Path3D]":  # type: ignore[override]
-        """Break this 3-D path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`)."""
+        """Break this 3-D path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`).
+
+        Args:
+            dashpat: Sequence of dash/gap lengths alternating.
+            closed: Override the path's closed setting; uses the path's own if None.
+            **kwargs: Additional options passed to the dashed_stroke function.
+        """
         from pybosl2.drawing import dashed_stroke as _dashed
 
         return _dashed(
