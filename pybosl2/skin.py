@@ -58,7 +58,7 @@ BACK = Vec3([0.0, 1.0, 0.0])
 class Sweepable:
     """Mixin adding sweep methods to Path and Path3D."""
 
-    def path_sweep(
+    def path_sweep(  # type: ignore[misc]
         self: Path3D,
         shape: Path,
         method: str = "incremental",
@@ -98,7 +98,7 @@ class Sweepable:
             transforms=transforms,
         )
 
-    def path_sweep2d(
+    def path_sweep2d(  # type: ignore[misc]
         self: Path,
         shape: Path,
         closed: bool = False,
@@ -108,7 +108,7 @@ class Sweepable:
         """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d())."""
         return _path_sweep2d(shape, self, closed=closed, caps=caps, style=style)
 
-    def linear_sweep(
+    def linear_sweep(  # type: ignore[misc]
         self: Path,
         height: float | None = None,
         twist: float = 0.0,
@@ -132,7 +132,7 @@ class Sweepable:
             style=style,
         )
 
-    def rotate_sweep(
+    def rotate_sweep(  # type: ignore[misc]
         self: Path,
         angle: float = 360.0,
         caps: CapsSpec = None,
@@ -150,7 +150,7 @@ class Sweepable:
             start=start,
         )
 
-    def spiral_sweep(
+    def spiral_sweep(  # type: ignore[misc]
         self: Path,
         height: float,
         radius: float | None = None,

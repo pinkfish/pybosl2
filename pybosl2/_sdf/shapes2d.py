@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
+from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._sdf._constants import CENTER
 from pybosl2._sdf._libfive import lv
 from pybosl2._sdf.paths import (

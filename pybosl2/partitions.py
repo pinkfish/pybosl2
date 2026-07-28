@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import math
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from pybosl2.paths import Path
@@ -275,7 +275,7 @@ def _ptn_sect(
             assert reps > 0, "repetition count must be positive."
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             w = sect[-1][0]
-            out = []
+            out: list[Any] = []
             for i in range(reps):
                 out += _right(i * w, sect)
             return _merge_collinear(out)
@@ -470,7 +470,7 @@ def partition_path(
     widths = [max_xs[i] - min_xs[i] for i in range(len(paths))]
     allpos = list(np.cumsum([0.0] + widths))
     totlen = allpos[-1]
-    fullpath = []
+    fullpath: list[Any] = []
     for i, path in enumerate(paths):
         fullpath += _left(totlen / 2 - allpos[i], path)
     cleanpath = _merge_collinear(_dedup(fullpath))

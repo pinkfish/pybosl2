@@ -29,6 +29,18 @@ from pybosl2.skin import (
     subdivide_and_slice,
     sweep,
 )
+from pybosl2.skin import (
+    _linear_sweep as linear_sweep,
+)
+from pybosl2.skin import (
+    _path_sweep2d as path_sweep2d,
+)
+from pybosl2.skin import (
+    _rotate_sweep as rotate_sweep,
+)
+from pybosl2.skin import (
+    _spiral_sweep as spiral_sweep,
+)
 
 SQUARE = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
 

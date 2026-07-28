@@ -286,7 +286,7 @@ def nurbs_curve(
         return Path([[float(p[0]), float(p[1])] for p in pts], closed=closed)
     if dim == 3:
         return Path3D([[float(p[0]), float(p[1]), float(p[2])] for p in pts], closed=closed)
-    return [[float(c) for c in p] for p in pts]
+    return [[float(c) for c in p] for p in pts]  # type: ignore[misc]
 
 
 # ---------------------------------------------------------------------------
