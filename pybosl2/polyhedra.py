@@ -19,13 +19,23 @@
 from __future__ import annotations
 
 import math
+from enum import Enum
 
 import numpy as np
 
 from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.vnf import VNF
 
-__all__ = ["Polyhedra"]
+__all__ = ["Polyhedra", "PlatonicSolid"]
+
+
+class PlatonicSolid(Enum):
+    TETRAHEDRON = "tetrahedron"
+    CUBE = "cube"
+    OCTAHEDRON = "octahedron"
+    DODECAHEDRON = "dodecahedron"
+    ICOSAHEDRON = "icosahedron"
+
 
 _PHI = (1 + math.sqrt(5)) / 2
 
@@ -168,14 +178,15 @@ class Polyhedra:
     """The five Platonic solids (BOSL2 polyhedra.scad, Platonic subset)."""
 
     @staticmethod
-    def _resolve(name):
-        key = _ALIASES.get(str(name).lower(), str(name).lower())
+    def _resolve(name: PlatonicSolid | str) -> str:
+        val = name.value if isinstance(name, PlatonicSolid) else str(name)
+        key = _ALIASES.get(val.lower(), val.lower())
         if key not in _SOLIDS:
             raise ValueError(f"unknown polyhedron {name!r}; expected one of {sorted(_SOLIDS)}")
         return key
 
     @staticmethod
-    def regular_polyhedron_info(name: str) -> dict:
+    def regular_polyhedron_info(name: PlatonicSolid | str) -> dict:
         """The named solid's vertex/face data and counts (BOSL2 regular_polyhedron_info())."""
         key = Polyhedra._resolve(name)
         verts, faces, _ratio = _SOLIDS[key]
@@ -189,7 +200,7 @@ class Polyhedra:
 
     @staticmethod
     def regular_polyhedron(
-        name: str = "cube",
+        name: PlatonicSolid | str = PlatonicSolid.CUBE,
         radius: float | None = None,
         diameter: float | None = None,
         inner_radius: float | None = None,
@@ -198,7 +209,7 @@ class Polyhedra:
         """A Platonic solid, sized by circumradius *radius*, diameter *diameter*, inradius *inner_radius*, or *side*
         (BOSL2 regular_polyhedron()).
 
-        *name* is ``tetrahedron`` / ``cube`` / ``octahedron`` / ``dodecahedron`` / ``icosahedron``
+        *name* is a ``PlatonicSolid`` enum or string like ``"tetrahedron"`` / ``"cube"`` / etc.
         (short aliases accepted). Defaults to circumradius 1.
 
         Examples:
@@ -206,8 +217,8 @@ class Polyhedra:
 
             .. pythonscad-example::
 
-                from pybosl2.polyhedra import Polyhedra
-                Polyhedra.regular_polyhedron("dodecahedron", side=12).show()
+                from pybosl2.polyhedra import Polyhedra, PlatonicSolid
+                Polyhedra.regular_polyhedron(PlatonicSolid.DODECAHEDRON, side=12).show()
         """
         key = Polyhedra._resolve(name)
         verts, faces, ratio = _SOLIDS[key]
@@ -226,26 +237,81 @@ class Polyhedra:
         return Bosl2Solid(solid, size=[2 * scale, 2 * scale, 2 * scale])
 
     @staticmethod
-    def tetrahedron(**kw) -> Bosl2Solid:
+    def tetrahedron(
+        radius: float | None = None,
+        diameter: float | None = None,
+        inner_radius: float | None = None,
+        side: float | None = None,
+    ) -> Bosl2Solid:
         """A regular tetrahedron (4 triangular faces)."""
-        return Polyhedra.regular_polyhedron("tetrahedron", **kw)
+        return Polyhedra.regular_polyhedron(
+            "tetrahedron",
+            radius=radius,
+            diameter=diameter,
+            inner_radius=inner_radius,
+            side=side,
+        )
 
     @staticmethod
-    def cube(**kw) -> Bosl2Solid:
+    def cube(
+        radius: float | None = None,
+        diameter: float | None = None,
+        inner_radius: float | None = None,
+        side: float | None = None,
+    ) -> Bosl2Solid:
         """A cube / regular hexahedron (6 square faces)."""
-        return Polyhedra.regular_polyhedron("cube", **kw)
+        return Polyhedra.regular_polyhedron(
+            "cube",
+            radius=radius,
+            diameter=diameter,
+            inner_radius=inner_radius,
+            side=side,
+        )
 
     @staticmethod
-    def octahedron(**kw) -> Bosl2Solid:
+    def octahedron(
+        radius: float | None = None,
+        diameter: float | None = None,
+        inner_radius: float | None = None,
+        side: float | None = None,
+    ) -> Bosl2Solid:
         """A regular octahedron (8 triangular faces)."""
-        return Polyhedra.regular_polyhedron("octahedron", **kw)
+        return Polyhedra.regular_polyhedron(
+            "octahedron",
+            radius=radius,
+            diameter=diameter,
+            inner_radius=inner_radius,
+            side=side,
+        )
 
     @staticmethod
-    def dodecahedron(**kw) -> Bosl2Solid:
+    def dodecahedron(
+        radius: float | None = None,
+        diameter: float | None = None,
+        inner_radius: float | None = None,
+        side: float | None = None,
+    ) -> Bosl2Solid:
         """A regular dodecahedron (12 pentagonal faces)."""
-        return Polyhedra.regular_polyhedron("dodecahedron", **kw)
+        return Polyhedra.regular_polyhedron(
+            "dodecahedron",
+            radius=radius,
+            diameter=diameter,
+            inner_radius=inner_radius,
+            side=side,
+        )
 
     @staticmethod
-    def icosahedron(**kw) -> Bosl2Solid:
+    def icosahedron(
+        radius: float | None = None,
+        diameter: float | None = None,
+        inner_radius: float | None = None,
+        side: float | None = None,
+    ) -> Bosl2Solid:
         """A regular icosahedron (20 triangular faces)."""
-        return Polyhedra.regular_polyhedron("icosahedron", **kw)
+        return Polyhedra.regular_polyhedron(
+            "icosahedron",
+            radius=radius,
+            diameter=diameter,
+            inner_radius=inner_radius,
+            side=side,
+        )

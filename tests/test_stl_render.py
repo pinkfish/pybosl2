@@ -216,7 +216,7 @@ def test_path_sweep_closed_torus(tmp_path):
     )
     m = _render(
         tmp_path,
-        "path_sweep(shape, circ, closed=True).polyhedron()",
+        "Path3D(circ).path_sweep(shape, closed=True).polyhedron()",
         setup=setup,
         name="torus",
     )
@@ -255,7 +255,7 @@ def test_linear_sweep_twist_scale(tmp_path):
     setup = "square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]\n"
     m = _render(
         tmp_path,
-        "linear_sweep(square, height=40, twist=120, scale=0.4).polyhedron()",
+        "Path(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron()",
         setup=setup,
         name="linsweep",
     )
@@ -267,7 +267,7 @@ def test_linear_sweep_plain_volume(tmp_path):
     setup = "square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]\n"
     m = _render(
         tmp_path,
-        "linear_sweep(square, height=5).polyhedron()",
+        "Path(square).linear_sweep(height=5).polyhedron()",
         setup=setup,
         name="linplain",
     )
@@ -277,7 +277,7 @@ def test_linear_sweep_plain_volume(tmp_path):
 
 def test_rotate_sweep_full_revolution(tmp_path):
     setup = "profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]\n"
-    m = _render(tmp_path, "rotate_sweep(profile, 360).polyhedron()", setup=setup, name="revolve")
+    m = _render(tmp_path, "Path(profile).rotate_sweep(angle=360).polyhedron()", setup=setup, name="revolve")
     assert m.volume > 0
     np.testing.assert_allclose(m.size[:2], [24, 24], atol=0.5)  # diameter ~ 2 * xmax(12)
 
@@ -286,7 +286,7 @@ def test_rotate_sweep_partial(tmp_path):
     setup = "profile = [[4, -10], [12, -10], [12, 10], [4, 10]]\n"
     m = _render(
         tmp_path,
-        "rotate_sweep(profile, 270).polyhedron()",
+        "Path(profile).rotate_sweep(angle=270).polyhedron()",
         setup=setup,
         name="revolve270",
     )
@@ -298,7 +298,7 @@ def test_spiral_sweep_coil(tmp_path):
     setup = "section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]\n"
     m = _render(
         tmp_path,
-        "spiral_sweep(section, height=40, radius=12, turns=5).polyhedron()",
+        "Path(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron()",
         setup=setup,
         name="coil",
     )
@@ -309,7 +309,7 @@ def test_spiral_sweep_coil(tmp_path):
 
 def test_path_sweep2d_wavy_bar(tmp_path):
     setup = "shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]\npath = [[t, 8*math.sin(t/12)] for t in range(0, 90, 3)]\n"
-    m = _render(tmp_path, "path_sweep2d(shape, path).polyhedron()", setup=setup, name="psweep2d")
+    m = _render(tmp_path, "Path(path).path_sweep2d(shape).polyhedron()", setup=setup, name="psweep2d")
     assert m.ntris > 0
     assert m.volume > 0
     assert m.watertight  # a capped open sweep is a closed solid
@@ -319,7 +319,7 @@ def test_rot_resample_then_sweep(tmp_path):
     setup = (
         "sq = [[-1.5, -1.5], [1.5, -1.5], [1.5, 1.5], [-1.5, 1.5]]\n"
         "curve = [[0, 0, 0], [20, 0, 8], [20, 20, 16], [0, 20, 24]]\n"
-        "tl = rot_resample(path_sweep(sq, curve, transforms=True), sides=30)\n"
+        "tl = rot_resample(Path3D(curve).path_sweep(sq, transforms=True), sides=30)\n"
     )
     m = _render(tmp_path, "sweep(sq, tl).polyhedron()", setup=setup, name="rotresample")
     assert m.ntris > 0

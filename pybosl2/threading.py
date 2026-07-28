@@ -558,7 +558,7 @@ class Threading:
             entirely through :func:`~pybosl2.skin.spiral_sweep` (VNF / polyhedron output),
             which has no arc-based primitives and therefore no smoothing resolution to control.
         """
-        from pybosl2.skin import spiral_sweep
+        from pybosl2.paths import Path
 
         assert pitch > 0 and d > 0, "thread_helix(): d and pitch must be positive."
         if profile is None:
@@ -575,13 +575,14 @@ class Threading:
         for k in range(starts):
             sec = [[x, y + k * pitch] for x, y in section]
             piece = Bosl2Solid(
-                spiral_sweep(
-                    sec,
+                Path(sec)
+                .spiral_sweep(
                     height=height,
                     radius=radius,
                     turns=turns * (-1 if left_handed else 1),
                     center=True,
-                ).polyhedron()
+                )
+                .polyhedron()
             )
             if starts > 1:
                 piece = piece.rotate([0, 0, k * 360 / starts])

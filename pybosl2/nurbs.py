@@ -26,6 +26,11 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Sequence
+
+if TYPE_CHECKING:
+    from pybosl2.paths import Path, Path3D
+
 import numpy as np
 
 from pybosl2._helpers import is_num
@@ -231,7 +236,7 @@ def _nurbs_curve_pts(
 
 
 def nurbs_curve(
-    control,
+    control: Path | Path3D | Sequence[Sequence[float]],
     degree: int | None = None,
     splinesteps: int | None = None,
     u=None,
@@ -239,7 +244,7 @@ def nurbs_curve(
     weights=None,
     type: str = "clamped",  # noqa: A002
     knots=None,
-):
+) -> Path | Path3D | list[float]:
     """Evaluate a NURBS curve, returning its points (BOSL2 nurbs_curve()).
 
     Give either *splinesteps* (uniform samples between knots, with a sample at every knot) or *u*
@@ -281,7 +286,7 @@ def nurbs_curve(
         return Path([[float(p[0]), float(p[1])] for p in pts], closed=closed)
     if dim == 3:
         return Path3D([[float(p[0]), float(p[1]), float(p[2])] for p in pts], closed=closed)
-    return [[float(c) for c in p] for p in pts]
+    return [[float(c) for c in p] for p in pts]  # type: ignore[misc]
 
 
 # ---------------------------------------------------------------------------

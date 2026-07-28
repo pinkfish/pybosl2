@@ -38,7 +38,10 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Sequence, Union
+from typing import TYPE_CHECKING, Any, Sequence, Union
+
+if TYPE_CHECKING:
+    from pybosl2.paths import Path, Path3D
 
 import numpy as np
 
@@ -50,6 +53,130 @@ from pybosl2.vnf import VNF
 
 UP = Vec3([0.0, 0.0, 1.0])
 BACK = Vec3([0.0, 1.0, 0.0])
+
+
+class Sweepable:
+    """Mixin adding sweep methods to Path and Path3D."""
+
+    def path_sweep(  # type: ignore[misc]
+        self: Path3D,
+        shape: Path,
+        method: str = "incremental",
+        normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
+        closed: bool = False,
+        twist: float = 0.0,
+        twist_by_length: bool = True,
+        scale: Any = (1.0, 1.0),
+        scale_by_length: bool = True,
+        symmetry: int = 1,
+        last_normal: Sequence[float] | None = None,
+        tangent: Sequence[Sequence[float]] | None = None,
+        uniform: bool = True,
+        relaxed: bool = False,
+        caps: CapsSpec = None,
+        style: str = "min_edge",
+        transforms: bool = False,
+    ) -> VNF | list[list[list[float]]]:
+        """Sweep *shape* along this path (BOSL2 path_sweep())."""
+        return _path_sweep(
+            shape,
+            self,
+            method=method,
+            normal=normal,
+            closed=closed,
+            twist=twist,
+            twist_by_length=twist_by_length,
+            scale=scale,
+            scale_by_length=scale_by_length,
+            symmetry=symmetry,
+            last_normal=last_normal,
+            tangent=tangent,
+            uniform=uniform,
+            relaxed=relaxed,
+            caps=caps,
+            style=style,
+            transforms=transforms,
+        )
+
+    def path_sweep2d(  # type: ignore[misc]
+        self: Path,
+        shape: Path,
+        closed: bool = False,
+        caps: CapsSpec = None,
+        style: str = "min_edge",
+    ) -> VNF:
+        """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d())."""
+        return _path_sweep2d(shape, self, closed=closed, caps=caps, style=style)
+
+    def linear_sweep(  # type: ignore[misc]
+        self: Path,
+        height: float | None = None,
+        twist: float = 0.0,
+        scale: Any = 1,
+        shift: Sequence[float] = (0.0, 0.0),
+        slices: int | None = None,
+        center: bool = False,
+        caps: CapsSpec = None,
+        style: str = "min_edge",
+    ) -> VNF:
+        """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep())."""
+        return _linear_sweep(
+            self,
+            height=height,
+            twist=twist,
+            scale=scale,
+            shift=shift,
+            slices=slices,
+            center=center,
+            caps=caps,
+            style=style,
+        )
+
+    def rotate_sweep(  # type: ignore[misc]
+        self: Path,
+        angle: float = 360.0,
+        caps: CapsSpec = None,
+        closed: bool | None = None,
+        style: str = "min_edge",
+        start: float = 0.0,
+    ) -> VNF:
+        """Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep())."""
+        return _rotate_sweep(
+            self,
+            angle=angle,
+            caps=caps,
+            closed=closed,
+            style=style,
+            start=start,
+        )
+
+    def spiral_sweep(  # type: ignore[misc]
+        self: Path,
+        height: float,
+        radius: float | None = None,
+        turns: float = 1.0,
+        radius1: float | None = None,
+        radius2: float | None = None,
+        diameter: float | None = None,
+        diameter1: float | None = None,
+        diameter2: float | None = None,
+        center: bool = True,
+        style: str = "min_edge",
+    ) -> VNF:
+        """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep())."""
+        return _spiral_sweep(
+            self,
+            height,
+            radius=radius,
+            turns=turns,
+            radius1=radius1,
+            radius2=radius2,
+            diameter=diameter,
+            diameter1=diameter1,
+            diameter2=diameter2,
+            center=center,
+            style=style,
+        )
 
 
 def _u(v: Sequence[float]) -> np.ndarray:
@@ -182,7 +309,7 @@ def sweep(
     return VNF.vertex_array(points, cap1=flatcaps[0], cap2=flatcaps[1], col_wrap=True, style=style)
 
 
-def path_sweep(
+def _path_sweep(
     shape: Sequence[Sequence[float]],
     path: Sequence[Sequence[float]],
     method: str = "incremental",
@@ -215,7 +342,7 @@ def path_sweep(
 
             square = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
             helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
-            path_sweep(square, helix).polyhedron().show()
+            Path3D(helix).path_sweep(square).polyhedron().show()
     """
     from pybosl2.paths import Path  # local: keep the import graph acyclic
 
@@ -462,7 +589,7 @@ def skin(
 # ---------------------------------------------------------------------------------------------
 
 
-def linear_sweep(
+def _linear_sweep(
     region: Sequence[Sequence[float]],
     height: float | None = None,
     twist: float = 0.0,
@@ -495,7 +622,7 @@ def linear_sweep(
         .. pythonscad-example::
 
             square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
-            linear_sweep(square, height=40, twist=120, scale=0.4).polyhedron().show()
+            Path(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron().show()
     """
     hh = float(height if height is not None else (height if height is not None else 1))
     path = [[p[0], p[1]] for p in region]
@@ -519,7 +646,7 @@ def linear_sweep(
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
-def rotate_sweep(
+def _rotate_sweep(
     shape: Sequence[Sequence[float]],
     angle: float = 360.0,
     caps: CapsSpec = None,
@@ -546,7 +673,7 @@ def rotate_sweep(
         .. pythonscad-example::
 
             profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]
-            rotate_sweep(profile, 360).polyhedron().show()
+            Path(profile).rotate_sweep(angle=360).polyhedron().show()
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
     # Default: cap a partial revolution / an explicitly-open profile, but never a full one.
@@ -573,7 +700,7 @@ def rotate_sweep(
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
-def spiral_sweep(
+def _spiral_sweep(
     poly: Sequence[Sequence[float]],
     height: float,
     radius: float | None = None,
@@ -605,7 +732,7 @@ def spiral_sweep(
         .. pythonscad-example::
 
             section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
-            spiral_sweep(section, height=40, radius=12, turns=5).polyhedron().show()
+            Path(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron().show()
     """
     assert height > 0 and turns != 0, "spiral_sweep(): need positive height and nonzero turns."
     rr1 = (
@@ -1422,7 +1549,7 @@ def _bent_cutout_mask(
 # ---------------------------------------------------------------------------------------------
 
 
-def path_sweep2d(
+def _path_sweep2d(
     shape: Sequence[Sequence[float]],
     path: Sequence[Sequence[float]],
     closed: bool = False,
@@ -1453,7 +1580,7 @@ def path_sweep2d(
 
             shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
             path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
-            path_sweep2d(shape, path).polyhedron().show()
+            Path(path).path_sweep2d(shape).polyhedron().show()
     """
     from pybosl2.paths import Path
 

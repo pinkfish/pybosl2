@@ -21,7 +21,10 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Sequence, cast
+from typing import TYPE_CHECKING, Any, Sequence, cast
+
+if TYPE_CHECKING:
+    from pybosl2.paths import Path, Path3D
 
 import numpy as np
 
@@ -347,8 +350,8 @@ class Roundable:
     """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path` and
     :class:`~pybosl2.paths.Path3D`."""
 
-    def round_corners(
-        self,
+    def round_corners(  # type: ignore[misc]
+        self: Path | Path3D,
         radius: float | None = None,
         method: str = "circle",
         cut=None,
@@ -372,8 +375,8 @@ class Roundable:
             **kwargs,
         )
 
-    def smooth_path(
-        self,
+    def smooth_path(  # type: ignore[misc]
+        self: Path | Path3D,
         tangents=None,
         size=None,
         relsize=None,

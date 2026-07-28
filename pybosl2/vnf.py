@@ -357,7 +357,7 @@ def vnf_polyhedron(vnf: VNF):
         .. pythonscad-example::
 
             sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
-            v = linear_sweep(sq, height=20)
+            v = Path(sq).linear_sweep(height=20)
             vnf_polyhedron(v).show()
     """
     return vnf.polyhedron()

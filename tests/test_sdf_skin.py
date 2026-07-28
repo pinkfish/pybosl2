@@ -14,17 +14,17 @@ class TestRevolveSDF:
 
     def test_full_revolution_builds(self):
         rect = sdf_s2d.rect2d([4, 10])
-        shape = sdf_skin.revolve_sdf(rect).mesh()
+        shape = sdf_skin._revolve_sdf(rect).mesh()
         assert shape is not None
 
     def test_partial_revolution_builds(self):
         rect = sdf_s2d.rect2d([4, 10])
-        shape = sdf_skin.revolve_sdf(rect, angle=90).mesh()
+        shape = sdf_skin._revolve_sdf(rect, angle=90).mesh()
         assert shape is not None
 
     def test_circle_revolved_builds(self):
         circ = sdf_s2d.circle2d(radius=5).translate([8, 0])
-        shape = sdf_skin.revolve_sdf(circ).mesh()
+        shape = sdf_skin._revolve_sdf(circ).mesh()
         assert shape is not None
 
 
@@ -32,7 +32,7 @@ class TestLinearSweepSDF:
     """linear_sweep_sdf — extrude with twist/scale/shift."""
 
     def test_plain_builds(self):
-        shape = sdf_skin.linear_sweep_sdf(sdf_s2d.circle2d(radius=5), height=4).mesh()
+        shape = sdf_skin._linear_sweep_sdf(sdf_s2d.circle2d(radius=5), height=4).mesh()
         assert shape is not None
 
 

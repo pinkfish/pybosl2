@@ -44,7 +44,7 @@ from pybosl2.distributors import Distributable
 from pybosl2.geometry import cross
 from pybosl2.miscellaneous import Miscellaneous
 from pybosl2.partitions import Partitionable
-from pybosl2.paths import Path
+from pybosl2.paths import Path, Path3D
 from pybosl2.vectors import is_vector, unit
 
 from .constants import BOTTOM, CENTER, DOWN, FRONT, LEFT, UP
@@ -421,6 +421,26 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def __rsub__(self, other) -> "Bosl2Solid":
         _check_operand_backend("csg", other)
         return self._wrap(Bosl2Solid._unwrap(other) - self.shape)
+
+    def __add__(self, other) -> "Bosl2Solid":
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __radd__(self, other) -> "Bosl2Solid":
+        try:
+            len(other)
+            return self.translate(other)
+        except (TypeError, ValueError):
+            return NotImplemented
+
+    def __mul__(self, other) -> "Bosl2Solid":
+        return self.scale(other)
+
+    def __rmul__(self, other) -> "Bosl2Solid":
+        return self.scale(other)
 
     # ---- distributors (pybosl2/distributors.py) ----
     #
@@ -3013,7 +3033,7 @@ def text3d(
 
 
 def path_text(
-    path: Sequence[Sequence[float]],
+    path: Path | Path3D,
     text: str,
     font: str = "Liberation Sans",
     size: float = 10,

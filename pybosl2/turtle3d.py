@@ -559,11 +559,11 @@ class Turtle:
         .. pythonscad-example::
 
             from pybosl2.turtle3d import Turtle
-            from pybosl2.skin import path_sweep
+            from pybosl2.paths import Path3D
             sq = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
             path = Turtle().run(["move", 20, "arcleft", 3, "move", 20, "arcleft", 3,
                                  "move", 20, "arcleft", 3, "move", 20, "arcleft", 3]).points()
-            path_sweep(sq, path, closed=True).polyhedron().show()
+            Path3D(path).path_sweep(sq, closed=True).polyhedron().show()
     """
 
     def __init__(self, state=RIGHT):

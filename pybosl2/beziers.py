@@ -49,6 +49,7 @@ from typing import Sequence
 import numpy as np
 
 from pybosl2.math import EPSILON, lerp, lerpn
+from pybosl2.skin import _path_sweep
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import reorient
 from pybosl2.vectors import unit as _unit
@@ -410,12 +411,11 @@ class Bezier(list):
         Uses the curve's exact derivatives as tangents (better end joints than path_sweep's
         approximation). *N* is ignored (present for signature parity with :meth:`bezpath_sweep`).
         """
-        from pybosl2.skin import path_sweep
 
         _ = n_degree
         path = self.curve(splinesteps, endpoint)
         tang = self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))
-        return path_sweep(
+        return _path_sweep(
             shape,  # type: ignore[arg-type]
             path,  # type: ignore[arg-type]
             method=method,
@@ -453,7 +453,6 @@ class Bezier(list):
         transforms: bool = False,
     ):
         """Sweep the 2-D *shape* along this bezier PATH into a VNF (BOSL2 bezpath_sweep())."""
-        from pybosl2.skin import path_sweep
 
         path = self.path_curve(splinesteps, n_degree, endpoint)
         bezpath = self.array
@@ -465,7 +464,7 @@ class Bezier(list):
             tang.extend(ctrl.derivative([i * step for i in range(splinesteps)]))
         if endpoint:
             tang.append(Bezier(bezpath[(segs - 1) * n_degree : segs * n_degree + 1]).derivative(1.0))
-        return path_sweep(
+        return _path_sweep(
             shape,
             path,  # type: ignore[arg-type]
             method=method,
@@ -911,7 +910,7 @@ class BezierPatch(list):
 
 def _debug_tube(points, radius: float, sides: int = 8):
     """A thin native tube swept along *points* (a debug 'stroke'). Requires the native app."""
-    from pybosl2.skin import path_sweep
+    from pybosl2.paths import Path3D
 
     circ = [
         [
@@ -924,7 +923,7 @@ def _debug_tube(points, radius: float, sides: int = 8):
     dedup = [pts[0]] + [
         p for i, p in enumerate(pts[1:], 1) if np.linalg.norm(np.asarray(p) - np.asarray(pts[i - 1])) > 1e-9
     ]
-    return path_sweep(circ, dedup).polyhedron()
+    return Path3D(dedup).path_sweep(circ).polyhedron()  # type: ignore[union-attr, arg-type]
 
 
 def _sphere_at(p, diameter: float):

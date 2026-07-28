@@ -105,7 +105,7 @@ def _clamp(v: float, lo: float, hi: float) -> float:
     return lv.max(lo, lv.min(hi, v))
 
 
-def revolve_sdf(
+def _revolve_sdf(
     shape2d: PyShape2D,
     angle: float = 360,
     _fn: int | None = None,
@@ -152,7 +152,7 @@ def revolve_sdf(
     return PyShape(sdf_fn, [-max_r, -max_r, -max_z], [max_r, max_r, max_z], res)
 
 
-def linear_sweep_sdf(
+def _linear_sweep_sdf(
     shape2d: PyShape2D,
     height: float = 1.0,
     twist: float = 0.0,

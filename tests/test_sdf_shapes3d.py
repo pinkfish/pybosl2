@@ -102,33 +102,33 @@ class TestNamedCombinators:
         a = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0])
         b = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0]).translate([5, 0, 0])
         c = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0]).translate([10, 0, 0])
-        for u in (sdf_s3d.union(a, b, c), sdf_s3d.union([a, b, c])):
+        for u in (sdf_s3d.PyShape.union(a, b, c), sdf_s3d.PyShape.union([a, b, c])):
             m = u.mesh()
             assert m.sample(-2, 0, 0) < 0, "inside a"
             assert m.sample(10, 0, 0) < 0, "inside c"
             assert m.sample(0, 10, 0) > 0, "outside all three"
-        assert sdf_s3d.union(a, b, c).mx[0] == 13.0, "bounds widen to the union"
+        assert sdf_s3d.PyShape.union(a, b, c).mx[0] == 13.0, "bounds widen to the union"
 
     def test_union_of_one_is_identity(self):
         a = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0])
-        assert sdf_s3d.union(a) is a
+        assert sdf_s3d.PyShape.union(a) is a
 
     def test_union_res_is_finest_child(self):
         a = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0], res=10)
         b = sdf_s3d.cuboid(size=[6.0, 6.0, 6.0], res=30)
-        assert sdf_s3d.union(a, b).res == 30
+        assert sdf_s3d.PyShape.union(a, b).res == 30
 
     def test_union_rejects_non_shapes(self):
         with pytest.raises(AssertionError):
-            sdf_s3d.union(sdf_s3d.cuboid(size=[6.0, 6.0, 6.0]), "not a shape")
+            sdf_s3d.PyShape.union(sdf_s3d.cuboid(size=[6.0, 6.0, 6.0]), "not a shape")
         with pytest.raises(AssertionError):
-            sdf_s3d.union()
+            sdf_s3d.PyShape.union()
 
     def test_intersection_nary(self):
         a = sdf_s3d.cuboid(size=[10.0, 10.0, 10.0])
         b = sdf_s3d.cuboid(size=[10.0, 10.0, 10.0]).translate([6, 0, 0])
         c = sdf_s3d.cuboid(size=[10.0, 10.0, 10.0]).translate([3, 3, 0])
-        m = sdf_s3d.intersection(a, b, c).mesh()
+        m = sdf_s3d.PyShape.intersection(a, b, c).mesh()
         assert m.sample(3, 3, 0) < 0, "inside all three"
         assert m.sample(3, -3, 0) > 0, "outside c"
         assert m.sample(-3, 0, 0) > 0, "outside b"
@@ -137,26 +137,26 @@ class TestNamedCombinators:
         a = sdf_s3d.cuboid(size=[4.0, 4.0, 4.0])
         b = sdf_s3d.cuboid(size=[4.0, 4.0, 4.0]).translate([100, 0, 0])
         with pytest.raises(AssertionError):
-            sdf_s3d.intersection(a, b)
+            sdf_s3d.PyShape.intersection(a, b)
 
     def test_difference_multiple_tools(self):
         base = sdf_s3d.cuboid(size=[20.0, 20.0, 20.0])
         t1 = sdf_s3d.sphere(radius=3)
         t2 = sdf_s3d.sphere(radius=3).translate([6, 0, 0])
-        d = sdf_s3d.difference(base, t1, t2).mesh()
+        d = sdf_s3d.PyShape.difference(base, t1, t2).mesh()
         assert d.sample(0, 0, 0) > 0, "carved by t1"
         assert d.sample(6, 0, 0) > 0, "carved by t2"
         assert d.sample(-6, 0, 0) < 0, "still solid away from both tools"
-        assert sdf_s3d.difference(base, t1).res == base.res, "keeps the base's res"
+        assert sdf_s3d.PyShape.difference(base, t1).res == base.res, "keeps the base's res"
 
     def test_difference_with_no_tools_is_identity(self):
         base = sdf_s3d.cuboid(size=[20.0, 20.0, 20.0])
-        assert sdf_s3d.difference(base) is base
+        assert sdf_s3d.PyShape.difference(base) is base
 
     def test_hull_bridges_two_separated_cubes(self):
         a = sdf_s3d.cuboid(size=[8.0, 8.0, 8.0], res=8).translate([-10, 0, 0])
         b = sdf_s3d.cuboid(size=[8.0, 8.0, 8.0], res=8).translate([10, 0, 0])
-        h = sdf_s3d.hull(a, b)
+        h = sdf_s3d.PyShape.hull(a, b)
         m = h.mesh()
         assert m.sample(0, 0, 0) < 0, "the bridge between the cubes is inside the hull"
         assert m.sample(-10, 0, 0) < 0, "inside a"
@@ -169,7 +169,7 @@ class TestNamedCombinators:
     def test_hull_is_lazy_until_first_mesh(self):
         a = sdf_s3d.cuboid(size=[8.0, 8.0, 8.0], res=8).translate([-10, 0, 0])
         b = sdf_s3d.cuboid(size=[8.0, 8.0, 8.0], res=8).translate([10, 0, 0])
-        h = sdf_s3d.hull(a, b)
+        h = sdf_s3d.PyShape.hull(a, b)
         assert a._mesh_cache is None, "constructing the hull must not mesh its children"
         assert b._mesh_cache is None
         h.mesh().sample(0, 0, 0)
@@ -177,14 +177,14 @@ class TestNamedCombinators:
 
     def test_hull_mixes_shapes_and_raw_points(self):
         base = sdf_s3d.cuboid(size=[16.0, 16.0, 8.0], res=8)
-        h = sdf_s3d.hull(base, [[0.0, 0.0, 18.0]]).mesh()
+        h = sdf_s3d.PyShape.hull(base, [[0.0, 0.0, 18.0]]).mesh()
         assert h.sample(0, 0, 12) < 0, "on the axis of the spike, between base and apex"
         assert h.sample(0, 0, 19) > 0, "past the apex"
         assert h.sample(7, 7, 12) > 0, "outside the taper"
 
     def test_hull_of_raw_points_matches_convex_polyhedron(self):
         pts = [[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10]]
-        h = sdf_s3d.hull(pts).mesh()
+        h = sdf_s3d.PyShape.hull(pts).mesh()
         ref = sdf_s3d.convex_polyhedron(pts).mesh()
         for p in [(2, 2, 2), (5, 5, 5), (-1, -1, -1), (3, 0, 0)]:
             assert math.isclose(float(h.sample(*p)), float(ref.sample(*p)), abs_tol=10 ** (-9))
