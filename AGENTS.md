@@ -11,6 +11,8 @@
 - Maximize clarity by using short, cohesive functions under 50 lines long.
 - Do not emit code containing `TODO` comments or stubbed code segments.
 - For all the doc strings, classes too, add a single line summary first and then a blank line and a description.
+- For any method that makes a 3d or 2d output add an example on how to use it that generates an stl.
+- All public methods must have a doc string.
 
 ## 1. Type Hinting Guide
 
