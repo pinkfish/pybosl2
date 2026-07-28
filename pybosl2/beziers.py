@@ -444,64 +444,9 @@ class Bezier:
     ) -> Bezier:
         """Cubic bezier PATH through every point of *path* (BOSL2 path_to_bezpath).
 
-        Constructs a piecewise-cubic bezier that interpolates the given
-        points, matching the path's tangents. The *size* or *relsize*
-        parameters control the tension (how far control points deviate from
-        the input path). If *tangents* are not supplied they default to
-        :class:`~pybosl2.paths.Path` tangents.
+        Deprecated, use the top-level :func:`create_bezier` instead.
         """
-        from pybosl2.paths import Path  # local: keep the import graph acyclic
-
-        assert size is None or relsize is None, "Can't define both size and relsize."
-        patharr = np.asarray(path, dtype=float)
-        npts = len(patharr)
-        lastpt = npts - (0 if closed else 1)
-        curvesize = size if size is not None else (relsize if relsize is not None else 0.1)
-        relative = size is None
-        if isinstance(curvesize, (int, float)):
-            sizevect = [float(curvesize)] * lastpt
-        else:
-            sizevect = [float(v) for v in curvesize]
-            assert len(sizevect) == lastpt, f"Size or relsize must have length {lastpt}."
-        if tangents is not None:
-            tang = np.asarray(tangents, dtype=float)
-            tang = np.array([t / np.linalg.norm(t) for t in tang])
-        else:
-            tang = np.asarray(
-                Path._path_tangents(patharr, closed=closed, uniform=uniform),
-                dtype=float,
-            )
-        assert min(sizevect) > 0, "Size and relsize must be greater than zero."
-        out = []
-        basis_mat = np.array([[-3, 6, -3], [7, -9, 2], [-5, 3, 0], [1, 0, 0]], dtype=float)
-        for i in range(lastpt):
-            first = patharr[i]
-            second = patharr[(i + 1) % npts]
-            seglength = float(np.linalg.norm(second - first))
-            assert seglength > 0, f"Path segment has zero length from index {i} to {i + 1}."
-            segdir = (second - first) / seglength
-            tangent1 = tang[i]
-            tangent2 = -tang[(i + 1) % npts]
-            parallel = abs(float(tangent1 @ segdir)) + abs(float(tangent2 @ segdir))
-            lmax = seglength / parallel if parallel != 0 else math.inf
-            sz = sizevect[i] * seglength if relative else sizevect[i]
-            normal1 = tangent1 - (tangent1 @ segdir) * segdir
-            normal2 = tangent2 - (tangent2 @ segdir) * segdir
-            pcoef = basis_mat @ np.array([normal1 @ normal1, normal1 @ normal2, normal2 @ normal2])
-            uextreme = (
-                [] if float(np.linalg.norm(pcoef)) < EPSILON else [r for r in Bezier._real_roots(pcoef) if 0 < r < 1]
-            )
-            if len(uextreme) == 0:
-                scale = 0.0
-            else:
-                ctrl = np.array([normal1 * 0, normal1, normal2, normal2 * 0])
-                dists = [float(np.linalg.norm(d)) for d in np.atleast_2d(Bezier(ctrl).points(uextreme))]
-                scale = dists[0] if len(dists) == 1 else (sum(dists) - 2 * min(dists))
-            ldesired = sz / scale if scale != 0 else math.inf
-            length_ = min(lmax, ldesired)
-            out.extend([first, first + length_ * tangent1, second + length_ * tangent2])
-        out.append(patharr[lastpt % npts])
-        return cls(out)
+        return create_bezier(path, closed=closed, tangents=tangents, uniform=uniform, size=size, relsize=relsize)
 
     # -- sweeping (BOSL2 bezier_sweep / bezpath_sweep) -------------------------------------
 
@@ -795,6 +740,72 @@ class Bezier:
         if len(c) <= 1:
             return []
         return [float(r.real) for r in np.atleast_1d(np.roots(c)) if abs(r.imag) < 1e-9]
+
+
+def create_bezier(
+    path: Path,
+    closed: bool = False,
+    tangents: Path | None = None,
+    uniform: bool = False,
+    size: float | None = None,
+    relsize: float | None = None,
+) -> Bezier:
+    """Cubic bezier PATH through every point of *path* (BOSL2 path_to_bezpath).
+
+    Constructs a piecewise-cubic bezier that interpolates the given
+    points, matching the path's tangents. *size* or *relsize* control the
+    tension; omit both to use the default (relsize=0.1).
+    """
+    from pybosl2.paths import Path  # local: keep the import graph acyclic
+
+    assert size is None or relsize is None, "Can't define both size and relsize."
+    patharr = np.asarray(path, dtype=float)
+    npts = len(patharr)
+    lastpt = npts - (0 if closed else 1)
+    curvesize = size if size is not None else (relsize if relsize is not None else 0.1)
+    relative = size is None
+    if isinstance(curvesize, (int, float)):
+        sizevect = [float(curvesize)] * lastpt
+    else:
+        sizevect = [float(v) for v in curvesize]
+        assert len(sizevect) == lastpt, f"Size or relsize must have length {lastpt}."
+    if tangents is not None:
+        tang = np.asarray(tangents, dtype=float)
+        tang = np.array([t / np.linalg.norm(t) for t in tang])
+    else:
+        tang = np.asarray(
+            Path._path_tangents(patharr, closed=closed, uniform=uniform),
+            dtype=float,
+        )
+    assert min(sizevect) > 0, "Size and relsize must be greater than zero."
+    out: list[np.ndarray] = []
+    basis_mat = np.array([[-3, 6, -3], [7, -9, 2], [-5, 3, 0], [1, 0, 0]], dtype=float)
+    for i in range(lastpt):
+        first = patharr[i]
+        second = patharr[(i + 1) % npts]
+        seglength = float(np.linalg.norm(second - first))
+        assert seglength > 0, f"Path segment has zero length from index {i} to {i + 1}."
+        segdir = (second - first) / seglength
+        tangent1 = tang[i]
+        tangent2 = -tang[(i + 1) % npts]
+        parallel = abs(float(tangent1 @ segdir)) + abs(float(tangent2 @ segdir))
+        lmax = seglength / parallel if parallel != 0 else math.inf
+        sz = sizevect[i] * seglength if relative else sizevect[i]
+        normal1 = tangent1 - (tangent1 @ segdir) * segdir
+        normal2 = tangent2 - (tangent2 @ segdir) * segdir
+        pcoef = basis_mat @ np.array([normal1 @ normal1, normal1 @ normal2, normal2 @ normal2])
+        uextreme = [] if float(np.linalg.norm(pcoef)) < EPSILON else [r for r in Bezier._real_roots(pcoef) if 0 < r < 1]
+        if len(uextreme) == 0:
+            scale = 0.0
+        else:
+            ctrl = np.array([normal1 * 0, normal1, normal2, normal2 * 0])
+            dists = [float(np.linalg.norm(d)) for d in np.atleast_2d(Bezier(ctrl).points(uextreme))]
+            scale = dists[0] if len(dists) == 1 else (sum(dists) - 2 * min(dists))
+        ldesired = sz / scale if scale != 0 else math.inf
+        length_ = min(lmax, ldesired)
+        out.extend([first, first + length_ * tangent1, second + length_ * tangent2])
+    out.append(patharr[lastpt % npts])
+    return Bezier(np.asarray(out))
 
 
 class BezierPatch:

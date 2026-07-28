@@ -58,6 +58,7 @@ if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this m
     from collections.abc import Sequence
 
     from pybosl2._backend import Solid
+    from pybosl2.beziers import Bezier
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -427,6 +428,22 @@ class Path(Distributable, Extrudable, Sweepable, Roundable):
         from pybosl2.regions import Region  # local: Region imports Path from here
 
         return Region([self])
+
+    def to_bezier(
+        self,
+        closed: bool = False,
+        tangents: "Path | None" = None,
+        uniform: bool = False,
+        size: float | None = None,
+        relsize: float | None = None,
+    ) -> "Bezier":
+        """Cubic bezier PATH through every point of this path (BOSL2 path_to_bezpath).
+
+        Delegates to :func:`pybosl2.beziers.create_bezier`.
+        """
+        from pybosl2.beziers import create_bezier  # local: keep the import graph acyclic
+
+        return create_bezier(self, closed=closed, tangents=tangents, uniform=uniform, size=size, relsize=relsize)
 
     # -- 2-D geometry (csg backend only) ---------------------------------------------------
     #

@@ -323,10 +323,10 @@ def _smooth_path(
             pts = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]
             smooth_path(pts, relsize=0.4).stroke(width=2).linear_extrude(height=3).show()
     """
-    from pybosl2.beziers import Bezier
+    from pybosl2.beziers import create_bezier
     from pybosl2.paths import Path, Path3D
 
-    bez = Bezier.from_path(
+    bez = create_bezier(
         path,
         closed=closed,
         tangents=tangents,
