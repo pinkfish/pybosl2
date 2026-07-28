@@ -542,7 +542,7 @@ class Bezier:
         scale_by_length: bool = True,
         symmetry: int = 1,
         last_normal: Vec3 | None = None,
-        caps: CapsSpec | None = CapType.BUTT,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
     ) -> VNF:

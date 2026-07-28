@@ -672,7 +672,10 @@ def _rotate_sweep(
         prof,
         transforms,
         closed=full,
-        caps=[CapType.BUTT if (not full) and capv[0] else None, CapType.BUTT if (not full) and capv[1] else None],
+        caps=[
+            CapType.BUTT if (not full) and capv[0] else CapType.NONE,
+            CapType.BUTT if (not full) and capv[1] else CapType.NONE,
+        ],
         style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()

@@ -87,7 +87,7 @@ def test_straight_sweep_counts():
 def test_sweep_open_has_caps_closed_does_not():
     line = [[0, 0, 0], [0, 0, 5], [0, 0, 10]]
     open_faces = len(Path3D(line).path_sweep(SQUARE, caps=CapType.BUTT).faces)
-    nocap_faces = len(Path3D(line).path_sweep(SQUARE, caps=None).faces)
+    nocap_faces = len(Path3D(line).path_sweep(SQUARE, caps=CapType.NONE).faces)
     assert open_faces == nocap_faces + 2  # two flat end caps
 
 
