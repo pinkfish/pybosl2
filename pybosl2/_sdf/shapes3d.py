@@ -2214,5 +2214,5 @@ def bezier_sweep(
     """
     from pybosl2.beziers import Bezier
 
-    path = Bezier(control_points).curve(splinesteps=splinesteps)
+    path = Bezier(control_points).curve(splinesteps=splinesteps)  # type: ignore[arg-type]
     return path_sweep(profile, path, res=res, twist=twist)

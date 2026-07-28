@@ -58,37 +58,37 @@ __all__ = [
 # (imported from pybosl2._helpers as is_num)
 
 
-def _yscale(s: float, path: Sequence[Sequence[float]]) -> Path:
+def _yscale(s: float, path: Sequence[Sequence[float]] | Path) -> Path:
     from pybosl2.paths import Path
 
     return Path([[float(p[0]), float(p[1]) * s] for p in path])
 
 
-def _scale2(sx: float, sy: float, path: Sequence[Sequence[float]]) -> Path:
+def _scale2(sx: float, sy: float, path: Sequence[Sequence[float]] | Path) -> Path:
     from pybosl2.paths import Path
 
     return Path([[float(p[0]) * sx, float(p[1]) * sy] for p in path])
 
 
-def _left(x: float, path: Sequence[Sequence[float]]) -> Path:
+def _left(x: float, path: Sequence[Sequence[float]] | Path) -> Path:
     from pybosl2.paths import Path
 
     return Path([[float(p[0]) - x, float(p[1])] for p in path])
 
 
-def _right(x: float, path: Sequence[Sequence[float]]) -> Path:
+def _right(x: float, path: Sequence[Sequence[float]] | Path) -> Path:
     from pybosl2.paths import Path
 
     return Path([[float(p[0]) + x, float(p[1])] for p in path])
 
 
-def _xflip(x: float, path: Sequence[Sequence[float]]) -> Path:
+def _xflip(x: float, path: Sequence[Sequence[float]] | Path) -> Path:
     from pybosl2.paths import Path
 
     return Path([[2 * x - float(p[0]), float(p[1])] for p in path])
 
 
-def _skew(axy_deg: float, path: Sequence[Sequence[float]]) -> Path:
+def _skew(axy_deg: float, path: Sequence[Sequence[float]] | Path) -> Path:
     from pybosl2.paths import Path
 
     t = math.tan(math.radians(axy_deg))
@@ -99,13 +99,13 @@ def _lerp(a: float, b: float, u: float) -> float:
     return a + (b - a) * u
 
 
-def _dedup(path: Sequence[Sequence[float]]) -> Path:
+def _dedup(path: Sequence[Sequence[float]] | Path) -> Path:
     from pybosl2.paths import Path
 
     return Path([list(p) for p in Path._deduplicate(path, closed=False)])
 
 
-def _merge_collinear(path: Sequence[Sequence[float]]) -> Path:
+def _merge_collinear(path: Sequence[Sequence[float]] | Path) -> Path:
     # BOSL2's path_merge_collinear() drops exact-duplicate points before merging collinear runs;
     # the toolkit kernel does not, so dedup first (a bare duplicate otherwise collapses a corner).
     from pybosl2.paths import Path
@@ -223,7 +223,7 @@ def _partition_cutpath(
     """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
     _ = h
     cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
-    sub: list[list[float]] = (
+    sub: list[list[float]] | Path = (
         [list(p) for p in cutpath]
         if isinstance(cutpath, (list, tuple, np.ndarray))
         else _partition_subpath(cutpath, fn, fa, fs)  # type: ignore[arg-type]
@@ -281,7 +281,7 @@ def _ptn_sect(
             b1, b2 = pointlist_bounds(sect1), pointlist_bounds(sect2)
             osect1 = _scale2(0.5, 0.5, _left(b1[0][0], sect1))
             osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2[0][0], sect2)))
-            return _merge_collinear(osect1 + osect2)
+            return _merge_collinear(list(osect1) + list(osect2))
         if opt and opt[0].isdigit() and opt.endswith("x") and opt[:-1].isdigit():  # "3x": repeat
             reps = int(opt[:-1])
             assert reps > 0, "repetition count must be positive."
@@ -323,7 +323,7 @@ def _ptn_sect(
         return _ptn_sect("halfsine addflip", length, width, fn=fn, fa=fa, fs=fs)
     steps = _frag_count(length / 2, fn, fa, fs)
     if cptype == "flat":
-        path: list[list[float]] = [[0, 0], [1, 0]]
+        path: list[list[float]] | Path = [[0, 0], [1, 0]]
     elif cptype == "sawtooth":
         path = [[0, 0], [0, 1], [1, 0]]
     elif cptype == "square":
@@ -464,7 +464,7 @@ def partition_path(
     """
     from pybosl2.paths import Path
 
-    paths = []
+    paths: list[Any] = []
     for _n in range(repeat):
         for pd in pathdesc:
             if isinstance(pd, (list, tuple, np.ndarray)):
@@ -488,9 +488,9 @@ def partition_path(
     cleanpath = _merge_collinear(_dedup(fullpath))
     redirpath = cleanpath if altpath is None else _ptn_path_redirect(altpath, cleanpath)
     if y is None:
-        return Path(redirpath, closed=False)
+        return Path(list(redirpath), closed=False)
     assert y < min_y or y > max_y, "partition_path(): closing y would make the path self-crossing."
-    closedpath = [[redirpath[-1][0], y], [redirpath[0][0], y]] + redirpath
+    closedpath = [[redirpath[-1][0], y], [redirpath[0][0], y]] + list(redirpath)
     outpath = closedpath if y < 0 else closedpath[::-1]
     return Path(outpath, closed=True)
 
@@ -535,7 +535,7 @@ def _partition_mask_shape(
     w: float,
     h: float,
     cutsize: float | Sequence[float],
-    cutpath: str | Sequence[Sequence[float]],
+    cutpath: str | Sequence[Sequence[float]] | Path,
     gap: float,
     cutpath_centered: bool,
     inverse: bool,
@@ -681,7 +681,7 @@ class Partitionable(ABC):
         v: Any,
         cpv: Any,
         s: float,
-        cut_path: Sequence[Sequence[float]] | None,
+        cut_path: Sequence[Sequence[float]] | Path | None,
         cut_angle: float,
         offset: float,
     ) -> Any:

@@ -139,7 +139,7 @@ def test_joint_independent_directions():
 
 
 def test_begin_3d_spherical():
-    b = Bezier.begin([-30, 0, 0], 90, 20, p=135)
+    b = Bezier.begin([-30, 0, 0], 90, 20, phi=135)
     np.testing.assert_allclose(
         b[1],
         [-30, 20 * math.sin(math.radians(135)), 20 * math.cos(math.radians(135))],

@@ -3024,7 +3024,9 @@ def _point3d(v: Sequence[float]) -> list[float]:
     return list(v) if len(v) >= 3 else [v[0], v[1], 0.0]
 
 
-def _cut_interp(pathcut: list, path: Sequence[Sequence[float]], data: Sequence[Sequence[float]]) -> list[list[float]]:
+def _cut_interp(
+    pathcut: list, path: Sequence[Sequence[float]] | Path | Path3D, data: Sequence[Sequence[float]]
+) -> list[list[float]]:
     """Port of BOSL2's `_cut_interp()`: linearly interpolates a per-path-vertex vector array
     `data` to the fractional position of each `path_cut_points()` cut point.
     """
@@ -3040,7 +3042,9 @@ def _cut_interp(pathcut: list, path: Sequence[Sequence[float]], data: Sequence[S
     return out
 
 
-def _path_text_bcast_dir(v, dim: int, path: Sequence[Sequence[float]], label: str) -> list[list[float]] | None:
+def _path_text_bcast_dir(
+    v, dim: int, path: Sequence[Sequence[float]] | Path | Path3D, label: str
+) -> list[list[float]] | None:
     """Broadcasts a `normal=`/`top=` argument (undefined, a single vector, or a per-path-point
     list of vectors) to a list of one vector per path point, mirroring BOSL2's normalok/topok
     argument checks (including the "3-vector with z==0 on a 2d path" compatibility form).
