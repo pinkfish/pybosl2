@@ -395,13 +395,13 @@ def partition_path(
     pathdesc,
     repeat: int = 1,
     y=None,
-    altpath=None,
+    altpath: Path | None = None,
     seglen: float = 25,
     segwidth: float = 25,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> "Path":
+) -> Path:
     """Build a 2-D interlocking cut path from a list of segment descriptors (BOSL2 partition_path()).
 
     Each item of *pathdesc* is a numeric length (a flat section), a 2-D path (used as-is), or a
@@ -532,7 +532,7 @@ def partition_mask(
     w=100,
     height: float = 100,
     cutsize=10,
-    cutpath="jigsaw",
+    cutpath: str | Path = "jigsaw",
     gap: float = 0,
     cutpath_centered: bool = True,
     inverse: bool = False,
@@ -581,7 +581,7 @@ def partition_cut_mask(
     length: float = 100,
     height: float = 100,
     cutsize=10,
-    cutpath="jigsaw",
+    cutpath: str | Path = "jigsaw",
     gap: float = 0,
     cutpath_centered: bool = True,
     slop: float = 0.1,
@@ -668,7 +668,7 @@ class Partitionable(ABC):
         v=UP,
         center: bool | list[float] | None = None,
         s=None,
-        cut_path=None,
+        cut_path: Path | None = None,
         cut_angle: float = 0,
         offset=0,
     ):
@@ -692,7 +692,7 @@ class Partitionable(ABC):
             s = 2.2 * reach + 2.0
         return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))  # type: ignore[attr-defined]
 
-    def left_half(self, x=0, s=None, cut_path=None, cut_angle: float = 0, offset=0):
+    def left_half(self, x=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
         """Keep the left (-X) half, cut at ``X=x`` (BOSL2 left_half())."""
         return self.half_of(
             LEFT,
@@ -703,7 +703,7 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def right_half(self, x=0, s=None, cut_path=None, cut_angle: float = 0, offset=0):
+    def right_half(self, x=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
         """Keep the right (+X) half, cut at ``X=x`` (BOSL2 right_half())."""
         return self.half_of(
             RIGHT,
@@ -714,7 +714,7 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def front_half(self, y=0, s=None, cut_path=None, cut_angle: float = 0, offset=0):
+    def front_half(self, y=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
         """Keep the front (-Y) half, cut at ``Y=y`` (BOSL2 front_half())."""
         return self.half_of(
             FRONT,
@@ -725,7 +725,7 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def back_half(self, y=0, s=None, cut_path=None, cut_angle: float = 0, offset=0):
+    def back_half(self, y=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
         """Keep the back (+Y) half, cut at ``Y=y`` (BOSL2 back_half())."""
         return self.half_of(
             BACK,
@@ -736,7 +736,7 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def bottom_half(self, z=0, s=None, cut_path=None, cut_angle: float = 0, offset=0):
+    def bottom_half(self, z=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
         """Keep the bottom (-Z) half, cut at ``Z=z`` (BOSL2 bottom_half())."""
         return self.half_of(
             DOWN,
@@ -747,7 +747,7 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def top_half(self, z=0, s=None, cut_path=None, cut_angle: float = 0, offset=0):
+    def top_half(self, z=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
         """Keep the top (+Z) half, cut at ``Z=z`` (BOSL2 top_half())."""
         return self.half_of(
             UP,
@@ -762,7 +762,7 @@ class Partitionable(ABC):
         self,
         spread: float = 10,
         cutsize=10,
-        cutpath="jigsaw",
+        cutpath: str | Path = "jigsaw",
         gap: float = 0,
         cutpath_centered: bool = True,
         spin=0,

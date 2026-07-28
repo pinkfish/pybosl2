@@ -348,7 +348,7 @@ class Roundable:
     :class:`~pybosl2.paths.Path3D`."""
 
     def round_corners(
-        self,
+        self: Path | Path3D,
         radius: float | None = None,
         method: str = "circle",
         cut=None,
@@ -373,7 +373,7 @@ class Roundable:
         )
 
     def smooth_path(
-        self,
+        self: Path | Path3D,
         tangents=None,
         size=None,
         relsize=None,
