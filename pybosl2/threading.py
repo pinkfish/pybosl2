@@ -304,6 +304,13 @@ class Threading:
         """
         An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2
         threaded_rod()).
+
+        Examples:
+            An M20×2.5 threaded rod, 30 mm long:
+
+            .. pythonscad-example::
+
+                Threading.threaded_rod(d=20, length=30, pitch=2.5, fa=6, fs=1).show()
         """
         return _rod_solid(d, length, pitch, _iso_profile(), starts, left_handed, fn, fa, fs)
 
@@ -321,7 +328,15 @@ class Threading:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A hex/square nut for an ISO/UTS threaded rod (BOSL2 threaded_nut())."""
+        """A hex/square nut for an ISO/UTS threaded rod (BOSL2 threaded_nut()).
+
+        Examples:
+            An M8 nut for an M8×1.25 rod:
+
+            .. pythonscad-example::
+
+                Threading.threaded_nut(nutwidth=13, inner_diameter=8, h=6.8, pitch=1.25).show()
+        """
         return _nut_solid(
             nutwidth,
             inner_diameter,
@@ -355,6 +370,13 @@ class Threading:
         """
         A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2
         trapezoidal_threaded_rod()).
+
+        Examples:
+            A Tr20×4 trapezoidal leadscrew, 40 mm long:
+
+            .. pythonscad-example::
+
+                Threading.trapezoidal_threaded_rod(d=20, length=40, pitch=4, fa=6, fs=1).show()
         """
         prof = _trapezoidal_profile(pitch, thread_angle, thread_depth)
         return _rod_solid(d, length, pitch, prof, starts, left_handed, fn, fa, fs)
@@ -406,7 +428,15 @@ class Threading:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A 29-degree ACME threaded rod (BOSL2 acme_threaded_rod())."""
+        """A 29-degree ACME threaded rod (BOSL2 acme_threaded_rod()).
+
+        Examples:
+            An ACME ½"-10 leadscrew, 30 mm long:
+
+            .. pythonscad-example::
+
+                Threading.acme_threaded_rod(d=12.7, length=30, pitch=2.54, fa=6, fs=1).show()
+        """
         prof = _trapezoidal_profile(pitch, 29, thread_depth if thread_depth is not None else pitch / 2)
         return _rod_solid(d, length, pitch, prof, starts, left_handed, fn, fa, fs)
 

@@ -592,6 +592,11 @@ class Bosl2Shape2D(Distributable, Colorable):
 
         *radius* rounds the joins it creates, *delta* keeps them sharp (or bevels them with
         ``chamfer=True``) -- BOSL2's spelling of OpenSCAD's ``r=``/``delta=``. Give exactly one.
+
+        Examples:
+            .. pythonscad-example::
+
+                s2.star(n=5, r=30, ir=15).offset(delta=4).linear_extrude(height=4).show()
         """
         assert (radius is None) != (delta is None), "offset(): give exactly one of radius= or delta=."
         kw: dict[str, Any] = {"r": radius} if radius is not None else {"delta": delta, "chamfer": chamfer}
@@ -661,6 +666,10 @@ class Bosl2Shape2D(Distributable, Colorable):
             .. pythonscad-example::
 
                 s2.star(n=5, r=30, ir=15).linear_extrude(height=6, twist=45).show()
+
+            .. pythonscad-example::
+
+                s2.circle(radius=15).linear_extrude(height=20).show()
         """
         from pybosl2.shapes3d import Bosl2Solid
 
@@ -694,6 +703,11 @@ class Bosl2Shape2D(Distributable, Colorable):
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
+
+        Examples:
+            .. pythonscad-example::
+
+                s2.square(10).right(15).rotate_extrude().show()
         """
         from pybosl2.shapes3d import Bosl2Solid
 
@@ -715,6 +729,12 @@ class Bosl2Shape2D(Distributable, Colorable):
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
+
+        Examples:
+            .. pythonscad-example::
+
+                path = [[0, 0, 0], [20, 10, 10], [40, 0, 20], [60, 10, 30]]
+                s2.circle(radius=5).path_extrude(path).show()
         """
         from pybosl2.shapes3d import Bosl2Solid
 

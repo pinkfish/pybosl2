@@ -409,6 +409,13 @@ class Screws:
 
         *length* is the shaft length below the head (for a flat head, below the surface). Set
         ``thread="none"`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.
+
+        Examples:
+            An M6×20 socket-head cap screw:
+
+            .. pythonscad-example::
+
+                Screws.screw("M6", length=20, head="socket", drive="hex").show()
         """
 
         info = Screws.screw_info(
@@ -514,6 +521,13 @@ class Screws:
 
         *thickness* is ``"normal"``, ``"thin"``, ``"thick"`` or a number (mm). *nutwidth* overrides
         the standard across-flats width. *slop* adds radial clearance to the threaded hole.
+
+        Examples:
+            An M8 hex nut of normal thickness:
+
+            .. pythonscad-example::
+
+                Screws.nut("M8").show()
         """
         from pybosl2.threading import Threading
 
@@ -542,6 +556,13 @@ class Screws:
         Returns a solid to *subtract* from your part. The clearance shaft occupies ``z in [-length, 0]``
         with its mouth at ``z = 0``; countersinks/counterbores open upward from there. Set
         ``thread="coarse"`` for a tapped (threaded) hole instead of a clearance hole.
+
+        Examples:
+            Drill a clearance hole for an M6 bolt through a 10 mm plate:
+
+            .. pythonscad-example::
+
+                (s3.cuboid([20, 20, 10]) - Screws.screw_hole("M6", length=10, head="socket", fit="normal")).show()
         """
 
         use_thread = thread and str(thread).lower() not in ("none", "false", "no", "")

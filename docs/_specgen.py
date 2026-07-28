@@ -961,25 +961,10 @@ GALLERY = [
     "modular_hose",
     "bottlecaps",
     "sliders",
+    "shapes3d",
+    "shapes2d",
 ]
-API_ONLY = {
-    "threading": (
-        25,
-        "Watertight helical threads swept as one polyhedron; ISO / trapezoidal / acme / square / buttress.",
-    ),
-    "screw_drive": (
-        19,
-        "Phillips, hex, Torx and Robertson driver-recess masks; subtract from a head to make the socket.",
-    ),
-    "bottlecaps": (
-        7,
-        "Standard soda-bottle threadings — a PCO-1810 / PCO-1881 neck and its matching cap.",
-    ),
-    "sliders": (
-        5,
-        "A V-groove slider and its mating rail, both shaped to 3-D print without support.",
-    ),
-}
+API_ONLY = {}
 
 # --------------------------------------------------------------------------
 # variants: the clickable set per module. Each is (id, label, render-expression). The example code,
@@ -1001,6 +986,10 @@ SETUP = {
     "linear_bearings": "from pybosl2.linear_bearings import LinearBearings\n",
     "modular_hose": "from pybosl2.modular_hose import ModularHose\n",
     "nema_steppers": "from pybosl2.nema_steppers import NemaSteppers\n",
+    "threading": "from pybosl2.threading import Threading\n",
+    "screw_drive": "from pybosl2.screw_drive import ScrewDrive\n",
+    "bottlecaps": "from pybosl2.bottlecaps import BottleCaps\n",
+    "sliders": "from pybosl2.sliders import Sliders\n",
 }
 
 VARIANTS = {
@@ -1138,6 +1127,77 @@ VARIANTS = {
         ("23", "NEMA 23", "NemaSteppers.nema_stepper_motor(23)"),
         ("8", "NEMA 8", "NemaSteppers.nema_stepper_motor(8)"),
         ("mask", "mount mask", "NemaSteppers.nema_mount_mask(17)"),
+    ],
+    "threading": [
+        ("iso-rod", "ISO rod", "Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)"),
+        ("iso-nut", "ISO nut", "Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)"),
+        (
+            "trapezoidal",
+            "trapezoidal rod",
+            "Threading.trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)",
+        ),
+        (
+            "acme",
+            "ACME rod",
+            "Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)",
+        ),
+    ],
+    "screw_drive": [
+        ("phillips", "Phillips #2", 'ScrewDrive.phillips_mask(size="#2", l=10)'),
+        ("hex", "hex 3 mm", "ScrewDrive.hex_mask(size=3, l=10)"),
+        ("torx", "Torx T30", "ScrewDrive.torx_mask(size=30, l=10)"),
+        ("robertson", "Robertson #2", 'ScrewDrive.robertson_mask(size="#2", l=10)'),
+    ],
+    "bottlecaps": [
+        ("pco1810-neck", "PCO 1810 neck", "BottleCaps.pco1810_neck(fa=6)"),
+        ("pco1810-cap", "PCO 1810 cap", "BottleCaps.pco1810_cap(fa=6)"),
+        ("pco1881-neck", "PCO 1881 neck", "BottleCaps.pco1881_neck(fa=6)"),
+    ],
+    "sliders": [
+        ("slider", "slider", "Sliders.slider(l=30, base=10, wall=4, slop=0.2)"),
+        ("rail", "rail", "Sliders.rail(l=100, w=10, h=10)"),
+    ],
+    "shapes3d": [
+        ("cuboid", "cuboid", "s3.cuboid([30, 20, 15])"),
+        ("sphere", "sphere", "s3.sphere(r=15)"),
+        ("cylinder", "cylinder", "s3.cylinder(h=20, r=8)"),
+        ("cone", "cone", "s3.cone(h=20, r1=10, r2=3)"),
+        ("prismoid", "prismoid", "s3.prismoid(size1=[20, 20], size2=[10, 10], h=15)"),
+        ("torus", "torus", "s3.torus(r=12, r2=4)"),
+        ("tube", "tube", "s3.tube(h=20, or_=10, ir=6)"),
+        ("teardrop", "teardrop", "s3.teardrop(h=20, r=10)"),
+        ("capsule", "capsule", "s3.capsule(h=30, r=6)"),
+        (
+            "rounded-cuboid",
+            "rounded cuboid",
+            "s3.cuboid([30, 20, 15], rounding=4, edges='Z', except=TOP+FRONT+RIGHT)",
+        ),
+        (
+            "chamfered-cylinder",
+            "chamfered cyl",
+            "s3.cylinder(h=20, r=10, chamfer=2)",
+        ),
+        (
+            "octahedron",
+            "octahedron",
+            "s3.octahedron(size=[20, 20, 20])",
+        ),
+    ],
+    "shapes2d": [
+        ("circle", "circle", "s2.circle2d(r=15)"),
+        ("square", "square", "s2.square2d(30)"),
+        ("rect", "rectangle", "s2.rect2d([30, 20], rounding=5)"),
+        ("trapezoid", "trapezoid", "s2.trapezoid(h=30, w1=40, w2=20)"),
+        ("star", "star", "s2.star(n=5, r=25, ir=10)"),
+        ("ring", "ring", "s2.ring(or_=18, ir=12)"),
+        ("pie-slice", "pie slice", "s2.pie_slice(r=20, ang=120)"),
+        ("squircle", "squircle", "s2.squircle(30, squareness=0.6)"),
+        ("keyhole", "keyhole", "s2.keyhole(l=25, r1=4, r2=9)"),
+        (
+            "rounded-square",
+            "rounded square",
+            "s2.square2d(30, rounding=8)",
+        ),
     ],
 }
 

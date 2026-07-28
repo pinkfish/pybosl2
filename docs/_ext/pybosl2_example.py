@@ -9,20 +9,19 @@
 #    short pybosl2-using Python snippet ending in ``<obj>.show()`` (the same convention as a real
 #    PythonSCAD python-mode file). At build time it is prepended with a standard preamble (repo
 #    root on sys.path, common pybosl2 imports) and rendered with the *real* PythonSCAD binary, and
-#    the generated docs show, side by side: the snippet's source, the PNG the app rendered, and a
-#    download link to the exported STL mesh for the object. This is the same "show the code, show
+#    the generated docs show, side by side: the snippet's source, an interactive 3-D STL viewer,
+#    and a download link to the exported STL mesh. This is the same "show the code, show
 #    what it actually builds" idea as matplotlib's ``.. plot::`` and openscad-docsgen's
 #    ``Example:`` blocks that the parent repo's docs/ (for the .scad files) already use.
 #
-#    The image render reuses pysolidfive/tests/render_pysolidfive.py's render_script(); the STL
-#    export reuses pybosl2/tests/render_stl.py's render_stl_script() -- the same subprocess/skip-
-#    gracefully plumbing the two test suites rely on, not a reimplementation.
+#    The STL export reuses pybosl2/tests/render_stl.py's render_stl_script() -- the same subprocess
+#    /skip-gracefully plumbing the test suites rely on, not a reimplementation.
 #
-#    Rendered PNGs are cached in docs/_generated/ and STLs in docs/_stl/, keyed by a hash of the
-#    snippet, so unchanged examples are not re-rendered. If no PythonSCAD binary is available (or
-#    a render fails, e.g. a 2-D example that cannot export to STL), the directive degrades
-#    gracefully -- it emits a build warning and still shows the source, just without the image
-#    and/or STL link, rather than failing the whole ``make html``.
+#    Exported STLs are cached in docs/_stl/, keyed by a hash of the snippet, so unchanged examples
+#    are not re-rendered. If no PythonSCAD binary is available (or a render fails, e.g. a 2-D
+#    example that cannot export to STL), the directive degrades gracefully -- it emits a build
+#    warning and still shows the source, just without the STL viewer, rather than failing the
+#    whole ``make html``.
 #
 # FileGroup: pybosl2
 
@@ -31,15 +30,13 @@ from __future__ import annotations
 import hashlib
 import subprocess
 import sys
-import types
 from pathlib import Path
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import Directive
 from sphinx.util import logging
 
 _DOCS_DIR = Path(__file__).resolve().parent.parent
-_GENERATED_DIR = _DOCS_DIR / "_generated"  # PNG previews (collected by Sphinx's image handling)
 # Exported meshes live under _extra/_stl/ so that html_extra_path=["_extra"] copies the whole
 # _stl/ subdir (not just its flattened contents) to the output root, keeping the ``_stl/<hash>.stl``
 # URIs the viewer and download links use valid.
@@ -51,12 +48,6 @@ sys.path.insert(0, str(_REPO_ROOT / "tests"))
 
 from render_stl import find_pythonscad_binary, render_stl_script  # noqa: E402
 from stl_viewer import stl_viewer_html  # noqa: E402
-
-
-# PNG previews are stubbed for headless doc builds.
-def render_script(*_args, **_kwargs):  # type: ignore[misc]
-    return types.SimpleNamespace(ok=False, error="render helper unavailable", path=None)
-
 
 _logger = logging.getLogger(__name__)
 
@@ -107,20 +98,13 @@ _PREAMBLE = (
 )
 
 
-def _parse_imgsize(raw: str) -> tuple[int, int]:
-    w, h = (int(v.strip()) for v in raw.split(","))
-    return w, h
-
-
 class Bosl2ExampleDirective(Directive):
-    """``.. pythonscad-example::`` -- render a pybosl2 snippet to an image + downloadable STL. See module docstring."""
+    """``.. pythonscad-example::`` -- render a pybosl2 snippet to an interactive STL viewer. See module docstring."""
 
     has_content = True
-    option_spec = {"imgsize": directives.unchanged}
 
     def run(self) -> list[nodes.Node]:
         code = "\n".join(self.content)
-        imgsize = _parse_imgsize(self.options.get("imgsize", "400,300"))
         script = _PREAMBLE + code + "\n"
 
         out: list[nodes.Node] = []
@@ -128,41 +112,14 @@ class Bosl2ExampleDirective(Directive):
         code_node["language"] = "python"
         out.append(code_node)
 
-        # Prefer an interactive 3-D STL viewer (the whole point of the exported mesh); fall back to
-        # the static PNG preview when the example has no STL (a 2-D-only object, or an open surface).
+        # Show interactive 3-D STL viewer; if no STL (e.g. 2-D object), show source only.
         stl_uri = self._render_stl(script, code)
         if stl_uri is not None:
             out.append(nodes.raw("", stl_viewer_html(stl_uri), format="html"))
             para = nodes.paragraph()
             para += nodes.reference("", "⬇ Download STL mesh", refuri=stl_uri)
             out.append(para)
-        else:
-            img_uri = self._render_png(script, code, imgsize)
-            if img_uri is not None:
-                out.append(nodes.image(uri=img_uri))
         return out
-
-    def _render_png(self, script: str, code: str, imgsize: tuple[int, int]) -> str | None:
-        digest = hashlib.sha256(f"png\n{imgsize}\n{code}".encode()).hexdigest()[:16]
-        out_png = _GENERATED_DIR / f"{digest}.png"
-        if out_png.is_file():
-            return f"/_generated/{out_png.name}"
-        if find_pythonscad_binary() is None:
-            _logger.warning(f"pybosl2-example: no PythonSCAD binary (set PYTHONSCAD_BIN); source only for:\n{code}")
-            return None
-        _GENERATED_DIR.mkdir(exist_ok=True)
-        try:
-            result = render_script(script, out_png, imgsize=imgsize, timeout=300.0)
-        except subprocess.TimeoutExpired:
-            _logger.warning(f"pybosl2-example: image render timed out for:\n{code}")
-            return None
-        except Exception as exc:  # the PNG helper uses its own binary finder; never crash the build
-            _logger.info(f"pybosl2-example: no image preview ({type(exc).__name__}: {exc}) for:\n{code}")
-            return None
-        if not result.ok:
-            _logger.warning(f"pybosl2-example: image render failed ({result.error}) for:\n{code}")
-            return None
-        return f"/_generated/{out_png.name}"
 
     def _render_stl(self, script: str, code: str) -> str | None:
         digest = hashlib.sha256(f"stl\n{code}".encode()).hexdigest()[:16]

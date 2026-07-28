@@ -289,7 +289,13 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     # and their real geometry is covered by the STL render tests.
 
     def repair(self) -> "Bosl2Solid":
-        """Force the mesh watertight, healing gaps/non-manifold edges (native ``repair()``)."""
+        """Force the mesh watertight, healing gaps/non-manifold edges (native ``repair()``).
+
+        Examples:
+            .. pythonscad-example::
+
+                s3.cuboid([10, 20, 30]).repair().show()
+        """
         return self._wrap(self.shape.repair())
 
     def wrap(self, radius: float, fn: int | None = None) -> "Bosl2Solid":
@@ -306,7 +312,14 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
     def oversample(self, sides: int) -> "Bosl2Solid":
         """Subdivide every mesh facet *sides*-fold, e.g. before :meth:`wrap` so the bend is smooth
-        (native ``oversample()``)."""
+        (native ``oversample()``).
+
+        Examples:
+            .. pythonscad-example::
+
+                bar = s3.cuboid([80, 5, 3])
+                bar.oversample(sides=4).wrap(radius=20).show()
+        """
         return self._wrap(self.shape.oversample(int(sides)))
 
     def separate(self) -> "list[Bosl2Solid]":
@@ -495,7 +508,14 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         stays correct after the object has been moved or combined (tracked size/anchor metadata
         would be stale there). Falls back to the tracked cuboid size/anchor metadata only when
         the native accessors aren't available (the numeric test mock), where it assumes the box
-        is still at its construction position. Raises if neither is available."""
+        is still at its construction position. Raises if neither is available.
+
+        Examples:
+            .. pythonscad-example::
+
+                box = s3.cuboid([10, 20, 30]).translate([15, 0, 0])
+                print(box.bounds())
+        """
         nb = self._native_bounds()
         if nb is not None:
             mincorner, size = nb
@@ -625,6 +645,13 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
                            face OPPOSITE parent_anchor, so the two mate naturally)
             overlap:       pull the child in by this much along the mating axis (default 0)
             spin:          spin the child about the mating axis, in degrees (default 0)
+
+        Examples:
+            .. pythonscad-example::
+
+                cube = s3.cuboid([20, 30, 10])
+                cyl = s3.cylinder(h=15, r=4)
+                cube.attach(s3.UP, cyl).show()
         """
         pa = list(parent_anchor)
         ca = [-a for a in pa] if child_anchor is None else list(child_anchor)
@@ -658,7 +685,13 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         rotates the object's UP toward *orient*. The size comes from the native bbox, so -- unlike
         BOSL2's function form -- you never pass it. cube()/cuboid()/etc. take anchor/spin/orient at
         construction; this applies the same transform to any object after the fact. Pass *bbox* to
-        reorient against a supplied box instead of the object's own."""
+        reorient against a supplied box instead of the object's own.
+
+        Examples:
+            .. pythonscad-example::
+
+                s3.cuboid([10, 20, 30]).reorient(anchor=s3.BOTTOM, orient=s3.UP).show()
+        """
         from pybosl2.transforms import reorient as _reorient_matrix
 
         center, size = self._resolve_bounds(bbox)
@@ -667,7 +700,13 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         return centered.multmatrix(np.asarray(m).tolist())
 
     def orient(self, direction: Sequence[float] = UP, spin: float = 0, bbox=None) -> "Bosl2Solid":
-        """Rotate this object so its top (UP) faces *direction* (BOSL2 orient()); uses the bbox."""
+        """Rotate this object so its top (UP) faces *direction* (BOSL2 orient()); uses the bbox.
+
+        Examples:
+            .. pythonscad-example::
+
+                s3.cylinder(h=30, r=5).orient(s3.UP).show()
+        """
         return self.reorient(anchor=CENTER, spin=spin, orient=direction, bbox=bbox)
 
     # ---- edge/corner/face masking (pybosl2/masking.py), box-shaped objects ----
@@ -683,6 +722,27 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         children: PyOpenSCAD | None = None,
         bbox=None,
     ) -> "Bosl2Solid":
+        """Cut a pre-built 3-D edge cutter (e.g. from :func:`pybosl2.masking.chamfer_edge_mask`)
+        along each selected edge of this box-shaped solid.
+
+        The cutter size and box center come from :meth:`bounds`, so you don't need to pass
+        *size* or keep the object as a freshly-built cuboid.
+
+        Args:
+            edges:        edges to mask (default ``"ALL"``)
+            except_edges: edges to explicitly not mask
+            children:     the pre-built 3-D edge cutter
+            bbox:         override bounding box (see :meth:`_resolve_bounds`)
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2.masking import chamfer_edge_mask
+
+                box = s3.cuboid([20, 30, 10])
+                cutter = chamfer_edge_mask(length=35, chamfer=3)
+                box.edge_mask("Z", children=cutter).show()
+        """
         from . import masking
 
         center, size = self._resolve_bounds(bbox)
@@ -696,6 +756,26 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         convexity: int = 10,
         bbox=None,
     ) -> "Bosl2Solid":
+        """Cut a 2-D mask profile (e.g. from :func:`pybosl2.masking.mask2d_roundover`),
+        extruded along the edge's own length, along each selected edge of this box-shaped
+        solid.
+
+        Args:
+            edges:        edges to mask (default ``"ALL"``)
+            except_edges: edges to explicitly not mask
+            children:     the 2-D mask cross-section path (list of ``[x, y]`` points)
+            convexity:    accepted for compatibility; unused
+            bbox:         override bounding box (see :meth:`_resolve_bounds`)
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2.masking import mask2d_roundover
+
+                box = s3.cuboid([30, 20, 10])
+                profile = mask2d_roundover(radius=3)
+                box.edge_profile(children=profile).show()
+        """
         from . import masking
 
         center, size = self._resolve_bounds(bbox)
@@ -2794,6 +2874,12 @@ def teardrop(
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            shape = pybosl2.shapes3d.teardrop(radius=8, angle=45, height=15)
+            shape.show()
     """
     length = height if height is not None else 1.0
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)

@@ -412,7 +412,15 @@ class BottleCaps:
 
     @staticmethod
     def pco1810_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
-        """A PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck())."""
+        """A PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck()).
+
+        Examples:
+            A standard PCO 1810 bottle neck (28 mm):
+
+            .. pythonscad-example::
+
+                BottleCaps.pco1810_neck(fa=6).show()
+        """
         return _build_neck(_PCO1810, _pco1810_profile(_PCO1810), bottom_half=True, fn=fn, fa=fa, fs=fs)
 
     @staticmethod
@@ -424,12 +432,28 @@ class BottleCaps:
         fs: float | None = None,
     ) -> Bosl2Solid:
         """A cap for a PCO-1810 bottle (BOSL2 pco1810_cap()). ``texture`` other than ``"none"`` falls
-        back to a plain wall (surface texturing is not in this port)."""
+        back to a plain wall (surface texturing is not in this port).
+
+        Examples:
+            A plain-walled cap for a PCO 1810 neck:
+
+            .. pythonscad-example::
+
+                BottleCaps.pco1810_cap(fa=6).show()
+        """
         return _build_cap(_PCO1810, wall, texture, fn=fn, fa=fa, fs=fs)
 
     @staticmethod
     def pco1881_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
-        """A PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck())."""
+        """A PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck()).
+
+        Examples:
+            A standard PCO 1881 bottle neck (38 mm):
+
+            .. pythonscad-example::
+
+                BottleCaps.pco1881_neck(fa=6).show()
+        """
         return _build_neck(_PCO1881, _pco1881_profile(_PCO1881), bottom_half=False, fn=fn, fa=fa, fs=fs)
 
     @staticmethod
