@@ -48,6 +48,7 @@ from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
     from pybosl2.paths import Path, Path3D
+    from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
 
@@ -468,7 +469,7 @@ class Bezier:
         caps=None,
         style: str = "min_edge",
         transforms: bool = False,
-    ):
+    ) -> VNF:
         """Sweep the 2-D *shape* along this bezier CURVE into a VNF (BOSL2 bezier_sweep).
 
         Uses the curve's exact derivatives as tangents, which yields better
@@ -524,7 +525,7 @@ class Bezier:
         caps=None,
         style: str = "min_edge",
         transforms: bool = False,
-    ):
+    ) -> VNF:
         """Sweep the 2-D *shape* along this bezier PATH into a VNF (BOSL2 bezpath_sweep).
 
         Samples the bezier path uniformly with *splinesteps* segments per
@@ -574,7 +575,9 @@ class Bezier:
     # -- control-point construction (BOSL2 bez_begin/bez_tang/bez_joint/bez_end) ------------
 
     @staticmethod
-    def begin(pt: np.ndarray, angle, radius: float | None = None, phi: float | None = None) -> np.ndarray:
+    def begin(
+        pt: np.ndarray, angle: float | Sequence[float], radius: float | None = None, phi: float | None = None
+    ) -> np.ndarray:
         """Starting endpoint and control point of a cubic bezier path.
 
         Returns a (2, dim) ndarray of [endpoint, control_point]. For 2-D
@@ -588,7 +591,7 @@ class Bezier:
     @staticmethod
     def tang(
         pt: np.ndarray,
-        angle,
+        angle: float | Sequence[float],
         radius1: float | None = None,
         radius2: float | None = None,
         phi: float | None = None,
@@ -611,8 +614,8 @@ class Bezier:
     @staticmethod
     def joint(
         pt: np.ndarray,
-        angle1,
-        angle2,
+        angle1: float | Sequence[float],
+        angle2: float | Sequence[float],
         radius1: float | None = None,
         radius2: float | None = None,
         phi1: float | None = None,
@@ -636,7 +639,9 @@ class Bezier:
         )
 
     @staticmethod
-    def end(pt: np.ndarray, angle, radius: float | None = None, phi: float | None = None) -> np.ndarray:
+    def end(
+        pt: np.ndarray, angle: float | Sequence[float], radius: float | None = None, phi: float | None = None
+    ) -> np.ndarray:
         """Approaching control point and endpoint of a cubic bezier path.
 
         Returns a (2, dim) ndarray of [control_point, endpoint], the mirror
@@ -1185,9 +1190,9 @@ class BezierPatch:
         showcps: bool = True,
         showdots: bool = False,
         showpatch: bool = True,
-        size=None,
+        size: float | None = None,
         style: str = "default",
-    ):
+    ) -> Bosl2Solid:
         """Visualize this patch as native geometry (BOSL2 debug_bezier_patches).
 
         Renders the surface, control-point net lines, and control points as
@@ -1237,18 +1242,21 @@ def _sphere_at(p: np.ndarray, diameter: float) -> Any:
 
 def debug_bezier_patches(
     patches: np.ndarray | Sequence[np.ndarray],
-    size=None,
+    size: float | None = None,
     splinesteps: int = 16,
     showcps: bool = True,
     showdots: bool = False,
     showpatch: bool = True,
     style: str = "default",
-):
+) -> Bosl2Solid:
     """Native geometry showing bezier patches: surfaces, control points and control-net lines.
 
-    A functional port of BOSL2's debug_bezier_patches() module -- returns a combined native solid
-    (requires the real app; builds on VNF.polyhedron() and the ported path_sweep tube).
+    Returns a :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patches.
+    Requires the real PythonSCAD app; builds on VNF.polyhedron() and the
+    ported path_sweep tube.
     """
+    from pybosl2.shapes3d import Bosl2Solid as _Bosl2Solid
+
     plist = patches if not BezierPatch.is_patch(patches) else [patches]  # type: ignore[list-item]
     result = None
 
@@ -1258,7 +1266,7 @@ def debug_bezier_patches(
     for patch in plist:
         bp = BezierPatch(patch)  # type: ignore[arg-type]
         arr = bp.array
-        sz = (
+        sz: float = (
             size
             if size is not None
             else float(np.max(arr.reshape(-1, arr.shape[-1]).max(axis=0) - arr.reshape(-1, arr.shape[-1]).min(axis=0)))
@@ -1288,4 +1296,4 @@ def debug_bezier_patches(
             if showdots:
                 for v in vnf.vertices:
                     result = _add(result, _sphere_at(np.asarray(v), sz).color("blue"))  # type: ignore[arg-type]
-    return result
+    return _Bosl2Solid(result)
