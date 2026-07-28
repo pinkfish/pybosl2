@@ -203,13 +203,13 @@ class TestUnion2D:
 
     def test_hundreds_of_pieces_evaluates(self):
         discs = [sdf_s2d.circle2d(diameter=2).translate([i * 0.1, 0]) for i in range(800)]
-        shape = sdf_s2d.union2d(discs).extrude(2).mesh()
+        shape = sdf_s2d.PyShape2D.union(discs).extrude(2).mesh()
         assert shape.sample(40, 0, 1) < 0, "mid-strip solid"
         assert shape.sample(40, 3, 1) > 0, "above the strip empty"
 
     def test_single_piece_passthrough(self):
         disc = sdf_s2d.circle2d(diameter=4)
-        assert sdf_s2d.union2d([disc]) is disc
+        assert sdf_s2d.PyShape2D.union([disc]) is disc
 
 
 class TestRegularNgon2D:

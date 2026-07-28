@@ -12,7 +12,7 @@ import pytest
 from pybosl2.paths import Path
 from pybosl2.regions import Region
 from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.turtle3d import Turtle
+from pybosl2.turtle3d import BaseTurtle, Turtle, TurtleCommand, TurtleCommandType
 
 
 def test_square_path_closes():
@@ -137,3 +137,57 @@ def test_debug_region_builds():
 
 def test_debug_region_single_path_defers_to_polygon():
     assert isinstance(Region([[[0, 0], [20, 0], [10, 20]]]).debug_region(), Bosl2Solid)
+
+
+def test_base_turtle_inheritance():
+    assert issubclass(Turtle, BaseTurtle)
+    assert isinstance(Turtle(), BaseTurtle)
+
+
+def test_turtle_command_class_and_enum_simple():
+    # Test class-based TurtleCommand with TurtleCommandType
+    cmds = [
+        TurtleCommand(TurtleCommandType.MOVE, size=10),
+        TurtleCommand(TurtleCommandType.LEFT, angle=90),
+        TurtleCommand(TurtleCommandType.MOVE, size=10),
+        TurtleCommand(TurtleCommandType.LEFT, angle=90),
+        TurtleCommand(TurtleCommandType.MOVE, size=10),
+        TurtleCommand(TurtleCommandType.LEFT, angle=90),
+        TurtleCommand(TurtleCommandType.MOVE, size=10),
+    ]
+    pts = Turtle().run(cmds).points()
+    corners = [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0], [0, 0, 0]]
+    np.testing.assert_allclose(pts, corners, atol=1e-9)
+
+
+def test_turtle_command_compound():
+    # Test compound command constructed directly as a TurtleCommand
+    cmd = TurtleCommand(
+        TurtleCommandType.MOVE,
+        size=10,
+        grow=2,
+        twist=90,
+        steps=6,
+        is_compound=True,
+    )
+    xform = Turtle().run([cmd]).transforms()
+    assert len(xform) == 7
+    assert all(np.asarray(t).shape == (4, 4) for t in xform)
+
+
+def test_turtle_command_repeat():
+    # Test repeat command with class-based sub-commands
+    sub_cmds = [
+        TurtleCommand(TurtleCommandType.MOVE, size=3),
+        TurtleCommand(TurtleCommandType.LEFT, angle=20),
+    ]
+    thrice = Turtle().run([TurtleCommand(TurtleCommandType.REPEAT, size=3, options={"commands": sub_cmds})]).points()
+
+    legacy_once = Turtle().run(["move", 3, "left", 20]).points()
+    assert len(thrice) == 1 + 3 * (len(legacy_once) - 1)
+
+
+def test_turtle_command_compound_with_enums():
+    # Test compound command using TurtleCommandType inside list:
+    pts = Turtle().run([[TurtleCommandType.MOVE, 10, "grow", 2, "steps", 4]]).points()
+    assert len(pts) == 5

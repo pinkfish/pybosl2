@@ -12,8 +12,15 @@
 # FileSummary: Internal helper functions shared across the pybosl2 package.
 # FileGroup: BOSL2
 
+from __future__ import annotations
+
 import operator
 from functools import reduce
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pybosl2.shapes2d import Bosl2Shape2D
+    from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
 
@@ -22,7 +29,7 @@ import numpy as np
 # ---------------------------------------------------------------------------
 
 
-def is_num(value) -> bool:
+def is_num(value: Any) -> bool:
     """True if *value* is a numeric scalar (int, float, or numpy numeric), excluding bool."""
     return isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, bool)
 
@@ -32,7 +39,7 @@ def is_num(value) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def vec3(vector):
+def vec3(vector: Any) -> np.ndarray:
     """Pad *vector* to a list of 3: if 2-D, set z=0; if numeric, repeat to 3.
 
     Unlike :func:`scalar_vec3`, a scalar becomes ``[vector, vector, vector]`` (matching ``np.asarray``
@@ -46,7 +53,7 @@ def vec3(vector):
     return np.array([float(array[0]), float(array[1]), float(array[2])])
 
 
-def scalar_vec3(value, fill: float = 0.0) -> np.ndarray:
+def scalar_vec3(value: Any, fill: float = 0.0) -> np.ndarray:
     """A scalar becomes ``[value, fill, fill]``; a vector is padded to length 3.
 
     BOSL2's ``scalar_vec3()`` -- used for direction vectors where a single value
@@ -62,7 +69,7 @@ def scalar_vec3(value, fill: float = 0.0) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 
-def unit(vector) -> np.ndarray:
+def unit(vector: Any) -> np.ndarray:
     """Normalize *vector* to unit length.  Returns zero vector if zero-length (matching
     ``pybosl2/transforms.py``'s ``_unit()`` convention)."""
     arr = np.asarray(vector, dtype=float)
@@ -84,7 +91,7 @@ def zrot4(angle_degrees: float) -> np.ndarray:
     return matrix
 
 
-def rot_from_to4(source, target) -> np.ndarray:
+def rot_from_to4(source: Any, target: Any) -> np.ndarray:
     """4x4 rotation matrix rotating direction *source* onto direction *target*."""
     from pybosl2.transforms import axis_angle_matrix, rot_from_to
 
@@ -94,7 +101,7 @@ def rot_from_to4(source, target) -> np.ndarray:
     return matrix
 
 
-def translate4(offset) -> np.ndarray:
+def translate4(offset: Any) -> np.ndarray:
     """4x4 translation matrix. *offset* is a 3-D point (or 2-D with z=0)."""
     point = np.asarray(offset, dtype=float).ravel()
     matrix = np.eye(4)
@@ -106,7 +113,7 @@ def translate4(offset) -> np.ndarray:
     return matrix
 
 
-def frame_map4_yz(y_axis, z_axis):
+def frame_map4_yz(y_axis: Any, z_axis: Any) -> np.ndarray:
     """Rotation whose local +Y and +Z axes point along *y_axis* and *z_axis* (BOSL2 frame_map(y=, z=)).
 
     Different from ``frame_map4_xz``: this version takes Y and Z axes (used by
@@ -127,11 +134,11 @@ def frame_map4_yz(y_axis, z_axis):
 # ---------------------------------------------------------------------------
 
 
-def union(shapes):
+def union(shapes: Any) -> Any:
     """
     Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``).
     """
-    return reduce(operator.or_, shapes)
+    return reduce(operator.or_, shapes)  # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------
@@ -139,7 +146,7 @@ def union(shapes):
 # ---------------------------------------------------------------------------
 
 
-def unwrap(obj):
+def unwrap(obj: Bosl2Solid | Bosl2Shape2D | Any) -> Any:
     """Extract the native shape from a :class:`~pybosl2.shapes3d.Bosl2Solid` (3-D) or
     :class:`~pybosl2.shapes2d.Bosl2Shape2D` (2-D) wrapper, or return *obj* as-is.
 
