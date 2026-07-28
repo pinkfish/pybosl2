@@ -97,6 +97,9 @@ class Bezier:
 
         Accepts any array-like: Python lists, numpy arrays, or nested sequences.
         Stored internally as a float64 numpy ndarray for efficient math operations.
+
+        Args:
+            control_points: A sequence of 2-D or 3-D control points, as nested lists or numpy arrays.
         """
         pts = np.asarray(control_points, dtype=float)
         if pts.size == 0:
@@ -124,7 +127,11 @@ class Bezier:
 
     @classmethod
     def from_list(cls, points: Sequence[Sequence[float]] | np.ndarray) -> Bezier:
-        """Create a Bezier from a plain list of control points."""
+        """Create a Bezier from a plain list of control points.
+
+        Args:
+            points: A sequence of 2-D or 3-D control points.
+        """
         return cls(points)
 
     @property
@@ -145,6 +152,9 @@ class Bezier:
         Returns an ndarray of points (or a length-dim ndarray for a scalar
         *u*). Uses the bezier-to-power-basis matrix to evaluate all samples
         with a single matrix multiply for maximum performance.
+
+        Args:
+            u: A parameter value in ``[0, 1]``, or a sequence of values.
         """
         scalar = isinstance(u, (int, float, np.floating, np.integer))
         us = [u] if scalar else list(u)  # type: ignore[arg-type]
@@ -162,6 +172,10 @@ class Bezier:
         *endpoint* is False) by evaluating the curve at evenly spaced
         parameter values between 0 and 1.
 
+        Args:
+            splinesteps: Number of uniform segments to sample along the curve.
+            endpoint: If True, include the endpoint at u=1.
+
         Examples:
             .. pythonscad-example::
 
@@ -176,6 +190,10 @@ class Bezier:
         Returns an ndarray of derivative vectors. For order 0 this is
         equivalent to calling :meth:`points`. Higher orders are computed
         recursively by first reducing the control polygon via differencing.
+
+        Args:
+            u: A parameter value in ``[0, 1]``, or a sequence of values.
+            order: The derivative order (0 = position, 1 = first derivative, 2 = second, etc.).
         """
         assert isinstance(order, int) and order >= 0
         if order == 0:
@@ -192,6 +210,9 @@ class Bezier:
         Returns an ndarray of normalized derivative vectors. For a scalar *u*
         the result is a 1-D vector; for a list of *u* values the result is
         a 2-D array of row vectors.
+
+        Args:
+            u: A parameter value in ``[0, 1]``, or a sequence of values.
         """
         res = np.asarray(self.derivative(u, 1), dtype=float)
         if res.ndim == 1:
@@ -204,6 +225,9 @@ class Bezier:
         Computes the scalar curvature κ = |r' × r''| / |r'|³ at each
         parameter value. For a scalar *u* returns a single float; for a list
         of *u* values returns a numpy array of floats.
+
+        Args:
+            u: A parameter value in ``[0, 1]``, or a sequence of values.
         """
         scalar = isinstance(u, (int, float, np.floating, np.integer))
         us = [u] if scalar else list(u)  # type: ignore[arg-type]
@@ -224,6 +248,12 @@ class Bezier:
         distance to the target point within *max_err* tolerance. The search
         is bounded to the interval [*u*, *end_u*] and falls back to the
         nearer endpoint when no local minimum is detected.
+
+        Args:
+            pt: The target point to find the closest curve position to.
+            max_err: Maximum allowed error tolerance for the bisection search.
+            u: Start of the search interval along the curve.
+            end_u: End of the search interval along the curve.
         """
         pt = np.asarray(pt, dtype=float)
         steps = len(self) * 3
@@ -256,6 +286,11 @@ class Bezier:
         Uses adaptive subdivision to compute the length: samples the curve,
         measures the maximum deviation from linear segments, and subdivides
         when the deviation exceeds *max_deflect*.
+
+        Args:
+            start_u: Start parameter along the curve (default 0).
+            end_u: End parameter along the curve (default 1).
+            max_deflect: Maximum deviation tolerance before subdividing further.
         """
         from pybosl2.paths import (
             Path,
@@ -284,6 +319,9 @@ class Bezier:
         Computes the intersection parameters in [0, 1] by finding the real
         roots of the algebraic equation that expresses the signed distance
         from the curve to the infinite line defined by two points.
+
+        Args:
+            line: A 2xdim array defining two points of the infinite line to intersect against.
         """
         a = Bezier._matrix(len(self) - 1) @ self.array  # bezier algebraic coefficients
         line = np.asarray(line, dtype=float)
@@ -300,6 +338,11 @@ class Bezier:
         Extracts the control points for the given segment of a degree-*N*
         bezier path and evaluates that sub-curve at the requested parameter
         values. Returns an ndarray of points.
+
+        Args:
+            curveind: Zero-based index of the curve segment within the bezier path.
+            u: A parameter value in ``[0, 1]``, or a sequence of values.
+            n_degree: Degree of each curve segment in the bezier path.
         """
         sub = self.array[curveind * n_degree : (curveind + 1) * n_degree + 1]
         return Bezier(sub).points(u)
@@ -311,6 +354,11 @@ class Bezier:
         each segment uniformly and concatenating the results. Returns a
         :class:`~pybosl2.paths.Path` for 2-D points or
         :class:`~pybosl2.paths.Path3D` for 3-D.
+
+        Args:
+            splinesteps: Number of uniform segments to sample per curve segment.
+            n_degree: Degree of each curve segment in the bezier path.
+            endpoint: Whether to include the final endpoint in the output.
 
         Examples:
             .. pythonscad-example::
@@ -346,6 +394,11 @@ class Bezier:
         segment index and *u* is the local parameter along that segment.
         Uses a two-pass search: coarse scan across segments followed by
         fine bisection within the best segment.
+
+        Args:
+            pt: The target point to find the closest position to.
+            n_degree: Degree of each curve segment in the bezier path.
+            max_err: Maximum allowed error tolerance for the bisection search.
         """
         new_pt = np.asarray(pt, dtype=float)
         assert len(self) % n_degree == 1, (
@@ -371,6 +424,10 @@ class Bezier:
         Sums the adaptive arc length of each individual degree-*N* curve
         segment. The *max_deflect* parameter controls subdivision accuracy
         within each segment's :meth:`length` call.
+
+        Args:
+            n_degree: Degree of each curve segment in the bezier path.
+            max_deflect: Maximum deviation tolerance before subdividing further.
         """
         assert len(self) % n_degree == 1, (
             f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
@@ -389,6 +446,10 @@ class Bezier:
         Returns a new Bezier that connects the path's start and end to the
         specified axis ("X" or "Y") and closes back to form a loop, using
         linear blending segments of degree *n_degree*.
+
+        Args:
+            axis: Which axis to close down to, either ``"X"`` or ``"Y"``.
+            n_degree: Degree of the linear blending segments used to close.
         """
         arr = self.array
         assert arr.shape[1] == 2, "close_to_axis() works only on 2-D bezier paths."
@@ -417,6 +478,10 @@ class Bezier:
         Returns a new Bezier that pairs the original path with an offset
         duplicate connected by linear blend segments, forming a closed loop
         suitable for extrusion.
+
+        Args:
+            offset: The 2-D offset vector to apply to the reversed copy.
+            n_degree: Degree of the linear blending segments used to close.
         """
         arr = self.array
         assert arr.shape[1] == 2, "path_offset() works only on 2-D bezier paths."
@@ -446,6 +511,14 @@ class Bezier:
         """Cubic bezier PATH through every point of *path* (BOSL2 path_to_bezpath).
 
         Deprecated, use the top-level :func:`create_bezier` instead.
+
+        Args:
+            path: The input path of points to fit a bezier through.
+            closed: Whether the path is closed.
+            tangents: Optional user-supplied tangent vectors for each point.
+            uniform: If True, compute tangents assuming uniform spacing.
+            size: Fixed control-point magnitude for all segments.
+            relsize: Relative control-point magnitude proportional to segment length.
         """
         return create_bezier(path, closed=closed, tangents=tangents, uniform=uniform, size=size, relsize=relsize)
 
@@ -476,6 +549,24 @@ class Bezier:
         end joints than :func:`~pybosl2.skin._path_sweep`'s finite-difference
         approximation. The *n_degree* parameter is accepted for signature
         parity with :meth:`bezpath_sweep` but is not used.
+
+        Args:
+            shape: 2-D shape as a list of points to sweep along the curve.
+            splinesteps: Number of uniform segments to sample along the curve.
+            n_degree: Accepted for signature parity with :meth:`bezpath_sweep` but not used.
+            method: Sweep method, passed to :func:`~pybosl2.skin._path_sweep`.
+            endpoint: If True, include the endpoint at u=1.
+            normal: Optional normal vector for the sweep.
+            closed: Whether the swept shape should be closed (a tube).
+            twist: Total twist angle in degrees applied along the sweep.
+            twist_by_length: If True, twist is scaled by relative arc length.
+            scale: Scale factor applied along the sweep.
+            scale_by_length: If True, scale is distributed by relative arc length.
+            symmetry: Rotational symmetry count of the shape.
+            last_normal: Last normal vector for closed sweeps.
+            caps: Whether to add end caps.
+            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
+            transforms: If True, return transformation matrices instead of a mesh.
 
         Examples:
             .. pythonscad-example::
@@ -532,6 +623,24 @@ class Bezier:
         curve, computes tangent vectors by evaluating derivatives at each
         sample, and delegates to :func:`~pybosl2.skin._path_sweep`.
 
+        Args:
+            shape: 2-D shape as a list of points to sweep along the path.
+            splinesteps: Number of uniform segments to sample per curve segment.
+            n_degree: Degree of each curve segment in the bezier path.
+            method: Sweep method, passed to :func:`~pybosl2.skin._path_sweep`.
+            endpoint: If True, include the endpoint at u=1.
+            normal: Optional normal vector for the sweep.
+            closed: Whether the swept shape should be closed (a tube).
+            twist: Total twist angle in degrees applied along the sweep.
+            twist_by_length: If True, twist is scaled by relative arc length.
+            scale: Scale factor or pair of scale factors applied along the sweep.
+            scale_by_length: If True, scale is distributed by relative arc length.
+            symmetry: Rotational symmetry count of the shape.
+            last_normal: Last normal vector for closed sweeps.
+            caps: Whether to add end caps.
+            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
+            transforms: If True, return transformation matrices instead of a mesh.
+
         Examples:
             .. pythonscad-example::
 
@@ -583,6 +692,12 @@ class Bezier:
         Returns a (2, dim) ndarray of [endpoint, control_point]. For 2-D
         points *angle* is a scalar angle; for 3-D points *angle* is a scalar angle
         in the XY plane and *phi* is the angle down from Z+.
+
+        Args:
+            pt: The starting endpoint position.
+            angle: A scalar angle in the XY plane, or a direction vector. Required.
+            radius: Distance from *pt* to the control point; required when *angle* is scalar.
+            phi: For 3-D points: angle down from the Z+ axis.
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
@@ -603,6 +718,13 @@ class Bezier:
         point, forming a smooth (G1-continuous) bend. *angle* can be a scalar
         angle or a direction vector; *radius1* and *radius2* control the
         distances from the fixed point.
+
+        Args:
+            pt: The fixed point position.
+            angle: A scalar angle or direction vector defining the tangent direction.
+            radius1: Distance from *pt* to the approaching control point.
+            radius2: Distance from *pt* to the departing control point; defaults to *radius1*.
+            phi: For 3-D points: angle down from the Z+ axis.
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
@@ -627,6 +749,15 @@ class Bezier:
         departing_cp] with the two control points in independent directions.
         *angle1* and *angle2* define the approach and departure directions as scalar
         angles or direction vectors.
+
+        Args:
+            pt: The fixed corner point position.
+            angle1: Approach direction as a scalar angle or direction vector.
+            angle2: Departure direction as a scalar angle or direction vector.
+            radius1: Distance from *pt* to the approaching control point.
+            radius2: Distance from *pt* to the departing control point.
+            phi1: For 3-D points: approach angle down from Z+.
+            phi2: For 3-D points: departure angle down from Z+.
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or (phi1 is None and phi2 is None), "phi1=/phi2= require a 3-D point"
@@ -647,6 +778,12 @@ class Bezier:
         Returns a (2, dim) ndarray of [control_point, endpoint], the mirror
         of :meth:`begin`. The control point approaches the endpoint from the
         direction specified by *angle*.
+
+        Args:
+            pt: The ending endpoint position.
+            angle: A scalar angle or direction vector for the approaching control point.
+            radius: Distance from the control point to *pt*; required when *angle* is scalar.
+            phi: For 3-D points: angle down from the Z+ axis.
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
@@ -658,6 +795,10 @@ class Bezier:
         Renders the swept curve (cyan), control net (green), and control
         points (blue for endpoints, red for interior) as solid geometry using
         tubes and spheres.
+
+        Args:
+            width: Diameter of the visualised curve tube and control net lines.
+            n_degree: Degree of each curve segment in the bezier path.
 
         Examples:
             .. pythonscad-example::
@@ -687,6 +828,9 @@ class Bezier:
         Flattens a list of ndarray groups (from :meth:`begin`, :meth:`tang`,
         :meth:`joint`, :meth:`end`) by concatenating them along axis 0 into
         a single Bezier instance. Also supports flat lists of points directly.
+
+        Args:
+            groups: A sequence of ndarray groups from :meth:`begin`, :meth:`tang`, :meth:`joint`, or :meth:`end`.
         """
         if len(groups) > 0 and isinstance(groups[0], np.ndarray):
             return Bezier(np.concatenate(groups, axis=0))
@@ -760,6 +904,14 @@ def create_bezier(
     Constructs a piecewise-cubic bezier that interpolates the given
     points, matching the path's tangents. *size* or *relsize* control the
     tension; omit both to use the default (relsize=0.1).
+
+    Args:
+        path: The input path of points to fit a cubic bezier through.
+        closed: Whether the path is closed (last point connects to first).
+        tangents: Optional user-supplied tangent vectors for each point.
+        uniform: If True, compute tangents assuming uniform spacing along the path.
+        size: Fixed control-point magnitude for all curve segments.
+        relsize: Relative control-point magnitude proportional to each segment's length.
     """
     from pybosl2.paths import Path  # local: keep the import graph acyclic
 
@@ -853,6 +1005,9 @@ class BezierPatch:
         Accepts a list of rows where each row is a list of [x, y, z] control
         points forming a rectangular bezier surface patch. Stored internally as
         a float64 numpy ndarray for efficient math operations.
+
+        Args:
+            rows: A list of rows, each a list of ``[x, y, z]`` control points forming a rectangular patch.
         """
         pts = np.asarray(rows, dtype=float)
         if pts.size == 0:
@@ -878,7 +1033,11 @@ class BezierPatch:
 
     @classmethod
     def from_list(cls, rows: np.ndarray) -> BezierPatch:
-        """Create a BezierPatch from a plain list of control-point rows."""
+        """Create a BezierPatch from a plain list of control-point rows.
+
+        Args:
+            rows: A list of rows of 3-D control points.
+        """
         return cls(rows)
 
     @property
@@ -898,6 +1057,9 @@ class BezierPatch:
         Returns True if *x* is a rectangular 2-D array of point vectors
         where the first element is a numeric vector (not a nested list of
         vectors) and all rows have equal length.
+
+        Args:
+            x: The object to test.
         """
         if not (isinstance(x, (list, tuple)) and len(x) > 0):
             return False
@@ -920,6 +1082,10 @@ class BezierPatch:
         *u* is the inner/column axis and *v* is the outer/row axis. Scalar
         *u* and *v* return a single point; lists/ranges return a rectangular
         ``(len(u) x len(v))`` grid of points as an ndarray.
+
+        Args:
+            u: Parameter along the column (inner) axis in ``[0, 1]``, or a sequence of values.
+            v: Parameter along the row (outer) axis in ``[0, 1]``, or a sequence of values.
 
         Examples:
             .. pythonscad-example::
@@ -951,6 +1117,10 @@ class BezierPatch:
         Same shape rules as :meth:`points`: scalar inputs return a single
         normal vector, while list inputs return a grid of normals computed
         as the cross product of the *u* and *v* tangents.
+
+        Args:
+            u: Parameter along the column (inner) axis in ``[0, 1]``, or a sequence of values.
+            v: Parameter along the row (outer) axis in ``[0, 1]``, or a sequence of values.
         """
         patch = self.array
         nrows, ncols = patch.shape[0], patch.shape[1]
@@ -994,6 +1164,10 @@ class BezierPatch:
         directions (or per-axis if given as ``[usteps, vsteps]``) and builds
         a vertex-face mesh using :meth:`~pybosl2.vnf.VNF.vertex_array`.
 
+        Args:
+            splinesteps: Number of sampling steps per axis, or ``[usteps, vsteps]`` pair.
+            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
+
         Examples:
             .. pythonscad-example::
 
@@ -1014,6 +1188,11 @@ class BezierPatch:
         of patches and returns their combined :class:`~pybosl2.vnf.VNF`
         mesh, joined via :meth:`~pybosl2.vnf.VNF.join`.
 
+        Args:
+            patches: A single patch control-point array or a sequence of patches to mesh.
+            splinesteps: Number of sampling steps per axis, or ``[usteps, vsteps]`` pair.
+            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
+
         Examples:
             .. pythonscad-example::
 
@@ -1032,6 +1211,13 @@ class BezierPatch:
         Generates a patch of the given *size* centered on the XY plane,
         then reorients it using *spin* and *orient*. Supports translation
         and rotation relative to the standard XY orientation.
+
+        Args:
+            size: Patch size as a scalar (square) or ``[width, height]`` pair.
+            n_degree: Degree of the patch in each direction.
+            spin: Rotation angle in degrees around the Z axis.
+            orient: Orientation vector for the patch normal.
+            trans: Translation vector ``[x, y, z]``.
 
         Examples:
             .. pythonscad-example::
@@ -1059,6 +1245,11 @@ class BezierPatch:
         2-vector ``[d0, d1]`` of the two offset distances; a scalar *d* is
         equivalent to ``[0, -d]``. The resulting VNF can be rendered directly
         with ``polyhedron()``.
+
+        Args:
+            delta: Offset distances ``[d0, d1]`` along surface normals; a scalar *d* is equivalent to ``[0, -d]``.
+            splinesteps: Number of sampling steps per axis, or ``[usteps, vsteps]`` pair.
+            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
 
         Examples:
             .. pythonscad-example::
@@ -1088,6 +1279,11 @@ class BezierPatch:
         excess triangles by using adaptive triangulation. When *return_edges*
         is True, returns a ``[vnf, edges]`` tuple where *edges* is
         ``[left, right, top, bottom]`` point lists.
+
+        Args:
+            splinesteps: Number of sampling steps along each edge.
+            reverse: If True, reverse the face orientation.
+            return_edges: If True, also return edge point lists as ``[left, right, top, bottom]``.
         """
         result = BezierPatch._vnf_degenerate(self.array, splinesteps, reverse, True)
         return result if return_edges else result[0]
@@ -1199,6 +1395,14 @@ class BezierPatch:
         solid geometry. *showpatch* enables the surface mesh, *showcps*
         draws the control net, and *showdots* highlights the mesh vertices.
 
+        Args:
+            splinesteps: Number of sampling steps for the surface mesh.
+            showcps: If True, render the control-point net.
+            showdots: If True, highlight the mesh vertices.
+            showpatch: If True, render the surface mesh.
+            size: Optional marker diameter; auto-scaled if None.
+            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
+
         Examples:
             .. pythonscad-example::
 
@@ -1254,6 +1458,15 @@ def debug_bezier_patches(
     Returns a :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patches.
     Requires the real PythonSCAD app; builds on VNF.polyhedron() and the
     ported path_sweep tube.
+
+    Args:
+        patches: A single patch or list of patches to debug-visualise.
+        size: Optional marker diameter; auto-scaled if None.
+        splinesteps: Number of sampling steps for the surface mesh.
+        showcps: If True, render the control-point net.
+        showdots: If True, highlight the mesh vertices.
+        showpatch: If True, render the surface mesh.
+        style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
     """
     from pybosl2.shapes3d import Bosl2Solid as _Bosl2Solid
 
