@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
-from pybosl2.caps import CapsSpec, _norm_caps
+from pybosl2.caps import CapsSpec, _caps_as_bools, _norm_caps
 from pybosl2.constants import Vec3
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -280,7 +280,7 @@ def sweep(
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     assert len(shape3) >= 3, "shape must be a path of at least 3 points."
-    flatcaps = _norm_caps(caps, closed=closed)
+    flatcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
     ntrans = len(transforms)
     assert ntrans >= 2, "transforms must be length 2 or more."
     hi = ntrans - (0 if closed else 1)
@@ -325,7 +325,7 @@ def _path_sweep(
     """
     from pybosl2.paths import Path  # local: keep the import graph acyclic
 
-    caps = _norm_caps(caps, closed=closed)  # a closed loop has no ends to cap
+    caps = _caps_as_bools(_norm_caps(caps, closed=closed))  # a closed loop has no ends to cap
     patharr = np.asarray(path3d(path), dtype=float)
     npts = len(patharr)
     assert npts >= 2, "path must have at least 2 points."
@@ -532,7 +532,7 @@ def skin(
     sides = len(profiles)
     assert sides > 1, "skin() needs at least two profiles."
     profcount = sides - (0 if closed else 1)
-    fullcaps = _norm_caps(caps, closed=closed)
+    fullcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
     refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
@@ -609,7 +609,7 @@ def _linear_sweep(
         slices = max(1, math.ceil(abs(twist) / 5))
     sc = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]
     sh = [float(shift[0]), float(shift[1])]
-    fullcaps = _norm_caps(caps)
+    fullcaps = _caps_as_bools(_norm_caps(caps))
     z0 = -hh / 2 if center else 0.0
     base = np.asarray(path3d(path), dtype=float)
     verts = []
@@ -656,7 +656,7 @@ def _rotate_sweep(
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
     # Default: cap a partial revolution / an explicitly-open profile, but never a full one.
-    capv = _norm_caps(caps, default=(not closed) if closed is not None else (angle < 360))
+    capv = _caps_as_bools(_norm_caps(caps, default=(not closed) if closed is not None else (angle < 360)))
     prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
     if any(capv) and not full:
@@ -1026,7 +1026,7 @@ def _offset_sweep(
     from pybosl2.paths import Path as _Path
 
     assert height > 0, "offset_sweep(): height must be positive."
-    fullcaps = _norm_caps(caps)
+    fullcaps = _caps_as_bools(_norm_caps(caps))
 
     base = [[float(p[0]), float(p[1])] for p in path]
 
@@ -1418,7 +1418,7 @@ def _rounded_prism(
     from pybosl2.paths import Path as _Path2
 
     norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
-    fullcaps = _norm_caps(caps)
+    fullcaps = _caps_as_bools(_norm_caps(caps))
 
     vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -1566,7 +1566,7 @@ def _path_sweep2d(
     _ = quality
     shp: Path = shape if isinstance(shape, Path) else Path(shape)
     p: Path = path if isinstance(path, Path) else Path(path)
-    fullcaps = _norm_caps(caps, closed=closed)
+    fullcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
     profile = shp if not shp.is_clockwise() else shp.reverse()  # ccw_polygon
     flip = -1.0 if (closed and p.is_clockwise()) else 1.0
     pth = p if flip > 0 else p.reverse()
