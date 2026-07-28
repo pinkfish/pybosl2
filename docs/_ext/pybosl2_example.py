@@ -76,7 +76,7 @@ _PREAMBLE = (
     "from pybosl2.regions import Region\n"
     "from pybosl2.beziers import Bezier, BezierPatch\n"
     "from pybosl2.vnf import VNF\n"
-    "from pybosl2.skin import path_sweep, path_sweep2d, sweep, skin, linear_sweep, rotate_sweep, spiral_sweep, rot_resample\n"  # noqa: E501
+    "from pybosl2.skin import sweep, skin, rot_resample\n"
     "from pybosl2.drawing import arc, catenary, helix, turtle, stroke, dashed_stroke\n"
     "from pybosl2.distributors import distribute, xdistribute, ydistribute, zdistribute\n"
     "from pybosl2.color import hsl, hsv, rainbow, rainbow_colors\n"

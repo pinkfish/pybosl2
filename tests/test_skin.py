@@ -16,7 +16,6 @@ from pybosl2.skin import (
     OSProfile,
     clockwise_polygon,
     frame_map,
-    linear_sweep,
     os_chamfer,
     os_circle,
     os_flat,
@@ -24,13 +23,9 @@ from pybosl2.skin import (
     os_smooth,
     os_teardrop,
     path3d,
-    path_sweep,
-    path_sweep2d,
     rot_resample,
-    rotate_sweep,
     skin,
     slice_profiles,
-    spiral_sweep,
     subdivide_and_slice,
     sweep,
 )
@@ -71,22 +66,22 @@ def test_frame_map_fills_third_axis():
 
 
 def test_straight_sweep_counts():
-    vnf = path_sweep(SQUARE, [[0, 0, 0], [0, 0, 5], [0, 0, 10]])
+    vnf = Path3D([[0, 0, 0], [0, 0, 5], [0, 0, 10]]).path_sweep(SQUARE)
     assert len(vnf.vertices) == 12  # 4 shape pts x 3 profiles
     assert _valid(vnf)
 
 
 def test_sweep_open_has_caps_closed_does_not():
     line = [[0, 0, 0], [0, 0, 5], [0, 0, 10]]
-    open_faces = len(path_sweep(SQUARE, line, caps=True).faces)
-    nocap_faces = len(path_sweep(SQUARE, line, caps=False).faces)
+    open_faces = len(Path3D(line).path_sweep(SQUARE, caps=True).faces)
+    nocap_faces = len(Path3D(line).path_sweep(SQUARE, caps=False).faces)
     assert open_faces == nocap_faces + 2  # two flat end caps
 
 
 @pytest.mark.parametrize("method", ["incremental", "natural"])
 def test_curved_sweep_methods(method):
     curve = [[math.cos(t) * 10, math.sin(t) * 10, t * 2] for t in np.linspace(0, math.pi, 10)]
-    vnf = path_sweep(SQUARE, curve, method=method)
+    vnf = Path3D(curve).path_sweep(SQUARE, method=method)
     assert len(vnf.vertices) == 40
     assert _valid(vnf)
 
@@ -94,32 +89,32 @@ def test_curved_sweep_methods(method):
 def test_manual_method_with_normals():
     path = [[0, 0, 0], [0, 0, 5], [0, 0, 10]]
     normals = [[1, 0, 0]] * 3
-    vnf = path_sweep(SQUARE, path, method="manual", normal=normals)
+    vnf = Path3D(path).path_sweep(SQUARE, method="manual", normal=normals)
     assert _valid(vnf)
 
 
 def test_closed_sweep_has_no_caps():
     circ = [[math.cos(t) * 20, math.sin(t) * 20, 0] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
-    vnf = path_sweep(SQUARE, circ, closed=True)
+    vnf = Path3D(circ).path_sweep(SQUARE, closed=True)
     assert _valid(vnf)
     # 25 profiles (closed adds the wrap) x 4 verts
     assert len(vnf.vertices) == 100
 
 
 def test_transforms_mode_returns_matrices():
-    tl = path_sweep(SQUARE, [[0, 0, 0], [0, 0, 5], [0, 0, 10]], transforms=True)
+    tl = Path3D([[0, 0, 0], [0, 0, 5], [0, 0, 10]]).path_sweep(SQUARE, transforms=True)
     assert len(tl) == 3
     assert np.asarray(tl[0]).shape == (4, 4)
 
 
 def test_twist_and_scale_run():
-    vnf = path_sweep(SQUARE, [[0, 0, 0], [0, 0, 5], [0, 0, 10]], twist=90, scale=2)
+    vnf = Path3D([[0, 0, 0], [0, 0, 5], [0, 0, 10]]).path_sweep(SQUARE, twist=90, scale=2)
     assert _valid(vnf)
 
 
 def test_unknown_method_raises():
     with pytest.raises(AssertionError):
-        path_sweep(SQUARE, [[0, 0, 0], [0, 0, 5]], method="bogus")
+        Path3D([[0, 0, 0], [0, 0, 5]]).path_sweep(SQUARE, method="bogus")
 
 
 def test_sweep_direct_from_transforms():
@@ -191,7 +186,7 @@ def test_skin_needs_two_profiles():
 
 def test_linear_sweep_plain_box_volume():
     sq = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
-    vnf = linear_sweep(sq, height=5)
+    vnf = Path(sq).linear_sweep(height=5)
     assert _valid(vnf)
     assert math.isclose(vnf.volume(), 20 * 20 * 5, rel_tol=1e-6)  # 2000
 
@@ -205,8 +200,8 @@ def test_linear_sweep_twist_scale():
 
 def test_linear_sweep_center_vs_base():
     sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
-    base = linear_sweep(sq, height=10)
-    centered = linear_sweep(sq, height=10, center=True)
+    base = Path(sq).linear_sweep(height=10)
+    centered = Path(sq).linear_sweep(height=10, center=True)
     bz = [v[2] for v in base.vertices]
     cz = [v[2] for v in centered.vertices]
     assert math.isclose(min(bz), 0.0, abs_tol=1e-9)
@@ -234,7 +229,7 @@ def test_rotate_sweep_partial_has_caps():
 
 def test_rotate_sweep_rejects_bad_angle():
     with pytest.raises(AssertionError):
-        rotate_sweep(PROFILE, 400)
+        Path(PROFILE).rotate_sweep(angle=400)
 
 
 # -- spiral_sweep -------------------------------------------------------------------------
@@ -288,7 +283,7 @@ def test_subdivide_and_slice_equalizes_and_slices():
 def test_rot_resample_changes_count_and_sweeps():
     sq = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
     curve = [[0, 0, 0], [10, 0, 5], [10, 10, 10], [0, 10, 15]]
-    tl = path_sweep(sq, curve, transforms=True)
+    tl = Path3D(curve).path_sweep(sq, transforms=True)
     out = rot_resample(tl, sides=20)
     assert len(out) == 20
     assert np.asarray(out[0]).shape == (4, 4)
@@ -297,13 +292,13 @@ def test_rot_resample_changes_count_and_sweeps():
 
 def test_rot_resample_count_method():
     sq = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
-    tl = path_sweep(sq, [[0, 0, 0], [0, 0, 10], [0, 0, 20]], transforms=True)
+    tl = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 20]]).path_sweep(sq, transforms=True)
     out = rot_resample(tl, sides=5, method="count")
     assert len(out) == 5 * 2 + 1  # samples-per-gap * gaps + 1
 
 
 def test_rot_resample_rejects_even_smoothlen():
-    tl = path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], [[0, 0, 0], [0, 0, 10]], transforms=True)
+    tl = Path3D([[0, 0, 0], [0, 0, 10]]).path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], transforms=True)
     with pytest.raises(AssertionError):
         rot_resample(tl, sides=6, smoothlen=2)
 
@@ -336,7 +331,7 @@ def test_os_circle_negative_r():
 def test_offset_sweep_plain_volume():
     """No rim treatment → same volume as linear_sweep."""
     vnf_os = Path(_SQ20).offset_sweep(height=10)
-    vnf_ls = linear_sweep(_SQ20, height=10)
+    vnf_ls = Path(_SQ20).linear_sweep(height=10)
     assert _valid(vnf_os)
     assert math.isclose(vnf_os.volume(), vnf_ls.volume(), rel_tol=1e-4)
 
@@ -495,7 +490,7 @@ def test_convex_offset_extrude_alias():
 def test_rounded_prism_plain():
     """No rounding → volume == linear_sweep."""
     plain = Path(_SQ20).rounded_prism(height=20)
-    expected = linear_sweep(_SQ20, height=20)
+    expected = Path(_SQ20).linear_sweep(height=20)
     assert _valid(plain)
     assert math.isclose(plain.volume(), expected.volume(), rel_tol=1e-4)
 
@@ -532,8 +527,8 @@ def test_rounded_prism_tapered():
     prism = Path(_SQ20).rounded_prism(top=top_sq, height=20, joint_sides=1)
     assert _valid(prism)
     # Volume should be between bottom-extruded and top-extruded cubes
-    vol_bot = linear_sweep(_SQ20, height=20).volume()
-    vol_top = linear_sweep(top_sq, height=20).volume()
+    vol_bot = Path(_SQ20).linear_sweep(height=20).volume()
+    vol_top = Path(top_sq).linear_sweep(height=20).volume()
     assert vol_top < prism.volume() < vol_bot
 
 
