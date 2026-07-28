@@ -40,18 +40,6 @@ def _ts(x):
     return [[[float(x), 0.0]], [1.0, 0.0], 90.0, 0.0]
 
 
-def _tan(a):
-    return math.tan(math.radians(a))
-
-
-def _cos(a):
-    return math.cos(math.radians(a))
-
-
-def _sin(a):
-    return math.sin(math.radians(a))
-
-
 # Ball ("small") end cross-section, one per size (1/4", 1/2", 3/4"), from modular_hose.scad.
 _SMALL_CMDS = [
     (
@@ -134,11 +122,11 @@ _SMALL_CMDS = [
             0.597,
             "left",
             "move",
-            9.908 - 1.905 / _tan(25) + 3.81 * _cos(30),
+            9.908 - 1.905 / math.tan(math.radians(25)) + 3.81 * math.cos(math.radians(30)),
             "right",
             25,
             "move",
-            1.905 / _sin(25),
+            1.905 / math.sin(math.radians(25)),
         ],
         11.989,
     ),
