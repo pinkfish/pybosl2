@@ -47,6 +47,7 @@ import math
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
+    from pybosl2.constants import Vec3
     from pybosl2.paths import Path, Path3D
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -526,19 +527,19 @@ class Bezier:
 
     def sweep(
         self,
-        shape: np.ndarray,
+        shape: Path,
         splinesteps: int = 16,
         n_degree: int | None = None,
         method: str = "incremental",
         endpoint: bool = True,
-        normal: np.ndarray | None = None,
+        normal: Vec3 | None = None,
         closed: bool = False,
         twist: float = 0.0,
         twist_by_length: bool = True,
         scale: float = 1.0,
         scale_by_length: bool = True,
         symmetry: int = 1,
-        last_normal: Sequence[float] | None = None,
+        last_normal: Vec3 | None = None,
         caps: bool | Sequence[bool] | None = None,
         style: str = "min_edge",
         transforms: bool = False,
