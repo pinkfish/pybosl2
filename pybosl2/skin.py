@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
-from pybosl2.caps import CapsSpec, _caps_as_bools, _norm_caps
+from pybosl2.caps import CapsSpec, CapType, _caps_as_bools, _norm_caps
 from pybosl2.constants import Vec3
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -74,7 +74,7 @@ class Sweepable:
         tangent: Sequence[Sequence[float]] | None = None,
         uniform: bool = True,
         relaxed: bool = False,
-        caps: CapsSpec = None,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
     ) -> VNF | list[list[list[float]]]:
@@ -103,7 +103,7 @@ class Sweepable:
         self: Path,
         shape: Path,
         closed: bool = False,
-        caps: CapsSpec = None,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
     ) -> VNF:
         """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d())."""
@@ -117,7 +117,7 @@ class Sweepable:
         shift: Sequence[float] = (0.0, 0.0),
         slices: int | None = None,
         center: bool = False,
-        caps: CapsSpec = None,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
     ) -> VNF:
         """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep())."""
@@ -136,8 +136,8 @@ class Sweepable:
     def rotate_sweep(  # type: ignore[misc]
         self: Path,
         angle: float = 360.0,
-        caps: CapsSpec = None,
-        closed: bool | None = None,
+        caps: CapsSpec = CapType.BUTT,
+        _closed: bool | None = None,
         style: str = "min_edge",
         start: float = 0.0,
     ) -> VNF:
@@ -146,7 +146,6 @@ class Sweepable:
             self,
             angle=angle,
             caps=caps,
-            closed=closed,
             style=style,
             start=start,
         )
@@ -266,7 +265,7 @@ def sweep(
     shape: Sequence[Sequence[float]],
     transforms: Sequence[Sequence[Sequence[float]]],
     closed: bool = False,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF.
@@ -303,7 +302,7 @@ def _path_sweep(
     tangent: Sequence[Sequence[float]] | None = None,
     uniform: bool = True,
     relaxed: bool = False,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
     transforms: bool = False,
 ):
@@ -325,7 +324,7 @@ def _path_sweep(
     """
     from pybosl2.paths import Path  # local: keep the import graph acyclic
 
-    caps = _caps_as_bools(_norm_caps(caps, closed=closed))  # a closed loop has no ends to cap
+    _flatcaps = _caps_as_bools(_norm_caps(caps, closed=closed))  # a closed loop has no ends to cap
     patharr = np.asarray(path3d(path), dtype=float)
     npts = len(patharr)
     assert npts >= 2, "path must have at least 2 points."
@@ -495,7 +494,7 @@ def skin(
     refine: float = 1.0,
     method: str = "direct",
     sampling: str | None = None,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     closed: bool = False,
     style: str = "min_edge",
     z: Sequence[float] | None = None,
@@ -575,7 +574,7 @@ def _linear_sweep(
     scale=1,
     shift=(0.0, 0.0),
     slices: int | None = None,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "default",
     center: bool | None = None,
 ) -> VNF:
@@ -628,8 +627,8 @@ def _linear_sweep(
 def _rotate_sweep(
     shape: Sequence[Sequence[float]] | Path,
     angle: float = 360.0,
-    caps: CapsSpec = None,
-    closed: bool | None = None,
+    caps: CapsSpec = CapType.BUTT,
+    _closed: bool | None = None,
     style: str = "min_edge",
     start: float = 0.0,
 ) -> VNF:
@@ -656,7 +655,7 @@ def _rotate_sweep(
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
     # Default: cap a partial revolution / an explicitly-open profile, but never a full one.
-    capv = _caps_as_bools(_norm_caps(caps, default=(not closed) if closed is not None else (angle < 360)))
+    capv = _caps_as_bools(_norm_caps(caps))
     prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
     if any(capv) and not full:
@@ -673,7 +672,7 @@ def _rotate_sweep(
         prof,
         transforms,
         closed=full,
-        caps=[(not full) and capv[0], (not full) and capv[1]],
+        caps=[CapType.BUTT if (not full) and capv[0] else None, CapType.BUTT if (not full) and capv[1] else None],
         style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -748,7 +747,7 @@ def _spiral_sweep(
         transforms.append(
             translate4([0, 0, z]) @ zrot4(a * math.copysign(1, turns)) @ translate4([rad, 0, 0]) @ _xrot4(90)
         )
-    vnf = sweep(poly, transforms, closed=False, caps=(True, True), style=style)
+    vnf = sweep(poly, transforms, closed=False, caps=[CapType.BUTT, CapType.BUTT], style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -994,7 +993,7 @@ def _offset_sweep(
     bottom=None,
     top=None,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
@@ -1191,7 +1190,7 @@ def _convex_offset_extrude(
     bottom=None,
     top=None,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).
@@ -1210,7 +1209,7 @@ def _rounded_prism(
     joint_sides: float | list[float] | None = None,
     curvature_sides: float | list[float] | None = None,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
     **kwargs,
 ) -> VNF:
@@ -1429,7 +1428,7 @@ def _join_prism(
     height: float,
     fillet: float = 0.0,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).
@@ -1448,7 +1447,7 @@ def _prism_connector(
     fillet1: float | None = None,
     fillet2: float | None = None,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
@@ -1469,7 +1468,7 @@ def _attach_prism(
     fillet: float = 0.0,
     rounding: float = 0.0,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
@@ -1532,7 +1531,7 @@ def _path_sweep2d(
     shape: Sequence[Sequence[float]] | Path,
     path: Sequence[Sequence[float]] | Path,
     closed: bool = False,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     quality: int = 1,
     style: str = "min_edge",
 ) -> VNF:

@@ -47,13 +47,14 @@ import math
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
-    from pybosl2.caps import CapsSpec
+    from pybosl2.caps import CapsSpec, CapType
     from pybosl2.constants import Vec3
     from pybosl2.paths import Path, Path3D
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
 
+from pybosl2.caps import CapsSpec, CapType
 from pybosl2.math import EPSILON, lerp, lerpn
 from pybosl2.skin import _path_sweep
 from pybosl2.transforms import apply as _apply
@@ -541,7 +542,7 @@ class Bezier:
         scale_by_length: bool = True,
         symmetry: int = 1,
         last_normal: Vec3 | None = None,
-        caps: CapsSpec = None,
+        caps: CapsSpec | None = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
     ) -> VNF:

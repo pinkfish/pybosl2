@@ -13,6 +13,7 @@ import pytest
 
 import pybosl2.shapes2d as s2
 from pybosl2 import miscellaneous as m
+from pybosl2.caps import CapType
 from pybosl2.paths import Path, Path3D
 from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
@@ -44,13 +45,13 @@ def test_path_extrude2d_closed_and_caps():
     loop = Path([[0, 0], [40, 0], [40, 40], [0, 40]], closed=True)
     assert isinstance(loop.path_extrude2d(s2.square([4, 6], center=True), closed=True), Bosl2Solid)
     straight = Path([[0, 0], [40, 0]], closed=False)
-    assert isinstance(straight.path_extrude2d(s2.square([6, 8], center=True), caps=True), Bosl2Solid)
+    assert isinstance(straight.path_extrude2d(s2.square([6, 8], center=True), caps=CapType.BUTT), Bosl2Solid)
 
 
 def test_path_extrude2d_caps_on_closed_raises():
     loop = Path([[0, 0], [40, 0], [40, 40]], closed=True)
     with pytest.raises(AssertionError):
-        loop.path_extrude2d(s2.square([4, 8]), caps=True, closed=True)
+        loop.path_extrude2d(s2.square([4, 8]), caps=CapType.BUTT, closed=True)
 
 
 def test_path_extrude2d_requires_2d_path():

@@ -12,23 +12,23 @@ whether to add end caps when sweeping a shape along a path.
 
 Cap types (BOSL2-style names, currently mapping to standard flat end caps):
 
-``"butt"``, ``"flat"``
+``BUTT``, ``FLAT``
     Default flat end cap. Closes the open end with a planar face perpendicular
     to the path direction at the endpoint.
 
-``"round"``, ``"sphere"``
+``ROUND``, ``SPHERE``
     Spherical end cap. Adds a hemispherical bulge at the end. (Planned --
-    currently aliased to ``"butt"``.)
+    currently aliased to ``BUTT``.)
 
-``"circle"``
+``CIRCLE``
     Round-over end cap. Bevels the end with a constant-radius profile.
-    (Planned -- currently aliased to ``"butt"``.)
+    (Planned -- currently aliased to ``BUTT``.)
 
 .. note::
-    Fancy cap shapes (``"round"``, ``"sphere"``, ``"circle"``) are scaffolding
-    only -- they resolve to flat caps. Full BOSL2 cap profiles (offset shells,
-    spherically-sampled VNFs) need the sweep's 3-D end-profile geometry
-    exported into :class:`~pybosl2.vnf.VNF` and are not yet ported.
+    Fancy cap shapes (``ROUND``, ``SPHERE``, ``CIRCLE``) are scaffolding
+    only -- they resolve to flat caps. Full BOSL2 cap profiles need the
+    sweep's 3-D end-profile geometry exported into
+    :class:`~pybosl2.vnf.VNF` and are not yet ported.
 """
 
 from __future__ import annotations
@@ -44,9 +44,9 @@ __all__ = ["CapsSpec", "CapType", "_caps_as_bools", "_norm_caps"]
 class CapType(Enum):
     """Named end-cap style for BOSL2 ``caps=`` arguments.
 
-    Both the BOSL2 string names and enum members are accepted wherever a
-    :data:`CapsSpec` value is expected. A single value caps both ends
-    alike; wrap two values in a sequence for per-end control.
+    A single value caps both ends alike; wrap two values in a sequence
+    for per-end control. Pass ``None`` instead of a :class:`CapType`
+    to request no cap on that end.
     """
 
     BUTT = "butt"
@@ -56,57 +56,50 @@ class CapType(Enum):
     CIRCLE = "circle"
 
 
-#: A cap specification used by every sweep/skin entry point. Can be a single
-#: ``bool`` (same cap on both ends), a :class:`CapType` enum member, a
-#: ``Sequence[bool | CapType]`` (per-end caps), or ``None`` to take the
-#: call's own default (which is :attr:`CapType.BUTT`).
-CapsSpec = Union[bool, "CapType", "Sequence[Union[bool, 'CapType']]", None]
+#: A cap specification used by every sweep/skin entry point. Can be:
+#:
+#: * a single :class:`CapType` enum member (same cap on both ends)
+#: * a ``Sequence[CapType | None]`` pair (per-end caps, ``None`` for no cap)
+#: * ``None`` to take the default (``CapType.BUTT`` on both ends)
+CapsSpec = Union["CapType", "Sequence[Union['CapType', None]]", None]
 
 #: The default cap type used when *caps* is ``None``.
 DEFAULT_CAP = CapType.BUTT
 
 
-def _norm_caps(caps: CapsSpec, closed: bool = False, default: bool | CapType = DEFAULT_CAP) -> list[CapType | None]:
+def _norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapType | None]:
     """Normalize a :data:`CapsSpec` to a ``[cap_type, cap_type]`` pair.
 
-    Accepts booleans, :class:`CapType` enum values, or sequences of either.
-    A ``True`` boolean maps to the *default* cap type; ``False`` means no
-    cap (returned as ``None`` internally via :func:`_caps_as_bools`).
-    Named cap types (``ROUND``, ``SPHERE``, ``CIRCLE``) are accepted
-    but currently produce flat caps in :func:`_caps_as_bools`.
+    Returns a list of two :class:`CapType` or ``None`` values for the
+    start and end caps. ``None`` means no cap.
 
     Args:
         caps: The cap specification to normalize.
-        closed: Whether the sweep is closed (no caps).
-        default: The default :class:`CapType` when *caps* is ``None``.
+        closed: Whether the sweep is closed (no caps on either end).
 
     Returns:
-        A ``[CapType, CapType]`` pair.
+        A ``[CapType | None, CapType | None]`` pair (or ``[]`` for closed).
     """
     if closed:
-        return []  # closed has no caps
-
-    ct_default: CapType = default if isinstance(default, CapType) else (DEFAULT_CAP if default else CapType.BUTT)
+        return []
 
     if caps is None:
-        return [ct_default, ct_default]
+        return [None, None]
     if isinstance(caps, (list, tuple, np.ndarray)):
-        return [_normalize_one(c, ct_default) for c in caps[:2]]  # type: ignore[arg-type]
-    result = _normalize_one(caps, ct_default)  # type: ignore[arg-type]
-    return [result, result]
+        return [_normalize_one(c) for c in caps[:2]]  # type: ignore[arg-type]
+    return [_normalize_one(caps), _normalize_one(caps)]  # type: ignore[arg-type]
 
 
-def _normalize_one(cap: bool | CapType, default: CapType = DEFAULT_CAP) -> CapType | None:
-    """Normalize a single cap value to a :class:`CapType`, or ``None`` for no cap."""
-    if isinstance(cap, CapType):
-        return cap
-    if isinstance(cap, bool):
-        return default if cap else None  # False = no cap
-    return default
+def _normalize_one(cap: CapType | None) -> CapType | None:
+    """Normalize a single cap value to a :class:`CapType` or ``None``.
+
+    ``None`` passes through as "no cap."
+    """
+    return cap
 
 
 def _caps_as_bools(cap_types: list[CapType | None]) -> list[bool]:
-    """Convert a :class:`CapType` pair to the bool pair expected by :func:`VNF.vertex_array`.
+    """Convert a :class:`CapType` pair to the bool pair for :func:`VNF.vertex_array`.
 
     ``None`` entries mean no cap; any :class:`CapType` member currently
     resolves to ``True`` (flat end cap). Always returns exactly two elements.

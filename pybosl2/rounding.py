@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import is_num
+from pybosl2.caps import CapType
 from pybosl2.comparisons import approx
 
 # Late imports to avoid circular dependencies
@@ -417,7 +418,7 @@ class Roundable:
         bottom=None,
         top=None,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Offset sweep/extrusion of this 2-D shape (BOSL2 offset_sweep())."""
@@ -439,7 +440,7 @@ class Roundable:
         bottom=None,
         top=None,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Offset sweep/extrusion of this 2-D shape (BOSL2 convex_offset_extrude())."""
@@ -464,7 +465,7 @@ class Roundable:
         joint_sides=None,
         curvature_sides=None,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
         **kwargs,
     ):
@@ -493,7 +494,7 @@ class Roundable:
         height: float,
         fillet: float = 0.0,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Join this prism to a base plane with a filleted transition (BOSL2 join_prism())."""
@@ -515,7 +516,7 @@ class Roundable:
         fillet1=None,
         fillet2=None,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Construct a filleted prism connecting two objects (BOSL2 prism_connector())."""
@@ -538,7 +539,7 @@ class Roundable:
         fillet: float = 0.0,
         rounding: float = 0.0,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Attach a filleted prism with optional rounded end (BOSL2 attach_prism())."""

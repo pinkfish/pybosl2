@@ -11,6 +11,7 @@ import math
 import numpy as np
 import pytest
 
+from pybosl2.caps import CapType
 from pybosl2.paths import Path, Path3D
 from pybosl2.skin import (
     OSProfile,
@@ -85,8 +86,8 @@ def test_straight_sweep_counts():
 
 def test_sweep_open_has_caps_closed_does_not():
     line = [[0, 0, 0], [0, 0, 5], [0, 0, 10]]
-    open_faces = len(Path3D(line).path_sweep(SQUARE, caps=True).faces)
-    nocap_faces = len(Path3D(line).path_sweep(SQUARE, caps=False).faces)
+    open_faces = len(Path3D(line).path_sweep(SQUARE, caps=CapType.BUTT).faces)
+    nocap_faces = len(Path3D(line).path_sweep(SQUARE, caps=None).faces)
     assert open_faces == nocap_faces + 2  # two flat end caps
 
 

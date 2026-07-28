@@ -12,6 +12,7 @@ mocked VNF, so its geometry is checked for real in test_stl_render.py."""
 import numpy as np
 import pytest
 
+from pybosl2.caps import CapType
 from pybosl2.nurbs import (
     is_nurbs_patch,
     nurbs_curve,
@@ -136,7 +137,7 @@ def test_nurbs_vnf_parameter_list():
 
 def test_nurbs_vnf_caps_require_closed_clamped():
     with pytest.raises(AssertionError):
-        nurbs_vnf(PATCH, 3, type="clamped", caps=True)  # both clamped -> no caps allowed
+        nurbs_vnf(PATCH, 3, type="clamped", caps=CapType.BUTT)  # both clamped -> no caps allowed
 
 
 # -- degree elevation ---------------------------------------------------------------------
