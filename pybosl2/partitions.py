@@ -588,6 +588,14 @@ def partition_mask(
         cutpath_centered: keep the pattern centered (default True)
         inverse: build the mating (inverted) mask
         slop: shrink the mask by this much for a printer-fit clearance
+
+    Examples:
+        A jigsaw-pattern mask for a 100×100×10 mm part:
+
+        .. pythonscad-example::
+
+            from pybosl2.partitions import partition_mask
+            (s3.cuboid([100, 100, 10]) & partition_mask(w=50, height=10, cutpath="jigsaw", slop=0.15)).show()
     """
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -624,6 +632,14 @@ def partition_cut_mask(
     """A thin mask to cut an object into two mating pieces (BOSL2 partition_cut_mask()).
 
     Subtract it from a solid to split it along the cut path with a *slop*-wide kerf.
+
+    Examples:
+        Split a 100×100×10 mm plate with a jigsaw cut:
+
+        .. pythonscad-example::
+
+            from pybosl2.partitions import partition_cut_mask
+            (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath="jigsaw", slop=0.15)).show()
     """
     from pybosl2.drawing import stroke as _stroke
     from pybosl2.shapes3d import Bosl2Solid
@@ -718,6 +734,14 @@ class Partitionable(ABC):
         (the mask size) defaults to twice the object's bounding-box reach, so it rarely needs
         setting. *cut_path* follows a 2-D :func:`partition_path` for an interlocking cut face;
         *cut_angle* spins that face about *v*; *offset* grows the mask.
+
+        Examples:
+            Cut a cube in half along a jigsaw pattern:
+
+            .. pythonscad-example::
+
+                path = partition_path(["finger", "10x15", "finger"], seglen=25)
+                s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
         """
         v3 = _as_vec3(v)
         if center is None:
@@ -859,6 +883,14 @@ class Partitionable(ABC):
         *spread* apart along the (spun) Y axis so they print separately and snap back together.
         The joint follows *cutpath* (``"jigsaw"``, ``"dovetail"``, ``"hammerhead"``, ...); *spin*
         rotates the cut direction; *slop* leaves a printer-fit clearance.
+
+        Examples:
+            Split a block into two dovetailed halves:
+
+            .. pythonscad-example::
+
+                halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
+                halves[0].show()
         """
         center_pt, size = self.bounds()  # type: ignore[attr-defined]
         cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
