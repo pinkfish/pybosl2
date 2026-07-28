@@ -47,6 +47,7 @@ import math
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
+    from pybosl2.caps import CapsSpec
     from pybosl2.constants import Vec3
     from pybosl2.paths import Path, Path3D
     from pybosl2.shapes3d import Bosl2Solid
@@ -540,7 +541,7 @@ class Bezier:
         scale_by_length: bool = True,
         symmetry: int = 1,
         last_normal: Vec3 | None = None,
-        caps: bool | Sequence[bool] | None = None,
+        caps: CapsSpec = None,
         style: str = "min_edge",
         transforms: bool = False,
     ) -> VNF:
