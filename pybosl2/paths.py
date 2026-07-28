@@ -40,8 +40,9 @@
 # FileSummary: Operations on paths: length, resampling, tangents, splitting into subpaths.
 # FileGroup: BOSL2
 
+from __future__ import annotations
+
 import math
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -54,8 +55,10 @@ except ImportError:
     _SHAPELY = False
 
 if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this module
+    from collections.abc import Sequence
+
     from pybosl2._backend import Solid
-    from pybosl2.shapes2d import Bosl2Shape2D, Shape2DLike
+    from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
 from pybosl2.comparisons import approx
@@ -457,7 +460,7 @@ class Path(Distributable, Extrudable, Sweepable, Roundable, list):
         """
         return self.polygon().fill()
 
-    def hull(self, *others: "Shape2DLike") -> "Bosl2Shape2D":
+    def hull(self, *others: Bosl2Shape2D) -> Bosl2Shape2D:
         """The 2-D convex hull of this path, optionally together with *others* (more paths,
         regions, 2-D shapes or point lists) -- OpenSCAD ``hull()``.
 

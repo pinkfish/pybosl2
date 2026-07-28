@@ -24,7 +24,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, CENTER
@@ -44,11 +44,11 @@ CUBETRUSS_BRACING = True
 CUBETRUSS_CLIP_THICKNESS = 1.6
 
 
-def _union(shapes):
+def _union(shapes: list[Any]) -> Any:
     return union(shapes)
 
 
-def _cmask(length, chamfer, orient=None):
+def _cmask(length: float, chamfer: float, orient: str | None = None) -> Bosl2Solid:
     """
     chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis).
     """
@@ -60,11 +60,11 @@ def _cmask(length, chamfer, orient=None):
     return m
 
 
-def _yflip_copy(offset):
+def _yflip_copy(offset: float) -> Any:
     return mirror_copy(v=[0, 1, 0], offset=offset)
 
 
-def _clip_placement(vec, extents):
+def _clip_placement(vec: Sequence[float], extents: Sequence[float]) -> tuple[int, tuple[float, float, float]]:
     """For a face direction *vec*, return (z-rotation, rotated [X,Y,Z] extents) placing a clip
     (BOSL2 rot(from=FWD, to=vec)). Supports the four horizontal cardinal faces."""
     x, y = float(vec[0]), float(vec[1])
@@ -80,7 +80,9 @@ def _clip_placement(vec, extents):
     raise ValueError(f"cubetruss(clips=): unsupported clip direction {vec!r} (use FRONT/BACK/LEFT/RIGHT)")
 
 
-def _octagon_tunnel(size, strut, h, fn: int | None = None, fa: float | None = None, fs: float | None = None):
+def _octagon_tunnel(
+    size: float, strut: float, h: float, fn: int | None = None, fa: float | None = None, fs: float | None = None
+) -> Bosl2Solid:
     """A long octagonal-prism cutter for the axial lightening tunnels (BOSL2 cylinder($fn=8))."""
     oct_d = (min(h, size) - 2 * strut) / math.cos(math.radians(180 / 8))
     return regular_prism(8, diameter=oct_d, height=max(h, size) + 1, anchor=CENTER, fn=fn, fa=fa, fs=fs).rotate(
@@ -210,9 +212,9 @@ class CubeTruss:
             vecs = clips if (clips and isinstance(clips[0], (list, tuple))) else [clips]
             for vec in vecs:
                 zang, (exx, exy, exz) = _clip_placement(vec, (w, length, hh))
-                for zrow in range(exz):
+                for zrow in range(int(exz)):
                     clip = CubeTruss.cubetruss_clip(
-                        extents=exx,
+                        extents=int(exx),
                         size=size,
                         strut=strut,
                         clipthick=clipthick,

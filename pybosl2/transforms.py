@@ -20,6 +20,7 @@
 # FileGroup: BOSL2
 
 import math
+from typing import Any, Sequence
 
 import numpy as np
 
@@ -30,13 +31,13 @@ def polar_to_xy(radius: float, angle: float) -> list[float]:
     return [radius * math.cos(rad), radius * math.sin(rad)]
 
 
-def _unit(v) -> np.ndarray:
+def _unit(v: Sequence[float] | np.ndarray) -> np.ndarray:
     arr = np.asarray(v, dtype=float)
     sides = float(np.linalg.norm(arr))
     return arr / sides if sides else arr
 
 
-def rot_from_to(a, b) -> "tuple[float, np.ndarray]":
+def rot_from_to(a: Sequence[float] | np.ndarray, b: Sequence[float] | np.ndarray) -> tuple[float, np.ndarray]:
     """(angle_degrees, axis) rotating direction *a* onto direction *b*.
 
     Matches BOSL2's ``rot(from=, to=)`` axis choice, including the antiparallel case (180
@@ -54,7 +55,7 @@ def rot_from_to(a, b) -> "tuple[float, np.ndarray]":
     return math.degrees(math.acos(dot)), _unit(np.cross(au, bu))
 
 
-def axis_angle_matrix(angle: float, axis) -> np.ndarray:
+def axis_angle_matrix(angle: float, axis: Sequence[float] | np.ndarray) -> np.ndarray:
     """3x3 rotation matrix for *angle* degrees about *axis* (Rodrigues' rotation formula)."""
     rad = math.radians(angle)
     x, y, z = _unit(axis)
@@ -69,7 +70,9 @@ def axis_angle_matrix(angle: float, axis) -> np.ndarray:
     )
 
 
-def rot_about_axis(angle: float, axis, center: tuple[float, float, float] = (0.0, 0.0, 0.0)) -> np.ndarray:
+def rot_about_axis(
+    angle: float, axis: Sequence[float] | np.ndarray, center: tuple[float, float, float] = (0.0, 0.0, 0.0)
+) -> np.ndarray:
     """4x4 matrix rotating *angle* degrees about the line through *center* in direction *axis*.
 
     The 4x4 form of BOSL2's ``rot(a=, v=, center=)``: translate *center* to the origin, rotate, translate
@@ -81,7 +84,7 @@ def rot_about_axis(angle: float, axis, center: tuple[float, float, float] = (0.0
     return m
 
 
-def rot_inverse(t) -> np.ndarray:
+def rot_inverse(t: np.ndarray) -> np.ndarray:
     """
     Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,
     un-translate.
@@ -94,7 +97,7 @@ def rot_inverse(t) -> np.ndarray:
     return inv
 
 
-def rot_decode(m, long: bool = False) -> list:
+def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     """Decode a rigid 4x4 transform into its screw motion (BOSL2 rot_decode()).
 
     Returns ``[angle_degrees, axis, center, translation_along_axis]`` -- rotating by *angle* about the
@@ -134,7 +137,12 @@ def rot_decode(m, long: bool = False) -> list:
     ]
 
 
-def reorient(anchor=None, spin: float = 0, orient=None, size=None) -> list[list[float]]:
+def reorient(
+    anchor: Sequence[float] | np.ndarray | None = None,
+    spin: float = 0,
+    orient: Sequence[float] | np.ndarray | None = None,
+    size: Sequence[float] | np.ndarray | None = None,
+) -> list[list[float]]:
     """The 4x4 matrix that reorients a cuboid of *size* onto *anchor*/*spin*/*orient*.
 
     The Python equivalent of BOSL2's ``reorient(anchor, spin, orient, size)``, for feeding
@@ -176,7 +184,10 @@ def reorient(anchor=None, spin: float = 0, orient=None, size=None) -> list[list[
     return (rot_m @ zrot @ move_m).tolist()
 
 
-def apply(transform, points) -> list:
+def apply(
+    transform: Sequence[Sequence[float]] | np.ndarray,
+    points: Sequence[Sequence[float]] | np.ndarray,
+) -> list[list[float]]:
     """Apply a 4x4 (or 3x3, 2-D) *transform* matrix to every point in *points*.
 
     The Python equivalent of BOSL2's ``apply()``. Returns plain nested lists so the result can

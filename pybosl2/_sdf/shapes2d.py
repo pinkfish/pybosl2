@@ -505,18 +505,6 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:
     return PyShape2D(sdf_fn, [min(xs), min(ys)], [max(xs), max(ys)], res)
 
 
-def union2d(shapes: list[PyShape2D]) -> PyShape2D:
-    """Union of many shapes as a balanced pairwise tree. A linear `a | b | c | ...` chain
-    nests one lambda per piece, so composing hundreds of pieces (a dense tiling, say)
-    overflows Python's recursion limit when the SDF is finally evaluated -- the tree keeps
-    the evaluation depth at log2(n) instead."""
-    shapes = list(shapes)
-    assert shapes, "union2d() needs at least one shape"
-    while len(shapes) > 1:
-        shapes = [shapes[i] | shapes[i + 1] if i + 1 < len(shapes) else shapes[i] for i in range(0, len(shapes), 2)]
-    return shapes[0]
-
-
 def stroke2d(
     path: Sequence[Sequence[float]] | NDArray, width: float = 1, closed: bool = False, res: int = 10
 ) -> PyShape2D:

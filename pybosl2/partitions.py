@@ -26,9 +26,11 @@ from __future__ import annotations
 
 import math
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
+    from typing import Self
+
     from pybosl2.paths import Path
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -56,54 +58,54 @@ __all__ = [
 # (imported from pybosl2._helpers as is_num)
 
 
-def _yscale(s, path) -> Path:
+def _yscale(s: float, path: Sequence[Sequence[float]]) -> Path:
     from pybosl2.paths import Path
 
     return Path([[float(p[0]), float(p[1]) * s] for p in path])
 
 
-def _scale2(sx, sy, path) -> Path:
+def _scale2(sx: float, sy: float, path: Sequence[Sequence[float]]) -> Path:
     from pybosl2.paths import Path
 
     return Path([[float(p[0]) * sx, float(p[1]) * sy] for p in path])
 
 
-def _left(x, path) -> Path:
+def _left(x: float, path: Sequence[Sequence[float]]) -> Path:
     from pybosl2.paths import Path
 
     return Path([[float(p[0]) - x, float(p[1])] for p in path])
 
 
-def _right(x, path) -> Path:
+def _right(x: float, path: Sequence[Sequence[float]]) -> Path:
     from pybosl2.paths import Path
 
     return Path([[float(p[0]) + x, float(p[1])] for p in path])
 
 
-def _xflip(x, path) -> Path:
+def _xflip(x: float, path: Sequence[Sequence[float]]) -> Path:
     from pybosl2.paths import Path
 
     return Path([[2 * x - float(p[0]), float(p[1])] for p in path])
 
 
-def _skew(axy_deg, path) -> Path:
+def _skew(axy_deg: float, path: Sequence[Sequence[float]]) -> Path:
     from pybosl2.paths import Path
 
     t = math.tan(math.radians(axy_deg))
     return Path([[float(p[0]) + float(p[1]) * t, float(p[1])] for p in path])
 
 
-def _lerp(a, b, u):
+def _lerp(a: float, b: float, u: float) -> float:
     return a + (b - a) * u
 
 
-def _dedup(path) -> Path:
+def _dedup(path: Sequence[Sequence[float]]) -> Path:
     from pybosl2.paths import Path
 
     return Path([list(p) for p in Path._deduplicate(path, closed=False)])
 
 
-def _merge_collinear(path) -> Path:
+def _merge_collinear(path: Sequence[Sequence[float]]) -> Path:
     # BOSL2's path_merge_collinear() drops exact-duplicate points before merging collinear runs;
     # the toolkit kernel does not, so dedup first (a bare duplicate otherwise collapses a corner).
     from pybosl2.paths import Path
@@ -116,7 +118,7 @@ def _merge_collinear(path) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def _partition_subpath(cptype, fn=None, fa=None, fs=None) -> Path:
+def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Path:
     """The simple named cut sub-paths used by the mask builders (BOSL2 _partition_subpath())."""
     from pybosl2.paths import Path
     from pybosl2.shapes2d import arc
@@ -207,14 +209,24 @@ def _partition_subpath(cptype, fn=None, fa=None, fs=None) -> Path:
     raise AssertionError(f"Unsupported cutpath type: {cptype!r}")
 
 
-def _partition_cutpath(length, h, cutsize, cutpath, gap, cutpath_centered, fn=None, fa=None, fs=None):
+def _partition_cutpath(
+    length: float,
+    h: float,
+    cutsize: float | Sequence[float],
+    cutpath: str | Sequence[Sequence[float]],
+    gap: float,
+    cutpath_centered: bool,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Path:
     """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
     _ = h
-    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
+    cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
     sub: list[list[float]] = (
         [list(p) for p in cutpath]
         if isinstance(cutpath, (list, tuple, np.ndarray))
-        else _partition_subpath(cutpath, fn, fa, fs)
+        else _partition_subpath(cutpath, fn, fa, fs)  # type: ignore[arg-type]
     )
     reps_raw = 1 + math.floor((length - cs[0]) / (cs[0] + gap))
     reps = reps_raw - 1 if (reps_raw % 2 == 0 and cutpath_centered) else reps_raw
@@ -234,20 +246,20 @@ def _partition_cutpath(length, h, cutsize, cutpath, gap, cutpath_centered, fn=No
 
 
 def _ptn_sect(
-    cptype,
+    cptype: str | float,
     length: float = 25,
     width: float = 25,
-    invert=False,
-    fn=None,
-    fa=None,
-    fs=None,
+    invert: bool = False,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Path:
     """One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect())."""
     from pybosl2.paths import Path
     from pybosl2.shapes2d import _frag_count, arc
 
     if is_num(cptype):
-        assert cptype > 0, "flat section length must be positive."
+        assert cptype > 0, "flat section length must be positive."  # type: ignore[operator]
         return Path([[0, 0], [float(cptype), 0]])
     if invert:
         return _yscale(-1, _ptn_sect(cptype, length, width, fn=fn, fa=fa, fs=fs))
@@ -412,9 +424,9 @@ def _ptn_sect(
 
 
 def partition_path(
-    pathdesc,
+    pathdesc: Sequence[Any],
     repeat: int = 1,
-    y=None,
+    y: float | None = None,
     altpath: Path | None = None,
     seglen: float = 25,
     segwidth: float = 25,
@@ -483,7 +495,7 @@ def partition_path(
     return Path(outpath, closed=True)
 
 
-def _ptn_path_redirect(major_path, minor_path, center=True):
+def _ptn_path_redirect(major_path: Path, minor_path: Path, center: bool = True) -> Path:
     """Re-lay *minor_path* (a partition pattern) along *major_path* (BOSL2 _ptn_path_redirect())."""
     from pybosl2.paths import Path
 
@@ -519,25 +531,25 @@ def _ptn_path_redirect(major_path, minor_path, center=True):
 
 
 def _partition_mask_shape(
-    length,
-    w,
-    h,
-    cutsize,
-    cutpath,
-    gap,
-    cutpath_centered,
-    inverse,
-    slop,
-    fn=None,
-    fa=None,
-    fs=None,
-):
+    length: float,
+    w: float,
+    h: float,
+    cutsize: float | Sequence[float],
+    cutpath: str | Sequence[Sequence[float]],
+    gap: float,
+    cutpath_centered: bool,
+    inverse: bool,
+    slop: float,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Any:
     """Native geometry for a partition mask (removes half, leaving an interlocking edge)."""
     from pythonscad import polygon as _polygon
     from pythonscad import square as _square
 
-    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
-    path = _partition_cutpath(length, h, cs, cutpath, gap, cutpath_centered, fn, fa, fs)
+    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
+    path = _partition_cutpath(length, h, cs, cutpath, gap, cutpath_centered, fn, fa, fs)  # type: ignore[arg-type]
     ww = w * (-1 if inverse else 1)
     fullpath = list(path) + [[path[-1][0], ww], [path[0][0], ww]]
     poly = _polygon([[float(x), float(y)] for x, y in fullpath])
@@ -549,9 +561,9 @@ def _partition_mask_shape(
 
 def partition_mask(
     length: float = 100,
-    w=100,
+    w: float = 100,
     height: float = 100,
-    cutsize=10,
+    cutsize: float | Sequence[float] = 10,
     cutpath: str | Path = "jigsaw",
     gap: float = 0,
     cutpath_centered: bool = True,
@@ -600,7 +612,7 @@ def partition_mask(
 def partition_cut_mask(
     length: float = 100,
     height: float = 100,
-    cutsize=10,
+    cutsize: float | Sequence[float] = 10,
     cutpath: str | Path = "jigsaw",
     gap: float = 0,
     cutpath_centered: bool = True,
@@ -616,8 +628,8 @@ def partition_cut_mask(
     from pybosl2.drawing import stroke as _stroke
     from pybosl2.shapes3d import Bosl2Solid
 
-    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
-    path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs)
+    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
+    path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs)  # type: ignore[arg-type]
     ribbon = _stroke(path, width=max(0.1, slop * 2))
     return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
 
@@ -627,7 +639,7 @@ def partition_cut_mask(
 # ---------------------------------------------------------------------------
 
 
-def _as_vec3(v):
+def _as_vec3(v: Any) -> np.ndarray:
     a = np.asarray(v, dtype=float)
     if a.shape[0] == 2:
         a = np.array([a[0], a[1], 0.0])
@@ -644,11 +656,19 @@ class Partitionable(ABC):
     """
 
     @abstractmethod
-    def _wrap(self, new_shape):  # pragma: no cover - provided by the host class (Bosl2Solid)
+    def _wrap(self, new_shape: Any) -> Self:  # type: ignore[valid-type]  # pragma: no cover
         """Re-wrap a native shape as the host solid type."""
         raise NotImplementedError
 
-    def _half_mask(self, v, cpv, s, cut_path, cut_angle, offset):
+    def _half_mask(
+        self,
+        v: Any,
+        cpv: Any,
+        s: float,
+        cut_path: Sequence[Sequence[float]] | None,
+        cut_angle: float,
+        offset: float,
+    ) -> Any:
         from pythonscad import polygon as _polygon
 
         v3 = _as_vec3(v)
@@ -685,13 +705,13 @@ class Partitionable(ABC):
 
     def half_of(
         self,
-        v=UP,
+        v: Any = UP,
         center: bool | list[float] | None = None,
-        s=None,
+        s: float | None = None,
         cut_path: Path | None = None,
         cut_angle: float = 0,
-        offset=0,
-    ):
+        offset: float = 0,
+    ) -> Self:  # type: ignore[valid-type]
         """Keep the half of this solid on the side the normal *v* points to (BOSL2 half_of()).
 
         *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*
@@ -712,7 +732,14 @@ class Partitionable(ABC):
             s = 2.2 * reach + 2.0
         return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))  # type: ignore[attr-defined]
 
-    def left_half(self, x=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
+    def left_half(
+        self,
+        x: float = 0,
+        s: float | None = None,
+        cut_path: Path | None = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> Self:  # type: ignore[valid-type]
         """Keep the left (-X) half, cut at ``X=x`` (BOSL2 left_half())."""
         return self.half_of(
             LEFT,
@@ -723,7 +750,14 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def right_half(self, x=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
+    def right_half(
+        self,
+        x: float = 0,
+        s: float | None = None,
+        cut_path: Path | None = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> Self:  # type: ignore[valid-type]
         """Keep the right (+X) half, cut at ``X=x`` (BOSL2 right_half())."""
         return self.half_of(
             RIGHT,
@@ -734,7 +768,14 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def front_half(self, y=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
+    def front_half(
+        self,
+        y: float = 0,
+        s: float | None = None,
+        cut_path: Path | None = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> Self:  # type: ignore[valid-type]
         """Keep the front (-Y) half, cut at ``Y=y`` (BOSL2 front_half())."""
         return self.half_of(
             FRONT,
@@ -745,7 +786,14 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def back_half(self, y=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
+    def back_half(
+        self,
+        y: float = 0,
+        s: float | None = None,
+        cut_path: Path | None = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> Self:  # type: ignore[valid-type]
         """Keep the back (+Y) half, cut at ``Y=y`` (BOSL2 back_half())."""
         return self.half_of(
             BACK,
@@ -756,7 +804,14 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def bottom_half(self, z=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
+    def bottom_half(
+        self,
+        z: float = 0,
+        s: float | None = None,
+        cut_path: Path | None = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> Self:  # type: ignore[valid-type]
         """Keep the bottom (-Z) half, cut at ``Z=z`` (BOSL2 bottom_half())."""
         return self.half_of(
             DOWN,
@@ -767,7 +822,14 @@ class Partitionable(ABC):
             offset=offset,
         )
 
-    def top_half(self, z=0, s=None, cut_path: Path | None = None, cut_angle: float = 0, offset=0):
+    def top_half(
+        self,
+        z: float = 0,
+        s: float | None = None,
+        cut_path: Path | None = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> Self:  # type: ignore[valid-type]
         """Keep the top (+Z) half, cut at ``Z=z`` (BOSL2 top_half())."""
         return self.half_of(
             UP,
@@ -781,16 +843,16 @@ class Partitionable(ABC):
     def partition(
         self,
         spread: float = 10,
-        cutsize=10,
+        cutsize: float | Sequence[float] = 10,
         cutpath: str | Path = "jigsaw",
         gap: float = 0,
         cutpath_centered: bool = True,
-        spin=0,
+        spin: float = 0,
         slop: float = 0.0,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ):
+    ) -> list[Self]:  # type: ignore[valid-type]
         """Cut this solid into two interlocking pieces, spread apart (BOSL2 partition()).
 
         Returns ``[back_piece, front_piece]`` -- the two halves with matched joining edges, moved
@@ -799,7 +861,7 @@ class Partitionable(ABC):
         rotates the cut direction; *slop* leaves a printer-fit clearance.
         """
         center_pt, size = self.bounds()  # type: ignore[attr-defined]
-        cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]
+        cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
         sp = math.radians(spin)
         c, sn = math.cos(sp), math.sin(sp)
         rsx = abs(size[0] * c - size[1] * sn)
@@ -831,8 +893,9 @@ class Partitionable(ABC):
 # (imported from pybosl2._helpers as zrot4)
 
 
-def _rot4(angle_axis):
-    angle, axis = angle_axis
+def _rot4(angle_axis: Sequence[Any]) -> np.ndarray:
+    angle: float = angle_axis[0]  # type: ignore[assignment]
+    axis: Any = angle_axis[1]
     m = np.eye(4)
     m[:3, :3] = axis_angle_matrix(angle, axis)
     return m

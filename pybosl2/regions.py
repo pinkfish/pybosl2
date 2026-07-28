@@ -180,7 +180,7 @@ class Region(list):
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
         """
-        return self.geometry().hull(*others)
+        return self.geometry().hull(*others)  # type: ignore[arg-type]
 
     def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
         """Extrude this region *height* along +Z into a 3-D solid (holes included), **on whichever

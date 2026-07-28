@@ -17,6 +17,10 @@
 # FileSummary: Approximate comparison (BOSL2 comparisons.scad).
 # FileGroup: BOSL2
 
+from __future__ import annotations
+
+from typing import Any
+
 import numpy as np
 
 from pybosl2.math import EPSILON
@@ -25,7 +29,7 @@ _SCALAR_TYPES = (int, float, np.floating, np.integer)
 _VECTOR_TYPES = (list, tuple, np.ndarray)
 
 
-def approx(a, b, eps: float = EPSILON) -> bool:
+def approx(a: Any, b: Any, eps: float = EPSILON) -> bool:
     """True if *a* and *b* are equal, or numerically/component-wise within *eps*."""
     if isinstance(a, _SCALAR_TYPES) and isinstance(b, _SCALAR_TYPES):
         return abs(float(a) - float(b)) <= eps

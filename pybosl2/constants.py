@@ -34,7 +34,7 @@ IDENT: list[list[float]] = [
 # ---------------------------------------------------------------------------
 
 
-class Vec3(list):
+class Vec3(list[float]):
     """A 3-element list that supports elementwise +/-/* like a vector.
 
     Plain Python lists use `+` for concatenation and `*` for repetition, but
@@ -47,19 +47,19 @@ class Vec3(list):
     imported, since this package is deliberately independent of base_bgtk.py.)
     """
 
-    def __add__(self, other):
+    def __add__(self, other: list[float]) -> "Vec3":  # type: ignore
         return Vec3(a + b for a, b in zip(self, other, strict=False))
 
-    def __radd__(self, other):
+    def __radd__(self, other: list[float]) -> "Vec3":
         return Vec3(a + b for a, b in zip(other, self, strict=False))
 
-    def __sub__(self, other):
+    def __sub__(self, other: list[float]) -> "Vec3":
         return Vec3(a - b for a, b in zip(self, other, strict=False))
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: list[float]) -> "Vec3":
         return Vec3(a - b for a, b in zip(other, self, strict=False))
 
-    def __neg__(self):
+    def __neg__(self) -> "Vec3":
         return Vec3(-a for a in self)
 
     def __mul__(self, other: float) -> "Vec3":  # type: ignore[override]

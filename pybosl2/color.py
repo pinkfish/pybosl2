@@ -21,10 +21,13 @@ from __future__ import annotations
 
 import random
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Self
+
+    from shapes3d import Bosl2Solid
 
 __all__ = ["hsl", "hsv", "rainbow", "rainbow_colors", "Colorable"]
 
@@ -47,7 +50,7 @@ def hsl(height: float, s: float = 1.0, length: float = 0.5, a: float | None = No
         ``[R, G, B]`` (each 0..1), or ``[R, G, B, A]`` when *a* is given.
     """
     hm = height % 360
-    rgb = []
+    rgb: list[float] = []
     for n in (0, 8, 4):
         k = (n + hm / 30) % 12
         rgb.append(length - s * min(length, 1 - length) * max(min(k - 3, 9 - k, 1), -1))
@@ -102,7 +105,7 @@ def rainbow_colors(
     stride: int = 1,
     maxhues: int | None = None,
     shuffle: bool = False,
-    seed=None,
+    seed: int | None = None,
 ) -> list[list[float]]:
     """The list of ``sides`` ``[R, G, B]`` colours stepped around the ROYGBIV wheel (BOSL2 rainbow()).
 
@@ -124,12 +127,12 @@ def rainbow_colors(
 
 
 def rainbow(
-    items: Sequence,
+    items: Sequence[Bosl2Solid],
     stride: int = 1,
     maxhues: int | None = None,
     shuffle: bool = False,
-    seed=None,
-) -> list:
+    seed: int | None = None,
+) -> list[Any]:
     """Colour each object in *items* a different hue, returning the coloured list (BOSL2 rainbow()).
 
     Each item must support ``.color([r, g, b])`` (a :class:`~pybosl2.shapes3d.Bosl2Solid` or a native
@@ -164,24 +167,24 @@ class Colorable(ABC):
     """
 
     @abstractmethod
-    def _color_native(self, c=None, alpha=None):  # pragma: no cover - overridden by the host class
+    def _color_native(self, c: Any = None, alpha: float | None = None) -> Self:  # pragma: no cover
         raise NotImplementedError
 
     @abstractmethod
-    def _highlight_native(self):  # pragma: no cover - overridden by the host class
+    def _highlight_native(self) -> Self:  # pragma: no cover
         raise NotImplementedError
 
     @abstractmethod
-    def _ghost_native(self):  # pragma: no cover - overridden by the host class
+    def _ghost_native(self) -> Self:  # pragma: no cover
         raise NotImplementedError
 
-    def color(self, c=None, alpha: float | None = None):
+    def color(self, c: Any = None, alpha: float | None = None) -> Self:
         """Colour this object. *c* is a name (``"red"``), ``[R, G, B]``, or ``[R, G, B, A]``."""
         if c is None and alpha is None:
             return self
         return self._color_native(c, alpha)
 
-    def recolor(self, c="default", alpha: float | None = None):
+    def recolor(self, c: Any = "default", alpha: float | None = None) -> Self:
         """Set the colour of this object and its uncoloured descendants (BOSL2 recolor()).
 
         ``"default"`` / ``None`` leaves the colour unchanged (there is no ``$color`` scheme to
@@ -190,26 +193,26 @@ class Colorable(ABC):
             return self
         return self._color_native(c, alpha)
 
-    def color_this(self, c="default", alpha: float | None = None):
+    def color_this(self, c: Any = "default", alpha: float | None = None) -> Self:
         """Colour just this object (BOSL2 color_this()); equivalent to :meth:`color` in the native
         backend, where there is no ``$color`` attachment tree to preserve separately."""
         if c is None or c == "default":
             return self
         return self._color_native(c, alpha)
 
-    def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None):
+    def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None) -> Self:
         """Colour this object from an HSL hue/saturation/lightness (BOSL2 hsl())."""
         return self._color_native(hsl(height, s, length), a)
 
-    def hsv(self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None):
+    def hsv(self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None) -> Self:
         """Colour this object from an HSV hue/saturation/value (BOSL2 hsv())."""
         return self._color_native(hsv(height, s, v), a)
 
-    def highlight(self, highlight: bool = True):
+    def highlight(self, highlight: bool = True) -> Self:
         """Apply the ``#`` debug modifier (BOSL2 highlight()); ``False`` leaves it unmodified."""
         return self._highlight_native() if highlight else self
 
-    def ghost(self, ghost: bool = True):
+    def ghost(self, ghost: bool = True) -> Self:
         """Apply the ``%`` (transparent, non-interacting) modifier (BOSL2 ghost()); ``False`` leaves
         it unmodified."""
         return self._ghost_native() if ghost else self
