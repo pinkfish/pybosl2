@@ -47,7 +47,7 @@ import math
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path, Path3D
 
 import numpy as np
 
@@ -303,19 +303,19 @@ class Bezier:
         sub = self.array[curveind * n_degree : (curveind + 1) * n_degree + 1]
         return Bezier(sub).points(u)
 
-    def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> np.ndarray:
-        """Sample this bezier PATH into points.
+    def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> Path | Path3D:
+        """Sample this bezier PATH into a Path of points.
 
         Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling
-        each segment uniformly and concatenating the results. Unlike BOSL2's
-        bezpath_curve the result is a plain point list without collinear-point
-        merging or derivative output.
+        each segment uniformly and concatenating the results. Returns a
+        :class:`~pybosl2.paths.Path` for 2-D points or
+        :class:`~pybosl2.paths.Path3D` for 3-D.
 
         Examples:
             .. pythonscad-example::
 
-                path = Bezier([[0, 0], [25, 30], [50, 0], [75, -30], [100, 0]])
-                path.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(h=3).show()
+                bz = Bezier([[0, 0], [25, 30], [50, 0], [75, -30], [100, 0]])
+                bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(h=3).show()
         """
         assert len(self) % n_degree == 1, (
             f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
@@ -330,7 +330,13 @@ class Bezier:
             out.append(ctrl.points(us))
         if endpoint:
             out.append(bezpath[-1:])
-        return np.concatenate(out, axis=0)
+        from pybosl2.paths import Path as _Path
+        from pybosl2.paths import Path3D as _Path3D
+
+        result = np.concatenate(out, axis=0)
+        if result.shape[1] == 3:
+            return _Path3D(result)
+        return _Path(result)
 
     def path_closest_point(self, pt: np.ndarray, n_degree: int = 3, max_err: float = 0.01) -> tuple[int, float]:
         """Find the closest position on this bezier PATH to *pt*.
@@ -713,7 +719,7 @@ class Bezier:
                 ])
                 path.debug(width=0.5)
         """
-        result = _debug_tube(self.path_curve(n_degree=n_degree), width / 2.0).color("cyan")
+        result = _debug_tube(np.asarray(self.path_curve(n_degree=n_degree)), width / 2.0).color("cyan")
         result = result | _debug_tube(np.asarray([list(p) for p in self]), width / 2.0).color("green")
         for k, p in enumerate(self):
             marker = (
