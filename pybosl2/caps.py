@@ -131,7 +131,7 @@ _DEFAULTS: dict[CapType, CapSpec] = {
     CapType.BLOCK: CapSpec(cap_type=CapType.BLOCK, length=2.0, width=1.0, extent=0.0),
     CapType.DIAMOND: CapSpec(cap_type=CapType.DIAMOND, length=2.5, width=1.0, extent=0.0),
     CapType.DOT: CapSpec(cap_type=CapType.DOT, length=2.0, width=1.0, extent=0.0),
-    CapType.X: CapSpec(cap_type=CapType.X, length=2.5, width=0.4, extent=0.0),
+    CapType.X: CapSpec(cap_type=CapType.X, length=2.5, width=0.4, extent=0.0, angle=45.0),
     CapType.CROSS: CapSpec(cap_type=CapType.CROSS, length=3.0, width=0.33, extent=0.0),
     CapType.LINE: CapSpec(cap_type=CapType.LINE, length=3.5, width=0.22, extent=0.0),
     CapType.ARROW: CapSpec(cap_type=CapType.ARROW, length=3.5, width=0.4, extent=0.5),
@@ -170,12 +170,17 @@ def _norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
 
 
 def _normalize_one(cap: CapType | CapSpec) -> CapSpec:
-    """Normalize a single cap value to a fully-resolved :class:`CapSpec`."""
+    """Normalize a single cap value to a fully-resolved :class:`CapSpec`.
+
+    If given a raw :class:`CapType`, looks up the default :class:`CapSpec`
+    from :data:`_DEFAULTS`. If given a :class:`CapSpec` already, returns it
+    unchanged (callers can set non-zero fields to override the defaults).
+    """
     if isinstance(cap, CapSpec):
         return cap
     if isinstance(cap, CapType):
-        return CapSpec(cap_type=cap)
-    return CapSpec(cap_type=CapType.BUTT)
+        return _DEFAULTS.get(cap, _DEFAULTS[CapType.NONE])
+    return _DEFAULTS[CapType.BUTT]
 
 
 def _caps_as_bools(cap_specs: list[CapSpec]) -> list[bool]:
@@ -200,8 +205,9 @@ def _caps_as_bools(cap_specs: list[CapSpec]) -> list[bool]:
 def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
     """The local-frame polygon(s) for an endcap (BOSL2 ``_shape_path()``).
 
-    Dimensions are taken directly from the :class:`CapSpec`. For the
-    default sizes of each style see :data:`_DEFAULTS`.
+    Dimensions are taken directly from the :class:`CapSpec` which has
+    already been resolved by :func:`_normalize_one` against
+    :data:`_DEFAULTS`.
 
     Args:
         spec: The resolved cap specification.
@@ -214,15 +220,9 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
     if spec.cap_type in (CapType.NONE, CapType.BUTT):
         return []
 
-    # Resolve dimensions: overlay caller values onto defaults
-    default = _DEFAULTS.get(spec.cap_type, _DEFAULTS[CapType.NONE])
-    length_mult = default.length if spec.length == 0.0 else spec.length
-    width_mult = default.width if spec.width == 0.0 else spec.width
-    extent_mult = default.extent if spec.extent == 0.0 else spec.extent
-
-    w = width_mult
-    length = length_mult * width_mult
-    l2 = extent_mult * width_mult
+    w = spec.width
+    length = spec.length * spec.width
+    l2 = spec.extent * spec.width
     w2 = w - l2
     s = lw / 2
     ss = s * w2
@@ -274,4 +274,10 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
         p = s * length
         pp = s * (length - 0.17)
         poly.append(np.array([[0, -ss], [p - pp, -ss], [p - pp, -s], [p, 0], [p - pp, s], [p - pp, ss], [0, ss]]))
+
+    if spec.angle != 0.0:
+        cos_a = math.cos(math.radians(spec.angle))
+        sin_a = math.sin(math.radians(spec.angle))
+        rot = np.array([[cos_a, -sin_a], [sin_a, cos_a]])
+        poly = [(p @ rot.T).astype(float) for p in poly]  # type: ignore[attr-defined]
     return poly
