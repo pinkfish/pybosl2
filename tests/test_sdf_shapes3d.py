@@ -727,7 +727,7 @@ class TestRegularPrism:
         )
 
     def test_size_error_when_no_size_given(self):
-        with pytest.raises(ValueError, match="size"):
+        with pytest.raises(ValueError, match="need one of"):
             sdf_s3d.regular_prism()
 
 

@@ -89,19 +89,19 @@ def test_line_intersection_finds_endpoints_on_axis():
 
 def test_path_curve_requires_valid_length():
     with pytest.raises(AssertionError):
-        Bezier([[0, 0], [1, 0], [2, 0]]).path_curve(N=3)  # 3 % 3 != 1
+        Bezier([[0, 0], [1, 0], [2, 0]]).path_curve(n_degree=3)  # 3 % 3 != 1
 
 
 def test_path_curve_and_points():
     bp = Bezier([[0, 0], [1, 1], [2, 0], [3, 1], [4, 0], [5, 1], [6, 0]])
-    assert len(bp.path_curve(splinesteps=4, N=3)) > 0
-    assert np.asarray(bp.path_points(0, 0.5, N=3)).shape == (2,)
+    assert len(bp.path_curve(splinesteps=4, n_degree=3)) > 0
+    assert np.asarray(bp.path_points(0, 0.5, n_degree=3)).shape == (2,)
 
 
 def test_path_length_and_closest_point():
     bp = Bezier([[0, 0], [1, 1], [2, 0], [3, 1], [4, 0], [5, 1], [6, 0]])
-    assert bp.path_length(N=3) > 0
-    seg, u = bp.path_closest_point([3, 0], N=3)
+    assert bp.path_length(n_degree=3) > 0
+    seg, u = bp.path_closest_point([3, 0], n_degree=3)
     assert isinstance(seg, int)
     assert 0.0 <= u <= 1.0
 
@@ -249,7 +249,7 @@ def test_bezier_sweep_valid():
 
 def test_bezpath_sweep_valid():
     bp = Bezier([[0, 0, 0], [10, 0, 0], [10, 10, 0], [10, 10, 10]])
-    v = bp.bezpath_sweep(CIRCLE, splinesteps=6, N=3)
+    v = bp.bezpath_sweep(CIRCLE, splinesteps=6, n_degree=3)
     assert isinstance(v, VNF)
     assert _valid(v)
 

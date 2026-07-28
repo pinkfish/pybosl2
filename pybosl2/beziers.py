@@ -416,8 +416,8 @@ class Bezier(list):
         path = self.curve(splinesteps, endpoint)
         tang = self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))
         return path_sweep(
-            shape.tolist(),
-            path.tolist(),
+            shape,  # type: ignore[arg-type]
+            path,  # type: ignore[arg-type]
             method=method,
             normal=normal,
             closed=closed,
@@ -467,7 +467,7 @@ class Bezier(list):
             tang.append(Bezier(bezpath[(segs - 1) * n_degree : segs * n_degree + 1]).derivative(1.0))
         return path_sweep(
             shape,
-            path.tolist(),
+            path,  # type: ignore[arg-type]
             method=method,
             normal=normal,
             closed=closed,
