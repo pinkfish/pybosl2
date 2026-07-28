@@ -38,7 +38,10 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Sequence, Union
+from typing import TYPE_CHECKING, Any, Sequence, Union
+
+if TYPE_CHECKING:
+    from pybosl2.paths import Path, Path3D
 
 import numpy as np
 
@@ -56,8 +59,8 @@ class Sweepable:
     """Mixin adding sweep methods to Path and Path3D."""
 
     def path_sweep(
-        self,
-        shape: Sequence[Sequence[float]],
+        self: Path3D,
+        shape: Path,
         method: str = "incremental",
         normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
         closed: bool = False,
@@ -96,8 +99,8 @@ class Sweepable:
         )
 
     def path_sweep2d(
-        self,
-        shape: Sequence[Sequence[float]],
+        self: Path,
+        shape: Path,
         closed: bool = False,
         caps: CapsSpec = None,
         style: str = "min_edge",
@@ -106,7 +109,7 @@ class Sweepable:
         return _path_sweep2d(shape, self, closed=closed, caps=caps, style=style)
 
     def linear_sweep(
-        self,
+        self: Path,
         height: float | None = None,
         twist: float = 0.0,
         scale: Any = 1,
@@ -130,7 +133,7 @@ class Sweepable:
         )
 
     def rotate_sweep(
-        self,
+        self: Path,
         angle: float = 360.0,
         caps: CapsSpec = None,
         closed: bool | None = None,
@@ -148,7 +151,7 @@ class Sweepable:
         )
 
     def spiral_sweep(
-        self,
+        self: Path,
         height: float,
         radius: float | None = None,
         turns: float = 1.0,
@@ -157,8 +160,7 @@ class Sweepable:
         diameter: float | None = None,
         diameter1: float | None = None,
         diameter2: float | None = None,
-        center: bool = False,
-        caps: CapsSpec = None,
+        center: bool = True,
         style: str = "min_edge",
     ) -> VNF:
         """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep())."""
@@ -173,7 +175,6 @@ class Sweepable:
             diameter1=diameter1,
             diameter2=diameter2,
             center=center,
-            caps=caps,
             style=style,
         )
 

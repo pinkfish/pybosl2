@@ -47,6 +47,7 @@ from pybosl2._native import native
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD
 
+    from pybosl2.paths import Path3D
     from pybosl2.shapes3d import Bosl2Solid
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
@@ -708,7 +709,7 @@ class Bosl2Shape2D(Distributable, Colorable):
         kw.update(kwargs)
         return Bosl2Solid(self.shape.rotate_extrude(**kw))
 
-    def path_extrude(self, path: Sequence[Sequence[float]], **kwargs: Any) -> "Bosl2Solid":
+    def path_extrude(self, path: Path3D, **kwargs: Any) -> "Bosl2Solid":
         """Sweep this 2-D shape along *path* (a :class:`~pybosl2.paths.Path3D` or point list), via
         the native ``path_extrude()``.
 
@@ -1255,7 +1256,7 @@ def circle(
 
 
 def polygon(
-    path: Sequence[Sequence[float]],
+    path: Path,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
 ) -> Bosl2Shape2D:
