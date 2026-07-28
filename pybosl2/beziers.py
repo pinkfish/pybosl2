@@ -620,78 +620,78 @@ class Bezier:
     # -- control-point construction (BOSL2 bez_begin/bez_tang/bez_joint/bez_end) ------------
 
     @staticmethod
-    def begin(pt, a, radius: float | None = None, p: float | None = None) -> np.ndarray:
+    def begin(pt, angle, radius: float | None = None, phi: float | None = None) -> np.ndarray:
         """Starting endpoint and control point of a cubic bezier path.
 
         Returns a (2, dim) ndarray of [endpoint, control_point]. For 2-D
-        points *a* is a scalar angle; for 3-D points *a* is a scalar angle
-        in the XY plane and *p* is the angle down from Z+.
+        points *angle* is a scalar angle; for 3-D points *angle* is a scalar angle
+        in the XY plane and *phi* is the angle down from Z+.
         """
         pt = np.asarray(pt, dtype=float)
-        assert len(pt) == 3 or p is None, "p= requires a 3-D point"
-        return np.stack([pt, pt + Bezier._ctrl_offset(len(pt), a, radius, p)])
+        assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
+        return np.stack([pt, pt + Bezier._ctrl_offset(len(pt), angle, radius, phi)])
 
     @staticmethod
     def tang(
         pt,
-        a,
+        angle,
         radius1: float | None = None,
         radius2: float | None = None,
-        p: float | None = None,
+        phi: float | None = None,
     ) -> np.ndarray:
         """Smooth joint in a cubic bezier path with collinear control points.
 
         Returns a (3, dim) ndarray of [approaching_cp, fixed_point,
         departing_cp]. The two control points are collinear with the fixed
-        point, forming a smooth (G1-continuous) bend. *a* can be a scalar
+        point, forming a smooth (G1-continuous) bend. *angle* can be a scalar
         angle or a direction vector; *radius1* and *radius2* control the
         distances from the fixed point.
         """
         pt = np.asarray(pt, dtype=float)
-        assert len(pt) == 3 or p is None, "p= requires a 3-D point"
-        u, dist = Bezier._dir_and_dist(len(pt), a, radius1, p)
-        r1v = dist if radius1 is None else radius1
-        r2v = r1v if radius2 is None else radius2
-        return np.stack([pt - r1v * u, pt, pt + r2v * u])
+        assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
+        unit_dir, dist = Bezier._dir_and_dist(len(pt), angle, radius1, phi)
+        dist1 = dist if radius1 is None else radius1
+        dist2 = dist1 if radius2 is None else radius2
+        return np.stack([pt - dist1 * unit_dir, pt, pt + dist2 * unit_dir])
 
     @staticmethod
     def joint(
         pt,
-        a1,
-        a2,
+        angle1,
+        angle2,
         radius1: float | None = None,
         radius2: float | None = None,
-        p1: float | None = None,
-        p2: float | None = None,
+        phi1: float | None = None,
+        phi2: float | None = None,
     ) -> np.ndarray:
         """Disjoint corner joint in a cubic bezier path.
 
         Returns a (3, dim) ndarray of [approaching_cp, fixed_point,
         departing_cp] with the two control points in independent directions.
-        *a1* and *a2* define the approach and departure directions as scalar
+        *angle1* and *angle2* define the approach and departure directions as scalar
         angles or direction vectors.
         """
         pt = np.asarray(pt, dtype=float)
-        assert len(pt) == 3 or (p1 is None and p2 is None), "p1=/p2= require a 3-D point"
+        assert len(pt) == 3 or (phi1 is None and phi2 is None), "phi1=/phi2= require a 3-D point"
         return np.stack(
             [
-                pt + Bezier._ctrl_offset(len(pt), a1, radius1, p1),
+                pt + Bezier._ctrl_offset(len(pt), angle1, radius1, phi1),
                 pt,
-                pt + Bezier._ctrl_offset(len(pt), a2, radius2, p2),
+                pt + Bezier._ctrl_offset(len(pt), angle2, radius2, phi2),
             ]
         )
 
     @staticmethod
-    def end(pt, a, radius: float | None = None, p: float | None = None) -> np.ndarray:
+    def end(pt, angle, radius: float | None = None, phi: float | None = None) -> np.ndarray:
         """Approaching control point and endpoint of a cubic bezier path.
 
         Returns a (2, dim) ndarray of [control_point, endpoint], the mirror
         of :meth:`begin`. The control point approaches the endpoint from the
-        direction specified by *a*.
+        direction specified by *angle*.
         """
         pt = np.asarray(pt, dtype=float)
-        assert len(pt) == 3 or p is None, "p= requires a 3-D point"
-        return np.stack([pt + Bezier._ctrl_offset(len(pt), a, radius, p), pt])
+        assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
+        return np.stack([pt + Bezier._ctrl_offset(len(pt), angle, radius, phi), pt])
 
     def debug(self, width: float = 1.0, n_degree: int = 3):
         """Visualize this bezier PATH as native geometry (BOSL2 debug_bezier).
@@ -752,27 +752,27 @@ class Bezier:
         return radius * np.array([math.cos(th) * math.sin(ph), math.sin(th) * math.sin(ph), math.cos(ph)])
 
     @staticmethod
-    def _ctrl_offset(dim: int, a, r, p) -> np.ndarray:
-        if isinstance(a, (list, tuple, np.ndarray)):
-            av = np.asarray(a, dtype=float)
-            return av if r is None else r * np.asarray(_unit(av), dtype=float)
-        assert r is not None, "r must be given when a is an angle, not a direction vector"
-        if dim == 3:
-            return Bezier._spherical_to_xyz(r, a, 90.0 if p is None else p)
-        rad = math.radians(a)
-        return r * np.array([math.cos(rad), math.sin(rad)])
+    def _ctrl_offset(point_dim: int, angle, radius, phi) -> np.ndarray:
+        if isinstance(angle, (list, tuple, np.ndarray)):
+            direction = np.asarray(angle, dtype=float)
+            return direction if radius is None else radius * np.asarray(_unit(direction), dtype=float)
+        assert radius is not None, "radius must be given when angle is a scalar, not a direction vector"
+        if point_dim == 3:
+            return Bezier._spherical_to_xyz(radius, angle, 90.0 if phi is None else phi)
+        rad = math.radians(angle)
+        return radius * np.array([math.cos(rad), math.sin(rad)])
 
     @staticmethod
-    def _dir_and_dist(dim: int, a, r, p) -> "tuple[np.ndarray, float]":
-        if isinstance(a, (list, tuple, np.ndarray)):
-            av = np.asarray(a, dtype=float)
-            dist = float(np.linalg.norm(av)) if r is None else r
-            return np.asarray(_unit(av), dtype=float), dist
-        assert r is not None, "r must be given when a is an angle, not a direction vector"
-        if dim == 3:
-            return Bezier._spherical_to_xyz(1.0, a, 90.0 if p is None else p), r
-        rad = math.radians(a)
-        return np.array([math.cos(rad), math.sin(rad)]), r
+    def _dir_and_dist(point_dim: int, angle, radius, phi) -> "tuple[np.ndarray, float]":
+        if isinstance(angle, (list, tuple, np.ndarray)):
+            direction = np.asarray(angle, dtype=float)
+            dist = float(np.linalg.norm(direction)) if radius is None else radius
+            return np.asarray(_unit(direction), dtype=float), dist
+        assert radius is not None, "radius must be given when angle is a scalar, not a direction vector"
+        if point_dim == 3:
+            return Bezier._spherical_to_xyz(1.0, angle, 90.0 if phi is None else phi), radius
+        rad = math.radians(angle)
+        return np.array([math.cos(rad), math.sin(rad)]), radius
 
     @staticmethod
     def _real_roots(coeffs) -> list:
