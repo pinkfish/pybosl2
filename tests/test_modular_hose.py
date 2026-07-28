@@ -18,7 +18,7 @@ def _size(s):
 
 
 @pytest.mark.parametrize(
-    "size,bore,outer",
+    ("size", "bore", "outer"),
     [(0.25, 3.268, 4.864), (0.5, 6.422, 8.096), (0.75, 9.902, 11.989)],
 )
 def test_radius_matches_profile(size, bore, outer):
@@ -27,12 +27,12 @@ def test_radius_matches_profile(size, bore, outer):
 
 
 def test_bad_size_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="size must be 0.25, 0.5 or 0.75"):
         ModularHose.modular_hose(0.3)
 
 
 def test_bad_type_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="type must be one of"):
         ModularHose.modular_hose(0.5, "banana")
 
 

@@ -29,7 +29,7 @@ def test_circle_point_tangents_lie_on_circle_and_are_tangent():
 
 
 def test_tangent_requires_external_point():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="point must be outside the circle"):
         _circle_point_tangents(25, [0, 0], [10, 0])
 
 
@@ -78,24 +78,24 @@ def test_custom_hole_path_builds():
 
 
 def test_must_define_exactly_two_of_or_ir_wall():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="define exactly two"):
         Hooks.ring_hook([50, 10], 25, outer_radius=25)  # only one given
 
 
 def test_base_corners_must_be_outside_cylinder():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="base corners must be outside the cylinder"):
         Hooks.ring_hook([10, 10], 5, outer_radius=25, inner_radius=0)  # corners inside cylinder, no tangent
 
 
 def test_circle_hole_must_fit_above_base():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="inner_radius \+ hole_rounding must be less than hole_z"):
         Hooks.ring_hook(
             [50, 10], 10, outer_radius=25, inner_radius=20
         )  # inner_radius >= hole_z: hole pokes out the base
 
 
 def test_custom_hole_rejects_ir_and_wall():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="cannot give inner_radius.*with a custom hole"):
         Hooks.ring_hook(
             [50, 20],
             30,

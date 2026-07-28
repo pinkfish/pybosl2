@@ -24,7 +24,7 @@ def test_cubetruss_dist():
 
 
 @pytest.mark.parametrize(
-    "kw,expect",
+    ("kw", "expect"),
     [
         ({}, 30.0),
         ({"bracing": False}, 30.0),
@@ -82,15 +82,15 @@ def test_corner_asymmetric_extents():
 
 
 @pytest.mark.parametrize(
-    "extents,ex,ey,ez",
+    ("extents", "ex", "ez"),
     [
-        (1, 1, 1, 1),
-        (2, 1, 1, 2),
-        (3, 1, 1, 3),
-        ([2, 2, 3], 2, 2, 3),
+        (1, 1, 1),
+        (2, 1, 2),
+        (3, 1, 3),
+        ([2, 2, 3], 2, 3),
     ],
 )
-def test_support_envelope(extents, ex, _ey, ez):
+def test_support_envelope(extents, ex, ez):
     s = CubeTruss.cubetruss_support(extents=extents, fn=None, fa=None, fs=None)
     assert isinstance(s, Bosl2Solid)
     w, length, height = _size(s)

@@ -43,7 +43,8 @@ def test_curve_returns_path3d_for_3d_control():
 
 def test_curve_returns_path_for_2d_control():
     c = nurbs_curve(CTRL2, 3, splinesteps=6)
-    assert isinstance(c, Path) and not isinstance(c, Path3D)
+    assert isinstance(c, Path)
+    assert not isinstance(c, Path3D)
 
 
 def test_clamped_curve_interpolates_endpoints():
@@ -55,12 +56,14 @@ def test_clamped_curve_interpolates_endpoints():
 def test_scalar_u_returns_single_point():
     pt = nurbs_curve(CTRL3, 3, u=0.5)
     assert not isinstance(pt, (Path, Path3D))
-    assert len(pt) == 3 and all(isinstance(x, float) for x in pt)
+    assert len(pt) == 3
+    assert all(isinstance(x, float) for x in pt)
 
 
 def test_closed_curve_is_flagged_closed():
     c = nurbs_curve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type="closed")
-    assert isinstance(c, Path) and c.closed is True
+    assert isinstance(c, Path)
+    assert c.closed is True
 
 
 def test_u_and_splinesteps_are_exclusive():
@@ -103,20 +106,23 @@ def test_is_nurbs_patch():
 
 def test_patch_points_grid_shape():
     grid = nurbs_patch_points(PATCH, 3, splinesteps=3)
-    assert len(grid) > 3 and len(grid[0]) > 3
+    assert len(grid) > 3
+    assert len(grid[0]) > 3
     assert all(len(pt) == 3 for row in grid for pt in row)
 
 
 def test_patch_points_uv_form():
     grid = nurbs_patch_points(PATCH, 3, u=[0, 0.5, 1], v=[0, 0.5, 1])
-    assert len(grid) == 3 and len(grid[0]) == 3
+    assert len(grid) == 3
+    assert len(grid[0]) == 3
     # the [0,0] corner interpolates the corner control point (clamped both ways)
     np.testing.assert_allclose(grid[0][0], PATCH[0][0], atol=1e-9)
 
 
 def test_patch_mixed_degree():
     grid = nurbs_patch_points(PATCH, [3, 2], splinesteps=[2, 3])
-    assert len(grid) > 0 and len(grid[0]) > 0
+    assert len(grid) > 0
+    assert len(grid[0]) > 0
 
 
 def test_nurbs_vnf_returns_vnf():

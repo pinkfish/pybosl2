@@ -103,7 +103,8 @@ def test_compound_reverse_flips_direction():
 
 def test_compound_grow_twist_builds_transforms():
     xform = Turtle().run([["move", 10, "grow", 2, "twist", 90, "steps", 6]]).transforms()
-    assert len(xform) == 7 and all(np.asarray(t).shape == (4, 4) for t in xform)
+    assert len(xform) == 7
+    assert all(np.asarray(t).shape == (4, 4) for t in xform)
 
 
 def test_compound_arc_absolute_rotation():

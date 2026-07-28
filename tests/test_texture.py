@@ -27,8 +27,10 @@ _VNF = [n for n, (_b, k) in TEXTURES.items() if k == "vnf"]
 @pytest.mark.parametrize("name", _HF)
 def test_heightfield_textures_are_2d_arrays_in_range(name):
     a = np.array(texture(name))
-    assert a.ndim == 2 and a.size > 0
-    assert a.min() >= -1e-9 and a.max() <= 1.6 + 1e-9  # heights normalised to [0,1] (trunc_pyr to 1.5)
+    assert a.ndim == 2
+    assert a.size > 0
+    assert a.min() >= -1e-9
+    assert a.max() <= 1.6 + 1e-9  # heights normalised to [0,1] (trunc_pyr to 1.5)
     assert is_heightfield_texture(texture(name))
 
 
@@ -42,7 +44,7 @@ def test_vnf_textures_are_valid_meshes(name):
 
 
 def test_unknown_texture_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unrecognized"):
         texture("not_a_texture")
 
 
@@ -60,7 +62,9 @@ def test_vnf_texture_tiles_watertight_or_rasterizes(name):
     if is_watertight_topology(v, f):
         return
     a = np.array(rasterize_vnf_texture(verts, faces))
-    assert a.ndim == 2 and a.min() >= -1e-6 and a.max() <= 1.6 + 1e-6
+    assert a.ndim == 2
+    assert a.min() >= -1e-6
+    assert a.max() <= 1.6 + 1e-6
 
 
 @pytest.mark.parametrize("name", _HF + _VNF)
@@ -71,7 +75,8 @@ def test_textured_tile_by_name_builds(name):
     s = textured_tile(name, size=[40, 40], tex_reps=[2, 2], tex_depth=3)
     assert isinstance(s, Bosl2Solid)
     _, sz = s.bounds()
-    assert round(sz[0]) == 40 and round(sz[1]) == 40
+    assert round(sz[0]) == 40
+    assert round(sz[1]) == 40
 
 
 def test_textured_tile_raw_array_still_works():

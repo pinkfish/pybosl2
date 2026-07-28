@@ -63,7 +63,8 @@ def test_shared_constructor_builds_on_backend(name, backend):
     assert s.backend == backend
     assert isinstance(s, Solid)
     size = s.bounds()[1]
-    assert len(size) == 3 and all(v > 0 for v in size), f"{name} on {backend}: degenerate bounds {size}"
+    assert len(size) == 3, f"{name} on {backend}: degenerate bounds {size}"
+    assert all(v > 0 for v in size), f"{name} on {backend}: degenerate bounds {size}"
     if expected is not None:
         for got, want in zip(size, expected, strict=False):
             assert abs(got - want) < TOL, f"{name} on {backend}: size {size} != nominal {expected}"
@@ -75,7 +76,8 @@ def test_both_backends_agree_on_bounds(name):
     csg = getattr(solid, name)(*args, **kwargs)
     with use_backend("sdf"):
         sdf = getattr(solid, name)(*args, **kwargs)
-    assert csg.backend == "csg" and sdf.backend == "sdf"
+    assert csg.backend == "csg"
+    assert sdf.backend == "sdf"
     if not agree:
         return  # bounds() legitimately differ (SDF reports a conservative construction domain)
     for c, s in zip(csg.bounds()[1], sdf.bounds()[1], strict=False):
@@ -184,7 +186,8 @@ def test_2d_shape_constructors_stay_on_csg():
 
     with use_backend("sdf"):
         shape = s2.square(10)
-    assert isinstance(shape, Bosl2Shape2D) and shape.backend == "csg"
+    assert isinstance(shape, Bosl2Shape2D)
+    assert shape.backend == "csg"
 
 
 # ---------------------------------------------------------------------------

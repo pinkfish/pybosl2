@@ -202,7 +202,8 @@ def test_fill_closes_the_hole_without_changing_the_outline():
     # ...but the hole in the middle is gone
     assert not _covers(plate, [0, 0])
     assert _covers(filled, [0, 0])
-    assert _covers(plate, [18, 0]) and _covers(filled, [18, 0])  # the ring of material stays
+    assert _covers(plate, [18, 0])
+    assert _covers(filled, [18, 0])  # the ring of material stays
 
 
 @needs_native_2d_bbox
@@ -296,10 +297,12 @@ def test_round2d_and_shell2d_offset_through_the_wrapper():
     # radius= straight to the native offset(), which only understands r=.
     rounded = s2.round2d(radius=2, children=s2.square(20))
     np.testing.assert_allclose(rounded.shape.size, [20, 20], atol=0.2)
-    assert _covers(rounded, [0, 0]) and not _covers(rounded, [9.9, 9.9])  # corners rounded off
+    assert _covers(rounded, [0, 0])
+    assert not _covers(rounded, [9.9, 9.9])  # corners rounded off
     shell = s2.shell2d(thickness=2, children=s2.square(20))
     np.testing.assert_allclose(shell.shape.size, [24, 24], atol=0.2)
-    assert not _covers(shell, [0, 0]) and _covers(shell, [11, 0])  # hollow, 2mm wall outside
+    assert not _covers(shell, [0, 0])
+    assert _covers(shell, [11, 0])  # hollow, 2mm wall outside
 
 
 def test_round2d_and_shell2d_accept_unwrapped_children():
@@ -384,7 +387,7 @@ def test_bounds_raises_without_a_box_or_a_native_bbox():
     shape.size = None
     if shape.shape.size is not None:
         pytest.skip("the native bbox is available, so bounds() never needs the fallback")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="no native bounding box and no tracked size"):
         shape.bounds()
 
 

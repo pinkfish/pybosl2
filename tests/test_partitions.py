@@ -76,7 +76,8 @@ def test_ptn_sect_resize():
 def test_ptn_sect_skew_shifts_top():
     sect = _ptn_sect("square skew:15")
     # the top edge (y=25) is shifted right relative to the bottom by height*tan(15)
-    assert isinstance(sect, list) and len(sect) == 4
+    assert isinstance(sect, list)
+    assert len(sect) == 4
 
 
 def test_ptn_sect_bad_option_raises():
@@ -135,7 +136,8 @@ def test_half_of_with_cut_path():
 
 def test_partition_returns_two_pieces():
     pieces = BOX.partition(spread=12, cutpath="dovetail")
-    assert isinstance(pieces, list) and len(pieces) == 2
+    assert isinstance(pieces, list)
+    assert len(pieces) == 2
     assert all(isinstance(p, Bosl2Solid) for p in pieces)
 
 

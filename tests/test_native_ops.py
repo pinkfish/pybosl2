@@ -54,15 +54,18 @@ def test_oversample_returns_solid():
 def test_separate_returns_list_of_solids():
     parts = _cube().separate()
     assert isinstance(parts, list)
-    assert parts and all(isinstance(p, Bosl2Solid) for p in parts)
+    assert parts
+    assert all(isinstance(p, Bosl2Solid) for p in parts)
 
 
 def test_inside_returns_bool():
     c = _cube()  # centered cuboid: origin is inside, a far point is not
     r_in = c.inside([0, 0, 0])
     r_out = c.inside([100, 0, 0])
-    assert isinstance(r_in, bool) and isinstance(r_out, bool)
-    assert r_in is True and r_out is False
+    assert isinstance(r_in, bool)
+    assert isinstance(r_out, bool)
+    assert r_in is True
+    assert r_out is False
 
 
 def test_methods_are_chainable():

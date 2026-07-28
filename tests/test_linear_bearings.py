@@ -25,11 +25,11 @@ def test_info_returns_dataclass():
 
 
 def test_unknown_size_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unsupported lmXuu linear bearing size"):
         LinearBearings.lmxuu_info(7)
 
 
-@pytest.mark.parametrize("size,outer_diameter,length", [(8, 15, 24), (12, 21, 30), (20, 32, 42)])
+@pytest.mark.parametrize(("size", "outer_diameter", "length"), [(8, 15, 24), (12, 21, 30), (20, 32, 42)])
 @pytest.mark.skip(reason="FIXME: Bosl2Solid bounds return wrong size after param rename")
 def test_lmxuu_bearing_envelope(size, outer_diameter, length):
     b = LinearBearings.lmxuu_bearing(size)

@@ -279,7 +279,9 @@ def test_pitch_inputs_agree():
     a = Gears.pitch_radius(mod=5, teeth=20)
     b = Gears.pitch_radius(circ_pitch=5 * math.pi, teeth=20)
     c = Gears.pitch_radius(diam_pitch=25.4 / 5, teeth=20)
-    assert a == pytest.approx(50) and b == pytest.approx(50) and c == pytest.approx(50)
+    assert a == pytest.approx(50)
+    assert b == pytest.approx(50)
+    assert c == pytest.approx(50)
 
 
 def test_gear_dist_no_shift_is_sum_of_pitch_radii():

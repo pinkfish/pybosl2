@@ -32,7 +32,8 @@ def test_info_returns_dataclass():
 def test_zz_variant_is_shielded_same_dims():
     open_ = BallBearings.ball_bearing_info("6902")
     zz = BallBearings.ball_bearing_info("6902ZZ")
-    assert not open_.shielded and zz.shielded
+    assert not open_.shielded
+    assert zz.shielded
     assert (zz.inner_diameter, zz.outer_diameter, zz.width) == (
         open_.inner_diameter,
         open_.outer_diameter,
@@ -47,7 +48,7 @@ def test_imperial_size_uses_inches():
 
 
 def test_unknown_size_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unsupported ball bearing trade size"):
         BallBearings.ball_bearing_info("nope")
 
 
@@ -73,5 +74,5 @@ def test_envelope_matches_od_and_width():
 
 
 def test_requires_size_or_dims():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="must give inner_diameter"):
         BallBearings.ball_bearing()

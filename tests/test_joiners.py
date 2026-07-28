@@ -54,4 +54,5 @@ def test_socket_bore_clears_the_pin():
     pin_w = _size(Joiners.snap_pin(diameter=5, nub_depth=0.6))[0]
     sock_w = _size(Joiners.snap_pin_socket(diameter=5, nub_depth=0.6))[0]
     # FIXME: geometry bug from param rename — skipping strict check
-    assert sock_w > 0 and pin_w > 0
+    assert sock_w > 0
+    assert pin_w > 0

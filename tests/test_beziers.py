@@ -102,7 +102,8 @@ def test_path_length_and_closest_point():
     bp = Bezier([[0, 0], [1, 1], [2, 0], [3, 1], [4, 0], [5, 1], [6, 0]])
     assert bp.path_length(N=3) > 0
     seg, u = bp.path_closest_point([3, 0], N=3)
-    assert isinstance(seg, int) and 0.0 <= u <= 1.0
+    assert isinstance(seg, int)
+    assert 0.0 <= u <= 1.0
 
 
 def test_close_to_axis_and_offset_return_bezier():
@@ -191,7 +192,8 @@ def test_patch_vnf_counts_and_validity():
 
 def test_to_vnf_joins_patch_list():
     v = BezierPatch.to_vnf([PATCH, PATCH], splinesteps=4)
-    assert isinstance(v, VNF) and _valid(v)
+    assert isinstance(v, VNF)
+    assert _valid(v)
 
 
 def test_flat_patch():
@@ -206,7 +208,8 @@ def test_reverse_patch():
 
 def test_sheet_is_valid_vnf():
     v = BezierPatch(PATCH).sheet([0, -8], splinesteps=6)
-    assert isinstance(v, VNF) and _valid(v)
+    assert isinstance(v, VNF)
+    assert _valid(v)
 
 
 def test_vnf_degenerate_has_fewer_faces_than_naive():
@@ -240,15 +243,18 @@ def test_vnf_degenerate_return_edges():
 
 def test_bezier_sweep_valid():
     v = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=6)
-    assert isinstance(v, VNF) and _valid(v)
+    assert isinstance(v, VNF)
+    assert _valid(v)
 
 
 def test_bezpath_sweep_valid():
     bp = Bezier([[0, 0, 0], [10, 0, 0], [10, 10, 0], [10, 10, 10]])
     v = bp.bezpath_sweep(CIRCLE, splinesteps=6, N=3)
-    assert isinstance(v, VNF) and _valid(v)
+    assert isinstance(v, VNF)
+    assert _valid(v)
 
 
 def test_sweep_transforms_mode():
     tl = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=4, transforms=True)
-    assert len(tl) == 5 and np.asarray(tl[0]).shape == (4, 4)
+    assert len(tl) == 5
+    assert np.asarray(tl[0]).shape == (4, 4)

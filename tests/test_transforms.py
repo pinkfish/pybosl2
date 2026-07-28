@@ -75,7 +75,8 @@ def test_apply_single_point_vs_list():
 
 def test_apply_returns_plain_lists():
     out = apply(np.eye(4), [[1, 2, 3]])
-    assert isinstance(out, list) and isinstance(out[0], list)
+    assert isinstance(out, list)
+    assert isinstance(out[0], list)
 
 
 def test_rot_about_axis_through_point():
@@ -107,4 +108,6 @@ def test_rot_decode_axis_is_vec3():
     from pybosl2.constants import Vec3
 
     _, axis, center, axial = rot_decode(rot_about_axis(30, [1, 0, 0], center=[0, 2, 0]))
-    assert isinstance(axis, Vec3) and isinstance(center, Vec3) and isinstance(axial, Vec3)
+    assert isinstance(axis, Vec3)
+    assert isinstance(center, Vec3)
+    assert isinstance(axial, Vec3)

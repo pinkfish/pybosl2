@@ -21,7 +21,8 @@ def test_csg_attachment_features_unsupported_on_sdf(feature):
         s = solid.sphere(radius=10)  # building is FFI-free; the check fires before any meshing
         with pytest.raises(UnsupportedByBackendError) as ei:
             getattr(s, feature)
-        assert ei.value.backend == "sdf" and ei.value.feature == feature
+        assert ei.value.backend == "sdf"
+        assert ei.value.feature == feature
 
 
 @pytest.mark.parametrize("feature", ["round", "chamfer"])
@@ -29,7 +30,8 @@ def test_sdf_edge_treatments_unsupported_on_csg(feature):
     s = solid.sphere(radius=10)  # csg (default)
     with pytest.raises(UnsupportedByBackendError) as ei:
         getattr(s, feature)
-    assert ei.value.backend == "csg" and ei.value.feature == feature
+    assert ei.value.backend == "csg"
+    assert ei.value.feature == feature
 
 
 def test_csg_attachment_methods_still_work_on_csg():
@@ -46,6 +48,9 @@ def test_sdf_edge_treatments_still_work_on_sdf():
 
 
 def test_supports_query():
-    assert supports("csg", "attach") and not supports("sdf", "attach")
-    assert supports("sdf", "round") and not supports("csg", "round")
-    assert supports("csg", "sphere") and supports("sdf", "sphere")  # shared surface
+    assert supports("csg", "attach")
+    assert not supports("sdf", "attach")
+    assert supports("sdf", "round")
+    assert not supports("csg", "round")
+    assert supports("csg", "sphere")
+    assert supports("sdf", "sphere")  # shared surface

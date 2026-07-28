@@ -58,7 +58,7 @@ def test_comparisons_and_equality():
 
 
 def test_invalid_version_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="invalid version string"):
         Version("1.x.3")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="invalid version string"):
         Version("not-a-version")

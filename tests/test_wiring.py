@@ -59,5 +59,5 @@ def test_wire_bundle_grows_with_wire_count():
 
 
 def test_wire_bundle_requires_a_wire():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="needs at least one wire"):
         Wiring.wire_bundle(_PATH, wires=0)

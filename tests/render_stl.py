@@ -203,7 +203,8 @@ def parse_stl(path: Path) -> np.ndarray:
             _, x, y, z = line.split()[:4]
             verts.append([float(x), float(y), float(z)])
     arr = np.asarray(verts, dtype=float)  # type: ignore[assignment]
-    assert arr.size and len(arr) % 3 == 0, "malformed ASCII STL"
+    assert arr.size, "malformed ASCII STL"
+    assert len(arr) % 3 == 0, "malformed ASCII STL"
     return arr.reshape(-1, 3, 3)
 
 

@@ -50,7 +50,8 @@ def test_grid_copies_inside_polygon_filters():
     mats = d.grid_copies(spacing=5, sides=[9, 9], inside=poly)
     assert 0 < len(mats) < 81
     for m in mats:
-        assert -6 <= m[0, 3] <= 6 and -6 <= m[1, 3] <= 6
+        assert -6 <= m[0, 3] <= 6
+        assert -6 <= m[1, 3] <= 6
 
 
 def test_arc_copies_positions_on_circle():
@@ -73,7 +74,8 @@ SQUARE = Path([[0, 0], [10, 0], [10, 10], [0, 10]])
 
 def test_path_xcopies_returns_paths():
     copies = SQUARE.xcopies(20, sides=3)
-    assert isinstance(copies, list) and len(copies) == 3
+    assert isinstance(copies, list)
+    assert len(copies) == 3
     assert all(isinstance(c, Path) for c in copies)
     # middle copy is the original, right copy is shifted +20 in X
     np.testing.assert_allclose(copies[2][0], [20, 0], atol=1e-9)
@@ -86,7 +88,8 @@ def test_path_grid_and_arc_stay_2d():
 
 def test_path_zrot_copies_in_plane():
     copies = SQUARE.zrot_copies(sides=4)
-    assert len(copies) == 4 and all(isinstance(c, Path) for c in copies)
+    assert len(copies) == 4
+    assert all(isinstance(c, Path) for c in copies)
 
 
 def test_path_out_of_plane_copier_raises():
@@ -101,7 +104,8 @@ def test_path_out_of_plane_copier_raises():
 
 def test_path_mirror_copy_2d():
     copies = SQUARE.xflip_copy(x=20)
-    assert len(copies) == 2 and all(isinstance(c, Path) for c in copies)
+    assert len(copies) == 2
+    assert all(isinstance(c, Path) for c in copies)
 
 
 # -- Path3D returns a list of Path3D copies -----------------------------------------------
@@ -111,19 +115,22 @@ SEG3 = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 5]], closed=False)
 
 def test_path3d_zcopies():
     copies = SEG3.zcopies(15, sides=3)
-    assert len(copies) == 3 and all(isinstance(c, Path3D) for c in copies)
+    assert len(copies) == 3
+    assert all(isinstance(c, Path3D) for c in copies)
     zs = sorted(c[0][2] for c in copies)
     np.testing.assert_allclose(zs, [-15, 0, 15], atol=1e-9)  # centered along Z
 
 
 def test_path3d_xrot_copies_ring():
     copies = SEG3.xrot_copies(sides=6, radius=20)
-    assert len(copies) == 6 and all(isinstance(c, Path3D) for c in copies)
+    assert len(copies) == 6
+    assert all(isinstance(c, Path3D) for c in copies)
 
 
 def test_path3d_sphere_copies():
     copies = SEG3.sphere_copies(sides=10, radius=30)
-    assert len(copies) == 10 and all(isinstance(c, Path3D) for c in copies)
+    assert len(copies) == 10
+    assert all(isinstance(c, Path3D) for c in copies)
 
 
 # -- Bosl2Solid returns a unioned solid ---------------------------------------------------

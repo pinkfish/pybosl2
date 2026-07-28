@@ -21,15 +21,17 @@ def _size(s):
 def test_info_returns_dataclass():
     s = N.nema_motor_info(17)
     assert isinstance(s, NemaSpec)
-    assert s.motor_width == 42.3 and s.screw_spacing == 31.0 and s.shaft_diam == 5.0
+    assert s.motor_width == 42.3
+    assert s.screw_spacing == 31.0
+    assert s.shaft_diam == 5.0
 
 
 def test_unknown_size_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unsupported NEMA size"):
         N.nema_motor_info(99)
 
 
-@pytest.mark.parametrize("size,width", [(8, 20.3), (17, 42.3), (23, 57.0), (42, 110.0)])
+@pytest.mark.parametrize(("size", "width"), [(8, 20.3), (17, 42.3), (23, 57.0), (42, 110.0)])
 def test_motor_body_width(size, width):
     m = N.nema_stepper_motor(size)
     w, length, _h = _size(m)
@@ -48,7 +50,7 @@ def test_mount_mask_builds(kw):
 
 
 def test_mask_bad_atype_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='must be "full" or "screws"'):
         N.nema_mount_mask(17, atype="banana")
 
 

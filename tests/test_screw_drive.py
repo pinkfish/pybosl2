@@ -43,9 +43,9 @@ def test_torx_diam_and_depth():
 
 
 def test_torx_info_invalid():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unsupported Torx size"):
         ScrewDrive.torx_info(11)  # 11 is not a real Torx size
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unsupported Torx size"):
         ScrewDrive.torx_info("nope")
 
 
@@ -55,9 +55,9 @@ def test_torx_info_invalid():
 def test_phillips_size_parsing():
     # "#2" and 2 resolve identically.
     assert ScrewDrive.phillips_depth("#2", 4.0) == ScrewDrive.phillips_depth(2, 4.0)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="phillips size must be"):
         ScrewDrive.phillips_mask("#9")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="phillips size must be"):
         ScrewDrive.phillips_mask(5)
 
 
@@ -113,7 +113,7 @@ def test_mask_composes_with_head():
 
 
 def test_robertson_size_validation():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="robertson size must be"):
         ScrewDrive.robertson_mask(5)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="robertson size must be"):
         ScrewDrive.robertson_mask("2")

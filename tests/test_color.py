@@ -45,8 +45,10 @@ def test_grayscale_when_saturation_zero():
 def test_alpha_appended_only_when_given():
     assert len(hsv(120, 1, 1)) == 3
     assert len(hsl(120, 1, 0.5)) == 3
-    assert hsv(120, 1, 1, 0.25)[-1] == 0.25 and len(hsv(120, 1, 1, 0.25)) == 4
-    assert hsl(120, 1, 0.5, 0.25)[-1] == 0.25 and len(hsl(120, 1, 0.5, 0.25)) == 4
+    assert hsv(120, 1, 1, 0.25)[-1] == 0.25
+    assert len(hsv(120, 1, 1, 0.25)) == 4
+    assert hsl(120, 1, 0.5, 0.25)[-1] == 0.25
+    assert len(hsl(120, 1, 0.5, 0.25)) == 4
 
 
 def test_hue_wraps_modulo_360():

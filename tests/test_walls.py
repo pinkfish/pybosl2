@@ -42,14 +42,14 @@ def test_sparse_wall_variants_build():
     )
 
 
-@pytest.mark.parametrize("d,exp", [("X", (10, 20, 30)), ("Y", (10, 20, 30)), ("Z", (10, 20, 30))])
+@pytest.mark.parametrize(("d", "exp"), [("X", (10, 20, 30)), ("Y", (10, 20, 30)), ("Z", (10, 20, 30))])
 def test_sparse_cuboid_clipped_to_box(d, exp):
     sz = _size(Walls.sparse_cuboid([10, 20, 30], dir=d, strut=1))
     assert tuple(round(v) for v in sz) == exp
 
 
 def test_sparse_cuboid_bad_dir():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='must be "X", "Y" or "Z"'):
         Walls.sparse_cuboid([10, 20, 30], dir="Q")
 
 

@@ -22,13 +22,14 @@ P3 = [[0, 0, 0], [40, 0, 0], [40, 40, 20], [0, 40, 20]]
 
 def test_circle_inserts_points_and_returns_path():
     out = Path(SQ).round_corners(radius=5)
-    assert isinstance(out, Path) and not isinstance(out, Path3D)
+    assert isinstance(out, Path)
+    assert not isinstance(out, Path3D)
     assert len(out) > len(SQ)
     assert out.closed is True
 
 
 @pytest.mark.parametrize(
-    "method,kw",
+    ("method", "kw"),
     [
         ("circle", {"radius": 5}),
         ("circle", {"cut": 3}),
@@ -43,7 +44,8 @@ def test_circle_inserts_points_and_returns_path():
 )
 def test_every_method_measure_builds(method, kw):
     out = Path(SQ).round_corners(method=method, **kw)
-    assert isinstance(out, Path) and len(out) >= len(SQ)
+    assert isinstance(out, Path)
+    assert len(out) >= len(SQ)
 
 
 def test_chamfer_replaces_each_corner_with_two_points():
@@ -118,7 +120,8 @@ def test_path3d_round_corners_method():
 def test_smooth_path_returns_denser_path():
     wig = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]
     out = Path(wig, closed=False).smooth_path(relsize=0.4)
-    assert isinstance(out, Path) and len(out) > len(wig)
+    assert isinstance(out, Path)
+    assert len(out) > len(wig)
     # endpoints are preserved for an open smoothed path
     np.testing.assert_allclose(out[0], wig[0], atol=1e-9)
     np.testing.assert_allclose(out[-1], wig[-1], atol=1e-9)

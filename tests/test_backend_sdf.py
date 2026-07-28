@@ -36,9 +36,12 @@ def test_default_is_csg_and_context_selects_sdf():
     csg = get_backend().construct("sphere", radius=10)
     with use_backend("sdf"):
         sdf = get_backend().construct("sphere", radius=10)
-    assert csg.backend == "csg" and sdf.backend == "sdf"
-    assert type(csg).__name__ == "Bosl2Solid" and type(sdf).__name__ == "PyShape"
-    assert isinstance(csg, Solid) and isinstance(sdf, Solid)  # one common contract
+    assert csg.backend == "csg"
+    assert sdf.backend == "sdf"
+    assert type(csg).__name__ == "Bosl2Solid"
+    assert type(sdf).__name__ == "PyShape"
+    assert isinstance(csg, Solid)
+    assert isinstance(sdf, Solid)  # one common contract
 
 
 def _libfive_available() -> bool:

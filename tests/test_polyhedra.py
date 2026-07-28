@@ -27,7 +27,7 @@ def _size(s):
     return size
 
 
-@pytest.mark.parametrize("name,vf", _COUNTS.items())
+@pytest.mark.parametrize(("name", "vf"), _COUNTS.items())
 def test_vertex_face_counts(name, vf):
     info = Polyhedra.regular_polyhedron_info(name)
     assert (info["num_vertices"], info["num_faces"]) == vf
@@ -66,5 +66,5 @@ def test_octahedron_inradius():
 
 
 def test_unknown_name_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="unknown polyhedron"):
         Polyhedra.regular_polyhedron("prism")

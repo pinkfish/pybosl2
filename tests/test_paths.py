@@ -72,7 +72,8 @@ def test_segment_lengths_and_fractions():
     p = Path(SQUARE)
     np.testing.assert_allclose(p.segment_lengths(), [80, 60, 80, 60])
     fr = p.length_fractions()
-    assert math.isclose(fr[0], 0.0) and math.isclose(fr[-1], 1.0)
+    assert math.isclose(fr[0], 0.0)
+    assert math.isclose(fr[-1], 1.0)
 
 
 def test_is_closed_property():
@@ -225,7 +226,8 @@ def test_to_region():
     from pybosl2.regions import Region
 
     radius = Path(SQUARE).to_region()
-    assert isinstance(radius, Region) and len(radius) == 1
+    assert isinstance(radius, Region)
+    assert len(radius) == 1
 
 
 def test_polygon_and_geometry_use_mock():
