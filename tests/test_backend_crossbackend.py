@@ -15,7 +15,7 @@ import pytest
 
 from pybosl2 import solid
 from pybosl2._backend import use_backend
-from pybosl2.exceptions import CrossBackendError, UnsupportedByBackend
+from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
 
 
 def _libfive_available() -> bool:
@@ -62,9 +62,10 @@ def test_converter_identities_are_noops():
 
 
 def test_csg_to_sdf_is_unsupported():
-    with pytest.raises(UnsupportedByBackend) as ei:
+    with pytest.raises(UnsupportedByBackendError) as ei:
         _csg_sphere().to_sdf()
-    assert ei.value.backend == "csg" and ei.value.feature == "to_sdf"
+    assert ei.value.backend == "csg"
+    assert ei.value.feature == "to_sdf"
 
 
 @pytest.mark.skipif(

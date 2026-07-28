@@ -39,13 +39,13 @@ def _normalize(verts):
 def _dual(verts, faces):
     """The dual polyhedron: new vertices are the (normalized) face centroids, new faces are the
     rings of faces around each original vertex. Used to derive the dodecahedron from the icosahedron."""
-    V = np.asarray(verts, dtype=float)
-    centroids = np.array([V[f].mean(axis=0) for f in faces])
+    verts_arr = np.asarray(verts, dtype=float)
+    centroids = np.array([verts_arr[f].mean(axis=0) for f in faces])
     centroids = centroids / np.linalg.norm(centroids, axis=1)[:, None]
     newfaces = []
-    for vi in range(len(V)):
+    for vi in range(len(verts_arr)):
         adj = [fi for fi, f in enumerate(faces) if vi in f]
-        sides = V[vi] / np.linalg.norm(V[vi])
+        sides = verts_arr[vi] / np.linalg.norm(verts_arr[vi])
         t = np.cross(sides, [0, 0, 1.0])
         if np.linalg.norm(t) < 1e-6:
             t = np.cross(sides, [0, 1.0, 0])
@@ -160,8 +160,8 @@ _ALIASES = {
 def _inradius_ratio(name):
     """Inradius / circumradius for the unit solid (min face-plane distance)."""
     verts, faces, _ = _SOLIDS[name]
-    V = np.asarray(verts)
-    return min(float(np.linalg.norm(V[f].mean(axis=0))) for f in faces)
+    verts_arr = np.asarray(verts)
+    return min(float(np.linalg.norm(verts_arr[f].mean(axis=0))) for f in faces)
 
 
 class Polyhedra:

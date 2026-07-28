@@ -18,6 +18,8 @@ from typing import TYPE_CHECKING, Callable
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from numpy.typing import NDArray
+
 from pybosl2._sdf._constants import CENTER
 from pybosl2._sdf._libfive import lv
 from pybosl2._sdf.paths import (
@@ -103,7 +105,7 @@ class PyShape2D:
         )
 
     def scale(self, v: float | Sequence[float]) -> PyShape2D:
-        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 2
+        s = [float(v), float(v)] if isinstance(v, (int, float)) else [float(a) for a in v]
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
         smin = min(s)
@@ -320,7 +322,7 @@ def supershape2d(
     )
 
 
-def polygon2d(paths: list[list[float]], res: int = 10) -> PyShape2D:
+def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PyShape2D:
     """An arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
     Accepts any array-like path spelling (per the numpy-paths convention)."""
@@ -370,7 +372,7 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:
 
     depths = []
     for i, p in enumerate(cleaned):
-        depth = sum(1 for j, q in enumerate(cleaned) if j != i and contains(q, p[0]))
+        depth = sum(1 for j, q in enumerate(cleaned) if j != i and contains(q, p[0]))  # type: ignore[misc,arg-type]
         depths.append(depth)
 
     def sdf_fn(x, y):
@@ -402,7 +404,9 @@ def union2d(shapes: list[PyShape2D]) -> PyShape2D:
     return shapes[0]
 
 
-def stroke2d(path: list[list[float]], width: float = 1, closed: bool = False, res: int = 10) -> PyShape2D:
+def stroke2d(
+    path: Sequence[Sequence[float]] | NDArray, width: float = 1, closed: bool = False, res: int = 10
+) -> PyShape2D:
     """A path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
     the min over the segments' capsule SDFs (distance-to-segment minus width/2)."""
     pts = as_points(path)
@@ -563,7 +567,7 @@ def regular_ngon2d(
         diameter2=outer_diameter,
         radius=radius,
         diameter=diameter,
-        dflt=side_s,
+        dflt=side_s if side_s is not None else 1,
     )
     if rad is None:
         raise ValueError(
@@ -660,11 +664,11 @@ def trapezoid2d(
     assert defined == 3, "Must give exactly 3 of height, width1, width2, and angle."
 
     if height is None:
-        height = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))
+        height = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))  # type: ignore[operator,arg-type]
     if width1 is None:
-        width1 = width2 + 2 * (height * _m.tan(_m.radians(angle)) + shift)
+        width1 = width2 + 2 * (height * _m.tan(_m.radians(angle)) + shift)  # type: ignore[operator,arg-type]
     if width2 is None:
-        width2 = width1 - 2 * (height * _m.tan(_m.radians(angle)) + shift)
+        width2 = width1 - 2 * (height * _m.tan(_m.radians(angle)) + shift)  # type: ignore[operator,arg-type]
     assert width1 >= 0 and width2 >= 0 and height > 0, "Degenerate trapezoid geometry."
 
     pts = [

@@ -160,7 +160,9 @@ def test_sdf_path_sweep_tube_volume(tmp_path):
     )
     m = _render(tmp_path, "path_sweep(circle, pathz, res=16)", setup=setup, name="sdfsweep")
     assert m.watertight
-    assert abs(m.size[0] - 4) < 0.1 and abs(m.size[1] - 4) < 0.1 and abs(m.size[2] - 30) < 0.1
+    assert abs(m.size[0] - 4) < 0.1
+    assert abs(m.size[1] - 4) < 0.1
+    assert abs(m.size[2] - 30) < 0.1
     expected = 0.5 * 32 * 2**2 * math.sin(2 * math.pi / 32) * 30  # 32-gon prism
     assert abs(m.volume - expected) < 0.02 * expected
 
@@ -190,7 +192,8 @@ def test_sdf_bezier_sweep_watertight(tmp_path):
         setup=setup,
         name="sdfbeziersweep",
     )
-    assert m.ntris > 0 and m.volume > 0
+    assert m.ntris > 0
+    assert m.volume > 0
     assert m.watertight
 
 
@@ -198,7 +201,7 @@ def test_bezpath_sweep(tmp_path):
     setup = f"shape = {CIRCLE}\nbezpath = [[0,0,0],[10,0,0],[10,10,0],[10,10,10],[10,20,10],[0,20,10],[0,20,20]]\n"
     m = _render(
         tmp_path,
-        "Bezier(bezpath).bezpath_sweep(shape, splinesteps=8, N=3).polyhedron()",
+        "Bezier(bezpath).bezpath_sweep(shape, splinesteps=8, n_degree=3).polyhedron()",
         setup=setup,
         name="bezpathsweep",
     )
@@ -575,7 +578,8 @@ def test_stroke_arrow_endcap_3d_is_a_cone(tmp_path):
     )
     assert m.ntris > 0
     assert m.volume > 0
-    assert m.size[1] > 4 + 1 and m.size[2] > 4 + 1  # cone base wider than the tube in Y and Z
+    assert m.size[1] > 4 + 1
+    assert m.size[2] > 4 + 1  # cone base wider than the tube in Y and Z
 
 
 # -- Path3D transforms feed the renderers -------------------------------------------------
@@ -629,7 +633,8 @@ def test_zrot_copies_ring(tmp_path):
     # 6 cubes in a ring of radius 30 -> spread across a ~60mm-diameter footprint in X and Y
     m = _render(tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)", name="ring")
     assert m.volume > 5 * 6**3  # roughly 6 cubes (minus any tiny overlap)
-    assert 55 < m.size[0] < 70 and 55 < m.size[1] < 70
+    assert 55 < m.size[0] < 70
+    assert 55 < m.size[1] < 70
     assert math.isclose(m.size[2], 6.0, abs_tol=0.2)  # ring stays flat in Z
 
 
@@ -668,7 +673,8 @@ def test_path_copies_along_path(tmp_path):
     )
     assert m.volume > 0
     # copies span the L-shaped route: roughly 0..40 in X and 0..40 in Y
-    assert m.size[0] > 35 and m.size[1] > 35
+    assert m.size[0] > 35
+    assert m.size[1] > 35
 
 
 # -- colour operators (geometry survives; colour is a display attribute) -------------------
@@ -900,7 +906,8 @@ def test_cylindrical_extrude_wraps(tmp_path):
     )
     assert m.volume > 0
     assert math.isclose(m.size[2], 8.0, abs_tol=0.5)  # profile height -> cylinder axis
-    assert m.bbmax[1] <= 30.5 and m.size[0] > 15  # curved band out near radius=25..30
+    assert m.bbmax[1] <= 30.5
+    assert m.size[0] > 15  # curved band out near radius=25..30
 
 
 # -- nurbs.scad curve / surface evaluation ------------------------------------------------
@@ -989,7 +996,7 @@ def test_threaded_rod_iso(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "expr,name,dia",
+    ("expr", "name", "dia"),
     [
         ("Threading.trapezoidal_threaded_rod(20, 30, 4, fa=6, fs=1)", "traprod", 20),
         ("Threading.acme_threaded_rod(20, 30, 4, fa=6, fs=1)", "acmerod", 20),
@@ -1010,7 +1017,8 @@ def test_multistart_and_left_handed(tmp_path):
         "Threading.threaded_rod(16, 24, 2, starts=2, fa=6, fs=1)",
         name="ms2",
     )
-    assert a.watertight and math.isclose(a.size[2], 24.0, abs_tol=0.05)
+    assert a.watertight
+    assert math.isclose(a.size[2], 24.0, abs_tol=0.05)
     b = _render(
         tmp_path,
         "Threading.threaded_rod(12, 24, 1.75, left_handed=True, fa=6, fs=1)",
@@ -1086,7 +1094,7 @@ def test_screw_flat_head_countersunk(tmp_path):
     assert math.isclose(m.size[2], 16 + (11.085 - 6) / 2, abs_tol=0.3)
 
 
-@pytest.mark.parametrize("head,name", [("button", "scrbtn"), ("pan", "scrpan"), ("none", "scrset")])
+@pytest.mark.parametrize(("head", "name"), [("button", "scrbtn"), ("pan", "scrpan"), ("none", "scrset")])
 def test_screw_heads_watertight(tmp_path, head, name):
     drive = "hex" if head in ("button", "none") else "none"
     m = _render(
@@ -1150,7 +1158,8 @@ def test_screw_hole_countersink(tmp_path):
     )
     assert m.watertight
     assert max(m.size[:2]) >= 11.0  # opens up to the head diameter
-    assert m.bbmax[2] > 0 and m.bbmin[2] < 0  # mouth at z=0, shaft below
+    assert m.bbmax[2] > 0
+    assert m.bbmin[2] < 0  # mouth at z=0, shaft below
 
 
 def test_metaball_sphere_is_watertight(tmp_path):
@@ -1342,7 +1351,8 @@ def test_shape2d_fill_removes_the_hole(tmp_path):
         "(s2.square(40) - s2.circle(radius=8, fn=64)).fill().linear_extrude(height=4)",
         name="fill_filled",
     )
-    assert holed.watertight and filled.watertight
+    assert holed.watertight
+    assert filled.watertight
     np.testing.assert_allclose(filled.size, holed.size, atol=0.1)
     # the hole was pi*8^2*4 ~= 804 mm^3 of missing material
     assert math.isclose(filled.volume - holed.volume, math.pi * 64 * 4, rel_tol=0.02)
@@ -1368,7 +1378,8 @@ def test_shape2d_hull_fills_a_star_notch(tmp_path):
         "s2.star(tips=5, radius=20, inner_radius=8).hull().linear_extrude(height=2)",
         name="hull_starhull",
     )
-    assert star.watertight and hull.watertight
+    assert star.watertight
+    assert hull.watertight
     np.testing.assert_allclose(hull.size, star.size, atol=0.2)  # same tips
     assert hull.volume > star.volume * 1.2  # but convex, so the notches are filled
 
@@ -1399,7 +1410,8 @@ def test_path_linear_extrude_and_fill(tmp_path):
     setup = "outline = Path([[0, 0], [40, 0], [40, 30], [0, 30]])\n"
     plain = _render(tmp_path, "outline.linear_extrude(height=3)", setup=setup, name="path_extrude")
     filled = _render(tmp_path, "outline.fill().linear_extrude(height=3)", setup=setup, name="path_fill")
-    assert plain.watertight and filled.watertight
+    assert plain.watertight
+    assert filled.watertight
     np.testing.assert_allclose(plain.size, [40, 30, 3], atol=0.1)
     assert math.isclose(plain.volume, 40 * 30 * 3, rel_tol=1e-3)
     assert math.isclose(filled.volume, plain.volume, rel_tol=1e-6)
@@ -1410,7 +1422,8 @@ def test_path_hull_wraps_a_concave_outline(tmp_path):
     setup = "ell = Path([[0, 0], [40, 0], [40, 10], [10, 10], [10, 30], [0, 30]])\n"
     plain = _render(tmp_path, "ell.linear_extrude(height=3)", setup=setup, name="path_ell")
     hull = _render(tmp_path, "ell.hull().linear_extrude(height=3)", setup=setup, name="path_ell_hull")
-    assert plain.watertight and hull.watertight
+    assert plain.watertight
+    assert hull.watertight
     np.testing.assert_allclose(hull.size, [40, 30, 3], atol=0.1)
     # the hull is the pentagon (0,0)-(40,0)-(40,10)-(10,30)-(0,30), area 900
     assert math.isclose(hull.volume, 900 * 3, rel_tol=1e-3)
@@ -1423,7 +1436,8 @@ def test_region_fill_removes_the_hole(tmp_path):
     )
     holed = _render(tmp_path, "region.linear_extrude(height=4)", setup=setup, name="region_holed")
     filled = _render(tmp_path, "region.fill().linear_extrude(height=4)", setup=setup, name="region_filled")
-    assert holed.watertight and filled.watertight
+    assert holed.watertight
+    assert filled.watertight
     np.testing.assert_allclose(filled.size, [40, 30, 4], atol=0.1)
     assert math.isclose(filled.volume, 40 * 30 * 4, rel_tol=1e-3)
     assert math.isclose(holed.volume, (40 * 30 - 20 * 10) * 4, rel_tol=1e-3)

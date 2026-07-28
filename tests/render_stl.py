@@ -202,8 +202,9 @@ def parse_stl(path: Path) -> np.ndarray:
         if line.startswith("vertex"):
             _, x, y, z = line.split()[:4]
             verts.append([float(x), float(y), float(z)])
-    arr = np.asarray(verts, dtype=float)
-    assert arr.size and len(arr) % 3 == 0, "malformed ASCII STL"
+    arr = np.asarray(verts, dtype=float)  # type: ignore[assignment]
+    assert arr.size, "malformed ASCII STL"
+    assert len(arr) % 3 == 0, "malformed ASCII STL"
     return arr.reshape(-1, 3, 3)
 
 

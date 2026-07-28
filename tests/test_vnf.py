@@ -24,7 +24,8 @@ def _valid(vnf):
 
 def test_construction_and_repr():
     v = VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]])
-    assert len(v.vertices) == 3 and len(v.faces) == 1
+    assert len(v.vertices) == 3
+    assert len(v.faces) == 1
     assert bool(v) is True
     assert "VNF" in repr(v)
 

@@ -87,7 +87,8 @@ def test_arc_collinear_points_raise():
 
 def test_catenary_droop_hits_endpoints_and_midpoint():
     c = catenary(width=80, droop=30, sides=21)
-    assert isinstance(c, Path) and c.closed is False
+    assert isinstance(c, Path)
+    assert c.closed is False
     np.testing.assert_allclose(c[0], [-40, 0], atol=1e-6)
     np.testing.assert_allclose(c[-1], [40, 0], atol=1e-6)
     np.testing.assert_allclose(c[10], [0, -30], atol=1e-6)  # middle droops by 30

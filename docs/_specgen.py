@@ -54,7 +54,8 @@ CSS = """
 html{scroll-behavior:smooth}
 body{margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans);
   font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
   background-size:40px 40px; background-position:-1px -1px;}
 .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
 .mono{font-family:var(--mono)}
@@ -85,7 +86,8 @@ section{padding:52px 0}
 .spec .draw{border-right:1px solid var(--line); padding:22px; display:flex; flex-direction:column; gap:12px;
   background:radial-gradient(circle at 1px 1px,var(--line) 1px,transparent 0) 0 0/22px 22px,var(--panel-2)}
 @media (max-width:760px){.spec .draw{border-right:0; border-bottom:1px solid var(--line)}}
-.spec .caption{font-family:var(--mono); font-size:11.5px; color:var(--ink-dim); display:flex; justify-content:space-between; gap:10px}
+.spec .caption{font-family:var(--mono); font-size:11.5px; color:var(--ink-dim);
+  display:flex; justify-content:space-between; gap:10px}
 .spec svg{width:100%; height:auto; display:block}
 .spec .info{padding:22px 24px; display:flex; flex-direction:column; gap:15px}
 .spec h2{font-family:var(--mono); font-size:19px; margin:0}
@@ -94,7 +96,8 @@ section{padding:52px 0}
   padding:2px 9px; border-radius:999px; border:1px solid; text-transform:uppercase}
 .pill.pass{color:var(--pass); border-color:color-mix(in srgb,var(--pass) 45%,var(--line))}
 .pill.pass::before{content:""; width:7px;height:7px;border-radius:50%;background:var(--pass)}
-table.metrics{width:100%; border-collapse:collapse; font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums}
+table.metrics{width:100%; border-collapse:collapse; font-family:var(--mono);
+  font-size:13px; font-variant-numeric:tabular-nums}
 table.metrics th{text-align:left; font-weight:400; color:var(--ink-dim); padding:7px 0; font-size:10.5px;
   text-transform:uppercase; letter-spacing:.12em; border-bottom:1px solid var(--line)}
 table.metrics td{padding:9px 10px 9px 0; border-bottom:1px solid var(--line)}
@@ -102,13 +105,15 @@ table.metrics td.num{text-align:right; padding-right:0}
 table.metrics tr:last-child td{border-bottom:0}
 .proof{border:1px dashed color-mix(in srgb,var(--pass) 45%,var(--line)); border-radius:10px; padding:13px 15px;
   background:color-mix(in srgb,var(--pass) 8%,var(--panel)); display:flex; gap:13px; align-items:center}
-.proof .big{font-family:var(--mono); font-weight:700; font-size:24px; color:var(--pass); font-variant-numeric:tabular-nums; line-height:1}
+.proof .big{font-family:var(--mono); font-weight:700; font-size:24px; color:var(--pass);
+  font-variant-numeric:tabular-nums; line-height:1}
 .proof .txt{font-size:13px; color:var(--ink-dim)} .proof .txt b{color:var(--ink)}
 .code{font-family:var(--mono); font-size:12.5px; background:var(--panel-2); border:1px solid var(--line);
   border-radius:8px; padding:11px 13px; overflow-x:auto; color:var(--ink)}
 .code .k{color:var(--accent)}
 .tags{display:flex; flex-wrap:wrap; gap:6px}
-.tag{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); border:1px solid var(--line); border-radius:5px; padding:2px 7px}
+.tag{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); border:1px solid var(--line);
+  border-radius:5px; padding:2px 7px}
 .tag.hot{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
 /* interactive variant viewer + clickable variant tags */
 .spec .viewer{position:relative; width:100%; min-height:300px; border-radius:8px; overflow:hidden;
@@ -117,9 +122,11 @@ table.metrics tr:last-child td{border-bottom:0}
 .spec .viewer .poster{width:100%; display:block}
 .spec .viewer .hint{position:absolute; left:10px; bottom:9px; font-family:var(--mono); font-size:10px;
   color:var(--ink-faint); pointer-events:none}
-.taglabel{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--ink-faint)}
+.taglabel{font-family:var(--mono); font-size:10px; text-transform:uppercase;
+  letter-spacing:.14em; color:var(--ink-faint)}
 button.tag{cursor:pointer; font:inherit; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim);
-  background:transparent; border:1px solid var(--line); border-radius:5px; padding:3px 9px; transition:color .13s,background .13s,border-color .13s}
+  background:transparent; border:1px solid var(--line); border-radius:5px;
+  padding:3px 9px; transition:color .13s,background .13s,border-color .13s}
 button.tag:hover{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
 button.tag[aria-selected="true"]{color:var(--ground); background:var(--accent); border-color:var(--accent)}
 @media (prefers-color-scheme:light){button.tag[aria-selected="true"]{color:#fff}}
@@ -127,14 +134,16 @@ button.tag[aria-selected="true"]{color:var(--ground); background:var(--accent); 
 .stats>div{display:flex; flex-direction:column; gap:2px}
 .stats .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.05}
 .stats .l{font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-dim)}
-.sec-head{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:24px}
+.sec-head{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--line);
+  padding-bottom:12px; margin-bottom:24px}
 .sec-head h3{font-family:var(--mono); font-size:15px; margin:0}
 .sec-head .count{margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--ink-dim)}
 .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
 @media (max-width:720px){.grid{grid-template-columns:1fr}}
 .card{border:1px solid var(--line); border-radius:10px; background:var(--panel); padding:16px 18px; display:flex;
   flex-direction:column; gap:9px; transition:border-color .15s, transform .15s; color:inherit}
-a.card:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line)); transform:translateY(-2px); text-decoration:none}
+a.card:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));
+  transform:translateY(-2px); text-decoration:none}
 .card .top{display:flex; align-items:baseline; gap:10px}
 .card .name{font-family:var(--mono); font-weight:700; font-size:15px}
 .card .name .py{color:var(--ink-faint); font-weight:400}
@@ -201,7 +210,8 @@ def bearing_svg(nballs=9):
         f'<circle cx="{cx}" cy="{cy}" r="{ro - 8}" fill="none" stroke="var(--ink-dim)" stroke-width="1.2"/>'
         f'<circle cx="{cx}" cy="{cy}" r="{ri}" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
         f'<circle cx="{cx}" cy="{cy}" r="{ri + 8}" fill="none" stroke="var(--ink-dim)" stroke-width="1.2"/>'
-        f'<circle cx="{cx}" cy="{cy}" r="{rmid}" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5"/>'
+        f'<circle cx="{cx}" cy="{cy}" r="{rmid}" fill="none" '
+        f'stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5"/>'
         f"{dots}"
         f'<text x="{cx}" y="{cy + ro + 20}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">{nballs} balls · pitch &Oslash;</text>'
@@ -214,9 +224,9 @@ def bearing_svg(nballs=9):
 
 def linear_bearing_svg():
     # longitudinal cutaway: cylindrical shell, axial bore + shaft, two rows of balls
-    cx, cy, L = 230, 118, 300
+    cx, cy, length_ = 230, 118, 300
     od, idd = 116, 62
-    x0, x1 = cx - L / 2, cx + L / 2
+    x0, x1 = cx - length_ / 2, cx + length_ / 2
     yo0, yo1 = cy - od / 2, cy + od / 2
     yi0, yi1 = cy - idd / 2, cy + idd / 2
     dots = ""
@@ -224,16 +234,19 @@ def linear_bearing_svg():
     ycen_t = (yo0 + yi0) / 2
     ycen_b = (yo1 + yi1) / 2
     for i in range(7):
-        x = x0 + (i + 0.5) * L / 7
+        x = x0 + (i + 0.5) * length_ / 7
         for yc in (ycen_t, ycen_b):
             dots += (
                 f'<circle cx="{x:.1f}" cy="{yc:.1f}" r="{br:.1f}" '
                 f'fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/>'
             )
     body = (
-        f'<rect x="{x0}" y="{yo0}" width="{L}" height="{od}" rx="8" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<rect x="{x0 - 14}" y="{yi0}" width="{L + 28}" height="{idd}" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.4"/>'
-        f'<line x1="{x0 - 26}" y1="{cy}" x2="{x1 + 26}" y2="{cy}" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/>'
+        f'<rect x="{x0}" y="{yo0}" width="{length_}" height="{od}" rx="8" '
+        f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        f'<rect x="{x0 - 14}" y="{yi0}" width="{length_ + 28}" height="{idd}" '
+        f'fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.4"/>'
+        f'<line x1="{x0 - 26}" y1="{cy}" x2="{x1 + 26}" y2="{cy}" '
+        f'stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/>'
         f"{dots}"
         f'<text x="{cx}" y="{yo1 + 22}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">shell &amp; ball tracks · runs on a rod</text>'
@@ -254,23 +267,28 @@ def truss_svg(cubes=3):
         _top = f"{bx},{by} {bx + ex},{by + ey} {bx + ex - ex},{by + ey + s * 0.0} "  # placeholder
 
         # define 8 corners
-        def P(dx, dy, dz, bx=bx, by=by):
+        def point(dx, dy, dz, bx=bx, by=by):
             return (bx + dx * ex + dy * (-ex) + dz * 0, by + dx * ey + dy * ey - dz * s)
 
-        A = (bx, by)
-        B = (bx + ex, by + ey)
-        _C = (bx, by + s)
-        D = (bx + ex, by + ey + s)
-        E = (bx - ex, by + ey)
-        F = (bx - ex, by + ey + s)
-        # top rhombus A B E and the front faces
+        a_pt = (bx, by)
+        b_pt = (bx + ex, by + ey)
+        _c_pt = (bx, by + s)
+        d_pt = (bx + ex, by + ey + s)
+        e_pt = (bx - ex, by + ey)
+        f_pt = (bx - ex, by + ey + s)
+        # top rhombus a_pt b_pt e_pt and the front faces
         out += (
-            f'<polygon points="{A[0]:.0f},{A[1]:.0f} {B[0]:.0f},{B[1]:.0f} {A[0]:.0f},{A[1] + 0:.0f}" fill="none"/>'
-            f'<polygon points="{A[0]:.0f},{A[1]:.0f} {B[0]:.0f},{B[1]:.0f} {(B[0] - ex):.0f},{(B[1]):.0f} {E[0]:.0f},{E[1]:.0f}" '
-            f'fill="color-mix(in srgb,var(--accent) 16%,var(--panel-2))" stroke="var(--ink-dim)" stroke-width="1.3"/>'
-            f'<polygon points="{E[0]:.0f},{E[1]:.0f} {(B[0] - ex):.0f},{B[1]:.0f} {D[0] - ex:.0f},{D[1]:.0f} {F[0]:.0f},{F[1]:.0f}" '
+            f'<polygon points="{a_pt[0]:.0f},{a_pt[1]:.0f} {b_pt[0]:.0f},{b_pt[1]:.0f} '
+            f'{a_pt[0]:.0f},{a_pt[1] + 0:.0f}" fill="none"/>'
+            f'<polygon points="{a_pt[0]:.0f},{a_pt[1]:.0f} {b_pt[0]:.0f},{b_pt[1]:.0f} '
+            f'{(b_pt[0] - ex):.0f},{(b_pt[1]):.0f} {e_pt[0]:.0f},{e_pt[1]:.0f}" '
+            f'fill="color-mix(in srgb,var(--accent) 16%,var(--panel-2))" '
+            f'stroke="var(--ink-dim)" stroke-width="1.3"/>'
+            f'<polygon points="{e_pt[0]:.0f},{e_pt[1]:.0f} {(b_pt[0] - ex):.0f},{b_pt[1]:.0f} '
+            f'{d_pt[0] - ex:.0f},{d_pt[1]:.0f} {f_pt[0]:.0f},{f_pt[1]:.0f}" '
             f'fill="var(--panel)" stroke="var(--ink-dim)" stroke-width="1.3"/>'
-            f'<polygon points="{(B[0] - ex):.0f},{B[1]:.0f} {B[0]:.0f},{B[1]:.0f} {D[0]:.0f},{D[1]:.0f} {D[0] - ex:.0f},{D[1]:.0f}" '
+            f'<polygon points="{(b_pt[0] - ex):.0f},{b_pt[1]:.0f} {b_pt[0]:.0f},{b_pt[1]:.0f} '
+            f'{d_pt[0]:.0f},{d_pt[1]:.0f} {d_pt[0] - ex:.0f},{d_pt[1]:.0f}" '
             f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.3"/>'
         )
     body = out + (
@@ -298,7 +316,8 @@ def dovetail_svg():
         f'<path d="{male}" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" '
         f'stroke="var(--ink)" stroke-width="1.6"/>'
         # slope callout
-        f'<line x1="{cx + bw / 2:.0f}" y1="{yb}" x2="{cx + tw / 2:.0f}" y2="{yt}" stroke="var(--accent)" stroke-width="1.4"/>'
+        f'<line x1="{cx + bw / 2:.0f}" y1="{yb}" x2="{cx + tw / 2:.0f}" y2="{yt}" '
+        f'stroke="var(--accent)" stroke-width="1.4"/>'
         f'<text x="{cx}" y="{yb + 30:.0f}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">male tenon · female socket · slope 1:6</text>'
     )
@@ -328,7 +347,8 @@ def nema_svg():
     dim = (
         f'<rect x="{cx - bs}" y="{cy - bs}" width="{2 * bs}" height="{2 * bs}" fill="none" '
         f'stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5" opacity="0.7"/>'
-        f'<line x1="{cx - bs}" y1="{cy + hb + 16}" x2="{cx + bs}" y2="{cy + hb + 16}" stroke="var(--ink-faint)" stroke-width="1"/>'
+        f'<line x1="{cx - bs}" y1="{cy + hb + 16}" x2="{cx + bs}" y2="{cy + hb + 16}" '
+        f'stroke="var(--ink-faint)" stroke-width="1"/>'
         f'<text x="{cx}" y="{cy + hb + 30}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">bolt spacing 31 mm · NEMA 17</text>'
     )
@@ -348,7 +368,8 @@ def hose_svg():
     cx = 230
     body = (
         # bore centreline
-        f'<line x1="{cx}" y1="30" x2="{cx}" y2="222" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/>'
+        f'<line x1="{cx}" y1="30" x2="{cx}" y2="222" '
+        f'stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/>'
         # ball end (top)
         f'<circle cx="{cx}" cy="74" r="46" fill="color-mix(in srgb,var(--accent) 20%,var(--panel-2))" '
         f'stroke="var(--ink-dim)" stroke-width="1.6"/>'
@@ -373,7 +394,7 @@ def hose_svg():
     )
 
 
-def hinge_svg(segs=5):
+def hinge_svg(_segs=5):
     body = """
     <defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
       <line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/></pattern></defs>
@@ -389,7 +410,8 @@ def hinge_svg(segs=5):
     <g fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4">
       <circle cx="81" cy="120" r="7"/><circle cx="155" cy="120" r="7"/><circle cx="231" cy="120" r="7"/>
       <circle cx="305" cy="120" r="7"/><circle cx="379" cy="120" r="7"/></g>
-    <text x="230" y="232" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">length = 40 mm · segs=5</text>
+    <text x="230" y="232" text-anchor="middle" fill="var(--ink-dim)"
+      font-family="var(--mono)" font-size="11">length = 40 mm · segs=5</text>
     """
     return _svg(body, label="Plan view of a five-knuckle butt hinge.")
 
@@ -398,7 +420,7 @@ def poly_svg():
     # a real icosahedron: rotate the phi-based vertices, project, and paint the faces
     # back-to-front, shading each by depth so the solid reads in 3-D.
     phi = (1 + 5**0.5) / 2
-    V = [
+    vertices = [
         (-1, phi, 0),
         (1, phi, 0),
         (-1, -phi, 0),
@@ -412,7 +434,7 @@ def poly_svg():
         (-phi, 0, -1),
         (-phi, 0, 1),
     ]
-    F = [
+    faces = [
         [0, 11, 5],
         [0, 5, 1],
         [0, 1, 7],
@@ -434,22 +456,22 @@ def poly_svg():
         [8, 6, 7],
         [9, 8, 1],
     ]
-    m = max(sum(c * c for c in v) ** 0.5 for v in V)
+    m = max(sum(c * c for c in v) ** 0.5 for v in vertices)
     ax, ay = math.radians(-22), math.radians(31)
-    R = []
-    for x, y, z in V:
+    rotated = []
+    for x, y, z in vertices:
         x, y, z = x / m, y / m, z / m
         x, z = x * math.cos(ay) + z * math.sin(ay), -x * math.sin(ay) + z * math.cos(ay)
         y, z = y * math.cos(ax) - z * math.sin(ax), y * math.sin(ax) + z * math.cos(ax)
-        R.append((x, y, z))
+        rotated.append((x, y, z))
     cx, cy, s = 230, 112, 92
-    P = [(cx + s * p[0], cy - s * p[1]) for p in R]
+    projected = [(cx + s * p[0], cy - s * p[1]) for p in rotated]
     body = ""
-    for i in sorted(range(len(F)), key=lambda i: sum(R[v][2] for v in F[i])):  # far first
-        f = F[i]
-        depth = sum(R[v][2] for v in f) / 3  # -1 (back) .. 1 (front)
+    for i in sorted(range(len(faces)), key=lambda i: sum(rotated[v][2] for v in faces[i])):  # far first
+        f = faces[i]
+        depth = sum(rotated[v][2] for v in f) / 3  # -1 (back) .. 1 (front)
         pct = int(14 + (depth + 1) / 2 * 30)
-        pts = " ".join(f"{P[v][0]:.1f},{P[v][1]:.1f}" for v in f)
+        pts = " ".join(f"{projected[v][0]:.1f},{projected[v][1]:.1f}" for v in f)
         body += (
             f'<polygon points="{pts}" fill="color-mix(in srgb,var(--accent) {pct}%,var(--panel))" '
             f'stroke="var(--ink-dim)" stroke-width="1.2" stroke-linejoin="round"/>'
@@ -480,8 +502,10 @@ def wall_svg():
         f'<rect x="{x0}" y="{y0}" width="{x1 - x0}" height="{y1 - y0}" fill="var(--panel-2)"/>'
         f'<rect x="{ix0}" y="{iy0}" width="{ix1 - ix0}" height="{iy1 - iy0}" fill="var(--ground)"/>'
         f"{braces}"
-        f'<rect x="{x0}" y="{y0}" width="{x1 - x0}" height="{y1 - y0}" fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<rect x="{ix0}" y="{iy0}" width="{ix1 - ix0}" height="{iy1 - iy0}" fill="none" stroke="var(--ink-dim)" stroke-width="1.3"/>'
+        f'<rect x="{x0}" y="{y0}" width="{x1 - x0}" height="{y1 - y0}" '
+        f'fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        f'<rect x="{ix0}" y="{iy0}" width="{ix1 - ix0}" height="{iy1 - iy0}" '
+        f'fill="none" stroke="var(--ink-dim)" stroke-width="1.3"/>'
         f'<text x="230" y="{y1 + 26}" text-anchor="middle" fill="var(--ink-dim)" '
         f'font-family="var(--mono)" font-size="11">sparse wall · X-braced · support-free</text>'
     )
@@ -566,29 +590,41 @@ def hook_svg():
     tx, tz = max(tans, key=lambda t: t[1])
     scale, cx, basey = 2.4, 230, 206
 
-    def X(x):
+    def to_x(x):
         return cx + x * scale
 
-    def Y(z):
+    def to_y(z):
         return basey - z * scale
 
-    paddle = f"{X(-bx / 2):.1f},{Y(0):.1f} {X(bx / 2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f} {X(-tx):.1f},{Y(tz):.1f}"
+    paddle = (
+        f"{to_x(-bx / 2):.1f},{to_y(0):.1f} {to_x(bx / 2):.1f},{to_y(0):.1f} "
+        f"{to_x(tx):.1f},{to_y(tz):.1f} {to_x(-tx):.1f},{to_y(tz):.1f}"
+    )
     body = (
-        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ro * scale:.1f}" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        f'<circle cx="{to_x(0):.1f}" cy="{to_y(hole_z):.1f}" r="{ro * scale:.1f}" '
+        f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
         f'<polygon points="{paddle}" fill="var(--panel-2)" stroke="none"/>'
-        f'<polyline points="{X(-tx):.1f},{Y(tz):.1f} {X(-bx / 2):.1f},{Y(0):.1f} {X(bx / 2):.1f},{Y(0):.1f} {X(tx):.1f},{Y(tz):.1f}" '
+        f'<polyline points="{to_x(-tx):.1f},{to_y(tz):.1f} {to_x(-bx / 2):.1f},{to_y(0):.1f} '
+        f'{to_x(bx / 2):.1f},{to_y(0):.1f} {to_x(tx):.1f},{to_y(tz):.1f}" '
         f'fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>'
-        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="{ri * scale:.1f}" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.6"/>'
+        f'<circle cx="{to_x(0):.1f}" cy="{to_y(hole_z):.1f}" r="{ri * scale:.1f}" '
+        f'fill="var(--ground)" stroke="var(--accent)" stroke-width="1.6"/>'
         # tangent construction + points
-        f'<line x1="{X(bx / 2):.1f}" y1="{Y(0):.1f}" x2="{X(tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
-        f'<line x1="{X(-bx / 2):.1f}" y1="{Y(0):.1f}" x2="{X(-tx):.1f}" y2="{Y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
-        f'<circle cx="{X(tx):.1f}" cy="{Y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
-        f'<circle cx="{X(-tx):.1f}" cy="{Y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
+        f'<line x1="{to_x(bx / 2):.1f}" y1="{to_y(0):.1f}" x2="{to_x(tx):.1f}" '
+        f'y2="{to_y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
+        f'<line x1="{to_x(-bx / 2):.1f}" y1="{to_y(0):.1f}" x2="{to_x(-tx):.1f}" '
+        f'y2="{to_y(tz):.1f}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>'
+        f'<circle cx="{to_x(tx):.1f}" cy="{to_y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
+        f'<circle cx="{to_x(-tx):.1f}" cy="{to_y(tz):.1f}" r="2.6" fill="var(--accent)"/>'
         # hole_z dimension
-        f'<line x1="{X(-bx / 2) - 14:.1f}" y1="{Y(0):.1f}" x2="{X(-bx / 2) - 14:.1f}" y2="{Y(hole_z):.1f}" stroke="var(--ink-dim)" stroke-width="1"/>'
-        f'<text x="{X(-bx / 2) - 20:.1f}" y="{Y(hole_z / 2) + 3:.1f}" text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">hole_z</text>'
-        f'<circle cx="{X(0):.1f}" cy="{Y(hole_z):.1f}" r="2.2" fill="var(--accent)"/>'
-        f'<text x="{X(0):.1f}" y="{basey + 18:.1f}" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">base flares along the ring tangent</text>'
+        f'<line x1="{to_x(-bx / 2) - 14:.1f}" y1="{to_y(0):.1f}" '
+        f'x2="{to_x(-bx / 2) - 14:.1f}" y2="{to_y(hole_z):.1f}" '
+        f'stroke="var(--ink-dim)" stroke-width="1"/>'
+        f'<text x="{to_x(-bx / 2) - 20:.1f}" y="{to_y(hole_z / 2) + 3:.1f}" '
+        f'text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">hole_z</text>'
+        f'<circle cx="{to_x(0):.1f}" cy="{to_y(hole_z):.1f}" r="2.2" fill="var(--accent)"/>'
+        f'<text x="{to_x(0):.1f}" y="{basey + 18:.1f}" text-anchor="middle" '
+        f'fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">base flares along the ring tangent</text>'
     )
     return _svg(
         body,
@@ -1206,19 +1242,23 @@ function load(uri) {
     const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
     const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
     geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
+    mesh = new THREE.Mesh(geo,
+      new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
     scene.add(mesh);
     const r = Math.max(s.x, s.y, s.z) || 1;
     camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
     poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
   }, undefined, () => {
     if (!box.querySelector(".hint")) { const h = document.createElement("div");
-      h.className = "hint"; h.textContent = "serve the docs over HTTP for the interactive 3-D view"; box.appendChild(h); }
+      h.className = "hint";
+      h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+      box.appendChild(h); }
   });
 }
 function select(i) {
   const v = V[i];
-  document.querySelectorAll(".tags button.tag").forEach((b, j) => b.setAttribute("aria-selected", j === i ? "true" : "false"));
+  document.querySelectorAll(".tags button.tag").forEach((b, j) =>
+    b.setAttribute("aria-selected", j === i ? "true" : "false"));
   document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
   document.getElementById("s-tris").textContent = v.tris == null ? "\\u2014" : v.tris.toLocaleString();
   document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;

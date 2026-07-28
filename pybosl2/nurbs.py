@@ -329,7 +329,7 @@ def nurbs_patch_points(
     u=None,
     v=None,
     weights=None,
-    type: str = ("clamped", "clamped"),  # noqa: A002
+    type: str | tuple[str, str] = ("clamped", "clamped"),  # noqa: A002
     mult=(None, None),
     knots=(None, None),
 ):
@@ -378,26 +378,27 @@ def nurbs_patch_points(
         )
         return [[list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in row] for row in pts]
 
-    degree = _force_list2(degree)
-    type = _force_list2(type)  # noqa: A001
-    splinesteps = [None, None] if splinesteps is None else _force_list2(splinesteps)
+    degree_list = _force_list2(degree)
+    type_list = _force_list2(type)
+    splinesteps_list = [None, None] if splinesteps is None else _force_list2(splinesteps)  # type: ignore[assignment]
     mult = [mult, mult] if (mult is None or is_num(mult) or (mult and is_num(mult[0]))) else list(mult)
     knots = [knots, knots] if (knots is None or (knots and is_num(knots[0]))) else list(knots)
 
     if is_num(u) and is_num(v):
         inner = [
-            _nurbs_curve_pts(ctrl, degree[1], u=v, type=type[1], mult=mult[1], knots=knots[1])[0] for ctrl in patch
+            _nurbs_curve_pts(ctrl, degree_list[1], u=v, type=type_list[1], mult=mult[1], knots=knots[1])[0]
+            for ctrl in patch
         ]
-        return _nurbs_curve_pts(inner, degree[0], u=u, type=type[0], mult=mult[0], knots=knots[0])[0]
+        return _nurbs_curve_pts(inner, degree_list[0], u=u, type=type_list[0], mult=mult[0], knots=knots[0])[0]
 
     # sweep each control-column as a u-curve, then each resulting row as a v-curve
     vsplines = [
         _nurbs_curve_pts(
             _column(patch, i),
-            degree[0],
-            splinesteps=splinesteps[0],
+            degree_list[0],
+            splinesteps=splinesteps_list[0],
             u=u,
-            type=type[0],
+            type=type_list[0],
             mult=mult[0],
             knots=knots[0],
         )
@@ -407,10 +408,10 @@ def nurbs_patch_points(
     for i in range(len(vsplines[0])):
         row = _nurbs_curve_pts(
             _column(vsplines, i),
-            degree[1],
-            splinesteps=splinesteps[1],
+            degree_list[1],
+            splinesteps=splinesteps_list[1],
             u=v,
-            type=type[1],
+            type=type_list[1],
             mult=mult[1],
             knots=knots[1],
         )
@@ -513,62 +514,62 @@ def nurbs_vnf(
 # ---------------------------------------------------------------------------
 
 
-def _nip(i, p, u, U):
+def _nip(i, p, u, knot_vector):
     """The i-th B-spline basis function of degree *p* at *u* on knot vector *U* (BOSL2 _nip())."""
-    m = len(U) - 1
-    if (i == 0 and u <= U[0]) or (i == m - p - 1 and u >= U[m]):
+    m = len(knot_vector) - 1
+    if (i == 0 and u <= knot_vector[0]) or (i == m - p - 1 and u >= knot_vector[m]):
         return 1.0
-    if u < U[i] or u >= U[i + p + 1]:
+    if u < knot_vector[i] or u >= knot_vector[i + p + 1]:
         return 0.0
-    N = [0.0] * (p + 1)
+    bvals = [0.0] * (p + 1)
     for j in range(p + 1):
-        N[j] = 1.0 if (U[i + j] <= u < U[i + j + 1]) else 0.0
+        bvals[j] = 1.0 if (knot_vector[i + j] <= u < knot_vector[i + j + 1]) else 0.0
     for k in range(1, p + 1):
-        saved = 0.0 if N[0] == 0 else ((u - U[i]) * N[0]) / (U[i + k] - U[i])
+        saved = 0.0 if bvals[0] == 0 else ((u - knot_vector[i]) * bvals[0]) / (knot_vector[i + k] - knot_vector[i])
         for j in range(p - k + 1):
-            Uleft = U[i + j + 1]
-            Uright = U[i + j + k + 1]
-            if N[j + 1] == 0:
-                N[j] = saved
+            knot_left = knot_vector[i + j + 1]
+            knot_right = knot_vector[i + j + k + 1]
+            if bvals[j + 1] == 0:
+                bvals[j] = saved
                 saved = 0.0
             else:
-                temp = N[j + 1] / (Uright - Uleft)
-                N[j] = saved + (Uright - u) * temp
-                saved = (u - Uleft) * temp
-    return N[0]
+                temp = bvals[j + 1] / (knot_right - knot_left)
+                bvals[j] = saved + (knot_right - u) * temp
+                saved = (u - knot_left) * temp
+    return bvals[0]
 
 
-def _greville(U, p):
-    sides = len(U) - p - 2
-    return [sum(U[i + 1 : i + p + 1]) / p for i in range(sides + 1)]
+def _greville(knot_vector, p):
+    sides = len(knot_vector) - p - 2
+    return [sum(knot_vector[i + 1 : i + p + 1]) / p for i in range(sides + 1)]
 
 
-def _increment_knot_mults(U):
+def _increment_knot_mults(knot_vector):
     out = []
     i = 0
-    while i < len(U):
+    while i < len(knot_vector):
         j = i
-        while j < len(U) and approx(U[j], U[i]):
+        while j < len(knot_vector) and approx(knot_vector[j], knot_vector[i]):
             j += 1
-        out += [U[i]] * (j - i + 1)
+        out += [knot_vector[i]] * (j - i + 1)
         i = j
     return out
 
 
-def _elevate_once(ctrl, p, U):
+def _elevate_once(ctrl, p, knot_vector):
     ctrl = [np.asarray(c, dtype=float) for c in ctrl]
     dim = len(ctrl[0])
     p_new = p + 1
-    U_new = _increment_knot_mults(U)
-    n_new = len(U_new) - p_new - 2
+    knots_new = _increment_knot_mults(knot_vector)
+    n_new = len(knots_new) - p_new - 2
     n_old = len(ctrl) - 1
-    grev = _greville(U_new, p_new)
-    C_vals = np.array(
-        [[sum(_nip(j, p, uu, U) * ctrl[j][d] for j in range(n_old + 1)) for d in range(dim)] for uu in grev]
+    grev = _greville(knots_new, p_new)
+    ctrl_vals = np.array(
+        [[sum(_nip(j, p, uu, knot_vector) * ctrl[j][d] for j in range(n_old + 1)) for d in range(dim)] for uu in grev]
     )
-    A = np.array([[_nip(i, p_new, grev[k], U_new) for i in range(n_new + 1)] for k in range(n_new + 1)])
-    Q = np.linalg.solve(A, C_vals)
-    return [list(row) for row in Q], U_new, p_new
+    basis_mat = np.array([[_nip(i, p_new, grev[k], knots_new) for i in range(n_new + 1)] for k in range(n_new + 1)])
+    new_ctrl = np.linalg.solve(basis_mat, ctrl_vals)
+    return [list(row) for row in new_ctrl], knots_new, p_new
 
 
 def nurbs_elevate_degree(
@@ -614,6 +615,7 @@ def nurbs_elevate_degree(
 
     assert type in ("clamped", "open"), 'nurbs_elevate_degree: type must be "clamped" or "open".'
     assert is_num(times) and times >= 1, "times must be a positive integer."
+    assert degree is not None, "degree must be provided."
     sides = len(control)
     if knots is None and mult is None:
         xknots = (

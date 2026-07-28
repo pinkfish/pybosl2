@@ -13,10 +13,9 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
-from pybosl2._backend import register_backend
-from pybosl2._sdf import joiners, shapes2d, skin
+from pybosl2._backend import SolidBackend, register_backend
 from pybosl2._sdf import shapes3d as _s
 
 __all__ = ["SdfBackend", "shapes2d", "skin", "joiners"]
@@ -59,11 +58,11 @@ class SdfBackend:
         options that shear the profile as it rises (``twist``/``scale``/``slices``) have no
         polygon_prism equivalent and are rejected rather than silently ignored.
         """
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
         for name in ("twist", "scale", "slices", "convexity"):
             if kwargs.pop(name, None) not in (None, 0, 1, False):
-                raise UnsupportedByBackend(
+                raise UnsupportedByBackendError(
                     f"linear_extrude({name}=)",
                     "sdf",
                     hint="polygon_prism() extrudes a constant cross-section; build the shape on "
@@ -92,4 +91,4 @@ class SdfBackend:
         return _s.intersection(*solids)
 
 
-register_backend("sdf", SdfBackend())
+register_backend("sdf", cast("SolidBackend", SdfBackend()))

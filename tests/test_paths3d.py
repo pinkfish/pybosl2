@@ -21,7 +21,8 @@ SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 
 def test_construction_requires_3d_points():
     p = Path3D(SQUARE_LOOP)
-    assert isinstance(p, list) and len(p) == 4
+    assert isinstance(p, list)
+    assert len(p) == 4
     assert p[0] == [0.0, 0.0, 0.0]
     with pytest.raises(AssertionError):
         Path3D([[0, 0], [1, 1]])  # 2-D points rejected
@@ -98,10 +99,12 @@ def test_reverse_close_cleanup_dedup():
 def test_resample_and_subdivide_keep_3d():
     p = Path3D([[0, 0, 0], [0, 0, 30]], closed=False)
     radius = p.resample(sides=7)
-    assert isinstance(radius, Path3D) and len(radius) == 7
+    assert isinstance(radius, Path3D)
+    assert len(radius) == 7
     assert radius.array.shape[1] == 3
     s = p.subdivide(sides=4)
-    assert isinstance(s, Path3D) and s.array.shape[1] == 3
+    assert isinstance(s, Path3D)
+    assert s.array.shape[1] == 3
 
 
 def test_cut_returns_path3d_subpaths():

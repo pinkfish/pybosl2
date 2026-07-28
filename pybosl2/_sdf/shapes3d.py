@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import numpy as np
 
@@ -77,8 +77,8 @@ def _rotation_matrix(a: float | Sequence[float], v: list[float] | None = None) -
     angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
     rotate([x, y, z]) uses."""
     if v is not None:
-        return _axis_angle_matrix(a, v)
-    ax, ay, az = a
+        return _axis_angle_matrix(cast("float", a), v)
+    ax, ay, az = a  # type: ignore[misc]
     rx = _axis_angle_matrix(ax, [1, 0, 0])
     ry = _axis_angle_matrix(ay, [0, 1, 0])
     rz = _axis_angle_matrix(az, [0, 0, 1])
@@ -329,7 +329,7 @@ class PyShape(Distributable):
         cuboid_size/cuboid_center metadata (so round()/chamfer() assert afterward), same
         rationale as rotate(): edge selectors are pre-transform concepts.
         """
-        s = [float(a) for a in v] if isinstance(v, (list, tuple)) else [float(v)] * 3  # type: ignore[arg-type]
+        s = [float(v)] * 3 if isinstance(v, (int, float)) else [float(a) for a in v]
         assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
         fn = self._sdf_fn
         smin = min(s)
@@ -512,13 +512,13 @@ class PyShape(Distributable):
         """Not available on the SDF backend -- an implicit field has no closed-form 2-D shadow.
 
         Raises:
-            ~pybosl2.exceptions.UnsupportedByBackend: always. Convert first
+            ~pybosl2.exceptions.UnsupportedByBackendError: always. Convert first
             (``shape.to_csg().projection()``) if a meshed projection is acceptable.
         """
         _ = cut
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
-        raise UnsupportedByBackend(
+        raise UnsupportedByBackendError(
             "projection",
             "sdf",
             hint="a signed-distance field has no closed-form 2-D shadow, and 2-D geometry is a "
@@ -845,7 +845,7 @@ def _cuboid_flare_sdf(
 
 
 def cuboid(
-    size: float | list[float] = None,
+    size: float | list[float] | None = None,
     rounding: float = 0,
     chamfer: float = 0,
     edges: str | list = "ALL",
@@ -999,7 +999,7 @@ def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
 
 
 def wedge(
-    size: list[float] = None,
+    size: list[float] | None = None,
     anchor: "Sequence[float] | None" = None,
     res: int = 10,
 ) -> PyShape:
@@ -1555,7 +1555,7 @@ def prismoid(
     size1: list[float],
     size2: list[float],
     height: float | None = None,
-    shift: list[float] = None,
+    shift: list[float] | None = None,
     length: float | None = None,
     anchor: "Sequence[float]" = BOTTOM,
     res: int = 10,
@@ -1818,6 +1818,8 @@ def polygon_prism(
         rounding_bottom: bottom-rim treatment, same convention (default 0)
         res:             libfive meshing resolution passed to frep() (default 10)
     """
+    if not isinstance(paths, (list, np.ndarray)):
+        raise TypeError(f"polygon_prism(): paths must be a list of points or numpy array, got {type(paths).__name__}")
     assert len(paths) >= 1, "polygon_prism(): paths must not be empty"
     path_list = as_path_list(paths)
     for p in path_list:
@@ -2006,7 +2008,7 @@ def onion(
 
 def heightfield(
     data: Callable[[Any, Any], Any],
-    size: list[float] = None,
+    size: list[float] | None = None,
     bottom: float = -20,
     maxz: float = 99,
     res: int = 10,
@@ -2256,9 +2258,9 @@ def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float 
             base = p[i] + fu * norm[i] + fv * binorm[i]
             world.append(base + ext_fwd[i] * tang[i])
             world.append(base - ext_back[i] * tang[i])
-    world = np.asarray(world)
-    mn = world.min(axis=0).tolist()
-    mx = world.max(axis=0).tolist()
+    world_arr = np.asarray(world)
+    mn = world_arr.min(axis=0).tolist()
+    mx = world_arr.max(axis=0).tolist()
     return PyShape(sdf_fn, mn, mx, res)
 
 

@@ -79,16 +79,12 @@ target-version = "py311"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["N", "E", "F", "I", "B", "SIM", "RUF100", "A", "C4", "CPY", "PIE", "PYI", "SLOT", "TID", "TC", "ARG", "NPY", "PD"]
+select = ["N", "E", "F", "I", "B", "SIM", "RUF100", "A", "C4", "CPY", "PIE", "PYI", "SLOT", "TID", "TC", "ARG", "NPY", "PD", "PT"]
 
 [tool.ruff.lint.per-file-ignores]
-# Embedded CSS/SVG/JS string literals in the spec-sheet generator are inherently long.
-"docs/_specgen.py" = ["E501"]
-"docs/conf.py" = ["A001"]
-"tests/mock_libfive.py" = ["A001", "CPY001"]
-"tests/**" = ["N", "ARG"]
-"docs/**" = ["N", "ARG"]
-"pybosl2/**" = ["N"]
+"pybosl2/**" = ["PT"]
+"docs/**" = ["PT"]
+"pysolidfive/**" = ["PT"]
 
 [tool.ruff.format]
 # Use double quotes for strings

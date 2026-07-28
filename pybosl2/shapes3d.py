@@ -351,7 +351,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
         Note:
             CSG only. The SDF backend's :meth:`~pybosl2._sdf.shapes3d.PyShape.projection` raises
-            :class:`~pybosl2.exceptions.UnsupportedByBackend` -- a distance field has no
+            :class:`~pybosl2.exceptions.UnsupportedByBackendError` -- a distance field has no
             closed-form 2-D shadow, and 2-D geometry is a CSG-backend notion.
 
         Examples:
@@ -389,9 +389,9 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
     def to_sdf(self) -> "Bosl2Solid":
         """CSG -> SDF conversion is not supported (would require lossy voxel-sampling)."""
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
-        raise UnsupportedByBackend(
+        raise UnsupportedByBackendError(
             "to_sdf",
             "csg",
             hint="a CSG tree has no signed-distance field; build the shape on the SDF backend "
@@ -1987,7 +1987,7 @@ def regular_prism(
     if not (r1v or r2v or c1v or c2v):
         shape = _ocylinder(height=prism_len, radius1=rad1, radius2=rad2, center=True, fn=sides)
     else:
-        profile = _cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, fn, fa, fs)
+        profile = _cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, fn=fn, fa=fa, fs=fs)
         from .shapes2d import _opolygon
 
         shape = _orotate_extrude(_opolygon(profile), fn=sides)

@@ -74,8 +74,8 @@ def test_repeat_command():
 
 
 def test_transforms_are_4x4():
-    T = Turtle().run(["move", 10, "arcleft", 5]).transforms()
-    assert all(np.asarray(t).shape == (4, 4) for t in T)
+    xform = Turtle().run(["move", 10, "arcleft", 5]).transforms()
+    assert all(np.asarray(t).shape == (4, 4) for t in xform)
 
 
 def test_turtle3d_classmethod_matches_instance():
@@ -102,8 +102,9 @@ def test_compound_reverse_flips_direction():
 
 
 def test_compound_grow_twist_builds_transforms():
-    T = Turtle().run([["move", 10, "grow", 2, "twist", 90, "steps", 6]]).transforms()
-    assert len(T) == 7 and all(np.asarray(t).shape == (4, 4) for t in T)
+    xform = Turtle().run([["move", 10, "grow", 2, "twist", 90, "steps", 6]]).transforms()
+    assert len(xform) == 7
+    assert all(np.asarray(t).shape == (4, 4) for t in xform)
 
 
 def test_compound_arc_absolute_rotation():
@@ -114,8 +115,8 @@ def test_compound_arc_absolute_rotation():
 
 
 def test_compound_rollto_builds():
-    T = Turtle().run([["move", 10, "rollto", [0, 0, 1], "steps", 3]]).transforms()
-    assert len(T) == 4
+    xform = Turtle().run([["move", 10, "rollto", [0, 0, 1], "steps", 3]]).transforms()
+    assert len(xform) == 4
 
 
 def test_compound_bad_head_rejected():

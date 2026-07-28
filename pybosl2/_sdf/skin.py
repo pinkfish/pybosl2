@@ -46,7 +46,7 @@ def clockwise_polygon(poly: list[list[float]]) -> list:
     return pts if area <= 0 else list(reversed(pts))
 
 
-def _scale4(s: float | list[float]) -> np.ndarray:
+def _scale4(s: Sequence[float]) -> np.ndarray:
     m = np.eye(4)
     m[0, 0], m[1, 1] = float(s[0]), float(s[1])
     if len(s) > 2:

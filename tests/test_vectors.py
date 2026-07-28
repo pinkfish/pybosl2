@@ -52,5 +52,5 @@ def test_unit_zero_with_default_error_value():
 
 
 def test_unit_zero_without_error_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Cannot normalize a zero vector"):
         unit([0, 0, 0])

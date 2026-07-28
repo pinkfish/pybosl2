@@ -266,6 +266,17 @@ def _pick_radius(
     diameter: float | None = None,
     dflt: None = None,
 ) -> float | None: ...
+@overload
+def _pick_radius(
+    radius1: float | None = None,
+    diameter1: float | None = None,
+    radius2: float | None = None,
+    diameter2: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
+    *,
+    dflt: float | None = None,
+) -> float | None: ...
 def _pick_radius(
     radius1=None,
     diameter1=None,
@@ -1160,20 +1171,23 @@ def arc(
         return Path(out, closed=wedge)
 
     # -- radius + angle (with optional [start, end] range) -----------------------------------
-    arc_radius: float | None = _pick_radius(radius=radius, diameter=diameter)
-    assert arc_radius is not None, "arc() needs radius=/diameter=, points=, corner=, or width=/thickness="
+    arc_r: float | None = _pick_radius(radius=radius, diameter=diameter)
+    assert arc_r is not None, "arc() needs radius=/diameter=, points=, corner=, or width=/thickness="
     if isinstance(angle, (list, tuple, np.ndarray)):
         assert start is None, "start= is not allowed with angle=[start, end]"
-        calc_start = float(angle[0])  # type: ignore[arg-type]
-        calc_angle = float(angle[1]) - float(angle[0])  # type: ignore[arg-type]
+        calc_start = float(angle[0])
+        calc_angle = float(angle[1]) - float(angle[0])
+    elif isinstance(angle, (int, float)):
+        calc_angle = float(angle)
+        calc_start = 0.0 if start is None else float(start)
+    elif angle is None:
+        calc_angle = 360.0
+        calc_start = 0.0 if start is None else float(start)
     else:
-        calc_angle = 360.0 if angle is None else float(angle)  # type: ignore[arg-type]
-        calc_start = 0.0 if start is None else float(start)  # type: ignore[arg-type]
+        raise TypeError(f"angle must be a number, a [start, end] pair, or None, got {type(angle)}")
     calc_center = (0.0, 0.0) if center is None else center
-    point_count = (
-        count if count is not None else math.ceil(_frag_count(arc_radius, fn, fa, fs) * abs(calc_angle) / 360) + 1
-    )
-    out = _arc_points(point_count, arc_radius, calc_start, calc_angle, calc_center, endpoint=endpoint)
+    point_count = count if count is not None else math.ceil(_frag_count(arc_r, fn, fa, fs) * abs(calc_angle) / 360) + 1
+    out = _arc_points(point_count, arc_r, calc_start, calc_angle, calc_center, endpoint=endpoint)
     if wedge:
         out = [list(calc_center)] + out
     return Path(out, closed=wedge)
@@ -1368,6 +1382,7 @@ def regular_ngon(
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
     side_s = side / 2 / math.sin(math.radians(180.0 / sides)) if side is not None else None
+    dflt_val: float = side_s if side_s is not None else 0.0
     rad = _pick_radius(
         radius1=ir_s,
         diameter1=id_s,
@@ -1375,7 +1390,7 @@ def regular_ngon(
         diameter2=outer_diameter,
         radius=radius,
         diameter=diameter,
-        dflt=side_s if side_s is not None else 0.0,  # type: ignore[arg-type]
+        dflt=dflt_val,
     )
     if rad is None:
         raise ValueError(
@@ -1531,7 +1546,7 @@ def right_triangle(
         anchor: anchor point (default: [-1,-1], the right-angle corner)
         spin:   Z-axis rotation in degrees after anchor (default 0)
     """
-    sz = [size, size] if isinstance(size, (int, float)) else list(size)
+    sz = [size, size] if isinstance(size, (int, float)) else list(size)  # type: ignore[arg-type]
     if anchor is not None:
         use_anchor = anchor
     elif center:
@@ -1836,11 +1851,11 @@ def egg(
     radius2 = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else None)
     if radius2 is None:
         raise ValueError("egg(): must give radius2 or diameter2")
-    R = arc_radius if arc_radius is not None else (arc_diameter / 2 if arc_diameter is not None else None)
-    if R is None:
+    arc_r = arc_radius if arc_radius is not None else (arc_diameter / 2 if arc_diameter is not None else None)
+    if arc_r is None:
         raise ValueError("egg(): must give arc_radius or arc_diameter")
     assert length is not None, "egg(): must give length"
-    path = _egg_path(length, radius1, radius2, R, fn, fa, fs)
+    path = _egg_path(length, radius1, radius2, arc_r, fn, fa, fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)
@@ -2400,7 +2415,7 @@ def shell2d(
         children=base.offset(delta=th[1], fn=fn, fa=fa, fs=fs),
         fn=fn,
         fa=fa,
-        fs=fs,  # type: ignore[arg-type]
+        fs=fs,
     )
     inner_shape = round2d(
         outer_radius=irad[1],
@@ -2408,6 +2423,6 @@ def shell2d(
         children=base.offset(delta=th[0], fn=fn, fa=fa, fs=fs),
         fn=fn,
         fa=fa,
-        fs=fs,  # type: ignore[arg-type]
+        fs=fs,
     )
     return outer_shape - inner_shape

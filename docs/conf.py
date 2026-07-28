@@ -59,7 +59,7 @@ if not _have_pythonscad:
         )
 
 project = "pybosl2 (PythonSCAD port)"
-copyright = "2026, pinkfish"
+copyright = "2026, pinkfish"  # noqa: A001
 author = "pinkfish"
 
 # Keep the docs version in sync with the code's single source of truth

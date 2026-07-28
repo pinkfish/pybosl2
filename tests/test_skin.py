@@ -155,12 +155,14 @@ def test_skin_reindex_method():
         method="reindex",
         z=[0, 20],
     )
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 def test_skin_three_profiles():
     vnf = skin([_circle(4), _circle(8), _circle(4)], slices=5, z=[0, 15, 30])
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 def test_skin_closed_stack():
@@ -197,7 +199,8 @@ def test_linear_sweep_plain_box_volume():
 def test_linear_sweep_twist_scale():
     sq = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
     vnf = linear_sweep(sq, height=40, twist=120, scale=0.4)
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 def test_linear_sweep_center_vs_base():
@@ -206,8 +209,10 @@ def test_linear_sweep_center_vs_base():
     centered = linear_sweep(sq, height=10, center=True)
     bz = [v[2] for v in base.vertices]
     cz = [v[2] for v in centered.vertices]
-    assert math.isclose(min(bz), 0.0, abs_tol=1e-9) and math.isclose(max(bz), 10.0, abs_tol=1e-9)
-    assert math.isclose(min(cz), -5.0, abs_tol=1e-9) and math.isclose(max(cz), 5.0, abs_tol=1e-9)
+    assert math.isclose(min(bz), 0.0, abs_tol=1e-9)
+    assert math.isclose(max(bz), 10.0, abs_tol=1e-9)
+    assert math.isclose(min(cz), -5.0, abs_tol=1e-9)
+    assert math.isclose(max(cz), 5.0, abs_tol=1e-9)
 
 
 # -- rotate_sweep -------------------------------------------------------------------------
@@ -217,12 +222,14 @@ PROFILE = [[4, -10], [12, -10], [12, 10], [4, 10]]
 
 def test_rotate_sweep_full():
     vnf = rotate_sweep(PROFILE, 360)
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 def test_rotate_sweep_partial_has_caps():
     vnf = rotate_sweep(PROFILE, 270)
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 def test_rotate_sweep_rejects_bad_angle():
@@ -236,13 +243,15 @@ def test_rotate_sweep_rejects_bad_angle():
 def test_spiral_sweep_coil():
     section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
     vnf = spiral_sweep(section, height=40, radius=12, turns=5)
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 def test_spiral_sweep_conical_taper():
     section = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
     vnf = spiral_sweep(section, height=30, radius1=15, radius2=5, turns=4)
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 # -- path_sweep2d -------------------------------------------------------------------------
@@ -252,14 +261,16 @@ def test_path_sweep2d_open():
     shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
     path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
     vnf = path_sweep2d(shape, path)
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 def test_path_sweep2d_closed_loop():
     shape = [[-1, -2], [1, -2], [1, 2], [-1, 2]]
     ring = [[20 * math.cos(t), 20 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 32, endpoint=False)]
     vnf = path_sweep2d(shape, ring, closed=True)
-    assert _valid(vnf) and vnf.volume() > 0
+    assert _valid(vnf)
+    assert vnf.volume() > 0
 
 
 # -- subdivide_and_slice ------------------------------------------------------------------

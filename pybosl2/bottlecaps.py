@@ -388,7 +388,7 @@ def _build_cap(
     bore = cyl(diameter=diameter.cap_id, height=height, anchor=BOTTOM, fn=fn, fa=fa, fs=fs).up(wall)
     shell = outer - bore
     turns = diameter.cap_turns / 360
-    H = turns * diameter.cap_thread_pitch
+    thread_height = turns * diameter.cap_thread_pitch
     # internal thread (this port's thread_helix has no internal= flank flip -- approximate).
     thread = Threading.thread_helix(
         d=diameter.cap_thread_od - diameter.cap_thread_depth * 2,
@@ -397,7 +397,7 @@ def _build_cap(
         flank_angle=diameter.cap_flank_angle,
         turns=turns,
     )
-    thread = thread.up(H / 2 + wall + 2)  # BOSL2 anchor=BOTTOM, then up(wall+2)
+    thread = thread.up(thread_height / 2 + wall + 2)  # BOSL2 anchor=BOTTOM, then up(wall+2)
     cap = (shell | thread).rotate([0, 0, 45])
     return Bosl2Solid(cap.shape, size=[w, w, height])
 

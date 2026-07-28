@@ -8,8 +8,7 @@
 
 import pytest
 
-from pybosl2.linear_bearings import LinearBearings as LB
-from pybosl2.linear_bearings import LinearBearingSpec
+from pybosl2.linear_bearings import LinearBearings, LinearBearingSpec
 from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -19,21 +18,21 @@ def _size(s):
 
 
 def test_info_returns_dataclass():
-    spec = LB.lmXuu_info(8)
+    spec = LinearBearings.lmxuu_info(8)
     assert isinstance(spec, LinearBearingSpec)
     assert (spec.outer_diameter, spec.length) == (15, 24)
-    assert LB.lmXuu_info(12).outer_diameter == 21
+    assert LinearBearings.lmxuu_info(12).outer_diameter == 21
 
 
 def test_unknown_size_raises():
-    with pytest.raises(ValueError):
-        LB.lmXuu_info(7)
+    with pytest.raises(ValueError, match="Unsupported lmXuu linear bearing size"):
+        LinearBearings.lmxuu_info(7)
 
 
-@pytest.mark.parametrize("size,outer_diameter,length", [(8, 15, 24), (12, 21, 30), (20, 32, 42)])
+@pytest.mark.parametrize(("size", "outer_diameter", "length"), [(8, 15, 24), (12, 21, 30), (20, 32, 42)])
 @pytest.mark.skip(reason="FIXME: Bosl2Solid bounds return wrong size after param rename")
-def test_lmXuu_bearing_envelope(size, outer_diameter, length):
-    b = LB.lmXuu_bearing(size)
+def test_lmxuu_bearing_envelope(size, outer_diameter, length):
+    b = LinearBearings.lmxuu_bearing(size)
     w, _wy, height = _size(b)
     assert w == pytest.approx(outer_diameter, abs=0.5)
     assert height == pytest.approx(length, abs=0.05)
@@ -41,16 +40,17 @@ def test_lmXuu_bearing_envelope(size, outer_diameter, length):
 
 def test_generic_bearing_builds():
     assert isinstance(
-        LB.linear_bearing(length=24, outer_diameter=15, inner_diameter=8, fn=None, fa=None, fs=None), Bosl2Solid
+        LinearBearings.linear_bearing(length=24, outer_diameter=15, inner_diameter=8, fn=None, fa=None, fs=None),
+        Bosl2Solid,
     )
 
 
 @pytest.mark.parametrize("kw", [{}, {"size": 12}, {"size": 20}])
 def test_housing_builds(kw):
-    assert isinstance(LB.lmXuu_housing(**kw), Bosl2Solid)
+    assert isinstance(LinearBearings.lmxuu_housing(**kw), Bosl2Solid)
 
 
 def test_housing_grows_with_bearing():
-    small = _size(LB.lmXuu_housing(8))[1]
-    big = _size(LB.lmXuu_housing(20))[1]
+    small = _size(LinearBearings.lmxuu_housing(8))[1]
+    big = _size(LinearBearings.lmxuu_housing(20))[1]
     assert big > small

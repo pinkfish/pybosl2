@@ -403,17 +403,17 @@ class Path(Distributable, Extrudable, Roundable, list):
     #
     # A Path is backend-neutral -- it is just points -- but 2-D *geometry* is not: only the CSG
     # backend has a 2-D shape (Bosl2Shape2D). The SDF backend models a field over 3-space and
-    # has no 2-D object to hand back, so these four raise UnsupportedByBackend under it rather
+    # has no 2-D object to hand back, so these four raise UnsupportedByBackendError under it rather
     # than quietly building CSG geometry that could not then be combined with SDF solids.
     # The extruders below, which end in a 3-D solid, DO work on both.
 
     def _require_csg(self, feature: str) -> None:
         from pybosl2._backend import current_backend
-        from pybosl2.exceptions import UnsupportedByBackend
+        from pybosl2.exceptions import UnsupportedByBackendError
 
         backend = current_backend()
         if backend != "csg":
-            raise UnsupportedByBackend(
+            raise UnsupportedByBackendError(
                 feature,
                 backend,
                 hint="2-D geometry is a csg-backend notion; the sdf backend goes straight from "
@@ -430,7 +430,7 @@ class Path(Distributable, Extrudable, Roundable, list):
             (``.linear_extrude(...)``).
 
         Raises:
-            ~pybosl2.exceptions.UnsupportedByBackend: under ``use_backend("sdf")`` -- see the note
+            ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` -- see the note
             above :meth:`linear_extrude`, which works on both backends.
         """
         from pythonscad import polygon as _polygon
@@ -493,7 +493,7 @@ class Path(Distributable, Extrudable, Roundable, list):
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
 
         Raises:
-            ~pybosl2.exceptions.UnsupportedByBackend: under ``use_backend("sdf")`` -- the SDF
+            ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` -- the SDF
             backend has no revolve; sweep the profile instead
             (:func:`pybosl2._sdf.shapes3d.path_sweep`).
         """
@@ -1152,7 +1152,7 @@ class Path(Distributable, Extrudable, Roundable, list):
                 t = (dists[dind] - dtotal) / dpartial
                 nextpoint = [lerp(lastpt, Path._select(path, pind), t), pind]
             else:
-                nextpoint = Path._path_cut_single(path, dists[dind] - dtotal - dpartial, closed, pind)  # type: ignore[arg-type]
+                nextpoint = Path._path_cut_single(path, dists[dind] - dtotal - dpartial, closed, pind)
             result.append(nextpoint)
             dtotal = dists[dind]  # type: ignore[assignment]
             pind = nextpoint[1]
@@ -1186,9 +1186,11 @@ class Path(Distributable, Extrudable, Roundable, list):
                 start = max(min(cuts[i][1], len(path) - 1), 2)
                 plane = Path._path_plane(path, start, start - 2, closed)
             if plane is None:
-                out.append([1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else unit([-dirs[i][1], dirs[i][0], 0]))
+                out.append(
+                    [1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else list(unit([-dirs[i][1], dirs[i][0], 0]))
+                )
             else:
-                out.append(unit(cross(dirs[i], cross(plane[0], plane[1]))))
+                out.append(list(unit(cross(dirs[i], cross(plane[0], plane[1])))))
         return out
 
     @staticmethod
@@ -1438,11 +1440,14 @@ class Path(Distributable, Extrudable, Roundable, list):
         assert (radius is None) != (delta is None), (
             f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}"
         )
-        assert closed, "offset() only supports closed polygons"
+        assert closed, "Open paths are not supported by _offset()"
         pts = np.asarray(path, dtype=float)
-        assert len(pts) >= 3, f"offset() needs at least 3 points, got {len(pts)}"
-
-        amount = float(radius if radius is not None else delta)  # type: ignore[arg-type]
+        if radius is not None:
+            amount = float(radius)
+        elif delta is not None:
+            amount = float(delta)
+        else:
+            raise AssertionError("offset() needs exactly one of radius= or delta=")
         use_round = radius is not None
         if amount == 0:
             return [[float(x), float(y)] for x, y in pts]

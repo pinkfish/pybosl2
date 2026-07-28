@@ -38,7 +38,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Sequence, Union
+from typing import Any, Sequence, Union
 
 import numpy as np
 
@@ -190,7 +190,7 @@ def path_sweep(
     closed: bool = False,
     twist: float = 0.0,
     twist_by_length: bool = True,
-    scale: tuple[float, float] = (1.0, 1.0),
+    scale: Any = (1.0, 1.0),
     scale_by_length: bool = True,
     symmetry: int = 1,
     last_normal: Sequence[float] | None = None,
@@ -221,8 +221,8 @@ def path_sweep(
 
     caps = _norm_caps(caps, closed=closed)  # a closed loop has no ends to cap
     patharr = np.asarray(path3d(path), dtype=float)
-    L = len(patharr)
-    assert L >= 2, "path must have at least 2 points."
+    npts = len(patharr)
+    assert npts >= 2, "path must have at least 2 points."
 
     if tangent is not None:
         tangents = np.array([_u(t) for t in path3d(tangent)])
@@ -237,40 +237,42 @@ def path_sweep(
             normal_single = normals[0]
         else:
             normal_single = _u_nd(narr)
-            normals = np.tile(normal_single, (L, 1))
+            normals = np.tile(normal_single, (npts, 1))
     else:
         normal_single = np.asarray(
             (BACK if (method == "incremental" and abs(tangents[0][2]) > 1 / math.sqrt(2)) else UP),
             dtype=float,
         )
-        normals = np.tile(normal_single, (L, 1))
+        normals = np.tile(normal_single, (npts, 1))
 
     if twist_by_length:
         tpathfrac = np.asarray(Path._path_length_fractions(patharr, closed), dtype=float)
     else:
-        tpathfrac = np.array([i / (L - (0 if closed else 1)) for i in range(L + 1)])
+        tpathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
     if scale_by_length:
         spathfrac = np.asarray(Path._path_length_fractions(patharr, closed), dtype=float)
     else:
-        spathfrac = np.array([i / (L - (0 if closed else 1)) for i in range(L + 1)])
+        spathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
 
     # Resolve the per-cross-section scale [sx, sy].
-    if np.isscalar(scale) or (np.ndim(scale) == 1 and len(scale) == 2):
-        s = [float(scale), float(scale)] if np.isscalar(scale) else [float(scale[0]), float(scale[1])]  # type: ignore[arg-type]
+    if isinstance(scale, (int, float)) or (np.ndim(scale) == 1 and len(scale) == 2):
+        s = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]  # type: ignore[index]
         if not scale_by_length:
             scalevals = [
-                [float(v) for v in ((1 - i / (L - 1)) * np.array([1.0, 1.0]) + (i / (L - 1)) * np.array(s))]
-                for i in range(L)
+                [float(v) for v in ((1 - i / (npts - 1)) * np.array([1.0, 1.0]) + (i / (npts - 1)) * np.array(s))]
+                for i in range(npts)
             ]
         else:
-            scalevals = [[float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))] for f in spathfrac[:L]]  # type: ignore[arg-type]
+            scalevals = [
+                [float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))] for f in spathfrac[:npts]
+            ]
     else:
-        scalevals = [[float(x), float(x)] if np.isscalar(x) else [float(x[0]), float(x[1])] for x in scale]  # type: ignore[arg-type]
+        scalevals = [[float(x), float(x)] if isinstance(x, (int, float)) else [float(x[0]), float(x[1])] for x in scale]  # type: ignore[index]
     scale_list = [_scale4([sv[0], sv[1], 1.0]) for sv in scalevals]
     if closed:
         scale_list.append(_scale4([scalevals[0][0], scalevals[0][1], 1.0]))
 
-    nprofiles = L + (1 if closed else 0)
+    nprofiles = npts + (1 if closed else 0)
 
     if method == "incremental":
         t0 = tangents[0]
@@ -280,14 +282,14 @@ def path_sweep(
         for i in range(nprofiles):
             rotations.append(cur)
             if i < nprofiles - 1:
-                v1 = patharr[(i + 1) % L] - patharr[i % L]
+                v1 = patharr[(i + 1) % npts] - patharr[i % npts]
                 c1 = float(v1 @ v1)
-                rL = radius - 2 * (v1 @ radius) / c1 * v1
-                tL = tangents[i % L] - 2 * (v1 @ tangents[i % L]) / c1 * v1
-                v2 = tangents[(i + 1) % L] - tL
+                refl_r = radius - 2 * (v1 @ radius) / c1 * v1
+                refl_t = tangents[i % npts] - 2 * (v1 @ tangents[i % npts]) / c1 * v1
+                v2 = tangents[(i + 1) % npts] - refl_t
                 c2 = float(v2 @ v2)
-                radius = rL - (2 / c2) * (v2 @ rL) * v2
-                cur = frame_map(y=radius, z=tangents[(i + 1) % L])
+                radius = refl_r - (2 / c2) * (v2 @ refl_r) * v2
+                cur = frame_map(y=radius, z=tangents[(i + 1) % npts])
         if closed:
             reference = rotations[0]
         elif last_normal is None:
@@ -299,7 +301,9 @@ def path_sweep(
         mismatch = rotations[-1][:3, :3].T @ reference[:3, :3]
         correction_twist = math.degrees(math.atan2(mismatch[1][0], mismatch[0][0]))
         twistfix = correction_twist % (360 / symmetry)
-        unscaled = [translate4(patharr[i]) @ rotations[i] @ zrot4((twistfix - twist) * tpathfrac[i]) for i in range(L)]
+        unscaled = [
+            translate4(patharr[i]) @ rotations[i] @ zrot4((twistfix - twist) * tpathfrac[i]) for i in range(npts)
+        ]
         if closed:
             unscaled.append(
                 translate4(patharr[0])
@@ -309,17 +313,19 @@ def path_sweep(
     elif method == "manual":
         unscaled = []
         for i in range(nprofiles):
-            ni, ti = normals[i % L], tangents[i % L]
+            ni, ti = normals[i % npts], tangents[i % npts]
             if relaxed:
                 ynormal, znormal = ni, ti - (ni @ ti) * ni
             else:
                 ynormal, znormal = ni - (ni @ ti) * ti, ti
-            unscaled.append(translate4(patharr[i % L]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i]))
+            unscaled.append(
+                translate4(patharr[i % npts]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i])
+            )
     elif method == "natural":
         pathnormal = np.asarray(Path._path_normals(patharr, tangents, closed), dtype=float)
         unscaled = [
-            translate4(patharr[i % L])
-            @ frame_map(x=pathnormal[i % L], z=tangents[i % L])
+            translate4(patharr[i % npts])
+            @ frame_map(x=pathnormal[i % npts], z=tangents[i % npts])
             @ zrot4(-twist * tpathfrac[i])
             for i in range(nprofiles)
         ]
@@ -355,7 +361,9 @@ def _reindex_polygon(reference: Sequence[Sequence[float]], poly: Sequence[Sequen
     return np.roll(p, -best_k, axis=0).tolist()
 
 
-def slice_profiles(profiles: Sequence[Sequence[float]], slices: int, closed: bool = False) -> list[list[float]]:
+def slice_profiles(
+    profiles: Sequence[Sequence[Sequence[float]]], slices: int, closed: bool = False
+) -> list[list[list[float]]]:
     """Interpolate *slices* extra profiles between each consecutive pair (BOSL2 slice_profiles()).
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
@@ -639,12 +647,12 @@ def spiral_sweep(
 
 
 def subdivide_and_slice(
-    profiles: Sequence[Sequence[float]],
+    profiles: Sequence[Sequence[Sequence[float]]],
     slices: int,
     numpoints=None,
     method: str = "length",
     closed: bool = False,
-) -> list[list[float]]:
+) -> list[list[list[float]]]:
     """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
@@ -1139,7 +1147,7 @@ def _rounded_prism(
         from pybosl2.rounding import _round_corners as _rc
 
         m_sides = "smooth" if k_sides is not None else "circle"
-        kwargs_sides = {"method": m_sides}
+        kwargs_sides: dict[str, Any] = {"method": m_sides}
         if m_sides == "smooth":
             kwargs_sides["joint"] = joint_sides
             kwargs_sides["curvature"] = k_sides

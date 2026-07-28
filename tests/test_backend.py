@@ -10,7 +10,7 @@
 import pytest
 
 from pybosl2 import _backend
-from pybosl2.exceptions import Bosl2Error, CrossBackendError, UnsupportedByBackend
+from pybosl2.exceptions import Bosl2Error, CrossBackendError, UnsupportedByBackendError
 
 
 def test_default_backend_is_csg():
@@ -55,14 +55,18 @@ def test_bosl2solid_is_csg_backend_and_conforms_to_solid_protocol():
 
 
 def test_unsupported_by_backend_message_and_fields():
-    err = UnsupportedByBackend("attach", "sdf", hint="use the csg backend for attachment")
-    assert err.feature == "attach" and err.backend == "sdf"
-    assert "attach" in str(err) and "sdf" in str(err) and "csg backend for attachment" in str(err)
+    err = UnsupportedByBackendError("attach", "sdf", hint="use the csg backend for attachment")
+    assert err.feature == "attach"
+    assert err.backend == "sdf"
+    assert "attach" in str(err)
+    assert "sdf" in str(err)
+    assert "csg backend for attachment" in str(err)
 
 
 def test_cross_backend_error_gives_conversion_guidance():
     err = CrossBackendError("csg", "sdf")
-    assert err.left == "csg" and err.right == "sdf"
+    assert err.left == "csg"
+    assert err.right == "sdf"
     msg = str(err)
     assert "to_csg" in msg  # points at the supported SDF->CSG bridge
     assert isinstance(err, Bosl2Error)

@@ -37,10 +37,10 @@ def test_parse_number_and_dict():
 
 
 @pytest.mark.parametrize(
-    "thread,expected",
+    ("thread", "expected"),
     [("coarse", 1.5), ("fine", 1.25), ("extra fine", 1.0), ("super fine", 0.75)],
 )
-def test_pitch_classes_M10(thread, expected):
+def test_pitch_classes_m10(thread, expected):
     assert _lookup_pitch(10, thread) == expected
 
 
@@ -50,7 +50,7 @@ def test_pitch_falls_back_to_coarse_when_class_missing():
 
 
 def test_unknown_size_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unknown metric screw size"):
         _lookup_pitch(6.5, "coarse")
 
 
@@ -109,12 +109,12 @@ def test_head_table_nearest_size_fallback():
 
 
 def test_unknown_thread_size_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unknown metric screw size"):
         Screws.screw_info(6.1, head="socket")
 
 
 def test_unknown_head_raises():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unknown head type"):
         Screws.screw_info("M6", head="wingnut")
 
 
@@ -165,7 +165,7 @@ def test_nut_thickness_classes_build():
         assert isinstance(Screws.nut("M6", thickness=t, fn=8), Bosl2Solid)
 
 
-@pytest.mark.parametrize("head,counterbore", [("none", 0), ("socket", 4), ("flat", 0), ("hex", 3)])
+@pytest.mark.parametrize(("head", "counterbore"), [("none", 0), ("socket", 4), ("flat", 0), ("hex", 3)])
 def test_screw_hole_builds(head, counterbore):
     assert isinstance(
         Screws.screw_hole("M6", 20, head=head, counterbore=counterbore, fn=8),

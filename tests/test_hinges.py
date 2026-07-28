@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2.hinges import Hinges as H
+from pybosl2.hinges import Hinges
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 
@@ -18,7 +18,7 @@ def _size(s):
 
 
 def test_living_hinge_mask_and_plate():
-    mask = H.living_hinge_mask(length=100, thick=3, foldangle=60)
+    mask = Hinges.living_hinge_mask(length=100, thick=3, foldangle=60)
     assert isinstance(mask, Bosl2Solid)
     assert _size(mask)[0] == pytest.approx(100, abs=0.1)  # spans the plate length
     plate = cuboid([100, 40, 3]) - mask.down(1.5)
@@ -27,24 +27,24 @@ def test_living_hinge_mask_and_plate():
 
 def test_sharper_fold_needs_wider_groove():
     # foldangle is the interior angle: a sharper fold (smaller angle) needs a wider V-groove
-    sharp = _size(H.living_hinge_mask(length=100, thick=3, foldangle=30))[1]
-    shallow = _size(H.living_hinge_mask(length=100, thick=3, foldangle=120))[1]
+    sharp = _size(Hinges.living_hinge_mask(length=100, thick=3, foldangle=30))[1]
+    shallow = _size(Hinges.living_hinge_mask(length=100, thick=3, foldangle=120))[1]
     assert sharp > shallow
 
 
 @pytest.mark.parametrize("inner", [False, True])
 def test_knuckle_leaf_builds(inner):
-    assert isinstance(H.knuckle_hinge(inner=inner), Bosl2Solid)
+    assert isinstance(Hinges.knuckle_hinge(inner=inner), Bosl2Solid)
 
 
 def test_knuckle_pair_folds_about_the_pin():
-    flat = _size(H.knuckle_hinge_pair(fold=0))
-    folded = _size(H.knuckle_hinge_pair(fold=90))
+    flat = _size(Hinges.knuckle_hinge_pair(fold=0))
+    folded = _size(Hinges.knuckle_hinge_pair(fold=90))
     # laid flat the leaves spread in Y and the hinge is thin; folded 90 it stands up in Z
     assert flat[1] > flat[2]
     assert folded[2] > flat[2]
 
 
 def test_snap_lock_and_socket_build():
-    assert isinstance(H.snap_lock(), Bosl2Solid)
-    assert isinstance(H.snap_socket(), Bosl2Solid)
+    assert isinstance(Hinges.snap_lock(), Bosl2Solid)
+    assert isinstance(Hinges.snap_socket(), Bosl2Solid)
