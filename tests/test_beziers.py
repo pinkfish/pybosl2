@@ -247,9 +247,9 @@ def test_bezier_sweep_valid():
     assert _valid(v)
 
 
-def test_bezpath_sweep_valid():
+def test_sweep_valid():
     bp = Bezier([[0, 0, 0], [10, 0, 0], [10, 10, 0], [10, 10, 10]])
-    v = bp.bezpath_sweep(CIRCLE, splinesteps=6, n_degree=3)
+    v = bp.sweep(CIRCLE, splinesteps=6, n_degree=3)
     assert isinstance(v, VNF)
     assert _valid(v)
 

@@ -29,7 +29,7 @@ VNF port (pybosl2/vnf.py) and a sweep port (pybosl2/skin.py):
     vnf_degenerate (bezier_vnf_degenerate_patch), sheet (bezier_sheet),
     and debug (debug_bezier_patches)
   * sweeping a shape along a bezier/bezier-path: Bezier.sweep (bezier_sweep)
-    and Bezier.bezpath_sweep, plus Bezier.debug (debug_bezier)
+    and Bezier.sweep, plus Bezier.debug (debug_bezier)
 
 The only piece still skipped is path_to_bezcornerpath() -- an internal,
 undocumented helper needing circle_2tangents/vector_angle.
@@ -522,13 +522,13 @@ class Bezier:
         """
         return create_bezier(path, closed=closed, tangents=tangents, uniform=uniform, size=size, relsize=relsize)
 
-    # -- sweeping (BOSL2 bezier_sweep / bezpath_sweep) -------------------------------------
+    # -- sweeping (BOSL2 bezier_sweep / sweep) -------------------------------------
 
     def sweep(
         self,
         shape: np.ndarray,
         splinesteps: int = 16,
-        n_degree: int = 3,
+        n_degree: int | None = None,
         method: str = "incremental",
         endpoint: bool = True,
         normal: np.ndarray | None = None,
@@ -538,23 +538,24 @@ class Bezier:
         scale: float = 1.0,
         scale_by_length: bool = True,
         symmetry: int = 1,
-        last_normal=None,
-        caps=None,
+        last_normal: Sequence[float] | None = None,
+        caps: bool | Sequence[bool] | None = None,
         style: str = "min_edge",
         transforms: bool = False,
     ) -> VNF:
-        """Sweep the 2-D *shape* along this bezier CURVE into a VNF (BOSL2 bezier_sweep).
+        """Sweep the 2-D *shape* along this bezier curve or path into a VNF.
 
-        Uses the curve's exact derivatives as tangents, which yields better
-        end joints than :func:`~pybosl2.skin._path_sweep`'s finite-difference
-        approximation. The *n_degree* parameter is accepted for signature
-        parity with :meth:`bezpath_sweep` but is not used.
+        If *n_degree* is given and ``len(self) % n_degree == 1`` this
+        treats the bezier as a degree-*N* path, sampling each segment
+        separately. Otherwise the bezier is treated as a single curve.
+        All other parameters are passed through to
+        :func:`~pybosl2.skin._path_sweep`.
 
         Args:
-            shape: 2-D shape as a list of points to sweep along the curve.
-            splinesteps: Number of uniform segments to sample along the curve.
-            n_degree: Accepted for signature parity with :meth:`bezpath_sweep` but not used.
-            method: Sweep method, passed to :func:`~pybosl2.skin._path_sweep`.
+            shape: 2-D shape as a list of points to sweep.
+            splinesteps: Number of uniform segments per curve or curve-segment.
+            n_degree: Curve degree for path mode; ``None`` uses curve mode.
+            method: Sweep method.
             endpoint: If True, include the endpoint at u=1.
             normal: Optional normal vector for the sweep.
             closed: Whether the swept shape should be closed (a tube).
@@ -565,113 +566,49 @@ class Bezier:
             symmetry: Rotational symmetry count of the shape.
             last_normal: Last normal vector for closed sweeps.
             caps: Whether to add end caps.
-            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
+            style: VNF triangulation style.
             transforms: If True, return transformation matrices instead of a mesh.
 
         Examples:
+            Curve mode (single curve sweep):
+
             .. pythonscad-example::
 
                 from math import cos, sin
                 circle = [[2 * cos(t), 2 * sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
                 tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)
                 tube.polyhedron().show()
-        """
 
-        _ = n_degree
-        path = self.curve(splinesteps, endpoint)
-        tang: list[Sequence[float]] = self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint)))  # type: ignore[assignment]
+            Path mode (degree-3 bezier path sweep):
+
+            .. pythonscad-example::
+
+                shape = [[cos(t), sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
+                path = Bezier.flatten([Bezier.begin([0, 0], 0, 20), Bezier.end([50, 0], 180, 20)])
+                path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()
+        """
+        if n_degree is not None and len(self) % n_degree == 1:
+            bezpath = self.array
+            nsegs = (len(bezpath) - 1) // n_degree
+            path = self.path_curve(splinesteps, n_degree, endpoint)
+            tang: list[np.ndarray] = []
+            for seg in range(nsegs):
+                ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
+                tang.extend(ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))  # type: ignore[arg-type]
+        else:
+            path = self.curve(splinesteps, endpoint)  # type: ignore[assignment]
+            tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
+                list(lerpn(0, 1, splinesteps + 1, endpoint))
+            )  # type: ignore[assignment]
         return _path_sweep(
             shape,  # type: ignore[arg-type]
-            path,  # type: ignore[arg-type]
+            np.asarray(path),  # type: ignore[arg-type]
             method=method,
             normal=normal,  # type: ignore[arg-type]
             closed=closed,
             twist=twist,
             twist_by_length=twist_by_length,
             scale=(scale, scale),
-            scale_by_length=scale_by_length,
-            symmetry=symmetry,
-            last_normal=last_normal,
-            tangent=tang,
-            caps=caps,
-            style=style,
-            transforms=transforms,
-        )
-
-    def bezpath_sweep(
-        self,
-        shape,
-        splinesteps: int = 16,
-        n_degree: int = 3,
-        method: str = "incremental",
-        endpoint: bool = True,
-        normal=None,
-        closed: bool = False,
-        twist: float = 0.0,
-        twist_by_length: bool = True,
-        scale=1,
-        scale_by_length: bool = True,
-        symmetry: int = 1,
-        last_normal=None,
-        caps=None,
-        style: str = "min_edge",
-        transforms: bool = False,
-    ) -> VNF:
-        """Sweep the 2-D *shape* along this bezier PATH into a VNF (BOSL2 bezpath_sweep).
-
-        Samples the bezier path uniformly with *splinesteps* segments per
-        curve, computes tangent vectors by evaluating derivatives at each
-        sample, and delegates to :func:`~pybosl2.skin._path_sweep`.
-
-        Args:
-            shape: 2-D shape as a list of points to sweep along the path.
-            splinesteps: Number of uniform segments to sample per curve segment.
-            n_degree: Degree of each curve segment in the bezier path.
-            method: Sweep method, passed to :func:`~pybosl2.skin._path_sweep`.
-            endpoint: If True, include the endpoint at u=1.
-            normal: Optional normal vector for the sweep.
-            closed: Whether the swept shape should be closed (a tube).
-            twist: Total twist angle in degrees applied along the sweep.
-            twist_by_length: If True, twist is scaled by relative arc length.
-            scale: Scale factor or pair of scale factors applied along the sweep.
-            scale_by_length: If True, scale is distributed by relative arc length.
-            symmetry: Rotational symmetry count of the shape.
-            last_normal: Last normal vector for closed sweeps.
-            caps: Whether to add end caps.
-            style: VNF triangulation style, passed to :func:`~pybosl2.vnf.VNF.vertex_array`.
-            transforms: If True, return transformation matrices instead of a mesh.
-
-        Examples:
-            .. pythonscad-example::
-
-                from math import cos, sin
-                shape = [[cos(t), sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
-                path = Bezier.flatten([
-                    Bezier.begin([0, 0, 0], -20, 0.4),
-                    Bezier.end([10, 0, 5], 230, 1),
-                ])
-                path.bezpath_sweep(shape, splinesteps=24).polyhedron().show()
-        """
-
-        path = self.path_curve(splinesteps, n_degree, endpoint)
-        bezpath = self.array
-        segs = (len(bezpath) - 1) // n_degree
-        step = 1 / splinesteps
-        tang: list[np.ndarray] = []
-        for seg in range(segs):
-            ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
-            tang.extend(ctrl.derivative([i * step for i in range(splinesteps)]))
-        if endpoint:
-            tang.append(Bezier(bezpath[(segs - 1) * n_degree : segs * n_degree + 1]).derivative(1.0))
-        return _path_sweep(
-            shape,
-            path,  # type: ignore[arg-type]
-            method=method,
-            normal=normal,
-            closed=closed,
-            twist=twist,
-            twist_by_length=twist_by_length,
-            scale=scale,
             scale_by_length=scale_by_length,
             symmetry=symmetry,
             last_normal=last_normal,
@@ -977,7 +914,7 @@ class BezierPatch:
 
     Ported from beziers.scad's Bezier SURFACE section: bezier_patch_points/_normals/_reverse/
     _flat, is_bezier_patch, and bezier_vnf. NOT ported: bezier_vnf_degenerate_patch (handles
-    collapsed-edge patches), bezier_sheet (offset-shell), and bezier_sweep/bezpath_sweep (need
+    collapsed-edge patches), bezier_sheet (offset-shell), and bezier_sweep/sweep (need
     BOSL2's un-ported path_sweep), plus the debug_* visualization modules.
 
     Args:
