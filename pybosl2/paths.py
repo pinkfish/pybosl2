@@ -1348,21 +1348,8 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         """
         return self.polygon().fill()
 
-    def hull(self, *others: "Bosl2Shape2D") -> "Bosl2Shape2D":
-        """The 2-D convex hull of this path, optionally together with *others* (more paths,
-
-        regions, 2-D shapes or point lists) -- OpenSCAD ``hull()``.
-
-        Args:
-            *others: Additional paths, regions, 2-D shapes or point lists to hull together.
-
-        Returns:
-            A :class:`~pybosl2.shapes2d.Bosl2Shape2D` (csg backend only).
-        """
-        return self.polygon().hull(*others)
-
     @classmethod
-    def convex_hull(cls, *others: "Path | Region") -> "Path":
+    def hull(cls, *others: "Path | Region") -> "Path":
         """The 2-D convex hull of all the given closed paths and regions.
 
         Uses shapely to compute the convex hull of the union of all input
@@ -1379,7 +1366,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         """
         from pybosl2.regions import Region  # local: Region imports Path from here
 
-        region = Region.convex_hull(*others)
+        region = Region.hull(*others)
         if region.paths:
             return region.paths[0]
         return Path([])

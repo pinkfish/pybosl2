@@ -276,58 +276,58 @@ def test_operator_xor_with_path():
 # -- convex_hull ------------------------------------------------------------------------------
 
 
-def test_region_convex_hull_two_squares():
+def test_region_hull_two_squares():
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Region([[40, 0], [70, 0], [70, 30], [40, 30]])
-    result = Region.convex_hull(a, b)
+    result = Region.hull(a, b)
     assert isinstance(result, Region)
     assert len(result) >= 1
 
 
-def test_region_convex_hull_with_path():
+def test_region_hull_with_path():
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path([[40, 0], [70, 0], [70, 50], [40, 50]])
-    result = Region.convex_hull(a, b)
+    result = Region.hull(a, b)
     assert isinstance(result, Region)
 
 
-def test_region_convex_hull_list_arg():
+def test_region_hull_list_arg():
     a = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
     b = Region([[30, 0], [50, 0], [50, 20], [30, 20]])
-    result = Region.convex_hull([a, b])
+    result = Region.hull([a, b])
     assert isinstance(result, Region)
 
 
-def test_region_convex_hull_single():
+def test_region_hull_single():
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    result = Region.convex_hull(a)
+    result = Region.hull(a)
     assert isinstance(result, Region)
 
 
-def test_region_convex_hull_empty():
-    result = Region.convex_hull()
+def test_region_hull_empty():
+    result = Region.hull()
     assert isinstance(result, Region)
     assert len(result) == 0
 
 
-def test_region_convex_hull_raises_on_open_path():
+def test_region_hull_raises_on_open_path():
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path([[40, 0], [70, 0], [70, 30]], closed=False)
     with pytest.raises(ValueError, match="closed"):
-        Region.convex_hull(a, b)
+        Region.hull(a, b)
 
 
-def test_path_convex_hull_two_squares():
+def test_path_hull_two_squares():
     a = Path([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path([[40, 0], [70, 0], [70, 30], [40, 30]])
-    result = Path.convex_hull(a, b)
+    result = Path.hull(a, b)
     assert isinstance(result, Path)
     assert result.closed
 
 
-def test_path_convex_hull_list_arg():
+def test_path_hull_list_arg():
     a = Path([[0, 0], [20, 0], [20, 20], [0, 20]])
     b = Path([[30, 0], [50, 0], [50, 20], [30, 20]])
-    result = Path.convex_hull([a, b])
+    result = Path.hull([a, b])
     assert isinstance(result, Path)
     assert result.closed

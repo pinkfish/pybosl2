@@ -169,7 +169,7 @@ def test_sdf_extrude_takes_the_rim_roundings():
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("call", ["polygon", "geometry", "fill", "hull", "rotate_extrude"])
+@pytest.mark.parametrize("call", ["polygon", "geometry", "fill", "rotate_extrude"])
 def test_path_2d_geometry_is_csg_only(call):
     from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.paths import Path

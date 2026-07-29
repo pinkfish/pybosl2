@@ -29,7 +29,7 @@ if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would b
     from collections.abc import Iterator, Sequence
 
     from pybosl2._backend import Solid
-    from pybosl2.shapes2d import Bosl2Shape2D, Shape2DLike
+    from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
 __all__ = ["Path", "Path3D", "Region"]
@@ -287,19 +287,8 @@ class Region:
         """
         return self.geometry().fill()
 
-    def hull(self, *others: "Shape2DLike") -> "Bosl2Shape2D":
-        """The 2-D convex hull of this region.
-
-        Optionally includes *others* (more regions, paths, 2-D shapes or point lists),
-        equivalent to OpenSCAD ``hull()``.
-
-        Returns:
-            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
-        """
-        return self.geometry().hull(*others)
-
     @classmethod
-    def convex_hull(cls, *others: Region | Path) -> "Region":
+    def hull(cls, *others: Region | Path) -> "Region":
         """The 2-D convex hull of all the given regions and paths.
 
         Uses shapely :func:`~shapely.convex_hull` on the union of all input
