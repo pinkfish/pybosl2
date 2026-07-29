@@ -3197,12 +3197,12 @@ def path_text(
             kern_prefix += kern_list[i]
     textlength = prefix + kern_prefix
 
-    plen = path._path_length()
+    plen = path.path_length()
     assert textlength <= plen, "path_text(): path is too short for the text."
     start = (plen - textlength) / 2.0 if center else 0.0
     dists = [start + c for c in centers]
 
-    pts = path._path_cut_points(dists, direction=True)
+    pts = path.path_cut_points(dists, direction=True)
 
     normal_pv = _path_text_bcast_dir(normal, 3, path, "normal")
     top_pv = _path_text_bcast_dir(top, dim, path, "top")

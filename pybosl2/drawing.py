@@ -720,7 +720,7 @@ def dashed_stroke(
     if closed:
         raw = raw + [raw[0]]
     dpat = list(dashpat) if len(dashpat) % 2 == 0 else list(dashpat) + [0]
-    plen = wrap(raw)._path_length(closed=False)
+    plen = wrap(raw).path_length(closed=False)
     dlen = sum(dpat)
     doff = list(np.cumsum(dpat))
     freps = plen / dlen
@@ -736,12 +736,12 @@ def dashed_stroke(
     cuts = sorted(c for c in cuts)
     if not cuts:
         return [wrap(raw, closed=False)]  # type: ignore[return-value]
-    dashes = wrap(raw)._path_cut(cuts, closed=False)
+    dashes = wrap(raw).path_cut(cuts, closed=False)
     dcnt = len(dashes)
     evens = []
     for i, dash in enumerate(dashes):
         if i % 2 != 0:
             continue
-        if i < dcnt - 1 or wrap(dash)._path_length(closed=False) > mindash:
+        if i < dcnt - 1 or wrap(dash).path_length(closed=False) > mindash:
             evens.append(wrap(dash, closed=False))
     return evens  # type: ignore[return-value]

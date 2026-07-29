@@ -248,11 +248,12 @@ def test_stroke_of_a_2d_path_is_csg_only():
 
 
 def test_sdf_stroke_rejects_a_revolved_endcap():
+    from pybosl2.caps import CapType
     from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.paths import Path3D
 
     spine = Path3D([[0, 0, 0], [0, 0, 20]], closed=False)
     with use_backend("sdf"):
-        assert spine.stroke(width=3, endcaps="round").backend == "sdf"  # sphere caps are shared
+        assert spine.stroke(width=3, endcaps=CapType.ROUND).backend == "sdf"  # sphere caps are shared
         with pytest.raises(UnsupportedByBackendError):
-            spine.stroke(width=3, endcaps="arrow")
+            spine.stroke(width=3, endcaps=CapType.ARROW)

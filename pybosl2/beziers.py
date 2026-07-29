@@ -306,7 +306,7 @@ class Bezier:
         defl = max(float(np.linalg.norm(path[i + 1] - (path[i] + path[i + 2]) / 2)) for i in range(len(path) - 2))
         if defl <= max_deflect:
             dim = path.shape[1] if len(path) > 0 else 2
-            return float((Path3D(path) if dim == 3 else Path(path))._path_length())
+            return float((Path3D(path) if dim == 3 else Path(path)).path_length())
         return float(
             sum(
                 self.arc_length(
@@ -643,7 +643,7 @@ class Bezier:
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
-        return np.stack([pt, pt + Bezier._ctrl_offset(len(pt), angle, radius, phi)])
+        return np.stack([pt, pt + Bezier._ctrloffset(len(pt), angle, radius, phi)])
 
     @staticmethod
     def tang(
@@ -705,9 +705,9 @@ class Bezier:
         assert len(pt) == 3 or (phi1 is None and phi2 is None), "phi1=/phi2= require a 3-D point"
         return np.stack(
             [
-                pt + Bezier._ctrl_offset(len(pt), angle1, radius1, phi1),
+                pt + Bezier._ctrloffset(len(pt), angle1, radius1, phi1),
                 pt,
-                pt + Bezier._ctrl_offset(len(pt), angle2, radius2, phi2),
+                pt + Bezier._ctrloffset(len(pt), angle2, radius2, phi2),
             ]
         )
 
@@ -729,7 +729,7 @@ class Bezier:
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
-        return np.stack([pt + Bezier._ctrl_offset(len(pt), angle, radius, phi), pt])
+        return np.stack([pt + Bezier._ctrloffset(len(pt), angle, radius, phi), pt])
 
     def debug(self, width: float = 1.0, n_degree: int = 3) -> Any:
         """Visualize this bezier PATH as native geometry (BOSL2 debug_bezier).
@@ -797,7 +797,7 @@ class Bezier:
         return radius * np.array([math.cos(th) * math.sin(ph), math.sin(th) * math.sin(ph), math.cos(ph)])
 
     @staticmethod
-    def _ctrl_offset(
+    def _ctrloffset(
         point_dim: int, angle: float | Sequence[float], radius: float | None, phi: float | None
     ) -> np.ndarray:
         if isinstance(angle, (list, tuple, np.ndarray)):
@@ -874,7 +874,7 @@ def create_bezier(
     else:
         dim = patharr.shape[1] if len(patharr) > 0 else 2
         tang = np.asarray(
-            (Path3D(patharr) if dim == 3 else Path(patharr))._path_tangents(closed=closed, uniform=uniform),
+            (Path3D(patharr) if dim == 3 else Path(patharr)).path_tangents(closed=closed, uniform=uniform),
             dtype=float,
         )
     assert min(sizevect) > 0, "Size and relsize must be greater than zero."

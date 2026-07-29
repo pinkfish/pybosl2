@@ -304,7 +304,7 @@ def test_point_in_polygon_static():
 def test_path_length_accepts_3d():
     from pybosl2.paths import Path3D
 
-    assert math.isclose(Path3D([[0, 0, 0], [0, 0, 3], [0, 4, 3]], closed=False)._path_length(), 7.0)
+    assert math.isclose(Path3D([[0, 0, 0], [0, 0, 3], [0, 4, 3]], closed=False).path_length(), 7.0)
 
 
 def test_shapely_backed_path_methods():

@@ -488,7 +488,7 @@ def path_copies(
     pts = [list(map(float, p)) for p in path]
     closed = bool(getattr(path, "closed", False)) if closed is None else closed
     dim = len(pts[0]) if pts else 2
-    length = (Path3D(pts) if dim == 3 else Path(pts))._path_length(closed=closed)
+    length = (Path3D(pts) if dim == 3 else Path(pts)).path_length(closed=closed)
     if dist is not None:
         distances = sorted(float(x) for x in dist)
     elif sp is not None:
@@ -510,7 +510,7 @@ def path_copies(
             distances = [e + length / 2 - center for e in ptlist]
     assert min(distances) >= -1e-9 and max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
     distances = [min(max(dst, 0.0), length) for dst in distances]
-    cutlist = (Path3D(pts) if dim == 3 else Path(pts))._path_cut_points(distances, closed=closed, direction=True)
+    cutlist = (Path3D(pts) if dim == 3 else Path(pts)).path_cut_points(distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2
     mats = []
     for point, _ind, tangent, normal in cutlist:
