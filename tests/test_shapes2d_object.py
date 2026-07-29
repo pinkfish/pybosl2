@@ -417,8 +417,8 @@ def test_path_geometry_is_the_2d_wrapper():
 def test_path_2d_operators():
     path = Path(SQUARE_PTS)
     assert isinstance(path.fill(), Bosl2Shape2D)
-    assert isinstance(path.hull(), Bosl2Shape2D)
-    assert isinstance(path.hull(s2.circle(radius=5)), Bosl2Shape2D)
+    assert isinstance(path.polygon().hull(), Bosl2Shape2D)
+    assert isinstance(path.polygon().hull(s2.circle(radius=5)), Bosl2Shape2D)
 
 
 def test_path_extruders():
@@ -432,7 +432,7 @@ def test_region_geometry_is_the_2d_wrapper():
     region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])
     assert isinstance(region.geometry(), Bosl2Shape2D)
     assert isinstance(region.fill(), Bosl2Shape2D)
-    assert isinstance(region.hull(), Bosl2Shape2D)
+    assert isinstance(region.geometry().hull(), Bosl2Shape2D)
     assert isinstance(region.linear_extrude(height=4), Bosl2Solid)
     assert isinstance(region.translate([30, 0]).rotate_extrude(angle=180), Bosl2Solid)
 

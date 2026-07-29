@@ -126,13 +126,13 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
     if cptype == "flat":
         return Path([[0, 0], [1, 0]])
     if cptype == "sawtooth":
-        return Path([[0, 0], [0.5, 1], [1, 0]])
+        return Path([[0, 0], [0.5, 1], [1, 0]])  # type: ignore[arg-type]
     if cptype == "sinewave":
         return Path([[a / 360, math.sin(math.radians(a)) / 2] for a in range(0, 361, 5)])
     if cptype == "comb":
         dx = 0.5 * math.sin(math.radians(2))
-        return Path(
-            [
+        return Path(  # type: ignore[arg-type]
+            [  # type: ignore[arg-type]
                 [0, 0],
                 [dx, 0.5],
                 [0.5 - dx, 0.5],
@@ -143,8 +143,8 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
         )
     if cptype == "finger":
         dx = 0.5 * math.sin(math.radians(20))
-        return Path(
-            [
+        return Path(  # type: ignore[arg-type]
+            [  # type: ignore[arg-type]
                 [0, 0],
                 [dx, 0.5],
                 [0.5 - dx, 0.5],
@@ -260,7 +260,7 @@ def _ptn_sect(
 
     if is_num(cptype):
         assert cptype > 0, "flat section length must be positive."  # type: ignore[operator]
-        return Path([[0, 0], [float(cptype), 0]])
+        return Path([[0, 0], [float(cptype), 0]])  # type: ignore[arg-type]
     if invert:
         return _yscale(-1, _ptn_sect(cptype, length, width, fn=fn, fa=fa, fs=fs))
 
@@ -316,7 +316,7 @@ def _ptn_sect(
                 return raw
             return Path([[(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]] for p in raw])
         if base == "flat" and opt and opt[0].isdigit() and "x" not in opt and ":" not in opt:
-            return Path([[0, 0], [float(opt), 0]])
+            return Path([[0, 0], [float(opt), 0]])  # type: ignore[arg-type]
         raise AssertionError(f"Bad section option: {opt!r}")
 
     if cptype == "sinewave":
@@ -501,7 +501,7 @@ def _ptn_path_redirect(major_path: Path, minor_path: Path, center: bool = True) 
 
     major2 = _merge_collinear(major_path)
     minor2 = [list(p) for p in minor_path.resample_path(spacing=1, closed=False)]
-    major_len = major2.path_length(closed=False)
+    major_len = major2.total_length(closed=False)
     minor_len = abs(minor_path[-1][0] - minor_path[0][0])
     extend_by = max(0, -(major_len - minor_len))
     e1 = extend_by * (0.5 if center else 0)
@@ -513,7 +513,7 @@ def _ptn_path_redirect(major_path: Path, minor_path: Path, center: bool = True) 
         + [list(p) for p in major2[1:-1]]
         + [list(np.asarray(major2[-1]) + vec2 * e2)]
     )
-    major_len2 = Path(major3).path_length(closed=False)
+    major_len2 = Path(major3).total_length(closed=False)
     xoff = (major_len2 - minor_len) / 2 if center else 0
     minor3 = _left(minor2[0][0] - xoff, minor2)
     out = []

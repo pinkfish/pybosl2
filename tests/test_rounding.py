@@ -191,15 +191,10 @@ def test_offset_stroke_returns_region_or_solid():
     res = Path(p).offset_stroke(width=2)
     assert res is not None
     # Depending on whether shapely is installed, it is either a Region or a Solid (CSG).
-    from pybosl2.regions import _SHAPELY, Region
+    from pybosl2.regions import Region
 
-    if _SHAPELY:
-        assert isinstance(res, Region)
-        # Should have outline and bounds
-        assert len(res.outline) > 0
-    else:
-        # returns native geometry Solid
-        assert hasattr(res, "color")
+    assert isinstance(res, Region)
+    assert len(res.outline) > 0
 
 
 # -- Path instances method tests -----------------------------------------------------------

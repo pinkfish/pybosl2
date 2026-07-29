@@ -3197,7 +3197,7 @@ def path_text(
             kern_prefix += kern_list[i]
     textlength = prefix + kern_prefix
 
-    plen = path.path_length()
+    plen = path.total_length()
     assert textlength <= plen, "path_text(): path is too short for the text."
     start = (plen - textlength) / 2.0 if center else 0.0
     dists = [start + c for c in centers]
