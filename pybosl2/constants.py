@@ -34,65 +34,93 @@ IDENT: list[list[float]] = [
 # ---------------------------------------------------------------------------
 
 
-class Vec3(list[float]):
-    """A 3-element list that supports elementwise +/-/* like a vector.
+class Vector(list[float]):
+    """A 2‑ or 3‑element list that supports elementwise arithmetic.
 
-    Plain Python lists use `+` for concatenation and `*` for repetition, but
-    BOSL2-style code combines direction constants with idioms like
-    `anchor=TOP+LEFT` expecting elementwise vector addition (`[0,0,1]+[-1,0,0]`
-    -> `[-1,0,1]`), not concatenation. Subclassing `list` (rather than using a
-    plain tuple or a numpy array) keeps every other list behavior -- indexing,
-    iteration, equality with plain lists, and crossing the osuse()/PyOpenSCAD
-    FFI boundary -- unchanged. (Duplicated from base_bgtk.py's Vec3 rather than
-    imported, since this package is deliberately independent of base_bgtk.py.)
+    Inherits from ``list[float]`` so it is a drop‑in for ``[x, y]`` or
+    ``[x, y, z]`` lists.  Elementwise ``+``, ``-``, ``*`` replace the
+    default list concatenation/repetition.
+
+    ``len() == 2`` means a 2‑D vector (``is_2d`` is ``True``); ``len() == 3``
+    is a 3‑D vector.  Use :meth:`to_3d` to add a Z coordinate.
+
+    Directional constants (``UP``, ``DOWN``, ``LEFT``, ``RIGHT``, …) are
+    pre‑built ``Vector`` instances.
     """
 
-    def __add__(self, other: list[float]) -> "Vec3":  # type: ignore
-        return Vec3(a + b for a, b in zip(self, other, strict=False))
+    @property
+    def x(self) -> float:
+        return self[0]
 
-    def __radd__(self, other: list[float]) -> "Vec3":
-        return Vec3(a + b for a, b in zip(other, self, strict=False))
+    @property
+    def y(self) -> float:
+        return self[1]
 
-    def __sub__(self, other: list[float]) -> "Vec3":
-        return Vec3(a - b for a, b in zip(self, other, strict=False))
+    @property
+    def z(self) -> float | None:
+        return self[2] if len(self) > 2 else None
 
-    def __rsub__(self, other: list[float]) -> "Vec3":
-        return Vec3(a - b for a, b in zip(other, self, strict=False))
+    @property
+    def is_2d(self) -> bool:
+        """``True`` when this is a 2‑D vector (``len() == 2``)."""
+        return len(self) == 2
 
-    def __neg__(self) -> "Vec3":
-        return Vec3(-a for a in self)
+    def to_3d(self, z: float = 0.0) -> "Vector":
+        """Return a 3‑D copy with the given *z*.
 
-    def __mul__(self, other: float) -> "Vec3":  # type: ignore[override]
-        return Vec3(a * other for a in self)
+        For a 2‑D vector this appends *z*; for a 3‑D vector this returns
+        a copy with *z* replaced (unless *z* already matches).
+        """
+        if len(self) == 2:
+            return Vector([self[0], self[1], z])
+        return Vector([self[0], self[1], z])
+
+    def __add__(self, other: list[float]) -> "Vector":  # type: ignore
+        return Vector(a + b for a, b in zip(self, other, strict=False))
+
+    def __radd__(self, other: list[float]) -> "Vector":
+        return Vector(a + b for a, b in zip(other, self, strict=False))
+
+    def __sub__(self, other: list[float]) -> "Vector":
+        return Vector(a - b for a, b in zip(self, other, strict=False))
+
+    def __rsub__(self, other: list[float]) -> "Vector":
+        return Vector(a - b for a, b in zip(other, self, strict=False))
+
+    def __neg__(self) -> "Vector":
+        return Vector(-a for a in self)
+
+    def __mul__(self, other: float) -> "Vector":  # type: ignore[override]
+        return Vector(a * other for a in self)
 
     __rmul__ = __mul__  # type: ignore[assignment]
 
 
 #: Left align/anchor the object.
-LEFT: Vec3 = Vec3([-1, 0, 0])
+LEFT: Vector = Vector([-1, 0, 0])
 #: Right align/anchor the object.
-RIGHT: Vec3 = Vec3([1, 0, 0])
+RIGHT: Vector = Vector([1, 0, 0])
 
 #: Front align/anchor the object.
-FRONT: Vec3 = Vec3([0, -1, 0])
+FRONT: Vector = Vector([0, -1, 0])
 #: Forward align/anchor the object.
-FORWARD: Vec3 = FRONT
+FORWARD: Vector = FRONT
 
 #: Back align/anchor the object.
-BACK: Vec3 = Vec3([0, 1, 0])
+BACK: Vector = Vector([0, 1, 0])
 
 #: Bottom align/anchor the object.
-BOTTOM: Vec3 = Vec3([0, 0, -1])
+BOTTOM: Vector = Vector([0, 0, -1])
 #: Down align/anchor the object.
-DOWN: Vec3 = BOTTOM
+DOWN: Vector = BOTTOM
 
 #: Top align/anchor the object.
-TOP: Vec3 = Vec3([0, 0, 1])
+TOP: Vector = Vector([0, 0, 1])
 #: Up align/anchor the object.
-UP: Vec3 = TOP
+UP: Vector = TOP
 
 #: Center align/anchor the object.
-CENTER: Vec3 = Vec3([0, 0, 0])
+CENTER: Vector = Vector([0, 0, 0])
 
 # ---------------------------------------------------------------------------
 # Section: Line specifiers

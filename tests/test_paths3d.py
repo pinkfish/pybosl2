@@ -135,9 +135,14 @@ def test_tangents_normals_curvature_torsion_shapes():
 
 
 def test_closest_point():
+    from pybosl2.points import Point
+
     line = Path3D([[0, 0, 0], [0, 0, 10]], closed=False)
-    seg, pt = line.closest_point([1, 0, 5])
-    np.testing.assert_allclose(pt, [0, 0, 5], atol=1e-9)
+    pt = line.closest_point([1, 0, 5])
+    assert isinstance(pt, Point)
+    assert not pt.is_2d
+    assert pt.z is not None
+    np.testing.assert_allclose([pt.x, pt.y, pt.z], [0, 0, 5], atol=1e-9)
 
 
 def test_path2d_drops_z():

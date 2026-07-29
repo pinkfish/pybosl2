@@ -42,6 +42,7 @@ if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this m
 from pybosl2.bounds import Bounds2D, Bounds3D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.comparisons import approx
+from pybosl2.constants import Vector
 from pybosl2.distributors import (
     Distributable,
     _apply4,
@@ -57,6 +58,7 @@ from pybosl2.geometry import (
 )
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 from pybosl2.miscellaneous import Extrudable  # path_extrude / path_extrude2d, as methods
+from pybosl2.points import Point
 from pybosl2.rounding import Roundable  # round_corners / smooth_path, as methods
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import add_scalar, unit
@@ -136,22 +138,28 @@ class PathBase:
 
     # -- Path Geometry ---------------------------------------------------------------------
 
-    def path_closest_point(self, pt: Sequence[float], closed: bool | None = None) -> list:
-        """[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point on it.
+    def path_closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
+        """The closest point on the path to *pt*.
 
         Args:
-            pt: The query point to find the closest approach to.
+            pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list ``[segment_index, [x, y]]`` with the closest segment number and point.
+            A :class:`~pybosl2.points.Point` of the closest point on the path.
         """
+        if isinstance(pt, Point):
+            q = np.array([pt.x, pt.y]) if pt.is_2d else np.array([pt.x, pt.y, pt.z])
+        else:
+            q = np.asarray(pt, dtype=float)
         if closed is None:
             closed = self.closed
-        pts = [line_closest_point(seg, pt) for seg in Path._pair(self._points, closed)]
-        dists = np.linalg.norm(np.asarray(pts, dtype=float) - np.asarray(pt, dtype=float), axis=1)
+        pts = [line_closest_point(seg, q) for seg in Path._pair(self._points, closed)]
+        dists = np.linalg.norm(np.asarray(pts, dtype=float) - q, axis=1)
         min_seg = int(np.argmin(dists))
-        return [min_seg, pts[min_seg]]
+        r = pts[min_seg]
+        dim = self._points.shape[1]
+        return Point(float(r[0]), float(r[1])) if dim == 2 else Point(float(r[0]), float(r[1]), float(r[2]))
 
     def path_tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
         """Normalized tangent vector at each point of the path, as an ndarray.
@@ -843,29 +851,28 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             return True
         return bool(LineString(pts).is_simple)
 
-    def closest_point(self, pt: Sequence[float]) -> list:
-        """The closest path segment to *pt*, and the closest point on it.
+    def closest_point(self, pt: Point | Sequence[float]) -> Point:
+        """The closest point on this path to *pt*.
 
-        Uses shapely projection onto each segment. Returns a
-        ``[segnum, [x, y]]`` pair.
+        Uses shapely projection for accuracy.
 
         Args:
-            pt: The query point as ``[x, y]``.
+            pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y]``.
 
         Returns:
-            A list ``[segment_index, [x, y]]`` with the closest segment number and point.
+            A :class:`~pybosl2.points.Point` of the closest point (with ``z=0``).
 
         Examples:
             .. pythonscad-example::
 
                 pts = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
-                seg, cp = pts.closest_point([90, 30])
+                cp = pts.closest_point([90, 30])
                 (pts.stroke(width=2) + square(size=4, center=True).translate(cp)).linear_extrude(h=4).show()
         """
         from shapely.geometry import LineString
         from shapely.geometry import Point as _Point
 
-        q = _Point(pt[0], pt[1])
+        q = _Point(pt.x, pt.y) if isinstance(pt, Point) else _Point(pt[0], pt[1])
         pairs = list(Path._pair(self._points, self.closed))
         seg = min(
             range(len(pairs)),
@@ -877,16 +884,16 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         )
         ls = LineString(pairs[seg])
         projected = ls.interpolate(ls.project(q))
-        return [seg, [projected.x, projected.y]]
+        return Point(float(projected.x), float(projected.y))
 
-    def tangents(self, uniform: bool = True) -> NDArray[np.float64]:
-        """Unit tangent at each point, as an ndarray.
+    def tangents(self, uniform: bool = True) -> list[Vector]:
+        """Unit tangent at each point, as a list of :class:`Vector` vectors.
 
         Args:
             uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
 
         Returns:
-            An ndarray of unit tangent vectors, one per path point.
+            A list of :class:`Vector` unit tangent vectors, one per path point.
 
         Examples:
             .. pythonscad-example::
@@ -895,16 +902,16 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
                 unit_tangents = pts.tangents()
                 pts.stroke(width=2).linear_extrude(h=4).show()
         """
-        return self.path_tangents(uniform=uniform)
+        return [Vector([float(r[0]), float(r[1])]) for r in self.path_tangents(uniform=uniform)]
 
-    def normals(self, tangents: NDArray[np.float64] | np.ndarray | None = None) -> NDArray[np.float64]:
-        """Unit normal at each point, as an ndarray.
+    def normals(self, tangents: NDArray[np.float64] | np.ndarray | None = None) -> list[Vector]:
+        """Unit normal at each point, as a list of :class:`Vector` vectors.
 
         Args:
             tangents: Optional pre-computed tangent vectors; computed automatically if None.
 
         Returns:
-            An ndarray of unit normal vectors, one per path point.
+            A list of :class:`Vector` unit normal vectors, one per path point.
 
         Examples:
             .. pythonscad-example::
@@ -913,7 +920,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
                 unit_normals = pts.normals()
                 pts.stroke(width=2).linear_extrude(h=4).show()
         """
-        return self.path_normals(tangents=tangents)
+        return [Vector([float(r[0]), float(r[1])]) for r in self.path_normals(tangents=tangents)]
 
     def curvature(self) -> NDArray[np.float64]:
         """Curvature at each point, as an ndarray."""
@@ -1546,6 +1553,151 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         if region.paths:
             return region.paths[0]
         return Path([])
+
+    def union(self, *others: "Path") -> "Path":
+        """The 2-D union of this closed path with *others*.
+
+        Converts all paths to :class:`~shapely.geometry.Polygon` objects,
+        computes the Boolean union, and returns the result as a single
+        closed :class:`Path`. Requires all paths to be closed.
+
+        Args:
+            others: One or more closed :class:`Path` objects to union with.
+
+        Returns:
+            A new closed :class:`Path` of the union outline.
+
+        Raises:
+            ValueError: If any path is not closed or the result is invalid.
+        """
+        from shapely.geometry import Polygon as _Polygon
+        from shapely.ops import unary_union
+
+        if not self.closed:
+            raise ValueError("union() requires a closed path. Close it with .close() first.")
+        polys = [_Polygon([(float(p[0]), float(p[1])) for p in self._points])]
+        for other in others:
+            if not other.closed:
+                raise ValueError("union() requires all paths to be closed.")
+            polys.append(_Polygon([(float(p[0]), float(p[1])) for p in other._points]))
+        result = unary_union(polys)
+        return Path._polygon_to_path(result)
+
+    def intersection(self, *others: "Path") -> "Path":
+        """The 2-D intersection of this closed path with *others*.
+
+        Converts all paths to :class:`~shapely.geometry.Polygon` objects,
+        computes the Boolean intersection, and returns the common area as
+        a single closed :class:`Path`.
+
+        Args:
+            others: One or more closed :class:`Path` objects to intersect with.
+
+        Returns:
+            A new closed :class:`Path` of the intersection outline, or an
+            empty :class:`Path` if the result is empty.
+
+        Raises:
+            ValueError: If any path is not closed.
+        """
+        from shapely.geometry import Polygon as _Polygon
+
+        if not self.closed:
+            raise ValueError("intersection() requires a closed path. Close it with .close() first.")
+        a = _Polygon([(float(p[0]), float(p[1])) for p in self._points])
+        for other in others:
+            if not other.closed:
+                raise ValueError("intersection() requires all paths to be closed.")
+            a = a.intersection(_Polygon([(float(p[0]), float(p[1])) for p in other._points]))
+        return Path._polygon_to_path(a)
+
+    def difference(self, other: "Path") -> "Path":
+        """The 2-D difference: *self* minus *other*.
+
+        Subtracts *other* from this path using shapely Boolean difference.
+        Requires both paths to be closed.
+
+        Args:
+            other: A closed :class:`Path` to subtract from this one.
+
+        Returns:
+            A new closed :class:`Path` of the difference outline.
+
+        Raises:
+            ValueError: If either path is not closed or the result is invalid.
+        """
+        from shapely.geometry import Polygon as _Polygon
+
+        if not self.closed:
+            raise ValueError("difference() requires a closed path. Close it with .close() first.")
+        if not other.closed:
+            raise ValueError("difference() requires 'other' to be closed.")
+        a = _Polygon([(float(p[0]), float(p[1])) for p in self._points])
+        b = _Polygon([(float(p[0]), float(p[1])) for p in other._points])
+        return Path._polygon_to_path(a.difference(b))
+
+    def symmetric_difference(self, other: "Path") -> "Path":
+        """The 2-D symmetric difference (XOR) of this path and *other*.
+
+        Returns the area in either path but not both. Requires both paths
+        to be closed.
+
+        Args:
+            other: A closed :class:`Path` to XOR with.
+
+        Returns:
+            A new closed :class:`Path` of the XOR outline.
+
+        Raises:
+            ValueError: If either path is not closed.
+        """
+        from shapely.geometry import Polygon as _Polygon
+
+        if not self.closed:
+            raise ValueError("symmetric_difference() requires a closed path. Close it with .close() first.")
+        if not other.closed:
+            raise ValueError("symmetric_difference() requires 'other' to be closed.")
+        a = _Polygon([(float(p[0]), float(p[1])) for p in self._points])
+        b = _Polygon([(float(p[0]), float(p[1])) for p in other._points])
+        return Path._polygon_to_path(a.symmetric_difference(b))
+
+    def __or__(self, other: "Path") -> "Path":
+        """``a | b``  →  ``a.union(b)``."""
+        return self.union(other)
+
+    def __and__(self, other: "Path") -> "Path":
+        """``a & b``  →  ``a.intersection(b)``."""
+        return self.intersection(other)
+
+    def __sub__(self, other: "Path") -> "Path":
+        """``a - b``  →  ``a.difference(b)``."""
+        return self.difference(other)
+
+    def __xor__(self, other: "Path") -> "Path":
+        """``a ^ b``  →  ``a.symmetric_difference(b)``."""
+        return self.symmetric_difference(other)
+
+    @staticmethod
+    def _polygon_to_path(result) -> "Path":
+        """Convert a shapely polygon result to a closed :class:`Path`.
+
+        Raises:
+            ValueError: If the result is empty, invalid, or a GeometryCollection.
+        """
+        from shapely.geometry import GeometryCollection
+        from shapely.geometry import Polygon as _Polygon
+
+        if result.is_empty:
+            return Path([], closed=True)
+        if isinstance(result, GeometryCollection) or result.geom_type not in ("Polygon", "MultiPolygon"):
+            raise ValueError(f"Boolean operation produced an invalid result: {result.geom_type}")
+        if isinstance(result, _Polygon):
+            coords = list(result.exterior.coords)[:-1]
+            return Path([[float(x), float(y)] for x, y in coords], closed=True)
+        # MultiPolygon: take the largest polygon
+        largest = max(result.geoms, key=lambda g: g.area)
+        coords = list(largest.exterior.coords)[:-1]
+        return Path([[float(x), float(y)] for x, y in coords], closed=True)
 
     # -- 2-D -> 3-D (both backends) --------------------------------------------------------
 
@@ -2572,14 +2724,14 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         """True if the first and last points of the path coincide."""
         return bool(Path._is_closed_path(self._points))
 
-    def closest_point(self, pt: Sequence[float]) -> list:
-        """[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point on it.
+    def closest_point(self, pt: Point | Sequence[float]) -> Point:
+        """The closest point on this 3‑D path to *pt*.
 
         Args:
-            pt: The query point to find the closest approach to.
+            pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
 
         Returns:
-            A list ``[segment_index, [x, y, z]]`` with the closest segment number and point.
+            A :class:`~pybosl2.points.Point` of the closest point on the path.
         """
         return self.path_closest_point(pt)
 

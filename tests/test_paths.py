@@ -96,9 +96,13 @@ def test_is_simple():
 
 
 def test_closest_point():
-    seg, pt = Path(SQUARE).closest_point([40, -5])
-    assert seg == 0
-    np.testing.assert_allclose(pt, [40, 0], atol=1e-9)
+    from pybosl2.points import Point
+
+    pt = Path(SQUARE).closest_point([40, -5])
+    assert isinstance(pt, Point)
+    assert pt.is_2d
+    assert pt.z is None
+    np.testing.assert_allclose([pt.x, pt.y], [40, 0], atol=1e-9)
 
 
 # -- tangents / normals / curvature -------------------------------------------------------
@@ -407,3 +411,90 @@ def test_minkowski_sum_circle_requires_closed():
     open_path = Path([[0, 0], [20, 0], [20, 10]], closed=False)
     with pytest.raises(ValueError, match="closed"):
         open_path.minkowski_sum_circle(radius=5)
+
+
+# -- Boolean operations on Path ----------------------------------------------------------------
+
+
+def test_union_two_squares():
+    a = Path([[0, 0], [30, 0], [30, 30], [0, 30]])
+    b = Path([[20, 0], [50, 0], [50, 30], [20, 30]])
+    result = a.union(b)
+    assert result.closed
+    assert len(result) >= 4
+    assert result.area() > 900  # larger than either square alone
+
+
+def test_intersection_two_squares():
+    a = Path([[0, 0], [30, 0], [30, 30], [0, 30]])
+    b = Path([[20, 0], [50, 0], [50, 30], [20, 30]])
+    result = a.intersection(b)
+    assert result.closed
+    assert len(result) >= 4
+    assert result.area() == pytest.approx(300.0)  # 10×30 strip
+
+
+def test_difference_square_minus_square():
+    a = Path([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[10, 10], [30, 10], [30, 20], [10, 20]])
+    result = a.difference(b)
+    assert result.closed
+    # Path doesn't support holes; difference returns the outer outline
+    assert result.area() == pytest.approx(1200.0)
+
+
+def test_symmetric_difference_two_squares():
+    a = Path([[0, 0], [30, 0], [30, 30], [0, 30]])
+    b = Path([[20, 0], [50, 0], [50, 30], [20, 30]])
+    result = a.symmetric_difference(b)
+    assert result.closed
+
+
+def test_union_operator():
+    a = Path([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Path([[10, 0], [30, 0], [30, 20], [10, 20]])
+    result = a | b
+    assert result.closed
+    assert len(result) >= 4
+
+
+def test_intersection_operator():
+    a = Path([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Path([[10, 0], [30, 0], [30, 20], [10, 20]])
+    result = a & b
+    assert result.closed
+
+
+def test_difference_operator():
+    a = Path([[0, 0], [30, 0], [30, 30], [0, 30]])
+    b = Path([[10, 10], [20, 10], [20, 20], [10, 20]])
+    result = a - b
+    assert result.closed
+
+
+def test_xor_operator():
+    a = Path([[0, 0], [30, 0], [30, 30], [0, 30]])
+    b = Path([[20, 0], [50, 0], [50, 30], [20, 30]])
+    result = a ^ b
+    assert result.closed
+
+
+def test_union_requires_closed():
+    a = Path([[0, 0], [20, 0], [20, 10], [0, 10]])
+    b = Path([[10, 0], [30, 0], [30, 10]], closed=False)
+    with pytest.raises(ValueError, match="closed"):
+        a.union(b)
+
+
+def test_difference_requires_closed():
+    a = Path([[0, 0], [20, 0], [20, 10]], closed=False)
+    b = Path([[5, 0], [15, 0], [15, 10], [5, 10]])
+    with pytest.raises(ValueError, match="closed"):
+        a.difference(b)
+
+
+def test_intersection_empty_returns_empty():
+    a = Path([[0, 0], [10, 0], [10, 10], [0, 10]])
+    b = Path([[50, 0], [60, 0], [60, 10], [50, 10]])
+    result = a.intersection(b)
+    assert len(result) == 0

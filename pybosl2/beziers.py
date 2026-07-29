@@ -48,7 +48,7 @@ from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
     from pybosl2.caps import CapsSpec, CapType
-    from pybosl2.constants import Vec3
+    from pybosl2.constants import Vector
     from pybosl2.paths import Path, Path3D
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -610,14 +610,14 @@ class Bezier:
         n_degree: int | None = None,
         method: str = "incremental",
         endpoint: bool = True,
-        normal: Vec3 | None = None,
+        normal: Vector | None = None,
         closed: bool = False,
         twist: float = 0.0,
         twist_by_length: bool = True,
         scale: float = 1.0,
         scale_by_length: bool = True,
         symmetry: int = 1,
-        last_normal: Vec3 | None = None,
+        last_normal: Vector | None = None,
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,

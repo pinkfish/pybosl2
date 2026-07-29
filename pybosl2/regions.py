@@ -331,8 +331,10 @@ class Region:
 
         from pybosl2.paths import Path as _Path
 
-        items = list(others[0]) if len(others) == 1 and isinstance(others[0], (list, tuple)) else list(others)
-        geoms = []
+        items: list[Region | Path] = (
+            list(others[0]) if len(others) == 1 and isinstance(others[0], (list, tuple)) else list(others)
+        )
+        geoms: list[Polygon] = []
         for item in items:
             if isinstance(item, _Path):
                 if not item.closed:

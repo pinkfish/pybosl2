@@ -47,13 +47,13 @@ import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
 from pybosl2.caps import CapsSpec, CapType, _caps_as_bools, _norm_caps
-from pybosl2.constants import Vec3
+from pybosl2.constants import Vector
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
 from pybosl2.vnf import VNF
 
-UP = Vec3([0.0, 0.0, 1.0])
-BACK = Vec3([0.0, 1.0, 0.0])
+UP = Vector([0.0, 0.0, 1.0])
+BACK = Vector([0.0, 1.0, 0.0])
 
 
 class Sweepable:

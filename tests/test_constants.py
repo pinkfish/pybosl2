@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for pybosl2/constants.py: the Vec3 direction constants and their arithmetic."""
+"""Tests for pybosl2/constants.py: the Vector direction constants and their arithmetic."""
 
 from pybosl2.constants import (
     BACK,
@@ -16,7 +16,7 @@ from pybosl2.constants import (
     RIGHT,
     TOP,
     UP,
-    Vec3,
+    Vector,
 )
 
 
@@ -51,8 +51,8 @@ def test_scalar_multiplication():
 
 
 def test_result_is_vec3():
-    assert isinstance(TOP + LEFT, Vec3)
-    assert isinstance(TOP * 2, Vec3)
+    assert isinstance(TOP + LEFT, Vector)
+    assert isinstance(TOP * 2, Vector)
 
 
 def test_is_a_list():
