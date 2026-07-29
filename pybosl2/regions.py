@@ -248,18 +248,45 @@ class Region:
         """
         return Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self.paths])
 
-    def round_corners(self, radius: float | list[float] | None = None, **kwargs: Any) -> "Region":
+    def round_corners(
+        self,
+        radius: float | list[float] | None = None,  # type: ignore[arg-type]
+        method: str = "circle",
+        cut: float | None = None,
+        joint: float | None = None,
+        width: float | None = None,
+        curvature: float | None = None,
+        closed: bool | None = None,
+    ) -> "Region":
         """Round the corners of every path in the region.
 
         Args:
-            radius: The rounding radius. A single float applies to all corners; a list
-                applies per-corner radii.
-            kwargs: Additional arguments forwarded to :meth:`Path.round_corners`.
+            radius: The rounding radius. A single float applies to all corners;
+                a list applies per-corner radii.
+            method: The rounding method (``"circle"``, ``"smooth"``, etc.).
+            cut: Cut depth for chamfers.
+            joint: Joint distance for rounding.
+            width: Width for rounding.
+            curvature: Curvature value for rounding.
+            closed: Override whether paths are treated as closed.
 
         Returns:
             A new :class:`Region` with rounded corners on every path.
         """
-        return Region([p.round_corners(radius=radius, **kwargs) for p in self.paths])  # type: ignore[arg-type]
+        return Region(
+            [
+                p.round_corners(  # type: ignore[arg-type]
+                    radius=radius,  # type: ignore[arg-type]
+                    method=method,
+                    cut=cut,
+                    joint=joint,
+                    width=width,
+                    curvature=curvature,
+                    closed=closed,
+                )
+                for p in self.paths
+            ]
+        )  # type: ignore[arg-type]
 
     def translate(self, v: Sequence[float]) -> "Region":
         """Translate every path in the region by the given vector.
@@ -344,7 +371,17 @@ class Region:
         r._polygon = MultiPolygon([result]) if isinstance(result, Polygon) else result
         return r
 
-    def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
+    def linear_extrude(
+        self,
+        height: float,
+        center: bool = False,
+        twist: float = 0.0,
+        scale: float = 1.0,
+        slices: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Solid":
         """Extrude this region along +Z into a 3-D solid with holes included.
 
         The result depends on the active backend: a :class:`~pybosl2.shapes3d.Bosl2Solid` under
@@ -375,18 +412,38 @@ class Region:
                 hint="the sdf prism unions its outlines' fields, so it cannot cut holes. Extrude "
                 "the outline and subtract the holes' own extrusions, or build it on the csg backend.",
             )
-        return get_backend().linear_extrude(list(self.paths), height, **kwargs)
+        return get_backend().linear_extrude(
+            list(self.paths),
+            height,
+            center=center,
+            twist=twist,
+            scale=scale,
+            slices=slices,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+        )
 
-    def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
+    def rotate_extrude(
+        self,
+        angle: float = 360.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Bosl2Solid":
         """Revolve this region about the Y axis into a 3-D solid.
 
-        See :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude` for details.
+        Args:
+            angle: The rotation angle in degrees.
+            fn: Number of polygon segments for curved geometry.
+            fa: Minimum angle for polygon segments.
+            fs: Minimum size for polygon segments.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` (csg backend only -- the SDF backend has no
             revolve).
         """
-        return self.geometry().rotate_extrude(angle, **kwargs)
+        return self.geometry().rotate_extrude(angle, fn=fn, fa=fa, fs=fs)
 
     def debug_region(self, size: float = 1, vertices: bool = True) -> Any:
         """Visualize this region with vertex labels for debugging.
