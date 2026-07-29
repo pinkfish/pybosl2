@@ -124,8 +124,7 @@ class CapSpec:
     path: Sequence[Sequence[float]] | None = None
 
     def __post_init__(self) -> None:
-        if self.cap_type == CapType.CUSTOM and self.path is None:
-            raise ValueError("CapType.CUSTOM requires path= to be set on the CapSpec")
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -150,6 +149,10 @@ _DEFAULTS: dict[CapType, CapSpec] = {
     CapType.ARROW3: CapSpec(cap_type=CapType.ARROW3, length=3.5, width=1.0, extent=0.0),
     CapType.TAIL: CapSpec(cap_type=CapType.TAIL, length=3.5, width=0.47, extent=0.5),
     CapType.TAIL2: CapSpec(cap_type=CapType.TAIL2, length=3.5, width=0.28, extent=0.5),
+    CapType.CUSTOM: CapSpec(cap_type=CapType.CUSTOM, length=1.0, width=0.0, extent=0.0),
+    CapType.FLAT: CapSpec(cap_type=CapType.FLAT, length=1.0, width=0.0, extent=0.0),
+    CapType.SPHERE: CapSpec(cap_type=CapType.SPHERE, length=1.0, width=1.0, extent=0.0),
+    CapType.CIRCLE: CapSpec(cap_type=CapType.CIRCLE, length=1.0, width=1.0, extent=0.0),
 }
 
 

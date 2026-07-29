@@ -297,6 +297,7 @@ class Bezier:
         """
         from pybosl2.paths import (
             Path,
+            Path3D,
         )  # local: avoid importing the heavy path module at load time
 
         segs = len(self) * 2
@@ -304,7 +305,8 @@ class Bezier:
         path = np.asarray(self.points(uvals), dtype=float)
         defl = max(float(np.linalg.norm(path[i + 1] - (path[i] + path[i + 2]) / 2)) for i in range(len(path) - 2))
         if defl <= max_deflect:
-            return float(Path._path_length(path))
+            dim = path.shape[1] if len(path) > 0 else 2
+            return float((Path3D(path) if dim == 3 else Path(path))._path_length())
         return float(
             sum(
                 self.arc_length(
@@ -853,7 +855,7 @@ def create_bezier(
         size: Fixed control-point magnitude for all curve segments.
         relsize: Relative control-point magnitude proportional to each segment's length.
     """
-    from pybosl2.paths import Path  # local: keep the import graph acyclic
+    from pybosl2.paths import Path, Path3D  # local: keep the import graph acyclic
 
     assert size is None or relsize is None, "Can't define both size and relsize."
     patharr = np.asarray(path, dtype=float)
@@ -870,8 +872,9 @@ def create_bezier(
         tang = np.asarray(tangents, dtype=float)
         tang = np.array([t / np.linalg.norm(t) for t in tang])
     else:
+        dim = patharr.shape[1] if len(patharr) > 0 else 2
         tang = np.asarray(
-            Path._path_tangents(patharr, closed=closed, uniform=uniform),
+            (Path3D(patharr) if dim == 3 else Path(patharr))._path_tangents(closed=closed, uniform=uniform),
             dtype=float,
         )
     assert min(sizevect) > 0, "Size and relsize must be greater than zero."

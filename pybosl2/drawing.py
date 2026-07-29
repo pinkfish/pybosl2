@@ -545,7 +545,7 @@ def _endcap_geometry_3d(spec: CapSpec, at, outdir, width: float):
 
     big = max(abs(v) for poly in polys for p in poly for v in p) * 4 + width
     right = _osquare([big, big], center=True).translate([big / 2, 0])
-    solids = [_orotate_extrude((_opolygon(poly) & right)) for poly in polys]
+    solids = [_orotate_extrude((_opolygon(poly.tolist()) & right)) for poly in polys]
     return _oriented_to(Bosl2Solid(reduce(operator.or_, solids)), outdir, at)
 
 
@@ -720,7 +720,7 @@ def dashed_stroke(
     if closed:
         raw = raw + [raw[0]]
     dpat = list(dashpat) if len(dashpat) % 2 == 0 else list(dashpat) + [0]
-    plen = Path._path_length(raw, closed=False)
+    plen = wrap(raw)._path_length(closed=False)
     dlen = sum(dpat)
     doff = list(np.cumsum(dpat))
     freps = plen / dlen
@@ -736,12 +736,12 @@ def dashed_stroke(
     cuts = sorted(c for c in cuts)
     if not cuts:
         return [wrap(raw, closed=False)]  # type: ignore[return-value]
-    dashes = Path._path_cut(raw, cuts, closed=False)
+    dashes = wrap(raw)._path_cut(cuts, closed=False)
     dcnt = len(dashes)
     evens = []
     for i, dash in enumerate(dashes):
         if i % 2 != 0:
             continue
-        if i < dcnt - 1 or Path._path_length(dash, closed=False) > mindash:
+        if i < dcnt - 1 or wrap(dash)._path_length(closed=False) > mindash:
             evens.append(wrap(dash, closed=False))
     return evens  # type: ignore[return-value]

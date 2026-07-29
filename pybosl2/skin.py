@@ -322,7 +322,7 @@ def _path_sweep(
             helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
             Path3D(helix).path_sweep(square).polyhedron().show()
     """
-    from pybosl2.paths import Path  # local: keep the import graph acyclic
+    from pybosl2.paths import Path3D  # local: keep the import graph acyclic
 
     _flatcaps = _caps_as_bools(_norm_caps(caps, closed=closed))  # a closed loop has no ends to cap
     patharr = np.asarray(path3d(path), dtype=float)
@@ -332,7 +332,7 @@ def _path_sweep(
     if tangent is not None:
         tangents = np.array([_u(t) for t in path3d(tangent)])
     else:
-        tangents = np.asarray(Path._path_tangents(patharr, closed=closed, uniform=uniform), dtype=float)
+        tangents = np.asarray(Path3D(patharr)._path_tangents(closed=closed, uniform=uniform), dtype=float)
 
     # Resolve the initial/per-point normal.
     if normal is not None:
@@ -351,11 +351,11 @@ def _path_sweep(
         normals = np.tile(normal_single, (npts, 1))
 
     if twist_by_length:
-        tpathfrac = np.asarray(Path._path_length_fractions(patharr, closed), dtype=float)
+        tpathfrac = np.asarray(Path3D(patharr)._path_length_fractions(closed=closed), dtype=float)
     else:
         tpathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
     if scale_by_length:
-        spathfrac = np.asarray(Path._path_length_fractions(patharr, closed), dtype=float)
+        spathfrac = np.asarray(Path3D(patharr)._path_length_fractions(closed=closed), dtype=float)
     else:
         spathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
 
@@ -427,7 +427,7 @@ def _path_sweep(
                 translate4(patharr[i % npts]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i])
             )
     elif method == "natural":
-        pathnormal = np.asarray(Path._path_normals(patharr, tangents, closed), dtype=float)
+        pathnormal = np.asarray(Path3D(patharr)._path_normals(tangents=tangents, closed=closed), dtype=float)
         unscaled = [
             translate4(patharr[i % npts])
             @ frame_map(x=pathnormal[i % npts], z=tangents[i % npts])
@@ -546,10 +546,10 @@ def skin(
         assert z is not None and len(z) == sides, "skin(): 2-D profiles need a matching-length z list."
         profiles = [[[pt[0], pt[1], z[i]] for pt in profiles[i]] for i in range(sides)]
 
-    from pybosl2.paths import Path  # local: keep the import graph acyclic
+    from pybosl2.paths import Path3D  # local: keep the import graph acyclic
 
     maxlen = max(refine_list[i] * len(profiles[i]) for i in range(sides))
-    resampled = [Path._subdivide_path(profiles[i], sides=maxlen, closed=True, method=sampling) for i in range(sides)]
+    resampled = [Path3D(profiles[i])._subdivide_path(sides=maxlen, closed=True, method=sampling) for i in range(sides)]
     fixedprof = [resampled[0]]
     for i in range(1, sides):
         if method[i - 1] == "direct":
@@ -765,7 +765,10 @@ def subdivide_and_slice(
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
     the profile lengths. Returns the stacked list of (equal-length) profiles."""
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path, Path3D
+
+    def _wrap(prof):
+        return Path3D(prof) if prof and len(prof[0]) == 3 else Path(prof)
 
     maxsize = max(len(p) for p in profiles)
     if numpoints is None:
@@ -776,7 +779,7 @@ def subdivide_and_slice(
         numpoints = reduce(lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles])
     numpoints = round(numpoints)
     assert numpoints >= maxsize, "subdivide_and_slice(): numpoints is smaller than the largest profile."
-    fixed = [Path._subdivide_path(p, sides=numpoints, closed=True, method=method) for p in profiles]
+    fixed = [_wrap(p)._subdivide_path(sides=numpoints, closed=True, method=method) for p in profiles]
     return slice_profiles(fixed, slices, closed)
 
 
@@ -1179,9 +1182,9 @@ def _offset_sweep(
 
     # Normalise all rings to the same vertex count.
     maxn = max(len(r) for r in profiles_3d)
-    from pybosl2.paths import Path as _Path2
+    from pybosl2.paths import Path3D as _Path3D
 
-    norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
+    norm = [_Path3D(row)._subdivide_path(sides=maxn, closed=True, method="length") for row in profiles_3d]
 
     vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -1417,9 +1420,9 @@ def _rounded_prism(
 
     # Normalise rings
     maxn = max(len(r) for r in profiles_3d)
-    from pybosl2.paths import Path as _Path2
+    from pybosl2.paths import Path3D as _Path3D
 
-    norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
+    norm = [_Path3D(row)._subdivide_path(sides=maxn, closed=True, method="length") for row in profiles_3d]
     fullcaps = _caps_as_bools(_norm_caps(caps))
 
     vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)

@@ -102,7 +102,7 @@ def _lerp(a: float, b: float, u: float) -> float:
 def _dedup(path: Sequence[Sequence[float]] | Path) -> Path:
     from pybosl2.paths import Path
 
-    return Path([list(p) for p in Path._deduplicate(path, closed=False)])
+    return Path([list(p) for p in Path._deduplicate(list(path), closed=False)])
 
 
 def _merge_collinear(path: Sequence[Sequence[float]] | Path) -> Path:
@@ -110,7 +110,7 @@ def _merge_collinear(path: Sequence[Sequence[float]] | Path) -> Path:
     # the toolkit kernel does not, so dedup first (a bare duplicate otherwise collapses a corner).
     from pybosl2.paths import Path
 
-    return Path([list(p) for p in Path._path_merge_collinear(_dedup(path), closed=False)])
+    return Path([list(p) for p in _dedup(path)._path_merge_collinear(closed=False)])
 
 
 # ---------------------------------------------------------------------------
@@ -500,8 +500,8 @@ def _ptn_path_redirect(major_path: Path, minor_path: Path, center: bool = True) 
     from pybosl2.paths import Path
 
     major2 = _merge_collinear(major_path)
-    minor2 = [list(p) for p in Path._resample_path(minor_path, spacing=1, closed=False)]
-    major_len = Path._path_length(major2, closed=False)
+    minor2 = [list(p) for p in minor_path._resample_path(spacing=1, closed=False)]
+    major_len = major2._path_length(closed=False)
     minor_len = abs(minor_path[-1][0] - minor_path[0][0])
     extend_by = max(0, -(major_len - minor_len))
     e1 = extend_by * (0.5 if center else 0)
@@ -513,12 +513,12 @@ def _ptn_path_redirect(major_path: Path, minor_path: Path, center: bool = True) 
         + [list(p) for p in major2[1:-1]]
         + [list(np.asarray(major2[-1]) + vec2 * e2)]
     )
-    major_len2 = Path._path_length(major3, closed=False)
+    major_len2 = Path(major3)._path_length(closed=False)
     xoff = (major_len2 - minor_len) / 2 if center else 0
     minor3 = _left(minor2[0][0] - xoff, minor2)
     out = []
     for pt in minor3:
-        pinfo = Path._path_cut_points(major3, max(0.0, pt[0]), closed=False, direction=True)
+        pinfo = Path(major3)._path_cut_points(max(0.0, pt[0]), closed=False, direction=True)
         base = np.asarray(pinfo[0])
         tangent = unit(np.asarray(pinfo[3]), [0.0, 1.0])
         out.append(list(base + tangent * pt[1]))

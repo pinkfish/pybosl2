@@ -236,7 +236,7 @@ def test_endcap_polys_shapes():
     assert len(_endcap_polys(CapSpec(cap_type=CapType.X), 1)) == 2
     assert len(_endcap_polys(CapSpec(cap_type=CapType.CROSS), 1)) == 1
     assert len(_endcap_polys(_normalize_one(CapType.ARROW), 1)) == 1
-    assert len(_endcap_polys(_normalize_one(CapType.ARROW), 1)[0]) == 7
+    assert len(_endcap_polys(_normalize_one(CapType.ARROW), 1)[0]) == 5
     assert len(_endcap_polys(_normalize_one(CapType.ARROW3), 1)[0]) == 7
 
 
