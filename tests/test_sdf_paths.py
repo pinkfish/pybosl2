@@ -78,7 +78,7 @@ class TestPolygonPathUtils:
 
     def test_path_length_and_cut_points(self):
         path = [[0, 0], [10, 0], [10, 10]]
-        assert sdf_paths.path_length(path) == pytest.approx(20.0)
+        assert sdf_paths.total_length(path) == pytest.approx(20.0)
         cuts = sdf_paths.path_cut_points(path, [5.0, 15.0])
         assert cuts[0][0][0] == pytest.approx(5.0)
         assert cuts[0][0][1] == pytest.approx(0.0)

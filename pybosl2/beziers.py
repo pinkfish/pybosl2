@@ -306,7 +306,7 @@ class Bezier:
         defl = max(float(np.linalg.norm(path[i + 1] - (path[i] + path[i + 2]) / 2)) for i in range(len(path) - 2))
         if defl <= max_deflect:
             dim = path.shape[1] if len(path) > 0 else 2
-            return float((Path3D(path) if dim == 3 else Path(path)).path_length())
+            return float((Path3D(path) if dim == 3 else Path(path)).total_length())
         return float(
             sum(
                 self.arc_length(

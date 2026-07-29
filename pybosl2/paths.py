@@ -75,7 +75,7 @@ class PathBase:
 
     # -- Path length calculation -----------------------------------------------------------
 
-    def path_length(self, closed: bool | None = None) -> float:
+    def total_length(self, closed: bool | None = None) -> float:
         """Total length of the path.
 
         Args:
@@ -232,7 +232,7 @@ class PathBase:
         if closed is None:
             closed = self.closed
         assert isinstance(cutdist, (list, tuple, np.ndarray))
-        assert cutdist[-1] < self.path_length(closed=closed), "Cut distances must be smaller than the path length"
+        assert cutdist[-1] < self.total_length(closed=closed), "Cut distances must be smaller than the path length"
         assert cutdist[0] > 0, "Cut distances must be strictly positive"
         cutlist = self.path_cut_points(cutdist, closed=closed)
         return self.path_cut_getpaths(cutlist, closed)
@@ -503,7 +503,7 @@ class PathBase:
         if closed is None:
             closed = self.closed
         assert (sides is None) != (spacing is None), "Must define exactly one of sides and spacing"
-        length = self.path_length(closed)
+        length = self.total_length(closed)
         if sides is not None:
             n_use = sides - (0 if closed else 1)
         else:
@@ -663,7 +663,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
     def perimeter(self) -> float:
         """Total length around the path."""
-        return float(self.path_length())
+        return float(self.total_length())
 
     length = perimeter
 
@@ -2080,7 +2080,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
     def perimeter(self) -> float:
         """Total length along the path."""
-        return float(self.path_length())
+        return float(self.total_length())
 
     length = perimeter
 
