@@ -23,6 +23,7 @@ while omitting inherently 2-D operations like polygon/area/offset.
 from __future__ import annotations
 
 import math
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
@@ -69,14 +70,18 @@ __all__ = ["Path2D", "Path3D", "Path", "MinkowskiJoin"]
 # ---------------------------------------------------------------------------
 
 
-class Path:
+class Path(ABC):
     """Dimension-agnostic numeric path operations shared by :class:`Path2D` and :class:`Path3D`.
 
-    Subclasses must provide ``self._points`` (:class:`numpy.ndarray`) and ``self.closed`` (:class:`bool`).
+    Abstract base class. Subclasses must provide ``_points`` (:class:`numpy.ndarray`) and
+    ``closed`` (:class:`bool`).
     """
 
     _points: np.ndarray
     closed: bool
+
+    @abstractmethod
+    def __init__(self, points: Sequence[Sequence[float]], closed: bool = True) -> None: ...
 
     def __len__(self) -> int:
         return len(self._points)
