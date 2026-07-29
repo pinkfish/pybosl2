@@ -9,7 +9,7 @@
 #    path_extrude, cylindrical_extrude), the bounding box, chain_hull, and the minkowski-based
 #    transforms (minkowski_difference, offset3d, round3d).
 #
-#    The two path extrusions are methods on :class:`~pybosl2.paths.Path` / :class:`~pybosl2.paths.Path3D`
+#    The two path extrusions are methods on :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.paths.Path3D`
 #    via the :class:`Extrudable` mixin, and -- unlike BOSL2, which extrudes its *children* -- they
 #    take the 2-D cross-section as a *profile* argument: a native 2-D shape, a Path/Region, a
 #    Bosl2Solid wrapping 2-D geometry, or a zero-argument factory that returns fresh geometry (the
@@ -259,7 +259,7 @@ def _native_bounds(shape):
 
 
 class Extrudable:
-    """Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.paths.Path` and
+    """Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.paths.Path2D` and
     :class:`~pybosl2.paths.Path3D`. Both take the 2-D cross-section as a *profile* argument instead
     of OpenSCAD children (a native 2-D shape, a Path/Region, a Bosl2Solid, or a factory).
     """

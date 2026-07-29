@@ -22,7 +22,7 @@ from pybosl2.partitions import (
     partition_mask,
     partition_path,
 )
-from pybosl2.paths import Path
+from pybosl2.paths import Path2D
 from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
 # -- cut-path generators ------------------------------------------------------------------
@@ -30,7 +30,7 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
 def test_partition_path_returns_path():
     p = partition_path(["flat", "jigsaw", "flat"], fn=24)
-    assert isinstance(p, Path)
+    assert isinstance(p, Path2D)
     assert p.closed is False
 
 
@@ -76,7 +76,7 @@ def test_ptn_sect_resize():
 def test_ptn_sect_skew_shifts_top():
     sect = _ptn_sect("square skew:15")
     # the top edge (y=25) is shifted right relative to the bottom by height*tan(15)
-    assert isinstance(sect, Path)
+    assert isinstance(sect, Path2D)
     assert len(sect) == 4
 
 

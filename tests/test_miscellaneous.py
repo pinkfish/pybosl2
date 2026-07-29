@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for pybosl2/miscellaneous.py: the path extrusions (path_extrude2d / path_extrude on Path /
+"""Tests for pybosl2/miscellaneous.py: the path extrusions (path_extrude2d / path_extrude on Path2D /
 Path3D, taking a 2-D profile object rather than children), and the bounding-box / hull / minkowski
 helpers. Native geometry is mocked, so these check the API surface (types, profile forms, error
 cases); geometric correctness is verified in test_stl_render.py."""
@@ -14,10 +14,10 @@ import pytest
 import pybosl2.shapes2d as s2
 from pybosl2 import miscellaneous as m
 from pybosl2.caps import CapType
-from pybosl2.paths import Path, Path3D
+from pybosl2.paths import Path2D, Path3D
 from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
-L_PATH = Path([[0, 0], [40, 0], [40, 40]], closed=False)
+L_PATH = Path2D([[0, 0], [40, 0], [40, 40]], closed=False)
 PATH3 = Path3D([[0, 0, 0], [20, 0, 10], [20, 20, 20]], closed=False)
 
 
@@ -29,9 +29,9 @@ def test_path_extrude2d_returns_solid():
 
 
 def test_path_extrude2d_accepts_various_profiles():
-    # native shape, a Path, a Region, a Bosl2Solid, and a factory all work as the profile
+    # native shape, a Path2D, a Region, a Bosl2Solid, and a factory all work as the profile
     assert isinstance(L_PATH.path_extrude2d(s2.circle(radius=3)), Bosl2Solid)
-    assert isinstance(L_PATH.path_extrude2d(Path([[-2, -4], [2, -4], [2, 4], [-2, 4]])), Bosl2Solid)
+    assert isinstance(L_PATH.path_extrude2d(Path2D([[-2, -4], [2, -4], [2, 4], [-2, 4]])), Bosl2Solid)
     from pybosl2.regions import Region
 
     assert isinstance(
@@ -42,14 +42,14 @@ def test_path_extrude2d_accepts_various_profiles():
 
 
 def test_path_extrude2d_closed_and_caps():
-    loop = Path([[0, 0], [40, 0], [40, 40], [0, 40]], closed=True)
+    loop = Path2D([[0, 0], [40, 0], [40, 40], [0, 40]], closed=True)
     assert isinstance(loop.path_extrude2d(s2.square([4, 6], center=True), closed=True), Bosl2Solid)
-    straight = Path([[0, 0], [40, 0]], closed=False)
+    straight = Path2D([[0, 0], [40, 0]], closed=False)
     assert isinstance(straight.path_extrude2d(s2.square([6, 8], center=True), caps=CapType.BUTT), Bosl2Solid)
 
 
 def test_path_extrude2d_caps_on_closed_raises():
-    loop = Path([[0, 0], [40, 0], [40, 40]], closed=True)
+    loop = Path2D([[0, 0], [40, 0], [40, 40]], closed=True)
     with pytest.raises(AssertionError):
         loop.path_extrude2d(s2.square([4, 8]), caps=CapType.BUTT, closed=True)
 

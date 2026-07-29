@@ -62,7 +62,7 @@ from pybosl2.rounding import Roundable  # round_corners / smooth_path, as method
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import add_scalar, unit
 
-__all__ = ["Path", "Path3D", "PathBase", "MinkowskiJoin"]
+__all__ = ["Path", "Path2D", "Path3D", "PathBase", "MinkowskiJoin"]
 
 # ---------------------------------------------------------------------------
 # Section: PathBase -- dimension-agnostic path-math kernels shared by Path and Path3D
@@ -77,6 +77,15 @@ class PathBase:
 
     _points: np.ndarray
     closed: bool
+
+    def __len__(self) -> int:
+        return len(self._points)
+
+    def __getitem__(self, key: int | slice | tuple) -> np.ndarray:
+        return self._points[key]
+
+    def __iter__(self):
+        return iter(self._points)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, PathBase):
@@ -674,8 +683,8 @@ class MinkowskiJoin(Enum):
     BEVEL = 3
 
 
-class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
-    """A 2-D path: a list of [x, y] points, with every path operation as a method.
+class Path2D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
+    """A 2-D path (formerly ``Path``): a list of [x, y] points, with every path operation as a method.
 
     Every place that already treats a path as a plain point list (indexing, iteration, ``len()``,
     equality with a plain list, and crossing the native ``polygon()``/FFI boundary) keeps working,
@@ -2611,6 +2620,10 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 # ---------------------------------------------------------------------------
 # Section: Path3D object
 # ---------------------------------------------------------------------------
+
+
+# Backward compatibility: old name Path → Path2D
+Path = Path2D  # type: ignore[assignment]
 
 
 class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):

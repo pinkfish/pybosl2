@@ -13,7 +13,7 @@
 #
 #    The evaluation kernel is the standard de Boor algorithm on a knot vector built exactly as
 #    BOSL2 builds it; every case here is pinned point-for-point to the real BOSL2 output in
-#    tests/test_bosl2_reorient.py. :func:`nurbs_curve` returns a :class:`~pybosl2.paths.Path` (2-D
+#    tests/test_bosl2_reorient.py. :func:`nurbs_curve` returns a :class:`~pybosl2.paths.Path2D` (2-D
 #    control points) or :class:`~pybosl2.paths.Path3D` (3-D), and :func:`nurbs_vnf` returns a
 #    :class:`~pybosl2.vnf.VNF`.
 #
@@ -29,7 +29,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 
 if TYPE_CHECKING:
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import PathBase
 
 import numpy as np
 
@@ -236,7 +236,7 @@ def _nurbs_curve_pts(
 
 
 def nurbs_curve(
-    control: Path | Path3D | Sequence[Sequence[float]],
+    control: PathBase | Sequence[Sequence[float]],
     degree: int | None = None,
     splinesteps: int | None = None,
     u=None,
@@ -244,7 +244,7 @@ def nurbs_curve(
     weights=None,
     type: str = "clamped",  # noqa: A002
     knots=None,
-) -> Path | Path3D | list[float]:
+) -> PathBase | list[float]:
     """Evaluate a NURBS curve, returning its points (BOSL2 nurbs_curve()).
 
     Give either *splinesteps* (uniform samples between knots, with a sample at every knot) or *u*
@@ -254,7 +254,7 @@ def nurbs_curve(
     ``[type, degree, control, knots, mult, weights]``.
 
     Returns:
-        A :class:`~pybosl2.paths.Path` (2-D control points) or :class:`~pybosl2.paths.Path3D` (3-D). A
+        A :class:`~pybosl2.paths.Path2D` (2-D control points) or :class:`~pybosl2.paths.Path3D` (3-D). A
         single scalar *u* returns just that point as a plain list.
 
     Examples:
@@ -265,7 +265,7 @@ def nurbs_curve(
             ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
             nurbs_curve(ctrl, 3, splinesteps=12).stroke(width=3).show()
     """
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import Path2D, Path3D
 
     scalar = is_num(u)
     pts = _nurbs_curve_pts(
@@ -283,7 +283,7 @@ def nurbs_curve(
     dim = len(pts[0])
     closed = (control[0] if _is_param_list(control) else type) == "closed"
     if dim == 2:
-        return Path([[float(p[0]), float(p[1])] for p in pts], closed=closed)
+        return Path2D([[float(p[0]), float(p[1])] for p in pts], closed=closed)
     if dim == 3:
         return Path3D([[float(p[0]), float(p[1]), float(p[2])] for p in pts], closed=closed)
     return [[float(c) for c in p] for p in pts]  # type: ignore[misc]

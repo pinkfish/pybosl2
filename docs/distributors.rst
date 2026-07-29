@@ -93,7 +93,7 @@ Copies of a 2-D outline along an arc, extruded together:
 
 .. pythonscad-example::
 
-    tile = Path([[-3, -3], [3, -3], [3, 3], [-3, 3]])
+    tile = Path2D([[-3, -3], [3, -3], [3, 3], [-3, 3]])
     reduce(lambda a, b: a | b, (c.polygon() for c in tile.arc_copies(sides=10, radius=30, ea=180))) \
         .linear_extrude(height=3).show()
 

@@ -104,10 +104,10 @@ SQUARE = [[0, 0], [20, 0], [20, 12], [0, 12]]
 
 @pytest.mark.parametrize("backend", ["csg", "sdf"])
 def test_path_linear_extrude_dispatches_on_active_backend(backend):
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
 
     with use_backend(backend):
-        s = Path(SQUARE).linear_extrude(height=5)
+        s = Path2D(SQUARE).linear_extrude(height=5)
     assert s.backend == backend
     assert isinstance(s, Solid)
     for got, want in zip(s.bounds()[1], [20, 12, 5], strict=False):
@@ -116,10 +116,10 @@ def test_path_linear_extrude_dispatches_on_active_backend(backend):
 
 @pytest.mark.parametrize("backend", ["csg", "sdf"])
 def test_path_linear_extrude_center_lands_on_the_origin(backend):
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
 
     with use_backend(backend):
-        s = Path(SQUARE).linear_extrude(height=5, center=True)
+        s = Path2D(SQUARE).linear_extrude(height=5, center=True)
     assert abs(s.bounds()[0][2]) < TOL, "center=True should straddle z=0 on both backends"
 
 
@@ -146,21 +146,21 @@ def test_region_with_holes_extrudes_only_on_csg():
 
 def test_sdf_extrude_rejects_the_profile_shearing_options():
     from pybosl2.exceptions import UnsupportedByBackendError
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
 
     for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
         with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-            Path(SQUARE).linear_extrude(height=5, **kw)
+            Path2D(SQUARE).linear_extrude(height=5, **kw)
     # ...but the CSG backend takes them all
     for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
-        assert Path(SQUARE).linear_extrude(height=5, **kw).backend == "csg"
+        assert Path2D(SQUARE).linear_extrude(height=5, **kw).backend == "csg"
 
 
 def test_sdf_extrude_takes_the_rim_roundings():
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
 
     with use_backend("sdf"):
-        s = Path(SQUARE).linear_extrude(height=5, rounding_top=1, rounding_bottom=1)
+        s = Path2D(SQUARE).linear_extrude(height=5, rounding_top=1, rounding_bottom=1)
     assert s.backend == "sdf"
 
 
@@ -172,10 +172,10 @@ def test_sdf_extrude_takes_the_rim_roundings():
 @pytest.mark.parametrize("call", ["polygon", "geometry", "fill", "rotate_extrude"])
 def test_path_2d_geometry_is_csg_only(call):
     from pybosl2.exceptions import UnsupportedByBackendError
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-        getattr(Path(SQUARE), call)()
+        getattr(Path2D(SQUARE), call)()
 
 
 def test_2d_shape_constructors_stay_on_csg():
@@ -238,10 +238,10 @@ def test_stroke_of_a_3d_path_follows_the_active_backend(backend):
 
 def test_stroke_of_a_2d_path_is_csg_only():
     from pybosl2.exceptions import UnsupportedByBackendError
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
     from pybosl2.shapes2d import Bosl2Shape2D
 
-    flat = Path([[0, 0], [20, 0], [20, 20]], closed=False)
+    flat = Path2D([[0, 0], [20, 0], [20, 20]], closed=False)
     assert isinstance(flat.stroke(width=3), Bosl2Shape2D)
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         flat.stroke(width=3)

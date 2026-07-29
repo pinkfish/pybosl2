@@ -54,7 +54,7 @@ from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.geometry import is_collinear
-from pybosl2.paths import Path
+from pybosl2.paths import Path2D
 from pybosl2.vectors import unit
 
 from .constants import CENTER
@@ -422,15 +422,15 @@ def _finish(
 # ---------------------------------------------------------------------------
 
 #: Anything the 2-D operators accept as a child: a :class:`Bosl2Shape2D`, a raw native 2-D handle,
-#: a :class:`~pybosl2.paths.Path` / :class:`~pybosl2.regions.Region`, or a ``[[x, y], ...]`` point list.
+#: a :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a ``[[x, y], ...]`` point list.
 #: :func:`_as_native_2d` reduces any of them to a raw native handle.
-Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", Path, Sequence[Sequence[float]]]
+Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", Path2D, Sequence[Sequence[float]]]
 
 
 class Bosl2Shape2D(Distributable, Colorable):
     """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent, chainable API that
     :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids. Every shape constructor in this file
-    returns one of these, as do :meth:`~pybosl2.paths.Path.polygon` and
+    returns one of these, as do :meth:`~pybosl2.paths.Path2D.polygon` and
     :meth:`~pybosl2.regions.Region.geometry`.
 
     The 2-D specific operations live here rather than being reached for through the raw native
@@ -625,7 +625,7 @@ class Bosl2Shape2D(Distributable, Colorable):
         """The convex hull of this shape (OpenSCAD ``hull()``).
 
         With arguments, the hull of this shape *together with* each of *others* -- any mix of
-        ``Bosl2Shape2D``, native 2-D shapes, :class:`~pybosl2.paths.Path` /
+        ``Bosl2Shape2D``, native 2-D shapes, :class:`~pybosl2.paths.Path2D` /
         :class:`~pybosl2.regions.Region`, or plain ``[[x, y], ...]`` point lists.
 
         Examples:
@@ -851,14 +851,14 @@ class Bosl2Shape2D(Distributable, Colorable):
 
 def _as_native_2d(obj: "Shape2DLike") -> "PyOpenSCAD":
     """A raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape, a
-    :class:`~pybosl2.paths.Path` / :class:`~pybosl2.regions.Region`, or a plain point list.
+    :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
     """
     from pybosl2._helpers import unwrap
 
     unwrapped = unwrap(obj)
     if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
         return unwrapped
-    geom = getattr(obj, "geometry", None)  # Path / Region
+    geom = getattr(obj, "geometry", None)  # Path2D / Region
     if callable(geom):
         return unwrap(geom())
     if isinstance(obj, (list, tuple, np.ndarray)):  # a bare [[x, y], ...] point list
@@ -868,12 +868,12 @@ def _as_native_2d(obj: "Shape2DLike") -> "PyOpenSCAD":
 
 def _is_child_2d(obj: "Shape2DLike | Sequence[Shape2DLike]") -> bool:
     """True if *obj* is a single 2-D child rather than a container of children -- a wrapper or
-    native shape, a Path/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
+    native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
     """
     if not isinstance(obj, (list, tuple)):
         return True  # a wrapper or a native handle
     if callable(getattr(obj, "geometry", None)):
-        return True  # Path / Region
+        return True  # Path2D / Region
     return bool(len(obj)) and isinstance(obj[0], (list, tuple, np.ndarray)) and len(obj[0]) == 2
 
 
@@ -883,7 +883,7 @@ def fill(children: "Shape2DLike") -> Bosl2Shape2D:
 
     Args:
         children: the 2-D shape to fill (a ``Bosl2Shape2D``, a native shape, a
-                  :class:`~pybosl2.paths.Path` / :class:`~pybosl2.regions.Region`, or a point list)
+                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)
     """
     return Bosl2Shape2D(_ofill(_as_native_2d(children)))
 
@@ -894,7 +894,7 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
 
     Args:
         children: the 2-D shapes to hull -- any mix of ``Bosl2Shape2D``, native shapes,
-                  :class:`~pybosl2.paths.Path` / :class:`~pybosl2.regions.Region`, or point lists.
+                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or point lists.
                   A single list/tuple *of* shapes is also accepted.
     """
     items = list(children)
@@ -1081,8 +1081,8 @@ def arc(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Path:
-    """A 2-D arc, returned as a :class:`~pybosl2.paths.Path` of points (BOSL2's ``arc()``).
+) -> Path2D:
+    """A 2-D arc, returned as a :class:`~pybosl2.paths.Path2D` of points (BOSL2's ``arc()``).
 
     All of BOSL2's 2-D arc specifications are supported (3-D arcs, which project onto a plane,
     are not):
@@ -1114,7 +1114,7 @@ def arc(
         endpoint:   include the final point (default True)
 
     Returns:
-        A :class:`~pybosl2.paths.Path` (closed when *wedge* is set).
+        A :class:`~pybosl2.paths.Path2D` (closed when *wedge* is set).
     """
     # -- width + thickness: a circular segment through 3 points on/above the X axis ----------
     if width is not None and thickness is not None:
@@ -1209,7 +1209,7 @@ def arc(
         out = _arc_points(point_count, arc_radius, a0, delta, centre, endpoint=endpoint)
         if wedge:
             out = [list(centre)] + out
-        return Path(out, closed=wedge)
+        return Path2D(out, closed=wedge)
 
     # -- radius + angle (with optional [start, end] range) -----------------------------------
     arc_r: float | None = _pick_radius(radius=radius, diameter=diameter)
@@ -1231,7 +1231,7 @@ def arc(
     out = _arc_points(point_count, arc_r, calc_start, calc_angle, calc_center, endpoint=endpoint)
     if wedge:
         out = [list(calc_center)] + out
-    return Path(out, closed=wedge)
+    return Path2D(out, closed=wedge)
 
 
 def circle(
@@ -1276,7 +1276,7 @@ def circle(
 
 
 def polygon(
-    path: Path,
+    path: Path2D,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
 ) -> Bosl2Shape2D:

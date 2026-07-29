@@ -48,7 +48,7 @@ from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
     from pybosl2.caps import CapsSpec, CapType
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import PathBase
     from pybosl2.points import Vector
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -328,7 +328,7 @@ class Bezier:
             The approximate arc length of the curve segment as a float.
         """
         from pybosl2.paths import (
-            Path,
+            Path2D,
             Path3D,
         )  # local: avoid importing the heavy path module at load time
 
@@ -338,7 +338,7 @@ class Bezier:
         defl = max(float(np.linalg.norm(path[i + 1] - (path[i] + path[i + 2]) / 2)) for i in range(len(path) - 2))
         if defl <= max_deflect:
             dim = path.shape[1] if len(path) > 0 else 2
-            return float((Path3D(path) if dim == 3 else Path(path)).total_length())
+            return float((Path3D(path) if dim == 3 else Path2D(path)).total_length())
         return float(
             sum(
                 self.arc_length(
@@ -391,12 +391,12 @@ class Bezier:
         sub = self.array[curveind * n_degree : (curveind + 1) * n_degree + 1]
         return Bezier(sub).points(u)
 
-    def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> Path | Path3D:
+    def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> PathBase:
         """Sample this bezier PATH into a Path of points.
 
         Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling
         each segment uniformly and concatenating the results. Returns a
-        :class:`~pybosl2.paths.Path` for 2-D points or
+        :class:`~pybosl2.paths.Path2D` for 2-D points or
         :class:`~pybosl2.paths.Path3D` for 3-D.
 
         Args:
@@ -405,7 +405,7 @@ class Bezier:
             endpoint: Whether to include the final endpoint in the output.
 
         Returns:
-            A :class:`~pybosl2.paths.Path` for 2-D points or
+            A :class:`~pybosl2.paths.Path2D` for 2-D points or
             :class:`~pybosl2.paths.Path3D` for 3-D points containing the
             sampled bezier path.
 
@@ -428,13 +428,13 @@ class Bezier:
             out.append(ctrl.points(us))
         if endpoint:
             out.append(bezpath[-1:])
-        from pybosl2.paths import Path as _Path
+        from pybosl2.paths import Path2D as _Path2D
         from pybosl2.paths import Path3D as _Path3D
 
         result = np.concatenate(out, axis=0)
         if result.shape[1] == 3:
             return _Path3D(result)
-        return _Path(result)
+        return _Path2D(result)
 
     def path_closest_point(self, pt: np.ndarray, n_degree: int = 3, max_err: float = 0.01) -> tuple[int, float]:
         """Find the closest position on this bezier PATH to *pt*.
@@ -576,9 +576,9 @@ class Bezier:
     @classmethod
     def from_path(
         cls,
-        path: Path,
+        path: PathBase,
         closed: bool = False,
-        tangents: Path | None = None,
+        tangents: PathBase | None = None,
         uniform: bool = False,
         size: float | None = None,
         relsize: float | None = None,
@@ -605,7 +605,7 @@ class Bezier:
 
     def sweep(
         self,
-        shape: Path,
+        shape: PathBase,
         splinesteps: int = 16,
         n_degree: int | None = None,
         method: str = "incremental",
@@ -934,9 +934,9 @@ class Bezier:
 
 
 def create_bezier(
-    path: Path,
+    path: PathBase,
     closed: bool = False,
-    tangents: Path | None = None,
+    tangents: PathBase | None = None,
     uniform: bool = False,
     size: float | None = None,
     relsize: float | None = None,
@@ -963,7 +963,7 @@ def create_bezier(
         AssertionError: If both *size* and *relsize* are specified, or if any
             path segment has zero length.
     """
-    from pybosl2.paths import Path, Path3D  # local: keep the import graph acyclic
+    from pybosl2.paths import Path2D, Path3D  # local: keep the import graph acyclic
 
     assert size is None or relsize is None, "Can't define both size and relsize."
     patharr = np.asarray(path, dtype=float)
@@ -982,7 +982,7 @@ def create_bezier(
     else:
         dim = patharr.shape[1] if len(patharr) > 0 else 2
         tang = np.asarray(
-            (Path3D(patharr) if dim == 3 else Path(patharr)).path_tangents(closed=closed, uniform=uniform),
+            (Path3D(patharr) if dim == 3 else Path2D(patharr)).path_tangents(closed=closed, uniform=uniform),
             dtype=float,
         )
     assert min(sizevect) > 0, "Size and relsize must be greater than zero."

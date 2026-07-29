@@ -9,7 +9,7 @@
 #    (round every corner of a path -- ``"circle"``, ``"smooth"`` or ``"chamfer"``, sized by
 #    ``radius``/``cut``/``joint``/``width``) and :func:`smooth_path` (fit a continuous-curvature
 #    bezier through a path). Both work on 2-D and 3-D paths and are exposed as methods on
-#    :class:`~pybosl2.paths.Path` and :class:`~pybosl2.paths.Path3D`.
+#    :class:`~pybosl2.paths.Path2D` and :class:`~pybosl2.paths.Path3D`.
 #
 #    ``round_corners`` and ``smooth_path`` are pinned point-for-point to the real BOSL2 output in
 #    tests/test_bosl2_reorient.py. The smooth/chamfer corners reuse the toolkit's
@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any, Sequence, cast
 if TYPE_CHECKING:
     from shapely.geometry import MultiPolygon
 
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import Path2D, Path3D
 
 import numpy as np
 
@@ -164,7 +164,7 @@ def _round_corners(
     how tight the curvature match is. Works on 2-D and 3-D paths.
 
     Returns:
-        A :class:`~pybosl2.paths.Path` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
+        A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
 
     Examples:
         A rounded, smoothed and chamfered square (three copies):
@@ -174,7 +174,7 @@ def _round_corners(
             sq = [[0, 0], [40, 0], [40, 40], [0, 40]]
             round_corners(sq, method="smooth", joint=10).polygon().linear_extrude(height=4).show()
     """
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import Path2D, Path3D
 
     k = curvature if curvature is not None else kwargs.get("k")
 
@@ -197,7 +197,7 @@ def _round_corners(
     measure, size = given[0]
     pts = [[float(c) for c in p] for p in path]
     sides = len(pts)
-    assert sides > 2, f"Path has length {sides}. Length must be 3 or more."
+    assert sides > 2, f"Path2D has length {sides}. Length must be 3 or more."
     assert method == "circle" or measure != "radius", 'radius is allowed only with method="circle".'
     assert method == "chamfer" or measure != "width", 'width is allowed only with method="chamfer".'
 
@@ -281,7 +281,7 @@ def _round_corners(
 
     result = _dedup(out)
     dim = len(result[0])
-    return (Path3D if dim == 3 else Path)(result, closed=closed)
+    return (Path3D if dim == 3 else Path2D)(result, closed=closed)
 
 
 def _dedup(pts, eps=1e-9):
@@ -316,7 +316,7 @@ def _smooth_path(
     ``method="corners"`` variant is not ported.
 
     Returns:
-        A :class:`~pybosl2.paths.Path` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
+        A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
 
     Examples:
         A wiggly control path smoothed into a flowing curve:
@@ -327,7 +327,7 @@ def _smooth_path(
             smooth_path(pts, relsize=0.4).stroke(width=2).linear_extrude(height=3).show()
     """
     from pybosl2.beziers import create_bezier
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import Path2D, Path3D
 
     bez = create_bezier(
         path,
@@ -341,7 +341,7 @@ def _smooth_path(
     if closed and len(smoothed) > 1 and approx(smoothed[0], smoothed[-1]):
         smoothed = smoothed[:-1]
     dim = len(smoothed[0])
-    return (Path3D if dim == 3 else Path)(smoothed, closed=closed)
+    return (Path3D if dim == 3 else Path2D)(smoothed, closed=closed)
 
 
 # ---------------------------------------------------------------------------
@@ -350,11 +350,11 @@ def _smooth_path(
 
 
 class Roundable:
-    """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path` and
+    """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and
     :class:`~pybosl2.paths.Path3D`."""
 
     def round_corners(  # type: ignore[misc]
-        self: Path | Path3D,
+        self: Path2D | Path3D,
         radius: float | None = None,
         method: str = "circle",
         cut=None,
@@ -379,7 +379,7 @@ class Roundable:
         )
 
     def smooth_path(  # type: ignore[misc]
-        self: Path | Path3D,
+        self: Path2D | Path3D,
         tangents=None,
         size=None,
         relsize=None,
@@ -624,9 +624,9 @@ def _path_join(
         closed:    Close the resulting joined path (default False).
 
     Returns:
-        A :class:`~pybosl2.paths.Path` or :class:`~pybosl2.paths.Path3D` depending on the input dimensions.
+        A :class:`~pybosl2.paths.Path2D` or :class:`~pybosl2.paths.Path3D` depending on the input dimensions.
     """
-    from pybosl2.paths import Path as _Path
+    from pybosl2.paths import Path2D as _Path
     from pybosl2.paths import Path3D as _Path3D
 
     k = curvature if curvature is not None else kwargs.get("k")
@@ -706,7 +706,7 @@ def _path_join(
     return _round_corners(pts, **kwargs)
 
 
-def _from_shapely(geom: "MultiPolygon") -> list[Path]:
+def _from_shapely(geom: "MultiPolygon") -> list[Path2D]:
     """Extract paths (exterior + holes) from a shapely geometry.
 
     Handles ``Polygon`` and ``MultiPolygon`` by taking the largest polygon.
@@ -715,11 +715,11 @@ def _from_shapely(geom: "MultiPolygon") -> list[Path]:
         geom: A ``shapely.Polygon`` or ``shapely.MultiPolygon``.
 
     Returns:
-        A list of :class:`~pybosl2.paths.Path` objects: outer ring, then holes.
+        A list of :class:`~pybosl2.paths.Path2D` objects: outer ring, then holes.
     """
     from shapely.geometry import MultiPolygon, Polygon
 
-    from pybosl2.paths import Path as _Path
+    from pybosl2.paths import Path2D as _Path
 
     if geom.is_empty:
         return []
@@ -751,10 +751,10 @@ def _offset_stroke(
     """
     from shapely.geometry import LineString
 
-    from pybosl2.paths import Path as _Path
+    from pybosl2.paths import Path2D as _Path
     from pybosl2.regions import Region
 
-    # Coerce to Path
+    # Coerce to Path2D
     p = path if isinstance(path, _Path) else _Path(path)
 
     pts = [(float(pt[0]), float(pt[1])) for pt in p]

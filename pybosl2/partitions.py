@@ -13,7 +13,7 @@
 #    mixin: a half-cut intersects the solid with a half-space mask, auto-sized from the object's
 #    native bounding box (so the BOSL2 ``s=`` mask-size argument is optional here). partition()
 #    returns the two interlocking pieces. The 2-D cut-path generators (:func:`partition_path` and
-#    friends) return :class:`~pybosl2.paths.Path` objects; the mask builders return Bosl2Solids.
+#    friends) return :class:`~pybosl2.paths.Path2D` objects; the mask builders return Bosl2Solids.
 #
 #    Only matrix/path math and pybosl2.transforms/constants are imported at load time; native
 #    primitives, shapes2d.arc, and Bosl2Solid are imported lazily inside the functions that need
@@ -31,7 +31,7 @@ from typing import TYPE_CHECKING, Any, Sequence
 if TYPE_CHECKING:
     from typing import Self
 
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
@@ -58,59 +58,59 @@ __all__ = [
 # (imported from pybosl2._helpers as is_num)
 
 
-def _yscale(s: float, path: Sequence[Sequence[float]] | Path) -> Path:
-    from pybosl2.paths import Path
+def _yscale(s: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
+    from pybosl2.paths import Path2D
 
-    return Path([[float(p[0]), float(p[1]) * s] for p in path])
-
-
-def _scale2(sx: float, sy: float, path: Sequence[Sequence[float]] | Path) -> Path:
-    from pybosl2.paths import Path
-
-    return Path([[float(p[0]) * sx, float(p[1]) * sy] for p in path])
+    return Path2D([[float(p[0]), float(p[1]) * s] for p in path])
 
 
-def _left(x: float, path: Sequence[Sequence[float]] | Path) -> Path:
-    from pybosl2.paths import Path
+def _scale2(sx: float, sy: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
+    from pybosl2.paths import Path2D
 
-    return Path([[float(p[0]) - x, float(p[1])] for p in path])
-
-
-def _right(x: float, path: Sequence[Sequence[float]] | Path) -> Path:
-    from pybosl2.paths import Path
-
-    return Path([[float(p[0]) + x, float(p[1])] for p in path])
+    return Path2D([[float(p[0]) * sx, float(p[1]) * sy] for p in path])
 
 
-def _xflip(x: float, path: Sequence[Sequence[float]] | Path) -> Path:
-    from pybosl2.paths import Path
+def _left(x: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
+    from pybosl2.paths import Path2D
 
-    return Path([[2 * x - float(p[0]), float(p[1])] for p in path])
+    return Path2D([[float(p[0]) - x, float(p[1])] for p in path])
 
 
-def _skew(axy_deg: float, path: Sequence[Sequence[float]] | Path) -> Path:
-    from pybosl2.paths import Path
+def _right(x: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
+    from pybosl2.paths import Path2D
+
+    return Path2D([[float(p[0]) + x, float(p[1])] for p in path])
+
+
+def _xflip(x: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
+    from pybosl2.paths import Path2D
+
+    return Path2D([[2 * x - float(p[0]), float(p[1])] for p in path])
+
+
+def _skew(axy_deg: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
+    from pybosl2.paths import Path2D
 
     t = math.tan(math.radians(axy_deg))
-    return Path([[float(p[0]) + float(p[1]) * t, float(p[1])] for p in path])
+    return Path2D([[float(p[0]) + float(p[1]) * t, float(p[1])] for p in path])
 
 
 def _lerp(a: float, b: float, u: float) -> float:
     return a + (b - a) * u
 
 
-def _dedup(path: Sequence[Sequence[float]] | Path) -> Path:
-    from pybosl2.paths import Path
+def _dedup(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
+    from pybosl2.paths import Path2D
 
-    return Path([list(p) for p in Path._deduplicate(list(path), closed=False)])
+    return Path2D([list(p) for p in Path2D._deduplicate(list(path), closed=False)])
 
 
-def _merge_collinear(path: Sequence[Sequence[float]] | Path) -> Path:
+def _merge_collinear(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
     # BOSL2's path_merge_collinear() drops exact-duplicate points before merging collinear runs;
     # the toolkit kernel does not, so dedup first (a bare duplicate otherwise collapses a corner).
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
 
-    return Path([list(p) for p in _dedup(path).path_merge_collinear(closed=False)])
+    return Path2D([list(p) for p in _dedup(path).path_merge_collinear(closed=False)])
 
 
 # ---------------------------------------------------------------------------
@@ -118,20 +118,20 @@ def _merge_collinear(path: Sequence[Sequence[float]] | Path) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Path:
+def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Path2D:
     """The simple named cut sub-paths used by the mask builders (BOSL2 _partition_subpath())."""
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
     from pybosl2.shapes2d import arc
 
     if cptype == "flat":
-        return Path([[0, 0], [1, 0]])
+        return Path2D([[0, 0], [1, 0]])
     if cptype == "sawtooth":
-        return Path([[0, 0], [0.5, 1], [1, 0]])  # type: ignore[arg-type]
+        return Path2D([[0, 0], [0.5, 1], [1, 0]])  # type: ignore[arg-type]
     if cptype == "sinewave":
-        return Path([[a / 360, math.sin(math.radians(a)) / 2] for a in range(0, 361, 5)])
+        return Path2D([[a / 360, math.sin(math.radians(a)) / 2] for a in range(0, 361, 5)])
     if cptype == "comb":
         dx = 0.5 * math.sin(math.radians(2))
-        return Path(  # type: ignore[arg-type]
+        return Path2D(  # type: ignore[arg-type]
             [  # type: ignore[arg-type]
                 [0, 0],
                 [dx, 0.5],
@@ -143,7 +143,7 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
         )
     if cptype == "finger":
         dx = 0.5 * math.sin(math.radians(20))
-        return Path(  # type: ignore[arg-type]
+        return Path2D(  # type: ignore[arg-type]
             [  # type: ignore[arg-type]
                 [0, 0],
                 [dx, 0.5],
@@ -154,9 +154,9 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
             ]
         )
     if cptype == "dovetail":
-        return Path([[0, -0.5], [0.3, -0.5], [0.2, 0.5], [0.8, 0.5], [0.7, -0.5], [1, -0.5]])
+        return Path2D([[0, -0.5], [0.3, -0.5], [0.2, 0.5], [0.8, 0.5], [0.7, -0.5], [1, -0.5]])
     if cptype == "hammerhead":
-        return Path(
+        return Path2D(
             [
                 [0, -0.5],
                 [0.35, -0.5],
@@ -171,7 +171,7 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
             ]
         )
     if cptype == "jigsaw":
-        return Path(
+        return Path2D(
             list(
                 arc(
                     radius=5 / 16,
@@ -219,11 +219,11 @@ def _partition_cutpath(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Path:
+) -> Path2D:
     """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
     _ = h
     cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
-    sub: list[list[float]] | Path = (
+    sub: list[list[float]] | Path2D = (
         [list(p) for p in cutpath]
         if isinstance(cutpath, (list, tuple, np.ndarray))
         else _partition_subpath(cutpath, fn, fa, fs)  # type: ignore[arg-type]
@@ -253,14 +253,14 @@ def _ptn_sect(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Path:
+) -> Path2D:
     """One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect())."""
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
     from pybosl2.shapes2d import _frag_count, arc
 
     if is_num(cptype):
         assert cptype > 0, "flat section length must be positive."  # type: ignore[operator]
-        return Path([[0, 0], [float(cptype), 0]])  # type: ignore[arg-type]
+        return Path2D([[0, 0], [float(cptype), 0]])  # type: ignore[arg-type]
     if invert:
         return _yscale(-1, _ptn_sect(cptype, length, width, fn=fn, fa=fa, fs=fs))
 
@@ -274,7 +274,7 @@ def _ptn_sect(
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             b = pointlist_bounds(sect)
             xpos = (b[1][0] + b[0][0]) / 2
-            return Path(_xflip(xpos, sect)[::-1])
+            return Path2D(_xflip(xpos, sect)[::-1])
         if opt in ("addflip", "wave"):
             sect1 = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             sect2 = _ptn_sect(base + " yflip xflip", length, width, fn=fn, fa=fa, fs=fs)
@@ -314,16 +314,16 @@ def _ptn_sect(
             pcnt = (1 - dx) * 100 if is_deg else val
             if maxy == 0:
                 return raw
-            return Path([[(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]] for p in raw])
+            return Path2D([[(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]] for p in raw])
         if base == "flat" and opt and opt[0].isdigit() and "x" not in opt and ":" not in opt:
-            return Path([[0, 0], [float(opt), 0]])  # type: ignore[arg-type]
+            return Path2D([[0, 0], [float(opt), 0]])  # type: ignore[arg-type]
         raise AssertionError(f"Bad section option: {opt!r}")
 
     if cptype == "sinewave":
         return _ptn_sect("halfsine addflip", length, width, fn=fn, fa=fa, fs=fs)
     steps = _frag_count(length / 2, fn, fa, fs)
     if cptype == "flat":
-        path: list[list[float]] | Path = [[0, 0], [1, 0]]
+        path: list[list[float]] | Path2D = [[0, 0], [1, 0]]
     elif cptype == "sawtooth":
         path = [[0, 0], [0, 1], [1, 0]]
     elif cptype == "square":
@@ -427,13 +427,13 @@ def partition_path(
     pathdesc: Sequence[Any],
     repeat: int = 1,
     y: float | None = None,
-    altpath: Path | None = None,
+    altpath: Path2D | None = None,
     seglen: float = 25,
     segwidth: float = 25,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Path:
+) -> Path2D:
     """Build a 2-D interlocking cut path from a list of segment descriptors (BOSL2 partition_path()).
 
     Each item of *pathdesc* is a numeric length (a flat section), a 2-D path (used as-is), or a
@@ -452,7 +452,7 @@ def partition_path(
         segwidth: default width for named sections (default 25)
 
     Returns:
-        A :class:`~pybosl2.paths.Path` (closed when *y* is given).
+        A :class:`~pybosl2.paths.Path2D` (closed when *y* is given).
 
     Examples:
         A wall profile mixing jigsaw and hammerhead joints, stroked into a divider:
@@ -462,7 +462,7 @@ def partition_path(
             wall = partition_path([40, "jigsaw", 10, "jigsaw yflip", 40], fn=24)
             wall.stroke(width=3).linear_extrude(height=30).show()
     """
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
 
     paths: list[Any] = []
     for _n in range(repeat):
@@ -474,7 +474,7 @@ def partition_path(
             elif isinstance(pd, str):
                 paths.append(_ptn_sect(pd, seglen, segwidth, fn=fn, fa=fa, fs=fs))
             else:
-                raise AssertionError(f"Path descriptor {pd!r} is invalid.")
+                raise AssertionError(f"Path2D descriptor {pd!r} is invalid.")
     min_xs = [min(p[0] for p in path) for path in paths]
     max_xs = [max(p[0] for p in path) for path in paths]
     min_y = min(p[1] for path in paths for p in path)
@@ -488,16 +488,16 @@ def partition_path(
     cleanpath = _merge_collinear(_dedup(fullpath))
     redirpath = cleanpath if altpath is None else _ptn_path_redirect(altpath, cleanpath)
     if y is None:
-        return Path(list(redirpath), closed=False)
+        return Path2D(list(redirpath), closed=False)
     assert y < min_y or y > max_y, "partition_path(): closing y would make the path self-crossing."
     closedpath = [[redirpath[-1][0], y], [redirpath[0][0], y]] + list(redirpath)
     outpath = closedpath if y < 0 else closedpath[::-1]
-    return Path(outpath, closed=True)
+    return Path2D(outpath, closed=True)
 
 
-def _ptn_path_redirect(major_path: Path, minor_path: Path, center: bool = True) -> Path:
+def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = True) -> Path2D:
     """Re-lay *minor_path* (a partition pattern) along *major_path* (BOSL2 _ptn_path_redirect())."""
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path2D
 
     major2 = _merge_collinear(major_path)
     minor2 = [list(p) for p in minor_path.resample_path(spacing=1, closed=False)]
@@ -513,12 +513,12 @@ def _ptn_path_redirect(major_path: Path, minor_path: Path, center: bool = True) 
         + [list(p) for p in major2[1:-1]]
         + [list(np.asarray(major2[-1]) + vec2 * e2)]
     )
-    major_len2 = Path(major3).total_length(closed=False)
+    major_len2 = Path2D(major3).total_length(closed=False)
     xoff = (major_len2 - minor_len) / 2 if center else 0
     minor3 = _left(minor2[0][0] - xoff, minor2)
     out = []
     for pt in minor3:
-        pinfo = Path(major3).path_cut_points(max(0.0, pt[0]), closed=False, direction=True)
+        pinfo = Path2D(major3).path_cut_points(max(0.0, pt[0]), closed=False, direction=True)
         base = np.asarray(pinfo[0])
         tangent = unit(np.asarray(pinfo[3]), [0.0, 1.0])
         out.append(list(base + tangent * pt[1]))
@@ -535,7 +535,7 @@ def _partition_mask_shape(
     w: float,
     h: float,
     cutsize: float | Sequence[float],
-    cutpath: str | Sequence[Sequence[float]] | Path,
+    cutpath: str | Sequence[Sequence[float]] | Path2D,
     gap: float,
     cutpath_centered: bool,
     inverse: bool,
@@ -564,7 +564,7 @@ def partition_mask(
     w: float = 100,
     height: float = 100,
     cutsize: float | Sequence[float] = 10,
-    cutpath: str | Path = "jigsaw",
+    cutpath: str | Path2D = "jigsaw",
     gap: float = 0,
     cutpath_centered: bool = True,
     inverse: bool = False,
@@ -621,7 +621,7 @@ def partition_cut_mask(
     length: float = 100,
     height: float = 100,
     cutsize: float | Sequence[float] = 10,
-    cutpath: str | Path = "jigsaw",
+    cutpath: str | Path2D = "jigsaw",
     gap: float = 0,
     cutpath_centered: bool = True,
     slop: float = 0.1,
@@ -681,7 +681,7 @@ class Partitionable(ABC):
         v: Any,
         cpv: Any,
         s: float,
-        cut_path: Sequence[Sequence[float]] | Path | None,
+        cut_path: Sequence[Sequence[float]] | Path2D | None,
         cut_angle: float,
         offset: float,
     ) -> Any:
@@ -724,7 +724,7 @@ class Partitionable(ABC):
         v: Any = UP,
         center: bool | list[float] | None = None,
         s: float | None = None,
-        cut_path: Path | None = None,
+        cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:  # type: ignore[valid-type]
@@ -760,7 +760,7 @@ class Partitionable(ABC):
         self,
         x: float = 0,
         s: float | None = None,
-        cut_path: Path | None = None,
+        cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:  # type: ignore[valid-type]
@@ -778,7 +778,7 @@ class Partitionable(ABC):
         self,
         x: float = 0,
         s: float | None = None,
-        cut_path: Path | None = None,
+        cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:  # type: ignore[valid-type]
@@ -796,7 +796,7 @@ class Partitionable(ABC):
         self,
         y: float = 0,
         s: float | None = None,
-        cut_path: Path | None = None,
+        cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:  # type: ignore[valid-type]
@@ -814,7 +814,7 @@ class Partitionable(ABC):
         self,
         y: float = 0,
         s: float | None = None,
-        cut_path: Path | None = None,
+        cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:  # type: ignore[valid-type]
@@ -832,7 +832,7 @@ class Partitionable(ABC):
         self,
         z: float = 0,
         s: float | None = None,
-        cut_path: Path | None = None,
+        cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:  # type: ignore[valid-type]
@@ -850,7 +850,7 @@ class Partitionable(ABC):
         self,
         z: float = 0,
         s: float | None = None,
-        cut_path: Path | None = None,
+        cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:  # type: ignore[valid-type]
@@ -868,7 +868,7 @@ class Partitionable(ABC):
         self,
         spread: float = 10,
         cutsize: float | Sequence[float] = 10,
-        cutpath: str | Path = "jigsaw",
+        cutpath: str | Path2D = "jigsaw",
         gap: float = 0,
         cutpath_centered: bool = True,
         spin: float = 0,

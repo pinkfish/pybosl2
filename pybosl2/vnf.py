@@ -334,7 +334,7 @@ class VNF:
         return _polyhedron(points=pts, faces=faces, convexity=10)
 
     def geometry(self):
-        """Alias of :meth:`polyhedron`, matching Path/Region's geometry() surface."""
+        """Alias of :meth:`polyhedron`, matching Path2D/Region's geometry() surface."""
         return self.polyhedron()
 
 
@@ -357,7 +357,7 @@ def vnf_polyhedron(vnf: VNF):
         .. pythonscad-example::
 
             sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
-            v = Path(sq).linear_sweep(height=20)
+            v = Path2D(sq).linear_sweep(height=20)
             vnf_polyhedron(v).show()
     """
     return vnf.polyhedron()

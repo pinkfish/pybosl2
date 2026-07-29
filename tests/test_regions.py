@@ -9,7 +9,7 @@
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path
+from pybosl2.paths import Path2D
 from pybosl2.regions import Region
 
 SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]
@@ -19,13 +19,13 @@ HOLE = [[20, 20], [60, 20], [60, 40], [20, 40]]
 def test_single_outline_is_one_path():
     radius = Region(SQUARE)
     assert len(radius) == 1
-    assert isinstance(radius[0], Path)
+    assert isinstance(radius[0], Path2D)
 
 
 def test_list_of_outlines():
     radius = Region([SQUARE, HOLE])
     assert len(radius) == 2
-    assert all(isinstance(p, Path) for p in radius)
+    assert all(isinstance(p, Path2D) for p in radius)
 
 
 def test_with_holes():
@@ -51,7 +51,7 @@ def test_is_not_a_list_but_iterable():
 def test_offset_applies_to_every_path():
     radius = Region.with_holes(SQUARE, HOLE).offset(delta=-1)
     assert len(radius) == 2
-    assert all(isinstance(p, Path) for p in radius)
+    assert all(isinstance(p, Path2D) for p in radius)
 
 
 def test_translate_moves_all():
@@ -197,12 +197,12 @@ def test_xor_operator_region_to_region():
     assert isinstance(result, Region)
 
 
-# -- Boolean operations with closed Path objects ------------------------------------------------
+# -- Boolean operations with closed Path2D objects ------------------------------------------------
 
 
 def test_union_with_path():
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    b = Path2D([[20, 0], [60, 0], [60, 30], [20, 30]])
     result = a.union(b)
     assert isinstance(result, Region)
     assert len(result) >= 1
@@ -210,7 +210,7 @@ def test_union_with_path():
 
 def test_intersection_with_path():
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    b = Path2D([[20, 0], [60, 0], [60, 30], [20, 30]])
     result = a.intersection(b)
     assert isinstance(result, Region)
     assert len(result) >= 1
@@ -218,7 +218,7 @@ def test_intersection_with_path():
 
 def test_difference_with_path():
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    b = Path([[20, 10], [30, 10], [30, 20], [20, 20]])
+    b = Path2D([[20, 10], [30, 10], [30, 20], [20, 20]])
     result = a.difference(b)
     assert isinstance(result, Region)
     from shapely.geometry import Polygon
@@ -231,28 +231,28 @@ def test_difference_with_path():
 
 def test_operator_or_with_path():
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
-    b = Path([[20, 0], [50, 0], [50, 30], [20, 30]])
+    b = Path2D([[20, 0], [50, 0], [50, 30], [20, 30]])
     result = a | b
     assert isinstance(result, Region)
 
 
 def test_operator_and_with_path():
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
-    b = Path([[20, 0], [50, 0], [50, 30], [20, 30]])
+    b = Path2D([[20, 0], [50, 0], [50, 30], [20, 30]])
     result = a & b
     assert isinstance(result, Region)
 
 
 def test_operator_sub_with_path():
     a = Region([[0, 0], [50, 0], [50, 40], [0, 40]])
-    b = Path([[20, 10], [30, 10], [30, 30], [20, 30]])
+    b = Path2D([[20, 10], [30, 10], [30, 30], [20, 30]])
     result = a - b
     assert isinstance(result, Region)
 
 
 def test_raises_on_open_path():
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    b = Path([[20, 0], [60, 0], [60, 30]], closed=False)
+    b = Path2D([[20, 0], [60, 0], [60, 30]], closed=False)
     with pytest.raises(ValueError, match="closed"):
         a.union(b)
     with pytest.raises(ValueError, match="closed"):
@@ -261,14 +261,14 @@ def test_raises_on_open_path():
 
 def test_symmetric_difference_with_path():
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    b = Path2D([[20, 0], [60, 0], [60, 30], [20, 30]])
     result = a.symmetric_difference(b)
     assert isinstance(result, Region)
 
 
 def test_operator_xor_with_path():
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    b = Path2D([[20, 0], [60, 0], [60, 30], [20, 30]])
     result = a ^ b
     assert isinstance(result, Region)
 
@@ -286,7 +286,7 @@ def test_region_hull_two_squares():
 
 def test_region_hull_with_path():
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
-    b = Path([[40, 0], [70, 0], [70, 50], [40, 50]])
+    b = Path2D([[40, 0], [70, 0], [70, 50], [40, 50]])
     result = Region.hull(a, b)
     assert isinstance(result, Region)
 
@@ -312,22 +312,22 @@ def test_region_hull_empty():
 
 def test_region_hull_raises_on_open_path():
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
-    b = Path([[40, 0], [70, 0], [70, 30]], closed=False)
+    b = Path2D([[40, 0], [70, 0], [70, 30]], closed=False)
     with pytest.raises(ValueError, match="closed"):
         Region.hull(a, b)
 
 
 def test_path_hull_two_squares():
-    a = Path([[0, 0], [30, 0], [30, 30], [0, 30]])
-    b = Path([[40, 0], [70, 0], [70, 30], [40, 30]])
-    result = Path.hull(a, b)
-    assert isinstance(result, Path)
+    a = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]])
+    b = Path2D([[40, 0], [70, 0], [70, 30], [40, 30]])
+    result = Path2D.hull(a, b)
+    assert isinstance(result, Path2D)
     assert result.closed
 
 
 def test_path_hull_list_arg():
-    a = Path([[0, 0], [20, 0], [20, 20], [0, 20]])
-    b = Path([[30, 0], [50, 0], [50, 20], [30, 20]])
-    result = Path.hull([a, b])
-    assert isinstance(result, Path)
+    a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Path2D([[30, 0], [50, 0], [50, 20], [30, 20]])
+    result = Path2D.hull([a, b])
+    assert isinstance(result, Path2D)
     assert result.closed

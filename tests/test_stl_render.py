@@ -255,7 +255,7 @@ def test_linear_sweep_twist_scale(tmp_path):
     setup = "square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]\n"
     m = _render(
         tmp_path,
-        "Path(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron()",
+        "Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron()",
         setup=setup,
         name="linsweep",
     )
@@ -267,7 +267,7 @@ def test_linear_sweep_plain_volume(tmp_path):
     setup = "square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]\n"
     m = _render(
         tmp_path,
-        "Path(square).linear_sweep(height=5).polyhedron()",
+        "Path2D(square).linear_sweep(height=5).polyhedron()",
         setup=setup,
         name="linplain",
     )
@@ -286,7 +286,7 @@ def test_rotate_sweep_partial(tmp_path):
     setup = "profile = [[4, -10], [12, -10], [12, 10], [4, 10]]\n"
     m = _render(
         tmp_path,
-        "Path(profile).rotate_sweep(angle=270).polyhedron()",
+        "Path2D(profile).rotate_sweep(angle=270).polyhedron()",
         setup=setup,
         name="revolve270",
     )
@@ -298,7 +298,7 @@ def test_spiral_sweep_coil(tmp_path):
     setup = "section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]\n"
     m = _render(
         tmp_path,
-        "Path(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron()",
+        "Path2D(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron()",
         setup=setup,
         name="coil",
     )

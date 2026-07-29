@@ -20,7 +20,7 @@ import pytest
 
 import pybosl2.shapes2d as s2
 from pybosl2._helpers import unwrap
-from pybosl2.paths import Path
+from pybosl2.paths import Path2D
 from pybosl2.regions import Region
 from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid, cuboid
@@ -182,7 +182,7 @@ def test_fill_returns_the_2d_wrapper():
 def test_module_level_fill_accepts_every_child_form():
     assert isinstance(s2.fill(s2.square(10)), Bosl2Shape2D)  # wrapper
     assert isinstance(s2.fill(s2.square(10).shape), Bosl2Shape2D)  # raw native
-    assert isinstance(s2.fill(Path(SQUARE_PTS)), Bosl2Shape2D)  # Path
+    assert isinstance(s2.fill(Path2D(SQUARE_PTS)), Bosl2Shape2D)  # Path2D
     assert isinstance(s2.fill(Region([SQUARE_PTS])), Bosl2Shape2D)  # Region
     assert isinstance(s2.fill(SQUARE_PTS), Bosl2Shape2D)  # bare point list
 
@@ -209,7 +209,7 @@ def test_fill_closes_the_hole_without_changing_the_outline():
 @needs_native_2d_bbox
 def test_fill_of_a_self_intersecting_path_has_no_interior_loop():
     # a bowtie: polygon() leaves the crossing loops, fill() keeps only the outer boundary
-    bowtie = Path([[0, 0], [20, 20], [20, 0], [0, 20]])
+    bowtie = Path2D([[0, 0], [20, 20], [20, 0], [0, 20]])
     np.testing.assert_allclose(bowtie.fill().shape.size, [20, 20], atol=1e-6)
 
 
@@ -226,7 +226,7 @@ def test_hull_accepts_every_child_form():
     base = s2.circle(radius=5)
     assert isinstance(base.hull(s2.circle(radius=5).right(30)), Bosl2Shape2D)  # wrapper
     assert isinstance(base.hull(s2.circle(radius=5).shape), Bosl2Shape2D)  # raw native
-    assert isinstance(base.hull(Path(SQUARE_PTS)), Bosl2Shape2D)  # Path
+    assert isinstance(base.hull(Path2D(SQUARE_PTS)), Bosl2Shape2D)  # Path2D
     assert isinstance(base.hull(Region([SQUARE_PTS])), Bosl2Shape2D)  # Region
     assert isinstance(base.hull(SQUARE_PTS), Bosl2Shape2D)  # bare point list
 
@@ -236,7 +236,7 @@ def test_module_level_hull_takes_varargs_or_one_list():
     assert isinstance(s2.hull(a, b), Bosl2Shape2D)
     assert isinstance(s2.hull([a, b]), Bosl2Shape2D)  # a single list *of* shapes
     assert isinstance(s2.hull(SQUARE_PTS), Bosl2Shape2D)  # ...not mistaken for a point list
-    assert isinstance(s2.hull(Path(SQUARE_PTS)), Bosl2Shape2D)  # ...nor a Path (a list subclass)
+    assert isinstance(s2.hull(Path2D(SQUARE_PTS)), Bosl2Shape2D)  # ...nor a Path2D (a list subclass)
 
 
 def test_module_level_hull_rejects_no_children():
@@ -307,7 +307,7 @@ def test_round2d_and_shell2d_offset_through_the_wrapper():
 
 def test_round2d_and_shell2d_accept_unwrapped_children():
     assert isinstance(s2.round2d(radius=1, children=s2.square(10).shape), Bosl2Shape2D)
-    assert isinstance(s2.shell2d(thickness=1, children=Path(SQUARE_PTS)), Bosl2Shape2D)
+    assert isinstance(s2.shell2d(thickness=1, children=Path2D(SQUARE_PTS)), Bosl2Shape2D)
 
 
 # ---------------------------------------------------------------------------
@@ -403,26 +403,26 @@ def test_out_of_plane_distributors_are_rejected():
 
 
 # ---------------------------------------------------------------------------
-# Path / Region
+# Path2D / Region
 # ---------------------------------------------------------------------------
 
 
 def test_path_geometry_is_the_2d_wrapper():
-    path = Path(SQUARE_PTS)
+    path = Path2D(SQUARE_PTS)
     assert isinstance(path.polygon(), Bosl2Shape2D)
     assert isinstance(path.geometry(), Bosl2Shape2D)
     assert not isinstance(path.polygon().shape, Bosl2Shape2D)
 
 
 def test_path_2d_operators():
-    path = Path(SQUARE_PTS)
+    path = Path2D(SQUARE_PTS)
     assert isinstance(path.fill(), Bosl2Shape2D)
     assert isinstance(path.polygon().hull(), Bosl2Shape2D)
     assert isinstance(path.polygon().hull(s2.circle(radius=5)), Bosl2Shape2D)
 
 
 def test_path_extruders():
-    path = Path(SQUARE_PTS)
+    path = Path2D(SQUARE_PTS)
     assert isinstance(path.linear_extrude(height=4), Bosl2Solid)
     assert isinstance(path.linear_extrude(height=4, center=True, twist=20), Bosl2Solid)
     assert isinstance(path.translate([30, 0]).rotate_extrude(angle=180), Bosl2Solid)

@@ -20,7 +20,7 @@ from pybosl2.nurbs import (
     nurbs_patch_points,
     nurbs_vnf,
 )
-from pybosl2.paths import Path, Path3D
+from pybosl2.paths import Path2D, Path3D
 from pybosl2.vnf import VNF
 
 CTRL3 = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
@@ -44,7 +44,7 @@ def test_curve_returns_path3d_for_3d_control():
 
 def test_curve_returns_path_for_2d_control():
     c = nurbs_curve(CTRL2, 3, splinesteps=6)
-    assert isinstance(c, Path)
+    assert isinstance(c, Path2D)
     assert not isinstance(c, Path3D)
 
 
@@ -56,14 +56,14 @@ def test_clamped_curve_interpolates_endpoints():
 
 def test_scalar_u_returns_single_point():
     pt = nurbs_curve(CTRL3, 3, u=0.5)
-    assert not isinstance(pt, (Path, Path3D))
+    assert not isinstance(pt, (Path2D, Path3D))
     assert len(pt) == 3
     assert all(isinstance(x, float) for x in pt)
 
 
 def test_closed_curve_is_flagged_closed():
     c = nurbs_curve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type="closed")
-    assert isinstance(c, Path)
+    assert isinstance(c, Path2D)
     assert c.closed is True
 
 

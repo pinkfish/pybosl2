@@ -6,7 +6,7 @@
 
 """Tests for pybosl2.paths.Path3D: the 3-D path object -- construction, measurement, the 3-D
 transforms (move / directional / scale / rotate / mirror), resampling/cutting, and the drop-to-2-D
-conversion. The numeric kernels are shared with Path (and pinned to real BOSL2 elsewhere); these
+conversion. The numeric kernels are shared with Path2D (and pinned to real BOSL2 elsewhere); these
 tests focus on the 3-D object surface."""
 
 import math
@@ -14,7 +14,7 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path, Path3D
+from pybosl2.paths import Path2D, Path3D
 
 SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 
@@ -148,7 +148,7 @@ def test_closest_point():
 def test_path2d_drops_z():
     p = Path3D([[1, 2, 9], [3, 4, 8]], closed=False)
     flat = p.path2d()
-    assert isinstance(flat, Path)
+    assert isinstance(flat, Path2D)
     np.testing.assert_allclose(flat, [[1, 2], [3, 4]], atol=1e-9)
     assert flat.closed is False
 
