@@ -23,6 +23,7 @@ while omitting inherently 2-D operations like polygon/area/offset.
 from __future__ import annotations
 
 import math
+from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -645,6 +646,22 @@ class PathBase:
 # ---------------------------------------------------------------------------
 # Section: Path object
 # ---------------------------------------------------------------------------
+
+
+class MinkowskiJoin(Enum):
+    """Corner join style for :meth:`Path.minkowski_sum_circle`.
+
+    ``ROUND``
+        Circular arc joins (default). Smooth, radiused corners.
+    ``MITRE``
+        Sharp mitered joins, clipped at *mitre_limit*.
+    ``BEVEL``
+        Flat chamfered joins.
+    """
+
+    ROUND = 1
+    MITRE = 2
+    BEVEL = 3
 
 
 class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
@@ -1388,30 +1405,81 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         pts = list(hull_points.exterior.coords)[:-1]  # drop closing repeat
         return Path([[float(x), float(y)] for x, y in pts], closed=True)
 
-    def minkowski_sum_circle(self, radius: float) -> "Path":
+    def minkowski_sum_circle(
+        self,
+        radius: float,
+        join: MinkowskiJoin = MinkowskiJoin.ROUND,
+        mitre_limit: float = 5.0,
+        single_sided: bool = False,
+        quad_segs: int = 16,
+    ) -> "Path":
         """The Minkowski sum of this closed path with a circle of *radius*.
 
         Uses shapely :meth:`~shapely.geometry.Polygon.buffer` for an
-        efficient round‑join offset — essentially ``minkowski_sum`` with
-        a circle. Positive *radius* dilates (outline grows); negative
-        erodes (outline shrinks).
+        efficient offset with configurable corner style. Positive *radius*
+        dilates (outline grows); negative erodes (shrinks).
+
+        Corner join styles:
+        * :attr:`MinkowskiJoin.ROUND` — smooth radiused corners (default)
+        * :attr:`MinkowskiJoin.MITRE` — sharp mitered corners (clipped at *mitre_limit*)
+        * :attr:`MinkowskiJoin.BEVEL` — flat chamfered corners
+
+        Set *single_sided* to ``True`` for a one‑sided dilation. *quad_segs*
+        controls the segment count per quadrant for round joins (default 16).
 
         Args:
             radius: The buffer radius (positive = dilate, negative = erode).
+            join: Corner join style (default :attr:`MinkowskiJoin.ROUND`).
+            mitre_limit: Maximum mitre extension ratio (:attr:`MinkowskiJoin.MITRE` only).
+            single_sided: If ``True``, dilate on one side of the outline only.
+            quad_segs: Segments per quadrant for round joins (default 16).
 
         Returns:
             A new closed :class:`Path`.
 
         Raises:
             ValueError: If the path is not closed.
+
+        Examples:
+            Round join (default):
+
+            .. pythonscad-example::
+
+                base = Path([[0, 0], [30, 0], [30, 20], [0, 20]])
+                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.ROUND) \\
+                    .polygon().linear_extrude(height=3).show()
+
+            Sharp mitered corners:
+
+            .. pythonscad-example::
+
+                base = Path([[0, 0], [30, 0], [30, 20], [0, 20]])
+                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.MITRE) \\
+                    .polygon().linear_extrude(height=3).show()
+
+            Flat bevel (chamfered) corners:
+
+            .. pythonscad-example::
+
+                base = Path([[0, 0], [30, 0], [30, 20], [0, 20]])
+                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.BEVEL) \\
+                    .polygon().linear_extrude(height=3).show()
         """
+        from shapely.geometry import JOIN_STYLE
         from shapely.geometry import Polygon as _Polygon
 
         if not self.closed:
             raise ValueError("minkowski_sum_circle() requires a closed path. Close it with .close() first.")
 
         pts = [(float(p[0]), float(p[1])) for p in self._points]
-        poly = _Polygon(pts).buffer(radius)
+        style_map = {
+            MinkowskiJoin.ROUND: JOIN_STYLE.round,
+            MinkowskiJoin.MITRE: JOIN_STYLE.mitre,
+            MinkowskiJoin.BEVEL: JOIN_STYLE.bevel,
+        }
+        poly = _Polygon(pts).buffer(
+            radius, join_style=style_map[join], mitre_limit=mitre_limit, single_sided=single_sided, quad_segs=quad_segs
+        )
         if poly.is_empty:
             return Path([], closed=True)
         coords = list(poly.exterior.coords)[:-1]
