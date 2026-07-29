@@ -48,8 +48,8 @@ from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
     from pybosl2.caps import CapsSpec, CapType
-    from pybosl2.constants import Vector
     from pybosl2.paths import Path, Path3D
+    from pybosl2.points import Vector
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np

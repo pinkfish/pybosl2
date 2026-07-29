@@ -42,7 +42,6 @@ if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this m
 from pybosl2.bounds import Bounds2D, Bounds3D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.comparisons import approx
-from pybosl2.constants import Vector
 from pybosl2.distributors import (
     Distributable,
     _apply4,
@@ -58,7 +57,7 @@ from pybosl2.geometry import (
 )
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 from pybosl2.miscellaneous import Extrudable  # path_extrude / path_extrude2d, as methods
-from pybosl2.points import Point
+from pybosl2.points import Point, Vector
 from pybosl2.rounding import Roundable  # round_corners / smooth_path, as methods
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import add_scalar, unit
