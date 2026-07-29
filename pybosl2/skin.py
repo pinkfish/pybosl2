@@ -38,7 +38,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Sequence, Union
+from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
     from pybosl2.paths import Path, Path3D
@@ -46,6 +46,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
+from pybosl2.caps import CapsSpec, CapType, _caps_as_bools, _norm_caps
 from pybosl2.constants import Vec3
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -73,7 +74,7 @@ class Sweepable:
         tangent: Sequence[Sequence[float]] | None = None,
         uniform: bool = True,
         relaxed: bool = False,
-        caps: CapsSpec = None,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
     ) -> VNF | list[list[list[float]]]:
@@ -102,7 +103,7 @@ class Sweepable:
         self: Path,
         shape: Path,
         closed: bool = False,
-        caps: CapsSpec = None,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
     ) -> VNF:
         """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d())."""
@@ -116,7 +117,7 @@ class Sweepable:
         shift: Sequence[float] = (0.0, 0.0),
         slices: int | None = None,
         center: bool = False,
-        caps: CapsSpec = None,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
     ) -> VNF:
         """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep())."""
@@ -135,8 +136,8 @@ class Sweepable:
     def rotate_sweep(  # type: ignore[misc]
         self: Path,
         angle: float = 360.0,
-        caps: CapsSpec = None,
-        closed: bool | None = None,
+        caps: CapsSpec = CapType.BUTT,
+        _closed: bool | None = None,
         style: str = "min_edge",
         start: float = 0.0,
     ) -> VNF:
@@ -145,7 +146,6 @@ class Sweepable:
             self,
             angle=angle,
             caps=caps,
-            closed=closed,
             style=style,
             start=start,
         )
@@ -261,33 +261,11 @@ def frame_map(
     return m
 
 
-#: A BOSL2 ``caps=`` argument: one bool for both ends, a ``[cap1, cap2]`` pair for each end
-#: separately, or None to take the call's own default. Every sweep/skin entry point accepts all
-#: three spellings, exactly as BOSL2 does -- see :func:`_norm_caps`.
-CapsSpec = Union[bool, Sequence[bool], None]
-
-
-def _norm_caps(caps: CapsSpec, closed: bool = False, default: bool = True) -> list[bool]:
-    """Normalize a :data:`CapsSpec` to a plain ``[cap1, cap2]`` bool pair.
-
-    A single bool (or numpy bool) caps both ends alike, a 2-sequence caps each end separately,
-    and None falls back to *default*. A *closed* sweep loops back on itself and so has no ends to
-    cap -- it is always uncapped, whatever was asked for.
-    """
-    if closed:
-        return [False, False]
-    if caps is None:
-        return [default, default]
-    if isinstance(caps, (list, tuple, np.ndarray)):
-        return [bool(caps[0]), bool(caps[1])]
-    return [bool(caps), bool(caps)]
-
-
 def sweep(
     shape: Sequence[Sequence[float]],
     transforms: Sequence[Sequence[Sequence[float]]],
     closed: bool = False,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF.
@@ -301,7 +279,7 @@ def sweep(
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     assert len(shape3) >= 3, "shape must be a path of at least 3 points."
-    flatcaps = _norm_caps(caps, closed=closed)
+    flatcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
     ntrans = len(transforms)
     assert ntrans >= 2, "transforms must be length 2 or more."
     hi = ntrans - (0 if closed else 1)
@@ -324,7 +302,7 @@ def _path_sweep(
     tangent: Sequence[Sequence[float]] | None = None,
     uniform: bool = True,
     relaxed: bool = False,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
     transforms: bool = False,
 ):
@@ -344,9 +322,9 @@ def _path_sweep(
             helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
             Path3D(helix).path_sweep(square).polyhedron().show()
     """
-    from pybosl2.paths import Path  # local: keep the import graph acyclic
+    from pybosl2.paths import Path3D  # local: keep the import graph acyclic
 
-    caps = _norm_caps(caps, closed=closed)  # a closed loop has no ends to cap
+    _flatcaps = _caps_as_bools(_norm_caps(caps, closed=closed))  # a closed loop has no ends to cap
     patharr = np.asarray(path3d(path), dtype=float)
     npts = len(patharr)
     assert npts >= 2, "path must have at least 2 points."
@@ -354,7 +332,7 @@ def _path_sweep(
     if tangent is not None:
         tangents = np.array([_u(t) for t in path3d(tangent)])
     else:
-        tangents = np.asarray(Path._path_tangents(patharr, closed=closed, uniform=uniform), dtype=float)
+        tangents = np.asarray(Path3D(patharr).path_tangents(closed=closed, uniform=uniform), dtype=float)
 
     # Resolve the initial/per-point normal.
     if normal is not None:
@@ -373,11 +351,11 @@ def _path_sweep(
         normals = np.tile(normal_single, (npts, 1))
 
     if twist_by_length:
-        tpathfrac = np.asarray(Path._path_length_fractions(patharr, closed), dtype=float)
+        tpathfrac = np.asarray(Path3D(patharr).path_length_fractions(closed=closed), dtype=float)
     else:
         tpathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
     if scale_by_length:
-        spathfrac = np.asarray(Path._path_length_fractions(patharr, closed), dtype=float)
+        spathfrac = np.asarray(Path3D(patharr).path_length_fractions(closed=closed), dtype=float)
     else:
         spathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
 
@@ -449,7 +427,7 @@ def _path_sweep(
                 translate4(patharr[i % npts]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i])
             )
     elif method == "natural":
-        pathnormal = np.asarray(Path._path_normals(patharr, tangents, closed), dtype=float)
+        pathnormal = np.asarray(Path3D(patharr).path_normals(tangents=tangents, closed=closed), dtype=float)
         unscaled = [
             translate4(patharr[i % npts])
             @ frame_map(x=pathnormal[i % npts], z=tangents[i % npts])
@@ -516,7 +494,7 @@ def skin(
     refine: float = 1.0,
     method: str = "direct",
     sampling: str | None = None,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     closed: bool = False,
     style: str = "min_edge",
     z: Sequence[float] | None = None,
@@ -525,7 +503,7 @@ def skin(
 
     Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are
     inserted between each pair to smooth the transition. Profiles of differing point counts are
-    resampled up to the largest (via :meth:`Path._subdivide_path`).
+    resampled up to the largest (via :meth:`Path.subdivide_path`).
 
     Args:
         profiles: list of >= 2 closed profiles (each a list of points). If 2-D, give matching *z*.
@@ -553,7 +531,7 @@ def skin(
     sides = len(profiles)
     assert sides > 1, "skin() needs at least two profiles."
     profcount = sides - (0 if closed else 1)
-    fullcaps = _norm_caps(caps, closed=closed)
+    fullcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
     refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
@@ -568,10 +546,10 @@ def skin(
         assert z is not None and len(z) == sides, "skin(): 2-D profiles need a matching-length z list."
         profiles = [[[pt[0], pt[1], z[i]] for pt in profiles[i]] for i in range(sides)]
 
-    from pybosl2.paths import Path  # local: keep the import graph acyclic
+    from pybosl2.paths import Path3D  # local: keep the import graph acyclic
 
     maxlen = max(refine_list[i] * len(profiles[i]) for i in range(sides))
-    resampled = [Path._subdivide_path(profiles[i], sides=maxlen, closed=True, method=sampling) for i in range(sides)]
+    resampled = [Path3D(profiles[i]).subdivide_path(sides=maxlen, closed=True, method=sampling) for i in range(sides)]
     fixedprof = [resampled[0]]
     for i in range(1, sides):
         if method[i - 1] == "direct":
@@ -596,7 +574,7 @@ def _linear_sweep(
     scale=1,
     shift=(0.0, 0.0),
     slices: int | None = None,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "default",
     center: bool | None = None,
 ) -> VNF:
@@ -630,7 +608,7 @@ def _linear_sweep(
         slices = max(1, math.ceil(abs(twist) / 5))
     sc = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]
     sh = [float(shift[0]), float(shift[1])]
-    fullcaps = _norm_caps(caps)
+    fullcaps = _caps_as_bools(_norm_caps(caps))
     z0 = -hh / 2 if center else 0.0
     base = np.asarray(path3d(path), dtype=float)
     verts = []
@@ -649,8 +627,8 @@ def _linear_sweep(
 def _rotate_sweep(
     shape: Sequence[Sequence[float]] | Path,
     angle: float = 360.0,
-    caps: CapsSpec = None,
-    closed: bool | None = None,
+    caps: CapsSpec = CapType.BUTT,
+    _closed: bool | None = None,
     style: str = "min_edge",
     start: float = 0.0,
 ) -> VNF:
@@ -677,7 +655,7 @@ def _rotate_sweep(
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
     # Default: cap a partial revolution / an explicitly-open profile, but never a full one.
-    capv = _norm_caps(caps, default=(not closed) if closed is not None else (angle < 360))
+    capv = _caps_as_bools(_norm_caps(caps))
     prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
     if any(capv) and not full:
@@ -694,7 +672,10 @@ def _rotate_sweep(
         prof,
         transforms,
         closed=full,
-        caps=[(not full) and capv[0], (not full) and capv[1]],
+        caps=[
+            CapType.BUTT if (not full) and capv[0] else CapType.NONE,
+            CapType.BUTT if (not full) and capv[1] else CapType.NONE,
+        ],
         style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -769,7 +750,7 @@ def _spiral_sweep(
         transforms.append(
             translate4([0, 0, z]) @ zrot4(a * math.copysign(1, turns)) @ translate4([rad, 0, 0]) @ _xrot4(90)
         )
-    vnf = sweep(poly, transforms, closed=False, caps=(True, True), style=style)
+    vnf = sweep(poly, transforms, closed=False, caps=[CapType.BUTT, CapType.BUTT], style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -784,7 +765,10 @@ def subdivide_and_slice(
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
     the profile lengths. Returns the stacked list of (equal-length) profiles."""
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path, Path3D
+
+    def _wrap(prof):
+        return Path3D(prof) if prof and len(prof[0]) == 3 else Path(prof)
 
     maxsize = max(len(p) for p in profiles)
     if numpoints is None:
@@ -795,7 +779,7 @@ def subdivide_and_slice(
         numpoints = reduce(lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles])
     numpoints = round(numpoints)
     assert numpoints >= maxsize, "subdivide_and_slice(): numpoints is smaller than the largest profile."
-    fixed = [Path._subdivide_path(p, sides=numpoints, closed=True, method=method) for p in profiles]
+    fixed = [_wrap(p).subdivide_path(sides=numpoints, closed=True, method=method) for p in profiles]
     return slice_profiles(fixed, slices, closed)
 
 
@@ -1015,7 +999,7 @@ def _offset_sweep(
     bottom=None,
     top=None,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
@@ -1047,7 +1031,7 @@ def _offset_sweep(
     from pybosl2.paths import Path as _Path
 
     assert height > 0, "offset_sweep(): height must be positive."
-    fullcaps = _norm_caps(caps)
+    fullcaps = _caps_as_bools(_norm_caps(caps))
 
     base = [[float(p[0]), float(p[1])] for p in path]
 
@@ -1198,9 +1182,9 @@ def _offset_sweep(
 
     # Normalise all rings to the same vertex count.
     maxn = max(len(r) for r in profiles_3d)
-    from pybosl2.paths import Path as _Path2
+    from pybosl2.paths import Path3D as _Path3D
 
-    norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
+    norm = [_Path3D(row).subdivide_path(sides=maxn, closed=True, method="length") for row in profiles_3d]
 
     vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -1212,7 +1196,7 @@ def _convex_offset_extrude(
     bottom=None,
     top=None,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).
@@ -1231,7 +1215,7 @@ def _rounded_prism(
     joint_sides: float | list[float] | None = None,
     curvature_sides: float | list[float] | None = None,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
     **kwargs,
 ) -> VNF:
@@ -1436,10 +1420,10 @@ def _rounded_prism(
 
     # Normalise rings
     maxn = max(len(r) for r in profiles_3d)
-    from pybosl2.paths import Path as _Path2
+    from pybosl2.paths import Path3D as _Path3D
 
-    norm = [_Path2._subdivide_path(row, sides=maxn, closed=True, method="length") for row in profiles_3d]
-    fullcaps = _norm_caps(caps)
+    norm = [_Path3D(row).subdivide_path(sides=maxn, closed=True, method="length") for row in profiles_3d]
+    fullcaps = _caps_as_bools(_norm_caps(caps))
 
     vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -1450,7 +1434,7 @@ def _join_prism(
     height: float,
     fillet: float = 0.0,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).
@@ -1469,7 +1453,7 @@ def _prism_connector(
     fillet1: float | None = None,
     fillet2: float | None = None,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
@@ -1490,7 +1474,7 @@ def _attach_prism(
     fillet: float = 0.0,
     rounding: float = 0.0,
     steps: int = 16,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
 ) -> VNF:
     """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
@@ -1553,7 +1537,7 @@ def _path_sweep2d(
     shape: Sequence[Sequence[float]] | Path,
     path: Sequence[Sequence[float]] | Path,
     closed: bool = False,
-    caps: CapsSpec = None,
+    caps: CapsSpec = CapType.BUTT,
     quality: int = 1,
     style: str = "min_edge",
 ) -> VNF:
@@ -1587,10 +1571,10 @@ def _path_sweep2d(
     _ = quality
     shp: Path = shape if isinstance(shape, Path) else Path(shape)
     p: Path = path if isinstance(path, Path) else Path(path)
-    fullcaps = _norm_caps(caps, closed=closed)
-    profile = shp if not shp.is_clockwise() else shp.reversed_path()  # ccw_polygon
+    fullcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
+    profile = shp if not shp.is_clockwise() else shp.reverse()  # ccw_polygon
     flip = -1.0 if (closed and p.is_clockwise()) else 1.0
-    pth = p if flip > 0 else p.reversed_path()
+    pth = p if flip > 0 else p.reverse()
 
     # For each profile point, offset the path by -flip*x and lift the result to z=y.
     per_point = []

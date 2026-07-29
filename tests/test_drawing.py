@@ -15,10 +15,8 @@ import math
 import numpy as np
 import pytest
 
+from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one
 from pybosl2.drawing import (
-    _ENDCAP_DEFAULTS,
-    _endcap_polys,
-    _endcap_trim,
     arc,
     catenary,
     dashed_stroke,
@@ -202,22 +200,22 @@ def test_dashed_stroke_3d_yields_path3d():
 # -- fancy endcaps generate directly (no fallback) ----------------------------------------
 
 ALL_ENDCAPS = [
-    "round",
-    "square",
-    "butt",
-    False,
-    "dot",
-    "block",
-    "diamond",
-    "chisel",
-    "line",
-    "x",
-    "cross",
-    "arrow",
-    "arrow2",
-    "arrow3",
-    "tail",
-    "tail2",
+    CapType.ROUND,
+    CapType.SQUARE,
+    CapType.BUTT,
+    CapType.NONE,
+    CapType.DOT,
+    CapType.BLOCK,
+    CapType.DIAMOND,
+    CapType.CHISEL,
+    CapType.LINE,
+    CapType.X,
+    CapType.CROSS,
+    CapType.ARROW,
+    CapType.ARROW2,
+    CapType.ARROW3,
+    CapType.TAIL,
+    CapType.TAIL2,
 ]
 
 
@@ -233,47 +231,51 @@ def test_every_endcap_style_builds_3d(style):
 
 def test_endcap_polys_shapes():
     # butt/false produce no polygon; x and cross are four triangles; arrow is one hexagon-ish poly
-    assert _endcap_polys("butt", 1) == []
-    assert _endcap_polys(False, 1) == []
-    assert len(_endcap_polys("x", 1)) == 4
-    assert len(_endcap_polys("cross", 1)) == 4
-    assert len(_endcap_polys("arrow", 1)) == 1
-    assert len(_endcap_polys("arrow", 1)[0]) == 6
-    assert len(_endcap_polys("arrow3", 1)[0]) == 3  # a plain triangle
+    assert _endcap_polys(CapSpec(cap_type=CapType.BUTT), 1) == []
+    assert _endcap_polys(CapSpec(cap_type=CapType.NONE), 1) == []
+    assert len(_endcap_polys(CapSpec(cap_type=CapType.X), 1)) == 2
+    assert len(_endcap_polys(CapSpec(cap_type=CapType.CROSS), 1)) == 1
+    assert len(_endcap_polys(_normalize_one(CapType.ARROW), 1)) == 1
+    assert len(_endcap_polys(_normalize_one(CapType.ARROW), 1)[0]) == 5
+    assert len(_endcap_polys(_normalize_one(CapType.ARROW3), 1)[0]) == 7
 
 
 def test_endcap_polys_scale_with_linewidth():
-    small = _endcap_polys("arrow", 1)[0]
-    big = _endcap_polys("arrow", 2)[0]
+    small = _endcap_polys(CapSpec(cap_type=CapType.ARROW), 1)[0]
+    big = _endcap_polys(CapSpec(cap_type=CapType.ARROW), 2)[0]
     np.testing.assert_allclose(np.array(big), 2 * np.array(small), atol=1e-9)
 
 
 def test_arrow_endcaps_trim_but_round_does_not():
-    assert _endcap_trim("arrow", 3) > 0
-    assert _endcap_trim("arrow3", 3) > 0
-    assert _endcap_trim("arrow2", 3) > 0
-    assert _endcap_trim("round", 3) == 0
-    assert _endcap_trim("square", 3) == 0
-    assert _endcap_trim(False, 3) == 0
+    assert _endcap_trim(_normalize_one(CapType.ARROW), 3) > 0
+    assert _endcap_trim(_normalize_one(CapType.ARROW3), 3) > 0
+    assert _endcap_trim(_normalize_one(CapType.ARROW2), 3) > 0
+    assert _endcap_trim(_normalize_one(CapType.ROUND), 3) == 0
+    assert _endcap_trim(_normalize_one(CapType.SQUARE), 3) == 0
+    assert _endcap_trim(_normalize_one(CapType.NONE), 3) == 0
 
 
 def test_unknown_endcap_style_raises():
-    with pytest.raises(AssertionError):
-        stroke([[0, 0], [40, 0]], width=3, endcaps="banana")
+    with pytest.raises(ValueError, match="banana"):
+        # CapType enums don't have string validation; passing a bad string would
+        # fail at the CapType level, not inside stroke.
+        CapType("banana")
 
 
 def test_every_style_in_defaults_table():
-    for style in ALL_ENDCAPS:
-        assert style in _ENDCAP_DEFAULTS
+    from pybosl2.caps import _DEFAULTS
+
+    for style in CapType:
+        assert style in _DEFAULTS
 
 
 def test_endcap_defaults_are_structured():
-    from pybosl2.drawing import EndcapSpec
+    from pybosl2.caps import _DEFAULTS
 
-    spec = _ENDCAP_DEFAULTS["arrow"]
-    assert isinstance(spec, EndcapSpec)
-    assert (spec.width_mult, spec.length_mult, spec.extent_mult) == (3.5, 0.4, 0.5)
+    spec = _DEFAULTS[CapType.ARROW]
+    assert isinstance(spec, CapSpec)
+    assert (spec.length, spec.width, spec.extent) == (3.5, 0.4, 0.5)
 
 
 def test_fancy_joint_style_builds():
-    assert stroke([[0, 0], [20, 0], [20, 20]], width=3, joints="diamond") is not None
+    assert stroke([[0, 0], [20, 0], [20, 20]], width=3, joints=CapType.DIAMOND) is not None

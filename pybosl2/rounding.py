@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import is_num
+from pybosl2.caps import CapType
 from pybosl2.comparisons import approx
 
 # Late imports to avoid circular dependencies
@@ -70,7 +71,7 @@ def _bezcorner(points, parm, fn=0, fs=2.0):
     else:
         ctrl = _smooth_bez_fill(points, float(parm))
     bez = Bezier([[float(c) for c in p] for p in ctrl])
-    sides = max(3, fn if fn and fn > 0 else math.ceil(bez.length() / fs))
+    sides = max(3, fn if fn and fn > 0 else math.ceil(bez.arc_length() / fs))
     return [[float(c) for c in p] for p in bez.curve(sides, endpoint=True)]
 
 
@@ -399,8 +400,8 @@ class Roundable:
         self,
         width: float = 1.0,
         closed: bool | None = None,
-        endcap: str = "round",
-        joint: str = "round",
+        endcap: CapType = CapType.ROUND,
+        joint: CapType = CapType.ROUND,
     ):
         """Offset this 2-D path to create a thickened outline Region (BOSL2 offset_stroke())."""
         return _offset_stroke(
@@ -417,7 +418,7 @@ class Roundable:
         bottom=None,
         top=None,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Offset sweep/extrusion of this 2-D shape (BOSL2 offset_sweep())."""
@@ -439,7 +440,7 @@ class Roundable:
         bottom=None,
         top=None,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Offset sweep/extrusion of this 2-D shape (BOSL2 convex_offset_extrude())."""
@@ -464,7 +465,7 @@ class Roundable:
         joint_sides=None,
         curvature_sides=None,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
         **kwargs,
     ):
@@ -493,7 +494,7 @@ class Roundable:
         height: float,
         fillet: float = 0.0,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Join this prism to a base plane with a filleted transition (BOSL2 join_prism())."""
@@ -515,7 +516,7 @@ class Roundable:
         fillet1=None,
         fillet2=None,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Construct a filleted prism connecting two objects (BOSL2 prism_connector())."""
@@ -538,7 +539,7 @@ class Roundable:
         fillet: float = 0.0,
         rounding: float = 0.0,
         steps: int = 16,
-        caps=None,
+        caps=CapType.BUTT,
         style: str = "min_edge",
     ):
         """Attach a filleted prism with optional rounded end (BOSL2 attach_prism())."""
@@ -707,8 +708,8 @@ def _offset_stroke(
     path,
     width: float = 1.0,
     closed: bool = False,
-    endcap: str = "round",
-    joint: str = "round",
+    endcap: CapType = CapType.ROUND,
+    joint: CapType = CapType.ROUND,
 ) -> Any:
     """Offset a 2-D path by *width* to create a thickened outline Region (BOSL2 offset_stroke()).
 
@@ -729,12 +730,12 @@ def _offset_stroke(
         if not pts:
             return Region([])
 
-        # Map endcap/join style strings
-        cap_map = {"round": 1, "flat": 2, "square": 3, "butt": 2}
-        join_map = {"round": 1, "mitre": 2, "bevel": 3, "miter": 2}
+        # Map endcap/join style to shapely integer constants
+        cap_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.BUTT: 2, CapType.SQUARE: 3, CapType.FLAT: 2}
+        join_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.SQUARE: 3}
 
-        c_style = cap_map.get(endcap.lower() if isinstance(endcap, str) else "round", 1)
-        j_style = join_map.get(joint.lower() if isinstance(joint, str) else "round", 1)
+        c_style = cap_map.get(endcap, 1)
+        j_style = join_map.get(joint, 1)
 
         # For a closed loop, append first point to ensure it's closed
         line = LineString(pts + [pts[0]]) if closed and len(pts) > 1 and pts[0] != pts[-1] else LineString(pts)

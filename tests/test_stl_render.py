@@ -197,11 +197,11 @@ def test_sdf_bezier_sweep_watertight(tmp_path):
     assert m.watertight
 
 
-def test_bezpath_sweep(tmp_path):
+def test_sweep(tmp_path):
     setup = f"shape = {CIRCLE}\nbezpath = [[0,0,0],[10,0,0],[10,10,0],[10,10,10],[10,20,10],[0,20,10],[0,20,20]]\n"
     m = _render(
         tmp_path,
-        "Bezier(bezpath).bezpath_sweep(shape, splinesteps=8, n_degree=3).polyhedron()",
+        "Bezier(bezpath).sweep(shape, splinesteps=8, n_degree=3).polyhedron()",
         setup=setup,
         name="bezpathsweep",
     )

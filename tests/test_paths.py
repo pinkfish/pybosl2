@@ -44,9 +44,13 @@ def test_array_property():
 
 def test_bounds_width_length():
     p = Path(SQUARE)
-    np.testing.assert_allclose(p.bounds(), [[0, 0], [80, 60]])
-    assert p.width == 80
-    assert p.length_y == 60
+    bounds = p.bounds()
+    assert bounds.min_x == 0
+    assert bounds.min_y == 0
+    assert bounds.max_x == 80
+    assert bounds.max_y == 60
+    assert bounds.width == 80
+    assert bounds.length == 60
 
 
 def test_area():
@@ -152,8 +156,8 @@ def test_deduplicated():
     assert len(p.deduplicated()) == 3
 
 
-def test_reversed_path():
-    p = Path(SQUARE).reversed_path()
+def test_reverse():
+    p = Path(SQUARE).reverse()
     np.testing.assert_allclose(p[0], SQUARE[-1])
 
 
@@ -297,17 +301,13 @@ def test_point_in_polygon_static():
     assert Path._point_in_polygon([0, 30], SQUARE) == 0  # on the boundary
 
 
-def test_path_length_static_accepts_3d():
-    # the static kernel works on raw 3-D arrays (used by shapes3d.path_text)
-    assert math.isclose(Path._path_length([[0, 0, 0], [0, 0, 3], [0, 4, 3]]), 7.0)
+def test_path_length_accepts_3d():
+    from pybosl2.paths import Path3D
+
+    assert math.isclose(Path3D([[0, 0, 0], [0, 0, 3], [0, 4, 3]], closed=False).path_length(), 7.0)
 
 
 def test_shapely_backed_path_methods():
-    from pybosl2.paths import _SHAPELY
-
-    if not _SHAPELY:
-        pytest.skip("shapely is not installed")
-
     # contains
     p = Path(SQUARE)
     assert p.contains([40, 30]) is True

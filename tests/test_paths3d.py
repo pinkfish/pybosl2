@@ -37,7 +37,16 @@ def test_closed_flag_and_repr():
 def test_array_and_bounds():
     p = Path3D(SQUARE_LOOP)
     assert p.array.shape == (4, 3)
-    np.testing.assert_allclose(p.bounds(), [[0, 0, 0], [10, 10, 5]], atol=1e-9)
+    bounds = p.bounds()
+    assert bounds.min_x == 0
+    assert bounds.min_y == 0
+    assert bounds.min_z == 0
+    assert bounds.max_x == 10
+    assert bounds.max_y == 10
+    assert bounds.max_z == 5
+    assert bounds.width == 10
+    assert bounds.length == 10
+    assert bounds.height == 5
 
 
 def test_perimeter_open_vs_closed():
@@ -88,7 +97,7 @@ def test_mirror_across_plane():
 
 def test_reverse_close_cleanup_dedup():
     p = Path3D([[0, 0, 0], [1, 0, 0], [1, 1, 1]], closed=False)
-    np.testing.assert_allclose(p.reversed_path()[0], [1, 1, 1], atol=1e-9)
+    np.testing.assert_allclose(p.reverse()[0], [1, 1, 1], atol=1e-9)
     closed = p.close()
     np.testing.assert_allclose(closed[-1], [0, 0, 0], atol=1e-9)  # start point appended
     assert len(closed.cleanup()) == 3  # duplicate closing point dropped

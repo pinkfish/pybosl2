@@ -35,6 +35,7 @@ if TYPE_CHECKING:
 
     from openscad import PyOpenSCAD
 
+    from pybosl2.paths import Path, Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.texture import TextureType
 from pybosl2._backend import check_operand_backend as _check_operand_backend
@@ -44,7 +45,6 @@ from pybosl2.distributors import Distributable
 from pybosl2.geometry import cross
 from pybosl2.miscellaneous import Miscellaneous
 from pybosl2.partitions import Partitionable
-from pybosl2.paths import Path, Path3D
 from pybosl2.vectors import is_vector, unit
 
 from .constants import BOTTOM, CENTER, DOWN, FRONT, LEFT, UP
@@ -3197,12 +3197,12 @@ def path_text(
             kern_prefix += kern_list[i]
     textlength = prefix + kern_prefix
 
-    plen = Path._path_length(path)
+    plen = path.path_length()
     assert textlength <= plen, "path_text(): path is too short for the text."
     start = (plen - textlength) / 2.0 if center else 0.0
     dists = [start + c for c in centers]
 
-    pts = Path._path_cut_points(path, dists, direction=True)
+    pts = path.path_cut_points(dists, direction=True)
 
     normal_pv = _path_text_bcast_dir(normal, 3, path, "normal")
     top_pv = _path_text_bcast_dir(top, dim, path, "top")
