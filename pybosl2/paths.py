@@ -1361,6 +1361,29 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         """
         return self.polygon().hull(*others)
 
+    @classmethod
+    def convex_hull(cls, *others: "Path | Region") -> "Path":
+        """The 2-D convex hull of all the given closed paths and regions.
+
+        Uses shapely to compute the convex hull of the union of all input
+        geometries and returns the hull as a single closed :class:`Path`.
+
+        Args:
+            others: The closed paths or regions to hull together.
+
+        Returns:
+            A single closed :class:`Path` of the convex hull outline.
+
+        Raises:
+            ValueError: If any passed :class:`Path` is not closed.
+        """
+        from pybosl2.regions import Region  # local: Region imports Path from here
+
+        region = Region.convex_hull(*others)
+        if region.paths:
+            return region.paths[0]
+        return Path([])
+
     # -- 2-D -> 3-D (both backends) --------------------------------------------------------
 
     def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":

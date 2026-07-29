@@ -298,6 +298,46 @@ class Region:
         """
         return self.geometry().hull(*others)
 
+    @classmethod
+    def convex_hull(cls, *others: Region | Path) -> "Region":
+        """The 2-D convex hull of all the given regions and paths.
+
+        Uses shapely :func:`~shapely.convex_hull` on the union of all input
+        geometries. Accepts a flat list or multiple arguments::
+
+            Region.convex_hull(rect, circle)
+            Region.convex_hull([rect, circle])
+
+        Args:
+            others: The regions or closed paths to hull together.
+
+        Returns:
+            A :class:`Region` representing the convex hull.
+
+        Raises:
+            ValueError: If any passed :class:`Path` is not closed.
+        """
+        from shapely.ops import unary_union
+
+        from pybosl2.paths import Path as _Path
+
+        items = list(others[0]) if len(others) == 1 and isinstance(others[0], (list, tuple)) else list(others)
+        geoms = []
+        for item in items:
+            if isinstance(item, _Path):
+                if not item.closed:
+                    raise ValueError("convex_hull() requires closed Paths. Close them with .close() first.")
+                item = Region([item])
+            if not isinstance(item, Region):
+                raise TypeError(f"convex_hull() expects Region or Path, got {type(item).__name__}")
+            geoms.extend(item.geom.geoms)
+        if not geoms:
+            return Region()
+        result = unary_union(geoms).convex_hull
+        r = Region(_flatten_shapely_to_paths(result))
+        r._polygon = MultiPolygon([result]) if isinstance(result, Polygon) else result
+        return r
+
     def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
         """Extrude this region along +Z into a 3-D solid with holes included.
 
