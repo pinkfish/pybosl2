@@ -16,6 +16,7 @@ Cap types
     ``ROUND`` / ``SPHERE`` -- spherical end cap (planned)
     ``CIRCLE`` -- round-over end cap (planned)
     ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles
+    ``CUSTOM`` -- user-supplied path shape (requires *path* on CapSpec)
 
 .. note::
     Fancy sweep cap shapes (``ROUND``, ``SPHERE``, ``CIRCLE``) are
@@ -33,7 +34,7 @@ from typing import Sequence, Union
 
 import numpy as np
 
-__all__ = ["CapType", "CapSpec", "CapsSpec", "_caps_as_bools", "_endcap_polys", "_norm_caps"]
+__all__ = ["CapType", "CapSpec", "CapsSpec", "_caps_as_bools", "_endcap_polys", "_endcap_trim", "_norm_caps"]
 
 
 class CapType(Enum):
@@ -44,6 +45,7 @@ class CapType(Enum):
         ``BUTT`` / ``FLAT`` -- flat end cap
         ``ROUND`` / ``SPHERE`` -- spherical (planned)
         ``CIRCLE`` -- round-over (planned)
+        ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape
 
     Stroke endcap/joint types:
         ``ARROW`` / ``ARROW2`` / ``ARROW3`` -- arrow heads
@@ -62,6 +64,7 @@ class CapType(Enum):
     ROUND = "round"
     SPHERE = "sphere"
     CIRCLE = "circle"
+    CUSTOM = "custom"
     # Stroke endcap/joint types
     ARROW = "arrow"
     ARROW2 = "arrow2"
@@ -99,6 +102,9 @@ class CapSpec:
     shape; *length*, *width*, and *extent* control the dimensions; *angle*
     rotates the cap; *color* overrides the path colour when set.
 
+    When *cap_type* is :attr:`CapType.CUSTOM`, the *path* field must hold
+    a custom 2-D polygon to use as the endcap shape.
+
     Args:
         cap_type: The :class:`CapType` style.
         length: Cap length multiplier (along the path direction).
@@ -106,6 +112,7 @@ class CapSpec:
         extent: Extent multiplier for the cap shape.
         angle: Rotation angle of the cap in degrees.
         color: Override colour for the cap, or ``None`` for the path colour.
+        path: Custom polygon path for :attr:`CapType.CUSTOM`; ignored otherwise.
     """
 
     cap_type: CapType = DEFAULT_CAP
@@ -114,12 +121,16 @@ class CapSpec:
     extent: float = 0.0
     angle: float = 0.0
     color: str | None = None
+    path: Sequence[Sequence[float]] | None = None
+
+    def __post_init__(self) -> None:
+        if self.cap_type == CapType.CUSTOM and self.path is None:
+            raise ValueError("CapType.CUSTOM requires path= to be set on the CapSpec")
 
 
 # ---------------------------------------------------------------------------
 # Default CapSpec for each stroke endcap/joint CapType (BOSL2 _shape_defaults).
-# Used by _endcap_polys when a caller-supplied CapSpec does not provide
-# all dimensions; the caller's fields override these defaults.
+# Used by _endcap_polys via _normalize_one; the caller's fields override.
 # ---------------------------------------------------------------------------
 
 _DEFAULTS: dict[CapType, CapSpec] = {
@@ -174,7 +185,7 @@ def _normalize_one(cap: CapType | CapSpec) -> CapSpec:
 
     If given a raw :class:`CapType`, looks up the default :class:`CapSpec`
     from :data:`_DEFAULTS`. If given a :class:`CapSpec` already, returns it
-    unchanged (callers can set non-zero fields to override the defaults).
+    unchanged.
     """
     if isinstance(cap, CapSpec):
         return cap
@@ -198,7 +209,7 @@ def _caps_as_bools(cap_specs: list[CapSpec]) -> list[bool]:
 
 
 # ---------------------------------------------------------------------------
-# Stroke endcap polygon generation
+# Stroke endcap polygon generation (shared by drawing.py and caps.py)
 # ---------------------------------------------------------------------------
 
 
@@ -220,6 +231,10 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
     if spec.cap_type in (CapType.NONE, CapType.BUTT):
         return []
 
+    if spec.cap_type == CapType.CUSTOM:
+        assert spec.path is not None, "CapType.CUSTOM requires path= on the CapSpec"
+        return [np.asarray(spec.path, dtype=float)]
+
     w = spec.width
     length = spec.length * spec.width
     l2 = spec.extent * spec.width
@@ -230,8 +245,8 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
     style = spec.cap_type
     poly: list[np.ndarray] = []
     if style == CapType.ROUND:
-        th = np.linspace(0, math.pi, 16)
-        poly.append(np.column_stack([-math.cos(th) * s, math.sin(th) * s]))
+        th = np.linspace(0, np.pi, 16)
+        poly.append(np.column_stack([-np.cos(th) * s, np.sin(th) * s]))
     elif style == CapType.CHISEL:
         poly.append(np.array([[0, -s], [s * length, 0], [0, s]]))
     elif style == CapType.SQUARE:
@@ -243,8 +258,8 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
         p = s * length
         poly.append(np.array([[0, 0], [p / 2, -s], [p, 0], [p / 2, s]]))
     elif style == CapType.DOT:
-        th = np.linspace(0, 2 * math.pi, 16)
-        poly.append(np.column_stack([math.cos(th) * s, math.sin(th) * s]))
+        th = np.linspace(0, 2 * np.pi, 16)
+        poly.append(np.column_stack([np.cos(th) * s, np.sin(th) * s]))
     elif style == CapType.X:
         p = s * length
         poly.append(np.array([[0, -ss], [p, -s]]))
@@ -281,3 +296,20 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
         rot = np.array([[cos_a, -sin_a], [sin_a, cos_a]])
         poly = [(p @ rot.T).astype(float) for p in poly]  # type: ignore[attr-defined]
     return poly
+
+
+def _endcap_trim(spec: CapSpec, width: float) -> float:
+    """How far to pull the line back under an arrow endcap so it doesn't poke through the tip.
+
+    Args:
+        spec: The resolved cap specification.
+        width: The stroke line width.
+
+    Returns:
+        The trim distance in world units (0.0 for non-arrow styles).
+    """
+    if spec.cap_type in (CapType.ARROW, CapType.ARROW3):
+        return width * (spec.length * spec.width - 0.01)
+    if spec.cap_type == CapType.ARROW2:
+        return width * (spec.length * spec.width * 3 / 4)
+    return 0.0

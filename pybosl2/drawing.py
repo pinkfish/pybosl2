@@ -26,12 +26,12 @@ from __future__ import annotations
 
 import math
 import operator
-from dataclasses import dataclass
 from functools import reduce
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one
 from pybosl2.geometry import general_line_intersection, line_normal
 from pybosl2.math import lerp, lerpn
 from pybosl2.paths import Path, Path3D
@@ -54,7 +54,7 @@ __all__ = [
     "turtle",
     "stroke",
     "dashed_stroke",
-    "EndcapSpec",
+    "CapSpec",
 ]
 
 
@@ -402,139 +402,6 @@ def _turtle_arc(command, parm, parm2, state, index):
 # ---------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
-class EndcapSpec:
-    """The size multipliers for one stroke endcap/joint style (BOSL2 _shape_defaults()).
-
-    The realised width/length/extent are these times the stroke's line width, then the whole shape
-    is scaled by the line width again (as BOSL2 does).
-    """
-
-    width_mult: float
-    length_mult: float
-    extent_mult: float
-
-
-# Endcap/joint shape table, ported straight from BOSL2's _shape_defaults().
-_ENDCAP_DEFAULTS = {
-    None: EndcapSpec(1.0, 0.0, 0.0),
-    False: EndcapSpec(1.0, 0.0, 0.0),
-    True: EndcapSpec(1.0, 1.0, 0.0),
-    "butt": EndcapSpec(1.0, 0.0, 0.0),
-    "round": EndcapSpec(1.0, 1.0, 0.0),
-    "chisel": EndcapSpec(1.0, 1.0, 0.0),
-    "square": EndcapSpec(1.0, 1.0, 0.0),
-    "block": EndcapSpec(2.0, 1.0, 0.0),
-    "diamond": EndcapSpec(2.5, 1.0, 0.0),
-    "dot": EndcapSpec(2.0, 1.0, 0.0),
-    "x": EndcapSpec(2.5, 0.4, 0.0),
-    "cross": EndcapSpec(3.0, 0.33, 0.0),
-    "line": EndcapSpec(3.5, 0.22, 0.0),
-    "arrow": EndcapSpec(3.5, 0.4, 0.5),
-    "arrow2": EndcapSpec(3.5, 1.0, 0.14),
-    "arrow3": EndcapSpec(3.5, 1.0, 0.0),
-    "tail": EndcapSpec(3.5, 0.47, 0.5),
-    "tail2": EndcapSpec(3.5, 0.28, 0.5),
-}
-
-
-def _endcap_polys(style, lw: float):
-    """The local-frame polygon(s) for endcap/joint *style* -- BOSL2's ``_shape_path()``.
-
-    Returns a list of point-lists (one per sub-polygon; ``x``/``cross`` yield four triangles),
-    already scaled by the line width *lw*. The local frame has ``+Y`` pointing *outward* along the
-    line, so the caller rotates ``+Y`` onto the path's end direction. An empty list == a flush end.
-    """
-    assert style in _ENDCAP_DEFAULTS, f"stroke(): unknown endcap/joint style {style!r}"
-    if style in (False, "butt", None):
-        return []
-    spec = _ENDCAP_DEFAULTS[style]
-    w = spec.width_mult
-    length = spec.length_mult * spec.width_mult
-    l2 = spec.extent_mult * spec.width_mult
-
-    def circle_poly(rx, ry, n):
-        return [[rx * math.cos(2 * math.pi * k / n), ry * math.sin(2 * math.pi * k / n)] for k in range(n)]
-
-    if style in (True, "round"):
-        polys = [circle_poly(w / 2, length / 2, max(8, _frag_count(w * lw / 2)))]
-    elif style == "chisel":  # circle(diameter=1, $fn=4) scaled [w, length] -> an axis-aligned diamond
-        polys = [circle_poly(w / 2, length / 2, 4)]
-    elif style == "diamond":  # circle(diameter=w, $fn=4)
-        polys = [circle_poly(w / 2, w / 2, 4)]
-    elif style == "dot":  # circle(diameter=w)
-        polys = [circle_poly(w / 2, w / 2, max(8, _frag_count(w * lw)))]
-    elif style in ("square", "block", "line"):
-        polys = [
-            [
-                [-w / 2, -length / 2],
-                [w / 2, -length / 2],
-                [w / 2, length / 2],
-                [-w / 2, length / 2],
-            ]
-        ]
-    elif style == "x":
-        tri = [
-            [(w + length / 2) / 2, (w - length / 2) / 2],
-            [(w - length / 2) / 2, (w + length / 2) / 2],
-            [0, length / 2],
-        ]
-        polys = [_rot_pts(a, tri) for a in (0, 90, 180, 270)]
-    elif style == "cross":
-        tri = [[length / 2, w / 2], [-length / 2, w / 2], [-length / 2, length / 2]]
-        polys = [_rot_pts(a, tri) for a in (0, 90, 180, 270)]
-    elif style == "arrow":
-        polys = [
-            [
-                [0, 0],
-                [w / 2, -l2],
-                [w / 2, -l2 - length],
-                [0, -length],
-                [-w / 2, -l2 - length],
-                [-w / 2, -l2],
-            ]
-        ]
-    elif style == "arrow2":
-        polys = [[[0, 0], [w / 2, -l2 - length], [0, -length], [-w / 2, -l2 - length]]]
-    elif style == "arrow3":
-        polys = [[[0, 0], [w / 2, -length], [-w / 2, -length]]]
-    elif style == "tail":
-        polys = [
-            [
-                [0, 0],
-                [w / 2, l2],
-                [w / 2, l2 - length],
-                [0, -length],
-                [-w / 2, l2 - length],
-                [-w / 2, l2],
-            ]
-        ]
-    elif style == "tail2":
-        polys = [
-            [
-                [w / 2, 0],
-                [w / 2, -length],
-                [0, -length - l2],
-                [-w / 2, -length],
-                [-w / 2, 0],
-            ]
-        ]
-    else:  # pragma: no cover - table and branches are kept in sync
-        raise AssertionError(f"stroke(): unhandled endcap style {style!r}")
-    return [[[p[0] * lw, p[1] * lw] for p in poly] for poly in polys]
-
-
-def _endcap_trim(style, width: float) -> float:
-    """How far to pull the line back under an arrow endcap so it doesn't poke through the tip."""
-    if style in ("arrow", "arrow3"):
-        spec = _ENDCAP_DEFAULTS[style]
-        return width * (spec.length_mult * spec.width_mult - 0.01)
-    if style == "arrow2":
-        spec = _ENDCAP_DEFAULTS[style]
-        return width * (spec.length_mult * spec.width_mult * 3 / 4)
-    return 0.0
-
-
 def _place(poly, theta_deg: float, at):
     """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
     radius = math.radians(theta_deg)
@@ -542,7 +409,7 @@ def _place(poly, theta_deg: float, at):
     return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]
 
 
-def _endcap_geometry_2d(style, at, outdir, width: float):
+def _endcap_geometry_2d(spec: CapSpec, at, outdir, width: float):
     """2-D geometry for endcap/joint *style* at *at*, with local +Y rotated onto *outdir*.
 
     Returns a :class:`~pybosl2.shapes2d.Bosl2Shape2D`, matching what the rest of the 2-D stroke
@@ -551,11 +418,11 @@ def _endcap_geometry_2d(style, at, outdir, width: float):
 
     from pybosl2.shapes2d import Bosl2Shape2D
 
-    polys = _endcap_polys(style, width)
+    polys = _endcap_polys(spec, width)
     if not polys:
         return None
     theta = math.degrees(math.atan2(outdir[1], outdir[0])) - 90.0  # BACK (+Y) -> outdir
-    geos = [Bosl2Shape2D(_opolygon(_place(poly, theta, at))) for poly in polys]
+    geos = [Bosl2Shape2D(_opolygon(_place(p.tolist(), theta, at))) for p in polys]
     return reduce(operator.or_, geos)
 
 
@@ -573,7 +440,7 @@ def _trim_ends(body, trim1: float, trim2: float):
     return body
 
 
-def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
+def _stroke2d(pts, width, closed, endcap1: CapSpec, endcap2: CapSpec, joints: CapSpec):
     """A 2-D stroke, as a :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
 
     2-D geometry only exists on the CSG backend, so this raises under ``use_backend("sdf")``
@@ -612,9 +479,9 @@ def _stroke2d(pts, width, closed, endcap1, endcap2, joints):
     # Joints: round/square fill the corner with a centred blob; other styles use the oriented shape.
     for i in range(nb) if closed else range(1, nb - 1):
         at = body[i]
-        if joints in (True, "round", None):
+        if joints.cap_type == CapType.ROUND:
             shapes.append(_circle(diameter=width).translate([at[0], at[1]]))
-        elif joints == "square":
+        elif joints.cap_type == CapType.SQUARE:
             shapes.append(_square([width, width]).translate([at[0], at[1]]))
         else:
             incoming = [body[i][0] - body[i - 1][0], body[i][1] - body[i - 1][1]]
@@ -643,7 +510,7 @@ def _oriented_to(shape, outdir, at):
     return shape.rotate(float(angle), [float(c) for c in axis]).translate([float(c) for c in at])
 
 
-def _endcap_geometry_3d(style, at, outdir, width: float):
+def _endcap_geometry_3d(spec: CapSpec, at, outdir, width: float):
     """3-D endcap for *style*: a sphere for round/dot, else the profile revolved to a solid.
 
     The sphere caps come from the backend-neutral facade, so they realize on whichever backend is
@@ -654,18 +521,18 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
     from pybosl2._backend import current_backend
     from pybosl2.exceptions import UnsupportedByBackendError
 
-    if style in (False, "butt", None):
+    if spec.cap_type in (CapType.NONE, CapType.BUTT):
         return None
-    if style in (True, "round"):
+    if spec.cap_type == CapType.ROUND:
         return _sphere(radius=width / 2).translate([float(c) for c in at])
-    if style == "dot":
+    if spec.cap_type == CapType.DOT:
         return _sphere(radius=width).translate([float(c) for c in at])
-    polys = _endcap_polys(style, width)
+    polys = _endcap_polys(spec, width)
     if not polys:
         return None
     if current_backend() != "csg":
         raise UnsupportedByBackendError(
-            f"stroke(endcap={style!r})",
+            f"stroke(endcap={spec.cap_type!r})",
             current_backend(),
             hint="the revolved endcaps need rotate_extrude(), which the sdf backend has no "
             "equivalent for. Use endcap='round'/'dot'/'butt' there, or stroke on the csg backend.",
@@ -682,7 +549,7 @@ def _endcap_geometry_3d(style, at, outdir, width: float):
     return _oriented_to(Bosl2Solid(reduce(operator.or_, solids)), outdir, at)
 
 
-def _stroke3d(pts, width, closed, endcap1, endcap2):
+def _stroke3d(pts, width, closed, endcap1: CapSpec, endcap2: CapSpec):
     """A 3-D stroke -- a tube following *pts* -- on whichever backend is active.
 
     Every piece comes from the backend-neutral facade (:mod:`pybosl2.solid`), so this yields
@@ -720,10 +587,10 @@ def stroke(
     path,
     width: float = 1,
     closed: bool | None = None,
-    endcaps=None,
-    endcap1=None,
-    endcap2=None,
-    joints=None,
+    endcaps: CapType | CapSpec = CapType.ROUND,
+    endcap1: CapType | CapSpec = CapType.ROUND,
+    endcap2: CapType | CapSpec = CapType.ROUND,
+    joints: CapType | CapSpec = CapType.ROUND,
     dots=False,
     color=None,
 ):
@@ -734,10 +601,11 @@ def stroke(
     union of segment rectangles with joints and endcaps; a 3-D stroke is a tube of cylinders with
     spherical joints and revolved endcaps. Returns native geometry.
 
-    Every BOSL2 endcap/joint style is generated directly: ``"round"`` (default), ``"square"``,
-    ``"butt"``/``False`` (flush), ``"dot"``, ``"block"``, ``"diamond"``, ``"chisel"``, ``"line"``,
-    ``"x"``, ``"cross"``, ``"arrow"``, ``"arrow2"``, ``"arrow3"``, ``"tail"``, and ``"tail2"``.
-    Arrow endcaps trim the line back so it doesn't poke through the tip.
+    Every BOSL2 endcap/joint style is generated directly via :class:`CapType`:
+    ``ROUND`` (default), ``SQUARE``, ``BUTT``, ``DOT``, ``BLOCK``, ``DIAMOND``,
+    ``CHISEL``, ``LINE``, ``X``, ``CROSS``, ``ARROW``, ``ARROW2``, ``ARROW3``,
+    ``TAIL``, and ``TAIL2``. Arrow endcaps trim the line back so it doesn't poke
+    through the tip.
 
     Args:
         path:     a point list, :class:`~pybosl2.paths.Path`/:class:`~pybosl2.paths.Path3D`, or
@@ -745,7 +613,7 @@ def stroke(
         width:    line width (default 1)
         closed:   close the path into a loop (default: the path's own ``closed`` flag, or True for a Region)
         endcaps:  style for both ends (``endcap1``/``endcap2`` override per end)
-        joints:   style for the interior corners (default ``"round"``)
+        joints:   style for the interior corners (default ``ROUND``)
         dots:     mark every vertex with a round dot
         color:    optional colour applied to the whole stroke
 
@@ -760,7 +628,8 @@ def stroke(
 
         .. pythonscad-example::
 
-            stroke([[0, 0], [50, 0]], width=3, endcap1='tail', endcap2='arrow') \
+            from pybosl2.caps import CapType
+            stroke([[0, 0], [50, 0]], width=3, endcap1=CapType.TAIL, endcap2=CapType.ARROW) \
                 .linear_extrude(height=3).show()
 
         A 3-D arrow: the endcap is a revolved cone on the tube:
@@ -784,19 +653,28 @@ def stroke(
     pts = [list(map(float, p)) for p in path]
     assert len(pts) >= 1, "stroke(): empty path."
     is_closed = closed if closed is not None else getattr(path, "closed", False)
+    # Normalize styles to CapSpec for all internal calls
+    # endcaps acts as a fallback when endcap1/endcap2 are at their defaults
+    ec1_raw: CapType | CapSpec = endcap1
+    ec2_raw: CapType | CapSpec = endcap2
+    if endcaps != CapType.ROUND:
+        if endcap1 == CapType.ROUND:
+            ec1_raw = endcaps
+        if endcap2 == CapType.ROUND:
+            ec2_raw = endcaps
+    ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else _normalize_one(ec1_raw)
+    ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else _normalize_one(ec2_raw)
+    jnt = joints if isinstance(joints, CapSpec) else _normalize_one(joints)
     if dots:
-        joints = "dot"
-        endcaps = "dot" if endcaps is None else endcaps
-    cap1 = endcap1 if endcap1 is not None else (endcaps if endcaps is not None else "round")
-    cap2 = endcap2 if endcap2 is not None else (endcaps if endcaps is not None else "round")
-    jnt = joints if joints is not None else "round"
+        jnt = _normalize_one(CapType.DOT)
+        ec1 = _normalize_one(CapType.DOT)
+        ec2 = _normalize_one(CapType.DOT)
 
     dim = len(pts[0])
-    if dim == 2:
-        shape = _stroke2d(pts, width, is_closed, cap1, cap2, jnt)
-    else:
-        shape = _stroke3d(pts, width, is_closed, cap1, cap2)
-    return shape.color(color) if color is not None else shape
+    result: Any = (
+        _stroke2d(pts, width, is_closed, ec1, ec2, jnt) if dim == 2 else _stroke3d(pts, width, is_closed, ec1, ec2)
+    )
+    return result.color(color) if color is not None else result
 
 
 def dashed_stroke(
