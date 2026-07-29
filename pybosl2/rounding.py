@@ -24,6 +24,8 @@ import math
 from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
+    from shapely.geometry import MultiPolygon
+
     from pybosl2.paths import Path, Path3D
 
 import numpy as np
@@ -704,6 +706,36 @@ def _path_join(
     return _round_corners(pts, **kwargs)
 
 
+def _from_shapely(geom: "MultiPolygon") -> list[Path]:
+    """Extract paths (exterior + holes) from a shapely geometry.
+
+    Handles ``Polygon`` and ``MultiPolygon`` by taking the largest polygon.
+
+    Args:
+        geom: A ``shapely.Polygon`` or ``shapely.MultiPolygon``.
+
+    Returns:
+        A list of :class:`~pybosl2.paths.Path` objects: outer ring, then holes.
+    """
+    from shapely.geometry import MultiPolygon, Polygon
+
+    from pybosl2.paths import Path as _Path
+
+    if geom.is_empty:
+        return []
+    if isinstance(geom, MultiPolygon):
+        geom = max(geom.geoms, key=lambda g: g.area)
+    if not isinstance(geom, Polygon):
+        return []
+    paths: list[_Path] = []
+    exterior = list(geom.exterior.coords)[:-1]
+    paths.append(_Path([[float(x), float(y)] for x, y in exterior]))
+    for interior in geom.interiors:
+        ring = list(interior.coords)[:-1]
+        paths.append(_Path([[float(x), float(y)] for x, y in ring]))
+    return paths
+
+
 def _offset_stroke(
     path,
     width: float = 1.0,
@@ -720,7 +752,7 @@ def _offset_stroke(
     from shapely.geometry import LineString
 
     from pybosl2.paths import Path as _Path
-    from pybosl2.regions import Region, _from_shapely
+    from pybosl2.regions import Region
 
     # Coerce to Path
     p = path if isinstance(path, _Path) else _Path(path)

@@ -36,29 +36,6 @@ if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would b
 __all__ = ["Path", "Path3D", "Region"]
 
 
-def _from_shapely(geom: MultiPolygon) -> list[Path]:
-    """Extract paths (exterior + holes) from a shapely geometry.
-
-    Handles ``Polygon`` and ``MultiPolygon`` by taking the largest polygon.
-
-    Returns:
-        A list of :class:`Path` objects: outer ring first, then any holes.
-    """
-    if geom.is_empty:
-        return []
-    if isinstance(geom, MultiPolygon):
-        geom = max(geom.geoms, key=lambda g: g.area)
-    if not isinstance(geom, Polygon):
-        return []
-    paths: list[Path] = []
-    exterior = list(geom.exterior.coords)[:-1]  # drop the closing repeat
-    paths.append(Path([[float(x), float(y)] for x, y in exterior]))
-    for interior in geom.interiors:
-        ring = list(interior.coords)[:-1]
-        paths.append(Path([[float(x), float(y)] for x, y in ring]))
-    return paths
-
-
 def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path]:
     """Extract all paths from a ``Polygon`` or ``MultiPolygon``.
 
