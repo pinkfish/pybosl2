@@ -736,7 +736,7 @@ def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
 # ---------------------------------------------------------------------------
 
 
-def path_length(path: ArrayLike, closed: bool = False) -> float:
+def total_length(path: ArrayLike, closed: bool = False) -> float:
     """Total arc length of an open (or closed) polyline."""
     pts = as_points(path)
     total = float(np.sum(np.linalg.norm(np.diff(pts, axis=0), axis=1)))

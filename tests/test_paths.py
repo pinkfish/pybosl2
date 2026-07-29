@@ -326,3 +326,74 @@ def test_shapely_backed_path_methods():
     assert p.is_simple() is True
     figure8 = Path([[0, 0], [2, 2], [0, 2], [2, 0]])
     assert figure8.is_simple() is False
+
+
+# -- Boolean operations (shapely-based) --------------------------------------------------------
+
+
+def test_union_closed_paths():
+    a = Path([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a.union(b)
+    assert result.closed
+    assert result.area() > 0
+
+
+def test_intersection_closed_paths():
+    a = Path([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a.intersection(b)
+    assert result is not None
+    assert result.closed
+    assert math.isclose(result.area(), 600.0)
+
+
+def test_difference_closed_paths():
+    a = Path([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a.difference(b)
+    assert result is not None
+    assert result.closed
+    assert math.isclose(result.area(), 600.0)
+
+
+def test_sym_difference_closed_paths():
+    a = Path([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a.sym_difference(b)
+    assert result is not None
+
+
+def test_union_raises_on_open():
+    a = Path([[0, 0], [40, 0], [40, 30]], closed=False)
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    with pytest.raises(ValueError, match="closed"):
+        a.union(b)
+
+
+def test_union_raises_on_open_other():
+    a = Path([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30]], closed=False)
+    with pytest.raises(ValueError, match="closed"):
+        a.union(b)
+
+
+def test_intersection_raises_on_open():
+    a = Path([[0, 0], [40, 0], [40, 30]], closed=False)
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    with pytest.raises(ValueError, match="closed"):
+        a.intersection(b)
+
+
+def test_difference_raises_on_open():
+    a = Path([[0, 0], [40, 0], [40, 30]], closed=False)
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    with pytest.raises(ValueError, match="closed"):
+        a.difference(b)
+
+
+def test_sym_difference_raises_on_open():
+    a = Path([[0, 0], [40, 0], [40, 30]], closed=False)
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    with pytest.raises(ValueError, match="closed"):
+        a.sym_difference(b)

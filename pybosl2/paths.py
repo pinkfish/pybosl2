@@ -575,7 +575,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             plate.show()
     """
 
-    def __init__(self, points: Sequence | np.ndarray = (), closed: bool = True) -> None:
+    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
             self._points: np.ndarray = np.empty((0, 2), dtype=np.float64)
@@ -600,7 +600,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             return self._points.copy()
         return self._points
 
-    def _like(self, points: Sequence | np.ndarray) -> "Path":
+    def _like(self, points: Sequence[Sequence[float]] | NDArray[np.float64]) -> "Path":
         return Path(points, closed=self.closed)
 
     @property
@@ -719,12 +719,30 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         return bool(LineString(pts).is_simple)
 
     def closest_point(self, pt: Sequence[float]) -> list:
-        """[SEGNUM, POINT]: the closest path segment to *pt*, and the closest point on it.
+        """The closest path segment to *pt*, and the closest point on it.
+
+        Uses shapely projection onto each segment. Returns a
+        ``[segnum, [x, y]]`` pair.
 
         Args:
-            pt: The query point to find the closest approach to.
+            pt: The query point as ``[x, y]``.
         """
-        return self.path_closest_point(pt)
+        from shapely.geometry import LineString
+        from shapely.geometry import Point as _Point
+
+        q = _Point(pt[0], pt[1])
+        pairs = list(Path._pair(self._points, self.closed))
+        seg = min(
+            range(len(pairs)),
+            key=lambda i: (
+                LineString(pairs[i]).distance(q)
+                if i < len(pairs) and not np.allclose(pairs[i][0], pairs[i][1])
+                else float("inf")
+            ),
+        )
+        ls = LineString(pairs[seg])
+        projected = ls.interpolate(ls.project(q))
+        return [seg, [projected.x, projected.y]]
 
     def tangents(self, uniform: bool = True) -> NDArray[np.float64]:
         """Unit tangent at each point, as an ndarray.
@@ -834,7 +852,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Returns a new Path with all points in reverse order, flipping the
         winding direction (clockwise becomes counter-clockwise and vice-versa).
         """
-        return self._like(list(reversed(self)))
+        return self._like(list(reversed(self._points)))
 
     def deduplicated(self) -> "Path":
         """Drop consecutive repeated points (:meth:`_deduplicate`)."""
@@ -1004,6 +1022,113 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         from pybosl2.regions import Region  # local: Region imports Path from here
 
         return Region([self])
+
+    def union(self, other: Path) -> "Path | Region":
+        """The 2-D union of this path and *other* (all area covered by either).
+
+        Uses shapely :class:`~shapely.geometry.Polygon` to compute the
+        Boolean union. Returns a :class:`Path` for a single resulting
+        outline, or a :class:`~pybosl2.regions.Region` when the union
+        produces multiple disconnected pieces.
+
+        Args:
+            other: The path to union with.
+        """
+        if not self.closed:
+            raise ValueError("union() requires a closed path")
+        if not other.closed:
+            raise ValueError("union() requires a closed path for 'other'")
+        from shapely.geometry import Polygon
+
+        from pybosl2.regions import Region
+
+        a = Polygon(self)
+        b = Polygon(other)
+        result = a.union(b)
+        if result.geom_type == "Polygon":
+            return Path(result.exterior.coords, closed=True)
+        paths = [Path(p.exterior.coords, closed=True) for p in result.geoms if not p.is_empty]
+        return Region([p._points.tolist() for p in paths])
+
+    def intersection(self, other: Path) -> "Path | Region | None":
+        """The 2-D intersection of this path and *other* (the area they share).
+
+        Uses shapely to compute the Boolean intersection. Returns ``None``
+        when the polygons are disjoint.
+
+        Args:
+            other: The path to intersect with.
+        """
+        if not self.closed:
+            raise ValueError("intersection() requires a closed path")
+        if not other.closed:
+            raise ValueError("intersection() requires a closed path for 'other'")
+        from shapely.geometry import Polygon
+
+        from pybosl2.regions import Region
+
+        a = Polygon(self)
+        b = Polygon(other)
+        result = a.intersection(b)
+        if result.is_empty:
+            return None
+        if result.geom_type == "Polygon":
+            return Path(result.exterior.coords, closed=True)
+        paths = [Path(p.exterior.coords, closed=True) for p in result.geoms if not p.is_empty]
+        return Region([p._points.tolist() for p in paths])
+
+    def difference(self, other: Path) -> "Path | Region | None":
+        """The 2-D difference: *self* minus *other* (the area outside *other*).
+
+        Uses shapely to compute the Boolean difference. Returns ``None``
+        when the result is empty.
+
+        Args:
+            other: The path to subtract from this one.
+        """
+        if not self.closed:
+            raise ValueError("difference() requires a closed path")
+        if not other.closed:
+            raise ValueError("difference() requires a closed path for 'other'")
+        from shapely.geometry import Polygon
+
+        from pybosl2.regions import Region
+
+        a = Polygon(self)
+        b = Polygon(other)
+        result = a.difference(b)
+        if result.is_empty:
+            return None
+        if result.geom_type == "Polygon":
+            return Path(result.exterior.coords, closed=True)
+        paths = [Path(p.exterior.coords, closed=True) for p in result.geoms if not p.is_empty]
+        return Region([p._points.tolist() for p in paths])
+
+    def sym_difference(self, other: Path) -> "Path | Region | None":
+        """The 2-D symmetric difference (XOR): area in either but not both.
+
+        Uses shapely to compute the Boolean symmetric difference.
+
+        Args:
+            other: The path to XOR with.
+        """
+        if not self.closed:
+            raise ValueError("sym_difference() requires a closed path")
+        if not other.closed:
+            raise ValueError("sym_difference() requires a closed path for 'other'")
+        from shapely.geometry import Polygon
+
+        from pybosl2.regions import Region
+
+        a = Polygon(self)
+        b = Polygon(other)
+        result = a.symmetric_difference(b)
+        if result.is_empty:
+            return None
+        if result.geom_type == "Polygon":
+            return Path(result.exterior.coords, closed=True)
+        paths = [Path(p.exterior.coords, closed=True) for p in result.geoms if not p.is_empty]
+        return Region([p._points.tolist() for p in paths])
 
     def to_bezier(
         self,
@@ -2011,7 +2136,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             coil.stroke(width=4).show()
     """
 
-    def __init__(self, points: Sequence | np.ndarray = (), closed: bool = True) -> None:
+    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
             self._points: np.ndarray = np.empty((0, 3), dtype=np.float64)
@@ -2036,7 +2161,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             return self._points.copy()
         return self._points
 
-    def _like(self, points: Sequence | np.ndarray) -> "Path3D":
+    def _like(self, points: Sequence[Sequence[float]] | NDArray[np.float64]) -> "Path3D":
         return Path3D(points, closed=self.closed)
 
     @property
@@ -2164,7 +2289,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns a new Path3D with all points in reverse order.
         """
-        return self._like(list(reversed(self)))
+        return self._like(list(reversed(self._points)))
 
     def deduplicated(self) -> "Path3D":
         """Drop consecutive repeated points."""

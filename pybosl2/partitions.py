@@ -126,13 +126,13 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
     if cptype == "flat":
         return Path([[0, 0], [1, 0]])
     if cptype == "sawtooth":
-        return Path([[0, 0], [0.5, 1], [1, 0]])
+        return Path([[0, 0], [0.5, 1], [1, 0]])  # type: ignore[arg-type]
     if cptype == "sinewave":
         return Path([[a / 360, math.sin(math.radians(a)) / 2] for a in range(0, 361, 5)])
     if cptype == "comb":
         dx = 0.5 * math.sin(math.radians(2))
-        return Path(
-            [
+        return Path(  # type: ignore[arg-type]
+            [  # type: ignore[arg-type]
                 [0, 0],
                 [dx, 0.5],
                 [0.5 - dx, 0.5],
@@ -143,8 +143,8 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
         )
     if cptype == "finger":
         dx = 0.5 * math.sin(math.radians(20))
-        return Path(
-            [
+        return Path(  # type: ignore[arg-type]
+            [  # type: ignore[arg-type]
                 [0, 0],
                 [dx, 0.5],
                 [0.5 - dx, 0.5],
@@ -260,7 +260,7 @@ def _ptn_sect(
 
     if is_num(cptype):
         assert cptype > 0, "flat section length must be positive."  # type: ignore[operator]
-        return Path([[0, 0], [float(cptype), 0]])
+        return Path([[0, 0], [float(cptype), 0]])  # type: ignore[arg-type]
     if invert:
         return _yscale(-1, _ptn_sect(cptype, length, width, fn=fn, fa=fa, fs=fs))
 
@@ -316,7 +316,7 @@ def _ptn_sect(
                 return raw
             return Path([[(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]] for p in raw])
         if base == "flat" and opt and opt[0].isdigit() and "x" not in opt and ":" not in opt:
-            return Path([[0, 0], [float(opt), 0]])
+            return Path([[0, 0], [float(opt), 0]])  # type: ignore[arg-type]
         raise AssertionError(f"Bad section option: {opt!r}")
 
     if cptype == "sinewave":
