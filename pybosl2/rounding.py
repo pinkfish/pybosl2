@@ -717,33 +717,27 @@ def _offset_stroke(
     When :mod:`shapely` is installed, returns a :class:`Region` containing the coordinates
     of the outline. Without shapely, falls back to PythonSCAD geometry (CSG shape).
     """
+    from shapely.geometry import LineString
+
     from pybosl2.paths import Path as _Path
-    from pybosl2.regions import _SHAPELY, Region, _from_shapely
+    from pybosl2.regions import Region, _from_shapely
 
     # Coerce to Path
     p = path if isinstance(path, _Path) else _Path(path)
 
-    if _SHAPELY:
-        from shapely.geometry import LineString
+    pts = [(float(pt[0]), float(pt[1])) for pt in p]
+    if not pts:
+        return Region([])
 
-        pts = [(float(pt[0]), float(pt[1])) for pt in p]
-        if not pts:
-            return Region([])
+    # Map endcap/join style to shapely integer constants
+    cap_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.BUTT: 2, CapType.SQUARE: 3, CapType.FLAT: 2}
+    join_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.SQUARE: 3}
 
-        # Map endcap/join style to shapely integer constants
-        cap_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.BUTT: 2, CapType.SQUARE: 3, CapType.FLAT: 2}
-        join_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.SQUARE: 3}
+    c_style = cap_map.get(endcap, 1)
+    j_style = join_map.get(joint, 1)
 
-        c_style = cap_map.get(endcap, 1)
-        j_style = join_map.get(joint, 1)
+    # For a closed loop, append first point to ensure it's closed
+    line = LineString(pts + [pts[0]]) if closed and len(pts) > 1 and pts[0] != pts[-1] else LineString(pts)
 
-        # For a closed loop, append first point to ensure it's closed
-        line = LineString(pts + [pts[0]]) if closed and len(pts) > 1 and pts[0] != pts[-1] else LineString(pts)
-
-        geom = line.buffer(width / 2.0, cap_style=c_style, join_style=j_style)
-        return Region(_from_shapely(geom))
-    else:
-        # Fallback to stroke() geometry
-        from pybosl2.drawing import stroke
-
-        return stroke(p, width=width, closed=closed, endcaps=endcap, joints=joint)
+    geom = line.buffer(width / 2.0, cap_style=c_style, join_style=j_style)
+    return Region(_from_shapely(geom))

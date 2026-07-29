@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 
 from pybosl2.paths import Path
-from pybosl2.regions import _SHAPELY, Region
+from pybosl2.regions import Region
 
 SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]
 HOLE = [[20, 20], [60, 20], [60, 40], [20, 40]]
@@ -41,8 +41,11 @@ def test_rejects_non_path_items():
         Region([1, 2, 3])
 
 
-def test_is_a_list():
-    assert isinstance(Region(SQUARE), list)
+def test_is_not_a_list_but_iterable():
+    r = Region(SQUARE)
+    assert not isinstance(r, list)
+    assert len(r) == 1
+    assert list(r) == list(r.paths)
 
 
 def test_offset_applies_to_every_path():
@@ -72,14 +75,6 @@ def test_geometry_returns_a_solid():
     assert g is not None
 
 
-# ---------------------------------------------------------------------------
-# Boolean set-operation tests (shapely path only — skip when not installed)
-# ---------------------------------------------------------------------------
-
-pytestmark_shapely = pytest.mark.skipif(not _SHAPELY, reason="shapely not installed")
-
-
-@pytestmark_shapely
 def test_intersection_overlapping_squares():
     """Two squares that share a 20x60 strip should intersect to that strip."""
     # a: [0,0]→[80,60],  b: [60,0]→[120,60]  →  intersection: [60,0]→[80,60]
@@ -95,7 +90,6 @@ def test_intersection_overlapping_squares():
     assert abs(Polygon(pts).area - 1200.0) < 1.0
 
 
-@pytestmark_shapely
 def test_intersection_operator():
     """The & operator should be equivalent to .intersection()."""
     a = Region([[0, 0], [80, 0], [80, 60], [0, 60]])
@@ -103,7 +97,6 @@ def test_intersection_operator():
     assert (a & b).outline is not None
 
 
-@pytestmark_shapely
 def test_intersection_non_overlapping_returns_empty():
     """Disjoint rectangles should produce an empty Region."""
     a = Region([[0, 0], [10, 0], [10, 10], [0, 10]])
@@ -113,7 +106,6 @@ def test_intersection_non_overlapping_returns_empty():
     assert len(result) == 0
 
 
-@pytestmark_shapely
 def test_union_overlapping_squares():
     """Union of two overlapping squares should have area > either square alone."""
     a = Region([[0, 0], [80, 0], [80, 60], [0, 60]])  # area=4800
@@ -128,7 +120,6 @@ def test_union_overlapping_squares():
     assert abs(area - (4800 + 3600 - 1200)) < 1.0  # = 7200
 
 
-@pytestmark_shapely
 def test_union_operator():
     """The | operator should be equivalent to .union()."""
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
@@ -138,7 +129,6 @@ def test_union_operator():
     assert len(result) >= 1
 
 
-@pytestmark_shapely
 def test_difference_produces_smaller_area():
     """Punching a notch from a square should reduce its area."""
     plate = Region([[0, 0], [60, 0], [60, 40], [0, 40]])  # area=2400
@@ -154,7 +144,6 @@ def test_difference_produces_smaller_area():
     assert abs(area - 2000.0) < 1.0
 
 
-@pytestmark_shapely
 def test_difference_operator():
     """The - operator should be equivalent to .difference()."""
     plate = Region([[0, 0], [60, 0], [60, 40], [0, 40]])
@@ -163,7 +152,6 @@ def test_difference_operator():
     assert isinstance(result, Region)
 
 
-@pytestmark_shapely
 def test_difference_fully_contained_punches_hole():
     """When other is fully inside self, the result should have a hole."""
     outer = Region([[0, 0], [100, 0], [100, 100], [0, 100]])
@@ -173,7 +161,6 @@ def test_difference_fully_contained_punches_hole():
     assert len(result) == 2  # outline + one hole
 
 
-@pytestmark_shapely
 def test_intersection_with_hole():
     """Intersecting a shape with another that has a hole should respect the hole."""
     big = Region([[0, 0], [100, 0], [100, 100], [0, 100]])
