@@ -40,6 +40,7 @@ if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this m
     from pybosl2.shapes3d import Bosl2Solid
 
 from pybosl2.bounds import Bounds2D, Bounds3D
+from pybosl2.caps import CapSpec, CapType
 from pybosl2.comparisons import approx
 from pybosl2.distributors import (
     Distributable,
@@ -1625,7 +1626,17 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
     # -- drawing (pybosl2/drawing.py) --------------------------------------------------------
 
-    def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any) -> Any:
+    def stroke(
+        self,
+        width: float = 1,
+        closed: bool | None = None,
+        endcaps: CapType | CapSpec = CapType.ROUND,
+        endcap1: CapType | CapSpec = CapType.ROUND,
+        endcap2: CapType | CapSpec = CapType.ROUND,
+        joints: CapType | CapSpec = CapType.ROUND,
+        dots: bool = False,
+        color: str | None = None,
+    ) -> Any:
         """Draw this path as a solid line of the given *width*.
 
         Delegates to :func:`pybosl2.drawing.stroke`.
@@ -1633,7 +1644,12 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             width: The line width.
             closed: Override the path's closed setting; uses the path's own if None.
-            **kwargs: Additional options passed to the stroke function.
+            endcaps: Cap style for both ends (``endcap1``/``endcap2`` override).
+            endcap1: Cap style for the start of the path.
+            endcap2: Cap style for the end of the path.
+            joints: Style for interior corners (default ``ROUND``).
+            dots: If True, mark every vertex with a round dot.
+            color: Optional colour applied to the whole stroke.
 
         Returns:
             A 2-D or 3-D geometry object from the stroke operation.
@@ -1650,21 +1666,28 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             self,
             width=width,
             closed=self.closed if closed is None else closed,
-            **kwargs,
+            endcaps=endcaps,
+            endcap1=endcap1,
+            endcap2=endcap2,
+            joints=joints,
+            dots=dots,
+            color=color,
         )
 
     def dashed_stroke(
         self,
         dashpat: Sequence[float] = (3, 3),
         closed: bool | None = None,
-        **kwargs: Any,
+        fit: bool = True,
+        mindash: float = 0.5,
     ) -> "list[Path | Path3D]":
         """Break this path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`).
 
         Args:
             dashpat: Sequence of dash/gap lengths alternating.
             closed: Override the path's closed setting; uses the path's own if None.
-            **kwargs: Additional options passed to the dashed_stroke function.
+            fit: Scale the pattern to fit a whole number of repeats.
+            mindash: Drop a trailing dash shorter than this.
 
         Returns:
             A list of :class:`Path` or :class:`Path3D` sub-paths representing the dashes.
@@ -1683,7 +1706,8 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             self,
             dashpat=dashpat,
             closed=self.closed if closed is None else closed,
-            **kwargs,
+            fit=fit,
+            mindash=mindash,
         )
 
     # -- distributors (pybosl2/distributors.py) ----------------------------------------------
@@ -2852,7 +2876,17 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         """
         return Path(self._points[:, :2].tolist(), closed=self.closed)
 
-    def stroke(self, width: float = 1, closed: bool | None = None, **kwargs: Any) -> Any:
+    def stroke(
+        self,
+        width: float = 1,
+        closed: bool | None = None,
+        endcaps: CapType | CapSpec = CapType.ROUND,
+        endcap1: CapType | CapSpec = CapType.ROUND,
+        endcap2: CapType | CapSpec = CapType.ROUND,
+        joints: CapType | CapSpec = CapType.ROUND,
+        dots: bool = False,
+        color: str | None = None,
+    ) -> Any:
         """Draw this 3-D path as a solid tube of the given *width*.
 
         Delegates to :func:`pybosl2.drawing.stroke`.
@@ -2860,7 +2894,12 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             width: The tube diameter.
             closed: Override the path's closed setting; uses the path's own if None.
-            **kwargs: Additional options passed to the stroke function.
+            endcaps: Cap style for both ends (``endcap1``/``endcap2`` override).
+            endcap1: Cap style for the start of the path.
+            endcap2: Cap style for the end of the path.
+            joints: Style for interior corners (default ``ROUND``).
+            dots: If True, mark every vertex with a round dot.
+            color: Optional colour applied to the whole stroke.
 
         Returns:
             A 3-D geometry object from the stroke operation.
@@ -2877,21 +2916,28 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             self,
             width=width,
             closed=self.closed if closed is None else closed,
-            **kwargs,
+            endcaps=endcaps,
+            endcap1=endcap1,
+            endcap2=endcap2,
+            joints=joints,
+            dots=dots,
+            color=color,
         )
 
     def dashed_stroke(
         self,
         dashpat: Sequence[float] = (3, 3),
         closed: bool | None = None,
-        **kwargs: Any,
+        fit: bool = True,
+        mindash: float = 0.5,
     ) -> "list[Path | Path3D]":  # type: ignore[override]
         """Break this 3-D path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`).
 
         Args:
             dashpat: Sequence of dash/gap lengths alternating.
             closed: Override the path's closed setting; uses the path's own if None.
-            **kwargs: Additional options passed to the dashed_stroke function.
+            fit: Scale the pattern to fit a whole number of repeats.
+            mindash: Drop a trailing dash shorter than this.
 
         Returns:
             A list of :class:`Path` or :class:`Path3D` sub-paths representing the dashes.
@@ -2902,7 +2948,8 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             self,
             dashpat=dashpat,
             closed=self.closed if closed is None else closed,
-            **kwargs,
+            fit=fit,
+            mindash=mindash,
         )
 
     # -- distributors (pybosl2/distributors.py) ----------------------------------------------

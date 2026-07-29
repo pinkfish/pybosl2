@@ -62,7 +62,18 @@ jobs:
           pip install -e '.[docs]'
 
       - name: Build HTML
-        run: make -C docs html 2>&1 | tee sphinx.log
+        run: |
+          set -o pipefail
+          make -C docs html 2>&1 | tee sphinx.log
+
+      - name: Verify no render failures
+        run: |
+          if grep -q 'render FAILED' sphinx.log; then
+            echo "ERROR: Render failures detected:"
+            grep 'render FAILED' sphinx.log
+            exit 1
+          fi
+          echo "All renders passed."
 
       - name: Verify output is not empty
         run: |

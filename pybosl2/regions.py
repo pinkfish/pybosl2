@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
 
+from pybosl2.caps import CapSpec, CapType
 from pybosl2.paths import (
     Path,
     Path3D,
@@ -84,28 +85,44 @@ def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path]:
 
 
 class Region:
-    """A 2-D region: a list of :class:`Path` outlines, holes included.
+    """A 2-D region backed by :mod:`shapely` (not OpenSCAD/PythonSCAD).
 
-    BOSL2 represents a shape-with-holes as a list of paths (outline first, then
-    the holes).  ``Region`` stores these internally and provides delegation
-    methods (``__len__``, ``__getitem__``, ``__iter__``) for backward
-    compatibility with code that previously relied on ``Region`` being a
-    ``list`` subclass.
+    Stores :class:`~shapely.geometry.MultiPolygon` internally and derives
+    :class:`Path` outlines only when requested. All Boolean operations
+    (union, intersection, difference, symmetric difference) use shapely
+    directly. Operator overloads (``|``, ``&``, ``-``, ``^``) are provided.
+
+    Create a region from a single outline (no holes)::
+
+        Region([[0, 0], [80, 0], [80, 60], [0, 60]])
+
+    Create a region with holes (outline first, then hole paths)::
+
+        Region([
+            [[0, 0], [80, 0], [80, 60], [0, 60]],           # outer outline
+            [[20, 20], [60, 20], [60, 40], [20, 40]],       # hole 1
+        ])
+
+    Or use the shorthand :meth:`with_holes` for a more readable call.
+
+    For native-geometry output (e.g. extrusion), call :meth:`geometry()`
+    which converts paths to :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
 
     Args:
-        paths: The outlines; each is coerced to a :class:`Path`. A single flat
-            point list is accepted and treated as one outline.  A
-            ``shapely.Polygon`` or ``shapely.MultiPolygon`` is also accepted.
+        paths: The outlines; each is coerced to a :class:`Path`. A single
+            flat point list is treated as one outline.  A
+            ``shapely.Polygon`` or ``shapely.MultiPolygon`` is also
+            accepted.
 
     Examples:
         A rectangular plate with a rectangular hole (outline + one hole), extruded into a solid:
 
         .. pythonscad-example::
 
-            region = Region.with_holes(
+            region = Region([
                 [[0, 0], [80, 0], [80, 60], [0, 60]],
                 [[20, 20], [60, 20], [60, 40], [20, 40]],
-            )
+            ])
             region.geometry().linear_extrude(height=5).show()
     """
 
@@ -178,17 +195,17 @@ class Region:
     @classmethod
     def with_holes(
         cls,
-        outline: Sequence[Sequence[float]] | Path,
-        *holes: Sequence[Sequence[float]] | Path,
+        outline: Path,
+        *holes: Path,
     ) -> "Region":
         """A region from an outline plus hole outlines.
 
-        This is what a concentric ``DifferenceWithOffset`` produces: outline + inner hole, no
-        clipping involved.
+        Convenience constructor. Equivalent to ``Region([outline, *holes])``.
+        See :meth:`__init__` for the full constructor.
 
         Args:
-            outline: The outer outline path.
-            holes: Zero or more hole outlines inside the outer outline.
+            outline: The outer outline :class:`Path`.
+            holes: Zero or more hole outline :class:`Path` objects.
 
         Returns:
             A :class:`Region` with the outline as the first path and holes as subsequent paths.
@@ -412,33 +429,62 @@ class Region:
         ]
         return reduce(operator.or_, [solid, *labels])
 
-    def stroke(self, width: float = 1, **kwargs: Any) -> Any:
+    def stroke(
+        self,
+        width: float = 1,
+        endcaps: CapType | CapSpec = CapType.ROUND,
+        endcap1: CapType | CapSpec = CapType.ROUND,
+        endcap2: CapType | CapSpec = CapType.ROUND,
+        joints: CapType | CapSpec = CapType.ROUND,
+        dots: bool = False,
+        color: str | None = None,
+    ) -> Any:
         """Draw every path in this region as a closed solid line.
 
         Args:
             width: The stroke width.
-            kwargs: Additional arguments forwarded to :func:`pybosl2.drawing.stroke`.
+            endcaps: Cap style for both ends (``endcap1``/``endcap2`` override).
+            endcap1: Cap style for the start.
+            endcap2: Cap style for the end.
+            joints: Style for interior corners (default ``ROUND``).
+            dots: If True, mark every vertex with a round dot.
+            color: Optional colour applied to the whole stroke.
 
         Returns:
             A 2-D or 3-D object depending on the backend.
         """
         from pybosl2.drawing import stroke as _stroke
 
-        return _stroke(self, width=width, **kwargs)
+        return _stroke(
+            self,
+            width=width,
+            endcaps=endcaps,
+            endcap1=endcap1,
+            endcap2=endcap2,
+            joints=joints,
+            dots=dots,
+            color=color,
+        )
 
-    def dashed_stroke(self, dashpat: Sequence[float] = (3, 3), **kwargs: Any) -> "list[Path | Path3D]":
+    def dashed_stroke(
+        self,
+        dashpat: Sequence[float] = (3, 3),
+        fit: bool = True,
+        mindash: float = 0.5,
+    ) -> "list[Path | Path3D]":
         """Break every path in this region into dash sub-paths.
 
         Args:
             dashpat: The dash pattern as alternating lengths ``[dash, gap, ...]``.
-            kwargs: Additional arguments forwarded to :func:`pybosl2.drawing.dashed_stroke`.
+            fit: Scale the pattern to fit a whole number of repeats.
+            mindash: Drop a trailing dash shorter than this.
 
         Returns:
             A list of :class:`Path` or :class:`Path3D` dash segments.
         """
         from pybosl2.drawing import dashed_stroke as _dashed
 
-        return _dashed(self, dashpat=dashpat, **kwargs)
+        return _dashed(self, dashpat=dashpat, fit=fit, mindash=mindash)
 
     # -----------------------------------------------------------------------------------
     # 2-D boolean set operations
