@@ -61,6 +61,8 @@ from pybosl2.rounding import Roundable  # round_corners / smooth_path, as method
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import add_scalar, unit
 
+__all__ = ["Path", "Path3D", "PathBase", "MinkowskiJoin"]
+
 # ---------------------------------------------------------------------------
 # Section: PathBase -- dimension-agnostic path-math kernels shared by Path and Path3D
 # ---------------------------------------------------------------------------
