@@ -4,14 +4,13 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/regions.py
-#    Path and Region: object wrappers over the 2-D point maths in paths.py/rounding.py/
-#    transforms.py, so a polygon can be built once and then chained
-#    (`Path(pts).offset(radius=-2).round_corners(radius=1).polygon()`) instead of threading raw
-#    point lists through free functions.
-#
-# FileSummary: Object API for 2-D paths and regions.
-# FileGroup: Bosl2
+"""Object API for 2-D paths and regions.
+
+Path and Region: object wrappers over the 2-D point maths in paths.py/rounding.py/
+transforms.py, so a polygon can be built once and then chained
+(`Path(pts).offset(radius=-2).round_corners(radius=1).polygon()`) instead of threading raw
+point lists through free functions.
+"""
 
 from __future__ import annotations
 
@@ -49,7 +48,11 @@ except ImportError:  # pragma: no cover
 
 
 def _to_shapely(path: Path) -> "_ShapelyPolygon":  # type: ignore[name-defined]
-    """Convert a :class:`Path` (CCW ring) to a ``shapely.Polygon``."""
+    """Convert a :class:`Path` (CCW ring) to a ``shapely.Polygon``.
+
+    Returns:
+        A ``shapely.Polygon`` constructed from the path vertices.
+    """
     from shapely.geometry import Polygon as Poly
 
     pts = [(float(p[0]), float(p[1])) for p in path]
@@ -59,8 +62,10 @@ def _to_shapely(path: Path) -> "_ShapelyPolygon":  # type: ignore[name-defined]
 def _from_shapely(geom) -> list[Path]:
     """Extract paths (exterior + holes) from a shapely geometry.
 
-    Returns a list of :class:`Path` objects: outer ring first, then any holes.
     Handles ``Polygon`` and ``MultiPolygon`` by taking the largest polygon.
+
+    Returns:
+        A list of :class:`Path` objects: outer ring first, then any holes.
     """
     from shapely.geometry import MultiPolygon, Polygon
 
@@ -104,6 +109,12 @@ class Region(list):
     """
 
     def __init__(self, paths: Sequence = ()) -> None:
+        """Creates a region from a sequence of path outlines.
+
+        Args:
+            paths: The outlines; each is coerced to a :class:`Path`. A single flat point list is
+                accepted and treated as one outline.
+        """
         items = list(paths)
         if items and not isinstance(items[0], (list, tuple, np.ndarray, Path)):
             raise TypeError(f"Region needs paths, got {type(items[0]).__name__}")
@@ -118,17 +129,33 @@ class Region(list):
 
         This is what a concentric ``DifferenceWithOffset`` produces: outline + inner hole, no
         clipping involved.
+
+        Args:
+            outline: The outer outline path.
+            holes: Zero or more hole outlines inside the outer outline.
+
+        Returns:
+            A :class:`Region` with the outline as the first path and holes as subsequent paths.
         """
         return cls([outline, *holes])
 
     @property
     def outline(self) -> Path:
-        """The outer path."""
+        """The outer path.
+
+        Returns:
+            The first :class:`Path` in the region, which is the outer outline.
+        """
         assert len(self), "empty Region has no outline"
         return self[0]
 
     @property
     def holes(self) -> list[Path]:
+        """The hole paths.
+
+        Returns:
+            All :class:`Path` objects after the first, which are the interior holes.
+        """
         return list(self[1:])
 
     def offset(
@@ -137,17 +164,48 @@ class Region(list):
         delta: float | None = None,
         chamfer: bool = False,
     ) -> "Region":
-        """Offset every path in the region."""
+        """Offset every path in the region.
+
+        Args:
+            radius: The corner-rounding radius for the offset.
+            delta: The absolute offset distance.
+            chamfer: Whether to chamfer corners instead of rounding them.
+
+        Returns:
+            A new :class:`Region` with every path offset by the given parameters.
+        """
         return Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self])
 
     def round_corners(self, radius: float | list[float] | None = None, **kwargs: Any) -> "Region":
+        """Round the corners of every path in the region.
+
+        Args:
+            radius: The rounding radius. A single float applies to all corners; a list
+                applies per-corner radii.
+            kwargs: Additional arguments forwarded to :meth:`Path.round_corners`.
+
+        Returns:
+            A new :class:`Region` with rounded corners on every path.
+        """
         return Region([p.round_corners(radius=radius, **kwargs) for p in self])
 
     def translate(self, v: Sequence[float]) -> "Region":
+        """Translate every path in the region by the given vector.
+
+        Args:
+            v: A 2-D or 3-D translation vector.
+
+        Returns:
+            A new :class:`Region` with every path translated.
+        """
         return Region([p.translate(v) for p in self])
 
     def bounds(self) -> np.ndarray:
-        """[[min_x, min_y], [max_x, max_y]] over every path."""
+        """The bounding box over every path in the region.
+
+        Returns:
+            A numpy array ``[[min_x, min_y], [max_x, max_y]]``.
+        """
         assert len(self), "empty Region has no bounds"
         all_pts = np.vstack([p.array for p in self])
         return np.array([all_pts.min(axis=0), all_pts.max(axis=0)])
@@ -165,8 +223,9 @@ class Region(list):
         return shape
 
     def fill(self) -> "Bosl2Shape2D":
-        """This region as 2-D geometry with its holes filled in -- i.e. just the outline
-        (OpenSCAD ``fill()``).
+        """Return this region as 2-D geometry with its holes filled in.
+
+        Equivalent to just the outline (OpenSCAD ``fill()``).
 
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
@@ -174,8 +233,10 @@ class Region(list):
         return self.geometry().fill()
 
     def hull(self, *others: "Shape2DLike") -> "Bosl2Shape2D":
-        """The 2-D convex hull of this region, optionally together with *others* (more regions,
-        paths, 2-D shapes or point lists) -- OpenSCAD ``hull()``.
+        """The 2-D convex hull of this region.
+
+        Optionally includes *others* (more regions, paths, 2-D shapes or point lists),
+        equivalent to OpenSCAD ``hull()``.
 
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
@@ -183,14 +244,25 @@ class Region(list):
         return self.geometry().hull(*others)  # type: ignore[arg-type]
 
     def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
-        """Extrude this region *height* along +Z into a 3-D solid (holes included), **on whichever
-        backend is active** -- a :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend,
-        a :class:`~pybosl2._sdf.shapes3d.PyShape` under ``use_backend("sdf")``. See
-        :meth:`pybosl2.paths.Path.linear_extrude` for the per-backend options.
+        """Extrude this region along +Z into a 3-D solid with holes included.
+
+        The result depends on the active backend: a :class:`~pybosl2.shapes3d.Bosl2Solid` under
+        the default CSG backend, or a :class:`~pybosl2._sdf.shapes3d.PyShape` under
+        ``use_backend("sdf")``. See :meth:`pybosl2.paths.Path.linear_extrude` for per-backend
+        options.
 
         The SDF backend's prism is the union of the outlines' fields, so it can only express a
         region of DISJOINT islands; a region with holes raises
         :class:`~pybosl2.exceptions.UnsupportedByBackendError` there.
+
+        Args:
+            height: The extrusion height along +Z.
+            kwargs: Additional arguments forwarded to the backend's linear_extrude
+                implementation.
+
+        Returns:
+            A :class:`~pybosl2.shapes3d.Bosl2Solid` (CSG) or
+            :class:`~pybosl2._sdf.shapes3d.PyShape` (SDF).
         """
         from pybosl2._backend import current_backend, get_backend
         from pybosl2.exceptions import UnsupportedByBackendError
@@ -205,8 +277,9 @@ class Region(list):
         return get_backend().linear_extrude(list(self), height, **kwargs)
 
     def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
-        """Revolve this region about the Y axis into a 3-D solid; see
-        :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
+        """Revolve this region about the Y axis into a 3-D solid.
+
+        See :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude` for details.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` (csg backend only -- the SDF backend has no
@@ -215,9 +288,16 @@ class Region(list):
         return self.geometry().rotate_extrude(angle, **kwargs)
 
     def debug_region(self, size: float = 1, vertices: bool = True):
-        """A debug view of this region: the filled region (as a thin flat solid) with every path's
-        vertices labelled in red -- path ``a`` gets labels ``a0, a1, ...``, path ``b`` ``b0, b1, ...``
-        (BOSL2 debug_region()). A single-path region defers to :meth:`~pybosl2.paths.Path.debug_polygon`.
+        """Visualize this region with vertex labels for debugging.
+
+        Produces the filled region as a thin flat solid with every path's vertices labelled in
+        red -- path ``a`` gets labels ``a0, a1, ...``, path ``b`` ``b0, b1, ...`` (BOSL2
+        ``debug_region()``). A single-path region defers to
+        :meth:`~pybosl2.paths.Path.debug_polygon`.
+
+        Args:
+            size: Text size for vertex labels.
+            vertices: If False, omit vertex labels and return only the filled region.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
@@ -249,18 +329,28 @@ class Region(list):
         return reduce(operator.or_, [solid, *labels])
 
     def stroke(self, width: float = 1, **kwargs: Any):
-        """
-        Draw every path in this region as a closed solid line (see
-        :func:`pybosl2.drawing.stroke`).
+        """Draw every path in this region as a closed solid line.
+
+        Args:
+            width: The stroke width.
+            kwargs: Additional arguments forwarded to :func:`pybosl2.drawing.stroke`.
+
+        Returns:
+            A 2-D or 3-D object depending on the backend.
         """
         from pybosl2.drawing import stroke as _stroke
 
         return _stroke(self, width=width, **kwargs)
 
     def dashed_stroke(self, dashpat: Sequence[float] = (3, 3), **kwargs: Any) -> "list[Path | Path3D]":  # type: ignore[override]
-        """
-        Break every path in this region into dash sub-paths (see
-        :func:`pybosl2.drawing.dashed_stroke`).
+        """Break every path in this region into dash sub-paths.
+
+        Args:
+            dashpat: The dash pattern as alternating lengths ``[dash, gap, ...]``.
+            kwargs: Additional arguments forwarded to :func:`pybosl2.drawing.dashed_stroke`.
+
+        Returns:
+            A list of :class:`Path` or :class:`Path3D` dash segments.
         """
         from pybosl2.drawing import dashed_stroke as _dashed
 
