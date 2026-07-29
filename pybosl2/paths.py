@@ -600,9 +600,6 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             return self._points.copy()
         return self._points
 
-    def _like(self, points: Sequence[Sequence[float]] | NDArray[np.float64]) -> "Path":
-        return Path(points, closed=self.closed)
-
     @property
     def array(self) -> np.ndarray:
         """The points as an (N, 2) numpy array, for doing your own vectorised maths."""
@@ -811,7 +808,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
                 inset = outline.offset(radius=-3)
                 inset.polygon().linear_extrude(height=4).show()
         """
-        return self._like(
+        return self.__class__(
             self._offset(
                 radius=radius,
                 delta=delta,
@@ -828,7 +825,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Simplifies the path by removing vertices where three consecutive
         points are collinear, keeping only the meaningful corners.
         """
-        return self._like(self.path_merge_collinear())
+        return self.__class__(self.path_merge_collinear(), closed=self.closed)
 
     def close(self) -> "Path":
         """Append the start point if the path is not already closed.
@@ -836,7 +833,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Returns a new Path with the first point appended to the end, making
         it a closed polygon. Has no effect if the path is already closed.
         """
-        return self._like(Path._close_path(self))
+        return self.__class__(Path._close_path(self), closed=self.closed)
 
     def cleanup(self) -> "Path":
         """Drop a duplicate closing point if present.
@@ -844,7 +841,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         If the first and last points coincide this returns a new Path with
         the duplicate removed, turning the path into an open one.
         """
-        return self._like(Path._cleanup_path(self))
+        return self.__class__(Path._cleanup_path(self), closed=self.closed)
 
     def reverse(self) -> "Path":
         """The same outline wound the other way.
@@ -852,11 +849,11 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Returns a new Path with all points in reverse order, flipping the
         winding direction (clockwise becomes counter-clockwise and vice-versa).
         """
-        return self._like(list(reversed(self._points)))
+        return self.__class__(list(reversed(self._points)), closed=self.closed)
 
     def deduplicated(self) -> "Path":
         """Drop consecutive repeated points (:meth:`_deduplicate`)."""
-        return self._like(Path._deduplicate(self._points, closed=self.closed))
+        return self.__class__(Path._deduplicate(self._points, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path":
         """Insert points along the path.
@@ -865,7 +862,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             **kwargs: Passed through to the subdivide kernel; must include exactly one of
                 *sides* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
         """
-        return self._like(self.subdivide_path(**kwargs))
+        return self.__class__(self.subdivide_path(**kwargs), closed=self.closed)
 
     def resample(self, **kwargs: Any) -> "Path":
         """Resample to evenly spaced points.
@@ -882,7 +879,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
                 sampled = pts.resample(sides=20)
                 sampled.stroke(width=1).show()
         """
-        return self._like(self.resample_path(**kwargs))
+        return self.__class__(self.resample_path(**kwargs), closed=self.closed)
 
     def cut(self, cutdist: float | Sequence[float] | np.ndarray) -> list["Path"]:
         """Split the path at the given distance(s), returning the sub-paths.
@@ -900,7 +897,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
                 for piece in pieces:
                     piece.stroke(width=1).show()
         """
-        return [self._like(sub) for sub in self.path_cut(cutdist)]
+        return [self.__class__(sub, closed=self.closed) for sub in self.path_cut(cutdist, closed=self.closed)]
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list["Path"]:
         """Split this 2-D path into subpaths wherever it crosses itself.
@@ -908,7 +905,10 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             eps: Epsilon for numerical comparisons.
         """
-        return [self._like(sub) for sub in self._split_path_at_self_crossings(eps=eps)]
+        return [
+            self.__class__(sub, closed=self.closed)
+            for sub in self._split_path_at_self_crossings(eps=eps, closed=self.closed)
+        ]
 
     def polygon_parts(self, nonzero: bool = False, eps: float = EPSILON) -> list["Path"]:
         """Split a possibly self-intersecting polygon into non-intersecting simple polygons.
@@ -921,7 +921,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         temp = Path(poly, closed=True)
         tagged = temp._tag_self_crossing_subpaths(nonzero=nonzero, closed=True, eps=eps)
         kept = [sub[1] for sub in tagged if sub[0] == "O"]
-        return [self._like(part) for part in Path._assemble_path_fragments(kept, eps=eps)]
+        return [self.__class__(part, closed=self.closed) for part in Path._assemble_path_fragments(kept, eps=eps)]
 
     # -- transforms ------------------------------------------------------------------------
     #
@@ -938,7 +938,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         vv = np.zeros(2)
         va = np.asarray(v, dtype=float)
         vv[: min(2, len(va))] = va[: min(2, len(va))]
-        return self._like(self._points + vv)
+        return self.__class__(self._points + vv, closed=self.closed)
 
     move = translate
 
@@ -951,7 +951,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         rad = math.radians(a)
         c, s = math.cos(rad), math.sin(rad)
         rotmat = np.array([[c, -s], [s, c]])
-        return self._like(self._points @ rotmat.T)
+        return self.__class__(self._points @ rotmat.T, closed=self.closed)
 
     rotate = rot
 
@@ -964,7 +964,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         sides = np.asarray(v, dtype=float)
         sides = sides / np.linalg.norm(sides)
         diameter = self._points @ sides
-        return self._like(self._points - 2 * np.outer(diameter, sides))
+        return self.__class__(self._points - 2 * np.outer(diameter, sides), closed=self.closed)
 
     def yflip(self, y: float = 0.0) -> "Path":
         """Reflect every point across the horizontal line Y=*y* (default: the X axis).
@@ -974,7 +974,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         """
         pts = self._points.copy()
         pts[:, 1] = 2 * y - pts[:, 1]
-        return self._like(pts)
+        return self.__class__(pts, closed=self.closed)
 
     def right(self, x: float) -> "Path":
         """Translate by *x* along +X.
@@ -1018,117 +1018,15 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Returns a :class:`~pybosl2.regions.Region` containing just this
         path as its only outline. Useful as a gateway to 2-D Boolean
         operations (union, intersection, difference) on polygons.
+
+        Raises:
+            ValueError: If the path is not closed.
         """
+        if not self.closed:
+            raise ValueError("Cannot convert an open path to a Region; close the path first with .close()")
         from pybosl2.regions import Region  # local: Region imports Path from here
 
         return Region([self])
-
-    def union(self, other: Path) -> "Path | Region":
-        """The 2-D union of this path and *other* (all area covered by either).
-
-        Uses shapely :class:`~shapely.geometry.Polygon` to compute the
-        Boolean union. Returns a :class:`Path` for a single resulting
-        outline, or a :class:`~pybosl2.regions.Region` when the union
-        produces multiple disconnected pieces.
-
-        Args:
-            other: The path to union with.
-        """
-        if not self.closed:
-            raise ValueError("union() requires a closed path")
-        if not other.closed:
-            raise ValueError("union() requires a closed path for 'other'")
-        from shapely.geometry import Polygon
-
-        from pybosl2.regions import Region
-
-        a = Polygon(self)
-        b = Polygon(other)
-        result = a.union(b)
-        if result.geom_type == "Polygon":
-            return Path(result.exterior.coords, closed=True)
-        paths = [Path(p.exterior.coords, closed=True) for p in result.geoms if not p.is_empty]
-        return Region([p._points.tolist() for p in paths])
-
-    def intersection(self, other: Path) -> "Path | Region | None":
-        """The 2-D intersection of this path and *other* (the area they share).
-
-        Uses shapely to compute the Boolean intersection. Returns ``None``
-        when the polygons are disjoint.
-
-        Args:
-            other: The path to intersect with.
-        """
-        if not self.closed:
-            raise ValueError("intersection() requires a closed path")
-        if not other.closed:
-            raise ValueError("intersection() requires a closed path for 'other'")
-        from shapely.geometry import Polygon
-
-        from pybosl2.regions import Region
-
-        a = Polygon(self)
-        b = Polygon(other)
-        result = a.intersection(b)
-        if result.is_empty:
-            return None
-        if result.geom_type == "Polygon":
-            return Path(result.exterior.coords, closed=True)
-        paths = [Path(p.exterior.coords, closed=True) for p in result.geoms if not p.is_empty]
-        return Region([p._points.tolist() for p in paths])
-
-    def difference(self, other: Path) -> "Path | Region | None":
-        """The 2-D difference: *self* minus *other* (the area outside *other*).
-
-        Uses shapely to compute the Boolean difference. Returns ``None``
-        when the result is empty.
-
-        Args:
-            other: The path to subtract from this one.
-        """
-        if not self.closed:
-            raise ValueError("difference() requires a closed path")
-        if not other.closed:
-            raise ValueError("difference() requires a closed path for 'other'")
-        from shapely.geometry import Polygon
-
-        from pybosl2.regions import Region
-
-        a = Polygon(self)
-        b = Polygon(other)
-        result = a.difference(b)
-        if result.is_empty:
-            return None
-        if result.geom_type == "Polygon":
-            return Path(result.exterior.coords, closed=True)
-        paths = [Path(p.exterior.coords, closed=True) for p in result.geoms if not p.is_empty]
-        return Region([p._points.tolist() for p in paths])
-
-    def sym_difference(self, other: Path) -> "Path | Region | None":
-        """The 2-D symmetric difference (XOR): area in either but not both.
-
-        Uses shapely to compute the Boolean symmetric difference.
-
-        Args:
-            other: The path to XOR with.
-        """
-        if not self.closed:
-            raise ValueError("sym_difference() requires a closed path")
-        if not other.closed:
-            raise ValueError("sym_difference() requires a closed path for 'other'")
-        from shapely.geometry import Polygon
-
-        from pybosl2.regions import Region
-
-        a = Polygon(self)
-        b = Polygon(other)
-        result = a.symmetric_difference(b)
-        if result.is_empty:
-            return None
-        if result.geom_type == "Polygon":
-            return Path(result.exterior.coords, closed=True)
-        paths = [Path(p.exterior.coords, closed=True) for p in result.geoms if not p.is_empty]
-        return Region([p._points.tolist() for p in paths])
 
     def to_bezier(
         self,
@@ -1368,7 +1266,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         # Apply each copier matrix, returning the list of 2-D copies (BOSL2's function form).
         # Raises if a copier lifts the 2-D path out of the XY plane; use Path3D for those.
         if not len(self):
-            return [self._like([]) for _ in mats]
+            return [self.__class__([], closed=self.closed) for _ in mats]
         pts3 = np.hstack([self._points, np.zeros((len(self), 1))])
         out = []
         for m in mats:
@@ -1376,7 +1274,7 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             assert float(np.max(np.abs(res[:, 2]))) < 1e-7, (
                 "this copier moves the 2-D path out of the XY plane; convert to Path3D first"
             )
-            out.append(self._like(res[:, :2]))
+            out.append(self.__class__(res[:, :2], closed=self.closed))
         return out
 
     def __repr__(self) -> str:
@@ -2161,9 +2059,6 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             return self._points.copy()
         return self._points
 
-    def _like(self, points: Sequence[Sequence[float]] | NDArray[np.float64]) -> "Path3D":
-        return Path3D(points, closed=self.closed)
-
     @property
     def array(self) -> np.ndarray:
         """The points as an (N, 3) numpy array, for doing your own vectorised maths."""
@@ -2274,7 +2169,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Returns a new Path3D with the first point appended to the end, making
         it a closed loop. Has no effect if already closed.
         """
-        return self._like(Path._close_path(self))
+        return self.__class__(Path._close_path(self), closed=self.closed)
 
     def cleanup(self) -> "Path3D":
         """Drop a duplicate closing point if present.
@@ -2282,18 +2177,18 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         If the first and last points coincide this returns a new Path3D with
         the duplicate removed, turning the path into an open one.
         """
-        return self._like(Path._cleanup_path(self))
+        return self.__class__(Path._cleanup_path(self), closed=self.closed)
 
     def reverse(self) -> "Path3D":
         """The same path wound the other way.
 
         Returns a new Path3D with all points in reverse order.
         """
-        return self._like(list(reversed(self._points)))
+        return self.__class__(list(reversed(self._points)), closed=self.closed)
 
     def deduplicated(self) -> "Path3D":
         """Drop consecutive repeated points."""
-        return self._like(Path._deduplicate(self._points, closed=self.closed))
+        return self.__class__(Path._deduplicate(self._points, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path3D":
         """Insert points along the path.
@@ -2302,7 +2197,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             **kwargs: Passed through to the subdivide kernel; must include exactly one of
                 *sides* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
         """
-        return self._like(self.subdivide_path(**kwargs))
+        return self.__class__(self.subdivide_path(**kwargs), closed=self.closed)
 
     def resample(self, **kwargs: Any) -> "Path3D":
         """Resample to evenly spaced points.
@@ -2310,7 +2205,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             **kwargs: Must include exactly one of *sides* or *spacing*.
         """
-        return self._like(self.resample_path(**kwargs))
+        return self.__class__(self.resample_path(**kwargs), closed=self.closed)
 
     def cut(self, cutdist: float | Sequence[float] | np.ndarray) -> list["Path3D"]:
         """Split the path at the given distance(s), returning the sub-paths.
@@ -2318,7 +2213,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             cutdist: A single distance or a list of ascending distances from the start.
         """
-        return [self._like(sub) for sub in self.path_cut(cutdist)]
+        return [self.__class__(sub, closed=self.closed) for sub in self.path_cut(cutdist, closed=self.closed)]
 
     # -- transforms ------------------------------------------------------------------------
     #
@@ -2334,7 +2229,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         vv = np.zeros(3)
         va = np.asarray(v, dtype=float)
         vv[: min(3, len(va))] = va[: min(3, len(va))]
-        return self._like(self._points + vv)
+        return self.__class__(self._points + vv, closed=self.closed)
 
     move = translate
 
@@ -2345,7 +2240,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             v: A uniform scalar or a per-axis ``[sx, sy, sz]`` scale factor.
         """
         s = np.asarray([v, v, v] if isinstance(v, (int, float)) else list(v), dtype=float)
-        return self._like(self._points * s)
+        return self.__class__(self._points * s, closed=self.closed)
 
     def rotate(self, a: "float | Sequence[float]", v: Sequence[float] | None = None) -> "Path3D":
         """Rotate the points. ``rotate(angle, axis)`` spins about *axis*; ``rotate(angle)`` about +Z;
@@ -2368,7 +2263,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
             m = mz @ my @ mx
         else:
             m = np.asarray(axis_angle_matrix(float(a), [0, 0, 1]), dtype=float)  # type: ignore[type-var, arg-type]
-        return self._like(self._points @ m.T)
+        return self.__class__(self._points @ m.T, closed=self.closed)
 
     rot = rotate
 
@@ -2380,7 +2275,7 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         """
         sides = np.asarray(v, dtype=float)
         sides = sides / np.linalg.norm(sides)
-        return self._like(self._points - 2 * np.outer(self._points @ sides, sides))
+        return self.__class__(self._points - 2 * np.outer(self._points @ sides, sides), closed=self.closed)
 
     def right(self, x: float) -> "Path3D":
         """Translate by *x* along +X.
@@ -2495,8 +2390,8 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
     def _distribute(self, mats: list[np.ndarray]) -> list["Path3D"]:
         # Apply each copier matrix, returning the list of 3-D copies (BOSL2's function form).
         if not len(self):
-            return [self._like([]) for _ in mats]
-        return [self._like(_apply4(m, self._points)) for m in mats]
+            return [self.__class__([], closed=self.closed) for _ in mats]
+        return [self.__class__(_apply4(m, self._points), closed=self.closed) for m in mats]
 
     def __repr__(self) -> str:
         return f"Path3D({len(self)} pts, closed={self.closed})"
