@@ -829,6 +829,13 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list ``[segment_index, [x, y]]`` with the closest segment number and point.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                seg, cp = pts.closest_point([90, 30])
+                (pts.stroke(width=2) + square(size=4, center=True).translate(cp)).linear_extrude(h=4).show()
         """
         from shapely.geometry import LineString
         from shapely.geometry import Point as _Point
@@ -855,6 +862,13 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             An ndarray of unit tangent vectors, one per path point.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [40, 30], [80, 0], [120, 30]])
+                unit_tangents = pts.tangents()
+                pts.stroke(width=2).linear_extrude(h=4).show()
         """
         return self.path_tangents(uniform=uniform)
 
@@ -866,6 +880,13 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             An ndarray of unit normal vectors, one per path point.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [40, 30], [80, 0], [120, 30]])
+                unit_normals = pts.normals()
+                pts.stroke(width=2).linear_extrude(h=4).show()
         """
         return self.path_normals(tangents=tangents)
 
@@ -942,6 +963,13 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Simplifies the path by removing vertices where three consecutive
         points are collinear, keeping only the meaningful corners.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [20, 0], [40, 0], [40, 30], [40, 60], [80, 60]])
+                result = pts.merge_collinear()
+                result.stroke(width=2).linear_extrude(h=4).show()
         """
         return self.__class__(self.path_merge_collinear(), closed=self.closed)
 
@@ -950,6 +978,13 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns a new Path with the first point appended to the end, making
         it a closed polygon. Has no effect if the path is already closed.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [80, 0], [80, 60], [0, 60]], closed=False)
+                result = pts.close()
+                result.stroke(width=2).linear_extrude(h=4).show()
         """
         return self.__class__(Path._close_path(self), closed=self.closed)
 
@@ -958,6 +993,13 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         If the first and last points coincide this returns a new Path with
         the duplicate removed, turning the path into an open one.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [80, 0], [80, 60], [0, 60], [0, 0]])
+                result = pts.cleanup()
+                result.stroke(width=2).linear_extrude(h=4).show()
         """
         return self.__class__(Path._cleanup_path(self), closed=self.closed)
 
@@ -966,11 +1008,26 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns a new Path with all points in reverse order, flipping the
         winding direction (clockwise becomes counter-clockwise and vice-versa).
+
+        Examples:
+            .. pythonscad-example::
+
+                rect = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                result = rect.reverse()
+                result.stroke(width=2).linear_extrude(h=4).show()
         """
         return self.__class__(list(reversed(self._points)), closed=self.closed)
 
     def deduplicated(self) -> "Path":
-        """Drop consecutive repeated points (:meth:`_deduplicate`)."""
+        """Drop consecutive repeated points (:meth:`_deduplicate`).
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])
+                result = pts.deduplicated()
+                result.stroke(width=2).linear_extrude(h=4).show()
+        """
         return self.__class__(Path._deduplicate(self._points, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path":
@@ -982,6 +1039,13 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path` with additional interpolated points.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                result = pts.subdivide(sides=24)
+                result.stroke(width=1).linear_extrude(h=4).show()
         """
         return self.__class__(self.subdivide_path(**kwargs), closed=self.closed)
 
@@ -1416,6 +1480,14 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`Path` or :class:`Path3D` sub-paths representing the dashes.
+
+        Examples:
+            .. pythonscad-example::
+
+                pts = Path([[0, 0], [80, 0], [80, 60], [0, 60]])
+                result = pts.dashed_stroke(dashpat=[8, 4])
+                for dash in result:
+                    dash.stroke(width=1).linear_extrude(h=3).show()
         """
         from pybosl2.drawing import dashed_stroke as _dashed
 
@@ -2418,6 +2490,13 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new translated :class:`Path3D`.
+
+        Examples:
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.translate([10, 5, 15])
+                result.stroke(width=2).show()
         """
         vv = np.zeros(3)
         va = np.asarray(v, dtype=float)
@@ -2434,6 +2513,13 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new scaled :class:`Path3D`.
+
+        Examples:
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.scale(2)
+                result.stroke(width=2).show()
         """
         s = np.asarray([v, v, v] if isinstance(v, (int, float)) else list(v), dtype=float)
         return self.__class__(self._points * s, closed=self.closed)
@@ -2449,6 +2535,13 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new rotated :class:`Path3D`.
+
+        Examples:
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.rotate(45, v=[0, 0, 1])
+                result.stroke(width=2).show()
         """
         from pybosl2.transforms import axis_angle_matrix
 
@@ -2474,6 +2567,13 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new mirrored :class:`Path3D`.
+
+        Examples:
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.mirror([1, 0, 0])
+                result.stroke(width=2).show()
         """
         sides = np.asarray(v, dtype=float)
         sides = sides / np.linalg.norm(sides)
@@ -2576,6 +2676,12 @@ class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A 3-D geometry object from the stroke operation.
+
+        Examples:
+            .. pythonscad-example::
+
+                coil = helix(turns=3, height=60, radius=20).resample(sides=120)
+                coil.stroke(width=4).show()
         """
         from pybosl2.drawing import stroke as _stroke
 
