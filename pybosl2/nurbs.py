@@ -29,7 +29,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 
 if TYPE_CHECKING:
-    from pybosl2.paths import PathBase
+    from pybosl2.paths import Path
 
 import numpy as np
 
@@ -236,7 +236,7 @@ def _nurbs_curve_pts(
 
 
 def nurbs_curve(
-    control: PathBase | Sequence[Sequence[float]],
+    control: Path | Sequence[Sequence[float]],
     degree: int | None = None,
     splinesteps: int | None = None,
     u=None,
@@ -244,7 +244,7 @@ def nurbs_curve(
     weights=None,
     type: str = "clamped",  # noqa: A002
     knots=None,
-) -> PathBase | list[float]:
+) -> Path | list[float]:
     """Evaluate a NURBS curve, returning its points (BOSL2 nurbs_curve()).
 
     Give either *splinesteps* (uniform samples between knots, with a sample at every knot) or *u*

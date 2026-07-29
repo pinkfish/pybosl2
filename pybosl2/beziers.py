@@ -48,7 +48,7 @@ from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
     from pybosl2.caps import CapsSpec, CapType
-    from pybosl2.paths import PathBase
+    from pybosl2.paths import Path
     from pybosl2.points import Vector
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -391,7 +391,7 @@ class Bezier:
         sub = self.array[curveind * n_degree : (curveind + 1) * n_degree + 1]
         return Bezier(sub).points(u)
 
-    def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> PathBase:
+    def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> Path:
         """Sample this bezier PATH into a Path2D of points.
 
         Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling
@@ -576,9 +576,9 @@ class Bezier:
     @classmethod
     def from_path(
         cls,
-        path: PathBase,
+        path: Path,
         closed: bool = False,
-        tangents: PathBase | None = None,
+        tangents: Path | None = None,
         uniform: bool = False,
         size: float | None = None,
         relsize: float | None = None,
@@ -605,7 +605,7 @@ class Bezier:
 
     def sweep(
         self,
-        shape: PathBase,
+        shape: Path,
         splinesteps: int = 16,
         n_degree: int | None = None,
         method: str = "incremental",
@@ -934,9 +934,9 @@ class Bezier:
 
 
 def create_bezier(
-    path: PathBase,
+    path: Path,
     closed: bool = False,
-    tangents: PathBase | None = None,
+    tangents: Path | None = None,
     uniform: bool = False,
     size: float | None = None,
     relsize: float | None = None,

@@ -12,7 +12,7 @@ there are no module-level path functions. The public ergonomic API is instance m
 private instance methods that operate on ``self._points``.
 
 Dimension-agnostic path-math functions (length, tangents, normals, curvature, torsion,
-closest-point, cutting, resampling) live on :class:`PathBase`, shared by both :class:`Path2D`
+closest-point, cutting, resampling) live on :class:`Path`, shared by both :class:`Path2D`
 and :class:`Path3D`. They use vectorised numpy operations over ``self._points``.
 
 The :class:`Path3D` class extends these operations to 3-D paths, carrying the dimension-independent
@@ -62,14 +62,14 @@ from pybosl2.rounding import Roundable  # round_corners / smooth_path, as method
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import add_scalar, unit
 
-__all__ = ["Path2D", "Path3D", "PathBase", "MinkowskiJoin"]
+__all__ = ["Path2D", "Path3D", "Path", "MinkowskiJoin"]
 
 # ---------------------------------------------------------------------------
-# Section: PathBase -- dimension-agnostic path-math kernels shared by Path2D and Path3D
+# Section: Path -- dimension-agnostic path-math kernels shared by Path2D and Path3D
 # ---------------------------------------------------------------------------
 
 
-class PathBase:
+class Path:
     """Dimension-agnostic numeric path operations shared by :class:`Path2D` and :class:`Path3D`.
 
     Subclasses must provide ``self._points`` (:class:`numpy.ndarray`) and ``self.closed`` (:class:`bool`).
@@ -88,7 +88,7 @@ class PathBase:
         return iter(self._points)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, PathBase):
+        if not isinstance(other, Path):
             return NotImplemented
         return bool(np.allclose(self._points, other._points)) and self.closed == other.closed
 
@@ -683,7 +683,7 @@ class MinkowskiJoin(Enum):
     BEVEL = 3
 
 
-class Path2D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
+class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     """A 2-D path (formerly ``Path2D``): a list of [x, y] points, with every path operation as a method.
 
     Every place that already treats a path as a plain point list (indexing, iteration, ``len()``,
@@ -2624,7 +2624,7 @@ class Path2D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
 # ---------------------------------------------------------------------------
 
 
-class Path3D(PathBase, Distributable, Extrudable, Sweepable, Roundable):
+class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     """A 3-D path: a list of ``[x, y, z]`` points, with the path operations that make sense in 3-D.
 
     The 3-D counterpart of :class:`Path2D`. Like ``Path2D``, every method returns
