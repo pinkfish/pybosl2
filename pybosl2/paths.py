@@ -66,6 +66,561 @@ from pybosl2.vectors import add_scalar, unit
 __all__ = ["Path2D", "Path3D", "Path", "MinkowskiJoin"]
 
 # ---------------------------------------------------------------------------
+# Section: Path helper functions
+# ---------------------------------------------------------------------------
+
+
+def _path_total_length(points: np.ndarray, closed: bool) -> float:
+    """Total length of the path.
+
+    Args:
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        The total path length as a float.
+    """
+    if len(points) < 2:
+        return 0.0
+    total = float(np.linalg.norm(np.diff(points, axis=0), axis=1).sum())
+    if closed:
+        total += float(np.linalg.norm(points[-1] - points[0]))
+    return total
+
+
+def _path_path_segment_lengths(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
+    """Length of each segment of the path, as an ndarray.
+
+    Args:
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        An ndarray of segment lengths.
+    """
+    lens = np.linalg.norm(np.diff(points, axis=0), axis=1)
+    if closed:
+        lens = np.append(lens, np.linalg.norm(points[0] - points[-1]))
+    return lens  # type: ignore[return-value]
+
+
+def _path_length_fractions(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
+    """Distance fraction of each point in the path (0 at start, 1 at end).
+
+    Args:
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        An ndarray of cumulative length fractions, from 0 to 1.
+    """
+    lengths = np.concatenate(([0.0], _path_path_segment_lengths(points, closed)))
+    partial = np.cumsum(lengths)
+    total = partial[-1]
+    return partial / total
+
+
+# -- Path2D Geometry ---------------------------------------------------------------------
+
+
+def _path_closest_point(points: np.ndarray, closed: bool, pt: Point | Sequence[float]) -> Point:
+    """The closest point on the path to *pt*.
+
+    Args:
+        pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        A :class:`~pybosl2.points.Point` of the closest point on the path.
+    """
+    if isinstance(pt, Point):
+        q = np.array([pt.x, pt.y]) if pt.is_2d else np.array([pt.x, pt.y, pt.z])
+    else:
+        q = np.asarray(pt, dtype=float)
+    pts = [line_closest_point(seg, q) for seg in Path2D._pair(points, closed)]
+    dists = np.linalg.norm(np.asarray(pts, dtype=float) - q, axis=1)
+    min_seg = int(np.argmin(dists))
+    r = pts[min_seg]
+    dim = points.shape[1]
+    return Point(float(r[0]), float(r[1])) if dim == 2 else Point(float(r[0]), float(r[1]), float(r[2]))
+
+
+def _path_tangents(points: np.ndarray, closed: bool, uniform: bool = True) -> NDArray[np.float64]:
+    """Normalized tangent vector at each point of the path, as an ndarray.
+
+    Args:
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+        uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
+
+    Returns:
+        An ndarray of unit tangent vectors, one per path point.
+    """
+    if not uniform:
+        diameter = np.asarray(
+            deriv(points, closed=closed, height=_path_path_segment_lengths(points, closed)),
+            dtype=float,
+        )
+    else:
+        diameter = np.asarray(deriv(points, closed=closed), dtype=float)
+    norms = np.linalg.norm(diameter, axis=1, keepdims=True)
+    assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
+    return diameter / norms  # type: ignore[return-value]
+
+
+def _path_normals(
+    points: np.ndarray, closed: bool, tangents: NDArray[np.float64] | np.ndarray | None = None
+) -> NDArray[np.float64]:
+    """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
+
+    For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
+    principal normal estimated via the triple-product cross.
+
+    Args:
+        tangents: Optional pre-computed tangent vectors; computed automatically if None.
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        An ndarray of unit normal vectors, one per path point.
+    """
+    tangents_arr = _path_tangents(points, closed) if tangents is None else np.asarray(tangents, dtype=float)
+    dim = points.shape[1]
+    if dim == 2:
+        return np.stack([tangents_arr[:, 1], -tangents_arr[:, 0]], axis=1)  # type: ignore[return-value]
+    sides = len(points)
+    out = []
+    for i in range(sides):
+        if i == 0:
+            idx = [-1, 0, 1] if closed else [0, 1, 2]
+        elif i == sides - 1:
+            idx = [i - 1, i, (i + 1) % sides] if closed else [i - 2, i - 1, i]
+        else:
+            idx = [i - 1, i, i + 1]
+        pts = points[idx]
+        v = np.cross(np.cross(pts[1] - pts[0], pts[2] - pts[0]), tangents_arr[i])
+        norm = float(np.linalg.norm(v))
+        assert norm > EPSILON, "3D path contains collinear points"
+        out.append(v / norm)
+    return np.asarray(out)
+
+
+def _path_curvature(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
+    """Numeric curvature estimate of the path at each point, as an ndarray.
+
+    Args:
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        An ndarray of curvature values, one per path point.
+    """
+    diameter1 = np.asarray(deriv(points, closed=closed), dtype=float)
+    diameter2 = np.asarray(deriv2(points, closed=closed), dtype=float)
+    n1 = np.linalg.norm(diameter1, axis=1)
+    n2 = np.linalg.norm(diameter2, axis=1)
+    dot = np.einsum("ij,ij->i", diameter1, diameter2)
+    val = np.clip((n1 * n2) ** 2 - dot**2, 0.0, None)
+    return np.sqrt(val) / n1**3  # type: ignore[return-value]
+
+
+def _path_torsion(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
+    """Numeric torsion estimate of the path at each point, as an ndarray.
+
+    Args:
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        An ndarray of torsion values, one per path point.
+    """
+    diameter1 = np.asarray(deriv(points, closed=closed), dtype=float)
+    diameter2 = np.asarray(deriv2(points, closed=closed), dtype=float)
+    d3 = np.asarray(deriv3(points, closed=closed), dtype=float)
+    crossterm = np.cross(diameter1, diameter2)
+    dot = np.einsum("ij,ij->i", crossterm, d3)
+    denom = np.einsum("ij,ij->i", crossterm, crossterm)
+    return dot / denom  # type: ignore[return-value]
+
+
+# -- Breaking paths up into subpaths ---------------------------------------------------
+
+
+def _path_cut(points: np.ndarray, closed: bool, cutdist: float | Sequence[float] | np.ndarray) -> list:
+    """Cut path into subpaths at the given ascending list of distances (or a single distance).
+
+    Args:
+        cutdist: A single distance or a list of ascending distances from the start.
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        A list of subpath point lists.
+    """
+    if isinstance(cutdist, (int, float)):
+        return _path_cut(points, closed, [cutdist])
+    assert isinstance(cutdist, (list, tuple, np.ndarray))
+    assert cutdist[-1] < _path_total_length(points, closed), "Cut distances must be smaller than the path length"
+    assert cutdist[0] > 0, "Cut distances must be strictly positive"
+    cutlist = _path_cut_points(points, closed, cutdist)
+    return _path_cut_getpaths(points, closed, cutlist)
+
+
+def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list) -> list:
+    """Reconstruct sub-paths from the output of path_cut_points().
+
+    Args:
+        cutlist: Output from path_cut_points(), a list of ``[point, next_index]`` entries.
+        closed: Whether the path is closed.
+
+    Returns:
+        A list of subpath point lists.
+    """
+    cuts = len(cutlist)
+    result = []
+    seg0 = list(Path2D._list_head(points, cutlist[0][1] - 1))
+    if not approx(cutlist[0][0], points[cutlist[0][1] - 1]):
+        seg0.append(cutlist[0][0])
+    result.append(seg0)
+    for i in range(cuts - 1):
+        if np.array_equal(cutlist[i][0], cutlist[i + 1][0]) and cutlist[i][1] == cutlist[i + 1][1]:
+            result.append([])
+            continue
+        seg = []
+        if not approx(cutlist[i][0], Path2D._select(points, cutlist[i][1])):
+            seg.append(cutlist[i][0])
+        seg.extend(Path2D._slice(points, cutlist[i][1], cutlist[i + 1][1] - 1))
+        if not approx(cutlist[i + 1][0], Path2D._select(points, cutlist[i + 1][1] - 1)):
+            seg.append(cutlist[i + 1][0])
+        result.append(seg)
+    last_seg = []
+    if not approx(cutlist[cuts - 1][0], Path2D._select(points, cutlist[cuts - 1][1])):
+        last_seg.append(cutlist[cuts - 1][0])
+    last_seg.extend(Path2D._select(points, cutlist[cuts - 1][1], 0 if closed else -1))
+    result.append(last_seg)
+    return result
+
+
+def _path_cut_points(
+    points: np.ndarray, closed: bool, cutdist: float | Sequence[float] | np.ndarray, direction: bool = False
+) -> list[np.ndarray]:
+    """Cut path at given distance(s) from start.
+
+    Returns ``[[point, next_index], ...]`` entries (or a single entry if cutdist is a scalar).
+
+    Args:
+        cutdist: A single distance or a list of ascending distances from the start.
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+        direction: If True, also include direction and normal at each cut point.
+
+    Returns:
+        A list of ``[point, next_index]`` pairs or ``[point, next_index, dir, normal]`` if direction is True.
+    """
+    long_enough = len(points) >= (3 if closed else 2)
+    assert long_enough, (
+        "Two points needed to define a path" if len(points) < 2 else "Closed path must include three points"
+    )
+    if isinstance(cutdist, (int, float, np.floating, np.integer)):
+        return _path_cut_points(points, closed, [cutdist], direction)[0]  # type: ignore[return-value]
+    assert isinstance(cutdist, (list, tuple, np.ndarray))
+    assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
+    cuts = _path_cut_points_recurse(points, closed, [float(v) for v in cutdist])
+    if not direction:
+        return cuts  # type: ignore[return-value]
+    dirs = _path_cuts_dir(points, closed, cuts)
+    normals = _path_cuts_normals(points, closed, cuts, dirs)
+    return [[cuts[i][0], cuts[i][1], dirs[i], normals[i]] for i in range(len(cuts))]  # type: ignore[misc]
+
+
+def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[float]) -> list:
+    """Walk the path accumulating distance until each cut distance is reached.
+
+    Args:
+        dists: Ordered list of distances from the start at which to cut.
+        closed: Whether the path is closed.
+
+    Returns:
+        A list of ``[point, next_index]`` entries, one per cut distance.
+    """
+    result: list[Any] = []
+    pind = 0
+    dtotal = 0.0
+    for dind in range(len(dists)):
+        lastpt = [] if len(result) == 0 else result[-1][0]
+        dpartial = 0.0 if len(result) == 0 else math.dist(lastpt, Path2D._select(points, pind))
+        if dists[dind] < dpartial + dtotal:
+            t = (dists[dind] - dtotal) / dpartial
+            nextpoint = [lerp(lastpt, Path2D._select(points, pind), t), pind]
+        else:
+            nextpoint = _path_cut_single(points, closed, dists[dind] - dtotal - dpartial, pind)
+        result.append(nextpoint)
+        dtotal = dists[dind]  # type: ignore[assignment]
+        pind = nextpoint[1]
+    return result
+
+
+def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0, eps: float = 1e-7) -> list:
+    """Find the single cut point at distance dist from segment ind.
+
+    Args:
+        dist: Distance along the path from the given segment index.
+        closed: Whether the path is closed.
+        ind: The segment index to start searching from.
+        eps: Epsilon for distance comparison.
+
+    Returns:
+        A list ``[point, next_index]`` with the cut point and its next segment index.
+    """
+    while True:
+        if ind == len(points) - (0 if closed else 1):
+            assert dist < eps, "Path2D is too short for specified cut distance"
+            return [Path2D._select(points, ind), ind + 1]
+        diameter = math.dist(points[ind], Path2D._select(points, ind + 1))
+        if diameter > dist:
+            return [
+                lerp(points[ind], Path2D._select(points, ind + 1), dist / diameter),
+                ind + 1,
+            ]
+        dist -= diameter
+        ind += 1
+
+
+def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list, dirs: list) -> list:
+    """Compute normals at each cut point (perpendicular to the direction, in local plane).
+
+    Args:
+        cuts: List of cut entries from path_cut_points().
+        dirs: List of direction vectors at each cut.
+        closed: Whether the path is closed.
+
+    Returns:
+        A list of normal vectors, one per cut point.
+    """
+    out = []
+    dim = points.shape[1]
+    for i in range(len(cuts)):
+        if dim == 2:
+            out.append([-dirs[i][1], dirs[i][0]])
+            continue
+        plane = None
+        if len(points) >= 3:
+            start = max(min(cuts[i][1], len(points) - 1), 2)
+            plane = _path_plane(points, closed, start, start - 2)
+        if plane is None:
+            out.append([1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else list(unit([-dirs[i][1], dirs[i][0], 0])))
+        else:
+            out.append(list(unit(cross(dirs[i], cross(plane[0], plane[1])))))
+    return out
+
+
+def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> np.ndarray | None:
+    """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
+
+    Args:
+        ind: Index of the first point defining the plane.
+        i: Index of the search start for the third non-collinear point.
+        closed: Whether the path is closed.
+
+    Returns:
+        A 2x3 ndarray of two basis vectors defining the local plane, or None if no
+        non-collinear point is found.
+    """
+    lower = -1 if closed else 0
+    while i >= lower:
+        if not is_collinear(points[ind], points[ind - 1], Path2D._select(points, i)):
+            p_i = Path2D._select(points, i)
+            return np.asarray(
+                [  # type: ignore[return-value]
+                    [a - b for a, b in zip(p_i, points[ind - 1], strict=False)],
+                    [a - b for a, b in zip(points[ind], points[ind - 1], strict=False)],
+                ]
+            )
+        i -= 1
+    return None
+
+
+def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list, eps: float = 1e-2) -> list:
+    """Compute direction vectors at each cut point (blended from adjacent segments).
+
+    Args:
+        cuts: List of cut entries from path_cut_points().
+        closed: Whether the path is closed.
+        eps: Epsilon for numerical comparisons.
+
+    Returns:
+        A list of direction vectors, one per cut point.
+    """
+    out = []
+    zeros = [0] * points.shape[1]
+    for ci in range(len(cuts)):
+        nextind = cuts[ci][1]
+        nextpath = unit(
+            [
+                a - b
+                for a, b in zip(
+                    Path2D._select(points, nextind + 1),
+                    Path2D._select(points, nextind),
+                    strict=False,
+                )
+            ],
+            zeros,
+        )
+        thispath = unit(
+            [
+                a - b
+                for a, b in zip(
+                    Path2D._select(points, nextind),
+                    Path2D._select(points, nextind - 1),
+                    strict=False,
+                )
+            ],
+            zeros,
+        )
+        lastpath = unit(
+            [
+                a - b
+                for a, b in zip(
+                    Path2D._select(points, nextind - 1),
+                    Path2D._select(points, nextind - 2),
+                    strict=False,
+                )
+            ],
+            zeros,
+        )
+        if nextind == len(points) and not closed:
+            nextdir = lastpath
+        elif (nextind <= len(points) - 2 or closed) and approx(cuts[ci][0], Path2D._select(points, nextind), eps=eps):
+            nextdir = unit([a + b for a, b in zip(nextpath, thispath, strict=False)])
+        elif (nextind > 1 or closed) and approx(cuts[ci][0], Path2D._select(points, nextind - 1), eps=eps):
+            nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
+        else:
+            nextdir = thispath
+        out.append(nextdir)
+    return out
+
+
+# -- Resampling -- changing the number of points in a path -----------------------------
+
+
+def _subdivide_path(
+    points: np.ndarray,
+    closed: bool,
+    sides: float | Sequence[int] | None = None,
+    refine: int | None = None,
+    maxlen: float | None = None,
+    exact: bool | None = None,
+    method: str | None = None,
+) -> list:
+    """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
+
+    Args:
+        sides: Target number of points.
+        refine: Multiplier for point count.
+        maxlen: Maximum segment length.
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+        exact: If True, use sum-preserving rounding.
+        method: "length" or "segment".
+
+    Returns:
+        A list of subdivided path points.
+    """
+    assert sum(x is not None for x in (sides, refine, maxlen)) == 1, (
+        "Must give exactly one of sides, refine, and maxlen"
+    )
+    if refine == 1 or sides == len(points):
+        return list(points)
+    if maxlen is not None:
+        assert method is None, "Cannot give method with maxlen"
+        assert exact is None, "Cannot give exact with maxlen"
+        out: list[Any] = []
+        for p0, p1 in Path2D._pair(points, closed):
+            steps = math.ceil(math.dist(p1, p0) / maxlen)
+            out.extend(lerpn(p0, p1, steps, endpoint=False))
+        if not closed:
+            out.append(points[-1])
+        return out
+    exact = True if exact is None else exact
+    method = "length" if method is None else method
+    assert method in ("length", "segment")
+    if sides is None:
+        assert refine is not None, "Must give exactly one of sides, refine, and maxlen"
+        sides = len(points) * refine
+    assert (isinstance(sides, (int, float)) and sides > 0) or isinstance(sides, (list, tuple)), (
+        "Parameter sides to subdivide_path must be positive number or vector"
+    )
+    count = len(points) - (0 if closed else 1)
+    if method == "segment":
+        if isinstance(sides, (list, tuple)):
+            assert len(sides) == count, "Vector parameter sides to subdivide_path has the wrong length"
+            add_guess = add_scalar(list(sides), -1)
+        else:
+            add_guess_r = Path2D._repeat((sides - len(points)) / count, count)
+            add_guess = add_guess_r  # type: ignore[assignment]
+    else:
+        assert isinstance(sides, (int, float)), (
+            'Parameter sides to subdivide path must be a number when method="length"'
+        )
+        path_lens = _path_path_segment_lengths(points, closed)
+        add_density = (sides - len(points)) / sum(path_lens)
+        add_guess = [float(ln * add_density) for ln in path_lens]  # type: ignore[assignment]
+    add_list = [float(v) for v in add_guess]
+    add = Path2D._sum_preserving_round(add_list) if exact else [Path2D._scad_round(v) for v in add_list]
+    out2: list[Any] = []
+    for i in range(count):
+        out2.extend(lerpn(points[i], Path2D._select(points, i + 1), 1 + int(add[i]), endpoint=False))
+    if not closed:
+        out2.append(points[-1])
+    return out2
+
+
+def _resample_path(points: np.ndarray, closed: bool, sides: int | None = None, spacing: float | None = None) -> list:
+    """Uniformly resample path to sides points, or to a spacing near spacing.
+
+    Args:
+        sides: Target number of points.
+        spacing: Approximate spacing between points.
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        A list of uniformly resampled path points.
+    """
+    assert (sides is None) != (spacing is None), "Must define exactly one of sides and spacing"
+    length = _path_total_length(points, closed)
+    if sides is not None:
+        n_use = sides - (0 if closed else 1)
+    else:
+        assert spacing is not None
+        n_use = round(length / spacing)
+    distlist = lerpn(0, length, n_use, endpoint=False)
+    cuts = _path_cut_points(points, closed, distlist)
+    out = [c[0] for c in cuts]
+    if not closed:
+        out.append(points[-1])
+    return out
+
+
+def _path_select(points: np.ndarray, closed: bool, s1: int, u1: float, s2: int, u2: float) -> list:
+    """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
+
+    Args:
+        s1: Starting segment index.
+        u1: Fraction along segment s1 (0 to 1).
+        s2: Ending segment index.
+        u2: Fraction along segment s2 (0 to 1).
+        closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+    Returns:
+        A list of points representing the selected portion of the path.
+    """
+    lp = len(points)
+    limit = lp - (0 if closed else 1)
+    u1c = 0.0 if s1 < 0 else (1.0 if s1 > limit else u1)
+    u2c = 0.0 if s2 < 0 else (1.0 if s2 > limit else u2)
+    s1c = max(0, min(limit, s1))
+    s2c = max(0, min(limit, s2))
+    out = []
+    if s1c < limit and u1c < 1:
+        out.append(lerp(points[s1c], points[(s1c + 1) % lp], u1c))
+    out.extend(points[i] for i in range(s1c + 1, s2c + 1))
+    if s2c < limit and u2c > 0:
+        out.append(lerp(points[s2c], points[(s2c + 1) % lp], u2c))
+    return out
+
+
+# ---------------------------------------------------------------------------
+
 # Section: Path -- dimension-agnostic path-math kernels shared by Path2D and Path3D
 # ---------------------------------------------------------------------------
 
@@ -99,6 +654,7 @@ class Path(ABC):
 
     # -- Path2D length calculation -----------------------------------------------------------
 
+    @abstractmethod
     def total_length(self, closed: bool | None = None) -> float:
         """Total length of the path.
 
@@ -108,15 +664,9 @@ class Path(ABC):
         Returns:
             The total path length as a float.
         """
-        if closed is None:
-            closed = self.closed
-        if len(self._points) < 2:
-            return 0.0
-        total = float(np.linalg.norm(np.diff(self._points, axis=0), axis=1).sum())
-        if closed:
-            total += float(np.linalg.norm(self._points[-1] - self._points[0]))
-        return total
+        ...
 
+    @abstractmethod
     def path_segment_lengths(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Length of each segment of the path, as an ndarray.
 
@@ -126,13 +676,9 @@ class Path(ABC):
         Returns:
             An ndarray of segment lengths.
         """
-        if closed is None:
-            closed = self.closed
-        lens = np.linalg.norm(np.diff(self._points, axis=0), axis=1)
-        if closed:
-            lens = np.append(lens, np.linalg.norm(self._points[0] - self._points[-1]))
-        return lens  # type: ignore[return-value]
+        ...
 
+    @abstractmethod
     def path_length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Distance fraction of each point in the path (0 at start, 1 at end).
 
@@ -142,15 +688,9 @@ class Path(ABC):
         Returns:
             An ndarray of cumulative length fractions, from 0 to 1.
         """
-        if closed is None:
-            closed = self.closed
-        lengths = np.concatenate(([0.0], self.path_segment_lengths(closed)))
-        partial = np.cumsum(lengths)
-        total = partial[-1]
-        return partial / total
+        ...
 
-    # -- Path2D Geometry ---------------------------------------------------------------------
-
+    @abstractmethod
     def path_closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
         """The closest point on the path to *pt*.
 
@@ -161,19 +701,9 @@ class Path(ABC):
         Returns:
             A :class:`~pybosl2.points.Point` of the closest point on the path.
         """
-        if isinstance(pt, Point):
-            q = np.array([pt.x, pt.y]) if pt.is_2d else np.array([pt.x, pt.y, pt.z])
-        else:
-            q = np.asarray(pt, dtype=float)
-        if closed is None:
-            closed = self.closed
-        pts = [line_closest_point(seg, q) for seg in Path2D._pair(self._points, closed)]
-        dists = np.linalg.norm(np.asarray(pts, dtype=float) - q, axis=1)
-        min_seg = int(np.argmin(dists))
-        r = pts[min_seg]
-        dim = self._points.shape[1]
-        return Point(float(r[0]), float(r[1])) if dim == 2 else Point(float(r[0]), float(r[1]), float(r[2]))
+        ...
 
+    @abstractmethod
     def path_tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
         """Normalized tangent vector at each point of the path, as an ndarray.
 
@@ -184,19 +714,9 @@ class Path(ABC):
         Returns:
             An ndarray of unit tangent vectors, one per path point.
         """
-        if closed is None:
-            closed = self.closed
-        if not uniform:
-            diameter = np.asarray(
-                deriv(self._points, closed=closed, height=self.path_segment_lengths(closed)),
-                dtype=float,
-            )
-        else:
-            diameter = np.asarray(deriv(self._points, closed=closed), dtype=float)
-        norms = np.linalg.norm(diameter, axis=1, keepdims=True)
-        assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
-        return diameter / norms  # type: ignore[return-value]
+        ...
 
+    @abstractmethod
     def path_normals(
         self, tangents: NDArray[np.float64] | np.ndarray | None = None, closed: bool | None = None
     ) -> NDArray[np.float64]:
@@ -212,28 +732,9 @@ class Path(ABC):
         Returns:
             An ndarray of unit normal vectors, one per path point.
         """
-        if closed is None:
-            closed = self.closed
-        tangents_arr = self.path_tangents(closed) if tangents is None else np.asarray(tangents, dtype=float)
-        dim = self._points.shape[1]
-        if dim == 2:
-            return np.stack([tangents_arr[:, 1], -tangents_arr[:, 0]], axis=1)  # type: ignore[return-value]
-        sides = len(self._points)
-        out = []
-        for i in range(sides):
-            if i == 0:
-                idx = [-1, 0, 1] if closed else [0, 1, 2]
-            elif i == sides - 1:
-                idx = [i - 1, i, (i + 1) % sides] if closed else [i - 2, i - 1, i]
-            else:
-                idx = [i - 1, i, i + 1]
-            pts = self._points[idx]
-            v = np.cross(np.cross(pts[1] - pts[0], pts[2] - pts[0]), tangents_arr[i])
-            norm = float(np.linalg.norm(v))
-            assert norm > EPSILON, "3D path contains collinear points"
-            out.append(v / norm)
-        return np.asarray(out)
+        ...
 
+    @abstractmethod
     def path_curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Numeric curvature estimate of the path at each point, as an ndarray.
 
@@ -243,16 +744,9 @@ class Path(ABC):
         Returns:
             An ndarray of curvature values, one per path point.
         """
-        if closed is None:
-            closed = self.closed
-        diameter1 = np.asarray(deriv(self._points, closed=closed), dtype=float)
-        diameter2 = np.asarray(deriv2(self._points, closed=closed), dtype=float)
-        n1 = np.linalg.norm(diameter1, axis=1)
-        n2 = np.linalg.norm(diameter2, axis=1)
-        dot = np.einsum("ij,ij->i", diameter1, diameter2)
-        val = np.clip((n1 * n2) ** 2 - dot**2, 0.0, None)
-        return np.sqrt(val) / n1**3  # type: ignore[return-value]
+        ...
 
+    @abstractmethod
     def path_torsion(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Numeric torsion estimate of the path at each point, as an ndarray.
 
@@ -262,18 +756,9 @@ class Path(ABC):
         Returns:
             An ndarray of torsion values, one per path point.
         """
-        if closed is None:
-            closed = self.closed
-        diameter1 = np.asarray(deriv(self._points, closed=closed), dtype=float)
-        diameter2 = np.asarray(deriv2(self._points, closed=closed), dtype=float)
-        d3 = np.asarray(deriv3(self._points, closed=closed), dtype=float)
-        crossterm = np.cross(diameter1, diameter2)
-        dot = np.einsum("ij,ij->i", crossterm, d3)
-        denom = np.einsum("ij,ij->i", crossterm, crossterm)
-        return dot / denom  # type: ignore[return-value]
+        ...
 
-    # -- Breaking paths up into subpaths ---------------------------------------------------
-
+    @abstractmethod
     def path_cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
 
@@ -284,16 +769,9 @@ class Path(ABC):
         Returns:
             A list of subpath point lists.
         """
-        if isinstance(cutdist, (int, float)):
-            return self.path_cut([cutdist], closed)
-        if closed is None:
-            closed = self.closed
-        assert isinstance(cutdist, (list, tuple, np.ndarray))
-        assert cutdist[-1] < self.total_length(closed=closed), "Cut distances must be smaller than the path length"
-        assert cutdist[0] > 0, "Cut distances must be strictly positive"
-        cutlist = self.path_cut_points(cutdist, closed=closed)
-        return self.path_cut_getpaths(cutlist, closed)
+        ...
 
+    @abstractmethod
     def path_cut_getpaths(self, cutlist: list, closed: bool) -> list:
         """Reconstruct sub-paths from the output of path_cut_points().
 
@@ -304,30 +782,9 @@ class Path(ABC):
         Returns:
             A list of subpath point lists.
         """
-        cuts = len(cutlist)
-        result = []
-        seg0 = list(Path2D._list_head(self._points, cutlist[0][1] - 1))
-        if not approx(cutlist[0][0], self._points[cutlist[0][1] - 1]):
-            seg0.append(cutlist[0][0])
-        result.append(seg0)
-        for i in range(cuts - 1):
-            if np.array_equal(cutlist[i][0], cutlist[i + 1][0]) and cutlist[i][1] == cutlist[i + 1][1]:
-                result.append([])
-                continue
-            seg = []
-            if not approx(cutlist[i][0], Path2D._select(self._points, cutlist[i][1])):
-                seg.append(cutlist[i][0])
-            seg.extend(Path2D._slice(self._points, cutlist[i][1], cutlist[i + 1][1] - 1))
-            if not approx(cutlist[i + 1][0], Path2D._select(self._points, cutlist[i + 1][1] - 1)):
-                seg.append(cutlist[i + 1][0])
-            result.append(seg)
-        last_seg = []
-        if not approx(cutlist[cuts - 1][0], Path2D._select(self._points, cutlist[cuts - 1][1])):
-            last_seg.append(cutlist[cuts - 1][0])
-        last_seg.extend(Path2D._select(self._points, cutlist[cuts - 1][1], 0 if closed else -1))
-        result.append(last_seg)
-        return result
+        ...
 
+    @abstractmethod
     def path_cut_points(
         self,
         cutdist: float | Sequence[float] | np.ndarray,
@@ -346,25 +803,9 @@ class Path(ABC):
         Returns:
             A list of ``[point, next_index]`` pairs or ``[point, next_index, dir, normal]`` if direction is True.
         """
-        if closed is None:
-            closed = self.closed
-        long_enough = len(self._points) >= (3 if closed else 2)
-        assert long_enough, (
-            "Two points needed to define a path" if len(self._points) < 2 else "Closed path must include three points"
-        )
-        if isinstance(cutdist, (int, float, np.floating, np.integer)):
-            return self.path_cut_points([cutdist], closed, direction)[0]  # type: ignore[return-value]
-        assert isinstance(cutdist, (list, tuple, np.ndarray))
-        assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), (
-            "Cut distances must be an increasing list"
-        )
-        cuts = self.path_cut_points_recurse([float(v) for v in cutdist], closed)
-        if not direction:
-            return cuts  # type: ignore[return-value]
-        dirs = self.path_cuts_dir(cuts, closed)
-        normals = self.path_cuts_normals(cuts, dirs, closed)
-        return [[cuts[i][0], cuts[i][1], dirs[i], normals[i]] for i in range(len(cuts))]  # type: ignore[misc]
+        ...
 
+    @abstractmethod
     def path_cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list:
         """Walk the path accumulating distance until each cut distance is reached.
 
@@ -375,22 +816,9 @@ class Path(ABC):
         Returns:
             A list of ``[point, next_index]`` entries, one per cut distance.
         """
-        result: list[Any] = []
-        pind = 0
-        dtotal = 0.0
-        for dind in range(len(dists)):
-            lastpt = [] if len(result) == 0 else result[-1][0]
-            dpartial = 0.0 if len(result) == 0 else math.dist(lastpt, Path2D._select(self._points, pind))
-            if dists[dind] < dpartial + dtotal:
-                t = (dists[dind] - dtotal) / dpartial
-                nextpoint = [lerp(lastpt, Path2D._select(self._points, pind), t), pind]
-            else:
-                nextpoint = self.path_cut_single(dists[dind] - dtotal - dpartial, closed, pind)
-            result.append(nextpoint)
-            dtotal = dists[dind]  # type: ignore[assignment]
-            pind = nextpoint[1]
-        return result
+        ...
 
+    @abstractmethod
     def path_cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> list:
         """Find the single cut point at distance dist from segment ind.
 
@@ -403,19 +831,9 @@ class Path(ABC):
         Returns:
             A list ``[point, next_index]`` with the cut point and its next segment index.
         """
-        while True:
-            if ind == len(self._points) - (0 if closed else 1):
-                assert dist < eps, "Path2D is too short for specified cut distance"
-                return [Path2D._select(self._points, ind), ind + 1]
-            diameter = math.dist(self._points[ind], Path2D._select(self._points, ind + 1))
-            if diameter > dist:
-                return [
-                    lerp(self._points[ind], Path2D._select(self._points, ind + 1), dist / diameter),
-                    ind + 1,
-                ]
-            dist -= diameter
-            ind += 1
+        ...
 
+    @abstractmethod
     def path_cuts_normals(self, cuts: list, dirs: list, closed: bool = False) -> list:
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
@@ -427,24 +845,9 @@ class Path(ABC):
         Returns:
             A list of normal vectors, one per cut point.
         """
-        out = []
-        dim = self._points.shape[1]
-        for i in range(len(cuts)):
-            if dim == 2:
-                out.append([-dirs[i][1], dirs[i][0]])
-                continue
-            plane = None
-            if len(self._points) >= 3:
-                start = max(min(cuts[i][1], len(self._points) - 1), 2)
-                plane = self.path_plane(start, start - 2, closed)
-            if plane is None:
-                out.append(
-                    [1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else list(unit([-dirs[i][1], dirs[i][0], 0]))
-                )
-            else:
-                out.append(list(unit(cross(dirs[i], cross(plane[0], plane[1])))))
-        return out
+        ...
 
+    @abstractmethod
     def path_plane(self, ind: int, i: int, closed: bool = False) -> np.ndarray | None:
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
@@ -457,19 +860,9 @@ class Path(ABC):
             A 2x3 ndarray of two basis vectors defining the local plane, or None if no
             non-collinear point is found.
         """
-        lower = -1 if closed else 0
-        while i >= lower:
-            if not is_collinear(self._points[ind], self._points[ind - 1], Path2D._select(self._points, i)):
-                p_i = Path2D._select(self._points, i)
-                return np.asarray(
-                    [  # type: ignore[return-value]
-                        [a - b for a, b in zip(p_i, self._points[ind - 1], strict=False)],
-                        [a - b for a, b in zip(self._points[ind], self._points[ind - 1], strict=False)],
-                    ]
-                )
-            i -= 1
-        return None
+        ...
 
+    @abstractmethod
     def path_cuts_dir(self, cuts: list, closed: bool = False, eps: float = 1e-2) -> list:
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
@@ -481,58 +874,9 @@ class Path(ABC):
         Returns:
             A list of direction vectors, one per cut point.
         """
-        out = []
-        zeros = [0] * self._points.shape[1]
-        for ci in range(len(cuts)):
-            nextind = cuts[ci][1]
-            nextpath = unit(
-                [
-                    a - b
-                    for a, b in zip(
-                        Path2D._select(self._points, nextind + 1),
-                        Path2D._select(self._points, nextind),
-                        strict=False,
-                    )
-                ],
-                zeros,
-            )
-            thispath = unit(
-                [
-                    a - b
-                    for a, b in zip(
-                        Path2D._select(self._points, nextind),
-                        Path2D._select(self._points, nextind - 1),
-                        strict=False,
-                    )
-                ],
-                zeros,
-            )
-            lastpath = unit(
-                [
-                    a - b
-                    for a, b in zip(
-                        Path2D._select(self._points, nextind - 1),
-                        Path2D._select(self._points, nextind - 2),
-                        strict=False,
-                    )
-                ],
-                zeros,
-            )
-            if nextind == len(self._points) and not closed:
-                nextdir = lastpath
-            elif (nextind <= len(self._points) - 2 or closed) and approx(
-                cuts[ci][0], Path2D._select(self._points, nextind), eps=eps
-            ):
-                nextdir = unit([a + b for a, b in zip(nextpath, thispath, strict=False)])
-            elif (nextind > 1 or closed) and approx(cuts[ci][0], Path2D._select(self._points, nextind - 1), eps=eps):
-                nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
-            else:
-                nextdir = thispath
-            out.append(nextdir)
-        return out
+        ...
 
-    # -- Resampling -- changing the number of points in a path -----------------------------
-
+    @abstractmethod
     def subdivide_path(
         self,
         sides: float | Sequence[int] | None = None,
@@ -555,56 +899,9 @@ class Path(ABC):
         Returns:
             A list of subdivided path points.
         """
-        if closed is None:
-            closed = self.closed
-        assert sum(x is not None for x in (sides, refine, maxlen)) == 1, (
-            "Must give exactly one of sides, refine, and maxlen"
-        )
-        if refine == 1 or sides == len(self._points):
-            return list(self._points)
-        if maxlen is not None:
-            assert method is None, "Cannot give method with maxlen"
-            assert exact is None, "Cannot give exact with maxlen"
-            out: list[Any] = []
-            for p0, p1 in Path2D._pair(self._points, closed):
-                steps = math.ceil(math.dist(p1, p0) / maxlen)
-                out.extend(lerpn(p0, p1, steps, endpoint=False))
-            if not closed:
-                out.append(self._points[-1])
-            return out
-        exact = True if exact is None else exact
-        method = "length" if method is None else method
-        assert method in ("length", "segment")
-        if sides is None:
-            assert refine is not None, "Must give exactly one of sides, refine, and maxlen"
-            sides = len(self._points) * refine
-        assert (isinstance(sides, (int, float)) and sides > 0) or isinstance(sides, (list, tuple)), (
-            "Parameter sides to subdivide_path must be positive number or vector"
-        )
-        count = len(self._points) - (0 if closed else 1)
-        if method == "segment":
-            if isinstance(sides, (list, tuple)):
-                assert len(sides) == count, "Vector parameter sides to subdivide_path has the wrong length"
-                add_guess = add_scalar(list(sides), -1)
-            else:
-                add_guess_r = Path2D._repeat((sides - len(self._points)) / count, count)
-                add_guess = add_guess_r  # type: ignore[assignment]
-        else:
-            assert isinstance(sides, (int, float)), (
-                'Parameter sides to subdivide path must be a number when method="length"'
-            )
-            path_lens = self.path_segment_lengths(closed)
-            add_density = (sides - len(self._points)) / sum(path_lens)
-            add_guess = [float(ln * add_density) for ln in path_lens]  # type: ignore[assignment]
-        add_list = [float(v) for v in add_guess]
-        add = Path2D._sum_preserving_round(add_list) if exact else [Path2D._scad_round(v) for v in add_list]
-        out2: list[Any] = []
-        for i in range(count):
-            out2.extend(lerpn(self._points[i], Path2D._select(self._points, i + 1), 1 + int(add[i]), endpoint=False))
-        if not closed:
-            out2.append(self._points[-1])
-        return out2
+        ...
 
+    @abstractmethod
     def resample_path(
         self,
         sides: int | None = None,
@@ -621,22 +918,9 @@ class Path(ABC):
         Returns:
             A list of uniformly resampled path points.
         """
-        if closed is None:
-            closed = self.closed
-        assert (sides is None) != (spacing is None), "Must define exactly one of sides and spacing"
-        length = self.total_length(closed)
-        if sides is not None:
-            n_use = sides - (0 if closed else 1)
-        else:
-            assert spacing is not None
-            n_use = round(length / spacing)
-        distlist = lerpn(0, length, n_use, endpoint=False)
-        cuts = self.path_cut_points(distlist, closed=closed)
-        out = [c[0] for c in cuts]
-        if not closed:
-            out.append(self._points[-1])
-        return out
+        ...
 
+    @abstractmethod
     def path_select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
 
@@ -650,24 +934,9 @@ class Path(ABC):
         Returns:
             A list of points representing the selected portion of the path.
         """
-        if closed is None:
-            closed = self.closed
-        lp = len(self._points)
-        limit = lp - (0 if closed else 1)
-        u1c = 0.0 if s1 < 0 else (1.0 if s1 > limit else u1)
-        u2c = 0.0 if s2 < 0 else (1.0 if s2 > limit else u2)
-        s1c = max(0, min(limit, s1))
-        s2c = max(0, min(limit, s2))
-        out = []
-        if s1c < limit and u1c < 1:
-            out.append(lerp(self._points[s1c], self._points[(s1c + 1) % lp], u1c))
-        out.extend(self._points[i] for i in range(s1c + 1, s2c + 1))
-        if s2c < limit and u2c > 0:
-            out.append(lerp(self._points[s2c], self._points[(s2c + 1) % lp], u2c))
-        return out
+        ...
 
 
-# ---------------------------------------------------------------------------
 # Section: Path2D object
 # ---------------------------------------------------------------------------
 
@@ -762,6 +1031,299 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new :class:`Path2D` instance.
         """
         return cls(lst, closed=closed)
+
+    # -- Path delegating implementations ----------------------------------------------------
+
+    def total_length(self, closed: bool | None = None) -> float:
+        """Total length of the path.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            The total path length as a float.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_total_length(self._points, closed)
+
+    def path_segment_lengths(self, closed: bool | None = None) -> NDArray[np.float64]:
+        """Length of each segment of the path, as an ndarray.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of segment lengths.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_path_segment_lengths(self._points, closed)
+
+    def path_length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
+        """Distance fraction of each point in the path (0 at start, 1 at end).
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of cumulative length fractions, from 0 to 1.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_length_fractions(self._points, closed)
+
+    def path_closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
+        """The closest point on the path to *pt*.
+
+        Args:
+            pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A :class:`~pybosl2.points.Point` of the closest point on the path.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_closest_point(self._points, closed, pt)
+
+    def path_tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
+        """Normalized tangent vector at each point of the path, as an ndarray.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
+
+        Returns:
+            An ndarray of unit tangent vectors, one per path point.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_tangents(self._points, closed, uniform=uniform)
+
+    def path_normals(
+        self, tangents: NDArray[np.float64] | np.ndarray | None = None, closed: bool | None = None
+    ) -> NDArray[np.float64]:
+        """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
+
+        For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
+        principal normal estimated via the triple-product cross.
+
+        Args:
+            tangents: Optional pre-computed tangent vectors; computed automatically if None.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of unit normal vectors, one per path point.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_normals(self._points, closed, tangents=tangents)
+
+    def path_curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
+        """Numeric curvature estimate of the path at each point, as an ndarray.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of curvature values, one per path point.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_curvature(self._points, closed)
+
+    def path_torsion(self, closed: bool | None = None) -> NDArray[np.float64]:
+        """Numeric torsion estimate of the path at each point, as an ndarray.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of torsion values, one per path point.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_torsion(self._points, closed)
+
+    def path_cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list:
+        """Cut path into subpaths at the given ascending list of distances (or a single distance).
+
+        Args:
+            cutdist: A single distance or a list of ascending distances from the start.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A list of subpath point lists.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_cut(self._points, closed, cutdist)
+
+    def path_cut_getpaths(self, cutlist: list, closed: bool) -> list:
+        """Reconstruct sub-paths from the output of path_cut_points().
+
+        Args:
+            cutlist: Output from path_cut_points(), a list of ``[point, next_index]`` entries.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of subpath point lists.
+        """
+        return _path_cut_getpaths(self._points, closed, cutlist)
+
+    def path_cut_points(
+        self,
+        cutdist: float | Sequence[float] | np.ndarray,
+        closed: bool | None = None,
+        direction: bool = False,
+    ) -> list[np.ndarray]:
+        """Cut path at given distance(s) from start.
+
+        Returns ``[[point, next_index], ...]`` entries (or a single entry if cutdist is a scalar).
+
+        Args:
+            cutdist: A single distance or a list of ascending distances from the start.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            direction: If True, also include direction and normal at each cut point.
+
+        Returns:
+            A list of ``[point, next_index]`` pairs or ``[point, next_index, dir, normal]`` if direction is True.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_cut_points(self._points, closed, cutdist, direction=direction)
+
+    def path_cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list:
+        """Walk the path accumulating distance until each cut distance is reached.
+
+        Args:
+            dists: Ordered list of distances from the start at which to cut.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of ``[point, next_index]`` entries, one per cut distance.
+        """
+        return _path_cut_points_recurse(self._points, closed, dists)
+
+    def path_cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> list:
+        """Find the single cut point at distance dist from segment ind.
+
+        Args:
+            dist: Distance along the path from the given segment index.
+            closed: Whether the path is closed.
+            ind: The segment index to start searching from.
+            eps: Epsilon for distance comparison.
+
+        Returns:
+            A list ``[point, next_index]`` with the cut point and its next segment index.
+        """
+        return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
+
+    def path_cuts_normals(self, cuts: list, dirs: list, closed: bool = False) -> list:
+        """Compute normals at each cut point (perpendicular to the direction, in local plane).
+
+        Args:
+            cuts: List of cut entries from path_cut_points().
+            dirs: List of direction vectors at each cut.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of normal vectors, one per cut point.
+        """
+        return _path_cuts_normals(self._points, closed, cuts, dirs)
+
+    def path_plane(self, ind: int, i: int, closed: bool = False) -> np.ndarray | None:
+        """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
+
+        Args:
+            ind: Index of the first point defining the plane.
+            i: Index of the search start for the third non-collinear point.
+            closed: Whether the path is closed.
+
+        Returns:
+            A 2x3 ndarray of two basis vectors defining the local plane, or None if no
+            non-collinear point is found.
+        """
+        return _path_plane(self._points, closed, ind, i)
+
+    def path_cuts_dir(self, cuts: list, closed: bool = False, eps: float = 1e-2) -> list:
+        """Compute direction vectors at each cut point (blended from adjacent segments).
+
+        Args:
+            cuts: List of cut entries from path_cut_points().
+            closed: Whether the path is closed.
+            eps: Epsilon for numerical comparisons.
+
+        Returns:
+            A list of direction vectors, one per cut point.
+        """
+        return _path_cuts_dir(self._points, closed, cuts, eps=eps)
+
+    def subdivide_path(
+        self,
+        sides: float | Sequence[int] | None = None,
+        refine: int | None = None,
+        maxlen: float | None = None,
+        closed: bool | None = None,
+        exact: bool | None = None,
+        method: str | None = None,
+    ) -> list:
+        """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
+
+        Args:
+            sides: Target number of points.
+            refine: Multiplier for point count.
+            maxlen: Maximum segment length.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            exact: If True, use sum-preserving rounding.
+            method: "length" or "segment".
+
+        Returns:
+            A list of subdivided path points.
+        """
+        if closed is None:
+            closed = self.closed
+        return _subdivide_path(
+            self._points, closed, sides=sides, refine=refine, maxlen=maxlen, exact=exact, method=method
+        )
+
+    def resample_path(
+        self,
+        sides: int | None = None,
+        spacing: float | None = None,
+        closed: bool | None = None,
+    ) -> list:
+        """Uniformly resample path to sides points, or to a spacing near spacing.
+
+        Args:
+            sides: Target number of points.
+            spacing: Approximate spacing between points.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A list of uniformly resampled path points.
+        """
+        if closed is None:
+            closed = self.closed
+        return _resample_path(self._points, closed, sides=sides, spacing=spacing)
+
+    def path_select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
+        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
+
+        Args:
+            s1: Starting segment index.
+            u1: Fraction along segment s1 (0 to 1).
+            s2: Ending segment index.
+            u2: Fraction along segment s2 (0 to 1).
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A list of points representing the selected portion of the path.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_select(self._points, closed, s1, u1, s2, u2)
 
     # -- measurement -----------------------------------------------------------------------
 
@@ -2700,6 +3262,299 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new :class:`Path3D` instance.
         """
         return cls(lst, closed=closed)
+
+    # -- Path delegating implementations ----------------------------------------------------
+
+    def total_length(self, closed: bool | None = None) -> float:
+        """Total length of the path.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            The total path length as a float.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_total_length(self._points, closed)
+
+    def path_segment_lengths(self, closed: bool | None = None) -> NDArray[np.float64]:
+        """Length of each segment of the path, as an ndarray.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of segment lengths.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_path_segment_lengths(self._points, closed)
+
+    def path_length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
+        """Distance fraction of each point in the path (0 at start, 1 at end).
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of cumulative length fractions, from 0 to 1.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_length_fractions(self._points, closed)
+
+    def path_closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
+        """The closest point on the path to *pt*.
+
+        Args:
+            pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A :class:`~pybosl2.points.Point` of the closest point on the path.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_closest_point(self._points, closed, pt)
+
+    def path_tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
+        """Normalized tangent vector at each point of the path, as an ndarray.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
+
+        Returns:
+            An ndarray of unit tangent vectors, one per path point.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_tangents(self._points, closed, uniform=uniform)
+
+    def path_normals(
+        self, tangents: NDArray[np.float64] | np.ndarray | None = None, closed: bool | None = None
+    ) -> NDArray[np.float64]:
+        """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
+
+        For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
+        principal normal estimated via the triple-product cross.
+
+        Args:
+            tangents: Optional pre-computed tangent vectors; computed automatically if None.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of unit normal vectors, one per path point.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_normals(self._points, closed, tangents=tangents)
+
+    def path_curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
+        """Numeric curvature estimate of the path at each point, as an ndarray.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of curvature values, one per path point.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_curvature(self._points, closed)
+
+    def path_torsion(self, closed: bool | None = None) -> NDArray[np.float64]:
+        """Numeric torsion estimate of the path at each point, as an ndarray.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            An ndarray of torsion values, one per path point.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_torsion(self._points, closed)
+
+    def path_cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list:
+        """Cut path into subpaths at the given ascending list of distances (or a single distance).
+
+        Args:
+            cutdist: A single distance or a list of ascending distances from the start.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A list of subpath point lists.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_cut(self._points, closed, cutdist)
+
+    def path_cut_getpaths(self, cutlist: list, closed: bool) -> list:
+        """Reconstruct sub-paths from the output of path_cut_points().
+
+        Args:
+            cutlist: Output from path_cut_points(), a list of ``[point, next_index]`` entries.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of subpath point lists.
+        """
+        return _path_cut_getpaths(self._points, closed, cutlist)
+
+    def path_cut_points(
+        self,
+        cutdist: float | Sequence[float] | np.ndarray,
+        closed: bool | None = None,
+        direction: bool = False,
+    ) -> list[np.ndarray]:
+        """Cut path at given distance(s) from start.
+
+        Returns ``[[point, next_index], ...]`` entries (or a single entry if cutdist is a scalar).
+
+        Args:
+            cutdist: A single distance or a list of ascending distances from the start.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            direction: If True, also include direction and normal at each cut point.
+
+        Returns:
+            A list of ``[point, next_index]`` pairs or ``[point, next_index, dir, normal]`` if direction is True.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_cut_points(self._points, closed, cutdist, direction=direction)
+
+    def path_cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list:
+        """Walk the path accumulating distance until each cut distance is reached.
+
+        Args:
+            dists: Ordered list of distances from the start at which to cut.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of ``[point, next_index]`` entries, one per cut distance.
+        """
+        return _path_cut_points_recurse(self._points, closed, dists)
+
+    def path_cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> list:
+        """Find the single cut point at distance dist from segment ind.
+
+        Args:
+            dist: Distance along the path from the given segment index.
+            closed: Whether the path is closed.
+            ind: The segment index to start searching from.
+            eps: Epsilon for distance comparison.
+
+        Returns:
+            A list ``[point, next_index]`` with the cut point and its next segment index.
+        """
+        return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
+
+    def path_cuts_normals(self, cuts: list, dirs: list, closed: bool = False) -> list:
+        """Compute normals at each cut point (perpendicular to the direction, in local plane).
+
+        Args:
+            cuts: List of cut entries from path_cut_points().
+            dirs: List of direction vectors at each cut.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of normal vectors, one per cut point.
+        """
+        return _path_cuts_normals(self._points, closed, cuts, dirs)
+
+    def path_plane(self, ind: int, i: int, closed: bool = False) -> np.ndarray | None:
+        """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
+
+        Args:
+            ind: Index of the first point defining the plane.
+            i: Index of the search start for the third non-collinear point.
+            closed: Whether the path is closed.
+
+        Returns:
+            A 2x3 ndarray of two basis vectors defining the local plane, or None if no
+            non-collinear point is found.
+        """
+        return _path_plane(self._points, closed, ind, i)
+
+    def path_cuts_dir(self, cuts: list, closed: bool = False, eps: float = 1e-2) -> list:
+        """Compute direction vectors at each cut point (blended from adjacent segments).
+
+        Args:
+            cuts: List of cut entries from path_cut_points().
+            closed: Whether the path is closed.
+            eps: Epsilon for numerical comparisons.
+
+        Returns:
+            A list of direction vectors, one per cut point.
+        """
+        return _path_cuts_dir(self._points, closed, cuts, eps=eps)
+
+    def subdivide_path(
+        self,
+        sides: float | Sequence[int] | None = None,
+        refine: int | None = None,
+        maxlen: float | None = None,
+        closed: bool | None = None,
+        exact: bool | None = None,
+        method: str | None = None,
+    ) -> list:
+        """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
+
+        Args:
+            sides: Target number of points.
+            refine: Multiplier for point count.
+            maxlen: Maximum segment length.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            exact: If True, use sum-preserving rounding.
+            method: "length" or "segment".
+
+        Returns:
+            A list of subdivided path points.
+        """
+        if closed is None:
+            closed = self.closed
+        return _subdivide_path(
+            self._points, closed, sides=sides, refine=refine, maxlen=maxlen, exact=exact, method=method
+        )
+
+    def resample_path(
+        self,
+        sides: int | None = None,
+        spacing: float | None = None,
+        closed: bool | None = None,
+    ) -> list:
+        """Uniformly resample path to sides points, or to a spacing near spacing.
+
+        Args:
+            sides: Target number of points.
+            spacing: Approximate spacing between points.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A list of uniformly resampled path points.
+        """
+        if closed is None:
+            closed = self.closed
+        return _resample_path(self._points, closed, sides=sides, spacing=spacing)
+
+    def path_select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
+        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
+
+        Args:
+            s1: Starting segment index.
+            u1: Fraction along segment s1 (0 to 1).
+            s2: Ending segment index.
+            u2: Fraction along segment s2 (0 to 1).
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A list of points representing the selected portion of the path.
+        """
+        if closed is None:
+            closed = self.closed
+        return _path_select(self._points, closed, s1, u1, s2, u2)
 
     # -- measurement -----------------------------------------------------------------------
 
