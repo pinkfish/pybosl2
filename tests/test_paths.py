@@ -326,3 +326,84 @@ def test_shapely_backed_path_methods():
     assert p.is_simple() is True
     figure8 = Path([[0, 0], [2, 2], [0, 2], [2, 0]])
     assert figure8.is_simple() is False
+
+
+# -- Minkowski sum -----------------------------------------------------------------------------
+
+
+def test_minkowski_square_and_square():
+    a = Path([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Path([[0, 0], [10, 0], [10, 10], [0, 10]])
+    result = a.minkowski_sum(b)
+    assert result.closed
+    assert len(result) >= 3
+
+
+def test_minkowski_square_and_circle():
+    a = Path([[0, 0], [20, 0], [20, 10], [0, 10]])
+    b = Path.circle2d(radius=5, fn=32)
+    result = a.minkowski_sum(b)
+    assert result.closed
+    assert len(result) >= 3
+
+
+def test_circle2d_default():
+    c = Path.circle2d()
+    assert c.closed
+    assert len(c) == 64
+
+
+def test_circle2d_radius_and_fn():
+    c = Path.circle2d(radius=20, fn=8)
+    assert c.closed
+    assert len(c) == 8
+    areas = [np.linalg.norm(np.asarray(p)) for p in c]
+    np.testing.assert_allclose(areas, [20.0] * 8, atol=1e-9)
+
+
+def test_ellipse2d():
+    e = Path.ellipse2d(rx=20, ry=10, fn=32)
+    assert e.closed
+    assert len(e) == 32
+
+
+def test_ellipse2d_aspect():
+    e = Path.ellipse2d(rx=30, ry=10, fn=4)
+    pts = np.asarray(e._points)
+    assert abs(pts[0, 0]) == pytest.approx(30.0)  # first point at (30, 0)
+    assert abs(pts[1, 1]) == pytest.approx(10.0)  # second point at (0, 10)
+
+
+def test_minkowski_requires_closed():
+    a = Path([[0, 0], [20, 0], [20, 10]], closed=False)
+    b = Path([[0, 0], [5, 0], [5, 5], [0, 5]])
+    with pytest.raises(ValueError, match="closed"):
+        a.minkowski_sum(b)
+
+
+def test_minkowski_requires_closed_other():
+    a = Path([[0, 0], [20, 0], [20, 10], [0, 10]])
+    b = Path([[0, 0], [5, 0], [5, 5]], closed=False)
+    with pytest.raises(ValueError, match="closed"):
+        a.minkowski_sum(b)
+
+
+def test_minkowski_sum_circle_dilates():
+    square = Path([[0, 0], [20, 0], [20, 10], [0, 10]])
+    result = square.minkowski_sum_circle(radius=5)
+    assert result.closed
+    assert len(result) >= 3
+    assert result.area() > square.area()
+
+
+def test_minkowski_sum_circle_erodes():
+    square = Path([[0, 0], [20, 0], [20, 10], [0, 10]])
+    result = square.minkowski_sum_circle(radius=-2)
+    assert result.closed
+    assert result.area() < square.area()
+
+
+def test_minkowski_sum_circle_requires_closed():
+    open_path = Path([[0, 0], [20, 0], [20, 10]], closed=False)
+    with pytest.raises(ValueError, match="closed"):
+        open_path.minkowski_sum_circle(radius=5)

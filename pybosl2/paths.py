@@ -1348,6 +1348,111 @@ class Path(PathBase, Distributable, Extrudable, Sweepable, Roundable):
         """
         return self.polygon().fill()
 
+    def minkowski_sum(self, other: "Path") -> "Path":
+        """The 2-D Minkowski sum of this closed path and *other*.
+
+        Adds *other* (a closed 2‑D polygon) to every point of this path,
+        producing the swept outline as a single closed :class:`Path`.
+        Equivalent to OpenSCAD's ``minkowski()`` for 2‑D paths.
+
+        Uses shapely to compute the convex hull of the translated copies
+        of *other* centred at each vertex of this path.  For convex shapes
+        the result is exact; for non‑convex shapes it is a conservative
+        approximation.
+
+        Args:
+            other: A closed :class:`Path` to sweep along this path.
+
+        Returns:
+            The Minkowski sum as a new closed :class:`Path`.
+
+        Raises:
+            ValueError: If either path is not closed.
+        """
+        from shapely.geometry import MultiPoint
+
+        if not self.closed:
+            raise ValueError("minkowski_sum() requires a closed path. Close it with .close() first.")
+        if not other.closed:
+            raise ValueError("minkowski_sum() requires a closed path for 'other'. Close it with .close() first.")
+
+        a = np.asarray(self._points)
+        b = np.asarray(other._points)
+
+        # Build the set of all a[i] + b[j] points and take the convex hull
+        points = (a[:, None, :] + b[None, :, :]).reshape(-1, a.shape[1])
+        hull_points = MultiPoint(points).convex_hull
+
+        if hull_points.is_empty:
+            return Path([], closed=True)
+        pts = list(hull_points.exterior.coords)[:-1]  # drop closing repeat
+        return Path([[float(x), float(y)] for x, y in pts], closed=True)
+
+    def minkowski_sum_circle(self, radius: float) -> "Path":
+        """The Minkowski sum of this closed path with a circle of *radius*.
+
+        Uses shapely :meth:`~shapely.geometry.Polygon.buffer` for an
+        efficient round‑join offset — essentially ``minkowski_sum`` with
+        a circle. Positive *radius* dilates (outline grows); negative
+        erodes (outline shrinks).
+
+        Args:
+            radius: The buffer radius (positive = dilate, negative = erode).
+
+        Returns:
+            A new closed :class:`Path`.
+
+        Raises:
+            ValueError: If the path is not closed.
+        """
+        from shapely.geometry import Polygon as _Polygon
+
+        if not self.closed:
+            raise ValueError("minkowski_sum_circle() requires a closed path. Close it with .close() first.")
+
+        pts = [(float(p[0]), float(p[1])) for p in self._points]
+        poly = _Polygon(pts).buffer(radius)
+        if poly.is_empty:
+            return Path([], closed=True)
+        coords = list(poly.exterior.coords)[:-1]
+        return Path([[float(x), float(y)] for x, y in coords], closed=True)
+
+    @classmethod
+    def circle2d(cls, radius: float = 10, fn: int = 64) -> "Path":
+        """Create a closed :class:`Path` approximating a circle of *radius*.
+
+        Uses *fn* uniform segments around the origin.
+
+        Args:
+            radius: Circle radius.
+            fn: Number of polygon segments.
+
+        Returns:
+            A closed :class:`Path`.
+        """
+        angles = np.linspace(0, 2 * np.pi, fn, endpoint=False)
+        pts = [[float(radius * np.cos(a)), float(radius * np.sin(a))] for a in angles]
+        return cls(pts, closed=True)
+
+    @classmethod
+    def ellipse2d(cls, rx: float = 10, ry: float = 5, fn: int = 64) -> "Path":
+        """Create a closed :class:`Path` approximating an ellipse.
+
+        Uses *fn* uniform parametric segments with semi‑axes *rx* and *ry*
+        centred at the origin.
+
+        Args:
+            rx: Semi‑axis in the X direction.
+            ry: Semi‑axis in the Y direction.
+            fn: Number of polygon segments.
+
+        Returns:
+            A closed :class:`Path`.
+        """
+        angles = np.linspace(0, 2 * np.pi, fn, endpoint=False)
+        pts = [[float(rx * np.cos(a)), float(ry * np.sin(a))] for a in angles]
+        return cls(pts, closed=True)
+
     @classmethod
     def hull(cls, *others: "Path | Region") -> "Path":
         """The 2-D convex hull of all the given closed paths and regions.
