@@ -225,7 +225,7 @@ def _round_corners(
             continue
         assert not (approx(p0, p1) or approx(p1, p2)), f"Repeated point in path at index {i} with nonzero rounding."
         angle = _vector_angle3(p0, p1, p2) / 2
-        assert not approx(angle, 0), f"Path turns back on itself at index {i} with nonzero rounding."
+        assert not approx(angle, 0), f"Path2D turns back on itself at index {i} with nonzero rounding."
         ar = math.radians(angle)
         if method == "chamfer":
             dk.append(

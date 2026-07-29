@@ -11,16 +11,16 @@
 #    form without a ``p=`` argument), and a matching method on the :class:`Distributable` mixin
 #    that applies those matrices to the object.
 #
-#    The mixin is inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path`,
+#    The mixin is inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`,
 #    and :class:`~pybosl2.paths.Path3D`, each of which implements ``_distribute(mats)`` to say what
 #    "a list of copies" means for it:
 #      * Bosl2Solid  -> the UNION of the transformed geometry copies (a new Bosl2Solid).
-#      * Path / Path3D -> a plain ``list`` of transformed path copies (BOSL2's function form).
-#        A 2-D Path only supports the in-plane copiers; one that would lift it out of the XY plane
+#      * Path2D / Path3D -> a plain ``list`` of transformed path copies (BOSL2's function form).
+#        A 2-D Path2D only supports the in-plane copiers; one that would lift it out of the XY plane
 #        raises, directing you to Path3D.
 #
 #    Only matrix math and pybosl2.transforms/constants are imported at load time (so paths.py can
-#    pull in the mixin during its own import without a cycle); Path/Region/point-in-polygon are
+#    pull in the mixin during its own import without a cycle); Path2D/Region/point-in-polygon are
 #    imported lazily inside the few functions that need them.
 #
 # FileSummary: Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies.
@@ -275,9 +275,9 @@ def grid_copies(
     def keep(pos):
         if inside is None:
             return True
-        from pybosl2.paths import Path
+        from pybosl2.paths import Path2D
 
-        return Path._point_in_polygon(pos, inside, nonzero=bool(nonzero)) >= 0
+        return Path2D._point_in_polygon(pos, inside, nonzero=bool(nonzero)) >= 0
 
     mats = []
     if stagger is False:
@@ -483,12 +483,12 @@ def path_copies(
     closed: bool | None = None,
 ) -> list[np.ndarray]:
     """Copies placed along *path*, oriented to it (BOSL2 path_copies())."""
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import Path2D, Path3D
 
     pts = [list(map(float, p)) for p in path]
     closed = bool(getattr(path, "closed", False)) if closed is None else closed
     dim = len(pts[0]) if pts else 2
-    length = (Path3D(pts) if dim == 3 else Path(pts)).total_length(closed=closed)
+    length = (Path3D(pts) if dim == 3 else Path2D(pts)).total_length(closed=closed)
     if dist is not None:
         distances = sorted(float(x) for x in dist)
     elif sp is not None:
@@ -510,7 +510,7 @@ def path_copies(
             distances = [e + length / 2 - center for e in ptlist]
     assert min(distances) >= -1e-9 and max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
     distances = [min(max(dst, 0.0), length) for dst in distances]
-    cutlist = (Path3D(pts) if dim == 3 else Path(pts)).path_cut_points(distances, closed=closed, direction=True)
+    cutlist = (Path3D(pts) if dim == 3 else Path2D(pts)).path_cut_points(distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2
     mats = []
     for point, _ind, tangent, normal in cutlist:
@@ -563,10 +563,10 @@ def zflip_copy(offset=0, z=0) -> list[np.ndarray]:
 class Distributable(ABC):
     """Mixin adding the distributors.scad copiers as methods.
 
-    Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path`, and
+    Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`, and
     :class:`~pybosl2.paths.Path3D`. Each copier builds a list of transformation matrices and hands
     them to ``_distribute``, which every host class implements: a Bosl2Solid unions the geometry
-    copies into a new solid; a Path / Path3D returns a plain ``list`` of the copied paths.
+    copies into a new solid; a Path2D / Path3D returns a plain ``list`` of the copied paths.
     """
 
     @abstractmethod

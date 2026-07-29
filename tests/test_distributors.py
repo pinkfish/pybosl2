@@ -67,7 +67,7 @@ def test_mirror_copy_is_original_plus_reflection():
     np.testing.assert_allclose(mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9)  # X reflection
 
 
-# -- Path (2-D) returns a list of Path copies ---------------------------------------------
+# -- Path2D (2-D) returns a list of Path2D copies ---------------------------------------------
 
 SQUARE = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
 

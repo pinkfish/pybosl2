@@ -8,12 +8,12 @@
 # The SDF distance-field machinery the shape layers build on: the exact/decomposed polygon SDF
 # (convex fast path, convex-deficiency decomposition for concave outlines, unsigned outline
 # distance), the per-corner rounded/chamfered rect SDF, the 2-D convex hull, and the shared SDF
-# utilities (_lv_hypot/_radius/_PENALTY). Path data is numpy throughout (see as_points()); only the
+# utilities (_lv_hypot/_radius/_PENALTY). Path2D data is numpy throughout (see as_points()); only the
 # native boundaries get plain-python lists.
 #
 # General-purpose path/bezier utilities (tangents, cut points, round_corners, superformula/egg
 # outlines, Bezier sampling, ...) are NOT duplicated here -- pybosl2's own modules are canonical:
-# pybosl2.paths.Path, pybosl2.beziers.Bezier, pybosl2.rounding.round_corners, pybosl2.shapes2d.egg/supershape
+# pybosl2.paths.Path2D, pybosl2.beziers.Bezier, pybosl2.rounding.round_corners, pybosl2.shapes2d.egg/supershape
 # and pybosl2.geometry. Use those directly.
 #
 
@@ -760,7 +760,7 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     def cut_single(dist: float, ind: int, eps: float = 1e-7) -> list:
         while True:
             if ind == len(path) - (0 if closed else 1):
-                assert dist < eps, "Path is too short for specified cut distance"
+                assert dist < eps, "Path2D is too short for specified cut distance"
                 return [np.array(select(path, ind)), ind + 1]
             d = float(np.linalg.norm(select(path, ind + 1) - path[ind]))
             if d > dist:
@@ -847,7 +847,7 @@ def round_corners(
     vertex -- the bosl2 port's round_corners() (radius method), pure python."""
     path = as_points(path)
     n = len(path)
-    assert n > 2, f"Path has length {n}. Length must be 3 or more."
+    assert n > 2, f"Path2D has length {n}. Length must be 3 or more."
     size = radius if radius is not None else r
     assert size is not None, "Must specify radius"
     parm = list(size) if isinstance(size, (list, tuple)) else [size] * n
@@ -859,7 +859,7 @@ def round_corners(
             continue
         p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
         angle = _vector_angle3(p0, p1, p2) / 2
-        assert angle > 1e-9, f"Path turns back on itself at index {i} with nonzero rounding"
+        assert angle > 1e-9, f"Path2D turns back on itself at index {i} with nonzero rounding"
         dk.append([parm[i] / math.tan(math.radians(angle)), parm[i]])
 
     out: list = []

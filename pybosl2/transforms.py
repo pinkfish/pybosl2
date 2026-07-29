@@ -12,7 +12,7 @@
 #
 #    The point-list transform operations themselves (move/rot/right/left/
 #    back/forward/mirror/yflip) are NOT here -- they are methods on the
-#    Path object (pybosl2/paths.py) and on Bosl2Solid (pybosl2/shapes3d.py).
+#    Path2D object (pybosl2/paths.py) and on Bosl2Solid (pybosl2/shapes3d.py).
 #    What remains is the matrix side used for cuboid reorientation and
 #    anchoring, which feeds PythonSCAD's .multmatrix().
 #

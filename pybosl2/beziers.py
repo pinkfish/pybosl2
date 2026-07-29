@@ -9,7 +9,7 @@
 Pure-Python port of the Bezier CURVE and PATH API from BOSL2's beziers.scad.
 Every operation lives on the :class:`Bezier` class -- there are no module-level
 bezier functions, mirroring how pybosl2/paths.py hangs every path operation off
-Path. No osuse()/BOSL2 runtime dependency.
+Path2D. No osuse()/BOSL2 runtime dependency.
 
 A Bezier is a list of control points: a single curve, or a bezier PATH of
 degree-N curves that share endpoints (a flat list of control points where
@@ -68,7 +68,7 @@ UP = [0.0, 0.0, 1.0]
 class Bezier:
     """A Bezier curve or path: a list of control points, with every bezier operation as a method.
 
-    Subclasses ``list`` (the same trick as :class:`pybosl2.paths.Path`), so it is a drop-in for the
+    Subclasses ``list`` (the same trick as :class:`pybosl2.paths.Path2D`), so it is a drop-in for the
     raw control-point lists the toolkit passes around, while giving the chained object form::
 
         Bezier([[44, 5], [48, 6], [64, -15]]).points([0.2 * i for i in range(6)])
@@ -392,7 +392,7 @@ class Bezier:
         return Bezier(sub).points(u)
 
     def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> PathBase:
-        """Sample this bezier PATH into a Path of points.
+        """Sample this bezier PATH into a Path2D of points.
 
         Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling
         each segment uniformly and concatenating the results. Returns a
@@ -661,7 +661,7 @@ class Bezier:
                 tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)
                 tube.polyhedron().show()
 
-            Path mode (degree-3 bezier path sweep):
+            Path2D mode (degree-3 bezier path sweep):
 
             .. pythonscad-example::
 
@@ -992,7 +992,7 @@ def create_bezier(
         first = patharr[i]
         second = patharr[(i + 1) % npts]
         seglength = float(np.linalg.norm(second - first))
-        assert seglength > 0, f"Path segment has zero length from index {i} to {i + 1}."
+        assert seglength > 0, f"Path2D segment has zero length from index {i} to {i + 1}."
         segdir = (second - first) / seglength
         tangent1 = tang[i]
         tangent2 = -tang[(i + 1) % npts]

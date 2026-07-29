@@ -11,7 +11,7 @@
 #
 #    The two path extrusions are methods on :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.paths.Path3D`
 #    via the :class:`Extrudable` mixin, and -- unlike BOSL2, which extrudes its *children* -- they
-#    take the 2-D cross-section as a *profile* argument: a native 2-D shape, a Path/Region, a
+#    take the 2-D cross-section as a *profile* argument: a native 2-D shape, a Path2D/Region, a
 #    Bosl2Solid wrapping 2-D geometry, or a zero-argument factory that returns fresh geometry (the
 #    "children" form; use a factory to avoid the frep handle-reuse segfault). The bbox/offset/round
 #    operators are methods on :class:`~pybosl2.shapes3d.Bosl2Solid` via :class:`Miscellaneous`.
@@ -59,7 +59,7 @@ __all__ = [
 
 def _as_native_2d(profile):
     """A raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
-    a Path, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to."""
+    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to."""
     from pybosl2.shapes2d import _as_native_2d as _coerce
 
     return _coerce(profile)
@@ -114,7 +114,7 @@ def extrude_from_to(
     """Linearly extrude a 2-D *profile* between two 3-D points (BOSL2 extrude_from_to()).
 
     The profile's origin is placed on *pt1* and *pt2*, oriented perpendicular to the line between
-    them. *profile* is a native 2-D shape, a Path/Region, a Bosl2Solid, or a factory.
+    them. *profile* is a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory.
 
     Examples:
         A twisted, tapering column between two points:
@@ -254,14 +254,14 @@ def _native_bounds(shape):
 
 
 # ---------------------------------------------------------------------------
-# Section: Extrudable mixin (Path / Path3D)
+# Section: Extrudable mixin (Path2D / Path3D)
 # ---------------------------------------------------------------------------
 
 
 class Extrudable:
     """Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.paths.Path2D` and
     :class:`~pybosl2.paths.Path3D`. Both take the 2-D cross-section as a *profile* argument instead
-    of OpenSCAD children (a native 2-D shape, a Path/Region, a Bosl2Solid, or a factory).
+    of OpenSCAD children (a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory).
     """
 
     def path_extrude2d(self, profile, caps: bool = False, closed: bool | None = None, s=None, convexity: int = 10):
@@ -327,7 +327,7 @@ class Extrudable:
         """Extrude a 2-D *profile* along this path in 3-D (BOSL2 path_extrude()).
 
         Places an oriented linear extrusion for each segment and clips it at the mitre planes
-        between segments. A 2-D Path is lifted to the ``z=0`` plane first. For most sweeps
+        between segments. A 2-D Path2D is lifted to the ``z=0`` plane first. For most sweeps
         :func:`~pybosl2.skin.path_sweep` is faster and cleaner; this exists for extruding an arbitrary
         native 2-D object (text, multi-part shapes) that is not a single polygon.
         """

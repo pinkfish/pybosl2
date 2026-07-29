@@ -6,7 +6,7 @@
 
 """Object API for 2-D paths and regions.
 
-Path and Region: object wrappers over the 2-D point maths in paths.py/rounding.py/
+Path2D and Region: object wrappers over the 2-D point maths in paths.py/rounding.py/
 transforms.py, so a polygon can be built once and then chained
 (`Path2D(pts).offset(radius=-2).round_corners(radius=1).polygon()`) instead of threading raw
 point lists through free functions.

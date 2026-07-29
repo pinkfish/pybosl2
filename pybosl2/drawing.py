@@ -8,18 +8,18 @@
 #    Pure-Python port of BOSL2's drawing.scad: the path *generators*
 #    (:func:`arc`, :func:`catenary`, :func:`helix`, :func:`turtle`) and the path
 #    *renderers* (:func:`stroke`, :func:`dashed_stroke`). The generators return a
-#    :class:`~pybosl2.paths.Path` (2-D) or a plain list of 3-D points (``helix``); the
+#    :class:`~pybosl2.paths.Path2D` (2-D) or a plain list of 3-D points (``helix``); the
 #    renderers turn a path into native geometry (``stroke``) or a list of dash
 #    sub-paths (``dashed_stroke``).
 #
 #    ``arc`` itself lives in pybosl2/shapes2d.py (it shares that module's $fn/$fa/$fs
 #    and 3-point-circle helpers) and is re-exported here so the whole drawing API is
 #    reachable as ``pybosl2.drawing``. :func:`stroke`/:func:`dashed_stroke` are also
-#    attached as methods on :class:`~pybosl2.paths.Path` and
+#    attached as methods on :class:`~pybosl2.paths.Path2D` and
 #    :class:`~pybosl2.regions.Region`, so a built path can be drawn directly
 #    (``path.stroke(width=2)``).
 #
-# FileSummary: Path generators (arc/catenary/helix/turtle) and renderers (stroke/dashed_stroke).
+# FileSummary: Path2D generators (arc/catenary/helix/turtle) and renderers (stroke/dashed_stroke).
 # FileGroup: BOSL2
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ import numpy as np
 from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one
 from pybosl2.geometry import general_line_intersection, line_normal
 from pybosl2.math import lerp, lerpn
-from pybosl2.paths import Path, Path3D
+from pybosl2.paths import Path2D, Path3D
 from pybosl2.shapes2d import _frag_count, _pick_radius, arc
 
 # The stroke body is built from the backend-neutral facade, NOT pybosl2.shapes3d directly, so a
@@ -79,7 +79,7 @@ def _rot_pts(deg: float, pts):
 
 
 # ---------------------------------------------------------------------------
-# Section: Path generators
+# Section: Path2D generators
 # ---------------------------------------------------------------------------
 
 
@@ -88,8 +88,8 @@ def catenary(
     droop: float | None = None,
     sides: int = 100,
     angle: float | None = None,
-) -> Path:
-    """The catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path`.
+) -> Path2D:
+    """The catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.
 
     Give exactly one of *droop* (how far the middle hangs below the endpoints) or *angle* (the
     slope in degrees at the endpoints). The curve passes through ``[-width/2, 0]`` and
@@ -152,7 +152,7 @@ def catenary(
         pts.append([xval, yval])
     if sgn < 0:
         pts = [[p[0], -p[1]] for p in pts]
-    return Path(pts, closed=False)
+    return Path2D(pts, closed=False)
 
 
 def helix(
@@ -232,14 +232,14 @@ def turtle(
     state: Sequence | None = None,
     full_state: bool = False,
     repeat: int = 1,
-) -> Path | list:
+) -> Path2D | list:
     """Build a 2-D path from [turtle-graphics](https://en.wikipedia.org/wiki/Turtle_graphics)
     *commands* -- BOSL2's ``turtle()``.
 
     *commands* is a flat list of command names each optionally followed by a parameter, e.g.
     ``["move", 10, "left", 90, "move", 10]``. The turtle starts at the origin pointing along +X
     with a step length of 1. By default the computed path is returned as a
-    :class:`~pybosl2.paths.Path`; set *full_state* to get ``[path, step_vector, angle, arcsteps]``
+    :class:`~pybosl2.paths.Path2D`; set *full_state* to get ``[path, step_vector, angle, arcsteps]``
     instead. *repeat* runs the whole command list that many times.
 
     Supported commands: ``move``/``xmove``/``ymove``/``xymove``, ``jump``/``xjump``/``yjump``,
@@ -258,7 +258,7 @@ def turtle(
     """
     state = [[[0.0, 0.0]], [1.0, 0.0], 90.0, 0.0] if state is None else list(state)
     result = _turtle_repeat(list(commands), state, True, repeat)
-    return result if full_state else Path(result[0], closed=False)
+    return result if full_state else Path2D(result[0], closed=False)
 
 
 def _turtle_repeat(commands, state, full_state, repeat):
@@ -398,7 +398,7 @@ def _turtle_arc(command, parm, parm2, state, index):
 
 
 # ---------------------------------------------------------------------------
-# Section: Path renderers
+# Section: Path2D renderers
 # ---------------------------------------------------------------------------
 
 
@@ -596,7 +596,7 @@ def stroke(
 ):
     """Render *path* as a solid line of the given *width* -- BOSL2's ``stroke()``.
 
-    Works on a 2-D or 3-D point list, a :class:`~pybosl2.paths.Path`, a :class:`~pybosl2.paths.Path3D`,
+    Works on a 2-D or 3-D point list, a :class:`~pybosl2.paths.Path2D`, a :class:`~pybosl2.paths.Path3D`,
     or a :class:`~pybosl2.regions.Region` (each of its paths is stroked closed). A 2-D stroke is a
     union of segment rectangles with joints and endcaps; a 3-D stroke is a tube of cylinders with
     spherical joints and revolved endcaps. Returns native geometry.
@@ -608,7 +608,7 @@ def stroke(
     through the tip.
 
     Args:
-        path:     a point list, :class:`~pybosl2.paths.Path`/:class:`~pybosl2.paths.Path3D`, or
+        path:     a point list, :class:`~pybosl2.paths.Path2D`/:class:`~pybosl2.paths.Path3D`, or
         :class:`~pybosl2.regions.Region`
         width:    line width (default 1)
         closed:   close the path into a loop (default: the path's own ``closed`` flag, or True for a Region)
@@ -643,8 +643,8 @@ def stroke(
     if isinstance(path, Region) or (
         isinstance(path, (list, tuple))
         and len(path)
-        and isinstance(path[0], (Path, Path3D))
-        and not isinstance(path, (Path, Path3D))
+        and isinstance(path[0], (Path2D, Path3D))
+        and not isinstance(path, (Path2D, Path3D))
     ):
         parts = [stroke(p, width=width, closed=True, joints=joints, dots=dots) for p in path]
         shape = reduce(operator.or_, parts)
@@ -683,15 +683,15 @@ def dashed_stroke(
     closed: bool = False,
     fit: bool = True,
     mindash: float = 0.5,
-) -> "list[Path | Path3D]":
+) -> "list[Path2D | Path3D]":
     """Break *path* into dashes -- BOSL2's ``dashed_stroke()`` function form.
 
-    Returns the list of "on" dash sub-paths (each a :class:`~pybosl2.paths.Path`); stroke or extrude
+    Returns the list of "on" dash sub-paths (each a :class:`~pybosl2.paths.Path2D`); stroke or extrude
     them to draw a dashed line. *dashpat* alternates dash/gap lengths. With *fit* (the default) the
     pattern is scaled slightly so a whole number of repeats fills the path exactly.
 
     Args:
-        path:    a point list, :class:`~pybosl2.paths.Path`, or :class:`~pybosl2.regions.Region`
+        path:    a point list, :class:`~pybosl2.paths.Path2D`, or :class:`~pybosl2.regions.Region`
         dashpat: alternating [dash, gap, ...] lengths (default ``(3, 3)``)
         closed:  treat the path as a closed loop
         fit:     scale the pattern to fit a whole number of repeats (default True)
@@ -715,8 +715,8 @@ def dashed_stroke(
         return out  # type: ignore[return-value]
 
     raw = [list(map(float, p)) for p in path]
-    # a 3-D path yields 3-D dashes (Path3D); a 2-D path yields Path
-    wrap = Path3D if raw and len(raw[0]) == 3 else Path
+    # a 3-D path yields 3-D dashes (Path3D); a 2-D path yields Path2D
+    wrap = Path3D if raw and len(raw[0]) == 3 else Path2D
     if closed:
         raw = raw + [raw[0]]
     dpat = list(dashpat) if len(dashpat) % 2 == 0 else list(dashpat) + [0]

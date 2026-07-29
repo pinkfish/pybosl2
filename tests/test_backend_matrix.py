@@ -96,7 +96,7 @@ def test_boolean_ops_dispatch_on_active_backend(backend, op):
 
 
 # ---------------------------------------------------------------------------
-# 2-D -> 3-D: Path/Region extrude on either backend
+# 2-D -> 3-D: Path2D/Region extrude on either backend
 # ---------------------------------------------------------------------------
 
 SQUARE = [[0, 0], [20, 0], [20, 12], [0, 12]]
