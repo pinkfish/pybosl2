@@ -178,3 +178,96 @@ def test_intersection_with_hole():
     area = Polygon(outer, holes).area
     # big ∩ donut = donut = 100*100 - 50*50 = 7500
     assert abs(area - 7500.0) < 1.0
+
+
+def test_symmetric_difference_region_to_region():
+    """Symmetric difference of overlapping squares produces the non-overlapping parts."""
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a.symmetric_difference(b)
+    assert isinstance(result, Region)
+    assert len(result) >= 1
+
+
+def test_xor_operator_region_to_region():
+    """The ^ operator should be equivalent to .symmetric_difference()."""
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a ^ b
+    assert isinstance(result, Region)
+
+
+# -- Boolean operations with closed Path objects ------------------------------------------------
+
+
+def test_union_with_path():
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a.union(b)
+    assert isinstance(result, Region)
+    assert len(result) >= 1
+
+
+def test_intersection_with_path():
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a.intersection(b)
+    assert isinstance(result, Region)
+    assert len(result) >= 1
+
+
+def test_difference_with_path():
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 10], [30, 10], [30, 20], [20, 20]])
+    result = a.difference(b)
+    assert isinstance(result, Region)
+    from shapely.geometry import Polygon
+
+    outer = [(float(p[0]), float(p[1])) for p in result.outline]
+    holes = [[(float(p[0]), float(p[1])) for p in h] for h in result.holes]
+    area = Polygon(outer, holes).area
+    assert area < 1200.0  # smaller than original (40*30=1200)
+
+
+def test_operator_or_with_path():
+    a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
+    b = Path([[20, 0], [50, 0], [50, 30], [20, 30]])
+    result = a | b
+    assert isinstance(result, Region)
+
+
+def test_operator_and_with_path():
+    a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
+    b = Path([[20, 0], [50, 0], [50, 30], [20, 30]])
+    result = a & b
+    assert isinstance(result, Region)
+
+
+def test_operator_sub_with_path():
+    a = Region([[0, 0], [50, 0], [50, 40], [0, 40]])
+    b = Path([[20, 10], [30, 10], [30, 30], [20, 30]])
+    result = a - b
+    assert isinstance(result, Region)
+
+
+def test_raises_on_open_path():
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30]], closed=False)
+    with pytest.raises(ValueError, match="closed"):
+        a.union(b)
+    with pytest.raises(ValueError, match="closed"):
+        a | b
+
+
+def test_symmetric_difference_with_path():
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a.symmetric_difference(b)
+    assert isinstance(result, Region)
+
+
+def test_operator_xor_with_path():
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Path([[20, 0], [60, 0], [60, 30], [20, 30]])
+    result = a ^ b
+    assert isinstance(result, Region)

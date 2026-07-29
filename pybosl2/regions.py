@@ -35,17 +35,7 @@ if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would b
 __all__ = ["Path", "Path3D", "Region"]
 
 
-def _to_shapely(path: Path) -> Polygon:
-    """Convert a :class:`Path` (CCW ring) to a ``shapely.Polygon``.
-
-    Returns:
-        A ``shapely.Polygon`` constructed from the path vertices.
-    """
-    pts = [(float(p[0]), float(p[1])) for p in path]
-    return Polygon(pts)
-
-
-def _from_shapely(geom: Polygon | MultiPolygon) -> list[Path]:
+def _from_shapely(geom: MultiPolygon) -> list[Path]:
     """Extract paths (exterior + holes) from a shapely geometry.
 
     Handles ``Polygon`` and ``MultiPolygon`` by taking the largest polygon.
@@ -68,7 +58,7 @@ def _from_shapely(geom: Polygon | MultiPolygon) -> list[Path]:
     return paths
 
 
-def _flatten_shapely_to_paths(geom: Polygon | MultiPolygon) -> list[Path]:
+def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path]:
     """Extract all paths from a ``Polygon`` or ``MultiPolygon``.
 
     Every polygon (exterior and any holes) in the geometry is flattened into
@@ -120,69 +110,62 @@ class Region:
     """
 
     def __init__(self, paths: Any = ()) -> None:
-        """Creates a region from a sequence of path outlines or a shapely geometry.
+        """Creates a region from path outlines or a shapely geometry.
 
         Args:
-            paths: The outlines; each is coerced to a :class:`Path`. A single
-                flat point list is treated as one outline.  A
+            paths: The outlines; each is coerced to a :class:`Path`. A
+                single flat point list is treated as one outline.  A
                 ``shapely.Polygon`` or ``shapely.MultiPolygon`` is also
                 accepted.
         """
         if isinstance(paths, (Polygon, MultiPolygon)):
-            self._paths: list[Path] = _flatten_shapely_to_paths(paths)
-            self._geom: Polygon | MultiPolygon | None = paths if not paths.is_empty else None
+            self._polygon = MultiPolygon([paths]) if not paths.is_empty else MultiPolygon()
+
             return
 
         items = list(paths)
         if items and not isinstance(items[0], (list, tuple, np.ndarray, Path)):
             raise TypeError(f"Region needs paths, got {type(items[0]).__name__}")
-        # a bare point list ([[x, y], ...]) is one outline, not a list of paths
         if items and np.asarray(items[0], dtype=float).ndim == 1:
             items = [items]
-        self._paths = [p if isinstance(p, Path) else Path(p) for p in items]
-        self._geom = None
+        if not items:
+            self._polygon = MultiPolygon()
+            return
+        paths_list = [p if isinstance(p, Path) else Path(p) for p in items]
+        outer = [(float(p[0]), float(p[1])) for p in paths_list[0]]
+        holes = [[(float(p[0]), float(p[1])) for p in h] for h in paths_list[1:]]
+        self._polygon = MultiPolygon([Polygon(outer, holes)])
 
     def __len__(self) -> int:
         """Number of paths in the region."""
-        return len(self._paths)
+        return len(self.paths)
 
     def __getitem__(self, index: int | slice) -> Path | list[Path]:
         """Access a path by index or slice."""
-        return self._paths[index]
+        return self.paths[index]
 
     def __iter__(self) -> Iterator[Path]:
         """Iterate over the paths."""
-        return iter(self._paths)
+        return iter(self.paths)
 
     @property
     def paths(self) -> list[Path]:
-        """The internal list of :class:`Path` objects.
+        """The list of :class:`Path` objects derived from the geometry.
+
+        Extracted on-demand from the underlying shapely
+        :class:`~shapely.geometry.Polygon` or :class:`~shapely.geometry.MultiPolygon`.
 
         Returns:
-            The list of paths stored in the region.
+            A list of :class:`Path` objects.
         """
-        return self._paths
+        return _flatten_shapely_to_paths(self._polygon)
 
     @property
-    def geom(self) -> Polygon | MultiPolygon:
-        """The cached shapely geometry for this region.
+    def geom(self) -> MultiPolygon:
+        """The underlying shapely geometry."""
+        return self._polygon
 
-        Built lazily from the stored paths on first access.  The first path
-        is used as the exterior and all remaining paths as holes.
-
-        Returns:
-            A ``shapely.Polygon`` or ``shapely.MultiPolygon``.
-        """
-        if self._geom is None:
-            if not self._paths:
-                self._geom = Polygon()
-            else:
-                outer = [(float(p[0]), float(p[1])) for p in self._paths[0]]
-                holes = [[(float(p[0]), float(p[1])) for p in h] for h in self._paths[1:]]
-                self._geom = Polygon(outer, holes)
-        return self._geom
-
-    def to_shapely(self) -> Polygon | MultiPolygon:
+    def to_shapely(self) -> MultiPolygon:
         """Return the shapely geometry for this region.
 
         Equivalent to the :attr:`geom` property; provided for explicit usage.
@@ -193,7 +176,11 @@ class Region:
         return self.geom
 
     @classmethod
-    def with_holes(cls, outline: Sequence[float], *holes: Sequence[float]) -> "Region":
+    def with_holes(
+        cls,
+        outline: Sequence[Sequence[float]] | Path,
+        *holes: Sequence[Sequence[float]] | Path,
+    ) -> "Region":
         """A region from an outline plus hole outlines.
 
         This is what a concentric ``DifferenceWithOffset`` produces: outline + inner hole, no
@@ -215,8 +202,7 @@ class Region:
         Returns:
             The first :class:`Path` in the region, which is the outer outline.
         """
-        assert self._paths, "empty Region has no outline"
-        return self._paths[0]
+        return self.paths[0] if self.paths else Path([])
 
     @property
     def holes(self) -> list[Path]:
@@ -225,7 +211,7 @@ class Region:
         Returns:
             All :class:`Path` objects after the first, which are the interior holes.
         """
-        return list(self._paths[1:])
+        return self.paths[1:]
 
     def offset(
         self,
@@ -243,7 +229,7 @@ class Region:
         Returns:
             A new :class:`Region` with every path offset by the given parameters.
         """
-        return Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self._paths])
+        return Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self.paths])
 
     def round_corners(self, radius: float | list[float] | None = None, **kwargs: Any) -> "Region":
         """Round the corners of every path in the region.
@@ -256,7 +242,7 @@ class Region:
         Returns:
             A new :class:`Region` with rounded corners on every path.
         """
-        return Region([p.round_corners(radius=radius, **kwargs) for p in self._paths])  # type: ignore[arg-type]
+        return Region([p.round_corners(radius=radius, **kwargs) for p in self.paths])  # type: ignore[arg-type]
 
     def translate(self, v: Sequence[float]) -> "Region":
         """Translate every path in the region by the given vector.
@@ -267,7 +253,7 @@ class Region:
         Returns:
             A new :class:`Region` with every path translated.
         """
-        return Region([p.translate(v) for p in self._paths])
+        return Region([p.translate(v) for p in self.paths])
 
     def bounds(self) -> np.ndarray:
         """The bounding box over every path in the region.
@@ -275,8 +261,8 @@ class Region:
         Returns:
             A numpy array ``[[min_x, min_y], [max_x, max_y]]``.
         """
-        assert self._paths, "empty Region has no bounds"
-        all_pts = np.vstack([p.array for p in self._paths])
+        assert self.paths, "empty Region has no bounds"
+        all_pts = np.vstack([p.array for p in self.paths])
         return np.array([all_pts.min(axis=0), all_pts.max(axis=0)])
 
     def geometry(self) -> "Bosl2Shape2D":
@@ -343,7 +329,7 @@ class Region:
                 hint="the sdf prism unions its outlines' fields, so it cannot cut holes. Extrude "
                 "the outline and subtract the holes' own extrusions, or build it on the csg backend.",
             )
-        return get_backend().linear_extrude(list(self._paths), height, **kwargs)
+        return get_backend().linear_extrude(list(self.paths), height, **kwargs)
 
     def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
         """Revolve this region about the Y axis into a 3-D solid.
@@ -376,9 +362,9 @@ class Region:
 
         from pybosl2.paths import Path as _Path
 
-        paths = [p if isinstance(p, _Path) else _Path(p) for p in self._paths]
+        paths = [p if isinstance(p, _Path) else _Path(p) for p in self.paths]
         if len(paths) <= 1:
-            return (paths[0] if paths else _Path(self._paths)).debug_polygon(size=size, vertices=vertices)  # type: ignore[arg-type]
+            return (paths[0] if paths else _Path(self.paths)).debug_polygon(size=size, vertices=vertices)  # type: ignore[arg-type]
         solid = self.geometry().linear_extrude(height=0.01, center=True)
         if not vertices:
             return solid
@@ -429,7 +415,7 @@ class Region:
     # 2-D boolean set operations
     # -----------------------------------------------------------------------------------
 
-    def intersection(self, other: "Region") -> "Region":
+    def intersection(self, other: Region | Path) -> "Region":
         """The 2-D intersection of this region with *other* (the area they share).
 
         Uses shapely for exact polygon coordinates.
@@ -449,14 +435,18 @@ class Region:
                 b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])
                 a.intersection(b).geometry().linear_extrude(height=3).show()
         """
+        if isinstance(other, Path):
+            if not other.closed:
+                raise ValueError("intersection() requires a closed Path. Close it with .close() first.")
+            other = Region([other])
         result = self.geom.intersection(other.geom)
         if result.is_empty:
             return Region([])
         r = Region(_flatten_shapely_to_paths(result))
-        r._geom = result
+        r._polygon = result
         return r
 
-    def union(self, other: "Region") -> "Region":
+    def union(self, other: Region | Path) -> "Region":
         """The 2-D union of this region and *other* (all area covered by either).
 
         Uses shapely for exact polygon coordinates.
@@ -476,14 +466,18 @@ class Region:
                 b = Region([[20, 0], [50, 0], [50, 30], [20, 30]])
                 a.union(b).geometry().linear_extrude(height=3).show()
         """
+        if isinstance(other, Path):
+            if not other.closed:
+                raise ValueError("union() requires a closed Path. Close it with .close() first.")
+            other = Region([other])
         result = self.geom.union(other.geom)
         if result.is_empty:
             return Region([])
         r = Region(_flatten_shapely_to_paths(result))
-        r._geom = result
+        r._polygon = result
         return r
 
-    def difference(self, other: "Region") -> "Region":
+    def difference(self, other: Region | Path) -> "Region":
         """The 2-D difference: *self* with the area of *other* subtracted.
 
         Uses shapely for exact polygon coordinates.
@@ -503,14 +497,18 @@ class Region:
                 notch = Region([[20, 10], [40, 10], [40, 30], [20, 30]])
                 plate.difference(notch).geometry().linear_extrude(height=4).show()
         """
+        if isinstance(other, Path):
+            if not other.closed:
+                raise ValueError("difference() requires a closed Path. Close it with .close() first.")
+            other = Region([other])
         result = self.geom.difference(other.geom)
         if result.is_empty:
             return Region([])
         r = Region(_flatten_shapely_to_paths(result))
-        r._geom = result
+        r._polygon = result
         return r
 
-    def symmetric_difference(self, other: "Region") -> "Region":
+    def symmetric_difference(self, other: Region | Path) -> "Region":
         """The 2-D symmetric difference (XOR): area in either region but not both.
 
         Uses shapely for exact polygon coordinates.
@@ -521,29 +519,33 @@ class Region:
         Returns:
             A :class:`Region` with the symmetric difference area.
         """
+        if isinstance(other, Path):
+            if not other.closed:
+                raise ValueError("symmetric_difference() requires a closed Path. Close it with .close() first.")
+            other = Region([other])
         result = self.geom.symmetric_difference(other.geom)
         if result.is_empty:
             return Region([])
         r = Region(_flatten_shapely_to_paths(result))
-        r._geom = result
+        r._polygon = result
         return r
 
     # Operator overloads for convenience (mirror Bosl2Shape2D's &/|/- operators).
-    def __and__(self, other: "Region") -> "Region":
+    def __and__(self, other: Region | Path) -> "Region":
         """``a & b``  →  ``a.intersection(b)``."""
         return self.intersection(other)
 
-    def __or__(self, other: "Region") -> "Region":
+    def __or__(self, other: Region | Path) -> "Region":
         """``a | b``  →  ``a.union(b)``."""
         return self.union(other)
 
-    def __sub__(self, other: "Region") -> "Region":
+    def __sub__(self, other: Region | Path) -> "Region":
         """``a - b``  →  ``a.difference(b)``."""
         return self.difference(other)
 
-    def __xor__(self, other: "Region") -> "Region":
+    def __xor__(self, other: Region | Path) -> "Region":
         """``a ^ b``  →  ``a.symmetric_difference(b)``."""
         return self.symmetric_difference(other)
 
     def __repr__(self) -> str:
-        return f"Region({len(self._paths)} paths: {[len(p) for p in self._paths]})"
+        return f"Region({len(self.paths)} paths: {[len(p) for p in self.paths]})"

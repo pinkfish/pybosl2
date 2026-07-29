@@ -73,6 +73,11 @@ class PathBase:
     _points: np.ndarray
     closed: bool
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PathBase):
+            return NotImplemented
+        return bool(np.allclose(self._points, other._points)) and self.closed == other.closed
+
     # -- Path length calculation -----------------------------------------------------------
 
     def total_length(self, closed: bool | None = None) -> float:
