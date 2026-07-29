@@ -990,6 +990,8 @@ SETUP = {
     "screw_drive": "from pybosl2.screw_drive import ScrewDrive\n",
     "bottlecaps": "from pybosl2.bottlecaps import BottleCaps\n",
     "sliders": "from pybosl2.sliders import Sliders\n",
+    "shapes3d": "",  # uses pre-imported s3 alias
+    "shapes2d": "",  # uses pre-imported s2 alias
 }
 
 VARIANTS = {
