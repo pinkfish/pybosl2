@@ -1032,7 +1032,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
+    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> Path:
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
 
         Args:

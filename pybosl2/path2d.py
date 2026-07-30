@@ -470,7 +470,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         pts = _resample_path(self._points, closed, sides=sides, spacing=spacing)
         return self.__class__(pts, closed=self.closed)
 
-    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
+    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path2D":
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
 
         Args:
@@ -481,11 +481,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list of points representing the selected portion of the path.
+            A :class:`Path2D` representing the selected portion of the path.
         """
         if closed is None:
             closed = self.closed
-        return _path_select(self._points, closed, s1, u1, s2, u2)
+        pts = _path_select(self._points, closed, s1, u1, s2, u2)
+        return self.__class__(pts, closed=self.closed)
 
     # -- measurement -----------------------------------------------------------------------
 
@@ -1572,7 +1573,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         out = []
         for p0, p1 in Path2D._pair(isects):
             section = temp.select(p0[0], p0[1], p1[0], p1[1], closed=closed)
-            outpath = Path2D._deduplicate(section, eps=eps)
+            outpath = Path2D._deduplicate(section, eps=eps)  # type: ignore[arg-type]
             if len(outpath) > 1:
                 out.append(outpath)
         return out

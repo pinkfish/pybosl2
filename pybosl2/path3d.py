@@ -398,7 +398,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         pts = _resample_path(self._points, closed, sides=sides, spacing=spacing)
         return self.__class__(pts, closed=self.closed)
 
-    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
+    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path3D":
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
 
         Args:
@@ -409,11 +409,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list of points representing the selected portion of the path.
+            A :class:`Path3D` representing the selected portion of the path.
         """
         if closed is None:
             closed = self.closed
-        return _path_select(self._points, closed, s1, u1, s2, u2)
+        pts = _path_select(self._points, closed, s1, u1, s2, u2)
+        return self.__class__(pts, closed=self.closed)
 
     # -- measurement -----------------------------------------------------------------------
 
