@@ -247,7 +247,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         proj = self._shapely.interpolate(self._shapely.project(q))
         return Point(float(proj.x), float(proj.y))
 
-    def tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
+    def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Vector]":
         """Normalized tangent vector at each point of the path, as an ndarray.
 
         Args:
@@ -261,9 +261,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         return _path_tangents(self._points, closed, uniform=uniform)
 
-    def normals(
-        self, tangents: NDArray[np.float64] | np.ndarray | None = None, closed: bool | None = None
-    ) -> NDArray[np.float64]:
+    def normals(self, tangents: "list[Vector] | None" = None, closed: bool | None = None) -> "list[Vector]":
         """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
 
         For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
@@ -306,7 +304,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         return _path_torsion(self._points, closed)
 
-    def cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list["Path2D"]:
+    def cut(self, cutdist: float | Sequence[float], closed: bool | None = None) -> list["Path2D"]:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
 
         Args:
@@ -336,7 +334,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def cut_points(
         self,
-        cutdist: float | Sequence[float] | np.ndarray,
+        cutdist: float | Sequence[float],
         closed: bool | None = None,
         direction: bool = False,
     ) -> list[CutPoint]:
@@ -395,7 +393,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_cuts_normals(self._points, closed, cuts, dirs)
 
-    def plane(self, ind: int, i: int, closed: bool = False) -> np.ndarray | None:
+    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector] | None":
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
         Args:

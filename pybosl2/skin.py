@@ -428,7 +428,7 @@ def _path_sweep(
                 translate4(patharr[i % npts]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i])
             )
     elif method == "natural":
-        pathnormal = np.asarray(Path3D(patharr).normals(tangents=tangents, closed=closed), dtype=float)
+        pathnormal = np.asarray(Path3D(patharr).normals(tangents=tangents, closed=closed), dtype=float)  # type: ignore[arg-type,type-var]
         unscaled = [
             translate4(patharr[i % npts])
             @ frame_map(x=pathnormal[i % npts], z=tangents[i % npts])
