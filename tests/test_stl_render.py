@@ -520,8 +520,11 @@ def test_catenary_stroke(tmp_path):
 
 def test_turtle_stroke(tmp_path):
     setup = (
-        "path = turtle(['move', 40, 'arcleft', 8, 'move', 40, 'arcleft', 8, "
-        "'move', 40, 'arcleft', 8, 'move', 40, 'arcleft', 8])\n"
+        "from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as TCT\n"
+        "path = turtle([TurtleCommand(TCT.MOVE, size=40), TurtleCommand(TCT.ARCLEFT, radius=8),"
+        "TurtleCommand(TCT.MOVE, size=40), TurtleCommand(TCT.ARCLEFT, radius=8),"
+        "TurtleCommand(TCT.MOVE, size=40), TurtleCommand(TCT.ARCLEFT, radius=8),"
+        "TurtleCommand(TCT.MOVE, size=40), TurtleCommand(TCT.ARCLEFT, radius=8)])\n"
     )
     m = _render(
         tmp_path,

@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field, replace
-from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal, overload
 
 import numpy as np
@@ -62,13 +61,6 @@ _Z_AXIS_COMMANDS: frozenset[TurtleCommandType] = frozenset(
         TurtleCommandType.ROT,
     }
 )
-
-# -- 2-D specific command aliases (not present in TurtleCommandType) ---------
-
-_2D_ALIASES: dict[str, str] = {"turn": "left"}
-
-_TWO_ARG_ABSOLUTE_ARCS: frozenset[str] = frozenset({"arcleftto", "arcrightto"})
-
 
 # -- helpers -----------------------------------------------------------------
 
@@ -219,81 +211,32 @@ class Turtle2D:
         """Return the turtle's internal :class:`TurtleState`."""
         return self._state
 
-    @staticmethod
+    @classmethod
     def parse_commands(
-        commands: Sequence[Any],
+        cls,
+        commands: Sequence[TurtleCommand],
     ) -> list[TurtleCommand]:
-        """Parse a raw command list into :class:`TurtleCommand` objects.
+        """Resolve a sequence of :class:`TurtleCommand` objects into a flat list.
 
-        Handles the standard ``TurtleCommandType`` commands plus 2-D specific
-        aliases (``"turn"``, ``"arcleftto"``, ``"arcrightto"``, ``"xymove"``).
+        Validates that no z-axis commands are present and returns the commands
+        as a plain list. For raw string/enum input use :func:`turtle` which
+        converts automatically.
+
+        Args:
+            commands: Pre-constructed :class:`TurtleCommand` objects.
+
+        Returns:
+            A flat list of :class:`TurtleCommand` objects.
         """
-        cmds: list[Any] = [_2D_ALIASES.get(c, c) if isinstance(c, str) else c for c in commands]
-        out: list[TurtleCommand] = []
-        i: int = 0
-        while i < len(cmds):
-            cmd = cmds[i]
-
-            if isinstance(cmd, TurtleCommand):
-                out.append(cmd)
-                i += 1
-                continue
-
-            if isinstance(cmd, (list, tuple)):
-                out.append(TurtleCommand._to_turtle_command(cmd))
-                i += 1
-                continue
-
-            if isinstance(cmd, (TurtleCommandType, Enum)):
-                cmd_len = TurtleCommand._command_len(cmds, i)
-                parm = cmds[i + 1] if i + 1 < len(cmds) else None
-                parm2 = cmds[i + 2] if i + 2 < len(cmds) else None
-                parsed = TurtleCommand._to_turtle_command(cmd, parm, parm2)
-                out.append(parsed)
-                i += cmd_len
-                continue
-
-            if isinstance(cmd, str) and cmd in _TWO_ARG_ABSOLUTE_ARCS:
-                parm = cmds[i + 1] if i + 1 < len(cmds) else None
-                nxt = cmds[i + 2] if i + 2 < len(cmds) else None
-                if nxt is not None and not isinstance(nxt, str) and not isinstance(nxt, (list, tuple)):
-                    parm2 = nxt
-                    cmd_len = 3
-                else:
-                    parm2 = None
-                    cmd_len = 2 if parm is not None and not isinstance(parm, str) else 1
-                base = TurtleCommandType.ARCLEFT if cmd == "arcleftto" else TurtleCommandType.ARCRIGHT
-                out.append(
-                    TurtleCommand(
-                        base,
-                        radius=parm,
-                        angle=parm2,
-                        options={"absolute_arc_angle": True},
-                    )
+        cmds = list(commands)
+        for i, cmd in enumerate(cmds):
+            if cmd.cmd_type in _Z_AXIS_COMMANDS and not (
+                cmd.cmd_type == TurtleCommandType.XYZMOVE and cmd.options.get("is_2d_vector")
+            ):
+                raise ValueError(
+                    f'Turtle command "{cmd.cmd_type.value}" involves the z-axis and is not valid in 2-D at index {i}'
                 )
-                i += cmd_len
-                continue
-
-            if isinstance(cmd, str) and cmd == "xymove":
-                parm = cmds[i + 1] if i + 1 < len(cmds) else None
-                out.append(
-                    TurtleCommand(
-                        TurtleCommandType.XYZMOVE,
-                        size=parm,
-                        options={"is_2d_vector": True},
-                    )
-                )
-                i += 2
-                continue
-
-            cmd_len = TurtleCommand._command_len(cmds, i)
-            parm = cmds[i + 1] if i + 1 < len(cmds) else None
-            parm2 = cmds[i + 2] if i + 2 < len(cmds) else None
-            parsed = TurtleCommand._to_turtle_command(cmd, parm, parm2)
-            out.append(parsed)
-            i += cmd_len
-
-        return out
+        return cmds
 
     @overload
     @classmethod
@@ -354,7 +297,7 @@ class Turtle2D:
 
 @overload
 def turtle(
-    commands: Sequence[Any],
+    commands: Sequence[TurtleCommand],
     state: TurtleState | Sequence[Any] | None = None,
     *,
     full_state: Literal[False] = False,
@@ -362,41 +305,50 @@ def turtle(
 ) -> Path2D: ...
 @overload
 def turtle(
-    commands: Sequence[Any],
+    commands: Sequence[TurtleCommand],
     state: TurtleState | Sequence[Any] | None = None,
     *,
     full_state: Literal[True],
     repeat: int = 1,
 ) -> TurtleState: ...
 def turtle(
-    commands: Sequence[Any],
+    commands: Sequence[TurtleCommand],
     state: TurtleState | Sequence[Any] | None = None,
     full_state: bool = False,
     repeat: int = 1,
 ) -> Path2D | TurtleState:
-    """Build a 2-D path from turtle-graphics *commands* — BOSL2's ``turtle()``.
+    """Build a 2-D path from :class:`TurtleCommand` objects — BOSL2's ``turtle()``.
 
-    *commands* is a flat list of :class:`TurtleCommand` objects, or raw
-    strings / enums / lists which are automatically parsed via
-    :meth:`Turtle2D.parse_commands`. The turtle starts at the origin
-    pointing along +X with a step length of 1. By default the computed path is
-    returned as a :class:`~pybosl2.paths.Path2D`; set *full_state* to get a
-    :class:`TurtleState` instead. *repeat* runs the whole command list that
-    many times.
+    *commands* is a flat list of :class:`TurtleCommand` objects. The turtle
+    starts at the origin pointing along +X with a step length of 1. By default
+    the computed path is returned as a :class:`~pybosl2.paths.Path2D`; set
+    *full_state* to get a :class:`TurtleState` instead. *repeat* runs the whole
+    command list that many times.
 
     Examples:
         A rounded-corner square drawn with arcs:
 
         .. pythonscad-example::
 
-            path = turtle(["move", 40, "arcleft", 8, "move", 40, "arcleft", 8,
-                           "move", 40, "arcleft", 8, "move", 40, "arcleft", 8])
+            from pybosl2.turtle2d import turtle
+            from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as TCT
+
+            path = turtle([
+                TurtleCommand(TCT.MOVE, size=40),
+                TurtleCommand(TCT.ARCLEFT, radius=8),
+                TurtleCommand(TCT.MOVE, size=40),
+                TurtleCommand(TCT.ARCLEFT, radius=8),
+                TurtleCommand(TCT.MOVE, size=40),
+                TurtleCommand(TCT.ARCLEFT, radius=8),
+                TurtleCommand(TCT.MOVE, size=40),
+                TurtleCommand(TCT.ARCLEFT, radius=8),
+            ])
             path.stroke(width=3, closed=True).linear_extrude(height=4).show()
     """
-    parsed = Turtle2D.parse_commands(commands)
+    cmds = Turtle2D.parse_commands(commands)
     if full_state:
-        return Turtle2D.turtle2d(parsed, state=state, full_state=True, repeat=repeat)
-    return Turtle2D.turtle2d(parsed, state=state, repeat=repeat)
+        return Turtle2D.turtle2d(cmds, state=state, full_state=True, repeat=repeat)
+    return Turtle2D.turtle2d(cmds, state=state, repeat=repeat)
 
 
 # -- command execution (internal) --------------------------------------------
