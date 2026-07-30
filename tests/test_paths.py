@@ -259,35 +259,47 @@ def test_split_at_self_crossings():
 
 
 def test_select_circular_index():
-    assert Path2D._select([10, 20, 30], 4) == 20  # 4 % 3
-    assert Path2D._select([10, 20, 30], -1) == 30
-    assert Path2D._select([10, 20, 30], [0, 3, -1]) == [10, 10, 30]
+    from pybosl2._path_math import _select
+
+    assert _select([10, 20, 30], 4) == 20  # 4 % 3
+    assert _select([10, 20, 30], -1) == 30
+    assert _select([10, 20, 30], [0, 3, -1]) == [10, 10, 30]
 
 
 def test_select_circular_slice_wraps():
-    assert Path2D._select([0, 1, 2, 3], 2, 0) == [2, 3, 0]
-    assert Path2D._select([0, 1, 2, 3], 1, 2) == [1, 2]
+    from pybosl2._path_math import _select
+
+    assert _select([0, 1, 2, 3], 2, 0) == [2, 3, 0]
+    assert _select([0, 1, 2, 3], 1, 2) == [1, 2]
 
 
 def test_slice_inclusive_clamped():
-    assert Path2D._slice([0, 1, 2, 3, 4], 1, 3) == [1, 2, 3]
-    assert Path2D._slice([0, 1, 2, 3, 4], 0, -1) == [0, 1, 2, 3, 4]
-    assert Path2D._slice([0, 1, 2], 2, 0) == []
+    from pybosl2._path_math import _slice
+
+    assert _slice([0, 1, 2, 3, 4], 1, 3) == [1, 2, 3]
+    assert _slice([0, 1, 2, 3, 4], 0, -1) == [0, 1, 2, 3, 4]
+    assert _slice([0, 1, 2], 2, 0) == []
 
 
 def test_pair():
-    assert Path2D._pair([1, 2, 3]) == [(1, 2), (2, 3)]
-    assert Path2D._pair([1, 2, 3], wrap=True) == [(1, 2), (2, 3), (3, 1)]
-    assert Path2D._pair([1]) == []
+    from pybosl2._path_math import _pair
+
+    assert _pair([1, 2, 3]) == [(1, 2), (2, 3)]
+    assert _pair([1, 2, 3], wrap=True) == [(1, 2), (2, 3), (3, 1)]
+    assert _pair([1]) == []
 
 
 def test_list_head_and_tail():
-    assert Path2D._list_head([0, 1, 2, 3], 1) == [0, 1]
+    from pybosl2._path_math import _list_head
+
+    assert _list_head([0, 1, 2, 3], 1) == [0, 1]
     assert Path2D._list_tail([0, 1, 2, 3], 2) == [2, 3]
 
 
 def test_repeat():
-    assert Path2D._repeat(5, 3) == [5, 5, 5]
+    from pybosl2._path_math import _repeat
+
+    assert _repeat(5, 3) == [5, 5, 5]
 
 
 def test_deduplicate_static():
