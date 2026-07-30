@@ -143,13 +143,18 @@ def test_turtle_repeat_closes_square():
 
 
 def test_turtle_full_state():
+    from pybosl2.turtle2d import TurtleState
+
     st = turtle(["move", 5], full_state=True)
-    assert len(st) == 4  # [path, step, angle, arcsteps]
-    np.testing.assert_allclose(st[0][-1], [5, 0], atol=1e-9)
+    assert isinstance(st, TurtleState)
+    assert len(st.path) == 2  # origin + move point
+    np.testing.assert_allclose(st.path[-1], [5, 0], atol=1e-9)
+    assert st.angle == 90.0
+    assert st.arcsteps == 0
 
 
 def test_turtle_unknown_command_raises():
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="Unknown command"):
         turtle(["frobnicate", 3])
 
 
