@@ -20,10 +20,9 @@ import math
 from typing import TYPE_CHECKING
 
 from pybosl2._native import native
-from pybosl2.drawing import turtle
 from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.turtle3d import TurtleCommand
-from pybosl2.turtle3d import TurtleCommandType as TCT  # noqa: N817
+from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
+from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon
@@ -38,8 +37,8 @@ _SQRT2 = math.sqrt(2)
 
 
 def _ts(x):
-    """Full turtle state starting at (x, 0) heading +X (this port's turtle needs full state)."""
-    return [[[float(x), 0.0]], [1.0, 0.0], 90.0, 0.0]
+    """Full turtle state starting at (x, 0) heading +X."""
+    return Turtle2DState(path=[[float(x), 0.0]])
 
 
 # Ball ("small") end cross-section, one per size (1/4", 1/2", 3/4"), from modular_hose.scad.
@@ -165,9 +164,9 @@ _BIG_CMDS = [
 
 _WAIST = [1.7698, 1.8251, 3.95998]
 _SIZES = {0.25: 0, 0.5: 1, 0.75: 2}
-_SMALL = [[[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0)).points()] for cmds, x0 in _SMALL_CMDS]
+_SMALL = [[[float(x), float(y)] for x, y in turtle2d(cmds, state=_ts(x0)).points()] for cmds, x0 in _SMALL_CMDS]
 
-_BIG = [[[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0)).points()] for cmds, x0 in _BIG_CMDS]
+_BIG = [[[float(x), float(y)] for x, y in turtle2d(cmds, state=_ts(x0)).points()] for cmds, x0 in _BIG_CMDS]
 
 
 def _bounds(pts):

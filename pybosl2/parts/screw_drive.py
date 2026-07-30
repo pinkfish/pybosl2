@@ -332,7 +332,7 @@ class ScrewDrive:
         tip_circles = [
             circle(radius=tip, fn=fn // 2).translate([base / 2, 0]).multmatrix(m.tolist()) for m in zrot_copies(sides=3)
         ]
-        tri = _hull2d(tip_circles)  # type: ignore[arg-type]
+        tri = _hull2d(tip_circles)
         lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(sides=2))
         solid = circle(diameter=base, fn=fn) | lobes
 

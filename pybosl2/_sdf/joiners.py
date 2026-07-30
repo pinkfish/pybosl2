@@ -24,11 +24,10 @@ from pybosl2._sdf.paths import (
     path_to_bezpath,
 )
 from pybosl2._sdf.shapes2d import PyShape2D, circle2d, polygon2d, rect2d, stroke2d
+from pybosl2.constants import UP
 
 if TYPE_CHECKING:
     from pybosl2._sdf.shapes3d import PyShape
-
-UP = [0.0, 0.0, 1.0]
 
 
 def _attach(

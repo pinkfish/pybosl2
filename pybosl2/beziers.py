@@ -55,14 +55,13 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2.caps import CapsSpec, CapType
+from pybosl2.constants import UP
 from pybosl2.math import EPSILON, lerp, lerpn
 from pybosl2.skin import _path_sweep
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import reorient
 from pybosl2.vectors import unit as _unit
 from pybosl2.vnf import VNF
-
-UP = [0.0, 0.0, 1.0]
 
 
 class Bezier:
@@ -674,17 +673,17 @@ class Bezier:
             tang: list[np.ndarray] = []
             for seg in range(nsegs):
                 ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
-                tang.extend(ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))  # type: ignore[arg-type]
+                tang.extend(ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))
         else:
             path = self.curve(splinesteps, endpoint)  # type: ignore[assignment]
             tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
                 list(lerpn(0, 1, splinesteps + 1, endpoint))
-            )  # type: ignore[assignment]
+            )
         return _path_sweep(
             shape,  # type: ignore[arg-type]
             np.asarray(path),  # type: ignore[arg-type]
             method=method,
-            normal=normal,  # type: ignore[arg-type]
+            normal=normal,
             closed=closed,
             twist=twist,
             twist_by_length=twist_by_length,
@@ -1211,7 +1210,7 @@ class BezierPatch:
             return self.normals([u], v)[0]  # type: ignore[list-item]
         return self.normals(u, [v])[:, 0, :]  # type: ignore[list-item]
 
-    def reverse(self) -> "BezierPatch":  # type: ignore[override]
+    def reverse(self) -> "BezierPatch":
         """Reverse each row of the patch, flipping the surface orientation.
 
         Returns a new BezierPatch with the same control points but each row
@@ -1569,7 +1568,7 @@ def debug_bezier_patches(
     """
     from pybosl2.shapes3d import Bosl2Solid as _Bosl2Solid
 
-    plist = patches if not BezierPatch.is_patch(patches) else [patches]  # type: ignore[list-item]
+    plist: list[Any] = [patches] if BezierPatch.is_patch(patches) else patches  # type: ignore[assignment]
     result = None
 
     def _add(a: Any, b: Any) -> Any:
@@ -1607,5 +1606,5 @@ def debug_bezier_patches(
                 result = _add(result, vnf.polyhedron())
             if showdots:
                 for v in vnf.vertices:
-                    result = _add(result, _sphere_at(np.asarray(v), sz).color("blue"))  # type: ignore[arg-type]
+                    result = _add(result, _sphere_at(np.asarray(v), sz).color("blue"))
     return _Bosl2Solid(result)

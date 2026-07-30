@@ -810,7 +810,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         closed: bool | None = None,
         fit: bool = True,
         mindash: float = 0.5,
-    ) -> "list[Path2D | Path3D]":  # type: ignore[override]
+    ) -> "list[Path2D | Path3D]":
         """Break this 3-D path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`).
 
         Args:

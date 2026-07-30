@@ -3212,15 +3212,15 @@ def path_text(
         sign = 1.0 if reverse else -1.0
         normpts = [[sign * v for v in p.normal] for p in pts]  # type: ignore[union-attr]
     else:
-        normpts = _cut_interp(pts, path, normal_pv)  # type: ignore[arg-type]
-    toppts = None if top_pv is None else _cut_interp(pts, path, top_pv)  # type: ignore[arg-type]
+        normpts = _cut_interp(pts, path, normal_pv)
+    toppts = None if top_pv is None else _cut_interp(pts, path, top_pv)
 
     _usetop = top_pv is not None
     usernorm = normal_pv is not None
 
     letters = []
     for i, ch in enumerate(text):
-        tangent = pts[i].direction  # type: ignore[attr-defined]
+        tangent = pts[i].direction
         if toppts is not None:
             tt = toppts[i]
             proj = sum(a * b for a, b in zip(tangent, tt, strict=False)) / sum(v * v for v in tt)  # type: ignore[arg-type]
@@ -3250,7 +3250,7 @@ def path_text(
             m = _frame_map(x=_point3d(x_axis), y=_point3d(y_axis))
             letter = glyph
 
-        letters.append(letter.multmatrix(m).translate(pts[i].point))  # type: ignore[union-attr,index]
+        letters.append(letter.multmatrix(m).translate(pts[i].point))
 
     result = letters[0]
     for s in letters[1:]:

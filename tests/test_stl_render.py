@@ -520,8 +520,8 @@ def test_catenary_stroke(tmp_path):
 
 def test_turtle_stroke(tmp_path):
     setup = (
-        "from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct\n"
-        "path = turtle([TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.ARCLEFT, radius=8),"
+        "from pybosl2.turtle import TurtleCommand, TurtleCommandType as Tct\n"
+        "path = turtle2d([TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.ARCLEFT, radius=8),"
         "TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.ARCLEFT, radius=8),"
         "TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.ARCLEFT, radius=8),"
         "TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.ARCLEFT, radius=8)]).points()\n"

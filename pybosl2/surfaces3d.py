@@ -324,7 +324,7 @@ def heightfield(
         orient:    direction to rotate the top towards (default UP)
     """
     _ = convexity
-    sz = [size, size] if isinstance(size, (int, float)) else list(size)  # type: ignore[arg-type]
+    sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
     style_key = style if style in ("alt", "quincunx") else "default"
 
     if callable(data):
@@ -636,7 +636,7 @@ def plot_revolution(
             else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else None))
         )
     )
-    theta = [float(a) for a in angle]  # type: ignore[union-attr, attr-defined]
+    theta = [float(a) for a in angle]  # type: ignore[attr-defined]
     assert len(theta) > 1, "plot_revolution(): angle must have at least 2 values."
     if path is not None:
         prof = [[float(p[0]), float(p[1])] for p in path]
@@ -649,7 +649,7 @@ def plot_revolution(
         prof = [[r1v + (r2v - r1v) * (zz - z0) / (z1 - z0), zz] for zz in zs]
     normals = (
         np.asarray([[1.0, 0.0]] * len(prof), dtype=float) if horiz else np.asarray(Path2D(prof).normals(), dtype=float)
-    )  # type: ignore[arg-type]
+    )
     rlo, rhi = rclip if rclip is not None else [-math.inf, math.inf]
     rdata = [[min(max(float(f(t, pt[1])), rlo), rhi) for t in theta] for pt in prof]
     if rspan is not None:

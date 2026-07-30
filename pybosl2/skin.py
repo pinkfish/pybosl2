@@ -362,7 +362,7 @@ def _path_sweep(
 
     # Resolve the per-cross-section scale [sx, sy].
     if isinstance(scale, (int, float)) or (np.ndim(scale) == 1 and len(scale) == 2):
-        s = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]  # type: ignore[index]
+        s = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]
         if not scale_by_length:
             scalevals = [
                 [float(v) for v in ((1 - i / (npts - 1)) * np.array([1.0, 1.0]) + (i / (npts - 1)) * np.array(s))]
@@ -373,7 +373,7 @@ def _path_sweep(
                 [float(v) for v in ((1 - f) * np.array([1.0, 1.0]) + f * np.array(s))] for f in spathfrac[:npts]
             ]
     else:
-        scalevals = [[float(x), float(x)] if isinstance(x, (int, float)) else [float(x[0]), float(x[1])] for x in scale]  # type: ignore[index]
+        scalevals = [[float(x), float(x)] if isinstance(x, (int, float)) else [float(x[0]), float(x[1])] for x in scale]
     scale_list = [_scale4([sv[0], sv[1], 1.0]) for sv in scalevals]
     if closed:
         scale_list.append(_scale4([scalevals[0][0], scalevals[0][1], 1.0]))
@@ -554,7 +554,7 @@ def skin(
     fixedprof = [resampled[0]]
     for i in range(1, sides):
         if method[i - 1] == "direct":
-            fixedprof.append(resampled[i])  # type: ignore[arg-type]
+            fixedprof.append(resampled[i])
         else:
             fixedprof.append(_reindex_polygon(fixedprof[i - 1], resampled[i]))  # type: ignore[arg-type]
     sliced = slice_profiles(fixedprof, slices, closed)  # type: ignore[arg-type]

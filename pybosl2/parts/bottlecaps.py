@@ -35,11 +35,10 @@ from pybosl2._helpers import union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, RIGHT
 from pybosl2.distributors import zrot_copies
-from pybosl2.drawing import turtle
 from pybosl2.parts.threading import Threading
 from pybosl2.shapes3d import Bosl2Solid, cyl, prismoid
-from pybosl2.turtle3d import TurtleCommand
-from pybosl2.turtle3d import TurtleCommandType as TCT  # noqa: N817
+from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
+from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon
@@ -164,13 +163,13 @@ _PCO1881 = BottleThreadSpec(
 
 
 def _turtle_start(x, y=0.0):
-    """Full turtle state starting at (x, y) heading +X (this port's turtle needs full state)."""
-    return [[[float(x), float(y)]], [1.0, 0.0], 90.0, 0.0]
+    """Turtle state starting at (x, y) heading +X."""
+    return Turtle2DState(path=[[float(x), float(y)]])
 
 
 def _pco1810_profile(diameter: "BottleThreadSpec"):
     height = diameter.support_h + diameter.neck_h
-    return turtle(
+    return turtle2d(
         [
             TurtleCommand(TCT.UNTILX, size=diameter.neck_d / 2),
             TurtleCommand(TCT.LEFT, angle=90),
@@ -208,7 +207,7 @@ def _pco1810_profile(diameter: "BottleThreadSpec"):
 
 def _pco1881_profile(diameter: "BottleThreadSpec"):
     height = diameter.support_h + diameter.neck_h
-    return turtle(
+    return turtle2d(
         [
             TurtleCommand(TCT.UNTILX, size=diameter.neck_d / 2),
             TurtleCommand(TCT.LEFT, angle=90),

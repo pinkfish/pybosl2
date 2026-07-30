@@ -52,12 +52,12 @@ class Vec3(list[float]):
         return Vec3(-a for a in self)
 
     @override
-    def __mul__(self, other: SupportsIndex) -> Vec3:  # type: ignore[override]
+    def __mul__(self, other: SupportsIndex) -> Vec3:
         if not isinstance(other, (int, float)):
             return NotImplemented
         return Vec3(a * other for a in self)
 
-    __rmul__ = __mul__  # type: ignore[assignment]
+    __rmul__ = __mul__
 
 
 LEFT: Vec3 = Vec3([-1, 0, 0])

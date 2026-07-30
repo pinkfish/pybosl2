@@ -126,13 +126,13 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
     if cptype == "flat":
         return Path2D([[0, 0], [1, 0]])
     if cptype == "sawtooth":
-        return Path2D([[0, 0], [0.5, 1], [1, 0]])  # type: ignore[arg-type]
+        return Path2D([[0, 0], [0.5, 1], [1, 0]])
     if cptype == "sinewave":
         return Path2D([[a / 360, math.sin(math.radians(a)) / 2] for a in range(0, 361, 5)])
     if cptype == "comb":
         dx = 0.5 * math.sin(math.radians(2))
-        return Path2D(  # type: ignore[arg-type]
-            [  # type: ignore[arg-type]
+        return Path2D(
+            [
                 [0, 0],
                 [dx, 0.5],
                 [0.5 - dx, 0.5],
@@ -143,8 +143,8 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
         )
     if cptype == "finger":
         dx = 0.5 * math.sin(math.radians(20))
-        return Path2D(  # type: ignore[arg-type]
-            [  # type: ignore[arg-type]
+        return Path2D(
+            [
                 [0, 0],
                 [dx, 0.5],
                 [0.5 - dx, 0.5],
@@ -260,7 +260,7 @@ def _ptn_sect(
 
     if is_num(cptype):
         assert cptype > 0, "flat section length must be positive."  # type: ignore[operator]
-        return Path2D([[0, 0], [float(cptype), 0]])  # type: ignore[arg-type]
+        return Path2D([[0, 0], [float(cptype), 0]])
     if invert:
         return _yscale(-1, _ptn_sect(cptype, length, width, fn=fn, fa=fa, fs=fs))
 
@@ -316,7 +316,7 @@ def _ptn_sect(
                 return raw
             return Path2D([[(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]] for p in raw])
         if base == "flat" and opt and opt[0].isdigit() and "x" not in opt and ":" not in opt:
-            return Path2D([[0, 0], [float(opt), 0]])  # type: ignore[arg-type]
+            return Path2D([[0, 0], [float(opt), 0]])
         raise AssertionError(f"Bad section option: {opt!r}")
 
     if cptype == "sinewave":
@@ -520,7 +520,7 @@ def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = Tr
     for pt in minor3:
         pinfo = Path2D(major3).cut_points(max(0.0, pt[0]), closed=False, direction=True)[0]
         base = np.asarray(pinfo.point)
-        tangent = unit(np.asarray(pinfo.normal), [0.0, 1.0])  # type: ignore[attr-defined]
+        tangent = unit(np.asarray(pinfo.normal), [0.0, 1.0])
         out.append(list(base + tangent * pt[1]))
     return _merge_collinear(_dedup(out))
 
@@ -548,7 +548,7 @@ def _partition_mask_shape(
     from pythonscad import polygon as _polygon
     from pythonscad import square as _square
 
-    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
+    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]
     path = _partition_cutpath(length, h, cs, cutpath, gap, cutpath_centered, fn, fa, fs)  # type: ignore[arg-type]
     ww = w * (-1 if inverse else 1)
     fullpath = list(path) + [[path[-1][0], ww], [path[0][0], ww]]
@@ -644,7 +644,7 @@ def partition_cut_mask(
     from pybosl2.drawing import stroke as _stroke
     from pybosl2.shapes3d import Bosl2Solid
 
-    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
+    cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]
     path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs)  # type: ignore[arg-type]
     ribbon = _stroke(path, width=max(0.1, slop * 2))
     return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
@@ -672,7 +672,7 @@ class Partitionable(ABC):
     """
 
     @abstractmethod
-    def _wrap(self, new_shape: Any) -> Self:  # type: ignore[valid-type]  # pragma: no cover
+    def _wrap(self, new_shape: Any) -> Self:  # pragma: no cover
         """Re-wrap a native shape as the host solid type."""
         raise NotImplementedError
 
@@ -727,7 +727,7 @@ class Partitionable(ABC):
         cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
-    ) -> Self:  # type: ignore[valid-type]
+    ) -> Self:
         """Keep the half of this solid on the side the normal *v* points to (BOSL2 half_of()).
 
         *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*
@@ -763,7 +763,7 @@ class Partitionable(ABC):
         cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
-    ) -> Self:  # type: ignore[valid-type]
+    ) -> Self:
         """Keep the left (-X) half, cut at ``X=x`` (BOSL2 left_half())."""
         return self.half_of(
             LEFT,
@@ -781,7 +781,7 @@ class Partitionable(ABC):
         cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
-    ) -> Self:  # type: ignore[valid-type]
+    ) -> Self:
         """Keep the right (+X) half, cut at ``X=x`` (BOSL2 right_half())."""
         return self.half_of(
             RIGHT,
@@ -799,7 +799,7 @@ class Partitionable(ABC):
         cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
-    ) -> Self:  # type: ignore[valid-type]
+    ) -> Self:
         """Keep the front (-Y) half, cut at ``Y=y`` (BOSL2 front_half())."""
         return self.half_of(
             FRONT,
@@ -817,7 +817,7 @@ class Partitionable(ABC):
         cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
-    ) -> Self:  # type: ignore[valid-type]
+    ) -> Self:
         """Keep the back (+Y) half, cut at ``Y=y`` (BOSL2 back_half())."""
         return self.half_of(
             BACK,
@@ -835,7 +835,7 @@ class Partitionable(ABC):
         cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
-    ) -> Self:  # type: ignore[valid-type]
+    ) -> Self:
         """Keep the bottom (-Z) half, cut at ``Z=z`` (BOSL2 bottom_half())."""
         return self.half_of(
             DOWN,
@@ -853,7 +853,7 @@ class Partitionable(ABC):
         cut_path: Path2D | None = None,
         cut_angle: float = 0,
         offset: float = 0,
-    ) -> Self:  # type: ignore[valid-type]
+    ) -> Self:
         """Keep the top (+Z) half, cut at ``Z=z`` (BOSL2 top_half())."""
         return self.half_of(
             UP,
@@ -876,7 +876,7 @@ class Partitionable(ABC):
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> list[Self]:  # type: ignore[valid-type]
+    ) -> list[Self]:
         """Cut this solid into two interlocking pieces, spread apart (BOSL2 partition()).
 
         Returns ``[back_piece, front_piece]`` -- the two halves with matched joining edges, moved
@@ -926,7 +926,7 @@ class Partitionable(ABC):
 
 
 def _rot4(angle_axis: Sequence[Any]) -> np.ndarray:
-    angle: float = angle_axis[0]  # type: ignore[assignment]
+    angle: float = angle_axis[0]
     axis: Any = angle_axis[1]
     m = np.eye(4)
     m[:3, :3] = axis_angle_matrix(angle, axis)
