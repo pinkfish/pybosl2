@@ -44,7 +44,7 @@ from pybosl2.geometry import (
     line_normal,
     pointlist_bounds,
 )
-from pybosl2.math import EPSILON
+from pybosl2.math import EPSILON, lerpn
 from pybosl2.miscellaneous import Extrudable
 from pybosl2.paths import (
     CutPoint,
@@ -71,7 +71,80 @@ from pybosl2.rounding import Roundable
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import unit
 
-__all__ = ["Path2D", "MinkowskiJoin"]
+__all__ = ["Path2D", "MinkowskiJoin", "catenary"]
+
+
+def catenary(
+    width: float,
+    droop: float | None = None,
+    sides: int = 100,
+    angle: float | None = None,
+) -> Path2D:
+    """The catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.
+
+    Give exactly one of *droop* (how far the middle hangs below the endpoints) or *angle* (the
+    slope in degrees at the endpoints). The curve passes through ``[-width/2, 0]`` and
+    ``[width/2, 0]`` and hangs downward (negative *droop*/*angle* flips it upward). This is BOSL2's
+    ``catenary()``.
+
+    Args:
+        width: horizontal distance between the endpoints (> 0)
+        droop: how far the midpoint hangs below the endpoints (give this or *angle*)
+        sides:     number of points along the curve (default 100)
+        angle: endpoint slope in degrees, ``0 < |angle| < 90`` (give this or *droop*)
+
+    Examples:
+        A hanging arch, stroked into a 2-mm ribbon and extruded into a wall:
+
+        .. pythonscad-example::
+
+            catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()
+    """
+    assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
+    assert width > 0, "catenary() needs width > 0."
+    assert isinstance(sides, int) and sides > 0, "catenary() needs a positive integer sides."
+    given = droop if droop is not None else angle
+    assert given is not None
+    sgn = int(math.copysign(1, given))
+    droop_a = None if droop is None else abs(droop)
+    angle_a = None if angle is None else abs(angle)
+    assert angle_a is None or (0 < angle_a < 90), "catenary() angle must satisfy 0 < |angle| < 90."
+
+    if droop_a is None:  # solve for the scale that gives the requested endpoint slope
+        assert angle_a is not None
+
+        def slope_fn(x):
+            p1 = math.cosh(x - 0.001) - 1
+            p2 = math.cosh(x + 0.001) - 1
+            return math.degrees(math.atan2(p2 - p1, 0.002))
+
+        target, f = angle_a, slope_fn
+    else:  # solve for the scale that gives the requested droop
+
+        def droop_fn(x):
+            return (math.cosh(x) - 1) / x if x != 0 else 0.0
+
+        target, f = droop_a / (width / 2), droop_fn
+
+    # binary search on x for f(x) == target (f is monotonic increasing away from 0)
+    x, inc = 0.0, 4.0
+    while inc >= 1e-9:
+        if f(x + inc) > target:
+            inc /= 2
+        else:
+            x += inc
+    scx = x
+    sc = (width / 2) / scx
+    droop_v = droop_a if droop_a is not None else (math.cosh(scx) - 1) * sc
+    pts = []
+    for xv in lerpn(-scx, scx, sides):
+        xval = xv * sc
+        yval = 0.0 if abs(abs(xv) - scx) < 1e-9 else (math.cosh(xv) - 1) * sc - droop_v
+        pts.append([xval, yval])
+    if sgn < 0:
+        pts = [[p[0], -p[1]] for p in pts]
+    return Path2D(pts, closed=False)
+
 
 # Section: Path2D object
 # ---------------------------------------------------------------------------
@@ -393,7 +466,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_cuts_normals(self._points, closed, cuts, dirs)
 
-    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector] | None":
+    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
         Args:

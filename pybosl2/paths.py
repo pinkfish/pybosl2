@@ -437,7 +437,10 @@ def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], d
         plane = None
         if len(points) >= 3:
             start = max(min(cuts[i].next_index, len(points) - 1), 2)
-            plane = _path_plane(points, closed, start, start - 2)
+            try:
+                plane = _path_plane(points, closed, start, start - 2)
+            except ValueError:
+                plane = None
         if plane is None:
             if dirs[i][0] == 0 and dirs[i][1] == 0:
                 out.append(Vector([1, 0, 0]))
@@ -450,7 +453,7 @@ def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], d
     return out
 
 
-def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vector] | None:
+def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vector]:
     """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
     Args:
@@ -459,7 +462,10 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vect
         closed: Whether the path is closed.
 
     Returns:
-        A list of two :class:`Vector` basis vectors defining the local plane, or None.
+        A list of two :class:`Vector` basis vectors defining the local plane.
+
+    Raises:
+        ValueError: If no non-collinear point is found within the search range.
     """
     lower = -1 if closed else 0
     while i >= lower:
@@ -470,7 +476,7 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vect
                 Vector([float(a - b) for a, b in zip(points[ind], points[ind - 1], strict=False)]),
             ]
         i -= 1
-    return None
+    raise ValueError("No non-collinear point found to define a local plane.")
 
 
 def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: float = 1e-2) -> list[Vector]:
@@ -959,7 +965,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def plane(self, ind: int, i: int, closed: bool = False) -> list[Vector] | None:
+    def plane(self, ind: int, i: int, closed: bool = False) -> list[Vector]:
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
         Args:

@@ -12,6 +12,7 @@ and transforms while omitting inherently 2-D operations (polygon, area, offset).
 
 from __future__ import annotations
 
+import math
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
 from pybosl2.bounds import Bounds3D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.distributors import Distributable, _apply4
+from pybosl2.math import lerp, lerpn
 from pybosl2.miscellaneous import Extrudable
 from pybosl2.path2d import Path2D
 from pybosl2.paths import (
@@ -53,9 +55,83 @@ from pybosl2.paths import (
     _subdivide_path,
 )
 from pybosl2.rounding import Roundable
+from pybosl2.shapes2d import _frag_count, _pick_radius
 from pybosl2.skin import Sweepable
 
-__all__ = ["Path3D"]
+__all__ = ["Path3D", "helix"]
+
+
+def helix(
+    length: float | None = None,
+    height: float | None = None,
+    turns: float | None = None,
+    angle: float | None = None,
+    radius: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+) -> Path3D:
+    """A 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
+
+    Returned as a :class:`~pybosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
+    transforms/measurements and feeds straight into :func:`stroke` or ``path_sweep``. Give
+    exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*
+    is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
+    spiral is ``height=0`` with a turn count).
+
+    Args:
+        length/height:     height of the helix (0 for a flat spiral)
+        turns:   number of turns (positive = right-handed)
+        angle:   helix angle in degrees (measured at the base radius)
+        radius/diameter:     radius / diameter (constant helix)
+        radius1/diameter1:   bottom radius / diameter
+        radius2/diameter2:   top radius / diameter
+
+    Examples:
+        A 2.5-turn helix drawn as a tube:
+
+        .. pythonscad-example::
+
+            stroke(helix(turns=2.5, height=100, radius=30), width=3).show()
+    """
+    r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
+    r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    length = length if length is not None else height
+    assert sum(v is not None for v in (length, turns, angle)) == 2, (
+        "helix() needs exactly two of length/height, turns, and angle."
+    )
+    assert angle is None or length != 0, "helix() cannot take an angle with length 0."
+    if angle is not None and length != 0:
+        dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
+    else:
+        assert length is not None and turns is not None  # else-branch only reached with both set
+        dz = length / abs(turns)
+    if turns is not None:
+        maxtheta = 360.0 * turns
+    else:
+        assert length is not None
+        maxtheta = 360.0 * length / dz
+    nseg = _frag_count(max(r1v, r2v))
+    count = max(3, math.ceil(abs(maxtheta) * nseg / 360))
+    out = []
+    for theta in lerpn(0, maxtheta, count):
+        radius = lerp(r1v, r2v, theta / maxtheta) if maxtheta != 0 else r1v
+        out.append(
+            [
+                radius * math.cos(math.radians(theta)),
+                radius * math.sin(math.radians(theta)),
+                abs(theta) / 360.0 * dz,
+            ]
+        )
+    return Path3D(out, closed=False)
+
+
+# --- turtle ----------------------------------------------------------------
+
+_TURTLE_TWO_ARG = ("arcleft", "arcright", "arcleftto", "arcrightto")
+
 
 # Section: Path3D object
 # ---------------------------------------------------------------------------
@@ -321,7 +397,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_cuts_normals(self._points, closed, cuts, dirs)
 
-    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector] | None":
+    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
         Args:
