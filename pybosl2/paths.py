@@ -16,6 +16,7 @@ Concrete math helpers live in :mod:`pybosl2._path_math`.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -30,7 +31,14 @@ if TYPE_CHECKING:
 
     from pybosl2.points import Point, Vector
 
-__all__ = ["CutPoint", "Path"]
+__all__ = ["CutPoint", "Path", "SubdivideMethod"]
+
+
+class SubdivideMethod(Enum):
+    """Method for subdividing a path."""
+
+    LENGTH = "length"
+    SEGMENT = "segment"
 
 
 # -- Path -- dimension-agnostic path-math kernels shared by Path2D and Path3D
@@ -281,14 +289,22 @@ class Path(ABC):
     @abstractmethod
     def subdivide_path(
         self,
-        sides: int | None = None,
+        points: int | None = None,
+        points_per_segment: Sequence[int] | None = None,
+        maxlen: float | None = None,
+        exact: bool = True,
         closed: bool | None = None,
+        method: SubdivideMethod = SubdivideMethod.LENGTH,
     ) -> Path:
-        """Subdivide the path into *sides* evenly spaced points.
+        """Subdivide the path into evenly spaced points.
 
         Args:
-            sides: Target number of points (defaults to current point count).
+            points: Target total number of points.
+            points_per_segment: Number of points to add to each segment index.
+            maxlen: Maximum allowed segment length.
+            exact: If False, favor uniform sampling — point count may differ.
             closed: Override the instance's closed flag.
+            method: Subdivision method — ``LENGTH`` (uniform along path) or ``SEGMENT`` (per segment).
 
         Returns:
             A new path with the subdivided points.

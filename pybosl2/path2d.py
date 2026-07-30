@@ -46,6 +46,7 @@ from pybosl2._path_math import (
     _path_select,
     _path_tangents,
     _path_torsion,
+    _subdivide_path,
 )
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
@@ -64,6 +65,7 @@ from pybosl2.miscellaneous import Extrudable
 from pybosl2.paths import (
     CutPoint,
     Path,
+    SubdivideMethod,
 )
 from pybosl2.points import Point
 from pybosl2.rounding import Roundable
@@ -518,17 +520,37 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def subdivide_path(
         self,
-        sides: int | None = None,
+        points: int | None = None,
+        points_per_segment: Sequence[int] | None = None,
+        maxlen: float | None = None,
+        exact: bool = True,
         closed: bool | None = None,
+        method: SubdivideMethod = SubdivideMethod.LENGTH,
     ) -> "Path2D":
         if closed is None:
             closed = self.closed
+        if method == SubdivideMethod.SEGMENT or points_per_segment is not None:
+            pts = _subdivide_path(
+                self._points, closed, sides=points or len(self._points), maxlen=maxlen, exact=exact, method=method.value
+            )
+            return self.__class__(pts, closed=self.closed)
         ls = self._shapely
         total = ls.length
         if total < 1e-12:
             return self.__class__(self._points.tolist(), closed=self.closed)
 
-        n = sides if sides is not None else len(self._points)
+        # Determine target point count
+        n = 0
+        if points is not None:
+            n = int(points)
+        elif maxlen is not None:
+            n = max(2, int(total / maxlen) + 1)
+        else:
+            n = len(self._points)
+
+        if not exact and maxlen is not None:
+            n = max(2, int(total / maxlen) + 1)
+
         pts = []
         step = total / (n - 1) if n > 1 else total
         for i in range(n):
@@ -784,6 +806,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result = pts.subdivide(sides=24)
                 result.stroke(width=1).linear_extrude(h=4).show()
         """
+        if "sides" in kwargs:
+            kwargs.setdefault("points", kwargs.pop("sides"))
+        if "refine" in kwargs:
+            r = kwargs.pop("refine")
+            kwargs.setdefault("points", int(len(self._points) * r))
+        kwargs.pop("method", None)
         return self.subdivide_path(**kwargs)
 
     def resample(self, **kwargs: Any) -> "Path2D":

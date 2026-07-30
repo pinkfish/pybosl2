@@ -56,6 +56,7 @@ from pybosl2.path2d import Path2D
 from pybosl2.paths import (
     CutPoint,
     Path,
+    SubdivideMethod,
 )
 from pybosl2.rounding import Roundable
 from pybosl2.shapes2d import _frag_count, _pick_radius
@@ -429,21 +430,36 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def subdivide_path(
         self,
-        sides: int | None = None,
+        points: int | None = None,
+        points_per_segment: Sequence[int] | None = None,  # noqa: ARG002
+        maxlen: float | None = None,
+        exact: bool = True,
         closed: bool | None = None,
+        method: SubdivideMethod = SubdivideMethod.LENGTH,
     ) -> "Path3D":
-        """Subdivide the path into *sides* evenly spaced points.
+        """Subdivide the path into evenly spaced points.
 
         Args:
-            sides: Target number of points (defaults to current count).
+            points: Target total number of points.
+            points_per_segment: Number of points to add to each segment index.
+            maxlen: Maximum allowed segment length.
+            exact: If False, favor uniform sampling — point count may differ.
             closed: Override the instance's closed flag.
+            method: ``LENGTH`` (uniform) or ``SEGMENT`` (per segment).
 
         Returns:
             A new :class:`Path3D` with the subdivided points.
         """
         if closed is None:
             closed = self.closed
-        pts = _subdivide_path(self._points, closed, sides=sides)  # type: ignore[arg-type]
+        pts = _subdivide_path(
+            self._points,
+            closed,
+            sides=points,  # type: ignore[arg-type]
+            maxlen=maxlen,
+            exact=exact,
+            method=method.value,
+        )
         return self.__class__(pts, closed=self.closed)
 
     def resample_path(
@@ -554,6 +570,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A new :class:`Path3D` with additional interpolated points.
         """
+        if "sides" in kwargs:
+            kwargs.setdefault("points", kwargs.pop("sides"))
+        if "refine" in kwargs:
+            r = kwargs.pop("refine")
+            kwargs.setdefault("points", int(len(self._points) * r))
+        kwargs.pop("method", None)
         return self.subdivide_path(**kwargs)
 
     def resample(self, **kwargs: Any) -> "Path3D":
