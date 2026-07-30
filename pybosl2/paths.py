@@ -114,7 +114,7 @@ def _path_segment_lengths(points: np.ndarray, closed: bool) -> NDArray[np.float6
     lens = np.linalg.norm(np.diff(points, axis=0), axis=1)
     if closed:
         lens = np.append(lens, np.linalg.norm(points[0] - points[-1]))
-    return lens  # type: ignore[return-value]
+    return lens
 
 
 def _path_length_fractions(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
@@ -234,7 +234,7 @@ def _path_curvature(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
     n2 = np.linalg.norm(diameter2, axis=1)
     dot = np.einsum("ij,ij->i", diameter1, diameter2)
     val = np.clip((n1 * n2) ** 2 - dot**2, 0.0, None)
-    return np.sqrt(val) / n1**3  # type: ignore[return-value]
+    return np.sqrt(val) / n1**3
 
 
 def _path_torsion(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
@@ -252,7 +252,7 @@ def _path_torsion(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
     crossterm = np.cross(diameter1, diameter2)
     dot = np.einsum("ij,ij->i", crossterm, d3)
     denom = np.einsum("ij,ij->i", crossterm, crossterm)
-    return dot / denom  # type: ignore[return-value]
+    return dot / denom
 
 
 # -- Breaking paths up into subpaths ---------------------------------------------------
@@ -273,7 +273,7 @@ def _path_cut(points: np.ndarray, closed: bool, cutdist: float | Sequence[float]
     assert isinstance(cutdist, (list, tuple, np.ndarray))
     assert cutdist[-1] < _path_total_length(points, closed), "Cut distances must be smaller than the path length"
     assert cutdist[0] > 0, "Cut distances must be strictly positive"
-    cutlist: list[CutPoint] = _path_cut_points(points, closed, cutdist)  # type: ignore[assignment]
+    cutlist: list[CutPoint] = _path_cut_points(points, closed, cutdist)
     return _path_cut_getpaths(points, closed, cutlist)
 
 

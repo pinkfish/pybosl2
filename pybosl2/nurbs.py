@@ -386,7 +386,7 @@ def nurbs_patch_points(
 
     degree_list = _force_list2(degree)
     type_list = _force_list2(type)
-    splinesteps_list = [None, None] if splinesteps is None else _force_list2(splinesteps)  # type: ignore[assignment]
+    splinesteps_list = [None, None] if splinesteps is None else _force_list2(splinesteps)
     mult = [mult, mult] if (mult is None or is_num(mult) or (mult and is_num(mult[0]))) else list(mult)
     knots = [knots, knots] if (knots is None or (knots and is_num(knots[0]))) else list(knots)
 

@@ -1587,7 +1587,7 @@ def right_triangle(
         anchor: anchor point (default: [-1,-1], the right-angle corner)
         spin:   Z-axis rotation in degrees after anchor (default 0)
     """
-    sz = [size, size] if isinstance(size, (int, float)) else list(size)  # type: ignore[arg-type]
+    sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
     if anchor is not None:
         use_anchor = anchor
     elif center:

@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 from pybosl2._native import native
 from pybosl2.drawing import turtle2d
 from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.turtle2d import TurtleState
+from pybosl2.turtle2d import Turtle2DState
 from pybosl2.turtle3d import TurtleCommand
 from pybosl2.turtle3d import TurtleCommandType as TCT  # noqa: N817
 
@@ -40,7 +40,7 @@ _SQRT2 = math.sqrt(2)
 
 def _ts(x):
     """Full turtle state starting at (x, 0) heading +X."""
-    return TurtleState(path=[[float(x), 0.0]])
+    return Turtle2DState(path=[[float(x), 0.0]])
 
 
 # Ball ("small") end cross-section, one per size (1/4", 1/2", 3/4"), from modular_hose.scad.

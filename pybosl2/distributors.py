@@ -519,9 +519,9 @@ def path_copies(
         if not rotate_children:
             rotm = np.eye(4)
         elif planar:
-            rotm = rot_from_to4([0, 1, 0], _scalar_vec3(cp.normal, 0.0))  # type: ignore[attr-defined]
+            rotm = rot_from_to4([0, 1, 0], _scalar_vec3(cp.normal, 0.0))
         else:
-            rotm = _frame_map4(x=cp.direction, z=cp.normal)  # type: ignore[attr-defined]
+            rotm = _frame_map4(x=cp.direction, z=cp.normal)
         mats.append(base @ rotm)
     return mats
 

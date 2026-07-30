@@ -377,7 +377,7 @@ class Roundable:
             joint=joint,
             width=width,
             curvature=curv,
-            closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
+            closed=self.closed if closed is None else closed,
             **kwargs,
         )
 
@@ -398,7 +398,7 @@ class Roundable:
             relsize=relsize,
             splinesteps=splinesteps,
             uniform=uniform,
-            closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
+            closed=self.closed if closed is None else closed,
         )
 
     def offset_stroke(

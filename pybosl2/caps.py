@@ -178,7 +178,7 @@ def _norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
         return []
 
     if isinstance(caps, (list, tuple, np.ndarray)):
-        return [_normalize_one(c) for c in caps[:2]]  # type: ignore[arg-type]
+        return [_normalize_one(c) for c in caps[:2]]
     result = _normalize_one(caps)  # type: ignore[arg-type]
     return [result, result]
 
@@ -297,7 +297,7 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
         cos_a = math.cos(math.radians(spec.angle))
         sin_a = math.sin(math.radians(spec.angle))
         rot = np.array([[cos_a, -sin_a], [sin_a, cos_a]])
-        poly = [(p @ rot.T).astype(float) for p in poly]  # type: ignore[attr-defined]
+        poly = [(p @ rot.T).astype(float) for p in poly]
     return poly
 
 

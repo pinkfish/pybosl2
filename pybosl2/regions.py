@@ -225,7 +225,7 @@ class Region:
 
     def round_corners(
         self,
-        radius: float | list[float] | None = None,  # type: ignore[arg-type]
+        radius: float | list[float] | None = None,
         method: str = "circle",
         cut: float | None = None,
         joint: float | None = None,
@@ -250,7 +250,7 @@ class Region:
         """
         return Region(
             [
-                p.round_corners(  # type: ignore[arg-type]
+                p.round_corners(
                     radius=radius,  # type: ignore[arg-type]
                     method=method,
                     cut=cut,
@@ -261,7 +261,7 @@ class Region:
                 )
                 for p in self.paths
             ]
-        )  # type: ignore[arg-type]
+        )
 
     def translate(self, v: Sequence[float]) -> "Region":
         """Translate every path in the region by the given vector.

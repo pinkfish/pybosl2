@@ -138,7 +138,7 @@ def union(shapes: Any) -> Any:
     """
     Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``).
     """
-    return reduce(operator.or_, shapes)  # type: ignore[arg-type]
+    return reduce(operator.or_, shapes)
 
 
 # ---------------------------------------------------------------------------

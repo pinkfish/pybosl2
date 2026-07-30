@@ -38,7 +38,7 @@ from pybosl2.distributors import zrot_copies
 from pybosl2.drawing import turtle2d
 from pybosl2.parts.threading import Threading
 from pybosl2.shapes3d import Bosl2Solid, cyl, prismoid
-from pybosl2.turtle2d import TurtleState
+from pybosl2.turtle2d import Turtle2DState
 from pybosl2.turtle3d import TurtleCommand
 from pybosl2.turtle3d import TurtleCommandType as TCT  # noqa: N817
 
@@ -166,7 +166,7 @@ _PCO1881 = BottleThreadSpec(
 
 def _turtle_start(x, y=0.0):
     """Turtle state starting at (x, y) heading +X."""
-    return TurtleState(path=[[float(x), float(y)]])
+    return Turtle2DState(path=[[float(x), float(y)]])
 
 
 def _pco1810_profile(diameter: "BottleThreadSpec"):

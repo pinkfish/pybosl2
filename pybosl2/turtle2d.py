@@ -28,6 +28,7 @@ import numpy as np
 
 from pybosl2.geometry import general_line_intersection, line_normal
 from pybosl2.path2d import Path2D
+from pybosl2.points import Point
 from pybosl2.shapes2d import _frag_count, arc
 from pybosl2.turtle3d import TurtleCommand, TurtleCommandType
 from pybosl2.vectors import unit
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
 
-__all__ = ["turtle2d", "Turtle2D", "TurtleState", "TurtleCommand", "TurtleCommandType"]
+__all__ = ["turtle2d", "Turtle2D", "Turtle2DState", "TurtleCommand", "TurtleCommandType"]
 
 # -- commands that involve the z-axis and are therefore illegal in 2-D -------
 
@@ -62,8 +63,6 @@ _Z_AXIS_COMMANDS: frozenset[TurtleCommandType] = frozenset(
     }
 )
 
-_Z_SUB_OPTIONS: frozenset[str] = frozenset({"up", "down", "xrot", "yrot"})
-
 # -- helpers -----------------------------------------------------------------
 
 
@@ -74,11 +73,11 @@ def _rot2(deg: float, v: Sequence[float] | np.ndarray) -> np.ndarray:
     return np.array([c * x - s * y, s * x + c * y])
 
 
-# -- TurtleState -------------------------------------------------------------
+# -- Turtle2DState -------------------------------------------------------------
 
 
 @dataclass
-class TurtleState:
+class Turtle2DState:
     """Immutable snapshot of the 2-D turtle's position, heading, and settings.
 
     Attributes:
@@ -93,12 +92,12 @@ class TurtleState:
     angle: float = 90.0
     arcsteps: int = 0
 
-    def with_point(self, pt: ArrayLike) -> TurtleState:
+    def with_point(self, pt: ArrayLike) -> Turtle2DState:
         """Return a new state with *pt* appended to the path."""
         arr = np.asarray(pt, dtype=float)
         return replace(self, path=self.path + [[float(arr[0]), float(arr[1])]])
 
-    def with_step(self, v: ArrayLike) -> TurtleState:
+    def with_step(self, v: ArrayLike) -> Turtle2DState:
         """Return a new state with the step vector set to *v*."""
         arr = np.asarray(v, dtype=float)
         return replace(self, step=[float(arr[0]), float(arr[1])])
@@ -120,34 +119,35 @@ class TurtleState:
 class Turtle2D:
     """A 2-D turtle: walk it with a command list to produce a 2-D path.
 
-    The turtle starts at the origin pointing along +X with a step length of 1.
-    The turtle's internal state is a :class:`TurtleState` instance accessible
-    via :meth:`full_state`.
+        The turtle starts at the origin pointing along +X with a step length of 1.
+        The turtle's internal state is a :class:`Turtle2DState` instance accessible
+        via :meth:`full_state`.
 
-    Examples:
-        A rounded-corner square:
+        Examples:
+            A rounded-corner square:
 
-        .. pythonscad-example::
+            .. pythonscad-example::
 
-            from pybosl2.turtle2d import Turtle2D
-            from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct
+                from pybosl2.turtle2d import Turtle2D
+                from pybosl2.points import Point
+    from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct
 
-            cmds = [
-                TurtleCommand(Tct.MOVE, size=40),
-                TurtleCommand(Tct.ARCLEFT, radius=8),
-                TurtleCommand(Tct.MOVE, size=40),
-                TurtleCommand(Tct.ARCLEFT, radius=8),
-                TurtleCommand(Tct.MOVE, size=40),
-                TurtleCommand(Tct.ARCLEFT, radius=8),
-                TurtleCommand(Tct.MOVE, size=40),
-                TurtleCommand(Tct.ARCLEFT, radius=8),
-            ]
-            path = Turtle2D().run(cmds).points()
-            path.stroke(width=3, closed=True).linear_extrude(height=4).show()
+                cmds = [
+                    TurtleCommand(Tct.MOVE, size=40),
+                    TurtleCommand(Tct.ARCLEFT, radius=8),
+                    TurtleCommand(Tct.MOVE, size=40),
+                    TurtleCommand(Tct.ARCLEFT, radius=8),
+                    TurtleCommand(Tct.MOVE, size=40),
+                    TurtleCommand(Tct.ARCLEFT, radius=8),
+                    TurtleCommand(Tct.MOVE, size=40),
+                    TurtleCommand(Tct.ARCLEFT, radius=8),
+                ]
+                path = Turtle2D().run(cmds).points()
+                path.stroke(width=3, closed=True).linear_extrude(height=4).show()
     """
 
-    def __init__(self, state: TurtleState | None = None) -> None:
-        self._state = state if state is not None else TurtleState()
+    def __init__(self, state: Turtle2DState | None = None) -> None:
+        self._state = state if state is not None else Turtle2DState()
 
     # -- public API ----------------------------------------------------------
 
@@ -166,8 +166,8 @@ class Turtle2D:
         """Return the path the turtle has traversed as a :class:`Path2D`."""
         return Path2D(self._state.path, closed=False)
 
-    def full_state(self) -> TurtleState:
-        """Return the turtle's internal :class:`TurtleState`."""
+    def full_state(self) -> Turtle2DState:
+        """Return the turtle's internal :class:`Turtle2DState`."""
         return self._state
 
     # -- command dispatch ----------------------------------------------------
@@ -179,7 +179,7 @@ class Turtle2D:
             ValueError: If *cmd* involves the z-axis or is an unknown command.
         """
         if cmd.cmd_type in _Z_AXIS_COMMANDS:
-            if cmd.cmd_type == TurtleCommandType.XYZMOVE and cmd.options.get("is_2d_vector"):
+            if cmd.cmd_type == TurtleCommandType.XYZMOVE:
                 self._xymove(cmd.size, index)
                 return
             raise ValueError(
@@ -187,8 +187,8 @@ class Turtle2D:
             )
 
         if cmd.cmd_type == TurtleCommandType.REPEAT:
-            sub_cmds: list[TurtleCommand] = cmd.options.get("commands", [])
-            for _ in range(int(cmd.size)):
+            sub_cmds: list[TurtleCommand] = cmd.sub_commands or []
+            for _ in range(int(self._n(cmd.size))):
                 for si, sc in enumerate(sub_cmds):
                     self._command(sc, si)
             return
@@ -200,32 +200,33 @@ class Turtle2D:
         ct = cmd.cmd_type
         lastpt = self._state.lastpt
         step = self._state.step_arr
-        size = cmd.size if isinstance(cmd.size, (int, float)) else None
+        size = self._n(cmd.size)
         ang = cmd.angle if isinstance(cmd.angle, (int, float)) else None
 
         if ct == TurtleCommandType.MOVE:
-            self._state = self._state.with_point((size if size is not None else 1) * step + lastpt)
+            self._state = self._state.with_point((size or 1.0) * step + lastpt)
         elif ct == TurtleCommandType.XMOVE:
             self._state = self._state.with_point(
-                (size if size is not None else 1) * np.linalg.norm(step) * np.array([1.0, 0.0]) + lastpt,
+                (size or 1.0) * np.linalg.norm(step) * np.array([1.0, 0.0]) + lastpt,
             )
         elif ct == TurtleCommandType.YMOVE:
             self._state = self._state.with_point(
-                (size if size is not None else 1) * np.linalg.norm(step) * np.array([0.0, 1.0]) + lastpt,
+                (size or 1.0) * np.linalg.norm(step) * np.array([0.0, 1.0]) + lastpt,
             )
         elif ct == TurtleCommandType.JUMP:
-            self._state = self._state.with_point([float(cmd.size[0]), float(cmd.size[1])])
+            px, py, _ = self._xyz(cmd.size)
+            self._state = self._state.with_point([px, py])
         elif ct == TurtleCommandType.XJUMP:
-            self._state = self._state.with_point([float(cmd.size), float(lastpt[1])])
+            self._state = self._state.with_point([self._n(cmd.size, float(lastpt[1])), float(lastpt[1])])
         elif ct == TurtleCommandType.YJUMP:
-            self._state = self._state.with_point([float(lastpt[0]), float(cmd.size)])
+            self._state = self._state.with_point([float(lastpt[0]), self._n(cmd.size, float(lastpt[0]))])
         elif ct == TurtleCommandType.UNTILX:
-            res = general_line_intersection([lastpt, lastpt + step], [[cmd.size, 0], [cmd.size, 1]])
+            res = general_line_intersection([lastpt, lastpt + step], [[self._n(cmd.size), 0], [self._n(cmd.size), 1]])
             if res is None:
                 raise ValueError(f'"untilx" never reaches the goal at index {index}')
             self._state = self._state.with_point([float(res[0][0]), float(res[0][1])])
         elif ct == TurtleCommandType.UNTILY:
-            res = general_line_intersection([lastpt, lastpt + step], [[0, cmd.size], [1, cmd.size]])
+            res = general_line_intersection([lastpt, lastpt + step], [[0, self._n(cmd.size)], [1, self._n(cmd.size)]])
             if res is None:
                 raise ValueError(f'"untily" never reaches the goal at index {index}')
             self._state = self._state.with_point([float(res[0][0]), float(res[0][1])])
@@ -240,9 +241,9 @@ class Turtle2D:
                 norm * np.array([math.cos(math.radians(a)), math.sin(math.radians(a))]),
             )
         elif ct == TurtleCommandType.ANGLE:
-            self._state = replace(self._state, angle=float(cmd.size))
+            self._state = replace(self._state, angle=self._n(cmd.size, self._state.angle))
         elif ct == TurtleCommandType.SETDIR:
-            if isinstance(cmd.size, (list, tuple, np.ndarray)):
+            if isinstance(cmd.size, (Point, list, tuple, np.ndarray)):
                 v = np.asarray(cmd.size, dtype=float)
                 if len(v) >= 3 and abs(float(v[2])) > 1e-12:
                     raise ValueError(f'"setdir" z-component must be 0 for 2-D turtle at index {index}')
@@ -250,24 +251,41 @@ class Turtle2D:
             else:
                 self._state = self._state.with_step(
                     np.linalg.norm(step)
-                    * np.array([math.cos(math.radians(float(cmd.size))), math.sin(math.radians(float(cmd.size)))]),
+                    * np.array([math.cos(math.radians(self._n(cmd.size))), math.sin(math.radians(self._n(cmd.size)))]),
                 )
         elif ct == TurtleCommandType.LENGTH:
-            self._state = self._state.with_step(float(cmd.size) * unit(step))
+            self._state = self._state.with_step(self._n(cmd.size, 1.0) * unit(step))
         elif ct == TurtleCommandType.SCALE:
-            self._state = self._state.with_step(float(cmd.size) * step)
+            self._state = self._state.with_step(self._n(cmd.size, 1.0) * step)
         elif ct == TurtleCommandType.ADDLENGTH:
-            self._state = self._state.with_step(step + unit(step) * float(cmd.size))
+            self._state = self._state.with_step(step + unit(step) * self._n(cmd.size, 1.0))
         elif ct == TurtleCommandType.ARCSTEPS:
-            self._state = replace(self._state, arcsteps=int(cmd.size))
+            self._state = replace(self._state, arcsteps=int(self._n(cmd.size)))
         elif ct in (TurtleCommandType.ARCLEFT, TurtleCommandType.ARCRIGHT):
-            self._arc(cmd, cmd.options.get("absolute_arc_angle", False), index)
+            self._arc(cmd, False, index)
         elif ct == TurtleCommandType.ARCZROT:
             self._arczrot(cmd, index)
         else:
             raise ValueError(f'Unknown turtle command "{ct.value}" at index {index}')
 
     # -- 2-D specific commands -----------------------------------------------
+
+    @staticmethod
+    @staticmethod
+    def _n(sz: float | Point | None, default: float = 0.0) -> float:
+        if sz is None:
+            return default
+        if isinstance(sz, (int, float)):
+            return float(sz)
+        return sz.x
+
+    @staticmethod
+    def _xyz(sz: float | Point | None) -> tuple[float, float, float]:
+        if sz is None:
+            return (0.0, 0.0, 0.0)
+        if isinstance(sz, (int, float)):
+            return (float(sz), 0.0, 0.0)
+        return (sz.x, sz.y, sz.z or 0.0)
 
     def _xymove(self, parm: Any, index: int) -> None:
         """Handle the ``xymove`` command (2-D vector move)."""
@@ -374,10 +392,15 @@ class Turtle2D:
         step = self._state.step_arr
         movescale = float(np.linalg.norm(step))
 
-        options = cmd.options
-        if _Z_SUB_OPTIONS & set(options):
-            offending = sorted(_Z_SUB_OPTIONS & set(options))
-            raise ValueError(f"Compound turtle command contains z-axis sub-commands {offending} at index {index}")
+        if cmd.rotation_type in (
+            TurtleCommand.RotationType.UP,
+            TurtleCommand.RotationType.DOWN,
+            TurtleCommand.RotationType.XROT,
+            TurtleCommand.RotationType.YROT,
+        ):
+            raise ValueError(
+                f'Compound turtle command contains z-axis sub-command "{cmd.rotation_type.value}" at index {index}'
+            )
         if (
             cmd.grow is not None
             or cmd.shrink is not None
@@ -435,41 +458,42 @@ class Turtle2D:
 
 def turtle2d(
     commands: Sequence[TurtleCommand],
-    state: TurtleState | None = None,
+    state: Turtle2DState | None = None,
     repeat: int = 1,
 ) -> Turtle2D:
     """Build a 2-D path from :class:`TurtleCommand` objects — BOSL2's ``turtle2d()``.
 
-    Creates a :class:`Turtle2D`, runs *commands* (optionally *repeat* times),
-    and returns the turtle. Access the path via :meth:`Turtle2D.points` or
-    the state via :meth:`Turtle2D.full_state`.
+        Creates a :class:`Turtle2D`, runs *commands* (optionally *repeat* times),
+        and returns the turtle. Access the path via :meth:`Turtle2D.points` or
+        the state via :meth:`Turtle2D.full_state`.
 
-    Args:
-        commands: A flat list of :class:`TurtleCommand` objects.
-        state: Optional starting :class:`TurtleState`.
-        repeat: Number of times to repeat the command list.
+        Args:
+            commands: A flat list of :class:`TurtleCommand` objects.
+            state: Optional starting :class:`Turtle2DState`.
+            repeat: Number of times to repeat the command list.
 
-    Returns:
-        The :class:`Turtle2D` instance after executing all commands.
+        Returns:
+            The :class:`Turtle2D` instance after executing all commands.
 
-    Examples:
-        A rounded-corner square drawn with arcs:
+        Examples:
+            A rounded-corner square drawn with arcs:
 
-        .. pythonscad-example::
+            .. pythonscad-example::
 
-            from pybosl2.turtle2d import turtle2d
-            from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct
+                from pybosl2.turtle2d import turtle2d
+                from pybosl2.points import Point
+    from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct
 
-            path = turtle2d([
-                TurtleCommand(Tct.MOVE, size=40),
-                TurtleCommand(Tct.ARCLEFT, radius=8),
-                TurtleCommand(Tct.MOVE, size=40),
-                TurtleCommand(Tct.ARCLEFT, radius=8),
-                TurtleCommand(Tct.MOVE, size=40),
-                TurtleCommand(Tct.ARCLEFT, radius=8),
-                TurtleCommand(Tct.MOVE, size=40),
-                TurtleCommand(Tct.ARCLEFT, radius=8),
-            ]).points()
-            path.stroke(width=3, closed=True).linear_extrude(height=4).show()
+                path = turtle2d([
+                    TurtleCommand(Tct.MOVE, size=40),
+                    TurtleCommand(Tct.ARCLEFT, radius=8),
+                    TurtleCommand(Tct.MOVE, size=40),
+                    TurtleCommand(Tct.ARCLEFT, radius=8),
+                    TurtleCommand(Tct.MOVE, size=40),
+                    TurtleCommand(Tct.ARCLEFT, radius=8),
+                    TurtleCommand(Tct.MOVE, size=40),
+                    TurtleCommand(Tct.ARCLEFT, radius=8),
+                ]).points()
+                path.stroke(width=3, closed=True).linear_extrude(height=4).show()
     """
     return Turtle2D(state).run(commands, repeat)

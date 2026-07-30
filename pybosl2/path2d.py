@@ -1519,7 +1519,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         from pybosl2.drawing import dashed_stroke as _dashed
 
-        return _dashed(  # type: ignore[return-value]
+        return _dashed(
             self,
             dashpat=dashpat,
             closed=self.closed if closed is None else closed,

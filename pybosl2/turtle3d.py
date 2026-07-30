@@ -30,11 +30,13 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
 
+    from pybosl2.points import Point, Vector
+
 from pybosl2._helpers import rot_from_to4
 from pybosl2.constants import BACK, FRONT, RIGHT, UP
 from pybosl2.transforms import rot_decode
 
-__all__ = ["turtle3d", "Turtle", "BaseTurtle", "Turtle3DState", "TurtleCommand", "TurtleCommandType"]
+__all__ = ["turtle3d", "Turtle3D", "Turtle3DState", "TurtleCommand", "TurtleCommandType"]
 
 # Note: the TurtleCommandType enum has members named RIGHT, UP, etc. — the
 # constants from pybosl2.constants are used only for math direction vectors.
@@ -84,24 +86,44 @@ class TurtleCommandType(Enum):
 
 @dataclass
 class TurtleCommand:
-    """A single turtle command with its typed parameters."""
+    """A single turtle command with its typed parameters.
+
+    Compound ARC commands use ``angle`` to encode the rotation amount and
+    ``rotation_type`` to indicate the axis.  Use :attr:`RotationType` members
+    (e.g. ``TurtleCommand.RotationType.LEFT``).
+    """
+
+    class RotationType(Enum):
+        """The rotation axis/direction for a compound ARC command."""
+
+        NONE = ""
+        LEFT = "left"
+        RIGHT = "right"
+        UP = "up"
+        DOWN = "down"
+        XROT = "xrot"
+        YROT = "yrot"
+        ZROT = "zrot"
+        ROT = "rot"
+        TODIR = "todir"
 
     cmd_type: TurtleCommandType
-    size: Any = None
-    angle: Any = None
-    radius: Any = None
-    steps: Any = None
-    center: Any = None
-    grow: Any = None
-    shrink: Any = None
-    twist: Any = None
-    roll: Any = None
+    size: float | Point | None = None
+    angle: float | Vector | None = None
+    radius: float | None = None
+    steps: int | None = None
+    center: Point | None = None
+    grow: float | Vector | None = None
+    shrink: float | Vector | None = None
+    twist: float | None = None
+    roll: float | None = None
     reverse: bool = False
-    rollto: Any = None
-    rrollto: Any = None
-    lrollto: Any = None
-    options: dict[str, Any] = field(default_factory=dict)
+    rollto: Vector | None = None
+    rrollto: Vector | None = None
+    lrollto: Vector | None = None
     is_compound: bool = False
+    sub_commands: list[TurtleCommand] | None = None
+    rotation_type: "RotationType" = field(default=RotationType.NONE)
 
 
 # -- Turtle3DState ---------------------------------------------------------
@@ -126,14 +148,46 @@ class Turtle3DState:
     arcsteps: int = 0
 
 
-# -- BaseTurtle -----------------------------------------------------------
+# -- Turtle3D -----------------------------------------------------------
 
 
-class BaseTurtle:
+class Turtle3D:
+    """A 3-D turtle: walk it with a command list to produce a path or a list of sweep transforms.
+
+    The turtle starts at the origin pointing in *state* (default ``RIGHT`` = +X), with "up" along +Z.
+    Commands are a flat list of :class:`TurtleCommand` objects. Turns: ``left``/``right`` (about up),
+    ``up``/``down`` (about side), ``roll`` (about heading), and absolute ``xrot``/``yrot``/``zrot``.
+    Arcs: ``arcleft``/``arcright``/``arcup``/``arcdown``/``arcxrot``/``arcyrot``/``arczrot``.
+    ``move``/``jump`` translate; ``length``/``angle``/``scale``/``arcsteps`` set defaults; ``repeat``
+    repeats. A compound :class:`TurtleCommand` (``is_compound=True``) applies several effects at once
+    (``grow``/``shrink``/``twist``/``roll``/``steps``/``reverse``).
+
+    Examples:
+        A rounded square path swept into a tube:
+
+        .. pythonscad-example::
+
+            from pybosl2.turtle3d import turtle3d, TurtleCommand, TurtleCommandType as Tct
+            from pybosl2.path3d import Path3D
+
+            sq = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+            path = turtle3d([
+                TurtleCommand(Tct.MOVE, size=20),
+                TurtleCommand(Tct.ARCLEFT, radius=3),
+                TurtleCommand(Tct.MOVE, size=20),
+                TurtleCommand(Tct.ARCLEFT, radius=3),
+                TurtleCommand(Tct.MOVE, size=20),
+                TurtleCommand(Tct.ARCLEFT, radius=3),
+                TurtleCommand(Tct.MOVE, size=20),
+                TurtleCommand(Tct.ARCLEFT, radius=3),
+            ]).points()
+            Path3D(path).path_sweep(sq, closed=True).polyhedron().show()
+    """
+
     def __init__(self, state: Any = RIGHT) -> None:
-        self._state = BaseTurtle._init_state(state)
+        self._state = Turtle3D._init_state(state)
 
-    def run(self, commands: Sequence[TurtleCommand], repeat: int = 1) -> BaseTurtle:
+    def run(self, commands: Sequence[TurtleCommand], repeat: int = 1) -> Turtle3D:
         """Execute *commands* (optionally *repeat* times), advancing this turtle's state.
 
         Returns:
@@ -146,7 +200,7 @@ class BaseTurtle:
 
     def points(self) -> list[list[float]]:
         """The de-duplicated list of 3-D points the turtle has visited."""
-        return BaseTurtle._dedup([BaseTurtle._apply(T, [0, 0, 0]) for T in self._state.transforms])
+        return Turtle3D._dedup([Turtle3D._apply(T, [0, 0, 0]) for T in self._state.transforms])
 
     def transforms(self) -> list[np.ndarray]:
         """The list of 4x4 transforms (position + orientation) for sweeping a profile along the path."""
@@ -229,25 +283,25 @@ class BaseTurtle:
         m[:3, :3] = rot_mat
         center_arr = np.asarray(center, float)
         if np.any(center_arr):
-            m = BaseTurtle._trans4(center_arr) @ m @ BaseTurtle._trans4(-center_arr)
+            m = Turtle3D._trans4(center_arr) @ m @ Turtle3D._trans4(-center_arr)
         return m
 
     @staticmethod
     def _xrot4(a: float, center: ArrayLike = (0, 0, 0)) -> np.ndarray:
-        return BaseTurtle._axis_rot4([1, 0, 0], a, center)
+        return Turtle3D._axis_rot4([1, 0, 0], a, center)
 
     @staticmethod
     def _yrot4(a: float, center: ArrayLike = (0, 0, 0)) -> np.ndarray:
-        return BaseTurtle._axis_rot4([0, 1, 0], a, center)
+        return Turtle3D._axis_rot4([0, 1, 0], a, center)
 
     @staticmethod
     def _zrot4(a: float, center: ArrayLike = (0, 0, 0)) -> np.ndarray:
-        return BaseTurtle._axis_rot4([0, 0, 1], a, center)
+        return Turtle3D._axis_rot4([0, 0, 1], a, center)
 
     @staticmethod
     def _apply(xform: np.ndarray, pt: ArrayLike) -> np.ndarray:
         pt_arr = np.asarray(pt, float)
-        return (xform @ np.array([pt_arr[0], pt_arr[1], pt_arr[2], 1.0]))[:3]
+        return np.asarray((xform @ np.array([pt_arr[0], pt_arr[1], pt_arr[2], 1.0]))[:3])
 
     @staticmethod
     def _rotpart(xform: np.ndarray) -> np.ndarray:
@@ -275,12 +329,12 @@ class BaseTurtle:
     def _init_state(state: Any) -> Turtle3DState:
         _arr = np.asarray(state, dtype=object)
         if isinstance(state, np.ndarray) and state.shape == (4, 4):
-            return Turtle3DState(transforms=[np.asarray(state, float)], pre_transforms=[BaseTurtle._yrot4(90)])
-        if BaseTurtle._is_vec3(state):
+            return Turtle3DState(transforms=[np.asarray(state, float)], pre_transforms=[Turtle3D._yrot4(90)])
+        if Turtle3D._is_vec3(state):
             s = np.asarray(state, float)
             updir = np.asarray(UP, float) - (np.dot(UP, s)) * s / np.dot(s, s)
             z = FRONT if np.isclose(np.linalg.norm(updir), 0) else updir
-            return Turtle3DState(transforms=[BaseTurtle._frame_map(s, z)], pre_transforms=[BaseTurtle._yrot4(90)])
+            return Turtle3DState(transforms=[Turtle3D._frame_map(s, z)], pre_transforms=[Turtle3D._yrot4(90)])
         return Turtle3DState(
             transforms=[np.asarray(m, float) for m in state[0]],
             pre_transforms=[np.asarray(m, float) for m in state[1]],
@@ -310,19 +364,19 @@ class BaseTurtle:
             else 1
         ) * angle
         if cmd_type in (TurtleCommandType.XROT, TurtleCommandType.ARCXROT):
-            return BaseTurtle._xrot4(a, center)
+            return Turtle3D._xrot4(a, center)
         if cmd_type in (TurtleCommandType.YROT, TurtleCommandType.ARCYROT):
-            return BaseTurtle._yrot4(a, center)
+            return Turtle3D._yrot4(a, center)
         if cmd_type in (TurtleCommandType.ZROT, TurtleCommandType.ARCZROT):
-            return BaseTurtle._zrot4(a, center)
+            return Turtle3D._zrot4(a, center)
         if cmd_type in (
             TurtleCommandType.RIGHT,
             TurtleCommandType.ARCRIGHT,
             TurtleCommandType.LEFT,
             TurtleCommandType.ARCLEFT,
         ):
-            return BaseTurtle._zrot4(a, center)
-        return BaseTurtle._yrot4(a, center)
+            return Turtle3D._zrot4(a, center)
+        return Turtle3D._yrot4(a, center)
 
     @staticmethod
     def _segs(r: float) -> int:
@@ -330,7 +384,7 @@ class BaseTurtle:
 
     @staticmethod
     def _segs2(r: float, angle: float) -> int:
-        return max(2, math.ceil(BaseTurtle._segs(r) * abs(angle) / 360))
+        return max(2, math.ceil(Turtle3D._segs(r) * abs(angle) / 360))
 
     @staticmethod
     def _scale4(v: ArrayLike) -> np.ndarray:
@@ -356,10 +410,10 @@ class BaseTurtle:
 
     @staticmethod
     def _compute_spin(anchor_dir: ArrayLike, spin_dir: ArrayLike) -> float:
-        native = BaseTurtle._rotpart(rot_from_to4(UP, anchor_dir))[:3, :3] @ np.asarray(BACK, float)
+        native = Turtle3D._rotpart(rot_from_to4(UP, anchor_dir))[:3, :3] @ np.asarray(BACK, float)
         ad, sd = np.asarray(anchor_dir, float), np.asarray(spin_dir, float)
         perp = sd - np.dot(sd, ad) * ad
-        angle = BaseTurtle._vec_angle(native, perp)
+        angle = Turtle3D._vec_angle(native, perp)
         return -angle if np.dot(np.cross(native, perp), ad) < 0 else angle
 
     @staticmethod
@@ -397,7 +451,7 @@ class BaseTurtle:
         flip = np.diag([-1.0, 1.0, 1.0, 1.0]) if reverse else np.eye(4)
 
         if cmd.cmd_type == TurtleCommandType.MOVE:
-            move = movescale * (cmd.size if isinstance(cmd.size, (int, float)) else 0)
+            move = movescale * self._n(cmd.size, 0.0)
             radius = 0.0
             is_arc = False
         else:
@@ -406,23 +460,32 @@ class BaseTurtle:
             is_arc = True
 
         twist = cmd.twist if isinstance(cmd.twist, (int, float)) else 0
-        grow = BaseTurtle._force_list(cmd.grow if cmd.grow is not None else 1, 2)
-        shrink = BaseTurtle._force_list(cmd.shrink if cmd.shrink is not None else 1, 2)
+        grow = Turtle3D._force_list(cmd.grow if cmd.grow is not None else 1, 2)
+        shrink = Turtle3D._force_list(cmd.shrink if cmd.shrink is not None else 1, 2)
         scaling = [grow[0] / shrink[0], grow[1] / shrink[1], 1.0]
         usersteps = int(cmd.steps) if cmd.steps is not None else 0
 
-        # relative rotation from options
-        rel_right = cmd.options.get("right", 0)
-        rel_left = cmd.options.get("left", 0)
-        rel_up = cmd.options.get("up", 0)
-        rel_down = cmd.options.get("down", 0)
-        right, left = rel_right, rel_left
-        up, down = rel_up, rel_down
+        angle_val = cmd.angle if isinstance(cmd.angle, (int, float)) else 0
+        rtype = cmd.rotation_type
+
+        # relative rotation
+        right: float = 0.0
+        left: float = 0.0
+        up: float = 0.0
+        down: float = 0.0
+        if rtype == TurtleCommand.RotationType.LEFT:
+            left = angle_val
+        elif rtype == TurtleCommand.RotationType.RIGHT:
+            right = angle_val
+        elif rtype == TurtleCommand.RotationType.UP:
+            up = angle_val
+        elif rtype == TurtleCommand.RotationType.DOWN:
+            down = angle_val
 
         assert not is_arc or (right == 0 or left == 0), f'Cannot give both "left" and "right" at index {index}'
         assert not is_arc or (up == 0 or down == 0), f'Cannot give both "up" and "down" at index {index}'
 
-        newdir = BaseTurtle._apply(BaseTurtle._zrot4(left - right) @ BaseTurtle._yrot4(down - up), RIGHT)
+        newdir = Turtle3D._apply(Turtle3D._zrot4(left - right) @ Turtle3D._yrot4(down - up), RIGHT)
         if left - right == 0:
             relaxis = np.asarray(BACK, float)
         elif down - up == 0:
@@ -434,38 +497,31 @@ class BaseTurtle:
         elif left - right == 0 or down - up == 0:
             rel_angle = (down - up) + (left - right)
         else:
-            rel_angle = BaseTurtle._vec_angle(RIGHT, newdir)
+            rel_angle = Turtle3D._vec_angle(RIGHT, newdir)
         if left - right == 0:
             center = -radius * np.array([0.0, 0.0, np.sign(down - up)])
         elif down - up == 0:
             center = -radius * np.array([0.0, np.sign(right - left), 0.0])
         else:
-            center = -radius * BaseTurtle._unit(np.cross(RIGHT, np.cross(RIGHT, newdir)))
+            center = -radius * Turtle3D._unit(np.cross(RIGHT, np.cross(RIGHT, newdir)))
 
         # absolute rotation
-        rot_part, shift = BaseTurtle._rotpart(last_xform), BaseTurtle._transpart(last_xform)
-        v = BaseTurtle._apply(rot_part, RIGHT)
-        xr = cmd.options.get("xrot", 0)
-        yr = cmd.options.get("yrot", 0)
-        zr = cmd.options.get("zrot", 0)
-        rot_matrix = cmd.options.get("rot")
-        todir = cmd.options.get("todir")
+        rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
+        v = Turtle3D._apply(rot_part, RIGHT)
         absangle, absaxis = None, np.zeros(3)
         if is_arc:
-            nz = len([e for e in (xr, yr, zr) if e != 0]) + (rot_matrix is not None) + (todir is not None)
-            assert nz <= 1, f'Give only one of "xrot"/"yrot"/"zrot"/"rot"/"todir" at index {index}'
-            if rot_matrix is not None:
-                rd = rot_decode(np.asarray(rot_matrix, float))
+            if rtype == TurtleCommand.RotationType.ROT:
+                rd = rot_decode(np.asarray(cmd.angle, float))
                 absangle, absaxis = rd[0], np.asarray(rd[1], float)
-            elif todir is not None:
-                rd = rot_decode(rot_from_to4(v, todir))
+            elif rtype == TurtleCommand.RotationType.TODIR:
+                rd = rot_decode(rot_from_to4(v, cmd.angle))
                 absangle, absaxis = rd[0], np.asarray(rd[1], float)
-            elif xr != 0:
-                absangle, absaxis = xr, np.asarray(RIGHT, float)
-            elif yr != 0:
-                absangle, absaxis = yr, np.asarray(BACK, float)
-            elif zr != 0:
-                absangle, absaxis = zr, np.asarray(UP, float)
+            elif rtype == TurtleCommand.RotationType.XROT:
+                absangle, absaxis = angle_val, np.asarray(RIGHT, float)
+            elif rtype == TurtleCommand.RotationType.YROT:
+                absangle, absaxis = angle_val, np.asarray(BACK, float)
+            elif rtype == TurtleCommand.RotationType.ZROT:
+                absangle, absaxis = angle_val, np.asarray(UP, float)
         if absangle is None:
             abscenter = vshift = None
         else:
@@ -476,11 +532,12 @@ class BaseTurtle:
         assert not is_arc or (absangle or rel_angle), '"arc" needs a rotation type and angle'
 
         # roll
-        def _final_xform():
+        def _final_xform() -> np.ndarray:
             if absangle is None:
-                rel = np.eye(4) if rel_angle == 0 else BaseTurtle._axis_rot4(relaxis, rel_angle, center)
-                return last_xform @ flip @ BaseTurtle._trans4([move, 0, 0]) @ rel
-            return BaseTurtle._trans4(shift + vshift) @ BaseTurtle._axis_rot4(absaxis, absangle, abscenter) @ rot_part
+                rel = np.eye(4) if rel_angle == 0 else Turtle3D._axis_rot4(relaxis, rel_angle, center)
+                return last_xform @ flip @ Turtle3D._trans4([move, 0, 0]) @ rel  # type: ignore[no-any-return]
+            assert absangle is not None and abscenter is not None and vshift is not None
+            return Turtle3D._trans4(shift + vshift) @ Turtle3D._axis_rot4(absaxis, absangle, abscenter) @ rot_part  # type: ignore[no-any-return]
 
         rollval = cmd.roll if isinstance(cmd.roll, (int, float)) else 0
         rrollto = cmd.rrollto
@@ -492,11 +549,11 @@ class BaseTurtle:
             roll = 0.0
         else:
             final_xform = _final_xform()
-            finaldir = BaseTurtle._unit(BaseTurtle._apply(BaseTurtle._rotpart(final_xform), RIGHT))
-            finalup = BaseTurtle._apply(BaseTurtle._rotpart(final_xform), UP)
+            finaldir = Turtle3D._unit(Turtle3D._apply(Turtle3D._rotpart(final_xform), RIGHT))
+            finalup = Turtle3D._apply(Turtle3D._rotpart(final_xform), UP)
             desired = rollto if rollto is not None else (rrollto if rrollto is not None else lrollto)
             assert desired is not None
-            delta = (BaseTurtle._compute_spin(finaldir, desired) - BaseTurtle._compute_spin(finaldir, finalup)) % 360
+            delta = (Turtle3D._compute_spin(finaldir, desired) - Turtle3D._compute_spin(finaldir, finalup)) % 360
             if rrollto is not None or delta == 0:
                 roll = delta
             elif lrollto is not None or delta > 180:
@@ -512,7 +569,7 @@ class BaseTurtle:
         elif self._state.arcsteps != 0:
             steps = self._state.arcsteps
         elif radius > 0 and eff != 0:
-            steps = BaseTurtle._segs2(radius, eff)
+            steps = Turtle3D._segs2(radius, eff)
         else:
             steps = 5
 
@@ -520,53 +577,48 @@ class BaseTurtle:
         for n in range(1, steps + 1):
             frac = n / steps
             if absangle is None:
-                rel = np.eye(4) if rel_angle == 0 else BaseTurtle._axis_rot4(relaxis, frac * rel_angle, center)
-                xform = (
-                    last_xform @ flip @ BaseTurtle._trans4([frac * move, 0, 0]) @ rel @ BaseTurtle._xrot4(frac * roll)
-                )
+                rel = np.eye(4) if rel_angle == 0 else Turtle3D._axis_rot4(relaxis, frac * rel_angle, center)
+                xform = last_xform @ flip @ Turtle3D._trans4([frac * move, 0, 0]) @ rel @ Turtle3D._xrot4(frac * roll)
             else:
                 assert abscenter is not None and vshift is not None
                 xform = (
-                    BaseTurtle._trans4(shift + vshift * frac)
-                    @ BaseTurtle._axis_rot4(absaxis, frac * absangle, abscenter)
+                    Turtle3D._trans4(shift + vshift * frac)
+                    @ Turtle3D._axis_rot4(absaxis, frac * absangle, abscenter)
                     @ rot_part
-                    @ BaseTurtle._xrot4(frac * roll)
+                    @ Turtle3D._xrot4(frac * roll)
                 )
             pre_xform = (
-                last_pre
-                @ BaseTurtle._zrot4(frac * twist)
-                @ BaseTurtle._scale4(BaseTurtle._lerp3([1, 1, 1], scaling, frac))
+                last_pre @ Turtle3D._zrot4(frac * twist) @ Turtle3D._scale4(Turtle3D._lerp3([1, 1, 1], scaling, frac))
             )
             trans.append(xform)
             pretran.append(pre_xform)
         return trans, pretran
 
-    # -- param dispatch ---------------------------------------------------
+    # -- command dispatch ----------------------------------------------------
 
     @staticmethod
-    def _param(cmd: TurtleCommand) -> Any:
-        """Return the primary parameter for *cmd* based on its command type."""
-        ct = cmd.cmd_type
-        if ct in (
-            TurtleCommandType.ROLL,
-            TurtleCommandType.RIGHT,
-            TurtleCommandType.LEFT,
-            TurtleCommandType.UP,
-            TurtleCommandType.DOWN,
-            TurtleCommandType.XROT,
-            TurtleCommandType.YROT,
-            TurtleCommandType.ZROT,
-        ):
-            return cmd.angle
-        return cmd.size
+    def _n(sz: float | Point | None, default: float = 0.0) -> float:
+        """Extract scalar x-component from size (float or Point)."""
+        if sz is None:
+            return default
+        if isinstance(sz, (int, float)):
+            return float(sz)
+        return sz.x
 
-    # -- command dispatch ----------------------------------------------------
+    @staticmethod
+    def _xyz(sz: float | Point | None) -> tuple[float, float, float]:
+        """Extract (x, y, z) from size (float→scalar, Point→position)."""
+        if sz is None:
+            return (0.0, 0.0, 0.0)
+        if isinstance(sz, (int, float)):
+            return (float(sz), 0.0, 0.0)
+        return (sz.x, sz.y, sz.z or 0.0)
 
     def _command(self, cmd: TurtleCommand, index: int) -> None:
         """Execute a single :class:`TurtleCommand`, mutating ``self._state``."""
         if cmd.cmd_type == TurtleCommandType.REPEAT:
-            sub_cmds: list[TurtleCommand] = cmd.options.get("commands", [])
-            for _ in range(int(cmd.size)):
+            sub_cmds: list[TurtleCommand] = cmd.sub_commands or []
+            for _ in range(int(self._n(cmd.size, 0.0))):
                 for si, sc in enumerate(sub_cmds):
                     self._command(sc, si)
             return
@@ -577,24 +629,18 @@ class BaseTurtle:
             return
 
         ct = cmd.cmd_type
-        p = BaseTurtle._num(BaseTurtle._param(cmd))
         last_xform = self._state.transforms[-1]
         last_pre = self._state.pre_transforms[-1]
-        lastpt = BaseTurtle._apply(last_xform, [0, 0, 0])
+        lastpt = Turtle3D._apply(last_xform, [0, 0, 0])
         step = self._state.step
         angle = self._state.angle
         arcn = self._state.arcsteps
+        sz = cmd.size
+        ang = cmd.angle
 
         if ct == TurtleCommandType.MOVE:
-            diameter = (p if p is not None else 1) * step
-            self._tupdate([last_xform @ BaseTurtle._trans4([diameter, 0, 0])], [last_pre])
-        elif ct in (TurtleCommandType.UNTILX, TurtleCommandType.UNTILY, TurtleCommandType.UNTILZ):
-            axis = {TurtleCommandType.UNTILX: 0, TurtleCommandType.UNTILY: 1, TurtleCommandType.UNTILZ: 2}[ct]
-            diameter = BaseTurtle._apply(last_xform, [1, 0, 0]) - lastpt
-            if abs(diameter[axis]) < 1e-12:
-                raise ValueError(f'"{ct.value}" never reaches the goal at index {index}')
-            size = (cmd.size - lastpt[axis]) / diameter[axis]
-            self._tupdate([last_xform @ BaseTurtle._trans4([size, 0, 0])], [last_pre])
+            d = self._n(sz, 1.0) * step
+            self._tupdate([last_xform @ Turtle3D._trans4([d, 0, 0])], [last_pre])
         elif ct in (TurtleCommandType.XMOVE, TurtleCommandType.YMOVE, TurtleCommandType.ZMOVE):
             axis_map = {
                 TurtleCommandType.XMOVE: [1, 0, 0],
@@ -602,52 +648,68 @@ class BaseTurtle:
                 TurtleCommandType.ZMOVE: [0, 0, 1],
             }
             v = axis_map[ct]
-            diameter = (p if p is not None else 1) * step
+            d = self._n(sz, 1.0) * step
             self._tupdate(
-                [BaseTurtle._trans4([v[0] * diameter, v[1] * diameter, v[2] * diameter]) @ last_xform],
+                [Turtle3D._trans4([v[0] * d, v[1] * d, v[2] * d]) @ last_xform],
                 [last_pre],
             )
         elif ct == TurtleCommandType.XYZMOVE:
-            self._tupdate([BaseTurtle._trans4(cmd.size) @ last_xform], [last_pre])
+            assert sz is not None
+            px, py, pz = self._xyz(sz)
+            self._tupdate([Turtle3D._trans4([px, py, pz]) @ last_xform], [last_pre])
+        elif ct in (TurtleCommandType.UNTILX, TurtleCommandType.UNTILY, TurtleCommandType.UNTILZ):
+            axis = {TurtleCommandType.UNTILX: 0, TurtleCommandType.UNTILY: 1, TurtleCommandType.UNTILZ: 2}[ct]
+            diameter = Turtle3D._apply(last_xform, [1, 0, 0]) - lastpt
+            target = list(self._xyz(sz)) if sz else [0.0, 0.0, 0.0]
+            if abs(diameter[axis]) < 1e-12:
+                raise ValueError(f'"{ct.value}" never reaches the goal at index {index}')
+            dist = (target[axis] - lastpt[axis]) / diameter[axis]
+            self._tupdate([last_xform @ Turtle3D._trans4([dist, 0, 0])], [last_pre])
         elif ct in (TurtleCommandType.JUMP, TurtleCommandType.XJUMP, TurtleCommandType.YJUMP, TurtleCommandType.ZJUMP):
             if ct == TurtleCommandType.JUMP:
-                target = np.asarray(cmd.size, float)
+                assert sz is not None
+                target = np.array(self._xyz(sz), float)  # type: ignore[assignment]
             else:
-                target = np.array(lastpt, float)
+                target = np.array(lastpt, float)  # type: ignore[assignment]
                 jump_map = {TurtleCommandType.XJUMP: 0, TurtleCommandType.YJUMP: 1, TurtleCommandType.ZJUMP: 2}
-                target[jump_map[ct]] = cmd.size
-            self._tupdate([BaseTurtle._trans4(target - lastpt) @ last_xform], [last_pre])
+                target[jump_map[ct]] = self._n(sz, lastpt[jump_map[ct]])
+            self._tupdate([Turtle3D._trans4(target - lastpt) @ last_xform], [last_pre])
         elif ct == TurtleCommandType.ANGLE:
-            self._with_angle(cmd.size)
+            self._with_angle(ang if isinstance(ang, (int, float)) else 90)
         elif ct == TurtleCommandType.LENGTH:
-            self._with_step(cmd.size)
+            self._with_step(self._n(sz, 1.0))
         elif ct == TurtleCommandType.SCALE:
-            self._with_step(cmd.size * step)
+            self._with_step(self._n(sz, 1.0) * step)
         elif ct == TurtleCommandType.ADDLENGTH:
-            self._with_step(step + cmd.size)
+            self._with_step(step + self._n(sz, 1.0))
         elif ct == TurtleCommandType.ARCSTEPS:
-            self._with_arcsteps(int(cmd.size))
+            self._with_arcsteps(int(self._n(sz)))
         elif ct == TurtleCommandType.ROLL:
+            a = ang if ang is not None else angle
             self._replace_transforms(
-                self._state.transforms[:-1] + [last_xform @ BaseTurtle._xrot4(cmd.angle if p is not None else angle)],
+                self._state.transforms[:-1] + [last_xform @ Turtle3D._xrot4(a)],  # type: ignore[arg-type]
             )
         elif ct in (TurtleCommandType.RIGHT, TurtleCommandType.LEFT, TurtleCommandType.UP, TurtleCommandType.DOWN):
-            rot = BaseTurtle._turtle_rotation(ct, p if p is not None else angle)
+            a = ang if isinstance(ang, (int, float)) else angle
+            rot = Turtle3D._turtle_rotation(ct, a)
             self._replace_transforms(self._state.transforms[:-1] + [last_xform @ rot])
         elif ct in (TurtleCommandType.XROT, TurtleCommandType.YROT, TurtleCommandType.ZROT):
-            rot_part, shift = BaseTurtle._rotpart(last_xform), BaseTurtle._transpart(last_xform)
-            rot = BaseTurtle._turtle_rotation(ct, p if p is not None else angle)
-            self._replace_transforms(self._state.transforms[:-1] + [BaseTurtle._trans4(shift) @ rot @ rot_part])
+            a = ang if isinstance(ang, (int, float)) else angle
+            rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
+            rot = Turtle3D._turtle_rotation(ct, a)
+            self._replace_transforms(self._state.transforms[:-1] + [Turtle3D._trans4(shift) @ rot @ rot_part])
         elif ct == TurtleCommandType.ROT:
-            rot_part, shift = BaseTurtle._rotpart(last_xform), BaseTurtle._transpart(last_xform)
+            rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             self._replace_transforms(
-                self._state.transforms[:-1] + [BaseTurtle._trans4(shift) @ np.asarray(cmd.size, float) @ rot_part],
+                self._state.transforms[:-1] + [Turtle3D._trans4(shift) @ np.asarray(ang, float) @ rot_part],
             )
         elif ct == TurtleCommandType.SETDIR:
-            rot_part, shift = BaseTurtle._rotpart(last_xform), BaseTurtle._transpart(last_xform)
-            cur = BaseTurtle._apply(rot_part, [1, 0, 0])
+            assert sz is not None
+            rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
+            cur = Turtle3D._apply(rot_part, [1, 0, 0])
             self._replace_transforms(
-                self._state.transforms[:-1] + [BaseTurtle._trans4(shift) @ rot_from_to4(cur, cmd.size) @ rot_part],
+                self._state.transforms[:-1]
+                + [Turtle3D._trans4(shift) @ rot_from_to4(cur, list(self._xyz(sz))) @ rot_part],
             )
         elif ct in (
             TurtleCommandType.ARCLEFT,
@@ -655,25 +717,27 @@ class BaseTurtle:
             TurtleCommandType.ARCUP,
             TurtleCommandType.ARCDOWN,
         ):
+            assert cmd.radius is not None
             radius = step * cmd.radius
-            myangle = cmd.angle if BaseTurtle._num(cmd.angle) is not None else angle
+            myangle = ang if isinstance(ang, (int, float)) else angle
             center = [
                 0.0,
                 radius if ct == TurtleCommandType.ARCLEFT else -radius if ct == TurtleCommandType.ARCRIGHT else 0.0,
                 -radius if ct == TurtleCommandType.ARCDOWN else radius if ct == TurtleCommandType.ARCUP else 0.0,
             ]
-            steps = BaseTurtle._segs(abs(radius)) if arcn == 0 else arcn
+            steps = Turtle3D._segs(abs(radius)) if arcn == 0 else arcn
             tran = [
-                last_xform @ BaseTurtle._turtle_rotation(ct, myangle * k / steps, center) for k in range(1, steps + 1)
+                last_xform @ Turtle3D._turtle_rotation(ct, myangle * k / steps, center) for k in range(1, steps + 1)
             ]
             self._tupdate(tran, [last_pre] * steps)
         elif ct in (TurtleCommandType.ARCXROT, TurtleCommandType.ARCYROT, TurtleCommandType.ARCZROT):
+            assert cmd.radius is not None
             radius = step * cmd.radius
-            myangle = cmd.angle if BaseTurtle._num(cmd.angle) is not None else angle
+            myangle = ang if isinstance(ang, (int, float)) else angle
             length = 2 * math.pi * radius * abs(myangle) / 360
-            steps = BaseTurtle._segs(abs(radius)) if arcn == 0 else arcn
-            rot_part, shift = BaseTurtle._rotpart(last_xform), BaseTurtle._transpart(last_xform)
-            v_dir = BaseTurtle._apply(rot_part, [1, 0, 0])
+            steps = Turtle3D._segs(abs(radius)) if arcn == 0 else arcn
+            rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
+            v_dir = Turtle3D._apply(rot_part, [1, 0, 0])
             dir_ = {
                 TurtleCommandType.ARCXROT: np.array(RIGHT),
                 TurtleCommandType.ARCYROT: np.array(BACK),
@@ -683,77 +747,33 @@ class BaseTurtle:
             center = np.sign(myangle) * radius * np.cross(dir_, projv)
             vshift = dir_ * (np.dot(dir_, v_dir) / np.linalg.norm(projv)) * length
             tran = [
-                BaseTurtle._trans4(shift + vshift * k / steps)
-                @ BaseTurtle._turtle_rotation(ct, myangle * k / steps, center)
+                Turtle3D._trans4(shift + vshift * k / steps)
+                @ Turtle3D._turtle_rotation(ct, myangle * k / steps, center)
                 @ rot_part
                 for k in range(1, steps + 1)
             ]
             self._tupdate(tran, [last_pre] * steps)
         elif ct in (TurtleCommandType.ARCTODIR, TurtleCommandType.ARCROT):
-            rot_part, shift = BaseTurtle._rotpart(last_xform), BaseTurtle._transpart(last_xform)
-            v_dir = BaseTurtle._apply(rot_part, [1, 0, 0])
-            rd = rot_decode(
-                rot_from_to4(v_dir, cmd.angle) if ct == TurtleCommandType.ARCTODIR else np.asarray(cmd.angle, float)
-            )
+            assert cmd.radius is not None
+            rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
+            v_dir = Turtle3D._apply(rot_part, [1, 0, 0])
+            rd = rot_decode(rot_from_to4(v_dir, ang) if ct == TurtleCommandType.ARCTODIR else np.asarray(ang, float))
             myangle, dir_ = rd[0], np.asarray(rd[1], float)
             projv = v_dir - np.dot(dir_, v_dir) * dir_
             radius = step * cmd.radius
             length = 2 * math.pi * radius * myangle / 360
             vshift = dir_ * (np.dot(dir_, v_dir) / np.linalg.norm(projv)) * length
-            steps = BaseTurtle._segs(abs(radius)) if arcn == 0 else arcn
-            center = radius * np.cross(dir_, projv)
+            steps = Turtle3D._segs(abs(radius)) if arcn == 0 else arcn
+            center = radius * np.cross(dir_, projv)  # type: ignore[assignment]
             tran = [
-                BaseTurtle._trans4(shift + vshift * k / steps)
-                @ BaseTurtle._axis_rot4(dir_, k / steps * myangle, center)
+                Turtle3D._trans4(shift + vshift * k / steps)
+                @ Turtle3D._axis_rot4(dir_, k / steps * myangle, center)
                 @ rot_part
                 for k in range(1, steps + 1)
             ]
             self._tupdate(tran, [last_pre] * steps)
         else:
             raise ValueError(f'Unknown turtle command "{ct.value}" at index {index}')
-
-
-class Turtle(BaseTurtle):
-    """A 3-D turtle: walk it with a command list to produce a path or a list of sweep transforms.
-
-    The turtle starts at the origin pointing in *state* (default ``RIGHT`` = +X), with "up" along +Z.
-    Commands are a flat list of :class:`TurtleCommand` objects. Turns: ``left``/``right`` (about up),
-    ``up``/``down`` (about side), ``roll`` (about heading), and absolute ``xrot``/``yrot``/``zrot``.
-    Arcs: ``arcleft``/``arcright``/``arcup``/``arcdown``/``arcxrot``/``arcyrot``/``arczrot``.
-    ``move``/``jump`` translate; ``length``/``angle``/``scale``/``arcsteps`` set defaults; ``repeat``
-    repeats. A compound :class:`TurtleCommand` (``is_compound=True``) applies several effects at once
-    (``grow``/``shrink``/``twist``/``roll``/``steps``/``reverse``).
-
-    Examples:
-        A rounded square path swept into a tube:
-
-        .. pythonscad-example::
-
-            from pybosl2.turtle3d import Turtle, turtle3d, TurtleCommand, TurtleCommandType as Tct
-            from pybosl2.path3d import Path3D
-
-            sq = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
-            path = turtle3d([
-                TurtleCommand(Tct.MOVE, size=20),
-                TurtleCommand(Tct.ARCLEFT, radius=3),
-                TurtleCommand(Tct.MOVE, size=20),
-                TurtleCommand(Tct.ARCLEFT, radius=3),
-                TurtleCommand(Tct.MOVE, size=20),
-                TurtleCommand(Tct.ARCLEFT, radius=3),
-                TurtleCommand(Tct.MOVE, size=20),
-                TurtleCommand(Tct.ARCLEFT, radius=3),
-            ]).points()
-            Path3D(path).path_sweep(sq, closed=True).polyhedron().show()
-    """
-
-    def run(self, commands: Sequence[TurtleCommand], repeat: int = 1) -> Turtle:
-        """Execute *commands* (optionally *repeat* times), advancing this turtle's state.
-
-        Returns:
-            self.
-        """
-        super().run(commands, repeat)
-        return self
 
 
 # -- convenience function ----------------------------------------------------
@@ -763,13 +783,13 @@ def turtle3d(
     commands: Sequence[TurtleCommand],
     state: Any = RIGHT,
     repeat: int = 1,
-) -> Turtle:
+) -> Turtle3D:
     """Build a 3-D path from :class:`TurtleCommand` objects — BOSL2's ``turtle3d()``.
 
-    Creates a :class:`Turtle`, runs *commands* (optionally *repeat* times),
-    and returns the turtle. Access the path via :meth:`Turtle.points`, the
-    sweep transforms via :meth:`Turtle.transforms`, or the raw state via
-    :meth:`Turtle.full_state`.
+    Creates a :class:`Turtle3D`, runs *commands* (optionally *repeat* times),
+    and returns the turtle. Access the path via :meth:`Turtle3D.points`, the
+    sweep transforms via :meth:`Turtle3D.transforms`, or the raw state via
+    :meth:`Turtle3D.full_state`.
 
     Args:
         commands: A flat list of :class:`TurtleCommand` objects.
@@ -777,7 +797,7 @@ def turtle3d(
         repeat: Number of times to repeat the command list.
 
     Returns:
-        The :class:`Turtle` instance after executing all commands.
+        The :class:`Turtle3D` instance after executing all commands.
 
     Examples:
         A rounded square path swept into a tube:
@@ -800,4 +820,4 @@ def turtle3d(
             ]).points()
             Path3D(path).path_sweep(sq, closed=True).polyhedron().show()
     """
-    return Turtle(state).run(commands, repeat)
+    return Turtle3D(state).run(commands, repeat)

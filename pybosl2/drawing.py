@@ -41,7 +41,7 @@ from pybosl2.shapes2d import arc
 # PyShapes under use_backend("sdf").
 from pybosl2.solid import cyl as _cyl  # type: ignore[attr-defined]
 from pybosl2.solid import sphere as _sphere  # type: ignore[attr-defined]
-from pybosl2.turtle2d import Turtle2D, TurtleState, turtle2d
+from pybosl2.turtle2d import Turtle2D, Turtle2DState, turtle2d
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -52,7 +52,7 @@ __all__ = [
     "helix",
     "turtle2d",
     "Turtle2D",
-    "TurtleState",
+    "Turtle2DState",
     "stroke",
     "dashed_stroke",
     "CapSpec",
@@ -379,7 +379,7 @@ def dashed_stroke(
         out: list[Any] = []
         for p in path:
             out.extend(dashed_stroke(list(p), dashpat, closed=True, fit=fit, mindash=mindash))
-        return out  # type: ignore[return-value]
+        return out
 
     raw = [list(map(float, p)) for p in path]
     # a 3-D path yields 3-D dashes (Path3D); a 2-D path yields Path2D
@@ -402,13 +402,13 @@ def dashed_stroke(
                 cuts.append(x)
     cuts = sorted(c for c in cuts)
     if not cuts:
-        return [wrap(raw, closed=False)]  # type: ignore[return-value]
+        return [wrap(raw, closed=False)]
     dashes = wrap(raw).cut(cuts, closed=False)
     dcnt = len(dashes)
     evens = []
     for i, dash in enumerate(dashes):
         if i % 2 != 0:
             continue
-        if i < dcnt - 1 or wrap(dash.array, closed=False).perimeter() > mindash:  # type: ignore[arg-type]
+        if i < dcnt - 1 or wrap(dash.array, closed=False).perimeter() > mindash:
             evens.append(wrap(dash, closed=False))  # type: ignore[arg-type]
-    return evens  # type: ignore[return-value]
+    return evens
