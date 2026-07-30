@@ -27,10 +27,11 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2.beziers import Bezier
     from pybosl2.path3d import Path3D
-    from pybosl2.points import Vector
     from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
+
+from shapely.geometry import LineString, Polygon
 
 from pybosl2._path_math import (
     _path_curvature,
@@ -40,11 +41,8 @@ from pybosl2._path_math import (
     _path_cut_single,
     _path_cuts_dir,
     _path_cuts_normals,
-    _path_length_fractions,
-    _path_normals,
     _path_plane,
     _path_select,
-    _path_tangents,
     _path_torsion,
 )
 from pybosl2.bounds import Bounds2D
@@ -66,7 +64,7 @@ from pybosl2.paths import (
     Path,
     SubdivideMethod,
 )
-from pybosl2.points import Point
+from pybosl2.points import Point, Vector
 from pybosl2.rounding import Roundable
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import unit
@@ -196,14 +194,36 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
-            self._points: np.ndarray = np.empty((0, 2), dtype=np.float64)
-        else:
-            assert pts.ndim == 2, f"Path2D needs a list of [x, y] points, got {pts.ndim}D array"
-            assert pts.shape[1] == 2, f"Path2D needs [x, y] points, got shape {pts.shape}"
-            assert pts.dtype == np.float64, f"Path2D needs float64 points, got {pts.dtype}"
-            self._points = pts
+            self._geom = LineString()
+            self.closed = closed
+            return
+        assert pts.ndim == 2, f"Path2D needs a list of [x, y] points, got {pts.ndim}D array"
+        assert pts.shape[1] == 2, f"Path2D needs [x, y] points, got shape {pts.shape}"
+        assert pts.dtype == np.float64, f"Path2D needs float64 points, got {pts.dtype}"
         self.closed = closed
-        self._shapely_cache: object = None
+        coords = [(float(p[0]), float(p[1])) for p in pts]
+        self._geom = LineString(coords)
+
+    def _closed_coords(self) -> np.ndarray:
+        """Return coordinates with the closing segment appended for closed paths."""
+        coords = list(self._geom.coords)
+        if self.closed and len(coords) >= 2 and coords[0] != coords[-1]:
+            coords.append(coords[0])
+        return np.array(coords, dtype=np.float64)
+
+    @property
+    def _points(self) -> np.ndarray:
+        return np.array(self._geom.coords, dtype=np.float64)
+
+    @_points.setter
+    def _points(self, value: np.ndarray) -> None:
+        coords = [(float(p[0]), float(p[1])) for p in value]
+        self._geom = LineString(coords)
+
+    @property
+    def _shapely(self):
+        """The Shapely LineString."""
+        return self._geom
 
     def __len__(self) -> int:
         return len(self._points)
@@ -230,33 +250,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self._points.tolist()
 
     @property
-    def _shapely(self):
-        """Cached Shapely LineString (open) or LinearRing (closed) for this path."""
-        if self._shapely_cache is None:
-            from shapely.geometry import LinearRing, LineString
-
-            pts = [(float(p[0]), float(p[1])) for p in self._points]
-            if self.closed and len(pts) >= 3:
-                if not np.allclose(pts[0], pts[-1]):
-                    pts.append(pts[0])
-                self._shapely_cache = LinearRing(pts)
-            else:
-                self._shapely_cache = LineString(pts)
-        return self._shapely_cache
-
-    @property
     def _shapely_polygon(self):
-        """Cached Shapely Polygon for area/contains operations."""
-        if not self.closed or len(self._points) < 3:
-            from shapely.geometry import Polygon as _Polygon
-
-            return _Polygon()
-        if not hasattr(self, "_shapely_polygon_cache"):
-            pts = [(float(p[0]), float(p[1])) for p in self._points]
-            from shapely.geometry import Polygon as _Polygon
-
-            self._shapely_polygon_cache = _Polygon(pts)
-        return self._shapely_polygon_cache
+        """Shapely Polygon from the path (requires closed)."""
+        if not self.closed:
+            return Polygon()
+        coords = self._closed_coords()
+        return Polygon(coords.tolist()) if len(coords) >= 3 else Polygon()
 
     @classmethod
     def from_list(cls, lst: Sequence, closed: bool = True) -> "Path2D":
@@ -284,21 +283,18 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        coords = np.asarray(self._shapely.coords)
+        coords = self._closed_coords() if closed else np.asarray(self._shapely.coords)
         return np.linalg.norm(np.diff(coords, axis=0), axis=1)
 
     def length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
-        """Distance fraction of each point in the path (0 at start, 1 at end).
-
-        Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            An ndarray of cumulative length fractions, from 0 to 1.
-        """
+        """Distance fraction of each point in the path (0 at start, 1 at end)."""
         if closed is None:
             closed = self.closed
-        return _path_length_fractions(self._points, closed)
+        coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
+        segs = np.linalg.norm(np.diff(coords, axis=0), axis=1)
+        cum = np.concatenate([[0.0], np.cumsum(segs)])
+        total = cum[-1]
+        return cum / total if total > 1e-12 else np.zeros(len(coords), dtype=np.float64)
 
     def closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
         """The closest point on the path to *pt*.
@@ -321,35 +317,63 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Point(float(proj.x), float(proj.y))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Vector]":
-        """Normalized tangent vector at each point of the path, as an ndarray.
+        """Normalized tangent vector at each point of the path.
 
         Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-            uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
-
-        Returns:
-            An ndarray of unit tangent vectors, one per path point.
+            closed: Override the instance's closed flag.
+            uniform: If True, simple segment-direction tangents.
+                     If False, segment-length-weighted average at shared points.
         """
         if closed is None:
             closed = self.closed
-        return _path_tangents(self._points, closed, uniform=uniform)
+        coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
+        n = len(coords)
+        if n < 2:
+            return [Vector(1.0, 0.0)] * n
+        diffs = np.diff(coords, axis=0)
+        if closed:
+            diffs = np.vstack([diffs, coords[-1] - coords[0]])
+        lengths = np.linalg.norm(diffs, axis=1, keepdims=True)
+        lengths = np.where(lengths < 1e-12, 1.0, lengths)
+        dirs = diffs / lengths
+
+        if uniform:
+            return [Vector(float(v[0]), float(v[1])) for v in dirs]
+
+        seg_lens = lengths.flatten()
+        result = []
+        m = len(dirs)
+        for i in range(n):
+            if closed:
+                prev_i = (i - 1) % (m - 1) if m > 1 else 0
+                curr_i = i % (m - 1) if m > 1 else 0
+                w_prev = seg_lens[prev_i]
+                w_curr = seg_lens[curr_i]
+            elif i == 0:
+                result.append(Vector(float(dirs[0][0]), float(dirs[0][1])))
+                continue
+            elif i == n - 1:
+                result.append(Vector(float(dirs[-1][0]), float(dirs[-1][1])))
+                continue
+            else:
+                w_prev = seg_lens[i - 1]
+                w_curr = seg_lens[i]
+
+            d_prev = dirs[(i - 1) % m] if i > 0 else dirs[0]
+            d_curr = dirs[i % m] if i < m else dirs[0]
+            weighted = d_prev * w_prev + d_curr * w_curr
+            w_norm = float(np.linalg.norm(weighted))
+            if w_norm < 1e-12:
+                result.append(Vector(float(d_curr[0]), float(d_curr[1])))
+            else:
+                result.append(Vector(float(weighted[0]) / w_norm, float(weighted[1]) / w_norm))
+        return result
 
     def normals(self, tangents: "list[Vector] | None" = None, closed: bool | None = None) -> "list[Vector]":
-        """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
-
-        For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
-        principal normal estimated via the triple-product cross.
-
-        Args:
-            tangents: Optional pre-computed tangent vectors; computed automatically if None.
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            An ndarray of unit normal vectors, one per path point.
-        """
-        if closed is None:
-            closed = self.closed
-        return _path_normals(self._points, closed, tangents=tangents)
+        """Perpendicular unit normal at each point (90° rotation of tangent)."""
+        if tangents is None:
+            tangents = self.tangents(closed=closed)
+        return [Vector(-t[1], t[0]) for t in tangents]
 
     def curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Numeric curvature estimate of the path at each point, as an ndarray.
@@ -399,7 +423,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         cuts = sorted(set(cuts))
         if not cuts:
             return [self.__class__(self._points.tolist(), closed=self.closed)]
-        sub_paths = []
+        sub_paths: list[Path2D] = []
         prev = 0.0
         for c in cuts:
             c = max(0.0, min(total, c))

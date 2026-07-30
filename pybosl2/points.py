@@ -15,7 +15,7 @@ and path operations.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Iterable, Sequence
 
 import numpy as np
 
@@ -188,6 +188,22 @@ class Vector(list[float]):
     ``len() == 2`` means a 2‑D vector (``is_2d`` is ``True``); ``len() == 3``
     is a 3‑D vector.  Use :meth:`to_3d` to add a Z coordinate.
     """
+
+    def __init__(
+        self, x: float | Sequence[float] | Iterable[float], y: float | None = None, z: float | None = None
+    ) -> None:
+        if isinstance(x, (list, tuple, np.ndarray)):
+            super().__init__([float(v) for v in x])
+        elif isinstance(x, (int, float)) and y is not None and z is not None:
+            super().__init__([float(x), float(y), float(z)])
+        elif isinstance(x, (int, float)) and y is not None:
+            super().__init__([float(x), float(y)])
+        elif isinstance(x, (int, float)):
+            super().__init__([float(x)])
+        else:
+            super().__init__([float(v) for v in x])
+        if len(self) not in (2, 3):
+            raise ValueError(f"Vector must be 2-D or 3-D, got {len(self)} dimensions")
 
     @property
     def x(self) -> float:
