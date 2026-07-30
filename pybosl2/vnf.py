@@ -20,6 +20,8 @@
 # FileSummary: VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad).
 # FileGroup: BOSL2
 
+from typing import Any
+
 import numpy as np
 
 _EPS = 1e-9
@@ -37,7 +39,7 @@ def _lofttri(p1, p2, i1off: int, i2off: int, n1: int, n2: int, reverse: bool, tr
     """
     a1 = np.asarray(p1, dtype=float)
     a2 = np.asarray(p2, dtype=float)
-    tris: list = []
+    tris: list[Any] = []
     if n1 != n2:
         i1 = i2 = 0
         tc1 = tc2 = 0
@@ -142,8 +144,8 @@ class VNF:
         vnfs = list(vnfs)
         if len(vnfs) == 1:
             return vnfs[0]
-        verts: list = []
-        faces: list = []
+        verts: list[Any] = []
+        faces: list[Any] = []
         off = 0
         for v in vnfs:
             for f in v.faces:
@@ -216,7 +218,7 @@ class VNF:
                     verts.append(corners.mean(axis=0).tolist())
 
         vertsarr = np.asarray(verts, dtype=float)
-        faces: list = []
+        faces: list[Any] = []
         if cap1:
             faces.append(_count(cols, 0, reverse=not reverse))
         if cap2:
@@ -297,7 +299,7 @@ class VNF:
         capfirst = cap1 if cap1 is not None else (caps if caps is not None else False)
         caplast = cap2 if cap2 is not None else (caps if caps is not None else False)
 
-        faces: list = []
+        faces: list[Any] = []
         if capfirst:
             rng = list(range(rowstarts[0] - addcol)) if reverse else list(range(rowstarts[0] - 1 - addcol, -1, -1))
             faces.append(rng)

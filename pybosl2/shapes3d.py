@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import math
 import numbers
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -719,7 +719,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def edge_mask(
         self,
         edges: str | list = "ALL",
-        except_edges: list | None = None,
+        except_edges: list[Any] | None = None,
         children: PyOpenSCAD | None = None,
         bbox=None,
     ) -> "Bosl2Solid":
@@ -752,7 +752,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def edge_profile(
         self,
         edges: str | list = "ALL",
-        except_edges: list | None = None,
+        except_edges: list[Any] | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
         bbox=None,
@@ -795,7 +795,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def edge_profile_asym(
         self,
         edges: str | list = "ALL",
-        except_edges: list | None = None,
+        except_edges: list[Any] | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
     ) -> "Bosl2Solid":
@@ -804,7 +804,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def corner_profile(
         self,
         corners: str | list = "ALL",
-        except_corners: list | None = None,
+        except_corners: list[Any] | None = None,
         radius: float | None = None,
         diameter: float | None = None,
         children: Sequence[Sequence[float]] | None = None,
@@ -1201,7 +1201,7 @@ def cuboid(
     chamfer: float | None = None,
     rounding: float | None = None,
     edges: str | list = "ALL",
-    except_edges: list | None = None,
+    except_edges: list[Any] | None = None,
     trimcorners: bool = True,
     teardrop: bool | float = False,
     anchor: Sequence[float] = CENTER,
@@ -3026,7 +3026,7 @@ def _point3d(v: Sequence[float]) -> list[float]:
 
 
 def _cut_interp(
-    pathcut: list, path: Sequence[Sequence[float]] | Path2D | Path3D, data: Sequence[Sequence[float]]
+    pathcut: list[Any], path: Sequence[Sequence[float]] | Path2D | Path3D, data: Sequence[Sequence[float]]
 ) -> list[list[float]]:
     """Port of BOSL2's `_cut_interp()`: linearly interpolates a per-path-vertex vector array
     `data` to the fractional position of each `cut_points()` cut point.

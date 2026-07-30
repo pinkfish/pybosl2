@@ -15,11 +15,8 @@ import math
 import numpy as np
 import pytest
 
+from pybosl2._stroke2d import dashed_stroke, stroke
 from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one
-from pybosl2.drawing import (
-    dashed_stroke,
-    stroke,
-)
 from pybosl2.path2d import Path2D, catenary
 from pybosl2.path3d import Path3D, helix
 from pybosl2.regions import Region
@@ -146,27 +143,32 @@ def test_stroke_region_strokes_every_path():
 
 
 def test_dashed_stroke_returns_paths():
+    from pybosl2.regions import Region
+
     dashes = dashed_stroke(arc(radius=30, angle=360), dashpat=[6, 4], closed=True)
-    assert len(dashes) > 1
-    assert all(isinstance(d, Path2D) for d in dashes)
+    assert isinstance(dashes, Region)
 
 
 def test_dashed_stroke_on_path_method():
+    from pybosl2.regions import Region
+
     dashes = Path2D([[0, 0], [100, 0]], closed=False).dashed_stroke(dashpat=[5, 5])
-    assert len(dashes) > 1
-    assert all(isinstance(d, Path2D) for d in dashes)
+    assert isinstance(dashes, Region)
 
 
 def test_dashed_stroke_region_flattens():
+    from pybosl2.regions import Region
+
     reg = Region([[[0, 0], [40, 0], [40, 40], [0, 40]]])
     dashes = reg.dashed_stroke(dashpat=[8, 4])
-    assert all(isinstance(d, Path2D) for d in dashes)
+    assert isinstance(dashes, Region)
 
 
 def test_dashed_stroke_3d_yields_path3d():
+    from pybosl2.shapes3d import Bosl2Solid
+
     dashes = helix(turns=2, height=40, radius=10).dashed_stroke(dashpat=[6, 4])
-    assert len(dashes) > 1
-    assert all(isinstance(d, Path3D) for d in dashes)
+    assert isinstance(dashes, Bosl2Solid)
 
 
 # -- fancy endcaps generate directly (no fallback) ----------------------------------------

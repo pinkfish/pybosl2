@@ -561,11 +561,11 @@ class PyShape(Distributable):
             modes,
         )
 
-    def round(self, radius: float, edges: str | list = "ALL", except_edges: list | None = None) -> PyShape:
+    def round(self, radius: float, edges: str | list = "ALL", except_edges: list[Any] | None = None) -> PyShape:
         """Round the selected edges by `radius`, in addition to any existing edge treatment."""
         return self._edge_treat(radius, edges, except_edges, "round")
 
-    def chamfer(self, size: float, edges: str | list = "ALL", except_edges: list | None = None) -> PyShape:
+    def chamfer(self, size: float, edges: str | list = "ALL", except_edges: list[Any] | None = None) -> PyShape:
         """Chamfer the selected edges by `size`, in addition to any existing edge treatment."""
         return self._edge_treat(size, edges, except_edges, "chamfer")
 
@@ -582,7 +582,7 @@ class PyShape(Distributable):
         entries: list[tuple[str, Any]] = []
         mn = [math.inf] * 3
         mx = [-math.inf] * 3
-        child_res: list[int] = []
+        child_res: list[Any] = []
         for a in args:
             if isinstance(a, PyShape):
                 entries.append(("shape", a))
@@ -653,7 +653,7 @@ class PyShape(Distributable):
 # ---------------------------------------------------------------------------
 
 
-def _as_shape_list(shapes: tuple) -> list[PyShape]:
+def _as_shape_list(shapes: tuple[Any, ...]) -> list[PyShape]:
     """Varargs-or-single-iterable: `union(a, b)` and `union([a, b])` both work, matching the
     two calling conventions the box libraries already mix (OpenSCAD-style children vs.
     pybosl2-style list arguments)."""
@@ -667,7 +667,7 @@ def _as_shape_list(shapes: tuple) -> list[PyShape]:
     return out
 
 
-def _balanced(op: Callable[[LVTree, LVTree], LVTree], vals: list) -> LVTree:
+def _balanced(op: Callable[[LVTree, LVTree], LVTree], vals: list[Any]) -> LVTree:
     """Reduce `vals` with `op` as a balanced tree (depth log n) rather than a left fold
     (depth n) -- same node count either way, but libfive re-evaluates the whole expression
     per sample point and shallow trees keep its interval pruning effective on wide unions."""
@@ -784,7 +784,7 @@ def cuboid(
     rounding: float = 0,
     chamfer: float = 0,
     edges: str | list = "ALL",
-    except_edges: list | None = None,
+    except_edges: list[Any] | None = None,
     res: int = 10,
     anchor: "Sequence[float]" = CENTER,
 ) -> PyShape:

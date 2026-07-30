@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from pybosl2.points import Point, Vector
+    from pybosl2.shapes3d import Bosl2Solid
 
 
 from pybosl2.bounds import Bounds3D
@@ -756,83 +757,37 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return Path2D(self._points[:, :2].tolist(), closed=self.closed)
 
+    # -- distributors (pybosl2/distributors.py) ----------------------------------------------
+
     def stroke(
         self,
         width: float = 1,
         closed: bool | None = None,
-        endcaps: CapType | CapSpec = CapType.ROUND,
+        endcaps: CapType | CapSpec = CapType.ROUND,  # noqa: ARG002
         endcap1: CapType | CapSpec = CapType.ROUND,
         endcap2: CapType | CapSpec = CapType.ROUND,
-        joints: CapType | CapSpec = CapType.ROUND,
-        dots: bool = False,
-        color: str | None = None,
-    ) -> Any:
-        """Draw this 3-D path as a solid tube of the given *width*.
+        joints: CapType | CapSpec = CapType.ROUND,  # noqa: ARG002
+    ) -> "Bosl2Solid":
+        """Render this 3-D path as a solid tube."""
+        from pybosl2._stroke3d import stroke_3d
 
-        Delegates to :func:`pybosl2.drawing.stroke`.
-
-        Args:
-            width: The tube diameter.
-            closed: Override the path's closed setting; uses the path's own if None.
-            endcaps: Cap style for both ends (``endcap1``/``endcap2`` override).
-            endcap1: Cap style for the start of the path.
-            endcap2: Cap style for the end of the path.
-            joints: Style for interior corners (default ``ROUND``).
-            dots: If True, mark every vertex with a round dot.
-            color: Optional colour applied to the whole stroke.
-
-        Returns:
-            A 3-D geometry object from the stroke operation.
-
-        Examples:
-            .. pythonscad-example::
-
-                coil = helix(turns=3, height=60, radius=20).resample(sides=120)
-                coil.stroke(width=4).show()
-        """
-        from pybosl2.drawing import stroke as _stroke
-
-        return _stroke(
-            self,
-            width=width,
-            closed=self.closed if closed is None else closed,
-            endcaps=endcaps,
-            endcap1=endcap1,
-            endcap2=endcap2,
-            joints=joints,
-            dots=dots,
-            color=color,
+        return stroke_3d(
+            self, width=width, closed=self.closed if closed is None else closed, endcap1=endcap1, endcap2=endcap2
         )
 
     def dashed_stroke(
         self,
-        dashpat: Sequence[float] = (3, 3),
+        dashpat: Sequence[float] | None = None,
         closed: bool | None = None,
         fit: bool = True,
         mindash: float = 0.5,
-    ) -> "list[Path2D | Path3D]":
-        """Break this 3-D path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`).
+    ) -> "Bosl2Solid":
+        """Break this 3-D path into dashed tube segments, unioned."""
+        from pybosl2._stroke3d import dashed_stroke_3d
 
-        Args:
-            dashpat: Sequence of dash/gap lengths alternating.
-            closed: Override the path's closed setting; uses the path's own if None.
-            fit: Scale the pattern to fit a whole number of repeats.
-            mindash: Drop a trailing dash shorter than this.
-
-        Returns:
-            A list of :class:`Path2D` or :class:`Path3D` sub-paths representing the dashes.
-        """
-        from pybosl2.drawing import dashed_stroke as _dashed
-
-        return _dashed(
-            self,
-            dashpat=dashpat,
-            closed=self.closed if closed is None else closed,
-            fit=fit,
-            mindash=mindash,
+        return dashed_stroke_3d(
+            self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit, mindash=mindash
         )
-
-    # -- distributors (pybosl2/distributors.py) ----------------------------------------------
 
     def _distribute(self, mats: list[np.ndarray]) -> list["Path3D"]:
         # Apply each copier matrix, returning the list of 3-D copies (BOSL2's function form).

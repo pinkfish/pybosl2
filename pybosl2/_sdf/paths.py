@@ -284,12 +284,12 @@ def _hull2d_points(pts: ArrayLike) -> NDArray[np.float64]:
     def cross(o: tuple[float, float], a: tuple[float, float], b: tuple[float, float]) -> float:
         return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
-    lower: list = []
+    lower: list[Any] = []
     for p in unique:
         while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
             lower.pop()
         lower.append(p)
-    upper: list = []
+    upper: list[Any] = []
     for p in reversed(unique):
         while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
             upper.pop()
@@ -774,7 +774,7 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     for dist in cutdist:
         lastpt = None if not result else result[-1][0]
         dpartial = 0.0 if not result else float(np.linalg.norm(select(path, pind) - lastpt))  # type: ignore[operator]
-        nextpoint: list
+        nextpoint: list[Any]
         if dist < dpartial + dtotal:
             t = (dist - dtotal) / dpartial
             nextpoint = [_lerp_pt(lastpt, select(path, pind), t), pind]  # type: ignore[arg-type]
@@ -862,7 +862,7 @@ def round_corners(
         assert angle > 1e-9, f"Path2D turns back on itself at index {i} with nonzero rounding"
         dk.append([parm[i] / math.tan(math.radians(angle)), parm[i]])
 
-    out: list = []
+    out: list[Any] = []
     for i in range(n):
         if dk[i][0] == 0:
             out.append(path[i])
@@ -870,7 +870,7 @@ def round_corners(
         p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
         out.extend(_circlecorner(p0, p1, p2, dk[i][0], dk[i][1], fn))
     # drop consecutive duplicates (arc endpoints can coincide with straight-segment ends)
-    cleaned: list = []
+    cleaned: list[Any] = []
     for q in out:
         if not cleaned or math.dist(cleaned[-1], q) > 1e-9:
             cleaned.append(q)

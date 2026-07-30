@@ -641,7 +641,7 @@ def partition_cut_mask(
             from pybosl2.partitions import partition_cut_mask
             (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath="jigsaw", slop=0.15)).show()
     """
-    from pybosl2.drawing import stroke as _stroke
+    from pybosl2._stroke2d import stroke as _stroke
     from pybosl2.shapes3d import Bosl2Solid
 
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]

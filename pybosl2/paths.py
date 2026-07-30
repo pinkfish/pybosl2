@@ -29,6 +29,8 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+from pybosl2.caps import CapSpec, CapType
+
 if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this module
     from collections.abc import Sequence
 
@@ -1050,5 +1052,32 @@ class Path(ABC):
 
         Returns:
             A list of points representing the selected portion of the path.
+        """
+        ...
+
+    @abstractmethod
+    def stroke(
+        self,
+        width: float = 1,
+        closed: bool | None = None,
+        endcaps: CapType | CapSpec = CapType.ROUND,
+        endcap1: CapType | CapSpec = CapType.ROUND,
+        endcap2: CapType | CapSpec = CapType.ROUND,
+        joints: CapType | CapSpec = CapType.ROUND,
+    ) -> Any:
+        """Render the path as a stroked polygon outline (2-D) or solid tube (3-D)."""
+        ...
+
+    @abstractmethod
+    def dashed_stroke(
+        self,
+        dashpat: Sequence[float] | None = None,
+        closed: bool | None = None,
+        fit: bool = True,
+        mindash: float = 0.5,
+    ) -> Any:
+        """Break the path into dashed segments and stroke them.
+
+        Returns a :class:`Region` for 2-D, :class:`Bosl2Solid` for 3-D.
         """
         ...

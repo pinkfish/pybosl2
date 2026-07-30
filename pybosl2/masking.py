@@ -42,7 +42,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._native import native
 
@@ -220,7 +220,7 @@ def _extrude_mask_along_edge(
 def edge_mask(
     body: PyOpenSCAD,
     edges: str | list = "ALL",
-    except_edges: list | None = None,
+    except_edges: list[Any] | None = None,
     children: PyOpenSCAD | None = None,
     size: Sequence[float] | None = None,
     anchor: Sequence[float] = CENTER,
@@ -258,7 +258,7 @@ def edge_mask(
 def edge_profile(
     body: PyOpenSCAD,
     edges: str | list = "ALL",
-    except_edges: list | None = None,
+    except_edges: list[Any] | None = None,
     children: Sequence[Sequence[float]] | None = None,
     size: Sequence[float] | None = None,
     convexity: int = 10,
@@ -353,7 +353,7 @@ def _corner_cutter(
 def corner_profile(
     body: PyOpenSCAD,
     corners: str | list = "ALL",
-    except_corners: list | None = None,
+    except_corners: list[Any] | None = None,
     radius: float | None = None,
     diameter: float | None = None,
     size: Sequence[float] | None = None,

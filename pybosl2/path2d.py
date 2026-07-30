@@ -1441,93 +1441,45 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         ]
         return reduce(operator.or_, [solid, *labels]) if labels else solid
 
-    # -- drawing (pybosl2/drawing.py) --------------------------------------------------------
+    # -- distributors (pybosl2/distributors.py) ----------------------------------------------
 
     def stroke(
         self,
         width: float = 1,
         closed: bool | None = None,
-        endcaps: CapType | CapSpec = CapType.ROUND,
+        endcaps: CapType | CapSpec = CapType.ROUND,  # noqa: ARG002
         endcap1: CapType | CapSpec = CapType.ROUND,
         endcap2: CapType | CapSpec = CapType.ROUND,
         joints: CapType | CapSpec = CapType.ROUND,
-        dots: bool = False,
-        color: str | None = None,
-    ) -> Any:
-        """Draw this path as a solid line of the given *width*.
+    ) -> "Path2D":
+        """Render this 2-D path as a stroked polygon outline."""
+        from pybosl2._stroke2d import stroke_2d
 
-        Delegates to :func:`pybosl2.drawing.stroke`.
-
-        Args:
-            width: The line width.
-            closed: Override the path's closed setting; uses the path's own if None.
-            endcaps: Cap style for both ends (``endcap1``/``endcap2`` override).
-            endcap1: Cap style for the start of the path.
-            endcap2: Cap style for the end of the path.
-            joints: Style for interior corners (default ``ROUND``).
-            dots: If True, mark every vertex with a round dot.
-            color: Optional colour applied to the whole stroke.
-
-        Returns:
-            A 2-D or 3-D geometry object from the stroke operation.
-
-        Examples:
-            .. pythonscad-example::
-
-                square = square(50)
-                square.stroke(width=2).show()
-        """
-        from pybosl2.drawing import stroke as _stroke
-
-        return _stroke(
+        return stroke_2d(
             self,
             width=width,
             closed=self.closed if closed is None else closed,
-            endcaps=endcaps,
             endcap1=endcap1,
             endcap2=endcap2,
             joints=joints,
-            dots=dots,
-            color=color,
         )
 
     def dashed_stroke(
         self,
-        dashpat: Sequence[float] = (3, 3),
+        dashpat: Sequence[float] | None = None,
         closed: bool | None = None,
         fit: bool = True,
         mindash: float = 0.5,
-    ) -> "list[Path2D | Path3D]":
-        """Break this path into dash sub-paths (see :func:`pybosl2.drawing.dashed_stroke`).
+    ) -> "Region":
+        """Break this 2-D path into dashed polygon outlines.
 
-        Args:
-            dashpat: Sequence of dash/gap lengths alternating.
-            closed: Override the path's closed setting; uses the path's own if None.
-            fit: Scale the pattern to fit a whole number of repeats.
-            mindash: Drop a trailing dash shorter than this.
-
-        Returns:
-            A list of :class:`Path2D` or :class:`Path3D` sub-paths representing the dashes.
-
-        Examples:
-            .. pythonscad-example::
-
-                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
-                result = pts.dashed_stroke(dashpat=[8, 4])
-                for dash in result:
-                    dash.stroke(width=1).linear_extrude(h=3).show()
+        Returns a :class:`Region` of dash polygons.
         """
-        from pybosl2.drawing import dashed_stroke as _dashed
+        from pybosl2._stroke2d import dashed_stroke_2d
 
-        return _dashed(
-            self,
-            dashpat=dashpat,
-            closed=self.closed if closed is None else closed,
-            fit=fit,
-            mindash=mindash,
+        return dashed_stroke_2d(
+            self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit, mindash=mindash
         )
-
-    # -- distributors (pybosl2/distributors.py) ----------------------------------------------
 
     def _distribute(self, mats: list[np.ndarray]) -> list["Path2D"]:
         # Apply each copier matrix, returning the list of 2-D copies (BOSL2's function form).
@@ -2098,7 +2050,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _assemble_a_path_from_fragments(
-        fragments: list,
+        fragments: list[Any],
         rightmost: bool = True,
         startfrag: int = 0,
         eps: float = EPSILON,
@@ -2138,7 +2090,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             remainder = remainder2
 
     @staticmethod
-    def _assemble_path_fragments(fragments: list, eps: float = EPSILON) -> list:
+    def _assemble_path_fragments(fragments: list[Any], eps: float = EPSILON) -> list:
         """Assemble fragments into complete closed polygon paths, discarding any with area < eps.
 
         Args:
