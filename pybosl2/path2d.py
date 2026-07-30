@@ -32,6 +32,24 @@ if TYPE_CHECKING:
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
+from pybosl2._path_math import (
+    _path_curvature,
+    _path_cut,
+    _path_cut_getpaths,
+    _path_cut_points,
+    _path_cut_points_recurse,
+    _path_cut_single,
+    _path_cuts_dir,
+    _path_cuts_normals,
+    _path_length_fractions,
+    _path_normals,
+    _path_plane,
+    _path_select,
+    _path_tangents,
+    _path_torsion,
+    _resample_path,
+    _subdivide_path,
+)
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.comparisons import approx
@@ -49,22 +67,6 @@ from pybosl2.miscellaneous import Extrudable
 from pybosl2.paths import (
     CutPoint,
     Path,
-    _path_curvature,
-    _path_cut,
-    _path_cut_getpaths,
-    _path_cut_points,
-    _path_cut_points_recurse,
-    _path_cut_single,
-    _path_cuts_dir,
-    _path_cuts_normals,
-    _path_length_fractions,
-    _path_normals,
-    _path_plane,
-    _path_select,
-    _path_tangents,
-    _path_torsion,
-    _resample_path,
-    _subdivide_path,
 )
 from pybosl2.points import Point
 from pybosl2.rounding import Roundable

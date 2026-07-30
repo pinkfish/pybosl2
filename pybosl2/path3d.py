@@ -26,15 +26,7 @@ if TYPE_CHECKING:
     from pybosl2.shapes3d import Bosl2Solid
 
 
-from pybosl2.bounds import Bounds3D
-from pybosl2.caps import CapSpec, CapType
-from pybosl2.distributors import Distributable, _apply4
-from pybosl2.math import lerp, lerpn
-from pybosl2.miscellaneous import Extrudable
-from pybosl2.path2d import Path2D
-from pybosl2.paths import (
-    CutPoint,
-    Path,
+from pybosl2._path_math import (
     _path_closest_point,
     _path_curvature,
     _path_cut,
@@ -54,6 +46,16 @@ from pybosl2.paths import (
     _path_total_length,
     _resample_path,
     _subdivide_path,
+)
+from pybosl2.bounds import Bounds3D
+from pybosl2.caps import CapSpec, CapType
+from pybosl2.distributors import Distributable, _apply4
+from pybosl2.math import lerp, lerpn
+from pybosl2.miscellaneous import Extrudable
+from pybosl2.path2d import Path2D
+from pybosl2.paths import (
+    CutPoint,
+    Path,
 )
 from pybosl2.rounding import Roundable
 from pybosl2.shapes2d import _frag_count, _pick_radius
