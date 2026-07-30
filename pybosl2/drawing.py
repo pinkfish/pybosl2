@@ -201,8 +201,8 @@ def _stroke3d(pts, width, closed, endcap1: CapSpec, endcap2: CapSpec):
             continue
         seg = _oriented_to(
             _cyl(height=length, radius=radius).translate([0, 0, length / 2]),
-            diameter,
-            a,
+            [float(c) for c in diameter],
+            [float(c) for c in a],
         )
         shapes.append(seg)
     for i in range(sides) if closed else range(1, sides - 1):
