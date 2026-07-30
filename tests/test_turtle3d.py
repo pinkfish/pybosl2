@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for pybosl2.turtle3d (the Turtle class) and the debug_polygon/debug_region methods."""
+"""Tests for "pybosl2.turtle.turtle3d" (the Turtle class) and the debug_polygon/debug_region methods."""
 
 import numpy as np
 import pytest
@@ -12,8 +12,8 @@ import pytest
 from pybosl2.path2d import Path2D
 from pybosl2.regions import Region
 from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.turtle3d import Turtle3D, TurtleCommand, turtle3d
-from pybosl2.turtle3d import TurtleCommandType as Tct
+from pybosl2.turtle import Turtle3D, TurtleCommand, turtle3d
+from pybosl2.turtle import TurtleCommandType as Tct
 
 M = TurtleCommand
 

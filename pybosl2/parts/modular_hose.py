@@ -20,11 +20,9 @@ import math
 from typing import TYPE_CHECKING
 
 from pybosl2._native import native
-from pybosl2.drawing import turtle2d
 from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.turtle2d import Turtle2DState
-from pybosl2.turtle3d import TurtleCommand
-from pybosl2.turtle3d import TurtleCommandType as TCT  # noqa: N817
+from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
+from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon

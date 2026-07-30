@@ -22,13 +22,12 @@ from pybosl2.drawing import (
     dashed_stroke,
     helix,
     stroke,
-    turtle2d,
 )
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.regions import Region
-from pybosl2.turtle3d import TurtleCommand
-from pybosl2.turtle3d import TurtleCommandType as Tct
+from pybosl2.turtle import TurtleCommand, turtle2d
+from pybosl2.turtle import TurtleCommandType as Tct
 
 # -- arc returns a Path2D -----------------------------------------------------------------
 
@@ -155,7 +154,7 @@ def test_turtle_repeat_closes_square():
 
 
 def test_turtle_full_state():
-    from pybosl2.turtle2d import Turtle2DState
+    from pybosl2.turtle import Turtle2DState
 
     st = turtle2d([TurtleCommand(Tct.MOVE, size=5)]).full_state()
     assert isinstance(st, Turtle2DState)

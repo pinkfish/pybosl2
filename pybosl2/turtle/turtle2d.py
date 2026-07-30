@@ -30,8 +30,9 @@ from pybosl2.geometry import general_line_intersection, line_normal
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 from pybosl2.shapes2d import _frag_count, arc
-from pybosl2.turtle3d import TurtleCommand, TurtleCommandType
 from pybosl2.vectors import unit
+
+from .turtle3d import TurtleCommand, TurtleCommandType
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
