@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/cubetruss.py
+# LibFile: pybosl2/parts/cubetruss.py
 #    Pure-Python port of the core of BOSL2's cubetruss.scad: modular cubical truss segments and
 #    the trusses assembled from them. :meth:`CubeTruss.cubetruss_segment` builds one cube segment
 #    (a hollow cube lightened with octagonal tunnels through all three axes, optionally cross-braced);
@@ -124,7 +124,7 @@ class CubeTruss:
 
             .. pythonscad-example::
 
-                from pybosl2.cubetruss import CubeTruss
+                from pybosl2.parts.cubetruss import CubeTruss
                 CubeTruss.cubetruss_segment().show()
         """
         size = CUBETRUSS_SIZE if size is None else size
@@ -182,7 +182,7 @@ class CubeTruss:
 
             .. pythonscad-example::
 
-                from pybosl2.cubetruss import CubeTruss
+                from pybosl2.parts.cubetruss import CubeTruss
                 from pybosl2.constants import FRONT
                 CubeTruss.cubetruss(extents=3, clips=FRONT).show()
         """
@@ -253,7 +253,7 @@ class CubeTruss:
 
             .. pythonscad-example::
 
-                from pybosl2.cubetruss import CubeTruss
+                from pybosl2.parts.cubetruss import CubeTruss
                 CubeTruss.cubetruss_support(extents=2).show()
         """
         size = CUBETRUSS_SIZE if size is None else size
@@ -320,7 +320,7 @@ class CubeTruss:
 
             .. pythonscad-example::
 
-                from pybosl2.cubetruss import CubeTruss
+                from pybosl2.parts.cubetruss import CubeTruss
                 CubeTruss.cubetruss_corner(extents=2).show()
         """
         size = CUBETRUSS_SIZE if size is None else size

@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/ball_bearings.py
+# LibFile: pybosl2/parts/ball_bearings.py
 #    Pure-Python port of BOSL2's ball_bearings.scad: models of standard ball-bearing cartridges.
 #    :meth:`BallBearings.ball_bearing` builds a bearing -- either a sealed/shielded cartridge (nested
 #    rings plus a shield face) or an open one (inner and outer races, a ball-race groove, and the
@@ -880,7 +880,7 @@ class BallBearings:
 
             .. pythonscad-example::
 
-                from pybosl2.ball_bearings import BearingType, BallBearings
+                from pybosl2.parts.ball_bearings import BearingType, BallBearings
                 BallBearings.ball_bearing(BearingType.BEARING_608).show()
         """
         if trade_size is not None:

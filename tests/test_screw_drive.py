@@ -10,7 +10,7 @@ screw_drive.scad; the mask builders are smoke-tested (they return a Bosl2Solid a
 
 import pytest
 
-from pybosl2.screw_drive import ScrewDrive
+from pybosl2.parts.screw_drive import ScrewDrive
 from pybosl2.shapes3d import Bosl2Solid, cyl
 
 # ---- Torx dimensional info (verbatim from screw_drive.scad) ----
@@ -30,7 +30,7 @@ def test_torx_info_values():
 
 
 def test_torx_info_is_dataclass():
-    from pybosl2.screw_drive import TorxSpec
+    from pybosl2.parts.screw_drive import TorxSpec
 
     assert isinstance(ScrewDrive.torx_info(30), TorxSpec)
 

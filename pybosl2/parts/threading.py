@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/threading.py
+# LibFile: pybosl2/parts/threading.py
 #    Pure-Python port of the core of BOSL2's threading.scad: screw threads built by sweeping a 2-D
 #    thread profile helically (via the toolkit's :func:`~pybosl2.skin.spiral_sweep`) and unioning a
 #    core cylinder. The :class:`Threading` class exposes the thread generators as methods:

@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/screw_drive.py
+# LibFile: pybosl2/parts/screw_drive.py
 #    Pure-Python port of BOSL2's screw_drive.scad: masks for the driver recesses cut into a screw
 #    head -- Phillips, hex (Allen), Torx and Robertson/square. The :class:`ScrewDrive` class groups
 #    them as static methods that return :class:`~pybosl2.shapes3d.Bosl2Solid` masks (subtract one from
@@ -211,7 +211,7 @@ class ScrewDrive:
 
             .. pythonscad-example::
 
-                from pybosl2.screw_drive import ScrewDrive
+                from pybosl2.parts.screw_drive import ScrewDrive
                 (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask(size="#2")).show()
         """
         if fn is None and fa is None and fs is None:
@@ -355,7 +355,7 @@ class ScrewDrive:
 
             .. pythonscad-example::
 
-                from pybosl2.screw_drive import ScrewDrive
+                from pybosl2.parts.screw_drive import ScrewDrive
                 ScrewDrive.torx_mask(size=30, length=10).show()
         """
         outer_diameter = ScrewDrive.torx_diam(size)

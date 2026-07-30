@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/hooks.py
+# LibFile: pybosl2/parts/hooks.py
 #    Pure-Python port of BOSL2's hooks.scad: hooks and hook-like parts. At the moment BOSL2 supplies
 #    a single part, :meth:`Hooks.ring_hook` -- a rectangular mounting base that flares up and joins
 #    tangentially to a Y-axis cylinder (the "ring"), with an optional round, D-shaped or custom
@@ -92,7 +92,7 @@ class Hooks:
 
             .. pythonscad-example::
 
-                from pybosl2.hooks import Hooks
+                from pybosl2.parts.hooks import Hooks
                 Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=20).show()
         """
         if fillet:

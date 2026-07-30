@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/sliders.py
+# LibFile: pybosl2/parts/sliders.py
 #    Pure-Python port of BOSL2's sliders.scad: simple V-groove sliders and the matching rails.
 #    :meth:`Sliders.slider` builds a slider that rides in a :meth:`Sliders.rail` V-groove; both print
 #    without support. *slop* on the slider tunes the printed fit.
@@ -52,7 +52,7 @@ class Sliders:
 
             .. pythonscad-example::
 
-                from pybosl2.sliders import Sliders
+                from pybosl2.parts.sliders import Sliders
                 Sliders.slider(length=30, base=10, wall=4, slop=0.2).show()
         """
         full_width = w + 2 * wall
@@ -114,7 +114,7 @@ class Sliders:
 
             .. pythonscad-example::
 
-                from pybosl2.sliders import Sliders
+                from pybosl2.parts.sliders import Sliders
                 Sliders.rail(length=100, w=10, height=10).show()
         """
         attack_ang, attack_len = 30, 2

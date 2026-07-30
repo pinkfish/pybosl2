@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2.joiners import Joiners
+from pybosl2.parts.joiners import Joiners
 from pybosl2.shapes3d import Bosl2Solid
 
 

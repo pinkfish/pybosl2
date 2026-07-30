@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/joiners.py
+# LibFile: pybosl2/parts/joiners.py
 #    Pure-Python port of the core joiners from BOSL2's joiners.scad -- shapes for connecting two
 #    separately-printed parts. :meth:`Joiners.dovetail` is the flagship: a (optionally tapered)
 #    dovetail joint you attach as a male tenon or difference out as a female socket. A functional
@@ -62,7 +62,7 @@ class Joiners:
 
             .. pythonscad-example::
 
-                from pybosl2.joiners import Joiners
+                from pybosl2.parts.joiners import Joiners
                 (Joiners.dovetail("male", width=15, height=8, slide=30)
                  | Joiners.dovetail("female", width=15, height=8, slide=30).right(24)).show()
         """
@@ -108,7 +108,7 @@ class Joiners:
 
             .. pythonscad-example::
 
-                from pybosl2.joiners import Joiners
+                from pybosl2.parts.joiners import Joiners
                 Joiners.snap_pin().show()
         """
         _ = clearance

@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2.hinges import Hinges
+from pybosl2.parts.hinges import Hinges
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 

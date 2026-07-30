@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/screws.py
+# LibFile: pybosl2/parts/screws.py
 #    Pure-Python port of the core of BOSL2's screws.scad, built on top of
 #    :class:`~pybosl2.threading.Threading`. The :class:`Screws` class turns a metric screw name (``"M6"``,
 #    ``"M8x1"``) into ready-to-print geometry: :meth:`Screws.screw` (a threaded/plain shaft plus a
@@ -430,7 +430,7 @@ class Screws:
 
         # -- shaft: top face at z=0, tip at z=-length -----------------------------------
         if thread:
-            from pybosl2.threading import Threading
+            from pybosl2.parts.threading import Threading
 
             _, tp = _parse_spec(spec, thread_kind, pitch)
             tl = length if (thread_len is None or thread_len >= length) else thread_len
@@ -529,7 +529,7 @@ class Screws:
 
                 Screws.nut("M8").show()
         """
-        from pybosl2.threading import Threading
+        from pybosl2.parts.threading import Threading
 
         d, p = _parse_spec(spec, thread, pitch)
         width, th = _nut_dims(d, thickness, nutwidth)
@@ -568,7 +568,7 @@ class Screws:
         use_thread = thread and str(thread).lower() not in ("none", "false", "no", "")
         d, p = _parse_spec(spec, "coarse" if thread in (True, False) else (thread if use_thread else "coarse"), pitch)
         if use_thread:
-            from pybosl2.threading import Threading
+            from pybosl2.parts.threading import Threading
 
             # a tapped hole: cut with the rod's thread tap (major + a touch of clearance)
             cutter = Threading.threaded_rod(d + 0.0, length, p, fn=fn, fa=fa, fs=fs).down(length / 2)

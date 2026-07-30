@@ -974,22 +974,22 @@ API_ONLY = {}
 _HOOK_OCT = "hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)]"
 
 SETUP = {
-    "gears": "from pybosl2.gears import Gears\n",
-    "walls": "from pybosl2.walls import Walls\n",
-    "wiring": "from pybosl2.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
-    "hooks": "import math\nfrom pybosl2.hooks import Hooks\n",
-    "polyhedra": "from pybosl2.polyhedra import Polyhedra\n",
-    "hinges": "from pybosl2.hinges import Hinges\n",
-    "joiners": "from pybosl2.joiners import Joiners\n",
-    "cubetruss": "from pybosl2.cubetruss import CubeTruss\n",
-    "ball_bearings": "from pybosl2.ball_bearings import BallBearings\n",
-    "linear_bearings": "from pybosl2.linear_bearings import LinearBearings\n",
-    "modular_hose": "from pybosl2.modular_hose import ModularHose\n",
-    "nema_steppers": "from pybosl2.nema_steppers import NemaSteppers\n",
-    "threading": "from pybosl2.threading import Threading\n",
-    "screw_drive": "from pybosl2.screw_drive import ScrewDrive\n",
-    "bottlecaps": "from pybosl2.bottlecaps import BottleCaps\n",
-    "sliders": "from pybosl2.sliders import Sliders\n",
+    "gears": "from pybosl2.parts.gears import Gears\n",
+    "walls": "from pybosl2.parts.walls import Walls\n",
+    "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
+    "hooks": "import math\nfrom pybosl2.parts.hooks import Hooks\n",
+    "polyhedra": "from pybosl2.parts.polyhedra import Polyhedra\n",
+    "hinges": "from pybosl2.parts.hinges import Hinges\n",
+    "joiners": "from pybosl2.parts.joiners import Joiners\n",
+    "cubetruss": "from pybosl2.parts.cubetruss import CubeTruss\n",
+    "ball_bearings": "from pybosl2.parts.ball_bearings import BallBearings\n",
+    "linear_bearings": "from pybosl2.parts.linear_bearings import LinearBearings\n",
+    "modular_hose": "from pybosl2.parts.modular_hose import ModularHose\n",
+    "nema_steppers": "from pybosl2.parts.nema_steppers import NemaSteppers\n",
+    "threading": "from pybosl2.parts.threading import Threading\n",
+    "screw_drive": "from pybosl2.parts.screw_drive import ScrewDrive\n",
+    "bottlecaps": "from pybosl2.parts.bottlecaps import BottleCaps\n",
+    "sliders": "from pybosl2.parts.sliders import Sliders\n",
     "shapes3d": "",  # uses pre-imported s3 alias
     "shapes2d": "",  # uses pre-imported s2 alias
 }

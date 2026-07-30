@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/gears.py
+# LibFile: pybosl2/parts/gears.py
 #    Pure-Python port of the core of BOSL2's (current) gears.scad. Gears are sized by circular pitch
 #    (``circ_pitch``), metric ``mod``, or ``diam_pitch``; the default 20-degree pressure angle and
 #    ``profile_shift=None`` (which corrects undercut on low-tooth-count gears) match BOSL2. The
@@ -757,7 +757,7 @@ class Gears:
 
             .. pythonscad-example::
 
-                from pybosl2.gears import Gears
+                from pybosl2.parts.gears import Gears
                 Gears.spur_gear2d(mod=5, teeth=30).linear_extrude(height=3).show()
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -826,7 +826,7 @@ class Gears:
 
             .. pythonscad-example::
 
-                from pybosl2.gears import Gears
+                from pybosl2.parts.gears import Gears
                 Gears.spur_gear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15).show()
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)

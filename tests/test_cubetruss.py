@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2.cubetruss import CubeTruss
+from pybosl2.parts.cubetruss import CubeTruss
 from pybosl2.shapes3d import Bosl2Solid
 
 

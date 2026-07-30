@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/bottlecaps.py
+# LibFile: pybosl2/parts/bottlecaps.py
 #    Pure-Python port of the standard soda-bottle threadings from BOSL2's bottlecaps.scad: the
 #    PCO-1810 and PCO-1881 necks and caps. The :class:`BottleCaps` class exposes them as static
 #    methods returning :class:`~pybosl2.shapes3d.Bosl2Solid` geometry -- a neck to graft onto a bottle
@@ -36,8 +36,8 @@ from pybosl2._native import native
 from pybosl2.constants import BOTTOM, RIGHT
 from pybosl2.distributors import zrot_copies
 from pybosl2.drawing import turtle
+from pybosl2.parts.threading import Threading
 from pybosl2.shapes3d import Bosl2Solid, cyl, prismoid
-from pybosl2.threading import Threading
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon

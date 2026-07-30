@@ -10,7 +10,7 @@ and that it returns a Bosl2Solid."""
 
 import pytest
 
-from pybosl2.bottlecaps import BottleCaps
+from pybosl2.parts.bottlecaps import BottleCaps
 from pybosl2.shapes3d import Bosl2Solid
 
 
