@@ -431,7 +431,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def subdivide_path(
         self,
         points: int | None = None,
-        points_per_segment: Sequence[int] | None = None,  # noqa: ARG002
+        points_per_segment: Sequence[int] | None = None,
         maxlen: float | None = None,
         exact: bool = True,
         closed: bool | None = None,
@@ -452,6 +452,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
+        assert points_per_segment is None or method == SubdivideMethod.SEGMENT, (
+            "points_per_segment requires method=SubdivideMethod.SEGMENT"
+        )
         pts = _subdivide_path(
             self._points,
             closed,

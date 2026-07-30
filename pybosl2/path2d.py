@@ -46,7 +46,6 @@ from pybosl2._path_math import (
     _path_select,
     _path_tangents,
     _path_torsion,
-    _subdivide_path,
 )
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
@@ -529,17 +528,43 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     ) -> "Path2D":
         if closed is None:
             closed = self.closed
-        if method == SubdivideMethod.SEGMENT or points_per_segment is not None:
-            pts = _subdivide_path(
-                self._points, closed, sides=points or len(self._points), maxlen=maxlen, exact=exact, method=method.value
-            )
-            return self.__class__(pts, closed=self.closed)
+        assert points_per_segment is None or method == SubdivideMethod.SEGMENT, (
+            "points_per_segment requires method=SubdivideMethod.SEGMENT"
+        )
         ls = self._shapely
         total = ls.length
         if total < 1e-12:
             return self.__class__(self._points.tolist(), closed=self.closed)
 
-        # Determine target point count
+        coords = list(ls.coords)
+        num_segs = len(coords) - (0 if closed else 1)
+
+        if method == SubdivideMethod.SEGMENT or points_per_segment is not None:
+            from shapely.geometry import LineString
+
+            if points_per_segment is not None:
+                ppseg = list(points_per_segment)
+            else:
+                n = int(points or len(self._points))
+                base = n // num_segs
+                rem = n % num_segs
+                ppseg = [base + (1 if i < rem else 0) for i in range(num_segs)]
+
+            result: list[list[float]] = []
+            for i in range(num_segs):
+                a = coords[i]
+                b = coords[(i + 1) % len(coords)]
+                seg = LineString([a, b])
+                k = ppseg[i] if i < len(ppseg) else 1
+                for j in range(k):
+                    p = seg.interpolate(j / k, normalized=True) if k > 1 else seg.interpolate(0.0)
+                    result.append([float(p.x), float(p.y)])
+                if i == num_segs - 1:
+                    # add final endpoint
+                    result.append([float(b[0]), float(b[1])])
+            return self.__class__(result, closed=self.closed)
+
+        # LENGTH method — uniform spacing along entire path
         n = 0
         if points is not None:
             n = int(points)
