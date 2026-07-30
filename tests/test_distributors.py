@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 """Tests for pybosl2/distributors.py: the copier matrix generators and the Distributable methods on
-Path / Path3D / Bosl2Solid. The matrices themselves are pinned to real BOSL2 in
+Path2D / Path3D / Bosl2Solid. The matrices themselves are pinned to real BOSL2 in
 tests/test_bosl2_reorient.py; here we check the object-level behaviour (what each host returns and
 how the copies are placed). Native geometry is mocked, so Bosl2Solid tests assert type/union, not
 mesh geometry (that is covered in test_stl_render.py)."""
@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 
 from pybosl2 import distributors as d
-from pybosl2.paths import Path, Path3D
+from pybosl2.paths import Path2D, Path3D
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 # -- matrix generators --------------------------------------------------------------------
@@ -67,29 +67,29 @@ def test_mirror_copy_is_original_plus_reflection():
     np.testing.assert_allclose(mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9)  # X reflection
 
 
-# -- Path (2-D) returns a list of Path copies ---------------------------------------------
+# -- Path2D (2-D) returns a list of Path2D copies ---------------------------------------------
 
-SQUARE = Path([[0, 0], [10, 0], [10, 10], [0, 10]])
+SQUARE = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
 
 
 def test_path_xcopies_returns_paths():
     copies = SQUARE.xcopies(20, sides=3)
     assert isinstance(copies, list)
     assert len(copies) == 3
-    assert all(isinstance(c, Path) for c in copies)
+    assert all(isinstance(c, Path2D) for c in copies)
     # middle copy is the original, right copy is shifted +20 in X
     np.testing.assert_allclose(copies[2][0], [20, 0], atol=1e-9)
 
 
 def test_path_grid_and_arc_stay_2d():
     assert len(SQUARE.grid_copies(sides=[2, 3], spacing=25)) == 6
-    assert all(isinstance(c, Path) for c in SQUARE.arc_copies(sides=5, radius=40))
+    assert all(isinstance(c, Path2D) for c in SQUARE.arc_copies(sides=5, radius=40))
 
 
 def test_path_zrot_copies_in_plane():
     copies = SQUARE.zrot_copies(sides=4)
     assert len(copies) == 4
-    assert all(isinstance(c, Path) for c in copies)
+    assert all(isinstance(c, Path2D) for c in copies)
 
 
 def test_path_out_of_plane_copier_raises():
@@ -105,7 +105,7 @@ def test_path_out_of_plane_copier_raises():
 def test_path_mirror_copy_2d():
     copies = SQUARE.xflip_copy(x=20)
     assert len(copies) == 2
-    assert all(isinstance(c, Path) for c in copies)
+    assert all(isinstance(c, Path2D) for c in copies)
 
 
 # -- Path3D returns a list of Path3D copies -----------------------------------------------
@@ -149,7 +149,7 @@ def test_solid_ring_and_flip_return_solid():
 
 def test_solid_path_copies_returns_solid():
     box = cuboid([4, 4, 4])
-    path = Path([[0, 0], [30, 0], [30, 30]])
+    path = Path2D([[0, 0], [30, 0], [30, 30]])
     assert isinstance(box.path_copies(path, sides=6), Bosl2Solid)
 
 

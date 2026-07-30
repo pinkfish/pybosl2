@@ -12,7 +12,7 @@
 #    for the ndarray-vs-ndarray equality check so it never falls through to
 #    a bare `==` between arrays (which returns an elementwise array, not a
 #    bool). The simple list searches (min_index/max_index) and deduplicate()
-#    now live inline / on the Path object, not here.
+#    now live inline / on the Path2D object, not here.
 #
 # FileSummary: Approximate comparison (BOSL2 comparisons.scad).
 # FileGroup: BOSL2

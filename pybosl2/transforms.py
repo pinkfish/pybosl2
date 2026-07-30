@@ -12,7 +12,7 @@
 #
 #    The point-list transform operations themselves (move/rot/right/left/
 #    back/forward/mirror/yflip) are NOT here -- they are methods on the
-#    Path object (pybosl2/paths.py) and on Bosl2Solid (pybosl2/shapes3d.py).
+#    Path2D object (pybosl2/paths.py) and on Bosl2Solid (pybosl2/shapes3d.py).
 #    What remains is the matrix side used for cuboid reorientation and
 #    anchoring, which feeds PythonSCAD's .multmatrix().
 #
@@ -102,10 +102,10 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
 
     Returns ``[angle_degrees, axis, center, translation_along_axis]`` -- rotating by *angle* about the
     line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,
-    *center* and the axial translation are returned as :class:`~pybosl2.constants.Vec3`. With *long*, the
+    *center* and the axial translation are returned as :class:`~pybosl2.constants.Vector`. With *long*, the
     complementary (>180 degree) rotation about the reversed axis is chosen."""
     from pybosl2.constants import (
-        Vec3,
+        Vector,
     )  # local: constants is lightweight, avoid a load-order cycle
 
     m = np.asarray(m, dtype=float)
@@ -120,9 +120,9 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     if c_sin < 1e-12:
         return [
             0.0,
-            Vec3([0.0, 0.0, 1.0]),
-            Vec3([0.0, 0.0, 0.0]),
-            Vec3([float(v) for v in translation]),
+            Vector([0.0, 0.0, 1.0]),
+            Vector([0.0, 0.0, 0.0]),
+            Vector([float(v) for v in translation]),
         ]
     angle = math.degrees(2 * math.atan2(c_sin, c_cos))
     axis = (1.0 if q_re >= 0 else -1.0) * q_im / c_sin
@@ -131,9 +131,9 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     axial = (translation @ axis) * axis
     return [
         360 - angle if long else angle,
-        Vec3([float(v) for v in (-axis if long else axis)]),
-        Vec3([float(v) for v in center]),
-        Vec3([float(v) for v in axial]),
+        Vector([float(v) for v in (-axis if long else axis)]),
+        Vector([float(v) for v in center]),
+        Vector([float(v) for v in axial]),
     ]
 
 

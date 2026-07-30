@@ -9,7 +9,7 @@
 Pure-Python port of the Bezier CURVE and PATH API from BOSL2's beziers.scad.
 Every operation lives on the :class:`Bezier` class -- there are no module-level
 bezier functions, mirroring how pybosl2/paths.py hangs every path operation off
-Path. No osuse()/BOSL2 runtime dependency.
+Path2D. No osuse()/BOSL2 runtime dependency.
 
 A Bezier is a list of control points: a single curve, or a bezier PATH of
 degree-N curves that share endpoints (a flat list of control points where
@@ -48,8 +48,8 @@ from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
     from pybosl2.caps import CapsSpec, CapType
-    from pybosl2.constants import Vec3
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import Path
+    from pybosl2.points import Vector
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
@@ -68,7 +68,7 @@ UP = [0.0, 0.0, 1.0]
 class Bezier:
     """A Bezier curve or path: a list of control points, with every bezier operation as a method.
 
-    Subclasses ``list`` (the same trick as :class:`pybosl2.paths.Path`), so it is a drop-in for the
+    Subclasses ``list`` (the same trick as :class:`pybosl2.paths.Path2D`), so it is a drop-in for the
     raw control-point lists the toolkit passes around, while giving the chained object form::
 
         Bezier([[44, 5], [48, 6], [64, -15]]).points([0.2 * i for i in range(6)])
@@ -328,7 +328,7 @@ class Bezier:
             The approximate arc length of the curve segment as a float.
         """
         from pybosl2.paths import (
-            Path,
+            Path2D,
             Path3D,
         )  # local: avoid importing the heavy path module at load time
 
@@ -338,7 +338,7 @@ class Bezier:
         defl = max(float(np.linalg.norm(path[i + 1] - (path[i] + path[i + 2]) / 2)) for i in range(len(path) - 2))
         if defl <= max_deflect:
             dim = path.shape[1] if len(path) > 0 else 2
-            return float((Path3D(path) if dim == 3 else Path(path)).total_length())
+            return float((Path3D(path) if dim == 3 else Path2D(path)).perimeter())
         return float(
             sum(
                 self.arc_length(
@@ -391,12 +391,12 @@ class Bezier:
         sub = self.array[curveind * n_degree : (curveind + 1) * n_degree + 1]
         return Bezier(sub).points(u)
 
-    def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> Path | Path3D:
-        """Sample this bezier PATH into a Path of points.
+    def path_curve(self, splinesteps: int = 16, n_degree: int = 3, endpoint: bool = True) -> Path:
+        """Sample this bezier PATH into a Path2D of points.
 
         Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling
         each segment uniformly and concatenating the results. Returns a
-        :class:`~pybosl2.paths.Path` for 2-D points or
+        :class:`~pybosl2.paths.Path2D` for 2-D points or
         :class:`~pybosl2.paths.Path3D` for 3-D.
 
         Args:
@@ -405,7 +405,7 @@ class Bezier:
             endpoint: Whether to include the final endpoint in the output.
 
         Returns:
-            A :class:`~pybosl2.paths.Path` for 2-D points or
+            A :class:`~pybosl2.paths.Path2D` for 2-D points or
             :class:`~pybosl2.paths.Path3D` for 3-D points containing the
             sampled bezier path.
 
@@ -428,13 +428,13 @@ class Bezier:
             out.append(ctrl.points(us))
         if endpoint:
             out.append(bezpath[-1:])
-        from pybosl2.paths import Path as _Path
+        from pybosl2.paths import Path2D as _Path2D
         from pybosl2.paths import Path3D as _Path3D
 
         result = np.concatenate(out, axis=0)
         if result.shape[1] == 3:
             return _Path3D(result)
-        return _Path(result)
+        return _Path2D(result)
 
     def path_closest_point(self, pt: np.ndarray, n_degree: int = 3, max_err: float = 0.01) -> tuple[int, float]:
         """Find the closest position on this bezier PATH to *pt*.
@@ -610,14 +610,14 @@ class Bezier:
         n_degree: int | None = None,
         method: str = "incremental",
         endpoint: bool = True,
-        normal: Vec3 | None = None,
+        normal: Vector | None = None,
         closed: bool = False,
         twist: float = 0.0,
         twist_by_length: bool = True,
         scale: float = 1.0,
         scale_by_length: bool = True,
         symmetry: int = 1,
-        last_normal: Vec3 | None = None,
+        last_normal: Vector | None = None,
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
@@ -661,7 +661,7 @@ class Bezier:
                 tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)
                 tube.polyhedron().show()
 
-            Path mode (degree-3 bezier path sweep):
+            Path2D mode (degree-3 bezier path sweep):
 
             .. pythonscad-example::
 
@@ -963,7 +963,7 @@ def create_bezier(
         AssertionError: If both *size* and *relsize* are specified, or if any
             path segment has zero length.
     """
-    from pybosl2.paths import Path, Path3D  # local: keep the import graph acyclic
+    from pybosl2.paths import Path2D, Path3D  # local: keep the import graph acyclic
 
     assert size is None or relsize is None, "Can't define both size and relsize."
     patharr = np.asarray(path, dtype=float)
@@ -982,7 +982,7 @@ def create_bezier(
     else:
         dim = patharr.shape[1] if len(patharr) > 0 else 2
         tang = np.asarray(
-            (Path3D(patharr) if dim == 3 else Path(patharr)).path_tangents(closed=closed, uniform=uniform),
+            (Path3D(patharr) if dim == 3 else Path2D(patharr)).tangents(closed=closed, uniform=uniform),
             dtype=float,
         )
     assert min(sizevect) > 0, "Size and relsize must be greater than zero."
@@ -992,7 +992,7 @@ def create_bezier(
         first = patharr[i]
         second = patharr[(i + 1) % npts]
         seglength = float(np.linalg.norm(second - first))
-        assert seglength > 0, f"Path segment has zero length from index {i} to {i + 1}."
+        assert seglength > 0, f"Path2D segment has zero length from index {i} to {i + 1}."
         segdir = (second - first) / seglength
         tangent1 = tang[i]
         tangent2 = -tang[(i + 1) % npts]

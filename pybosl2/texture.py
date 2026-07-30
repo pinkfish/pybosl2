@@ -662,8 +662,8 @@ def texture(
         ValueError: If the texture name is not found or if both 'border' and 'inset' are provided.
 
     See Also
-        pybosl2.paths.Path.texture()
-        pybosl2.paths.Path.texture_v()
+        pybosl2.paths.Path2D.texture()
+        pybosl2.paths.Path2D.texture_v()
         pybosl2.shapes3d.Bosl2Solid.texture()
         pybosl2.shapes3d.Bosl2Solid.texture_v()
     """

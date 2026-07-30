@@ -52,7 +52,7 @@ from stl_viewer import stl_viewer_html  # noqa: E402
 _logger = logging.getLogger(__name__)
 
 # Prepended to every snippet: put the repo root on sys.path and import the common pybosl2 names, so
-# examples can be terse (`s3.cuboid(...)`, `Path(...)`, `Bezier(...)`) and mirror how the toolkit
+# examples can be terse (`s3.cuboid(...)`, `Path2D(...)`, `Bezier(...)`) and mirror how the toolkit
 # is actually used.
 _PREAMBLE = (
     "import sys, math\n"
@@ -63,7 +63,7 @@ _PREAMBLE = (
     "import pybosl2.shapes2d\n"
     "import pybosl2.shapes3d as s3\n"
     "import pybosl2.shapes2d as s2\n"
-    "from pybosl2.paths import Path, Path3D\n"
+    "from pybosl2.paths import Path2D, Path3D\n"
     "from pybosl2.regions import Region\n"
     "from pybosl2.beziers import Bezier, BezierPatch\n"
     "from pybosl2.vnf import VNF\n"

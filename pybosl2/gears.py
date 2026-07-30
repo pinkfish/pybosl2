@@ -34,7 +34,7 @@ import numpy as np
 
 from pybosl2._native import native
 from pybosl2.constants import INCH
-from pybosl2.paths import Path
+from pybosl2.paths import Path2D
 from pybosl2.shapes2d import Bosl2Shape2D, _frag_count
 from pybosl2.shapes3d import Bosl2Solid, cylinder
 from pybosl2.vnf import VNF
@@ -373,7 +373,7 @@ def _gear_tooth_profile(
         clipped = tooth_half
 
     full = _dedup([list(q) for q in clipped] + [[-x, y] for x, y in reversed(clipped)])
-    tooth = Path(full).path_merge_collinear(closed=False)
+    tooth = Path2D(full).merge_collinear(closed=False)
     if center:
         tooth = [[x, y - prad] for x, y in tooth]
     return [[float(x), float(y)] for x, y in tooth]

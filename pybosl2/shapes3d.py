@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
     from openscad import PyOpenSCAD
 
-    from pybosl2.paths import Path, Path3D
+    from pybosl2.paths import Path2D, Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.texture import TextureType
 from pybosl2._backend import check_operand_backend as _check_operand_backend
@@ -116,13 +116,13 @@ def _osphere(radius=None, center=None, fn=None, fa=None, fs=None):
 def _as_native_3d(obj) -> "PyOpenSCAD":
     """A raw native handle from *obj*: a :class:`Bosl2Solid` / ``Bosl2Shape2D`` wrapper, a native
     shape, or anything exposing ``geometry()`` (a :class:`~pybosl2.vnf.VNF`, a
-    :class:`~pybosl2.paths.Path`, a :class:`~pybosl2.regions.Region`)."""
+    :class:`~pybosl2.paths.Path2D`, a :class:`~pybosl2.regions.Region`)."""
     from pybosl2._helpers import unwrap
 
     unwrapped = unwrap(obj)
     if unwrapped is not obj:  # a Bosl2Solid / Bosl2Shape2D wrapper
         return unwrapped
-    geom = getattr(obj, "geometry", None)  # VNF / Path / Region
+    geom = getattr(obj, "geometry", None)  # VNF / Path2D / Region
     if callable(geom):
         return unwrap(geom())
     return obj
@@ -544,7 +544,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         *bbox* overrides the object's own box -- useful when the native bbox is wrong for the
         purpose (a shape with an overhang, a mask positioned against a nominal box, or a cheap way
         to skip the meshing the native bbox needs). It is a min/max corner pair
-        ``[[min_x, min_y, min_z], [max_x, max_y, max_z]]`` (the same shape :meth:`Path.bounds` and
+        ``[[min_x, min_y, min_z], [max_x, max_y, max_z]]`` (the same shape :meth:`Path2D.bounds` and
         the native ``obj.bbox`` use)."""
         if bbox is None:
             return self.bounds()
@@ -1157,7 +1157,7 @@ def roof(shape, method: str = "straight") -> Bosl2Solid:
     Like :func:`~pybosl2.skin.linear_sweep`, this turns a 2-D outline into a 3-D solid, but the top is
     a peaked roof (each edge slopes inward at 45 degrees to the skeleton) rather than a flat
     extrusion. *shape* is any 2-D object -- a native ``square``/``circle``/``polygon``, a
-    :meth:`Path.polygon`, or a :class:`Bosl2Solid` wrapping one. *method* selects the skeleton
+    :meth:`Path2D.polygon`, or a :class:`Bosl2Solid` wrapping one. *method* selects the skeleton
     algorithm. PythonSCAD-only (no BOSL2 counterpart); covered by the STL render tests.
     """
     return Bosl2Solid(Bosl2Solid._unwrap(shape).roof(method=method))
@@ -3025,10 +3025,10 @@ def _point3d(v: Sequence[float]) -> list[float]:
 
 
 def _cut_interp(
-    pathcut: list, path: Sequence[Sequence[float]] | Path | Path3D, data: Sequence[Sequence[float]]
+    pathcut: list, path: Sequence[Sequence[float]] | Path2D | Path3D, data: Sequence[Sequence[float]]
 ) -> list[list[float]]:
     """Port of BOSL2's `_cut_interp()`: linearly interpolates a per-path-vertex vector array
-    `data` to the fractional position of each `path_cut_points()` cut point.
+    `data` to the fractional position of each `cut_points()` cut point.
     """
     out = []
     for entry in pathcut:
@@ -3043,7 +3043,7 @@ def _cut_interp(
 
 
 def _path_text_bcast_dir(
-    v, dim: int, path: Sequence[Sequence[float]] | Path | Path3D, label: str
+    v, dim: int, path: Sequence[Sequence[float]] | Path2D | Path3D, label: str
 ) -> list[list[float]] | None:
     """Broadcasts a `normal=`/`top=` argument (undefined, a single vector, or a per-path-point
     list of vectors) to a list of one vector per path point, mirroring BOSL2's normalok/topok
@@ -3123,7 +3123,7 @@ def text3d(
 
 
 def path_text(
-    path: Path | Path3D,
+    path: Path2D | Path3D,
     text: str,
     font: str = "Liberation Sans",
     size: float = 10,
@@ -3197,12 +3197,12 @@ def path_text(
             kern_prefix += kern_list[i]
     textlength = prefix + kern_prefix
 
-    plen = path.total_length()
+    plen = path.perimeter()
     assert textlength <= plen, "path_text(): path is too short for the text."
     start = (plen - textlength) / 2.0 if center else 0.0
     dists = [start + c for c in centers]
 
-    pts = path.path_cut_points(dists, direction=True)
+    pts = path.cut_points(dists, direction=True)
 
     normal_pv = _path_text_bcast_dir(normal, 3, path, "normal")
     top_pv = _path_text_bcast_dir(top, dim, path, "top")

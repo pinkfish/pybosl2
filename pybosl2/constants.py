@@ -12,6 +12,8 @@
 # FileSummary: Constants provided by BOSL2 (BOSL2 constants.scad).
 # FileGroup: BOSL2
 
+from pybosl2.points import Vector
+
 # ---------------------------------------------------------------------------
 # Section: General Constants
 # ---------------------------------------------------------------------------
@@ -34,65 +36,31 @@ IDENT: list[list[float]] = [
 # ---------------------------------------------------------------------------
 
 
-class Vec3(list[float]):
-    """A 3-element list that supports elementwise +/-/* like a vector.
-
-    Plain Python lists use `+` for concatenation and `*` for repetition, but
-    BOSL2-style code combines direction constants with idioms like
-    `anchor=TOP+LEFT` expecting elementwise vector addition (`[0,0,1]+[-1,0,0]`
-    -> `[-1,0,1]`), not concatenation. Subclassing `list` (rather than using a
-    plain tuple or a numpy array) keeps every other list behavior -- indexing,
-    iteration, equality with plain lists, and crossing the osuse()/PyOpenSCAD
-    FFI boundary -- unchanged. (Duplicated from base_bgtk.py's Vec3 rather than
-    imported, since this package is deliberately independent of base_bgtk.py.)
-    """
-
-    def __add__(self, other: list[float]) -> "Vec3":  # type: ignore
-        return Vec3(a + b for a, b in zip(self, other, strict=False))
-
-    def __radd__(self, other: list[float]) -> "Vec3":
-        return Vec3(a + b for a, b in zip(other, self, strict=False))
-
-    def __sub__(self, other: list[float]) -> "Vec3":
-        return Vec3(a - b for a, b in zip(self, other, strict=False))
-
-    def __rsub__(self, other: list[float]) -> "Vec3":
-        return Vec3(a - b for a, b in zip(other, self, strict=False))
-
-    def __neg__(self) -> "Vec3":
-        return Vec3(-a for a in self)
-
-    def __mul__(self, other: float) -> "Vec3":  # type: ignore[override]
-        return Vec3(a * other for a in self)
-
-    __rmul__ = __mul__  # type: ignore[assignment]
-
-
 #: Left align/anchor the object.
-LEFT: Vec3 = Vec3([-1, 0, 0])
+LEFT: Vector = Vector([-1, 0, 0])
 #: Right align/anchor the object.
-RIGHT: Vec3 = Vec3([1, 0, 0])
+RIGHT: Vector = Vector([1, 0, 0])
 
 #: Front align/anchor the object.
-FRONT: Vec3 = Vec3([0, -1, 0])
+FRONT: Vector = Vector([0, -1, 0])
 #: Forward align/anchor the object.
-FORWARD: Vec3 = FRONT
+FORWARD: Vector = FRONT
 
 #: Back align/anchor the object.
-BACK: Vec3 = Vec3([0, 1, 0])
+BACK: Vector = Vector([0, 1, 0])
 
 #: Bottom align/anchor the object.
-BOTTOM: Vec3 = Vec3([0, 0, -1])
+BOTTOM: Vector = Vector([0, 0, -1])
 #: Down align/anchor the object.
-DOWN: Vec3 = BOTTOM
+DOWN: Vector = BOTTOM
 
 #: Top align/anchor the object.
-TOP: Vec3 = Vec3([0, 0, 1])
+TOP: Vector = Vector([0, 0, 1])
 #: Up align/anchor the object.
-UP: Vec3 = TOP
+UP: Vector = TOP
 
 #: Center align/anchor the object.
-CENTER: Vec3 = Vec3([0, 0, 0])
+CENTER: Vector = Vector([0, 0, 0])
 
 # ---------------------------------------------------------------------------
 # Section: Line specifiers

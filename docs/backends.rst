@@ -128,8 +128,8 @@ confusing ``AttributeError`` — and, on the SDF side, instead of meshing via li
      - BOSL2's attachment / anchoring system has no signed-distance equivalent.
    * - **CSG only**
      - ``projection``, ``fill``, and all 2-D geometry
-       (:class:`~pybosl2.shapes2d.Bosl2Shape2D`, :meth:`Path.polygon() <pybosl2.paths.Path.polygon>`,
-       :meth:`Path.hull() <pybosl2.paths.Path.hull>`, ``rotate_extrude``, a 2-D ``stroke()``)
+       (:class:`~pybosl2.shapes2d.Bosl2Shape2D`, :meth:`Path2D.polygon() <pybosl2.paths.Path2D.polygon>`,
+       :meth:`Path2D.hull() <pybosl2.paths.Path2D.hull>`, ``rotate_extrude``, a 2-D ``stroke()``)
      - Only the CSG backend has a 2-D shape object; an SDF is a field over 3-space, with no 2-D
        shadow to project and no outline to fill. See below.
    * - **SDF only**

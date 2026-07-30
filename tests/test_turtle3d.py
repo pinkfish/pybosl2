@@ -9,7 +9,7 @@
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path
+from pybosl2.paths import Path2D
 from pybosl2.regions import Region
 from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.turtle3d import BaseTurtle, Turtle, TurtleCommand, TurtleCommandType
@@ -125,7 +125,7 @@ def test_compound_bad_head_rejected():
 
 
 def test_debug_polygon_builds_with_labels():
-    p = Path([[0, 0], [40, 0], [40, 30], [0, 30]])
+    p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]])
     assert isinstance(p.debug_polygon(size=3), Bosl2Solid)
     assert isinstance(p.debug_polygon(vertices=False), Bosl2Solid)
 

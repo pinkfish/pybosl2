@@ -237,7 +237,7 @@ class SolidBackend(Protocol):
         This is the one 2-D -> 3-D entry point both backends can express, and it takes raw point
         paths rather than a 2-D shape object deliberately: 2-D *geometry* is a CSG-only notion
         (:class:`~pybosl2.shapes2d.Bosl2Shape2D`), whereas a path is backend-neutral. It is what
-        :meth:`pybosl2.paths.Path.linear_extrude` dispatches through, so the same call yields a
+        :meth:`pybosl2.paths.Path2D.linear_extrude` dispatches through, so the same call yields a
         Bosl2Solid on the CSG backend and a PyShape on the SDF one.
         """
         ...

@@ -7,7 +7,7 @@
 """Axis-aligned bounding boxes for 2-D and 3-D geometry.
 
 Provides :class:`Bounds2D` and :class:`Bounds3D` dataclasses returned
-by :meth:`Path.bounds`, :meth:`Path3D.bounds`, and solid bounding-box
+by :meth:`Path2D.bounds`, :meth:`Path3D.bounds`, and solid bounding-box
 methods throughout pybosl2. Each holds the min/max corners and
 pre-computed width/length (or width/length/height) so users can write
 ``path.bounds().width`` instead of ``path.bounds()[1][0] - path.bounds()[0][0]``.
@@ -24,7 +24,7 @@ __all__ = ["Bounds2D", "Bounds3D"]
 class Bounds2D:
     """Axis-aligned bounding box of a 2-D path.
 
-    Returned by :meth:`~pybosl2.paths.Path.bounds` with the min/max
+    Returned by :meth:`~pybosl2.paths.Path2D.bounds` with the min/max
     corners and pre-computed width and length.
     """
 

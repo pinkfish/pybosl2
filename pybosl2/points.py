@@ -4,11 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Lightweight 3-D point type shared across the pybosl2 geometry layer.
+"""Lightweight 2‑D / 3‑D point and vector types shared across the pybosl2 geometry layer.
 
-Provides :class:`Point3D`, a frozen dataclass with ``x``, ``y``, and ``z``
-fields that works as a drop-in for ``[x, y, z]`` lists and integrates with
-numpy, shapely, and path operations.
+Provides :class:`Point` (immutable, ``x``/``y``/optional ``z``) and
+:class:`Vector` (mutable list subclass with elementwise arithmetic).
+Both support 2‑D and 3‑D variants and integrate with numpy, shapely,
+and path operations.
 """
 
 from __future__ import annotations
@@ -18,76 +19,95 @@ from typing import Sequence
 
 import numpy as np
 
-__all__ = ["Point3D"]
+__all__ = ["Point", "Vector"]
+
+
+# ---------------------------------------------------------------------------
+# Point — immutable, frozen-dataclass, 2‑D / 3‑D
+# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
-class Point3D:
-    """An immutable 3-D point with ``x``, ``y``, and ``z`` float components.
+class Point:
+    """An immutable 2‑D or 3‑D point.
 
-    Usable anywhere a ``Sequence[float]`` of length 3 is expected -- it
-    supports iteration, indexing, and ``len()`` so it is a drop-in for
-    ``[x, y, z]`` lists and numpy arrays. Values are stored as Python
-    floats, but can be passed to ``np.asarray()`` for vectorised maths.
+    If *z* is ``None`` the point is 2‑D (``is_2d`` returns ``True``); a
+    concrete *z* makes it a 3‑D point.  Supports iteration, indexing,
+    ``len()``, arithmetic, and ``np.asarray()``.
 
     Examples:
         .. pythonscad-example::
 
-            from pybosl2.points import Point3D
+            from pybosl2.points import Point
 
-            p = Point3D(10.0, 20.0, 5.0)
-            assert p.x == 10.0
-            assert p.z == 5.0
-            assert tuple(p) == (10.0, 20.0, 5.0)
-            arr = np.asarray(p)  # ndarray([10., 20., 5.])
+            p2 = Point(10.0, 20.0)
+            assert p2.is_2d
+            assert len(p2) == 2
+
+            p3 = Point(10.0, 20.0, 5.0)
+            assert not p3.is_2d
+            assert len(p3) == 3
     """
 
     x: float
     y: float
-    z: float
+    z: float | None = None
+
+    @property
+    def is_2d(self) -> bool:
+        """``True`` when *z* is ``None`` (a 2‑D point)."""
+        return self.z is None
 
     def __iter__(self):
-        return iter((self.x, self.y, self.z))
+        return iter((self.x, self.y) if self.is_2d else (self.x, self.y, self.z))
 
     def __len__(self) -> int:
-        return 3
+        return 2 if self.is_2d else 3
 
     def __getitem__(self, index: int) -> float:
+        if self.is_2d:
+            return (self.x, self.y)[index]
+        assert self.z is not None
         return (self.x, self.y, self.z)[index]
 
     def __repr__(self) -> str:
-        return f"Point3D({self.x!r}, {self.y!r}, {self.z!r})"
+        if self.is_2d:
+            return f"Point({self.x!r}, {self.y!r})"
+        return f"Point({self.x!r}, {self.y!r}, {self.z!r})"
 
     def __array__(self, dtype: None = None, copy: None = None) -> np.ndarray:
-        return np.array([self.x, self.y, self.z], dtype=dtype or float)
+        if self.is_2d:
+            arr = [self.x, self.y]
+        else:
+            assert self.z is not None
+            arr = [self.x, self.y, self.z]
+        return np.array(arr, dtype=dtype or float)
 
     def __add__(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        a = np.asarray(self)
-        b = np.asarray(other, dtype=float)
-        return a + b
+        return np.asarray(self) + np.asarray(other, dtype=float)
 
     def __radd__(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        return self.__add__(other)
+        return np.asarray(other, dtype=float) + np.asarray(self)
 
     def __sub__(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        a = np.asarray(self)
-        b = np.asarray(other, dtype=float)
-        return a - b
+        return np.asarray(self) - np.asarray(other, dtype=float)
 
     def __rsub__(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        a = np.asarray(other, dtype=float)
-        b = np.asarray(self)
-        return a - b
+        return np.asarray(other, dtype=float) - np.asarray(self)
 
     def __neg__(self) -> np.ndarray:
-        return np.array([-self.x, -self.y, -self.z])
+        return -np.asarray(self)
 
     def __eq__(self, other: object) -> bool:
+        if isinstance(other, Point):
+            if self.is_2d != other.is_2d:
+                return False
+            if self.is_2d:
+                return bool(self.x == other.x and self.y == other.y)
+            return bool(self.x == other.x and self.y == other.y and self.z == other.z)
         if not isinstance(other, Sequence):
             return NotImplemented
-        a = np.asarray(self)
-        b = np.asarray(other, dtype=float)
-        return bool(np.allclose(a, b))
+        return bool(np.allclose(np.asarray(self), np.asarray(other, dtype=float)))
 
     def __truediv__(self, scalar: float) -> np.ndarray:
         return np.asarray(self) / scalar
@@ -104,30 +124,133 @@ class Point3D:
     def __abs__(self) -> float:
         return float(np.linalg.norm(np.asarray(self)))
 
-    def __copy__(self) -> Point3D:
-        return Point3D(self.x, self.y, self.z)
+    def __copy__(self) -> Point:
+        return Point(self.x, self.y, self.z)
 
-    def copy(self) -> Point3D:
+    def copy(self) -> Point:
         """Return a copy of this point."""
-        return Point3D(self.x, self.y, self.z)
+        return Point(self.x, self.y, self.z)
 
     def dot(self, other: Sequence[float] | np.ndarray) -> float:
-        """Dot product with another 3-D vector."""
+        """Dot product with another vector (2‑D or 3‑D)."""
         return float(np.dot(np.asarray(self), np.asarray(other, dtype=float)))
 
     def cross(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        """Cross product with another 3-D vector, returning an ndarray."""
+        """Cross product with another 3‑D vector, returning an ndarray.
+
+        Raises:
+            ValueError: If this point is 2‑D (cross product requires 3‑D vectors).
+        """
+        if self.is_2d:
+            raise ValueError("cross() requires a 3‑D point")
         return np.cross(np.asarray(self), np.asarray(other, dtype=float))
 
-    def astuple(self) -> tuple[float, float, float]:
-        """Return the point as a ``(x, y, z)`` tuple."""
+    def astuple(self) -> tuple[float, float] | tuple[float, float, float]:
+        """Return the point as a ``(x, y)`` or ``(x, y, z)`` tuple."""
+        if self.is_2d:
+            return (self.x, self.y)
+        assert self.z is not None
         return (self.x, self.y, self.z)
 
     def tolist(self) -> list[float]:
-        """Return the point as a ``[x, y, z]`` list."""
+        """Return the point as a ``[x, y]`` or ``[x, y, z]`` list."""
+        if self.is_2d:
+            return [self.x, self.y]
+        assert self.z is not None
         return [self.x, self.y, self.z]
 
     @property
     def norm(self) -> float:
         """Euclidean length of the vector from origin to this point."""
         return float(np.linalg.norm(np.asarray(self)))
+
+    def to_3d(self, z: float = 0.0) -> Point:
+        """Return a 3‑D copy with the given *z*.
+
+        For a 2‑D point this adds the Z coordinate. For a 3‑D point this
+        returns a copy with *z* replaced (unless *z* equals ``self.z``).
+        """
+        return Point(self.x, self.y, self.z if self.z is not None and z == 0.0 else z)
+
+
+# ---------------------------------------------------------------------------
+# Vector — mutable list subclass with elementwise arithmetic, 2‑D / 3‑D
+# ---------------------------------------------------------------------------
+
+
+class Vector(list[float]):
+    """A 2‑ or 3‑element list that supports elementwise arithmetic.
+
+    Inherits from ``list[float]`` so it is a drop‑in for ``[x, y]`` or
+    ``[x, y, z]`` lists.  Elementwise ``+``, ``-``, ``*`` replace the
+    default list concatenation/repetition.
+
+    ``len() == 2`` means a 2‑D vector (``is_2d`` is ``True``); ``len() == 3``
+    is a 3‑D vector.  Use :meth:`to_3d` to add a Z coordinate.
+    """
+
+    @property
+    def x(self) -> float:
+        return self[0]
+
+    @property
+    def y(self) -> float:
+        return self[1]
+
+    @property
+    def z(self) -> float | None:
+        return self[2] if len(self) > 2 else None
+
+    @property
+    def is_2d(self) -> bool:
+        """``True`` when this is a 2‑D vector (``len() == 2``)."""
+        return len(self) == 2
+
+    def to_3d(self, z: float = 0.0) -> "Vector":
+        """Return a 3‑D copy with the given *z*.
+
+        For a 2‑D vector this appends *z*; for a 3‑D vector this returns
+        a copy with *z* replaced (unless *z* already matches).
+        """
+        if len(self) == 2:
+            return Vector([self[0], self[1], z])
+        return Vector([self[0], self[1], z])
+
+    def dot(self, other: Sequence[float] | np.ndarray) -> float:
+        """Dot product with another vector (2‑D or 3‑D)."""
+        return float(np.dot(np.asarray(self), np.asarray(other, dtype=float)))
+
+    def cross(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
+        """Cross product with another 3‑D vector, returning an ndarray.
+
+        Raises:
+            ValueError: If this vector is 2‑D (cross product requires 3‑D vectors).
+        """
+        if self.is_2d:
+            raise ValueError("cross() requires a 3‑D vector")
+        return np.cross(np.asarray(self), np.asarray(other, dtype=float))
+
+    def __add__(self, other: list[float]) -> "Vector":  # type: ignore
+        return Vector(a + b for a, b in zip(self, other, strict=False))
+
+    def __radd__(self, other: list[float]) -> "Vector":
+        return Vector(a + b for a, b in zip(other, self, strict=False))
+
+    def __sub__(self, other: list[float]) -> "Vector":
+        return Vector(a - b for a, b in zip(self, other, strict=False))
+
+    def __rsub__(self, other: list[float]) -> "Vector":
+        return Vector(a - b for a, b in zip(other, self, strict=False))
+
+    def __neg__(self) -> "Vector":
+        return Vector(-a for a in self)
+
+    def __mul__(self, other: float) -> "Vector":  # type: ignore[override]
+        return Vector(a * other for a in self)
+
+    __rmul__ = __mul__  # type: ignore[assignment]
+
+    @property
+    def norm(self) -> float:
+        """Euclidean length of the vector from origin."""
+        return float(np.linalg.norm(np.asarray(self, dtype=float)))

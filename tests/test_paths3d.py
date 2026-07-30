@@ -6,7 +6,7 @@
 
 """Tests for pybosl2.paths.Path3D: the 3-D path object -- construction, measurement, the 3-D
 transforms (move / directional / scale / rotate / mirror), resampling/cutting, and the drop-to-2-D
-conversion. The numeric kernels are shared with Path (and pinned to real BOSL2 elsewhere); these
+conversion. The numeric kernels are shared with Path2D (and pinned to real BOSL2 elsewhere); these
 tests focus on the 3-D object surface."""
 
 import math
@@ -14,7 +14,7 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path, Path3D
+from pybosl2.paths import Path2D, Path3D
 
 SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 
@@ -135,15 +135,20 @@ def test_tangents_normals_curvature_torsion_shapes():
 
 
 def test_closest_point():
+    from pybosl2.points import Point
+
     line = Path3D([[0, 0, 0], [0, 0, 10]], closed=False)
-    seg, pt = line.closest_point([1, 0, 5])
-    np.testing.assert_allclose(pt, [0, 0, 5], atol=1e-9)
+    pt = line.closest_point([1, 0, 5])
+    assert isinstance(pt, Point)
+    assert not pt.is_2d
+    assert pt.z is not None
+    np.testing.assert_allclose([pt.x, pt.y, pt.z], [0, 0, 5], atol=1e-9)
 
 
 def test_path2d_drops_z():
     p = Path3D([[1, 2, 9], [3, 4, 8]], closed=False)
     flat = p.path2d()
-    assert isinstance(flat, Path)
+    assert isinstance(flat, Path2D)
     np.testing.assert_allclose(flat, [[1, 2], [3, 4]], atol=1e-9)
     assert flat.closed is False
 

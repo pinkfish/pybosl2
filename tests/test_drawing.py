@@ -24,22 +24,22 @@ from pybosl2.drawing import (
     stroke,
     turtle,
 )
-from pybosl2.paths import Path, Path3D
+from pybosl2.paths import Path2D, Path3D
 from pybosl2.regions import Region
 
-# -- arc returns a Path -------------------------------------------------------------------
+# -- arc returns a Path2D -----------------------------------------------------------------
 
 
 def test_arc_returns_open_path():
     a = arc(radius=16, start=0, angle=60)
-    assert isinstance(a, Path)
+    assert isinstance(a, Path2D)
     assert a.closed is False
     np.testing.assert_allclose(a[0], [16, 0], atol=1e-9)
 
 
 def test_arc_wedge_is_closed_with_centre_first():
     w = arc(radius=10, angle=90, center=[2, 3], wedge=True)
-    assert isinstance(w, Path)
+    assert isinstance(w, Path2D)
     assert w.closed is True
     np.testing.assert_allclose(w[0], [2, 3], atol=1e-9)  # centre point prepended
 
@@ -66,7 +66,7 @@ def test_arc_two_point_short_and_long():
 
 def test_arc_corner_is_tangent_fillet():
     c = arc(corner=[[0, 10], [0, 0], [10, 0]], radius=3)
-    assert isinstance(c, Path)
+    assert isinstance(c, Path2D)
     # tangent points sit 3 up the y-leg and 3 along the x-leg
     np.testing.assert_allclose(
         sorted([c[0].tolist(), c[-1].tolist()]),
@@ -85,7 +85,7 @@ def test_arc_collinear_points_raise():
 
 def test_catenary_droop_hits_endpoints_and_midpoint():
     c = catenary(width=80, droop=30, sides=21)
-    assert isinstance(c, Path)
+    assert isinstance(c, Path2D)
     assert c.closed is False
     np.testing.assert_allclose(c[0], [-40, 0], atol=1e-6)
     np.testing.assert_allclose(c[-1], [40, 0], atol=1e-6)
@@ -110,7 +110,7 @@ def test_catenary_requires_exactly_one_of_droop_angle():
 def test_helix_returns_path3d():
     height = helix(turns=2, height=40, radius=10)
     assert isinstance(height, Path3D)  # the 3-D path object
-    assert not isinstance(height, Path)
+    assert not isinstance(height, Path2D)
     assert len(height[0]) == 3
     np.testing.assert_allclose(height[0], [10, 0, 0], atol=1e-9)
     assert math.isclose(height[-1][2], 40, abs_tol=1e-9)  # ends at the full height
@@ -131,7 +131,7 @@ def test_helix_flat_spiral():
 
 def test_turtle_square():
     p = turtle(["move", 10, "left", 90, "move", 10, "left", 90, "move", 10])
-    assert isinstance(p, Path)
+    assert isinstance(p, Path2D)
     np.testing.assert_allclose(p, [[0, 0], [10, 0], [10, 10], [0, 10]], atol=1e-9)
 
 
@@ -164,7 +164,7 @@ def test_stroke_3d_builds():
 
 
 def test_stroke_closed_path_defaults_from_flag():
-    sq = Path([[0, 0], [10, 0], [10, 10], [0, 10]], closed=True)
+    sq = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]], closed=True)
     assert sq.stroke(width=1) is not None
 
 
@@ -176,19 +176,19 @@ def test_stroke_region_strokes_every_path():
 def test_dashed_stroke_returns_paths():
     dashes = dashed_stroke(arc(radius=30, angle=360), dashpat=[6, 4], closed=True)
     assert len(dashes) > 1
-    assert all(isinstance(d, Path) for d in dashes)
+    assert all(isinstance(d, Path2D) for d in dashes)
 
 
 def test_dashed_stroke_on_path_method():
-    dashes = Path([[0, 0], [100, 0]], closed=False).dashed_stroke(dashpat=[5, 5])
+    dashes = Path2D([[0, 0], [100, 0]], closed=False).dashed_stroke(dashpat=[5, 5])
     assert len(dashes) > 1
-    assert all(isinstance(d, Path) for d in dashes)
+    assert all(isinstance(d, Path2D) for d in dashes)
 
 
 def test_dashed_stroke_region_flattens():
     reg = Region([[[0, 0], [40, 0], [40, 40], [0, 40]]])
     dashes = reg.dashed_stroke(dashpat=[8, 4])
-    assert all(isinstance(d, Path) for d in dashes)
+    assert all(isinstance(d, Path2D) for d in dashes)
 
 
 def test_dashed_stroke_3d_yields_path3d():
