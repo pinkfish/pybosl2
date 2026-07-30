@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2.beziers import Bezier
     from pybosl2.path3d import Path3D
+    from pybosl2.points import Vector
     from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
@@ -43,7 +44,7 @@ from pybosl2.geometry import (
     line_normal,
     pointlist_bounds,
 )
-from pybosl2.math import EPSILON
+from pybosl2.math import EPSILON, lerpn
 from pybosl2.miscellaneous import Extrudable
 from pybosl2.paths import (
     CutPoint,
@@ -70,7 +71,80 @@ from pybosl2.rounding import Roundable
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import unit
 
-__all__ = ["Path2D", "MinkowskiJoin"]
+__all__ = ["Path2D", "MinkowskiJoin", "catenary"]
+
+
+def catenary(
+    width: float,
+    droop: float | None = None,
+    sides: int = 100,
+    angle: float | None = None,
+) -> Path2D:
+    """The catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.
+
+    Give exactly one of *droop* (how far the middle hangs below the endpoints) or *angle* (the
+    slope in degrees at the endpoints). The curve passes through ``[-width/2, 0]`` and
+    ``[width/2, 0]`` and hangs downward (negative *droop*/*angle* flips it upward). This is BOSL2's
+    ``catenary()``.
+
+    Args:
+        width: horizontal distance between the endpoints (> 0)
+        droop: how far the midpoint hangs below the endpoints (give this or *angle*)
+        sides:     number of points along the curve (default 100)
+        angle: endpoint slope in degrees, ``0 < |angle| < 90`` (give this or *droop*)
+
+    Examples:
+        A hanging arch, stroked into a 2-mm ribbon and extruded into a wall:
+
+        .. pythonscad-example::
+
+            catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()
+    """
+    assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
+    assert width > 0, "catenary() needs width > 0."
+    assert isinstance(sides, int) and sides > 0, "catenary() needs a positive integer sides."
+    given = droop if droop is not None else angle
+    assert given is not None
+    sgn = int(math.copysign(1, given))
+    droop_a = None if droop is None else abs(droop)
+    angle_a = None if angle is None else abs(angle)
+    assert angle_a is None or (0 < angle_a < 90), "catenary() angle must satisfy 0 < |angle| < 90."
+
+    if droop_a is None:  # solve for the scale that gives the requested endpoint slope
+        assert angle_a is not None
+
+        def slope_fn(x):
+            p1 = math.cosh(x - 0.001) - 1
+            p2 = math.cosh(x + 0.001) - 1
+            return math.degrees(math.atan2(p2 - p1, 0.002))
+
+        target, f = angle_a, slope_fn
+    else:  # solve for the scale that gives the requested droop
+
+        def droop_fn(x):
+            return (math.cosh(x) - 1) / x if x != 0 else 0.0
+
+        target, f = droop_a / (width / 2), droop_fn
+
+    # binary search on x for f(x) == target (f is monotonic increasing away from 0)
+    x, inc = 0.0, 4.0
+    while inc >= 1e-9:
+        if f(x + inc) > target:
+            inc /= 2
+        else:
+            x += inc
+    scx = x
+    sc = (width / 2) / scx
+    droop_v = droop_a if droop_a is not None else (math.cosh(scx) - 1) * sc
+    pts = []
+    for xv in lerpn(-scx, scx, sides):
+        xval = xv * sc
+        yval = 0.0 if abs(abs(xv) - scx) < 1e-9 else (math.cosh(xv) - 1) * sc - droop_v
+        pts.append([xval, yval])
+    if sgn < 0:
+        pts = [[p[0], -p[1]] for p in pts]
+    return Path2D(pts, closed=False)
+
 
 # Section: Path2D object
 # ---------------------------------------------------------------------------
@@ -246,7 +320,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         proj = self._shapely.interpolate(self._shapely.project(q))
         return Point(float(proj.x), float(proj.y))
 
-    def tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
+    def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Vector]":
         """Normalized tangent vector at each point of the path, as an ndarray.
 
         Args:
@@ -260,9 +334,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         return _path_tangents(self._points, closed, uniform=uniform)
 
-    def normals(
-        self, tangents: NDArray[np.float64] | np.ndarray | None = None, closed: bool | None = None
-    ) -> NDArray[np.float64]:
+    def normals(self, tangents: "list[Vector] | None" = None, closed: bool | None = None) -> "list[Vector]":
         """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
 
         For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
@@ -305,7 +377,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         return _path_torsion(self._points, closed)
 
-    def cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list["Path2D"]:
+    def cut(self, cutdist: float | Sequence[float], closed: bool | None = None) -> list["Path2D"]:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
 
         Args:
@@ -320,7 +392,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         sub_paths = _path_cut(self._points, closed, cutdist)
         return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
-    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list:
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list["Path2D"]:
         """Reconstruct sub-paths from the output of cut_points().
 
         Args:
@@ -328,13 +400,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of subpath point lists.
+            A list of :class:`Path2D` subpaths.
         """
-        return _path_cut_getpaths(self._points, closed, cutlist)
+        sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
+        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
     def cut_points(
         self,
-        cutdist: float | Sequence[float] | np.ndarray,
+        cutdist: float | Sequence[float],
         closed: bool | None = None,
         direction: bool = False,
     ) -> list[CutPoint]:
@@ -380,7 +453,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
 
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> list:
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> "list[Vector]":
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
         Args:
@@ -389,11 +462,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of normal vectors, one per cut point.
+            A list of :class:`Vector` normal vectors, one per cut point.
         """
         return _path_cuts_normals(self._points, closed, cuts, dirs)
 
-    def plane(self, ind: int, i: int, closed: bool = False) -> np.ndarray | None:
+    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
         Args:
@@ -407,7 +480,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_plane(self._points, closed, ind, i)
 
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Vector]":
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:
@@ -416,7 +489,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for numerical comparisons.
 
         Returns:
-            A list of direction vectors, one per cut point.
+            A list of :class:`Vector` direction vectors, one per cut point.
         """
         return _path_cuts_dir(self._points, closed, cuts, eps=eps)
 
@@ -428,7 +501,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         closed: bool | None = None,
         exact: bool | None = None,
         method: str | None = None,
-    ) -> list:
+    ) -> "Path2D":
         """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
 
         Args:
@@ -440,20 +513,21 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             method: "length" or "segment".
 
         Returns:
-            A list of subdivided path points.
+            A new :class:`Path2D` with the subdivided points.
         """
         if closed is None:
             closed = self.closed
-        return _subdivide_path(
+        pts = _subdivide_path(
             self._points, closed, sides=sides, refine=refine, maxlen=maxlen, exact=exact, method=method
         )
+        return self.__class__(pts, closed=self.closed)
 
     def resample_path(
         self,
         sides: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
-    ) -> list:
+    ) -> "Path2D":
         """Uniformly resample path to sides points, or to a spacing near spacing.
 
         Args:
@@ -462,13 +536,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list of uniformly resampled path points.
+            A new :class:`Path2D` with the uniformly resampled points.
         """
         if closed is None:
             closed = self.closed
-        return _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        pts = _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        return self.__class__(pts, closed=self.closed)
 
-    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
+    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path2D":
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
 
         Args:
@@ -479,11 +554,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list of points representing the selected portion of the path.
+            A :class:`Path2D` representing the selected portion of the path.
         """
         if closed is None:
             closed = self.closed
-        return _path_select(self._points, closed, s1, u1, s2, u2)
+        pts = _path_select(self._points, closed, s1, u1, s2, u2)
+        return self.__class__(pts, closed=self.closed)
 
     # -- measurement -----------------------------------------------------------------------
 
@@ -687,7 +763,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result = pts.subdivide(sides=24)
                 result.stroke(width=1).linear_extrude(h=4).show()
         """
-        return self.__class__(self.subdivide_path(**kwargs), closed=self.closed)
+        return self.subdivide_path(**kwargs)
 
     def resample(self, **kwargs: Any) -> "Path2D":
         """Resample to evenly spaced points.
@@ -707,7 +783,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 sampled = pts.resample(sides=20)
                 sampled.stroke(width=1).show()
         """
-        return self.__class__(self.resample_path(**kwargs), closed=self.closed)
+        return self.resample_path(**kwargs)
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list["Path2D"]:
         """Split this 2-D path into subpaths wherever it crosses itself.
@@ -1570,7 +1646,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         out = []
         for p0, p1 in Path2D._pair(isects):
             section = temp.select(p0[0], p0[1], p1[0], p1[1], closed=closed)
-            outpath = Path2D._deduplicate(section, eps=eps)
+            outpath = Path2D._deduplicate(section, eps=eps)  # type: ignore[arg-type]
             if len(outpath) > 1:
                 out.append(outpath)
         return out

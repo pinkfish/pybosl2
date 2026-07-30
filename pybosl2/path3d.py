@@ -12,6 +12,7 @@ and transforms while omitting inherently 2-D operations (polygon, area, offset).
 
 from __future__ import annotations
 
+import math
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -21,12 +22,13 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
-    from pybosl2.points import Point
+    from pybosl2.points import Point, Vector
 
 
 from pybosl2.bounds import Bounds3D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.distributors import Distributable, _apply4
+from pybosl2.math import lerp, lerpn
 from pybosl2.miscellaneous import Extrudable
 from pybosl2.path2d import Path2D
 from pybosl2.paths import (
@@ -53,9 +55,83 @@ from pybosl2.paths import (
     _subdivide_path,
 )
 from pybosl2.rounding import Roundable
+from pybosl2.shapes2d import _frag_count, _pick_radius
 from pybosl2.skin import Sweepable
 
-__all__ = ["Path3D"]
+__all__ = ["Path3D", "helix"]
+
+
+def helix(
+    length: float | None = None,
+    height: float | None = None,
+    turns: float | None = None,
+    angle: float | None = None,
+    radius: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+) -> Path3D:
+    """A 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
+
+    Returned as a :class:`~pybosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
+    transforms/measurements and feeds straight into :func:`stroke` or ``path_sweep``. Give
+    exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*
+    is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
+    spiral is ``height=0`` with a turn count).
+
+    Args:
+        length/height:     height of the helix (0 for a flat spiral)
+        turns:   number of turns (positive = right-handed)
+        angle:   helix angle in degrees (measured at the base radius)
+        radius/diameter:     radius / diameter (constant helix)
+        radius1/diameter1:   bottom radius / diameter
+        radius2/diameter2:   top radius / diameter
+
+    Examples:
+        A 2.5-turn helix drawn as a tube:
+
+        .. pythonscad-example::
+
+            stroke(helix(turns=2.5, height=100, radius=30), width=3).show()
+    """
+    r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
+    r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    length = length if length is not None else height
+    assert sum(v is not None for v in (length, turns, angle)) == 2, (
+        "helix() needs exactly two of length/height, turns, and angle."
+    )
+    assert angle is None or length != 0, "helix() cannot take an angle with length 0."
+    if angle is not None and length != 0:
+        dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
+    else:
+        assert length is not None and turns is not None  # else-branch only reached with both set
+        dz = length / abs(turns)
+    if turns is not None:
+        maxtheta = 360.0 * turns
+    else:
+        assert length is not None
+        maxtheta = 360.0 * length / dz
+    nseg = _frag_count(max(r1v, r2v))
+    count = max(3, math.ceil(abs(maxtheta) * nseg / 360))
+    out = []
+    for theta in lerpn(0, maxtheta, count):
+        radius = lerp(r1v, r2v, theta / maxtheta) if maxtheta != 0 else r1v
+        out.append(
+            [
+                radius * math.cos(math.radians(theta)),
+                radius * math.sin(math.radians(theta)),
+                abs(theta) / 360.0 * dz,
+            ]
+        )
+    return Path3D(out, closed=False)
+
+
+# --- turtle ----------------------------------------------------------------
+
+_TURTLE_TWO_ARG = ("arcleft", "arcright", "arcleftto", "arcrightto")
+
 
 # Section: Path3D object
 # ---------------------------------------------------------------------------
@@ -175,7 +251,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         return _path_closest_point(self._points, closed, pt)
 
-    def tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
+    def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Vector]":
         """Normalized tangent vector at each point of the path, as an ndarray.
 
         Args:
@@ -189,9 +265,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         return _path_tangents(self._points, closed, uniform=uniform)
 
-    def normals(
-        self, tangents: NDArray[np.float64] | np.ndarray | None = None, closed: bool | None = None
-    ) -> NDArray[np.float64]:
+    def normals(self, tangents: "list[Vector] | None" = None, closed: bool | None = None) -> "list[Vector]":
         """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
 
         For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
@@ -234,7 +308,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         return _path_torsion(self._points, closed)
 
-    def cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list["Path3D"]:
+    def cut(self, cutdist: float | Sequence[float], closed: bool | None = None) -> list["Path3D"]:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
 
         Args:
@@ -249,7 +323,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         sub_paths = _path_cut(self._points, closed, cutdist)
         return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
-    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list:
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list["Path3D"]:
         """Reconstruct sub-paths from the output of cut_points().
 
         Args:
@@ -257,13 +331,14 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of subpath point lists.
+            A list of :class:`Path3D` subpaths.
         """
-        return _path_cut_getpaths(self._points, closed, cutlist)
+        sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
+        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
     def cut_points(
         self,
-        cutdist: float | Sequence[float] | np.ndarray,
+        cutdist: float | Sequence[float],
         closed: bool | None = None,
         direction: bool = False,
     ) -> list[CutPoint]:
@@ -309,7 +384,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
 
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> list:
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> "list[Vector]":
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
         Args:
@@ -318,11 +393,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of normal vectors, one per cut point.
+            A list of :class:`Vector` normal vectors, one per cut point.
         """
         return _path_cuts_normals(self._points, closed, cuts, dirs)
 
-    def plane(self, ind: int, i: int, closed: bool = False) -> np.ndarray | None:
+    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
         Args:
@@ -336,7 +411,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_plane(self._points, closed, ind, i)
 
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Vector]":
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:
@@ -345,7 +420,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for numerical comparisons.
 
         Returns:
-            A list of direction vectors, one per cut point.
+            A list of :class:`Vector` direction vectors, one per cut point.
         """
         return _path_cuts_dir(self._points, closed, cuts, eps=eps)
 
@@ -357,7 +432,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         closed: bool | None = None,
         exact: bool | None = None,
         method: str | None = None,
-    ) -> list:
+    ) -> "Path3D":
         """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
 
         Args:
@@ -369,20 +444,21 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             method: "length" or "segment".
 
         Returns:
-            A list of subdivided path points.
+            A new :class:`Path3D` with the subdivided points.
         """
         if closed is None:
             closed = self.closed
-        return _subdivide_path(
+        pts = _subdivide_path(
             self._points, closed, sides=sides, refine=refine, maxlen=maxlen, exact=exact, method=method
         )
+        return self.__class__(pts, closed=self.closed)
 
     def resample_path(
         self,
         sides: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
-    ) -> list:
+    ) -> "Path3D":
         """Uniformly resample path to sides points, or to a spacing near spacing.
 
         Args:
@@ -391,13 +467,14 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list of uniformly resampled path points.
+            A new :class:`Path3D` with the uniformly resampled points.
         """
         if closed is None:
             closed = self.closed
-        return _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        pts = _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        return self.__class__(pts, closed=self.closed)
 
-    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
+    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path3D":
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
 
         Args:
@@ -408,11 +485,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list of points representing the selected portion of the path.
+            A :class:`Path3D` representing the selected portion of the path.
         """
         if closed is None:
             closed = self.closed
-        return _path_select(self._points, closed, s1, u1, s2, u2)
+        pts = _path_select(self._points, closed, s1, u1, s2, u2)
+        return self.__class__(pts, closed=self.closed)
 
     # -- measurement -----------------------------------------------------------------------
 
@@ -483,7 +561,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A new :class:`Path3D` with additional interpolated points.
         """
-        return self.__class__(self.subdivide_path(**kwargs), closed=self.closed)
+        return self.subdivide_path(**kwargs)
 
     def resample(self, **kwargs: Any) -> "Path3D":
         """Resample to evenly spaced points.
@@ -494,7 +572,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A new :class:`Path3D` with uniformly resampled points.
         """
-        return self.__class__(self.resample_path(**kwargs), closed=self.closed)
+        return self.resample_path(**kwargs)
 
     def translate(self, v: Sequence[float]) -> "Path3D":
         """Translate every point by *v* (a shorter vector pads with zeros).

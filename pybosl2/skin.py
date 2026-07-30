@@ -428,7 +428,7 @@ def _path_sweep(
                 translate4(patharr[i % npts]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i])
             )
     elif method == "natural":
-        pathnormal = np.asarray(Path3D(patharr).normals(tangents=tangents, closed=closed), dtype=float)
+        pathnormal = np.asarray(Path3D(patharr).normals(tangents=tangents, closed=closed), dtype=float)  # type: ignore[arg-type,type-var]
         unscaled = [
             translate4(patharr[i % npts])
             @ frame_map(x=pathnormal[i % npts], z=tangents[i % npts])
@@ -554,10 +554,10 @@ def skin(
     fixedprof = [resampled[0]]
     for i in range(1, sides):
         if method[i - 1] == "direct":
-            fixedprof.append(resampled[i])
+            fixedprof.append(resampled[i])  # type: ignore[arg-type]
         else:
-            fixedprof.append(_reindex_polygon(fixedprof[i - 1], resampled[i]))
-    sliced = slice_profiles(fixedprof, slices, closed)
+            fixedprof.append(_reindex_polygon(fixedprof[i - 1], resampled[i]))  # type: ignore[arg-type]
+    sliced = slice_profiles(fixedprof, slices, closed)  # type: ignore[arg-type]
     grid = sliced if not closed else sliced + [sliced[0]]
     vnf = VNF.vertex_array(grid, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()

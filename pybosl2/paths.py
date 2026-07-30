@@ -42,7 +42,7 @@ from pybosl2.geometry import (
     line_closest_point,
 )
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
-from pybosl2.points import Point
+from pybosl2.points import Point, Vector
 from pybosl2.vectors import add_scalar, unit
 
 __all__ = ["CutPoint", "Path"]
@@ -157,15 +157,15 @@ def _path_closest_point(points: np.ndarray, closed: bool, pt: Point | Sequence[f
     return Point(float(r[0]), float(r[1])) if dim == 2 else Point(float(r[0]), float(r[1]), float(r[2]))
 
 
-def _path_tangents(points: np.ndarray, closed: bool, uniform: bool = True) -> NDArray[np.float64]:
-    """Normalized tangent vector at each point of the path, as an ndarray.
+def _path_tangents(points: np.ndarray, closed: bool, uniform: bool = True) -> list[Vector]:
+    """Normalized tangent vector at each point of the path.
 
     Args:
         closed: Override the instance's closed flag; uses ``self.closed`` by default.
         uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
 
     Returns:
-        An ndarray of unit tangent vectors, one per path point.
+        A list of :class:`Vector` unit tangent vectors, one per path point.
     """
     if not uniform:
         diameter = np.asarray(
@@ -176,12 +176,14 @@ def _path_tangents(points: np.ndarray, closed: bool, uniform: bool = True) -> ND
         diameter = np.asarray(deriv(points, closed=closed), dtype=float)
     norms = np.linalg.norm(diameter, axis=1, keepdims=True)
     assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
-    return diameter / norms  # type: ignore[return-value]
+    result = diameter / norms
+    dim = points.shape[1]
+    if dim == 2:
+        return [Vector([float(r[0]), float(r[1])]) for r in result]
+    return [Vector([float(r[0]), float(r[1]), float(r[2])]) for r in result]
 
 
-def _path_normals(
-    points: np.ndarray, closed: bool, tangents: NDArray[np.float64] | np.ndarray | None = None
-) -> NDArray[np.float64]:
+def _path_normals(points: np.ndarray, closed: bool, tangents: list[Vector] | None = None) -> list[Vector]:
     """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
 
     For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
@@ -194,12 +196,13 @@ def _path_normals(
     Returns:
         An ndarray of unit normal vectors, one per path point.
     """
-    tangents_arr = _path_tangents(points, closed) if tangents is None else np.asarray(tangents, dtype=float)
+    if tangents is None:
+        tangents = _path_tangents(points, closed)
     dim = points.shape[1]
     if dim == 2:
-        return np.stack([tangents_arr[:, 1], -tangents_arr[:, 0]], axis=1)  # type: ignore[return-value]
+        return [Vector([float(t[1]), float(-t[0])]) for t in tangents]
     sides = len(points)
-    out = []
+    out: list[Vector] = []
     for i in range(sides):
         if i == 0:
             idx = [-1, 0, 1] if closed else [0, 1, 2]
@@ -208,11 +211,12 @@ def _path_normals(
         else:
             idx = [i - 1, i, i + 1]
         pts = points[idx]
-        v = np.cross(np.cross(pts[1] - pts[0], pts[2] - pts[0]), tangents_arr[i])
+        ta = np.asarray(tangents[i], dtype=float)
+        v = np.cross(np.cross(pts[1] - pts[0], pts[2] - pts[0]), ta)
         norm = float(np.linalg.norm(v))
         assert norm > EPSILON, "3D path contains collinear points"
-        out.append(v / norm)
-    return np.asarray(out)
+        out.append(Vector([float(x) for x in (v / norm)]))
+    return out
 
 
 def _path_curvature(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
@@ -254,7 +258,7 @@ def _path_torsion(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
 # -- Breaking paths up into subpaths ---------------------------------------------------
 
 
-def _path_cut(points: np.ndarray, closed: bool, cutdist: float | Sequence[float] | np.ndarray) -> list:
+def _path_cut(points: np.ndarray, closed: bool, cutdist: float | Sequence[float]) -> list:
     """Cut path into subpaths at the given ascending list of distances (or a single distance).
 
     Args:
@@ -312,7 +316,7 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]
 
 
 def _path_cut_points(
-    points: np.ndarray, closed: bool, cutdist: float | Sequence[float] | np.ndarray, direction: bool = False
+    points: np.ndarray, closed: bool, cutdist: float | Sequence[float], direction: bool = False
 ) -> list[CutPoint]:
     """Cut path at given distance(s) from start.
 
@@ -413,7 +417,7 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
         ind += 1
 
 
-def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], dirs: list) -> list:
+def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], dirs: list) -> list[Vector]:
     """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
     Args:
@@ -422,26 +426,34 @@ def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], d
         closed: Whether the path is closed.
 
     Returns:
-        A list of normal vectors, one per cut point.
+        A list of :class:`Vector` normal vectors, one per cut point.
     """
-    out = []
+    out: list[Vector] = []
     dim = points.shape[1]
     for i in range(len(cuts)):
         if dim == 2:
-            out.append([-dirs[i][1], dirs[i][0]])
+            out.append(Vector([-dirs[i][1], dirs[i][0]]))
             continue
         plane = None
         if len(points) >= 3:
             start = max(min(cuts[i].next_index, len(points) - 1), 2)
-            plane = _path_plane(points, closed, start, start - 2)
+            try:
+                plane = _path_plane(points, closed, start, start - 2)
+            except ValueError:
+                plane = None
         if plane is None:
-            out.append([1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else list(unit([-dirs[i][1], dirs[i][0], 0])))
+            if dirs[i][0] == 0 and dirs[i][1] == 0:
+                out.append(Vector([1, 0, 0]))
+            else:
+                n = unit([-dirs[i][1], dirs[i][0], 0])
+                out.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
         else:
-            out.append(list(unit(cross(dirs[i], cross(plane[0], plane[1])))))
+            n = unit(cross(dirs[i], cross(plane[0], plane[1])))
+            out.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
     return out
 
 
-def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> np.ndarray | None:
+def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vector]:
     """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
     Args:
@@ -450,24 +462,24 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> np.ndarra
         closed: Whether the path is closed.
 
     Returns:
-        A 2x3 ndarray of two basis vectors defining the local plane, or None if no
-        non-collinear point is found.
+        A list of two :class:`Vector` basis vectors defining the local plane.
+
+    Raises:
+        ValueError: If no non-collinear point is found within the search range.
     """
     lower = -1 if closed else 0
     while i >= lower:
         if not is_collinear(points[ind], points[ind - 1], _select(points, i)):
             p_i = _select(points, i)
-            return np.asarray(
-                [  # type: ignore[return-value]
-                    [a - b for a, b in zip(p_i, points[ind - 1], strict=False)],
-                    [a - b for a, b in zip(points[ind], points[ind - 1], strict=False)],
-                ]
-            )
+            return [
+                Vector([float(a - b) for a, b in zip(p_i, points[ind - 1], strict=False)]),
+                Vector([float(a - b) for a, b in zip(points[ind], points[ind - 1], strict=False)]),
+            ]
         i -= 1
-    return None
+    raise ValueError("No non-collinear point found to define a local plane.")
 
 
-def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: float = 1e-2) -> list:
+def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: float = 1e-2) -> list[Vector]:
     """Compute direction vectors at each cut point (blended from adjacent segments).
 
     Args:
@@ -476,9 +488,9 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
         eps: Epsilon for numerical comparisons.
 
     Returns:
-        A list of direction vectors, one per cut point.
+        A list of :class:`Vector` direction vectors, one per cut point.
     """
-    out = []
+    out: list[Vector] = []
     zeros = [0] * points.shape[1]
     for ci in range(len(cuts)):
         nextind = cuts[ci].next_index
@@ -523,7 +535,7 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
             nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
         else:
             nextdir = thispath
-        out.append(nextdir)
+        out.append(Vector([float(v) for v in nextdir]))
     return out
 
 
@@ -620,7 +632,7 @@ def _resample_path(points: np.ndarray, closed: bool, sides: int | None = None, s
         assert spacing is not None
         n_use = round(length / spacing)
     distlist = lerpn(0, length, n_use, endpoint=False)
-    cuts = _path_cut_points(points, closed, distlist)
+    cuts = _path_cut_points(points, closed, distlist)  # type: ignore[arg-type]
     out = [c.point for c in cuts]
     if not closed:
         out.append(points[-1])
@@ -811,7 +823,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
+    def tangents(self, closed: bool | None = None, uniform: bool = True) -> list[Vector]:
         """Normalized tangent vector at each point of the path, as an ndarray.
 
         Args:
@@ -824,9 +836,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def normals(
-        self, tangents: NDArray[np.float64] | np.ndarray | None = None, closed: bool | None = None
-    ) -> NDArray[np.float64]:
+    def normals(self, tangents: list[Vector] | None = None, closed: bool | None = None) -> list[Vector]:
         """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
 
         For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
@@ -866,7 +876,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list[Any]:
+    def cut(self, cutdist: float | Sequence[float], closed: bool | None = None) -> list[Any]:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
 
         Args:
@@ -879,7 +889,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list:
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> Sequence[Path]:
         """Reconstruct sub-paths from the output of cut_points().
 
         Args:
@@ -894,7 +904,7 @@ class Path(ABC):
     @abstractmethod
     def cut_points(
         self,
-        cutdist: float | Sequence[float] | np.ndarray,
+        cutdist: float | Sequence[float],
         closed: bool | None = None,
         direction: bool = False,
     ) -> list[CutPoint]:
@@ -941,7 +951,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> list:
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list[Vector], closed: bool = False) -> list[Vector]:
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
         Args:
@@ -955,7 +965,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def plane(self, ind: int, i: int, closed: bool = False) -> np.ndarray | None:
+    def plane(self, ind: int, i: int, closed: bool = False) -> list[Vector]:
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
         Args:
@@ -970,7 +980,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list[Vector]:
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:
@@ -992,7 +1002,7 @@ class Path(ABC):
         closed: bool | None = None,
         exact: bool | None = None,
         method: str | None = None,
-    ) -> list:
+    ) -> Path:
         """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
 
         Args:
@@ -1014,7 +1024,7 @@ class Path(ABC):
         sides: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
-    ) -> list:
+    ) -> Path:
         """Uniformly resample path to sides points, or to a spacing near spacing.
 
         Args:
@@ -1028,7 +1038,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
+    def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> Path:
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
 
         Args:

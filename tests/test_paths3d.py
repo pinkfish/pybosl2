@@ -129,8 +129,8 @@ def test_tangents_normals_curvature_torsion_shapes():
         [[math.cos(t), math.sin(t), t / 3] for t in np.linspace(0, 2 * math.pi, 24)],
         closed=False,
     )
-    assert p.tangents().shape == (24, 3)
-    assert p.normals().shape == (24, 3)
+    assert len(p.tangents()) == 24
+    assert len(p.normals()) == 24
     assert p.curvature().shape == (24,)
     assert p.torsion().shape == (24,)
 

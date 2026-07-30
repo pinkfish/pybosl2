@@ -27,6 +27,8 @@ from pybosl2.drawing import (
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.regions import Region
+from pybosl2.turtle3d import TurtleCommand
+from pybosl2.turtle3d import TurtleCommandType as Tct
 
 # -- arc returns a Path2D -----------------------------------------------------------------
 
@@ -131,26 +133,41 @@ def test_helix_flat_spiral():
 
 
 def test_turtle_square():
-    p = turtle(["move", 10, "left", 90, "move", 10, "left", 90, "move", 10])
+    t = turtle(
+        [
+            TurtleCommand(Tct.MOVE, size=10),
+            TurtleCommand(Tct.LEFT, angle=90),
+            TurtleCommand(Tct.MOVE, size=10),
+            TurtleCommand(Tct.LEFT, angle=90),
+            TurtleCommand(Tct.MOVE, size=10),
+        ]
+    )
+    p = t.points()
     assert isinstance(p, Path2D)
     np.testing.assert_allclose(p, [[0, 0], [10, 0], [10, 10], [0, 10]], atol=1e-9)
 
 
 def test_turtle_repeat_closes_square():
-    p = turtle(["repeat", 4, ["move", 40, "left", 90]])
+    sub = [TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.LEFT, angle=90)]
+    p = turtle([TurtleCommand(Tct.REPEAT, size=4, options={"commands": sub})]).points()
     np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
     np.testing.assert_allclose(p[-1], [0, 0], atol=1e-9)  # 4 turns back to origin
 
 
 def test_turtle_full_state():
-    st = turtle(["move", 5], full_state=True)
-    assert len(st) == 4  # [path, step, angle, arcsteps]
-    np.testing.assert_allclose(st[0][-1], [5, 0], atol=1e-9)
+    from pybosl2.turtle2d import TurtleState
+
+    st = turtle([TurtleCommand(Tct.MOVE, size=5)]).full_state()
+    assert isinstance(st, TurtleState)
+    assert len(st.path) == 2  # origin + move point
+    np.testing.assert_allclose(st.path[-1], [5, 0], atol=1e-9)
+    assert st.angle == 90.0
+    assert st.arcsteps == 0
 
 
 def test_turtle_unknown_command_raises():
-    with pytest.raises(AssertionError):
-        turtle(["frobnicate", 3])
+    with pytest.raises(ValueError, match="z-axis"):
+        turtle([TurtleCommand(Tct.ZMOVE, size=5)])
 
 
 # -- stroke / dashed_stroke build geometry ------------------------------------------------
