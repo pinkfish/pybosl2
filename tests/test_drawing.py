@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for pybosl2/drawing.py: the path generators (arc/catenary/helix/turtle) and the
+"""Tests for pybosl2/drawing.py: the path generators (arc/catenary/helix) and the
 renderers (stroke/dashed_stroke). The native primitives are mocked (see conftest), so the
 render tests here only assert that geometry is produced; the geometry itself is checked against
 the real app in pybosl2/tests/test_stl_render.py, and the generators are pinned to real-BOSL2
@@ -17,17 +17,13 @@ import pytest
 
 from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one
 from pybosl2.drawing import (
-    arc,
-    catenary,
     dashed_stroke,
-    helix,
     stroke,
 )
-from pybosl2.path2d import Path2D
-from pybosl2.path3d import Path3D
+from pybosl2.path2d import Path2D, catenary
+from pybosl2.path3d import Path3D, helix
 from pybosl2.regions import Region
-from pybosl2.turtle import TurtleCommand, turtle2d
-from pybosl2.turtle import TurtleCommandType as Tct
+from pybosl2.shapes2d import arc
 
 # -- arc returns a Path2D -----------------------------------------------------------------
 
@@ -126,47 +122,6 @@ def test_helix_needs_exactly_two_params():
 def test_helix_flat_spiral():
     height = helix(height=0, radius1=50, radius2=25, length=0, turns=4)
     assert all(math.isclose(p[2], 0, abs_tol=1e-9) for p in height)  # flat: every z is 0
-
-
-# -- turtle -------------------------------------------------------------------------------
-
-
-def test_turtle_square():
-    t = turtle2d(
-        [
-            TurtleCommand(Tct.MOVE, size=10),
-            TurtleCommand(Tct.LEFT, angle=90),
-            TurtleCommand(Tct.MOVE, size=10),
-            TurtleCommand(Tct.LEFT, angle=90),
-            TurtleCommand(Tct.MOVE, size=10),
-        ]
-    )
-    p = t.points()
-    assert isinstance(p, Path2D)
-    np.testing.assert_allclose(p, [[0, 0], [10, 0], [10, 10], [0, 10]], atol=1e-9)
-
-
-def test_turtle_repeat_closes_square():
-    sub = [TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.LEFT, angle=90)]
-    p = turtle2d([TurtleCommand(Tct.REPEAT, size=4, sub_commands=sub)]).points()
-    np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
-    np.testing.assert_allclose(p[-1], [0, 0], atol=1e-9)  # 4 turns back to origin
-
-
-def test_turtle_full_state():
-    from pybosl2.turtle import Turtle2DState
-
-    st = turtle2d([TurtleCommand(Tct.MOVE, size=5)]).full_state()
-    assert isinstance(st, Turtle2DState)
-    assert len(st.path) == 2  # origin + move point
-    np.testing.assert_allclose(st.path[-1], [5, 0], atol=1e-9)
-    assert st.angle == 90.0
-    assert st.arcsteps == 0
-
-
-def test_turtle_unknown_command_raises():
-    with pytest.raises(ValueError, match="z-axis"):
-        turtle2d([TurtleCommand(Tct.ZMOVE, size=5)])
 
 
 # -- stroke / dashed_stroke build geometry ------------------------------------------------

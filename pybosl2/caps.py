@@ -316,3 +316,38 @@ def _endcap_trim(spec: CapSpec, width: float) -> float:
     if spec.cap_type == CapType.ARROW2:
         return width * (spec.length * spec.width * 3 / 4)
     return 0.0
+
+
+def _place(poly, theta_deg: float, at):
+    """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
+    radius = math.radians(theta_deg)
+    c, s = math.cos(radius), math.sin(radius)
+    return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]
+
+
+def _trim_ends(body, trim1: float, trim2: float):
+    """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment)."""
+    import numpy as np
+
+    body = [list(map(float, p)) for p in body]
+    if len(body) >= 2 and trim1 > 0:
+        a, b = np.asarray(body[0]), np.asarray(body[1])
+        seglen = float(np.linalg.norm(b - a)) or 1.0
+        body[0] = list(a + (b - a) / seglen * min(trim1, 0.99 * seglen))
+    if len(body) >= 2 and trim2 > 0:
+        a, b = np.asarray(body[-1]), np.asarray(body[-2])
+        seglen = float(np.linalg.norm(b - a)) or 1.0
+        body[-1] = list(a + (b - a) / seglen * min(trim2, 0.99 * seglen))
+    return body
+
+
+def _oriented_to(shape, outdir, at):
+    """Rotate a Z-up solid so +Z points along 3-D *outdir*, then translate it to *at*.
+
+    Uses ``rotate(angle, axis)`` rather than a 4x4 ``multmatrix`` so it works on either backend's
+    solid -- an SDF PyShape rotates its field in closed form, but has no multmatrix.
+    """
+    from pybosl2.transforms import rot_from_to
+
+    angle, axis = rot_from_to([0, 0, 1], outdir)
+    return shape.rotate(float(angle), [float(c) for c in axis]).translate([float(c) for c in at])

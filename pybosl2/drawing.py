@@ -31,10 +31,18 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one
-from pybosl2.path2d import Path2D, catenary
-from pybosl2.path3d import Path3D, helix
-from pybosl2.shapes2d import arc
+from pybosl2.caps import (
+    CapSpec,
+    CapType,
+    _endcap_polys,
+    _endcap_trim,
+    _normalize_one,
+    _oriented_to,
+    _place,
+    _trim_ends,
+)
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 
 # The stroke body is built from the backend-neutral facade, NOT pybosl2.shapes3d directly, so a
 # 3-D stroke realizes on whichever backend is active: Bosl2Solids under the default csg backend,
@@ -46,12 +54,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 __all__ = [
-    "arc",
-    "catenary",
-    "helix",
     "stroke",
     "dashed_stroke",
-    "CapSpec",
 ]
 
 
@@ -63,13 +67,6 @@ __all__ = [
 # ---------------------------------------------------------------------------
 # Section: Path2D generators
 # ---------------------------------------------------------------------------
-
-
-def _place(poly, theta_deg: float, at):
-    """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
-    radius = math.radians(theta_deg)
-    c, s = math.cos(radius), math.sin(radius)
-    return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]
 
 
 def _endcap_geometry_2d(spec: CapSpec, at, outdir, width: float):
@@ -87,20 +84,6 @@ def _endcap_geometry_2d(spec: CapSpec, at, outdir, width: float):
     theta = math.degrees(math.atan2(outdir[1], outdir[0])) - 90.0  # BACK (+Y) -> outdir
     geos = [Bosl2Shape2D(_opolygon(_place(p.tolist(), theta, at))) for p in polys]
     return reduce(operator.or_, geos)
-
-
-def _trim_ends(body, trim1: float, trim2: float):
-    """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment)."""
-    body = [list(map(float, p)) for p in body]
-    if len(body) >= 2 and trim1 > 0:
-        a, b = np.asarray(body[0]), np.asarray(body[1])
-        seglen = float(np.linalg.norm(b - a)) or 1.0
-        body[0] = list(a + (b - a) / seglen * min(trim1, 0.99 * seglen))
-    if len(body) >= 2 and trim2 > 0:
-        a, b = np.asarray(body[-1]), np.asarray(body[-2])
-        seglen = float(np.linalg.norm(b - a)) or 1.0
-        body[-1] = list(a + (b - a) / seglen * min(trim2, 0.99 * seglen))
-    return body
 
 
 def _stroke2d(pts, width, closed, endcap1: CapSpec, endcap2: CapSpec, joints: CapSpec):
@@ -159,18 +142,6 @@ def _stroke2d(pts, width, closed, endcap1: CapSpec, endcap2: CapSpec, joints: Ca
                 shapes.append(blob)
     assert shapes, "stroke(): path has no drawable segments."
     return reduce(operator.or_, shapes)
-
-
-def _oriented_to(shape, outdir, at):
-    """Rotate a Z-up solid so +Z points along 3-D *outdir*, then translate it to *at*.
-
-    Uses ``rotate(angle, axis)`` rather than a 4x4 ``multmatrix`` so it works on either backend's
-    solid -- an SDF PyShape rotates its field in closed form, but has no multmatrix.
-    """
-    from pybosl2.transforms import rot_from_to
-
-    angle, axis = rot_from_to([0, 0, 1], outdir)
-    return shape.rotate(float(angle), [float(c) for c in axis]).translate([float(c) for c in at])
 
 
 def _endcap_geometry_3d(spec: CapSpec, at, outdir, width: float):
