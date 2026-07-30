@@ -996,7 +996,7 @@ class Path(ABC):
         closed: bool | None = None,
         exact: bool | None = None,
         method: str | None = None,
-    ) -> list:
+    ) -> Path:
         """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
 
         Args:
@@ -1018,7 +1018,7 @@ class Path(ABC):
         sides: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
-    ) -> list:
+    ) -> Path:
         """Uniformly resample path to sides points, or to a spacing near spacing.
 
         Args:

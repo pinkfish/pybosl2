@@ -356,7 +356,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         closed: bool | None = None,
         exact: bool | None = None,
         method: str | None = None,
-    ) -> list:
+    ) -> "Path3D":
         """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
 
         Args:
@@ -368,20 +368,21 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             method: "length" or "segment".
 
         Returns:
-            A list of subdivided path points.
+            A new :class:`Path3D` with the subdivided points.
         """
         if closed is None:
             closed = self.closed
-        return _subdivide_path(
+        pts = _subdivide_path(
             self._points, closed, sides=sides, refine=refine, maxlen=maxlen, exact=exact, method=method
         )
+        return self.__class__(pts, closed=self.closed)
 
     def resample_path(
         self,
         sides: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
-    ) -> list:
+    ) -> "Path3D":
         """Uniformly resample path to sides points, or to a spacing near spacing.
 
         Args:
@@ -390,11 +391,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list of uniformly resampled path points.
+            A new :class:`Path3D` with the uniformly resampled points.
         """
         if closed is None:
             closed = self.closed
-        return _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        pts = _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        return self.__class__(pts, closed=self.closed)
 
     def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
@@ -482,7 +484,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A new :class:`Path3D` with additional interpolated points.
         """
-        return self.__class__(self.subdivide_path(**kwargs), closed=self.closed)
+        return self.subdivide_path(**kwargs)
 
     def resample(self, **kwargs: Any) -> "Path3D":
         """Resample to evenly spaced points.
@@ -493,7 +495,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A new :class:`Path3D` with uniformly resampled points.
         """
-        return self.__class__(self.resample_path(**kwargs), closed=self.closed)
+        return self.resample_path(**kwargs)
 
     def translate(self, v: Sequence[float]) -> "Path3D":
         """Translate every point by *v* (a shorter vector pads with zeros).

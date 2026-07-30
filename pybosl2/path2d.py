@@ -428,7 +428,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         closed: bool | None = None,
         exact: bool | None = None,
         method: str | None = None,
-    ) -> list:
+    ) -> "Path2D":
         """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
 
         Args:
@@ -440,20 +440,21 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             method: "length" or "segment".
 
         Returns:
-            A list of subdivided path points.
+            A new :class:`Path2D` with the subdivided points.
         """
         if closed is None:
             closed = self.closed
-        return _subdivide_path(
+        pts = _subdivide_path(
             self._points, closed, sides=sides, refine=refine, maxlen=maxlen, exact=exact, method=method
         )
+        return self.__class__(pts, closed=self.closed)
 
     def resample_path(
         self,
         sides: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
-    ) -> list:
+    ) -> "Path2D":
         """Uniformly resample path to sides points, or to a spacing near spacing.
 
         Args:
@@ -462,11 +463,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            A list of uniformly resampled path points.
+            A new :class:`Path2D` with the uniformly resampled points.
         """
         if closed is None:
             closed = self.closed
-        return _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        pts = _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        return self.__class__(pts, closed=self.closed)
 
     def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> list:
         """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
@@ -687,7 +689,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result = pts.subdivide(sides=24)
                 result.stroke(width=1).linear_extrude(h=4).show()
         """
-        return self.__class__(self.subdivide_path(**kwargs), closed=self.closed)
+        return self.subdivide_path(**kwargs)
 
     def resample(self, **kwargs: Any) -> "Path2D":
         """Resample to evenly spaced points.
@@ -707,7 +709,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 sampled = pts.resample(sides=20)
                 sampled.stroke(width=1).show()
         """
-        return self.__class__(self.resample_path(**kwargs), closed=self.closed)
+        return self.resample_path(**kwargs)
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list["Path2D"]:
         """Split this 2-D path into subpaths wherever it crosses itself.
