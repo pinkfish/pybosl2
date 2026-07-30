@@ -22,7 +22,7 @@ from pybosl2.drawing import (
     dashed_stroke,
     helix,
     stroke,
-    turtle,
+    turtle2d,
 )
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
@@ -133,7 +133,7 @@ def test_helix_flat_spiral():
 
 
 def test_turtle_square():
-    t = turtle(
+    t = turtle2d(
         [
             TurtleCommand(Tct.MOVE, size=10),
             TurtleCommand(Tct.LEFT, angle=90),
@@ -149,7 +149,7 @@ def test_turtle_square():
 
 def test_turtle_repeat_closes_square():
     sub = [TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.LEFT, angle=90)]
-    p = turtle([TurtleCommand(Tct.REPEAT, size=4, options={"commands": sub})]).points()
+    p = turtle2d([TurtleCommand(Tct.REPEAT, size=4, options={"commands": sub})]).points()
     np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
     np.testing.assert_allclose(p[-1], [0, 0], atol=1e-9)  # 4 turns back to origin
 
@@ -157,7 +157,7 @@ def test_turtle_repeat_closes_square():
 def test_turtle_full_state():
     from pybosl2.turtle2d import TurtleState
 
-    st = turtle([TurtleCommand(Tct.MOVE, size=5)]).full_state()
+    st = turtle2d([TurtleCommand(Tct.MOVE, size=5)]).full_state()
     assert isinstance(st, TurtleState)
     assert len(st.path) == 2  # origin + move point
     np.testing.assert_allclose(st.path[-1], [5, 0], atol=1e-9)
@@ -167,7 +167,7 @@ def test_turtle_full_state():
 
 def test_turtle_unknown_command_raises():
     with pytest.raises(ValueError, match="z-axis"):
-        turtle([TurtleCommand(Tct.ZMOVE, size=5)])
+        turtle2d([TurtleCommand(Tct.ZMOVE, size=5)])
 
 
 # -- stroke / dashed_stroke build geometry ------------------------------------------------

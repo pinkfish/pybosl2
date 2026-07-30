@@ -41,7 +41,7 @@ from pybosl2.shapes2d import arc
 # PyShapes under use_backend("sdf").
 from pybosl2.solid import cyl as _cyl  # type: ignore[attr-defined]
 from pybosl2.solid import sphere as _sphere  # type: ignore[attr-defined]
-from pybosl2.turtle2d import Turtle2D, TurtleState, turtle
+from pybosl2.turtle2d import Turtle2D, TurtleState, turtle2d
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -50,7 +50,7 @@ __all__ = [
     "arc",
     "catenary",
     "helix",
-    "turtle",
+    "turtle2d",
     "Turtle2D",
     "TurtleState",
     "stroke",

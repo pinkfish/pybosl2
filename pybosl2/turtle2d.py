@@ -6,7 +6,7 @@
 
 """2-D turtle-graphics path builder.
 
-Implements BOSL2's ``turtle()`` command language for generating 2-D paths.
+Implements BOSL2's ``turtle2d()`` command language for generating 2-D paths.
 All commands operate in the XY plane; z-coordinate operations raise a
 :class:`ValueError`.
 
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
 
-__all__ = ["turtle", "Turtle2D", "TurtleState", "TurtleCommand", "TurtleCommandType"]
+__all__ = ["turtle2d", "Turtle2D", "TurtleState", "TurtleCommand", "TurtleCommandType"]
 
 # -- commands that involve the z-axis and are therefore illegal in 2-D -------
 
@@ -93,41 +93,6 @@ class TurtleState:
     angle: float = 90.0
     arcsteps: int = 0
 
-    def __init__(
-        self,
-        state: TurtleState | Sequence[Any] | None = None,
-        *,
-        path: list[list[float]] | None = None,
-        step: list[float] | None = None,
-        angle: float | None = None,
-        arcsteps: int | None = None,
-    ) -> None:
-        """Initialize turtle state from keyword fields or a legacy list.
-
-        ``TurtleState()`` uses defaults. ``TurtleState(path=..., step=...)``
-        sets individual fields. ``TurtleState(legacy_list)`` parses a legacy
-        ``[path, step_vector, angle, arcsteps]`` list. Passing an existing
-        ``TurtleState`` copies its fields.
-        """
-        if isinstance(state, TurtleState):
-            s = state
-        elif isinstance(state, (list, tuple)):
-            seq = list(state)
-            object.__setattr__(self, "path", [[float(p[0]), float(p[1])] for p in seq[0]])
-            object.__setattr__(self, "step", [float(seq[1][0]), float(seq[1][1])])
-            object.__setattr__(self, "angle", float(seq[2]))
-            object.__setattr__(self, "arcsteps", int(seq[3]))
-            return
-        elif state is not None:
-            raise TypeError(f"Expected TurtleState, Sequence, or None, got {type(state).__name__}")
-        else:
-            s = None
-
-        object.__setattr__(self, "path", path if path is not None else (s.path if s else [[0.0, 0.0]]))
-        object.__setattr__(self, "step", step if step is not None else (s.step if s else [1.0, 0.0]))
-        object.__setattr__(self, "angle", angle if angle is not None else (s.angle if s else 90.0))
-        object.__setattr__(self, "arcsteps", arcsteps if arcsteps is not None else (s.arcsteps if s else 0))
-
     def with_point(self, pt: ArrayLike) -> TurtleState:
         """Return a new state with *pt* appended to the path."""
         arr = np.asarray(pt, dtype=float)
@@ -181,8 +146,8 @@ class Turtle2D:
             path.stroke(width=3, closed=True).linear_extrude(height=4).show()
     """
 
-    def __init__(self, state: TurtleState | Sequence[Any] | None = None) -> None:
-        self._state = TurtleState(state)
+    def __init__(self, state: TurtleState | None = None) -> None:
+        self._state = state if state is not None else TurtleState()
 
     # -- public API ----------------------------------------------------------
 
@@ -466,15 +431,15 @@ class Turtle2D:
             raise ValueError(f'Unknown compound command head "{cmd.cmd_type.value}" at index {index}')
 
 
-# -- turtle function ---------------------------------------------------------
+# -- turtle2d function --------------------------------------------------------
 
 
-def turtle(
+def turtle2d(
     commands: Sequence[TurtleCommand],
-    state: TurtleState | Sequence[Any] | None = None,
+    state: TurtleState | None = None,
     repeat: int = 1,
 ) -> Turtle2D:
-    """Build a 2-D path from :class:`TurtleCommand` objects — BOSL2's ``turtle()``.
+    """Build a 2-D path from :class:`TurtleCommand` objects — BOSL2's ``turtle2d()``.
 
     Creates a :class:`Turtle2D`, runs *commands* (optionally *repeat* times),
     and returns the turtle. Access the path via :meth:`Turtle2D.points` or
@@ -482,7 +447,7 @@ def turtle(
 
     Args:
         commands: A flat list of :class:`TurtleCommand` objects.
-        state: Optional starting :class:`TurtleState` or legacy list.
+        state: Optional starting :class:`TurtleState`.
         repeat: Number of times to repeat the command list.
 
     Returns:
@@ -493,10 +458,10 @@ def turtle(
 
         .. pythonscad-example::
 
-            from pybosl2.turtle2d import turtle
+            from pybosl2.turtle2d import turtle2d
             from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct
 
-            path = turtle([
+            path = turtle2d([
                 TurtleCommand(Tct.MOVE, size=40),
                 TurtleCommand(Tct.ARCLEFT, radius=8),
                 TurtleCommand(Tct.MOVE, size=40),

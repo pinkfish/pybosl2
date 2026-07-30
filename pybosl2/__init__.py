@@ -100,7 +100,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # drawing
     "catenary": ("pybosl2.path2d", "catenary"),
     "helix": ("pybosl2.path3d", "helix"),
-    "turtle": ("pybosl2.turtle2d", "turtle"),
+    "turtle2d": ("pybosl2.turtle2d", "turtle2d"),
     "Turtle2D": ("pybosl2.turtle2d", "Turtle2D"),
     "TurtleState": ("pybosl2.turtle2d", "TurtleState"),
     "stroke": ("pybosl2.drawing", "stroke"),
