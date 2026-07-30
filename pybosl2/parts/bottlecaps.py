@@ -203,7 +203,7 @@ def _pco1810_profile(diameter: "BottleThreadSpec"):
             TurtleCommand(TCT.UNTILX, size=diameter.inner_d / 2),
         ],
         state=_turtle_start(diameter.inner_d / 2),
-    )
+    ).points()
 
 
 def _pco1881_profile(diameter: "BottleThreadSpec"):
@@ -242,7 +242,7 @@ def _pco1881_profile(diameter: "BottleThreadSpec"):
             TurtleCommand(TCT.UNTILX, size=diameter.inner_d / 2),
         ],
         state=_turtle_start(diameter.inner_d / 2),
-    )
+    ).points()
 
 
 def _neck_thread(diameter: "BottleThreadSpec", fn: int | None = None, fa: float | None = None, fs: float | None = None):

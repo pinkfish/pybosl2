@@ -133,7 +133,7 @@ def test_helix_flat_spiral():
 
 
 def test_turtle_square():
-    p = turtle(
+    t = turtle(
         [
             TurtleCommand(Tct.MOVE, size=10),
             TurtleCommand(Tct.LEFT, angle=90),
@@ -142,13 +142,14 @@ def test_turtle_square():
             TurtleCommand(Tct.MOVE, size=10),
         ]
     )
+    p = t.points()
     assert isinstance(p, Path2D)
     np.testing.assert_allclose(p, [[0, 0], [10, 0], [10, 10], [0, 10]], atol=1e-9)
 
 
 def test_turtle_repeat_closes_square():
     sub = [TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.LEFT, angle=90)]
-    p = turtle([TurtleCommand(Tct.REPEAT, size=4, options={"commands": sub})])
+    p = turtle([TurtleCommand(Tct.REPEAT, size=4, options={"commands": sub})]).points()
     np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
     np.testing.assert_allclose(p[-1], [0, 0], atol=1e-9)  # 4 turns back to origin
 
@@ -156,7 +157,7 @@ def test_turtle_repeat_closes_square():
 def test_turtle_full_state():
     from pybosl2.turtle2d import TurtleState
 
-    st = turtle([TurtleCommand(Tct.MOVE, size=5)], full_state=True)
+    st = turtle([TurtleCommand(Tct.MOVE, size=5)]).full_state()
     assert isinstance(st, TurtleState)
     assert len(st.path) == 2  # origin + move point
     np.testing.assert_allclose(st.path[-1], [5, 0], atol=1e-9)

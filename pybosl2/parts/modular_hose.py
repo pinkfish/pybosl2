@@ -165,9 +165,9 @@ _BIG_CMDS = [
 
 _WAIST = [1.7698, 1.8251, 3.95998]
 _SIZES = {0.25: 0, 0.5: 1, 0.75: 2}
+_SMALL = [[[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0)).points()] for cmds, x0 in _SMALL_CMDS]
 
-_SMALL = [[[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0))] for cmds, x0 in _SMALL_CMDS]
-_BIG = [[[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0))] for cmds, x0 in _BIG_CMDS]
+_BIG = [[[float(x), float(y)] for x, y in turtle(cmds, state=_ts(x0)).points()] for cmds, x0 in _BIG_CMDS]
 
 
 def _bounds(pts):
