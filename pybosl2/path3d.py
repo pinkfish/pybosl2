@@ -30,6 +30,7 @@ from pybosl2.distributors import Distributable, _apply4
 from pybosl2.miscellaneous import Extrudable
 from pybosl2.path2d import Path2D
 from pybosl2.paths import (
+    CutPoint,
     Path,
     _path_closest_point,
     _path_curvature,
@@ -248,11 +249,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         sub_paths = _path_cut(self._points, closed, cutdist)
         return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
-    def cut_getpaths(self, cutlist: list, closed: bool) -> list:
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list:
         """Reconstruct sub-paths from the output of cut_points().
 
         Args:
-            cutlist: Output from cut_points(), a list of ``[point, next_index]`` entries.
+            cutlist: Output from cut_points(), a list of :class:`CutPoint` entries.
             closed: Whether the path is closed.
 
         Returns:
@@ -265,10 +266,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         cutdist: float | Sequence[float] | np.ndarray,
         closed: bool | None = None,
         direction: bool = False,
-    ) -> list[np.ndarray]:
+    ) -> list[CutPoint]:
         """Cut path at given distance(s) from start.
 
-        Returns ``[[point, next_index], ...]`` entries (or a single entry if cutdist is a scalar).
+        Returns a list of :class:`CutPoint` entries (or :class:`` if direction is True).
 
         Args:
             cutdist: A single distance or a list of ascending distances from the start.
@@ -276,13 +277,13 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             direction: If True, also include direction and normal at each cut point.
 
         Returns:
-            A list of ``[point, next_index]`` pairs or ``[point, next_index, dir, normal]`` if direction is True.
+            A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
         """
         if closed is None:
             closed = self.closed
         return _path_cut_points(self._points, closed, cutdist, direction=direction)
 
-    def cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list:
+    def cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list[CutPoint]:
         """Walk the path accumulating distance until each cut distance is reached.
 
         Args:
@@ -290,11 +291,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of ``[point, next_index]`` entries, one per cut distance.
+            A list of :class:`CutPoint` entries, one per cut distance.
         """
         return _path_cut_points_recurse(self._points, closed, dists)
 
-    def cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> list:
+    def cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> CutPoint:
         """Find the single cut point at distance dist from segment ind.
 
         Args:
@@ -304,11 +305,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for distance comparison.
 
         Returns:
-            A list ``[point, next_index]`` with the cut point and its next segment index.
+            A :class:`CutPoint` with the cut point and its next segment index.
         """
         return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
 
-    def cuts_path_normals(self, cuts: list, dirs: list, closed: bool = False) -> list:
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> list:
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
         Args:
@@ -335,7 +336,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_plane(self._points, closed, ind, i)
 
-    def cuts_dir(self, cuts: list, closed: bool = False, eps: float = 1e-2) -> list:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list:
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:

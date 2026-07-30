@@ -191,7 +191,7 @@ def test_cut_splits_into_subpaths():
 
 def test_cut_points_along_open_path():
     pts = Path2D([[0, 0], [10, 0]], closed=False).cut_points([5])
-    np.testing.assert_allclose(pts[0][0], [5, 0], atol=1e-9)
+    np.testing.assert_allclose(pts[0].point, [5, 0], atol=1e-9)
 
 
 # -- transforms ---------------------------------------------------------------------------

@@ -3033,10 +3033,10 @@ def _cut_interp(
     """
     out = []
     for entry in pathcut:
-        idx = entry[1]
+        idx = entry.next_index
         a = path[idx - 1]
         b = path[idx]
-        c = entry[0]
+        c = entry.point
         i = max(range(len(b)), key=lambda k: abs(b[k] - a[k]))
         factor = (c[i] - a[i]) / (b[i] - a[i])
         out.append([(1 - factor) * da + factor * db for da, db in zip(data[idx - 1], data[idx], strict=False)])
@@ -3210,28 +3210,28 @@ def path_text(
 
     if normal_pv is None:
         sign = 1.0 if reverse else -1.0
-        normpts = [[sign * v for v in p[3]] for p in pts]
+        normpts = [[sign * v for v in p.normal] for p in pts]  # type: ignore[union-attr]
     else:
-        normpts = _cut_interp(pts, path, normal_pv)
-    toppts = None if top_pv is None else _cut_interp(pts, path, top_pv)
+        normpts = _cut_interp(pts, path, normal_pv)  # type: ignore[arg-type]
+    toppts = None if top_pv is None else _cut_interp(pts, path, top_pv)  # type: ignore[arg-type]
 
     _usetop = top_pv is not None
     usernorm = normal_pv is not None
 
     letters = []
     for i, ch in enumerate(text):
-        tangent = pts[i][2]
+        tangent = pts[i].direction  # type: ignore[attr-defined]
         if toppts is not None:
             tt = toppts[i]
-            proj = sum(a * b for a, b in zip(tangent, tt, strict=False)) / sum(v * v for v in tt)
+            proj = sum(a * b for a, b in zip(tangent, tt, strict=False)) / sum(v * v for v in tt)  # type: ignore[arg-type]
             adjustment = [proj * v for v in tt]
         elif usernorm:
             nn = normpts[i]
-            proj = sum(a * b for a, b in zip(tangent, nn, strict=False)) / sum(v * v for v in nn)
+            proj = sum(a * b for a, b in zip(tangent, nn, strict=False)) / sum(v * v for v in nn)  # type: ignore[arg-type]
             adjustment = [proj * v for v in nn]
         else:
             adjustment = [0.0] * dim
-        x_axis = [tangent[k] - adjustment[k] for k in range(dim)]
+        x_axis = [tangent[k] - adjustment[k] for k in range(dim)]  # type: ignore[index]
 
         # .shape: the letters are composed as raw natives and wrapped once, at the end.
         glyph = (
@@ -3250,7 +3250,7 @@ def path_text(
             m = _frame_map(x=_point3d(x_axis), y=_point3d(y_axis))
             letter = glyph
 
-        letters.append(letter.multmatrix(m).translate(pts[i][0]))
+        letters.append(letter.multmatrix(m).translate(pts[i].point))  # type: ignore[union-attr,index]
 
     result = letters[0]
     for s in letters[1:]:

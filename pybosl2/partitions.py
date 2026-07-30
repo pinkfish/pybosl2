@@ -518,9 +518,9 @@ def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = Tr
     minor3 = _left(minor2[0][0] - xoff, minor2)
     out = []
     for pt in minor3:
-        pinfo = Path2D(major3).cut_points(max(0.0, pt[0]), closed=False, direction=True)
-        base = np.asarray(pinfo[0])
-        tangent = unit(np.asarray(pinfo[3]), [0.0, 1.0])
+        pinfo = Path2D(major3).cut_points(max(0.0, pt[0]), closed=False, direction=True)[0]
+        base = np.asarray(pinfo.point)
+        tangent = unit(np.asarray(pinfo.normal), [0.0, 1.0])  # type: ignore[attr-defined]
         out.append(list(base + tangent * pt[1]))
     return _merge_collinear(_dedup(out))
 

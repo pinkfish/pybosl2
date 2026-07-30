@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import math
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -44,9 +45,42 @@ from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 from pybosl2.points import Point
 from pybosl2.vectors import add_scalar, unit
 
-__all__ = ["Path"]
+__all__ = ["CutPoint", "Path"]
 
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# CutPoint — result of path cut operations
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class CutPoint:
+    """A point along a path where it was cut, with the index of the next segment.
+
+    Returned by :meth:`~pybosl2.path2d.Path2D.cut_points` and related methods.
+    When requested with ``direction=True``, the *direction* and *normal*
+    attributes are populated; otherwise they are ``None``.
+
+    Attributes:
+        point: The (x, y) or (x, y, z) coordinates of the cut point.
+        next_index: The 0-based index of the next point in the original path.
+        direction: Unit tangent vector at the cut point, or None.
+        normal: Unit normal vector at the cut point, or None.
+    """
+
+    point: Point
+    next_index: int
+    direction: np.ndarray | None = None
+    normal: np.ndarray | None = None
+
+    @property
+    def is_directed(self) -> bool:
+        """True if direction and normal vectors are present."""
+        return self.direction is not None and self.normal is not None
+
+
 # Section: Path helper functions
 # ---------------------------------------------------------------------------
 
@@ -235,15 +269,15 @@ def _path_cut(points: np.ndarray, closed: bool, cutdist: float | Sequence[float]
     assert isinstance(cutdist, (list, tuple, np.ndarray))
     assert cutdist[-1] < _path_total_length(points, closed), "Cut distances must be smaller than the path length"
     assert cutdist[0] > 0, "Cut distances must be strictly positive"
-    cutlist = _path_cut_points(points, closed, cutdist)
+    cutlist: list[CutPoint] = _path_cut_points(points, closed, cutdist)  # type: ignore[assignment]
     return _path_cut_getpaths(points, closed, cutlist)
 
 
-def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list) -> list:
+def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]) -> list:
     """Reconstruct sub-paths from the output of path_path_cut_points().
 
     Args:
-        cutlist: Output from path_path_cut_points(), a list of ``[point, next_index]`` entries.
+        cutlist: Output from path_path_cut_points(), a list of :class:`CutPoint` entries.
         closed: Whether the path is closed.
 
     Returns:
@@ -251,35 +285,38 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list) -> list:
     """
     cuts = len(cutlist)
     result = []
-    seg0 = list(_list_head(points, cutlist[0][1] - 1))
-    if not approx(cutlist[0][0], points[cutlist[0][1] - 1]):
-        seg0.append(cutlist[0][0])
+    seg0 = list(_list_head(points, cutlist[0].next_index - 1))
+    if not approx(cutlist[0].point, points[cutlist[0].next_index - 1]):
+        seg0.append(cutlist[0].point)
     result.append(seg0)
     for i in range(cuts - 1):
-        if np.array_equal(cutlist[i][0], cutlist[i + 1][0]) and cutlist[i][1] == cutlist[i + 1][1]:
+        if (
+            np.array_equal(cutlist[i].point, cutlist[i + 1].point)
+            and cutlist[i].next_index == cutlist[i + 1].next_index
+        ):
             result.append([])
             continue
         seg = []
-        if not approx(cutlist[i][0], _select(points, cutlist[i][1])):
-            seg.append(cutlist[i][0])
-        seg.extend(_slice(points, cutlist[i][1], cutlist[i + 1][1] - 1))
-        if not approx(cutlist[i + 1][0], _select(points, cutlist[i + 1][1] - 1)):
-            seg.append(cutlist[i + 1][0])
+        if not approx(cutlist[i].point, _select(points, cutlist[i].next_index)):
+            seg.append(cutlist[i].point)
+        seg.extend(_slice(points, cutlist[i].next_index, cutlist[i + 1].next_index - 1))
+        if not approx(cutlist[i + 1].point, _select(points, cutlist[i + 1].next_index - 1)):
+            seg.append(cutlist[i + 1].point)
         result.append(seg)
     last_seg = []
-    if not approx(cutlist[cuts - 1][0], _select(points, cutlist[cuts - 1][1])):
-        last_seg.append(cutlist[cuts - 1][0])
-    last_seg.extend(_select(points, cutlist[cuts - 1][1], 0 if closed else -1))
+    if not approx(cutlist[cuts - 1].point, _select(points, cutlist[cuts - 1].next_index)):
+        last_seg.append(cutlist[cuts - 1].point)
+    last_seg.extend(_select(points, cutlist[cuts - 1].next_index, 0 if closed else -1))
     result.append(last_seg)
     return result
 
 
 def _path_cut_points(
     points: np.ndarray, closed: bool, cutdist: float | Sequence[float] | np.ndarray, direction: bool = False
-) -> list[np.ndarray]:
+) -> list[CutPoint]:
     """Cut path at given distance(s) from start.
 
-    Returns ``[[point, next_index], ...]`` entries (or a single entry if cutdist is a scalar).
+    Returns a list of :class:`CutPoint` entries (or :class:`` if direction is True).
 
     Args:
         cutdist: A single distance or a list of ascending distances from the start.
@@ -287,25 +324,33 @@ def _path_cut_points(
         direction: If True, also include direction and normal at each cut point.
 
     Returns:
-        A list of ``[point, next_index]`` pairs or ``[point, next_index, dir, normal]`` if direction is True.
+        A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
     """
     long_enough = len(points) >= (3 if closed else 2)
     assert long_enough, (
         "Two points needed to define a path" if len(points) < 2 else "Closed path must include three points"
     )
     if isinstance(cutdist, (int, float, np.floating, np.integer)):
-        return _path_cut_points(points, closed, [cutdist], direction)[0]  # type: ignore[return-value]
+        return _path_cut_points(points, closed, [cutdist], direction)
     assert isinstance(cutdist, (list, tuple, np.ndarray))
     assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
-    cuts = _path_cut_points_recurse(points, closed, [float(v) for v in cutdist])
+    cuts: list[CutPoint] = _path_cut_points_recurse(points, closed, [float(v) for v in cutdist])
     if not direction:
-        return cuts  # type: ignore[return-value]
+        return cuts
     dirs = _path_cuts_dir(points, closed, cuts)
     normals = _path_cuts_normals(points, closed, cuts, dirs)
-    return [[cuts[i][0], cuts[i][1], dirs[i], normals[i]] for i in range(len(cuts))]  # type: ignore[misc]
+    return [
+        CutPoint(
+            point=cuts[i].point,
+            next_index=cuts[i].next_index,
+            direction=np.asarray(dirs[i], dtype=float),
+            normal=np.asarray(normals[i], dtype=float),
+        )
+        for i in range(len(cuts))
+    ]
 
 
-def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[float]) -> list:
+def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[float]) -> list[CutPoint]:
     """Walk the path accumulating distance until each cut distance is reached.
 
     Args:
@@ -313,26 +358,36 @@ def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[f
         closed: Whether the path is closed.
 
     Returns:
-        A list of ``[point, next_index]`` entries, one per cut distance.
+        A list of :class:`CutPoint` entries, one per cut distance.
     """
-    result: list[Any] = []
+    result: list[CutPoint] = []
     pind = 0
     dtotal = 0.0
     for dind in range(len(dists)):
-        lastpt = [] if len(result) == 0 else result[-1][0]
+        lastpt: Point | list[float] = [] if len(result) == 0 else result[-1].point
         dpartial = 0.0 if len(result) == 0 else math.dist(lastpt, _select(points, pind))
         if dists[dind] < dpartial + dtotal:
             t = (dists[dind] - dtotal) / dpartial
-            nextpoint = [lerp(lastpt, _select(points, pind), t), pind]
+            nextpoint = CutPoint(
+                point=_to_point(lerp(lastpt, _select(points, pind), t), points.shape[1]), next_index=pind
+            )
         else:
             nextpoint = _path_cut_single(points, closed, dists[dind] - dtotal - dpartial, pind)
         result.append(nextpoint)
-        dtotal = dists[dind]  # type: ignore[assignment]
-        pind = nextpoint[1]
+        dtotal = dists[dind]
+        pind = nextpoint.next_index
     return result
 
 
-def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0, eps: float = 1e-7) -> list:
+def _to_point(arr, dim: int) -> Point:
+    """Convert an array-like to a :class:`Point` of the given dimension."""
+    a = np.asarray(arr, dtype=float)
+    if dim == 2:
+        return Point(float(a[0]), float(a[1]))
+    return Point(float(a[0]), float(a[1]), float(a[2]))
+
+
+def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0, eps: float = 1e-7) -> CutPoint:
     """Find the single cut point at distance dist from segment ind.
 
     Args:
@@ -342,23 +397,23 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
         eps: Epsilon for distance comparison.
 
     Returns:
-        A list ``[point, next_index]`` with the cut point and its next segment index.
+        A :class:`CutPoint` with the cut point and its next segment index.
     """
     while True:
         if ind == len(points) - (0 if closed else 1):
             assert dist < eps, "Path2D is too short for specified cut distance"
-            return [_select(points, ind), ind + 1]
+            return CutPoint(point=_to_point(_select(points, ind), points.shape[1]), next_index=ind + 1)
         diameter = math.dist(points[ind], _select(points, ind + 1))
         if diameter > dist:
-            return [
-                lerp(points[ind], _select(points, ind + 1), dist / diameter),
-                ind + 1,
-            ]
+            return CutPoint(
+                point=_to_point(lerp(points[ind], _select(points, ind + 1), dist / diameter), points.shape[1]),
+                next_index=ind + 1,
+            )
         dist -= diameter
         ind += 1
 
 
-def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list, dirs: list) -> list:
+def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], dirs: list) -> list:
     """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
     Args:
@@ -377,7 +432,7 @@ def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list, dirs: list)
             continue
         plane = None
         if len(points) >= 3:
-            start = max(min(cuts[i][1], len(points) - 1), 2)
+            start = max(min(cuts[i].next_index, len(points) - 1), 2)
             plane = _path_plane(points, closed, start, start - 2)
         if plane is None:
             out.append([1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else list(unit([-dirs[i][1], dirs[i][0], 0])))
@@ -412,7 +467,7 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> np.ndarra
     return None
 
 
-def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list, eps: float = 1e-2) -> list:
+def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: float = 1e-2) -> list:
     """Compute direction vectors at each cut point (blended from adjacent segments).
 
     Args:
@@ -426,7 +481,7 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list, eps: float = 1e
     out = []
     zeros = [0] * points.shape[1]
     for ci in range(len(cuts)):
-        nextind = cuts[ci][1]
+        nextind = cuts[ci].next_index
         nextpath = unit(
             [
                 a - b
@@ -462,9 +517,9 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list, eps: float = 1e
         )
         if nextind == len(points) and not closed:
             nextdir = lastpath
-        elif (nextind <= len(points) - 2 or closed) and approx(cuts[ci][0], _select(points, nextind), eps=eps):
+        elif (nextind <= len(points) - 2 or closed) and approx(cuts[ci].point, _select(points, nextind), eps=eps):
             nextdir = unit([a + b for a, b in zip(nextpath, thispath, strict=False)])
-        elif (nextind > 1 or closed) and approx(cuts[ci][0], _select(points, nextind - 1), eps=eps):
+        elif (nextind > 1 or closed) and approx(cuts[ci].point, _select(points, nextind - 1), eps=eps):
             nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
         else:
             nextdir = thispath
@@ -566,7 +621,7 @@ def _resample_path(points: np.ndarray, closed: bool, sides: int | None = None, s
         n_use = round(length / spacing)
     distlist = lerpn(0, length, n_use, endpoint=False)
     cuts = _path_cut_points(points, closed, distlist)
-    out = [c[0] for c in cuts]
+    out = [c.point for c in cuts]
     if not closed:
         out.append(points[-1])
     return out
@@ -811,7 +866,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list:
+    def cut(self, cutdist: float | Sequence[float] | np.ndarray, closed: bool | None = None) -> list[Any]:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
 
         Args:
@@ -824,11 +879,11 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cut_getpaths(self, cutlist: list, closed: bool) -> list:
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list:
         """Reconstruct sub-paths from the output of cut_points().
 
         Args:
-            cutlist: Output from cut_points(), a list of ``[point, next_index]`` entries.
+            cutlist: Output from cut_points(), a list of :class:`CutPoint` entries.
             closed: Whether the path is closed.
 
         Returns:
@@ -842,10 +897,10 @@ class Path(ABC):
         cutdist: float | Sequence[float] | np.ndarray,
         closed: bool | None = None,
         direction: bool = False,
-    ) -> list[np.ndarray]:
+    ) -> list[CutPoint]:
         """Cut path at given distance(s) from start.
 
-        Returns ``[[point, next_index], ...]`` entries (or a single entry if cutdist is a scalar).
+        Returns a list of :class:`CutPoint` entries (or :class:`` if direction is True).
 
         Args:
             cutdist: A single distance or a list of ascending distances from the start.
@@ -853,12 +908,12 @@ class Path(ABC):
             direction: If True, also include direction and normal at each cut point.
 
         Returns:
-            A list of ``[point, next_index]`` pairs or ``[point, next_index, dir, normal]`` if direction is True.
+            A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
         """
         ...
 
     @abstractmethod
-    def cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list:
+    def cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list[CutPoint]:
         """Walk the path accumulating distance until each cut distance is reached.
 
         Args:
@@ -866,12 +921,12 @@ class Path(ABC):
             closed: Whether the path is closed.
 
         Returns:
-            A list of ``[point, next_index]`` entries, one per cut distance.
+            A list of :class:`CutPoint` entries, one per cut distance.
         """
         ...
 
     @abstractmethod
-    def cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> list:
+    def cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> CutPoint:
         """Find the single cut point at distance dist from segment ind.
 
         Args:
@@ -881,12 +936,12 @@ class Path(ABC):
             eps: Epsilon for distance comparison.
 
         Returns:
-            A list ``[point, next_index]`` with the cut point and its next segment index.
+            A :class:`CutPoint` with the cut point and its next segment index.
         """
         ...
 
     @abstractmethod
-    def cuts_path_normals(self, cuts: list, dirs: list, closed: bool = False) -> list:
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> list:
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
         Args:
@@ -915,7 +970,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cuts_dir(self, cuts: list, closed: bool = False, eps: float = 1e-2) -> list:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list:
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:
