@@ -55,14 +55,13 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2.caps import CapsSpec, CapType
+from pybosl2.constants import UP
 from pybosl2.math import EPSILON, lerp, lerpn
 from pybosl2.skin import _path_sweep
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import reorient
 from pybosl2.vectors import unit as _unit
 from pybosl2.vnf import VNF
-
-UP = [0.0, 0.0, 1.0]
 
 
 class Bezier:

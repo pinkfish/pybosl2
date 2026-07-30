@@ -180,7 +180,7 @@ class Turtle2D:
         """
         if cmd.cmd_type in _Z_AXIS_COMMANDS:
             if cmd.cmd_type == TurtleCommandType.XYZMOVE and cmd.options.get("is_2d_vector"):
-                self._xymove(cmd.parm, index)
+                self._xymove(cmd.size, index)
                 return
             raise ValueError(
                 f'Turtle command "{cmd.cmd_type.value}" involves the z-axis and is not valid in 2-D at index {index}'
@@ -197,74 +197,75 @@ class Turtle2D:
             self._compound(cmd, index)
             return
 
+        ct = cmd.cmd_type
         lastpt = self._state.lastpt
         step = self._state.step_arr
-        parm = cmd.parm
-        p = parm if isinstance(parm, (int, float)) else None
+        size = cmd.size if isinstance(cmd.size, (int, float)) else None
+        ang = cmd.angle if isinstance(cmd.angle, (int, float)) else None
 
-        if cmd.cmd_type == TurtleCommandType.MOVE:
-            self._state = self._state.with_point((p if p is not None else 1) * step + lastpt)
-        elif cmd.cmd_type == TurtleCommandType.XMOVE:
+        if ct == TurtleCommandType.MOVE:
+            self._state = self._state.with_point((size if size is not None else 1) * step + lastpt)
+        elif ct == TurtleCommandType.XMOVE:
             self._state = self._state.with_point(
-                (p if p is not None else 1) * np.linalg.norm(step) * np.array([1.0, 0.0]) + lastpt,
+                (size if size is not None else 1) * np.linalg.norm(step) * np.array([1.0, 0.0]) + lastpt,
             )
-        elif cmd.cmd_type == TurtleCommandType.YMOVE:
+        elif ct == TurtleCommandType.YMOVE:
             self._state = self._state.with_point(
-                (p if p is not None else 1) * np.linalg.norm(step) * np.array([0.0, 1.0]) + lastpt,
+                (size if size is not None else 1) * np.linalg.norm(step) * np.array([0.0, 1.0]) + lastpt,
             )
-        elif cmd.cmd_type == TurtleCommandType.JUMP:
-            self._state = self._state.with_point([float(parm[0]), float(parm[1])])
-        elif cmd.cmd_type == TurtleCommandType.XJUMP:
-            self._state = self._state.with_point([float(parm), float(lastpt[1])])
-        elif cmd.cmd_type == TurtleCommandType.YJUMP:
-            self._state = self._state.with_point([float(lastpt[0]), float(parm)])
-        elif cmd.cmd_type == TurtleCommandType.UNTILX:
-            res = general_line_intersection([lastpt, lastpt + step], [[parm, 0], [parm, 1]])
+        elif ct == TurtleCommandType.JUMP:
+            self._state = self._state.with_point([float(cmd.size[0]), float(cmd.size[1])])
+        elif ct == TurtleCommandType.XJUMP:
+            self._state = self._state.with_point([float(cmd.size), float(lastpt[1])])
+        elif ct == TurtleCommandType.YJUMP:
+            self._state = self._state.with_point([float(lastpt[0]), float(cmd.size)])
+        elif ct == TurtleCommandType.UNTILX:
+            res = general_line_intersection([lastpt, lastpt + step], [[cmd.size, 0], [cmd.size, 1]])
             if res is None:
                 raise ValueError(f'"untilx" never reaches the goal at index {index}')
             self._state = self._state.with_point([float(res[0][0]), float(res[0][1])])
-        elif cmd.cmd_type == TurtleCommandType.UNTILY:
-            res = general_line_intersection([lastpt, lastpt + step], [[0, parm], [1, parm]])
+        elif ct == TurtleCommandType.UNTILY:
+            res = general_line_intersection([lastpt, lastpt + step], [[0, cmd.size], [1, cmd.size]])
             if res is None:
                 raise ValueError(f'"untily" never reaches the goal at index {index}')
             self._state = self._state.with_point([float(res[0][0]), float(res[0][1])])
-        elif cmd.cmd_type == TurtleCommandType.LEFT:
-            self._state = self._state.with_step(_rot2(p if p is not None else self._state.angle, step))
-        elif cmd.cmd_type == TurtleCommandType.RIGHT:
-            self._state = self._state.with_step(_rot2(-(p if p is not None else self._state.angle), step))
-        elif cmd.cmd_type == TurtleCommandType.ZROT:
-            ang = p if p is not None else self._state.angle
+        elif ct == TurtleCommandType.LEFT:
+            self._state = self._state.with_step(_rot2(ang if ang is not None else self._state.angle, step))
+        elif ct == TurtleCommandType.RIGHT:
+            self._state = self._state.with_step(_rot2(-(ang if ang is not None else self._state.angle), step))
+        elif ct == TurtleCommandType.ZROT:
+            a = ang if ang is not None else self._state.angle
             norm = float(np.linalg.norm(step))
             self._state = self._state.with_step(
-                norm * np.array([math.cos(math.radians(ang)), math.sin(math.radians(ang))]),
+                norm * np.array([math.cos(math.radians(a)), math.sin(math.radians(a))]),
             )
-        elif cmd.cmd_type == TurtleCommandType.ANGLE:
-            self._state = replace(self._state, angle=float(parm))
-        elif cmd.cmd_type == TurtleCommandType.SETDIR:
-            if isinstance(parm, (list, tuple, np.ndarray)):
-                v = np.asarray(parm, dtype=float)
+        elif ct == TurtleCommandType.ANGLE:
+            self._state = replace(self._state, angle=float(cmd.size))
+        elif ct == TurtleCommandType.SETDIR:
+            if isinstance(cmd.size, (list, tuple, np.ndarray)):
+                v = np.asarray(cmd.size, dtype=float)
                 if len(v) >= 3 and abs(float(v[2])) > 1e-12:
                     raise ValueError(f'"setdir" z-component must be 0 for 2-D turtle at index {index}')
                 self._state = self._state.with_step(np.linalg.norm(step) * unit([float(v[0]), float(v[1])]))
             else:
                 self._state = self._state.with_step(
                     np.linalg.norm(step)
-                    * np.array([math.cos(math.radians(float(parm))), math.sin(math.radians(float(parm)))]),
+                    * np.array([math.cos(math.radians(float(cmd.size))), math.sin(math.radians(float(cmd.size)))]),
                 )
-        elif cmd.cmd_type == TurtleCommandType.LENGTH:
-            self._state = self._state.with_step(float(parm) * unit(step))
-        elif cmd.cmd_type == TurtleCommandType.SCALE:
-            self._state = self._state.with_step(float(parm) * step)
-        elif cmd.cmd_type == TurtleCommandType.ADDLENGTH:
-            self._state = self._state.with_step(step + unit(step) * float(parm))
-        elif cmd.cmd_type == TurtleCommandType.ARCSTEPS:
-            self._state = replace(self._state, arcsteps=int(parm))
-        elif cmd.cmd_type in (TurtleCommandType.ARCLEFT, TurtleCommandType.ARCRIGHT):
+        elif ct == TurtleCommandType.LENGTH:
+            self._state = self._state.with_step(float(cmd.size) * unit(step))
+        elif ct == TurtleCommandType.SCALE:
+            self._state = self._state.with_step(float(cmd.size) * step)
+        elif ct == TurtleCommandType.ADDLENGTH:
+            self._state = self._state.with_step(step + unit(step) * float(cmd.size))
+        elif ct == TurtleCommandType.ARCSTEPS:
+            self._state = replace(self._state, arcsteps=int(cmd.size))
+        elif ct in (TurtleCommandType.ARCLEFT, TurtleCommandType.ARCRIGHT):
             self._arc(cmd, cmd.options.get("absolute_arc_angle", False), index)
-        elif cmd.cmd_type == TurtleCommandType.ARCZROT:
+        elif ct == TurtleCommandType.ARCZROT:
             self._arczrot(cmd, index)
         else:
-            raise ValueError(f'Unknown turtle command "{cmd.cmd_type.value}" at index {index}')
+            raise ValueError(f'Unknown turtle command "{ct.value}" at index {index}')
 
     # -- 2-D specific commands -----------------------------------------------
 
@@ -285,27 +286,26 @@ class Turtle2D:
         index: int,
     ) -> None:
         """Execute an arc command (arcleft / arcright / arcleftto / arcrightto) in 2-D."""
-        parm = cmd.parm
-        parm2 = cmd.parm2
-        assert isinstance(parm, (int, float)), f'"{cmd.cmd_type.value}" needs a numeric radius at index {index}'
+        radius_val = cmd.radius
+        assert isinstance(radius_val, (int, float)), f'"{cmd.cmd_type.value}" needs a numeric radius at index {index}'
 
         lastpt = self._state.lastpt
         step = self._state.step_arr
         lrsign = 1 if cmd.cmd_type == TurtleCommandType.ARCLEFT else -1
-        steps = _frag_count(abs(parm)) if self._state.arcsteps == 0 else int(self._state.arcsteps)
+        steps = _frag_count(abs(radius_val)) if self._state.arcsteps == 0 else int(self._state.arcsteps)
 
         if not absolute_angle:
-            myangle = parm2 if isinstance(parm2, (int, float)) else self._state.angle
-            radius = parm * (1 if myangle >= 0 else -1)
+            myangle = cmd.angle if isinstance(cmd.angle, (int, float)) else self._state.angle
+            radius = radius_val * (1 if myangle >= 0 else -1)
             center = lastpt + lrsign * radius * line_normal([0, 0], step)
-            turn = math.copysign(1, parm) * lrsign * myangle
+            turn = math.copysign(1, radius_val) * lrsign * myangle
             rot_step = _rot2(lrsign * myangle, step)
         else:
-            assert isinstance(parm2, (int, float)), f'"{cmd.cmd_type.value}" needs a numeric angle at index {index}'
-            radius = parm
+            assert isinstance(cmd.angle, (int, float)), f'"{cmd.cmd_type.value}" needs a numeric angle at index {index}'
+            radius = radius_val
             center = lastpt + lrsign * radius * line_normal([0, 0], step)
             start_angle = math.degrees(math.atan2(step[1], step[0])) % 360
-            end_angle = float(parm2) % 360
+            end_angle = float(cmd.angle) % 360
             if lrsign * end_angle < lrsign * start_angle:
                 end_angle = end_angle + lrsign * 360
             delta = -start_angle + end_angle
@@ -330,18 +330,17 @@ class Turtle2D:
     def _arczrot(self, cmd: TurtleCommand, index: int) -> None:
         """Execute an ``arczrot`` command: arc with absolute Z rotation in 2-D.
 
-        The arc is swept in the XY plane; *radius* comes from ``cmd.parm`` and
-        *angle* from ``cmd.parm2`` (defaulting to the stored angle).
+        The arc is swept in the XY plane; *radius* comes from ``cmd.radius`` and
+        *angle* from ``cmd.angle`` (defaulting to the stored angle).
         """
-        parm = cmd.parm
-        parm2 = cmd.parm2
-        assert isinstance(parm, (int, float)), f'"arczrot" needs a numeric radius at index {index}'
+        radius_val = cmd.radius
+        assert isinstance(radius_val, (int, float)), f'"arczrot" needs a numeric radius at index {index}'
 
         lastpt = self._state.lastpt
         step = self._state.step_arr
-        myangle = parm2 if isinstance(parm2, (int, float)) else self._state.angle
+        myangle = cmd.angle if isinstance(cmd.angle, (int, float)) else self._state.angle
         lrsign = 1 if myangle >= 0 else -1
-        radius = abs(parm)
+        radius = abs(radius_val)
         steps = _frag_count(radius) if self._state.arcsteps == 0 else int(self._state.arcsteps)
 
         center = lastpt + lrsign * radius * line_normal([0, 0], step)
