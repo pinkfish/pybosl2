@@ -14,7 +14,8 @@ import pytest
 import pybosl2.shapes2d as s2
 from pybosl2 import miscellaneous as m
 from pybosl2.caps import CapType
-from pybosl2.paths import Path2D, Path3D
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
 L_PATH = Path2D([[0, 0], [40, 0], [40, 40]], closed=False)

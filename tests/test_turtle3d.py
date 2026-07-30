@@ -9,7 +9,7 @@
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path2D
+from pybosl2.path2d import Path2D
 from pybosl2.regions import Region
 from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.turtle3d import BaseTurtle, Turtle, TurtleCommand, TurtleCommandType

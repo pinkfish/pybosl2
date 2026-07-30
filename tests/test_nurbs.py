@@ -20,7 +20,8 @@ from pybosl2.nurbs import (
     nurbs_patch_points,
     nurbs_vnf,
 )
-from pybosl2.paths import Path2D, Path3D
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.vnf import VNF
 
 CTRL3 = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]

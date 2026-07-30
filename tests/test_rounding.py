@@ -11,7 +11,8 @@ tests/test_bosl2_reorient.py; here we check the method surface, dimensions, and 
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path2D, Path3D
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 
 SQ = [[0, 0], [40, 0], [40, 30], [0, 30]]
 P3 = [[0, 0, 0], [40, 0, 0], [40, 40, 20], [0, 40, 20]]

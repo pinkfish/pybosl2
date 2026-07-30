@@ -104,7 +104,7 @@ SQUARE = [[0, 0], [20, 0], [20, 12], [0, 12]]
 
 @pytest.mark.parametrize("backend", ["csg", "sdf"])
 def test_path_linear_extrude_dispatches_on_active_backend(backend):
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     with use_backend(backend):
         s = Path2D(SQUARE).linear_extrude(height=5)
@@ -116,7 +116,7 @@ def test_path_linear_extrude_dispatches_on_active_backend(backend):
 
 @pytest.mark.parametrize("backend", ["csg", "sdf"])
 def test_path_linear_extrude_center_lands_on_the_origin(backend):
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     with use_backend(backend):
         s = Path2D(SQUARE).linear_extrude(height=5, center=True)
@@ -146,7 +146,7 @@ def test_region_with_holes_extrudes_only_on_csg():
 
 def test_sdf_extrude_rejects_the_profile_shearing_options():
     from pybosl2.exceptions import UnsupportedByBackendError
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     for kw in ({"twist": 45}, {"scale": 2}, {"slices": 8}):
         with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
@@ -157,7 +157,7 @@ def test_sdf_extrude_rejects_the_profile_shearing_options():
 
 
 def test_sdf_extrude_takes_the_rim_roundings():
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     with use_backend("sdf"):
         s = Path2D(SQUARE).linear_extrude(height=5, rounding_top=1, rounding_bottom=1)
@@ -172,7 +172,7 @@ def test_sdf_extrude_takes_the_rim_roundings():
 @pytest.mark.parametrize("call", ["polygon", "geometry", "fill", "rotate_extrude"])
 def test_path_2d_geometry_is_csg_only(call):
     from pybosl2.exceptions import UnsupportedByBackendError
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         getattr(Path2D(SQUARE), call)()
@@ -227,7 +227,7 @@ def test_fill_is_csg_only_on_a_solid():
 
 @pytest.mark.parametrize("backend", ["csg", "sdf"])
 def test_stroke_of_a_3d_path_follows_the_active_backend(backend):
-    from pybosl2.paths import Path3D
+    from pybosl2.path3d import Path3D
 
     spine = Path3D([[0, 0, 0], [0, 0, 20], [10, 0, 30]], closed=False)
     with use_backend(backend):
@@ -238,7 +238,7 @@ def test_stroke_of_a_3d_path_follows_the_active_backend(backend):
 
 def test_stroke_of_a_2d_path_is_csg_only():
     from pybosl2.exceptions import UnsupportedByBackendError
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
     from pybosl2.shapes2d import Bosl2Shape2D
 
     flat = Path2D([[0, 0], [20, 0], [20, 20]], closed=False)
@@ -250,7 +250,7 @@ def test_stroke_of_a_2d_path_is_csg_only():
 def test_sdf_stroke_rejects_a_revolved_endcap():
     from pybosl2.caps import CapType
     from pybosl2.exceptions import UnsupportedByBackendError
-    from pybosl2.paths import Path3D
+    from pybosl2.path3d import Path3D
 
     spine = Path3D([[0, 0, 0], [0, 0, 20]], closed=False)
     with use_backend("sdf"):

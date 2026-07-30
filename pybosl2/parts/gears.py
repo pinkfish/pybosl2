@@ -34,7 +34,7 @@ import numpy as np
 
 from pybosl2._native import native
 from pybosl2.constants import INCH
-from pybosl2.paths import Path2D
+from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import Bosl2Shape2D, _frag_count
 from pybosl2.shapes3d import Bosl2Solid, cylinder
 from pybosl2.vnf import VNF

@@ -14,7 +14,8 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path2D, Path3D
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 
 SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 

@@ -588,7 +588,7 @@ class Threading:
             entirely through :func:`~pybosl2.skin.spiral_sweep` (VNF / polyhedron output),
             which has no arc-based primitives and therefore no smoothing resolution to control.
         """
-        from pybosl2.paths import Path2D
+        from pybosl2.path2d import Path2D
 
         assert pitch > 0 and d > 0, "thread_helix(): d and pitch must be positive."
         if profile is None:

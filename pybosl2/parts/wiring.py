@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import math
 
-from pybosl2.paths import Path3D
+from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import Bosl2Solid
 
 __all__ = ["Wiring"]

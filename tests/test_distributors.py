@@ -14,7 +14,8 @@ import numpy as np
 import pytest
 
 from pybosl2 import distributors as d
-from pybosl2.paths import Path2D, Path3D
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 # -- matrix generators --------------------------------------------------------------------

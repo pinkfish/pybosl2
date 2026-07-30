@@ -11,7 +11,7 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path2D
+from pybosl2.path2d import Path2D
 
 SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]
 UNIT = [[0, 0], [10, 0], [10, 10], [0, 10]]
@@ -306,7 +306,7 @@ def test_point_in_polygon_static():
 
 
 def test_path_length_accepts_3d():
-    from pybosl2.paths import Path3D
+    from pybosl2.path3d import Path3D
 
     assert math.isclose(Path3D([[0, 0, 0], [0, 0, 3], [0, 4, 3]], closed=False).perimeter(), 7.0)
 

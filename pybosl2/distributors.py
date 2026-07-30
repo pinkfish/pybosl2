@@ -275,7 +275,7 @@ def grid_copies(
     def keep(pos):
         if inside is None:
             return True
-        from pybosl2.paths import Path2D
+        from pybosl2.path2d import Path2D
 
         return Path2D._point_in_polygon(pos, inside, nonzero=bool(nonzero)) >= 0
 
@@ -483,7 +483,8 @@ def path_copies(
     closed: bool | None = None,
 ) -> list[np.ndarray]:
     """Copies placed along *path*, oriented to it (BOSL2 path_copies())."""
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
     pts = [list(map(float, p)) for p in path]
     closed = bool(getattr(path, "closed", False)) if closed is None else closed

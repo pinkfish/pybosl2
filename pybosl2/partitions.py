@@ -31,7 +31,7 @@ from typing import TYPE_CHECKING, Any, Sequence
 if TYPE_CHECKING:
     from typing import Self
 
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
@@ -59,37 +59,37 @@ __all__ = [
 
 
 def _yscale(s: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     return Path2D([[float(p[0]), float(p[1]) * s] for p in path])
 
 
 def _scale2(sx: float, sy: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     return Path2D([[float(p[0]) * sx, float(p[1]) * sy] for p in path])
 
 
 def _left(x: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     return Path2D([[float(p[0]) - x, float(p[1])] for p in path])
 
 
 def _right(x: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     return Path2D([[float(p[0]) + x, float(p[1])] for p in path])
 
 
 def _xflip(x: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     return Path2D([[2 * x - float(p[0]), float(p[1])] for p in path])
 
 
 def _skew(axy_deg: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     t = math.tan(math.radians(axy_deg))
     return Path2D([[float(p[0]) + float(p[1]) * t, float(p[1])] for p in path])
@@ -100,7 +100,7 @@ def _lerp(a: float, b: float, u: float) -> float:
 
 
 def _dedup(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     return Path2D([list(p) for p in Path2D._deduplicate(list(path), closed=False)])
 
@@ -108,7 +108,7 @@ def _dedup(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
 def _merge_collinear(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
     # BOSL2's merge_collinear() drops exact-duplicate points before merging collinear runs;
     # the toolkit kernel does not, so dedup first (a bare duplicate otherwise collapses a corner).
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     return Path2D([list(p) for p in _dedup(path).merge_collinear(closed=False)])
 
@@ -120,7 +120,7 @@ def _merge_collinear(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
 
 def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Path2D:
     """The simple named cut sub-paths used by the mask builders (BOSL2 _partition_subpath())."""
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
     from pybosl2.shapes2d import arc
 
     if cptype == "flat":
@@ -255,7 +255,7 @@ def _ptn_sect(
     fs: float | None = None,
 ) -> Path2D:
     """One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect())."""
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
     from pybosl2.shapes2d import _frag_count, arc
 
     if is_num(cptype):
@@ -462,7 +462,7 @@ def partition_path(
             wall = partition_path([40, "jigsaw", 10, "jigsaw yflip", 40], fn=24)
             wall.stroke(width=3).linear_extrude(height=30).show()
     """
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     paths: list[Any] = []
     for _n in range(repeat):
@@ -497,7 +497,7 @@ def partition_path(
 
 def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = True) -> Path2D:
     """Re-lay *minor_path* (a partition pattern) along *major_path* (BOSL2 _ptn_path_redirect())."""
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     major2 = _merge_collinear(major_path)
     minor2 = [list(p) for p in minor_path.resample_path(spacing=1, closed=False)]

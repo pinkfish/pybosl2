@@ -265,7 +265,8 @@ def nurbs_curve(
             ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
             nurbs_curve(ctrl, 3, splinesteps=12).stroke(width=3).show()
     """
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
     scalar = is_num(u)
     pts = _nurbs_curve_pts(

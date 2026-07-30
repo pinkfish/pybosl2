@@ -35,7 +35,8 @@ if TYPE_CHECKING:
 
     from openscad import PyOpenSCAD
 
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.texture import TextureType
 from pybosl2._backend import check_operand_backend as _check_operand_backend

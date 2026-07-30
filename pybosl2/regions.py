@@ -20,10 +20,8 @@ import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
 
 from pybosl2.caps import CapSpec, CapType
-from pybosl2.paths import (
-    Path2D,
-    Path3D,
-)  # Path2D/Path3D live in paths.py; re-exported here for compatibility
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D  # re-exported here for compatibility
 from pybosl2.shapes3d import text3d
 
 if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would be circular
@@ -329,7 +327,7 @@ class Region:
         """
         from shapely.ops import unary_union
 
-        from pybosl2.paths import Path2D as _Path
+        from pybosl2.path2d import Path2D as _Path
 
         items: list[Region | Path2D] = (
             list(others[0]) if len(others) == 1 and isinstance(others[0], (list, tuple)) else list(others)
@@ -442,7 +440,7 @@ class Region:
         import operator
         from functools import reduce
 
-        from pybosl2.paths import Path2D as _Path
+        from pybosl2.path2d import Path2D as _Path
 
         paths = [p if isinstance(p, _Path) else _Path(p) for p in self.paths]
         if len(paths) <= 1:

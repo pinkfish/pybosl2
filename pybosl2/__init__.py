@@ -25,8 +25,8 @@ from pybosl2.version import Version, __version__, version
 _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # core types
     "Path": ("pybosl2.paths", "Path"),
-    "Path2D": ("pybosl2.paths", "Path2D"),
-    "Path3D": ("pybosl2.paths", "Path3D"),
+    "Path2D": ("pybosl2.path2d", "Path2D"),
+    "Path3D": ("pybosl2.path3d", "Path3D"),
     "Region": ("pybosl2.regions", "Region"),
     "Point": ("pybosl2.points", "Point"),
     "Vector": ("pybosl2.points", "Vector"),

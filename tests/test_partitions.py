@@ -22,7 +22,7 @@ from pybosl2.partitions import (
     partition_mask,
     partition_path,
 )
-from pybosl2.paths import Path2D
+from pybosl2.path2d import Path2D
 from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 
 # -- cut-path generators ------------------------------------------------------------------

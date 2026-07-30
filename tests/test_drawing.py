@@ -24,7 +24,8 @@ from pybosl2.drawing import (
     stroke,
     turtle,
 )
-from pybosl2.paths import Path2D, Path3D
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.regions import Region
 
 # -- arc returns a Path2D -----------------------------------------------------------------
