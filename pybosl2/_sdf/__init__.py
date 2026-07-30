@@ -60,7 +60,7 @@ class SdfBackend:
         """
         from pybosl2.exceptions import UnsupportedByBackendError
 
-        for name in ("twist", "scale", "slices", "convexity"):
+        for name in ("twist", "scale", "slices", "convexity", "fa", "fn", "fs"):
             if kwargs.pop(name, None) not in (None, 0, 1, False):
                 raise UnsupportedByBackendError(
                     f"linear_extrude({name}=)",

@@ -501,7 +501,7 @@ def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = Tr
 
     major2 = _merge_collinear(major_path)
     minor2 = [list(p) for p in minor_path.resample_path(spacing=1, closed=False)]
-    major_len = major2.total_length(closed=False)
+    major_len = major2.perimeter()
     minor_len = abs(minor_path[-1][0] - minor_path[0][0])
     extend_by = max(0, -(major_len - minor_len))
     e1 = extend_by * (0.5 if center else 0)
@@ -513,7 +513,7 @@ def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = Tr
         + [list(p) for p in major2[1:-1]]
         + [list(np.asarray(major2[-1]) + vec2 * e2)]
     )
-    major_len2 = Path2D(major3).total_length(closed=False)
+    major_len2 = Path2D(major3).perimeter()
     xoff = (major_len2 - minor_len) / 2 if center else 0
     minor3 = _left(minor2[0][0] - xoff, minor2)
     out = []

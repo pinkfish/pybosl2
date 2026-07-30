@@ -652,19 +652,12 @@ class Path(ABC):
             return NotImplemented
         return bool(np.allclose(self._points, other._points)) and self.closed == other.closed
 
+    @property
+    def array(self) -> np.ndarray:
+        """The points as an (N, D) numpy array."""
+        return self._points
+
     # -- Path2D length calculation -----------------------------------------------------------
-
-    @abstractmethod
-    def total_length(self, closed: bool | None = None) -> float:
-        """Total length of the path.
-
-        Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            The total path length as a float.
-        """
-        ...
 
     @abstractmethod
     def segment_lengths(self, closed: bool | None = None) -> NDArray[np.float64]:
@@ -994,6 +987,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             assert pts.dtype == np.float64, f"Path2D needs float64 points, got {pts.dtype}"
             self._points = pts
         self.closed = closed
+        self._shapely_cache: object = None
 
     def __len__(self) -> int:
         return len(self._points)
@@ -1019,6 +1013,35 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """The points as a list of ``[x, y]`` plain-Python-float pairs."""
         return self._points.tolist()
 
+    @property
+    def _shapely(self):
+        """Cached Shapely LineString (open) or LinearRing (closed) for this path."""
+        if self._shapely_cache is None:
+            from shapely.geometry import LinearRing, LineString
+
+            pts = [(float(p[0]), float(p[1])) for p in self._points]
+            if self.closed and len(pts) >= 3:
+                if not np.allclose(pts[0], pts[-1]):
+                    pts.append(pts[0])
+                self._shapely_cache = LinearRing(pts)
+            else:
+                self._shapely_cache = LineString(pts)
+        return self._shapely_cache
+
+    @property
+    def _shapely_polygon(self):
+        """Cached Shapely Polygon for area/contains operations."""
+        if not self.closed or len(self._points) < 3:
+            from shapely.geometry import Polygon as _Polygon
+
+            return _Polygon()
+        if not hasattr(self, "_shapely_polygon_cache"):
+            pts = [(float(p[0]), float(p[1])) for p in self._points]
+            from shapely.geometry import Polygon as _Polygon
+
+            self._shapely_polygon_cache = _Polygon(pts)
+        return self._shapely_polygon_cache
+
     @classmethod
     def from_list(cls, lst: Sequence, closed: bool = True) -> "Path2D":
         """Create a Path2D from a plain list of ``[x, y]`` coordinate pairs.
@@ -1034,19 +1057,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     # -- Path delegating implementations ----------------------------------------------------
 
-    def total_length(self, closed: bool | None = None) -> float:
-        """Total length of the path.
-
-        Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            The total path length as a float.
-        """
-        if closed is None:
-            closed = self.closed
-        return _path_total_length(self._points, closed)
-
     def segment_lengths(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Length of each segment of the path, as an ndarray.
 
@@ -1058,7 +1068,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_segment_lengths(self._points, closed)
+        coords = np.asarray(self._shapely.coords)
+        return np.linalg.norm(np.diff(coords, axis=0), axis=1)
 
     def length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Distance fraction of each point in the path (0 at start, 1 at end).
@@ -1076,8 +1087,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
         """The closest point on the path to *pt*.
 
+        Uses Shapely projection for 2-D accuracy.
+
         Args:
-            pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
+            pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y]``.
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
@@ -1085,7 +1098,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_closest_point(self._points, closed, pt)
+        from shapely.geometry import Point as _Point
+
+        q = _Point(pt.x, pt.y) if isinstance(pt, Point) else _Point(pt[0], pt[1])
+        proj = self._shapely.interpolate(self._shapely.project(q))
+        return Point(float(proj.x), float(proj.y))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
         """Normalized tangent vector at each point of the path, as an ndarray.
@@ -1334,16 +1351,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns a :class:`Bounds2D` named tuple with ``min_x``, ``min_y``,
         ``max_x``, ``max_y``, ``width``, and ``length`` fields.
         """
-        pts = self._points
-        min_pt = pts.min(axis=0)
-        max_pt = pts.max(axis=0)
+        minx, miny, maxx, maxy = self._shapely.bounds
         return Bounds2D(
-            float(min_pt[0]),
-            float(min_pt[1]),
-            float(max_pt[0]),
-            float(max_pt[1]),
-            float(max_pt[0] - min_pt[0]),
-            float(max_pt[1] - min_pt[1]),
+            float(minx),
+            float(miny),
+            float(maxx),
+            float(maxy),
+            float(maxx - minx),
+            float(maxy - miny),
         )
 
     def area(self, signed: bool = False) -> float:
@@ -1355,11 +1370,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             The enclosed area as a float.
         """
-        from shapely.geometry import LinearRing, Polygon
-
-        poly = Polygon(self)
+        poly = self._shapely_polygon
         if signed:
-            ring = LinearRing(self)
+            ring = self._shapely
             return float(poly.area if ring.is_ccw else -poly.area)
         return float(poly.area)
 
@@ -1369,9 +1382,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def perimeter(self) -> float:
         """Total length around the path."""
-        return float(self.total_length())
+        return float(self._shapely.length)
 
-    length = perimeter
+    @property
+    def length(self) -> float:
+        """Total length around the path (alias for :meth:`perimeter`)."""
+        return self.perimeter()
 
     def contains(self, point: Sequence[float]) -> bool:
         """True if *point* is inside the closed polygon (on the boundary counts as inside).
@@ -1394,11 +1410,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if not self.closed:
             return False
-        from shapely.geometry import Point, Polygon
+        from shapely.geometry import Point
 
-        poly = Polygon(self)
-        pt = Point(point[0], point[1])
-        return bool(poly.intersects(pt))
+        return bool(self._shapely_polygon.intersects(Point(point[0], point[1])))
 
     @property
     def is_closed(self) -> bool:
@@ -1407,17 +1421,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def is_simple(self) -> bool:
         """True if the path does not self-intersect."""
-        from shapely.geometry import LineString
-
-        pts = [(float(pt[0]), float(pt[1])) for pt in self]
         if self.closed:
-            if len(pts) < 3:
+            if len(self._points) < 3:
                 return True
-            if not np.allclose(pts[0], pts[-1]):
-                pts.append(pts[0])
-        elif len(pts) < 2:
+        elif len(self._points) < 2:
             return True
-        return bool(LineString(pts).is_simple)
+        return bool(self._shapely.is_simple)
 
     def offset(
         self,
@@ -3126,19 +3135,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     # -- Path delegating implementations ----------------------------------------------------
 
-    def total_length(self, closed: bool | None = None) -> float:
-        """Total length of the path.
-
-        Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            The total path length as a float.
-        """
-        if closed is None:
-            closed = self.closed
-        return _path_total_length(self._points, closed)
-
     def segment_lengths(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Length of each segment of the path, as an ndarray.
 
@@ -3439,9 +3435,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def perimeter(self) -> float:
         """Total length along the path."""
-        return float(self.total_length())
+        return _path_total_length(self._points, self.closed)
 
-    length = perimeter
+    @property
+    def length(self) -> float:
+        """Total length around the path (alias for :meth:`perimeter`)."""
+        return self.perimeter()
 
     def is_closed(self) -> bool:
         """True if the first and last points of the path coincide."""

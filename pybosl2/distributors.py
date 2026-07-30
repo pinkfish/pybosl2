@@ -488,7 +488,7 @@ def path_copies(
     pts = [list(map(float, p)) for p in path]
     closed = bool(getattr(path, "closed", False)) if closed is None else closed
     dim = len(pts[0]) if pts else 2
-    length = (Path3D(pts) if dim == 3 else Path2D(pts)).total_length(closed=closed)
+    length = (Path3D(pts) if dim == 3 else Path2D(pts)).perimeter()
     if dist is not None:
         distances = sorted(float(x) for x in dist)
     elif sp is not None:
