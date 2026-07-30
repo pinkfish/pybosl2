@@ -373,7 +373,7 @@ def _gear_tooth_profile(
         clipped = tooth_half
 
     full = _dedup([list(q) for q in clipped] + [[-x, y] for x, y in reversed(clipped)])
-    tooth = Path2D(full).path_merge_collinear(closed=False)
+    tooth = Path2D(full).merge_collinear(closed=False)
     if center:
         tooth = [[x, y - prad] for x, y in tooth]
     return [[float(x), float(y)] for x, y in tooth]

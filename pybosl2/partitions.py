@@ -106,11 +106,11 @@ def _dedup(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
 
 
 def _merge_collinear(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
-    # BOSL2's path_merge_collinear() drops exact-duplicate points before merging collinear runs;
+    # BOSL2's merge_collinear() drops exact-duplicate points before merging collinear runs;
     # the toolkit kernel does not, so dedup first (a bare duplicate otherwise collapses a corner).
     from pybosl2.paths import Path2D
 
-    return Path2D([list(p) for p in _dedup(path).path_merge_collinear(closed=False)])
+    return Path2D([list(p) for p in _dedup(path).merge_collinear(closed=False)])
 
 
 # ---------------------------------------------------------------------------
@@ -518,7 +518,7 @@ def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = Tr
     minor3 = _left(minor2[0][0] - xoff, minor2)
     out = []
     for pt in minor3:
-        pinfo = Path2D(major3).path_cut_points(max(0.0, pt[0]), closed=False, direction=True)
+        pinfo = Path2D(major3).cut_points(max(0.0, pt[0]), closed=False, direction=True)
         base = np.asarray(pinfo[0])
         tangent = unit(np.asarray(pinfo[3]), [0.0, 1.0])
         out.append(list(base + tangent * pt[1]))

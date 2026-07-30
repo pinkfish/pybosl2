@@ -510,7 +510,7 @@ def path_copies(
             distances = [e + length / 2 - center for e in ptlist]
     assert min(distances) >= -1e-9 and max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
     distances = [min(max(dst, 0.0), length) for dst in distances]
-    cutlist = (Path3D(pts) if dim == 3 else Path2D(pts)).path_cut_points(distances, closed=closed, direction=True)
+    cutlist = (Path3D(pts) if dim == 3 else Path2D(pts)).cut_points(distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2
     mats = []
     for point, _ind, tangent, normal in cutlist:

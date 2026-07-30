@@ -736,12 +736,12 @@ def dashed_stroke(
     cuts = sorted(c for c in cuts)
     if not cuts:
         return [wrap(raw, closed=False)]  # type: ignore[return-value]
-    dashes = wrap(raw).path_cut(cuts, closed=False)
+    dashes = wrap(raw).cut(cuts, closed=False)
     dcnt = len(dashes)
     evens = []
     for i, dash in enumerate(dashes):
         if i % 2 != 0:
             continue
-        if i < dcnt - 1 or wrap(dash).total_length(closed=False) > mindash:
-            evens.append(wrap(dash, closed=False))
+        if i < dcnt - 1 or wrap(dash).total_length(closed=False) > mindash:  # type: ignore[arg-type]
+            evens.append(wrap(dash, closed=False))  # type: ignore[arg-type]
     return evens  # type: ignore[return-value]

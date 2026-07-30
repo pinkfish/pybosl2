@@ -332,7 +332,7 @@ def _path_sweep(
     if tangent is not None:
         tangents = np.array([_u(t) for t in path3d(tangent)])
     else:
-        tangents = np.asarray(Path3D(patharr).path_tangents(closed=closed, uniform=uniform), dtype=float)
+        tangents = np.asarray(Path3D(patharr).tangents(closed=closed, uniform=uniform), dtype=float)
 
     # Resolve the initial/per-point normal.
     if normal is not None:
@@ -351,11 +351,11 @@ def _path_sweep(
         normals = np.tile(normal_single, (npts, 1))
 
     if twist_by_length:
-        tpathfrac = np.asarray(Path3D(patharr).path_length_fractions(closed=closed), dtype=float)
+        tpathfrac = np.asarray(Path3D(patharr).length_fractions(closed=closed), dtype=float)
     else:
         tpathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
     if scale_by_length:
-        spathfrac = np.asarray(Path3D(patharr).path_length_fractions(closed=closed), dtype=float)
+        spathfrac = np.asarray(Path3D(patharr).length_fractions(closed=closed), dtype=float)
     else:
         spathfrac = np.array([i / (npts - (0 if closed else 1)) for i in range(npts + 1)])
 
@@ -427,7 +427,7 @@ def _path_sweep(
                 translate4(patharr[i % npts]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i])
             )
     elif method == "natural":
-        pathnormal = np.asarray(Path3D(patharr).path_normals(tangents=tangents, closed=closed), dtype=float)
+        pathnormal = np.asarray(Path3D(patharr).normals(tangents=tangents, closed=closed), dtype=float)
         unscaled = [
             translate4(patharr[i % npts])
             @ frame_map(x=pathnormal[i % npts], z=tangents[i % npts])

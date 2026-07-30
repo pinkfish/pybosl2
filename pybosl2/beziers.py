@@ -982,7 +982,7 @@ def create_bezier(
     else:
         dim = patharr.shape[1] if len(patharr) > 0 else 2
         tang = np.asarray(
-            (Path3D(patharr) if dim == 3 else Path2D(patharr)).path_tangents(closed=closed, uniform=uniform),
+            (Path3D(patharr) if dim == 3 else Path2D(patharr)).tangents(closed=closed, uniform=uniform),
             dtype=float,
         )
     assert min(sizevect) > 0, "Size and relsize must be greater than zero."

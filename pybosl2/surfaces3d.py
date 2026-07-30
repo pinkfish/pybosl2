@@ -647,7 +647,7 @@ def plot_revolution(
         )
         z0, z1 = zs[0], zs[-1]
         prof = [[r1v + (r2v - r1v) * (zz - z0) / (z1 - z0), zz] for zz in zs]
-    normals = [[1.0, 0.0]] * len(prof) if horiz else np.asarray(Path2D(prof).path_normals(), dtype=float).tolist()
+    normals = [[1.0, 0.0]] * len(prof) if horiz else np.asarray(Path2D(prof).normals(), dtype=float).tolist()
     rlo, rhi = rclip if rclip is not None else [-math.inf, math.inf]
     rdata = [[min(max(float(f(t, pt[1])), rlo), rhi) for t in theta] for pt in prof]
     if rspan is not None:

@@ -3028,7 +3028,7 @@ def _cut_interp(
     pathcut: list, path: Sequence[Sequence[float]] | Path2D | Path3D, data: Sequence[Sequence[float]]
 ) -> list[list[float]]:
     """Port of BOSL2's `_cut_interp()`: linearly interpolates a per-path-vertex vector array
-    `data` to the fractional position of each `path_cut_points()` cut point.
+    `data` to the fractional position of each `cut_points()` cut point.
     """
     out = []
     for entry in pathcut:
@@ -3202,7 +3202,7 @@ def path_text(
     start = (plen - textlength) / 2.0 if center else 0.0
     dists = [start + c for c in centers]
 
-    pts = path.path_cut_points(dists, direction=True)
+    pts = path.cut_points(dists, direction=True)
 
     normal_pv = _path_text_bcast_dir(normal, 3, path, "normal")
     top_pv = _path_text_bcast_dir(top, dim, path, "top")
