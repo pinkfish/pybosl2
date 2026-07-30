@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2.beziers import Bezier
     from pybosl2.path3d import Path3D
+    from pybosl2.points import Vector
     from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
@@ -320,7 +321,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         sub_paths = _path_cut(self._points, closed, cutdist)
         return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
-    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list:
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list["Path2D"]:
         """Reconstruct sub-paths from the output of cut_points().
 
         Args:
@@ -328,9 +329,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of subpath point lists.
+            A list of :class:`Path2D` subpaths.
         """
-        return _path_cut_getpaths(self._points, closed, cutlist)
+        sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
+        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
     def cut_points(
         self,
@@ -380,7 +382,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
 
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> list:
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> "list[Vector]":
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
         Args:
@@ -389,7 +391,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of normal vectors, one per cut point.
+            A list of :class:`Vector` normal vectors, one per cut point.
         """
         return _path_cuts_normals(self._points, closed, cuts, dirs)
 
@@ -407,7 +409,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_plane(self._points, closed, ind, i)
 
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Vector]":
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:
@@ -416,7 +418,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for numerical comparisons.
 
         Returns:
-            A list of direction vectors, one per cut point.
+            A list of :class:`Vector` direction vectors, one per cut point.
         """
         return _path_cuts_dir(self._points, closed, cuts, eps=eps)
 

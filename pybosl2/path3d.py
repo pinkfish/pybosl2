@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
-    from pybosl2.points import Point
+    from pybosl2.points import Point, Vector
 
 
 from pybosl2.bounds import Bounds3D
@@ -249,7 +249,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         sub_paths = _path_cut(self._points, closed, cutdist)
         return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
-    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list:
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list["Path3D"]:
         """Reconstruct sub-paths from the output of cut_points().
 
         Args:
@@ -257,9 +257,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of subpath point lists.
+            A list of :class:`Path3D` subpaths.
         """
-        return _path_cut_getpaths(self._points, closed, cutlist)
+        sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
+        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
 
     def cut_points(
         self,
@@ -309,7 +310,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
 
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> list:
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> "list[Vector]":
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
         Args:
@@ -318,7 +319,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of normal vectors, one per cut point.
+            A list of :class:`Vector` normal vectors, one per cut point.
         """
         return _path_cuts_normals(self._points, closed, cuts, dirs)
 
@@ -336,7 +337,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_plane(self._points, closed, ind, i)
 
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Vector]":
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:
@@ -345,7 +346,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for numerical comparisons.
 
         Returns:
-            A list of direction vectors, one per cut point.
+            A list of :class:`Vector` direction vectors, one per cut point.
         """
         return _path_cuts_dir(self._points, closed, cuts, eps=eps)
 

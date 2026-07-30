@@ -42,7 +42,7 @@ from pybosl2.geometry import (
     line_closest_point,
 )
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
-from pybosl2.points import Point
+from pybosl2.points import Point, Vector
 from pybosl2.vectors import add_scalar, unit
 
 __all__ = ["CutPoint", "Path"]
@@ -413,7 +413,7 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
         ind += 1
 
 
-def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], dirs: list) -> list:
+def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], dirs: list) -> list[Vector]:
     """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
     Args:
@@ -422,22 +422,27 @@ def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], d
         closed: Whether the path is closed.
 
     Returns:
-        A list of normal vectors, one per cut point.
+        A list of :class:`Vector` normal vectors, one per cut point.
     """
-    out = []
+    out: list[Vector] = []
     dim = points.shape[1]
     for i in range(len(cuts)):
         if dim == 2:
-            out.append([-dirs[i][1], dirs[i][0]])
+            out.append(Vector([-dirs[i][1], dirs[i][0]]))
             continue
         plane = None
         if len(points) >= 3:
             start = max(min(cuts[i].next_index, len(points) - 1), 2)
             plane = _path_plane(points, closed, start, start - 2)
         if plane is None:
-            out.append([1, 0, 0] if (dirs[i][0] == 0 and dirs[i][1] == 0) else list(unit([-dirs[i][1], dirs[i][0], 0])))
+            if dirs[i][0] == 0 and dirs[i][1] == 0:
+                out.append(Vector([1, 0, 0]))
+            else:
+                n = unit([-dirs[i][1], dirs[i][0], 0])
+                out.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
         else:
-            out.append(list(unit(cross(dirs[i], cross(plane[0], plane[1])))))
+            n = unit(cross(dirs[i], cross(plane[0], plane[1])))
+            out.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
     return out
 
 
@@ -467,7 +472,7 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> np.ndarra
     return None
 
 
-def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: float = 1e-2) -> list:
+def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: float = 1e-2) -> list[Vector]:
     """Compute direction vectors at each cut point (blended from adjacent segments).
 
     Args:
@@ -476,9 +481,9 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
         eps: Epsilon for numerical comparisons.
 
     Returns:
-        A list of direction vectors, one per cut point.
+        A list of :class:`Vector` direction vectors, one per cut point.
     """
-    out = []
+    out: list[Vector] = []
     zeros = [0] * points.shape[1]
     for ci in range(len(cuts)):
         nextind = cuts[ci].next_index
@@ -523,7 +528,7 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
             nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
         else:
             nextdir = thispath
-        out.append(nextdir)
+        out.append(Vector([float(v) for v in nextdir]))
     return out
 
 
@@ -879,7 +884,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list:
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> Sequence[Path]:
         """Reconstruct sub-paths from the output of cut_points().
 
         Args:
@@ -941,7 +946,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> list:
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list[Vector], closed: bool = False) -> list[Vector]:
         """Compute normals at each cut point (perpendicular to the direction, in local plane).
 
         Args:
@@ -970,7 +975,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list[Vector]:
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:
