@@ -641,12 +641,11 @@ def partition_cut_mask(
             from pybosl2.partitions import partition_cut_mask
             (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath="jigsaw", slop=0.15)).show()
     """
-    from pybosl2._stroke2d import stroke as _stroke
     from pybosl2.shapes3d import Bosl2Solid
 
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]
     path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs)  # type: ignore[arg-type]
-    ribbon = _stroke(path, width=max(0.1, slop * 2))
+    ribbon = path.stroke(width=max(0.1, slop * 2))
     return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
 
 

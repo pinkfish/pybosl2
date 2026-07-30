@@ -97,11 +97,9 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "xdistribute": ("pybosl2.distributors", "xdistribute"),
     "ydistribute": ("pybosl2.distributors", "ydistribute"),
     "zdistribute": ("pybosl2.distributors", "zdistribute"),
-    # drawing
+    # path generators
     "catenary": ("pybosl2.path2d", "catenary"),
     "helix": ("pybosl2.path3d", "helix"),
-    "stroke": ("pybosl2._stroke2d", "stroke"),
-    "dashed_stroke": ("pybosl2._stroke2d", "dashed_stroke"),
     # bezier / NURBS
     "Bezier": ("pybosl2.beziers", "Bezier"),
     "BezierPatch": ("pybosl2.beziers", "BezierPatch"),
