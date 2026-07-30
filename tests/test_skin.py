@@ -12,7 +12,8 @@ import numpy as np
 import pytest
 
 from pybosl2.caps import CapType
-from pybosl2.paths import Path2D, Path3D
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.skin import (
     OSProfile,
     clockwise_polygon,

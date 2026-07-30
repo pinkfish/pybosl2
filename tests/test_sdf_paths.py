@@ -85,7 +85,7 @@ class TestPolygonPathUtils:
         assert cuts[1][0][0] == pytest.approx(10.0)
         assert cuts[1][0][1] == pytest.approx(5.0)
         single = sdf_paths.path_cut_points(path, 5.0)
-        assert single[0][0] == pytest.approx(5.0)
+        assert single[0][0][0] == pytest.approx(5.0)
 
     def test_path_normals_two_point_segment(self):
         # A segment heading +x: the bosl2 port's normal points to the RIGHT of travel

@@ -58,7 +58,7 @@ A PCO-1881 neck and its cap, side by side:
 
 .. pythonscad-example::
 
-    from pybosl2.bottlecaps import BottleCaps
+    from pybosl2.parts.bottlecaps import BottleCaps
     (BottleCaps.pco1881_neck() | BottleCaps.pco1881_cap().right(45)).show()
 
 API reference

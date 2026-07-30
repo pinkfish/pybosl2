@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/walls.py
+# LibFile: pybosl2/parts/walls.py
 #    Pure-Python port of BOSL2's walls.scad: FDM-optimised wall shapes that use less material and
 #    print without support. :meth:`Walls.sparse_wall` is an X-braced open wall (and
 #    :meth:`~Walls.sparse_cuboid` its solid-box variant); :meth:`~Walls.corrugated_wall` a sinusoidal
@@ -67,7 +67,7 @@ class Walls:
         Examples:
             .. pythonscad-example::
 
-                from pybosl2.walls import Walls
+                from pybosl2.parts.walls import Walls
                 Walls.narrowing_strut(w=10, length=100, wall=5, angle=30).show()
         """
         height = wall + w / 2 / math.tan(math.radians(angle))
@@ -93,7 +93,7 @@ class Walls:
         Examples:
             .. pythonscad-example::
 
-                from pybosl2.walls import Walls
+                from pybosl2.parts.walls import Walls
                 Walls.sparse_wall(height=50, length=100, thick=4).show()
         """
         region = Walls._sparse_wall2d(height, length, maxang, strut, max_bridge)
@@ -184,7 +184,7 @@ class Walls:
         Examples:
             .. pythonscad-example::
 
-                from pybosl2.walls import Walls
+                from pybosl2.parts.walls import Walls
                 Walls.corrugated_wall(height=50, length=100, thick=5).show()
         """
         amplitude = (thick - wall) / 2
@@ -217,7 +217,7 @@ class Walls:
         Examples:
             .. pythonscad-example::
 
-                from pybosl2.walls import Walls
+                from pybosl2.parts.walls import Walls
                 Walls.thinning_wall(height=50, length=80, thick=4).show()
         """
         l1 = length[0] if isinstance(length, (list, tuple)) else length
@@ -346,7 +346,7 @@ class Walls:
         Examples:
             .. pythonscad-example::
 
-                from pybosl2.walls import Walls
+                from pybosl2.parts.walls import Walls
                 Walls.thinning_triangle(height=50, length=80, thick=4, center=True).show()
         """
         dang = math.degrees(math.atan(height / length))

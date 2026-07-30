@@ -26,7 +26,8 @@ from typing import TYPE_CHECKING, Any, Sequence, cast
 if TYPE_CHECKING:
     from shapely.geometry import MultiPolygon
 
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
 import numpy as np
 
@@ -174,7 +175,8 @@ def _round_corners(
             sq = [[0, 0], [40, 0], [40, 40], [0, 40]]
             round_corners(sq, method="smooth", joint=10).polygon().linear_extrude(height=4).show()
     """
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
     k = curvature if curvature is not None else kwargs.get("k")
 
@@ -327,7 +329,8 @@ def _smooth_path(
             smooth_path(pts, relsize=0.4).stroke(width=2).linear_extrude(height=3).show()
     """
     from pybosl2.beziers import create_bezier
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
     bez = create_bezier(
         path,
@@ -626,8 +629,8 @@ def _path_join(
     Returns:
         A :class:`~pybosl2.paths.Path2D` or :class:`~pybosl2.paths.Path3D` depending on the input dimensions.
     """
-    from pybosl2.paths import Path2D as _Path
-    from pybosl2.paths import Path3D as _Path3D
+    from pybosl2.path2d import Path2D as _Path
+    from pybosl2.path3d import Path3D as _Path3D
 
     k = curvature if curvature is not None else kwargs.get("k")
 
@@ -719,7 +722,7 @@ def _from_shapely(geom: "MultiPolygon") -> list[Path2D]:
     """
     from shapely.geometry import MultiPolygon, Polygon
 
-    from pybosl2.paths import Path2D as _Path
+    from pybosl2.path2d import Path2D as _Path
 
     if geom.is_empty:
         return []
@@ -751,7 +754,7 @@ def _offset_stroke(
     """
     from shapely.geometry import LineString
 
-    from pybosl2.paths import Path2D as _Path
+    from pybosl2.path2d import Path2D as _Path
     from pybosl2.regions import Region
 
     # Coerce to Path2D

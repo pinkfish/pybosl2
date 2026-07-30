@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/nema_steppers.py
+# LibFile: pybosl2/parts/nema_steppers.py
 #    Pure-Python port of BOSL2's nema_steppers.scad: models of NEMA-standard stepper motors and the
 #    masks that cut their mounting-hole pattern into a plate. :meth:`NemaSteppers.nema_stepper_motor`
 #    builds a motor (body + plinth + shaft + blind screw holes) for a NEMA size; :meth:`~NemaSteppers.
@@ -87,7 +87,7 @@ class NemaSteppers:
 
             .. pythonscad-example::
 
-                from pybosl2.nema_steppers import NemaSteppers
+                from pybosl2.parts.nema_steppers import NemaSteppers
                 NemaSteppers.nema_stepper_motor(size=17).show()
         """
         s = NemaSteppers.nema_motor_info(size)

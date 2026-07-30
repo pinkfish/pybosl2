@@ -47,14 +47,14 @@ from pybosl2._native import native
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD
 
-    from pybosl2.paths import Path3D
+    from pybosl2.path3d import Path3D
     from pybosl2.shapes3d import Bosl2Solid
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.geometry import is_collinear
-from pybosl2.paths import Path2D
+from pybosl2.path2d import Path2D
 from pybosl2.vectors import unit
 
 from .constants import CENTER

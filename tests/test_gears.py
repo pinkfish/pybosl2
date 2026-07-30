@@ -11,7 +11,7 @@ import math
 
 import pytest
 
-from pybosl2.gears import Gears
+from pybosl2.parts.gears import Gears
 from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid
 

@@ -1007,7 +1007,7 @@ class Turtle(BaseTurtle):
         .. pythonscad-example::
 
             from pybosl2.turtle3d import Turtle
-            from pybosl2.paths import Path3D
+            from pybosl2.path3d import Path3D
             sq = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
             path = Turtle().run(["move", 20, "arcleft", 3, "move", 20, "arcleft", 3,
                                  "move", 20, "arcleft", 3, "move", 20, "arcleft", 3]).points()

@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/hinges.py
+# LibFile: pybosl2/parts/hinges.py
 #    Pure-Python port of the hinges in BOSL2's hinges.scad. The :class:`Hinges` class provides
 #    :meth:`~Hinges.living_hinge_mask` (a wedge cut into a flat plate so it folds -- a print-in-place
 #    "living" hinge), a functional interlocking :meth:`~Hinges.knuckle_hinge` leaf (and
@@ -50,7 +50,7 @@ class Hinges:
 
             .. pythonscad-example::
 
-                from pybosl2.hinges import Hinges
+                from pybosl2.parts.hinges import Hinges
                 (s3.cuboid([100, 40, 3]) - Hinges.living_hinge_mask(length=100, thick=3, foldangle=60).down(1.5)).show()
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
@@ -118,7 +118,7 @@ class Hinges:
 
             .. pythonscad-example::
 
-                from pybosl2.hinges import Hinges
+                from pybosl2.parts.hinges import Hinges
                 Hinges.knuckle_hinge_pair(fold=90).show()
         """
         outer = Hinges.knuckle_hinge(

@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/modular_hose.py
+# LibFile: pybosl2/parts/modular_hose.py
 #    Pure-Python port of BOSL2's modular_hose.scad: the ball-and-socket segments of a modular
 #    coolant/adjustable hose (the "Loc-Line" style). :meth:`ModularHose.modular_hose` revolves a
 #    ball end, a socket end, or a full segment for the 1/4", 1/2" or 3/4" sizes;
@@ -289,7 +289,7 @@ class ModularHose:
 
             .. pythonscad-example::
 
-                from pybosl2.modular_hose import ModularHose
+                from pybosl2.parts.modular_hose import ModularHose
                 ModularHose.modular_hose(0.5, "segment").show()
         """
         ind = _size_index(size)

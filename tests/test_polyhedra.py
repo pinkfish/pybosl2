@@ -10,7 +10,7 @@ import math
 
 import pytest
 
-from pybosl2.polyhedra import Polyhedra
+from pybosl2.parts.polyhedra import Polyhedra
 from pybosl2.shapes3d import Bosl2Solid
 
 _COUNTS = {

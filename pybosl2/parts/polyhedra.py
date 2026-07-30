@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/polyhedra.py
+# LibFile: pybosl2/parts/polyhedra.py
 #    The five Platonic solids from BOSL2's polyhedra.scad, built as watertight polyhedra.
 #    :meth:`Polyhedra.regular_polyhedron` builds any of ``"tetrahedron"``, ``"cube"``,
 #    ``"octahedron"``, ``"dodecahedron"`` or ``"icosahedron"`` (there are named convenience methods
@@ -217,7 +217,7 @@ class Polyhedra:
 
             .. pythonscad-example::
 
-                from pybosl2.polyhedra import Polyhedra, PlatonicSolid
+                from pybosl2.parts.polyhedra import Polyhedra, PlatonicSolid
                 Polyhedra.regular_polyhedron(PlatonicSolid.DODECAHEDRON, side=12).show()
         """
         key = Polyhedra._resolve(name)

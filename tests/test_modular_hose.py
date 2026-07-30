@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2.modular_hose import ModularHose
+from pybosl2.parts.modular_hose import ModularHose
 from pybosl2.shapes3d import Bosl2Solid
 
 

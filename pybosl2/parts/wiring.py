@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/wiring.py
+# LibFile: pybosl2/parts/wiring.py
 #    Pure-Python port of BOSL2's wiring.scad: rendering for routed bundles of wires.
 #    :meth:`Wiring.wire_bundle` sweeps a hexagonally-packed bundle of round wires along a path whose
 #    corners are rounded, colouring each wire from a 17-entry table.
@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import math
 
-from pybosl2.paths import Path3D
+from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import Bosl2Solid
 
 __all__ = ["Wiring"]
@@ -110,7 +110,7 @@ class Wiring:
 
             .. pythonscad-example::
 
-                from pybosl2.wiring import Wiring
+                from pybosl2.parts.wiring import Wiring
                 Wiring.wire_bundle([[50, 0, -50], [50, 50, -50], [0, 50, -50],
                                     [0, 0, -50], [0, 0, 0]], wires=13, rounding=10).show()
         """

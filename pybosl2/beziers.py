@@ -327,10 +327,8 @@ class Bezier:
         Returns:
             The approximate arc length of the curve segment as a float.
         """
-        from pybosl2.paths import (
-            Path2D,
-            Path3D,
-        )  # local: avoid importing the heavy path module at load time
+        from pybosl2.path2d import Path2D  # local: avoid importing the heavy path module at load time
+        from pybosl2.path3d import Path3D
 
         segs = len(self) * 2
         uvals = lerpn(start_u, end_u, segs + 1)
@@ -428,8 +426,8 @@ class Bezier:
             out.append(ctrl.points(us))
         if endpoint:
             out.append(bezpath[-1:])
-        from pybosl2.paths import Path2D as _Path2D
-        from pybosl2.paths import Path3D as _Path3D
+        from pybosl2.path2d import Path2D as _Path2D
+        from pybosl2.path3d import Path3D as _Path3D
 
         result = np.concatenate(out, axis=0)
         if result.shape[1] == 3:
@@ -963,7 +961,8 @@ def create_bezier(
         AssertionError: If both *size* and *relsize* are specified, or if any
             path segment has zero length.
     """
-    from pybosl2.paths import Path2D, Path3D  # local: keep the import graph acyclic
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
     assert size is None or relsize is None, "Can't define both size and relsize."
     patharr = np.asarray(path, dtype=float)
@@ -1517,7 +1516,7 @@ class BezierPatch:
 
 
 def _debug_tube(points: np.ndarray, radius: float, sides: int = 8) -> Any:
-    from pybosl2.paths import Path3D
+    from pybosl2.path3d import Path3D
 
     circ = [
         [

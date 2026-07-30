@@ -275,7 +275,7 @@ def grid_copies(
     def keep(pos):
         if inside is None:
             return True
-        from pybosl2.paths import Path2D
+        from pybosl2.path2d import Path2D
 
         return Path2D._point_in_polygon(pos, inside, nonzero=bool(nonzero)) >= 0
 
@@ -483,7 +483,8 @@ def path_copies(
     closed: bool | None = None,
 ) -> list[np.ndarray]:
     """Copies placed along *path*, oriented to it (BOSL2 path_copies())."""
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
     pts = [list(map(float, p)) for p in path]
     closed = bool(getattr(path, "closed", False)) if closed is None else closed
@@ -513,14 +514,14 @@ def path_copies(
     cutlist = (Path3D(pts) if dim == 3 else Path2D(pts)).cut_points(distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2
     mats = []
-    for point, _ind, tangent, normal in cutlist:
-        base = translate4(point)
+    for cp in cutlist:
+        base = translate4(cp.point)
         if not rotate_children:
             rotm = np.eye(4)
         elif planar:
-            rotm = rot_from_to4([0, 1, 0], _scalar_vec3(normal, 0.0))
+            rotm = rot_from_to4([0, 1, 0], _scalar_vec3(cp.normal, 0.0))  # type: ignore[attr-defined]
         else:
-            rotm = _frame_map4(x=tangent, z=normal)
+            rotm = _frame_map4(x=cp.direction, z=cp.normal)  # type: ignore[attr-defined]
         mats.append(base @ rotm)
     return mats
 

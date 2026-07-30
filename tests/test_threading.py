@@ -14,13 +14,13 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.threading import (
+from pybosl2.parts.threading import (
     Threading,
     _buttress_profile,
     _iso_profile,
     _trapezoidal_profile,
 )
+from pybosl2.shapes3d import Bosl2Solid
 
 # -- thread profiles (in pitch units) -----------------------------------------------------
 
@@ -65,7 +65,7 @@ def test_impossible_trapezoid_raises():
 
 
 def test_thread_profile_is_structured_dataclass():
-    from pybosl2.threading import ThreadProfile
+    from pybosl2.parts.threading import ThreadProfile
 
     iso = _iso_profile()
     assert isinstance(iso, ThreadProfile)

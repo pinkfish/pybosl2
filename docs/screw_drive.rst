@@ -36,14 +36,14 @@ A #2 Phillips recess cut into a tapered head:
 
 .. pythonscad-example::
 
-    from pybosl2.screw_drive import ScrewDrive
+    from pybosl2.parts.screw_drive import ScrewDrive
     (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask("#2")).show()
 
 A T30 Torx tip:
 
 .. pythonscad-example::
 
-    from pybosl2.screw_drive import ScrewDrive
+    from pybosl2.parts.screw_drive import ScrewDrive
     ScrewDrive.torx_mask(size=30, length=10).show()
 
 API reference

@@ -24,7 +24,7 @@ import numpy as np
 
 from pybosl2._native import native
 from pybosl2.constants import BACK, CENTER, FRONT, INCH, LEFT, TOP, UP
-from pybosl2.paths import Path2D
+from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import _frag_count, _pick_radius
 from pybosl2.shapes2d import text as _text2d
 from pybosl2.shapes3d import (

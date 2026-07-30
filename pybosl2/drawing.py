@@ -34,7 +34,8 @@ import numpy as np
 from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one
 from pybosl2.geometry import general_line_intersection, line_normal
 from pybosl2.math import lerp, lerpn
-from pybosl2.paths import Path2D, Path3D
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.shapes2d import _frag_count, _pick_radius, arc
 
 # The stroke body is built from the backend-neutral facade, NOT pybosl2.shapes3d directly, so a

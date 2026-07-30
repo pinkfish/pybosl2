@@ -751,7 +751,7 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     requirement) as the bosl2 port's path_cut_points()."""
     path = as_points(path)
     if isinstance(cutdist, (int, float)):
-        return path_cut_points(path, [cutdist], closed)[0]  # type: ignore[index, return-value]
+        return path_cut_points(path, [cutdist], closed)
     assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
 
     def select(p: NDArray[np.float64] | Sequence[float], i: int) -> NDArray[np.float64]:

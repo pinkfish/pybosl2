@@ -10,7 +10,7 @@ import math
 
 import pytest
 
-from pybosl2.hooks import Hooks, _circle_point_tangents
+from pybosl2.parts.hooks import Hooks, _circle_point_tangents
 from pybosl2.shapes3d import Bosl2Solid
 
 

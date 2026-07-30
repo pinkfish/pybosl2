@@ -10,8 +10,8 @@ import math
 
 import pytest
 
+from pybosl2.parts.walls import Walls
 from pybosl2.shapes3d import Bosl2Solid
-from pybosl2.walls import Walls
 
 
 def _size(s):

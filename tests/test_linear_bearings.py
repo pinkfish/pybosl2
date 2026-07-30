@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2.linear_bearings import LinearBearings, LinearBearingSpec
+from pybosl2.parts.linear_bearings import LinearBearings, LinearBearingSpec
 from pybosl2.shapes3d import Bosl2Solid
 
 

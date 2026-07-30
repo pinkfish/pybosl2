@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/linear_bearings.py
+# LibFile: pybosl2/parts/linear_bearings.py
 #    Pure-Python port of BOSL2's linear_bearings.scad: models of linear ball bearings that run along
 #    a rod, and the pillow-block housings that hold them. :meth:`LinearBearings.linear_bearing` is a
 #    generic bearing; :meth:`~LinearBearings.lmxuu_bearing` looks a standard LMxUU size up in
@@ -92,7 +92,7 @@ class LinearBearings:
 
             .. pythonscad-example::
 
-                from pybosl2.linear_bearings import LinearBearings
+                from pybosl2.parts.linear_bearings import LinearBearings
                 LinearBearings.linear_bearing(length=24, outer_diameter=15, inner_diameter=8).show()
         """
         body = _union(
@@ -184,7 +184,7 @@ class LinearBearings:
         )  # bearing bore
         body = body - cuboid([length + 0.1, gap, outer_diameter], fn=fn, fa=fa, fs=fs)  # split gap
         # clamp screw across the tabs (a simple clearance hole)
-        from pybosl2.screws import Screws
+        from pybosl2.parts.screws import Screws
 
         screw = (
             Screws.screw_hole(f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs).rotate([90, 0, 0]).up(tabh)

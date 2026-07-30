@@ -9,7 +9,7 @@
 import numpy as np
 import pytest
 
-from pybosl2.paths import Path2D
+from pybosl2.path2d import Path2D
 from pybosl2.regions import Region
 
 SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]

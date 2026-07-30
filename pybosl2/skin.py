@@ -41,7 +41,8 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
 import numpy as np
 
@@ -203,7 +204,7 @@ def path3d(path: Sequence[Sequence[float]] | Path2D | Path3D) -> list[list[float
 
 def clockwise_polygon(poly: Sequence[Sequence[float]] | Path2D) -> list[Sequence[float]]:
     """*poly* wound clockwise (reversed if its signed area is positive/CCW)."""
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     return list(poly) if Path2D._polygon_area(poly, signed=True) <= 0 else list(reversed(list(poly)))
 
@@ -322,7 +323,7 @@ def _path_sweep(
             helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
             Path3D(helix).path_sweep(square).polyhedron().show()
     """
-    from pybosl2.paths import Path3D  # local: keep the import graph acyclic
+    from pybosl2.path3d import Path3D
 
     _flatcaps = _caps_as_bools(_norm_caps(caps, closed=closed))  # a closed loop has no ends to cap
     patharr = np.asarray(path3d(path), dtype=float)
@@ -546,7 +547,7 @@ def skin(
         assert z is not None and len(z) == sides, "skin(): 2-D profiles need a matching-length z list."
         profiles = [[[pt[0], pt[1], z[i]] for pt in profiles[i]] for i in range(sides)]
 
-    from pybosl2.paths import Path3D  # local: keep the import graph acyclic
+    from pybosl2.path3d import Path3D
 
     maxlen = max(refine_list[i] * len(profiles[i]) for i in range(sides))
     resampled = [Path3D(profiles[i]).subdivide_path(sides=maxlen, closed=True, method=sampling) for i in range(sides)]
@@ -765,7 +766,8 @@ def subdivide_and_slice(
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
     the profile lengths. Returns the stacked list of (equal-length) profiles."""
-    from pybosl2.paths import Path2D, Path3D
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
 
     def _wrap(prof):
         return Path3D(prof) if prof and len(prof[0]) == 3 else Path2D(prof)
@@ -1028,7 +1030,7 @@ def _offset_sweep(
     Returns:
         A :class:`~pybosl2.vnf.VNF`.
     """
-    from pybosl2.paths import Path2D as _Path
+    from pybosl2.path2d import Path2D as _Path
 
     assert height > 0, "offset_sweep(): height must be positive."
     fullcaps = _caps_as_bools(_norm_caps(caps))
@@ -1182,7 +1184,7 @@ def _offset_sweep(
 
     # Normalise all rings to the same vertex count.
     maxn = max(len(r) for r in profiles_3d)
-    from pybosl2.paths import Path3D as _Path3D
+    from pybosl2.path3d import Path3D as _Path3D
 
     norm = [_Path3D(row).subdivide_path(sides=maxn, closed=True, method="length") for row in profiles_3d]
 
@@ -1236,7 +1238,7 @@ def _rounded_prism(
     Returns:
         A :class:`~pybosl2.vnf.VNF`.
     """
-    from pybosl2.paths import Path2D as _Path
+    from pybosl2.path2d import Path2D as _Path
 
     joint_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot")
     k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides")
@@ -1420,7 +1422,7 @@ def _rounded_prism(
 
     # Normalise rings
     maxn = max(len(r) for r in profiles_3d)
-    from pybosl2.paths import Path3D as _Path3D
+    from pybosl2.path3d import Path3D as _Path3D
 
     norm = [_Path3D(row).subdivide_path(sides=maxn, closed=True, method="length") for row in profiles_3d]
     fullcaps = _caps_as_bools(_norm_caps(caps))
@@ -1566,7 +1568,7 @@ def _path_sweep2d(
             path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
             Path2D(path).path_sweep2d(shape).polyhedron().show()
     """
-    from pybosl2.paths import Path2D
+    from pybosl2.path2d import Path2D
 
     _ = quality
     shp: Path2D = shape if isinstance(shape, Path2D) else Path2D(shape)

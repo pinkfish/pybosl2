@@ -308,7 +308,7 @@ def test_cyl_missing_args():
 
 
 def test_texture_enum():
-    from pybosl2.bottlecaps import BottleCaps, BottleCapTexture
+    from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
     from pybosl2.texture import TextureType, texture
 
     # Test that texture resolved correctly with enum
