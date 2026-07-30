@@ -34,7 +34,6 @@ if TYPE_CHECKING:
 
 from pybosl2._path_math import (
     _path_curvature,
-    _path_cut,
     _path_cut_getpaths,
     _path_cut_points,
     _path_cut_points_recurse,
@@ -47,8 +46,6 @@ from pybosl2._path_math import (
     _path_select,
     _path_tangents,
     _path_torsion,
-    _resample_path,
-    _subdivide_path,
 )
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
@@ -391,8 +388,32 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        sub_paths = _path_cut(self._points, closed, cutdist)
-        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
+        from shapely.ops import substring
+
+        ls = self._shapely
+        total = ls.length
+        if total < 1e-12:
+            return [self.__class__([], closed=self.closed)]
+        cuts = [float(cutdist)] if isinstance(cutdist, (int, float)) else [float(c) for c in cutdist]
+        cuts = sorted(set(cuts))
+        if not cuts:
+            return [self.__class__(self._points.tolist(), closed=self.closed)]
+        sub_paths = []
+        prev = 0.0
+        for c in cuts:
+            c = max(0.0, min(total, c))
+            if c > prev:
+                seg = substring(ls, prev, c)
+                pts = [[float(p[0]), float(p[1])] for p in seg.coords]
+                sub_paths.append(self.__class__(pts, closed=False))
+            prev = c
+        if prev < total - 1e-12:
+            seg = substring(ls, prev, total)
+            pts = [[float(p[0]), float(p[1])] for p in seg.coords]
+            sub_paths.append(self.__class__(pts, closed=False))
+        if not sub_paths:
+            sub_paths = [self.__class__(self._points.tolist(), closed=self.closed)]
+        return sub_paths
 
     def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list["Path2D"]:
         """Reconstruct sub-paths from the output of cut_points().
@@ -497,31 +518,23 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def subdivide_path(
         self,
-        sides: float | Sequence[int] | None = None,
-        refine: int | None = None,
-        maxlen: float | None = None,
+        sides: int | None = None,
         closed: bool | None = None,
-        exact: bool | None = None,
-        method: str | None = None,
     ) -> "Path2D":
-        """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
-
-        Args:
-            sides: Target number of points.
-            refine: Multiplier for point count.
-            maxlen: Maximum segment length.
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-            exact: If True, use sum-preserving rounding.
-            method: "length" or "segment".
-
-        Returns:
-            A new :class:`Path2D` with the subdivided points.
-        """
         if closed is None:
             closed = self.closed
-        pts = _subdivide_path(
-            self._points, closed, sides=sides, refine=refine, maxlen=maxlen, exact=exact, method=method
-        )
+        ls = self._shapely
+        total = ls.length
+        if total < 1e-12:
+            return self.__class__(self._points.tolist(), closed=self.closed)
+
+        n = sides if sides is not None else len(self._points)
+        pts = []
+        step = total / (n - 1) if n > 1 else total
+        for i in range(n):
+            d = min(i * step, total)
+            p = ls.interpolate(d)
+            pts.append([float(p.x), float(p.y)])
         return self.__class__(pts, closed=self.closed)
 
     def resample_path(
@@ -530,19 +543,25 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         spacing: float | None = None,
         closed: bool | None = None,
     ) -> "Path2D":
-        """Uniformly resample path to sides points, or to a spacing near spacing.
-
-        Args:
-            sides: Target number of points.
-            spacing: Approximate spacing between points.
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            A new :class:`Path2D` with the uniformly resampled points.
-        """
         if closed is None:
             closed = self.closed
-        pts = _resample_path(self._points, closed, sides=sides, spacing=spacing)
+        ls = self._shapely
+        total = ls.length
+        if total < 1e-12:
+            return self.__class__(self._points.tolist(), closed=self.closed)
+
+        n = sides
+        if spacing is not None and spacing > 0:
+            n = max(2, int(total / spacing))
+        if n is None:
+            n = len(self._points)
+
+        pts = []
+        step = total / (n - 1) if n > 1 else total
+        for i in range(n):
+            d = min(i * step, total)
+            p = ls.interpolate(d)
+            pts.append([float(p.x), float(p.y)])
         return self.__class__(pts, closed=self.closed)
 
     def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path2D":

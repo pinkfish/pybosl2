@@ -550,7 +550,7 @@ def skin(
     from pybosl2.path3d import Path3D
 
     maxlen = max(refine_list[i] * len(profiles[i]) for i in range(sides))
-    resampled = [Path3D(profiles[i]).subdivide_path(sides=maxlen, closed=True, method=sampling) for i in range(sides)]
+    resampled = [Path3D(profiles[i]).subdivide_path(sides=int(maxlen), closed=True) for i in range(sides)]
     fixedprof = [resampled[0]]
     for i in range(1, sides):
         if method[i - 1] == "direct":
@@ -759,7 +759,7 @@ def subdivide_and_slice(
     profiles: Sequence[Sequence[Sequence[float]]],
     slices: int,
     numpoints=None,
-    method: str = "length",
+    method: str = "length",  # noqa: ARG001
     closed: bool = False,
 ) -> list[list[list[float]]]:
     """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
@@ -781,7 +781,7 @@ def subdivide_and_slice(
         numpoints = reduce(lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles])
     numpoints = round(numpoints)
     assert numpoints >= maxsize, "subdivide_and_slice(): numpoints is smaller than the largest profile."
-    fixed = [_wrap(p).subdivide_path(sides=numpoints, closed=True, method=method) for p in profiles]
+    fixed = [_wrap(p).subdivide_path(sides=numpoints, closed=True) for p in profiles]
     return slice_profiles(fixed, slices, closed)
 
 
@@ -1186,7 +1186,7 @@ def _offset_sweep(
     maxn = max(len(r) for r in profiles_3d)
     from pybosl2.path3d import Path3D as _Path3D
 
-    norm = [_Path3D(row).subdivide_path(sides=maxn, closed=True, method="length") for row in profiles_3d]
+    norm = [_Path3D(row).subdivide_path(sides=maxn, closed=True) for row in profiles_3d]
 
     vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -1424,7 +1424,7 @@ def _rounded_prism(
     maxn = max(len(r) for r in profiles_3d)
     from pybosl2.path3d import Path3D as _Path3D
 
-    norm = [_Path3D(row).subdivide_path(sides=maxn, closed=True, method="length") for row in profiles_3d]
+    norm = [_Path3D(row).subdivide_path(sides=maxn, closed=True) for row in profiles_3d]
     fullcaps = _caps_as_bools(_norm_caps(caps))
 
     vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)

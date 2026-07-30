@@ -281,25 +281,17 @@ class Path(ABC):
     @abstractmethod
     def subdivide_path(
         self,
-        sides: float | Sequence[int] | None = None,
-        refine: int | None = None,
-        maxlen: float | None = None,
+        sides: int | None = None,
         closed: bool | None = None,
-        exact: bool | None = None,
-        method: str | None = None,
     ) -> Path:
-        """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
+        """Subdivide the path into *sides* evenly spaced points.
 
         Args:
-            sides: Target number of points.
-            refine: Multiplier for point count.
-            maxlen: Maximum segment length.
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-            exact: If True, use sum-preserving rounding.
-            method: "length" or "segment".
+            sides: Target number of points (defaults to current point count).
+            closed: Override the instance's closed flag.
 
         Returns:
-            A list of subdivided path points.
+            A new path with the subdivided points.
         """
         ...
 

@@ -429,31 +429,21 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def subdivide_path(
         self,
-        sides: float | Sequence[int] | None = None,
-        refine: int | None = None,
-        maxlen: float | None = None,
+        sides: int | None = None,
         closed: bool | None = None,
-        exact: bool | None = None,
-        method: str | None = None,
     ) -> "Path3D":
-        """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
+        """Subdivide the path into *sides* evenly spaced points.
 
         Args:
-            sides: Target number of points.
-            refine: Multiplier for point count.
-            maxlen: Maximum segment length.
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-            exact: If True, use sum-preserving rounding.
-            method: "length" or "segment".
+            sides: Target number of points (defaults to current count).
+            closed: Override the instance's closed flag.
 
         Returns:
             A new :class:`Path3D` with the subdivided points.
         """
         if closed is None:
             closed = self.closed
-        pts = _subdivide_path(
-            self._points, closed, sides=sides, refine=refine, maxlen=maxlen, exact=exact, method=method
-        )
+        pts = _subdivide_path(self._points, closed, sides=sides)  # type: ignore[arg-type]
         return self.__class__(pts, closed=self.closed)
 
     def resample_path(
