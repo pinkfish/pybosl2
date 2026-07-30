@@ -807,8 +807,6 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         except_corners: list | None = None,
         radius: float | None = None,
         diameter: float | None = None,
-        r: float | None = None,
-        d: float | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
         fn: int | None = None,
@@ -818,10 +816,6 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     ) -> "Bosl2Solid":
         from . import masking
 
-        if r is not None:
-            radius = r
-        if d is not None:
-            diameter = d
         center, size = self._resolve_bounds(bbox)
         return self._wrap(
             masking.corner_profile(
@@ -845,8 +839,6 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         faces: str | list = "ALL",
         radius: float | None = None,
         diameter: float | None = None,
-        r: float | None = None,
-        d: float | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
         fn: int | None = None,
@@ -856,10 +848,6 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     ) -> "Bosl2Solid":
         from . import masking
 
-        if r is not None:
-            radius = r
-        if d is not None:
-            diameter = d
         center, size = self._resolve_bounds(bbox)
         return self._wrap(
             masking.face_profile(
