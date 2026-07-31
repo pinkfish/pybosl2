@@ -49,6 +49,7 @@ from pybosl2._path_math import (
 from pybosl2.bounds import Bounds3D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.distributors import Distributable, _apply4
+from pybosl2.geometry import is_collinear
 from pybosl2.math import lerp, lerpn
 from pybosl2.miscellaneous import Extrudable
 from pybosl2.path2d import Path2D
@@ -578,6 +579,45 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns a new Path3D with all points in reverse order.
         """
         return self.__class__(list(reversed(self._points)), closed=self.closed)
+
+    def merge_collinear(self, closed: bool | None = None, eps: float = 1e-9) -> "Path3D":
+        """Remove sequential collinear points and return a new path.
+
+        Args:
+            closed: Override the instance's closed flag.
+            eps: Epsilon for collinearity comparison.
+
+        Returns:
+            A new :class:`Path3D` with collinear points removed.
+        """
+        if closed is None:
+            closed = self.closed
+        if len(self._points) <= 2:
+            return self.__class__(self._points.tolist(), closed=self.closed)
+        indices = [0]
+        end = len(self._points) - (1 if closed else 2)
+        for i in range(1, end + 1):
+            if not is_collinear(self._points[i - 1], self._points[i], Path2D._select(self._points, i + 1), eps=eps):
+                indices.append(i)
+        if not closed:
+            indices.append(len(self._points) - 1)
+        pts = [self._points[i].tolist() for i in indices]
+        return self.__class__(pts, closed=self.closed)
+
+    def deduplicate(self, closed: bool | None = None, eps: float = 1e-9) -> "Path3D":
+        """Remove duplicate consecutive points and return a new path.
+
+        Args:
+            closed: Override the instance's closed flag.
+            eps: Epsilon for distance comparison.
+
+        Returns:
+            A new :class:`Path3D` with duplicate points removed.
+        """
+        if closed is None:
+            closed = self.closed
+        pts = Path2D._deduplicate(self._points, closed=closed, eps=eps)
+        return self.__class__(pts, closed=self.closed)
 
     def deduplicated(self) -> "Path3D":
         """Drop consecutive repeated points."""

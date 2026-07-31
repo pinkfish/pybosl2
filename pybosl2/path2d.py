@@ -1695,17 +1695,20 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                         )
         return result
 
-    def merge_collinear(self, closed: bool | None = None, eps: float = EPSILON) -> list[Any]:
-        """Remove unnecessary sequential collinear points from the path.
+    def merge_collinear(self, closed: bool | None = None, eps: float = EPSILON) -> "Path2D":
+        """Remove sequential collinear points and return a new path.
 
         Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-            eps: Epsilon for numerical comparisons.
+            closed: Override the instance's closed flag.
+            eps: Epsilon for collinearity comparison.
+
+        Returns:
+            A new :class:`Path2D` with collinear points removed.
         """
         if closed is None:
             closed = self.closed
         if len(self._points) <= 2:
-            return list(self._points)
+            return self.__class__(self._points.tolist(), closed=self.closed)
         indices = [0]
         end = len(self._points) - (1 if closed else 2)
         for i in range(1, end + 1):
@@ -1713,7 +1716,23 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 indices.append(i)
         if not closed:
             indices.append(len(self._points) - 1)
-        return [self._points[i] for i in indices]
+        pts = [self._points[i].tolist() for i in indices]
+        return self.__class__(pts, closed=self.closed)
+
+    def deduplicate(self, closed: bool | None = None, eps: float = EPSILON) -> "Path2D":
+        """Remove duplicate consecutive points and return a new path.
+
+        Args:
+            closed: Override the instance's closed flag.
+            eps: Epsilon for distance comparison.
+
+        Returns:
+            A new :class:`Path2D` with duplicate points removed.
+        """
+        if closed is None:
+            closed = self.closed
+        pts = Path2D._deduplicate(self._points, closed=closed, eps=eps)
+        return self.__class__(pts, closed=self.closed)
 
     def is_path_simple(self, closed: bool | None = None, eps: float = EPSILON) -> bool:
         """True if the 2D path has no self-intersections (repeated points are not intersections).

@@ -355,7 +355,19 @@ class Path(ABC):
         endcap2: CapType | CapSpec = CapType.ROUND,
         joints: CapType | CapSpec = CapType.ROUND,
     ) -> Any:
-        """Render the path as a stroked polygon outline (2-D) or solid tube (3-D)."""
+        """Render the path as a stroked polygon outline (2-D) or solid tube (3-D).
+
+        Args:
+            width: Stroke line width.
+            closed: Override the instance's closed flag.
+            endcaps: Default endcap style for both ends.
+            endcap1: Start endcap style (overrides endcaps).
+            endcap2: End endcap style (overrides endcaps).
+            joints: Joint style at vertices.
+
+        Returns:
+            A :class:`Path2D` for 2-D strokes, :class:`Bosl2Solid` for 3-D.
+        """
         ...
 
     @abstractmethod
@@ -368,6 +380,39 @@ class Path(ABC):
     ) -> Any:
         """Break the path into dashed segments and stroke them.
 
-        Returns a :class:`Region` for 2-D, :class:`Bosl2Solid` for 3-D.
+        Args:
+            dashpat: Dash pattern [line_len, space_len, ...].
+            closed: Override the instance's closed flag.
+            fit: Scale the pattern to fit a whole number of repeats.
+            mindash: Drop a trailing dash shorter than this.
+
+        Returns:
+            A :class:`Region` for 2-D, :class:`Bosl2Solid` for 3-D.
+        """
+        ...
+
+    @abstractmethod
+    def merge_collinear(self, closed: bool | None = None, eps: float = 1e-9) -> Path:
+        """Remove sequential collinear points and return a new path.
+
+        Args:
+            closed: Override the instance's closed flag.
+            eps: Epsilon for collinearity comparison.
+
+        Returns:
+            A new path with collinear points removed.
+        """
+        ...
+
+    @abstractmethod
+    def deduplicate(self, closed: bool | None = None, eps: float = 1e-9) -> Path:
+        """Remove duplicate consecutive points and return a new path.
+
+        Args:
+            closed: Override the instance's closed flag.
+            eps: Epsilon for distance comparison.
+
+        Returns:
+            A new path with duplicate points removed.
         """
         ...
