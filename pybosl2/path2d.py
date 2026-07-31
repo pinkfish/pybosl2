@@ -41,7 +41,6 @@ from pybosl2.comparisons import approx
 from pybosl2.distributors import Distributable, _apply4
 from pybosl2.geometry import (
     _is_point_on_segment,
-    cross,
     general_line_intersection,
     is_collinear,
     line_normal,
@@ -1745,7 +1744,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                     b1, b2 = arr[j].tolist(), arr[j + 1].tolist()
                     isect = general_line_intersection([a1.tolist(), a2.tolist()], [b1, b2], eps=eps)
                     if isect and -eps <= isect[1] <= 1 + eps and -eps <= isect[2] <= 1 + eps:
-                        pt = [float(v) for v in isect[0]]
+                        pt = [float(v) for v in isect[0]]  # type: ignore[union-attr]
                         result.append(
                             SelfIntersection(
                                 Point(float(pt[0]), float(pt[1])),
@@ -1774,7 +1773,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         indices = [0]
         end = len(self._points) - (1 if closed else 2)
         for i in range(1, end + 1):
-            if not is_collinear(self._points[i - 1], self._points[i], Path2D._select(self._points, i + 1), eps=eps):
+            pa = Point(float(self._points[i - 1][0]), float(self._points[i - 1][1]))
+            pb = Point(float(self._points[i][0]), float(self._points[i][1]))
+            sel = Path2D._select(self._points, i + 1)
+            pc = Point(float(sel[0]), float(sel[1]))
+            if not is_collinear(pa, pb, pc, eps=eps):
                 indices.append(i)
         if not closed:
             indices.append(len(self._points) - 1)
@@ -1855,7 +1858,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         for subpath in subpaths:
             seg = Path2D._select(subpath, 0, 1)
             mp = np.asarray(seg, dtype=float).mean(axis=0)
-            sides = [x / 2048 for x in line_normal(seg[0], seg[1])]
+            ln = line_normal(
+                Point(float(seg[0][0]), float(seg[0][1])),
+                Point(float(seg[1][0]), float(seg[1][1])),
+            )
+            sides = [x / 2048 for x in ln]
             p1 = [mp[0] + sides[0], mp[1] + sides[1]]
             p2 = [mp[0] - sides[0], mp[1] - sides[1]]
             p1in = Path2D._point_in_polygon(p1, list(self._points), nonzero=nonzero) >= 0
@@ -2120,7 +2127,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         segs = [(poly_arr[i], poly_arr[(i + 1) % sides]) for i in range(sides)]
 
         for seg in segs:
-            if float(np.linalg.norm(seg[1] - seg[0])) > eps and _is_point_on_segment(point, seg, eps=eps):
+            seg_len = float(np.linalg.norm(seg[1] - seg[0]))
+            if seg_len > eps and _is_point_on_segment(Point(float(point[0]), float(point[1])), seg, eps=eps):
                 return 0
 
         if nonzero:
@@ -2131,10 +2139,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 if float(np.linalg.norm(p1 - p0)) <= eps:
                     continue
                 if p0[1] <= 0:
-                    if p1[1] > 0 and cross(p0, p1 - p0) > 0:
+                    if p1[1] > 0 and (p0[0] * (p1[1] - p0[1]) - p0[1] * (p1[0] - p0[0])) > 0:
                         winding += 1
                 else:
-                    if p1[1] <= 0 and cross(p0, p1 - p0) < 0:
+                    if p1[1] <= 0 and (p0[0] * (p1[1] - p0[1]) - p0[1] * (p1[0] - p0[0])) < 0:
                         winding -= 1
             return 1 if winding != 0 else -1
 

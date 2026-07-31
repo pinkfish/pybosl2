@@ -56,6 +56,7 @@ from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.geometry import is_collinear
 from pybosl2.path2d import Path2D
+from pybosl2.points import Point
 from pybosl2.vectors import unit
 
 from .constants import CENTER
@@ -1133,7 +1134,9 @@ def arc(
     # -- corner: the fillet arc tangent to both legs of a 3-point corner ---------------------
     if corner is not None:
         assert len(corner) == 3, "corner= needs exactly 3 points"
-        assert not is_collinear(corner[0], corner[1], corner[2]), "Collinear corner does not define an arc"
+        assert not is_collinear(
+            Point(corner[0][0], corner[0][1]), Point(corner[1][0], corner[1][1]), Point(corner[2][0], corner[2][1])
+        ), "Collinear corner does not define an arc"
         rad = _pick_radius(radius=radius, diameter=diameter)
         assert rad is not None and rad > 0, "arc(corner=) needs radius= or diameter="
         p0, p1, p2 = (np.asarray(p, dtype=float) for p in corner)
@@ -1196,7 +1199,9 @@ def arc(
                 fs=fs,
             )
         assert len(pts) == 3, f"arc(points=) needs 2 or 3 points, got {len(pts)}"
-        assert not is_collinear(pts[0], pts[1], pts[2]), "Collinear inputs do not define an arc"
+        assert not is_collinear(
+            Point(pts[0][0], pts[0][1]), Point(pts[1][0], pts[1][1]), Point(pts[2][0], pts[2][1])
+        ), "Collinear inputs do not define an arc"
         centre, arc_radius = _circle_from_3pts(pts)
         a0 = math.degrees(math.atan2(pts[0][1] - centre[1], pts[0][0] - centre[0]))
         am = math.degrees(math.atan2(pts[1][1] - centre[1], pts[1][0] - centre[0]))

@@ -30,7 +30,7 @@ from pybosl2.bounds import Bounds3D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.comparisons import approx
 from pybosl2.distributors import Distributable, _apply4
-from pybosl2.geometry import cross, is_collinear, line_closest_point
+from pybosl2.geometry import is_collinear, line_closest_point
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 from pybosl2.miscellaneous import Extrudable
 from pybosl2.path2d import Path2D
@@ -256,7 +256,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         segs = list(zip(pts, pts[1:], strict=False))
         if closed:
             segs.append((pts[-1], pts[0]))
-        projs = [line_closest_point(seg, q) for seg in segs]
+        query = Point(float(q[0]), float(q[1]), float(q[2]))
+        projs = [line_closest_point(seg, query) for seg in segs]
         dists = np.linalg.norm(np.asarray(projs, dtype=float) - q, axis=1)
         r = projs[int(np.argmin(dists))]
         return Point(float(r[0]), float(r[1]), float(r[2]))
@@ -826,7 +827,19 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         indices = [0]
         end = len(self._points) - (1 if closed else 2)
         for i in range(1, end + 1):
-            if not is_collinear(self._points[i - 1], self._points[i], Path2D._select(self._points, i + 1), eps=eps):
+            pa = Point(
+                float(self._points[i - 1][0]),
+                float(self._points[i - 1][1]),
+                float(self._points[i - 1][2]),
+            )
+            pb = Point(
+                float(self._points[i][0]),
+                float(self._points[i][1]),
+                float(self._points[i][2]),
+            )
+            sel = Path2D._select(self._points, i + 1)
+            pc = Point(float(sel[0]), float(sel[1]), float(sel[2]))
+            if not is_collinear(pa, pb, pc, eps=eps):
                 indices.append(i)
         if not closed:
             indices.append(len(self._points) - 1)
@@ -1276,7 +1289,7 @@ def _path_cut_points(
                 n = unit([-dirs[i][1], dirs[i][0], 0])
                 normals.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
         else:
-            n = unit(cross(dirs[i], cross(plane[0], plane[1])))  # type: ignore[no-untyped-call]
+            n = unit(np.cross(dirs[i], np.cross(plane[0], plane[1])))  # type: ignore[no-untyped-call]
             normals.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
     return [
         CutPoint(
@@ -1370,7 +1383,11 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vect
     """
     lower = -1 if closed else 0
     while i >= lower:
-        if not is_collinear(points[ind], points[ind - 1], points[(i) % len(points)]):
+        pa = Point(float(points[ind][0]), float(points[ind][1]), float(points[ind][2]))
+        pb = Point(float(points[ind - 1][0]), float(points[ind - 1][1]), float(points[ind - 1][2]))
+        j = (i) % len(points)
+        pc = Point(float(points[j][0]), float(points[j][1]), float(points[j][2]))
+        if not is_collinear(pa, pb, pc):
             p_i = points[(i) % len(points)]
             return [
                 Vector([float(a - b) for a, b in zip(p_i, points[ind - 1], strict=False)]),

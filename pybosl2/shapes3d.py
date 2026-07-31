@@ -44,7 +44,6 @@ from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
-from pybosl2.geometry import cross
 from pybosl2.miscellaneous import Miscellaneous
 from pybosl2.partitions import Partitionable
 from pybosl2.vectors import is_vector, unit
@@ -882,7 +881,7 @@ def _orient_rotate(shape: PyOpenSCAD, orient: Sequence[float]) -> PyOpenSCAD:
         return shape
     if o == [0, 0, -1]:
         return shape.rotate(180, [1, 0, 0])
-    axis = np.asarray(cross([0, 0, 1], o), dtype=float)
+    axis = np.asarray(np.cross([0, 0, 1], o), dtype=float)
     sides = float(np.linalg.norm(axis))
     if sides < 1e-12:
         return shape
@@ -902,11 +901,13 @@ def _rot_from_to(a: Sequence[float], b: Sequence[float]) -> "tuple[float, list[f
     if diameter > 1 - 1e-9:
         return 0.0, [0.0, 0.0, 1.0]
     if diameter < -1 + 1e-9:
-        axis = cross(au, [1.0, 0.0, 0.0])
-        if float(np.linalg.norm(np.asarray(axis, dtype=float))) < 1e-9:
-            axis = cross(au, [0.0, 1.0, 0.0])
-        return 180.0, list(unit(axis))
-    axis = list(unit(cross(au, bu)))
+        perp = np.cross(au, [1.0, 0.0, 0.0])
+        if float(np.linalg.norm(np.asarray(perp, dtype=float))) < 1e-9:
+            perp = np.cross(au, [0.0, 1.0, 0.0])
+        perp_u = unit(perp)
+        return 180.0, [float(perp_u[0]), float(perp_u[1]), float(perp_u[2])]
+    axis_u = unit(np.cross(au, bu))
+    axis: list[float] = [float(axis_u[0]), float(axis_u[1]), float(axis_u[2])]
     return math.degrees(math.acos(diameter)), axis
 
 
@@ -3007,17 +3008,17 @@ def _frame_map(
     yu = unit(y) if y is not None else None
     zu = unit(z) if z is not None else None
     if xu is None:
-        m = [cross(yu, zu), yu, zu]
+        m = [np.cross(yu, zu), yu, zu]  # type: ignore[arg-type]
     elif yu is None:
-        m = [xu, cross(zu, xu), zu]
+        m = [xu, np.cross(zu, xu), zu]  # type: ignore[arg-type]
     elif zu is None:
-        m = [xu, yu, cross(xu, yu)]
+        m = [xu, yu, np.cross(xu, yu)]  # type: ignore[arg-type]
     else:
         m = [xu, yu, zu]
     return [
-        [m[0][0], m[1][0], m[2][0], 0.0],
-        [m[0][1], m[1][1], m[2][1], 0.0],
-        [m[0][2], m[1][2], m[2][2], 0.0],
+        [m[0][0], m[1][0], m[2][0], 0.0],  # type: ignore[index]
+        [m[0][1], m[1][1], m[2][1], 0.0],  # type: ignore[index]
+        [m[0][2], m[1][2], m[2][2], 0.0],  # type: ignore[index]
         [0.0, 0.0, 0.0, 1.0],
     ]
 

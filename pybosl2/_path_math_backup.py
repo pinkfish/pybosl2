@@ -36,7 +36,6 @@ if TYPE_CHECKING:  # for the annotations only -- shapes2d/shapes3d import this m
 
 from pybosl2.comparisons import approx
 from pybosl2.geometry import (
-    cross,
     is_collinear,
     line_closest_point,
 )
@@ -145,11 +144,12 @@ def _path_closest_point(points: np.ndarray, closed: bool, pt: Point | Sequence[f
         A :class:`~pybosl2.points.Point` of the closest point on the path.
     """
     if isinstance(pt, Point):
-        q = np.array([pt.x, pt.y]) if pt.is_2d else np.array([pt.x, pt.y, pt.z])
+        q_arr = np.array([pt.x, pt.y]) if pt.is_2d else np.array([pt.x, pt.y, pt.z])
     else:
-        q = np.asarray(pt, dtype=float)
-    pts = [line_closest_point(seg, q) for seg in _pair(points, closed)]
-    dists = np.linalg.norm(np.asarray(pts, dtype=float) - q, axis=1)
+        q_arr = np.asarray(pt, dtype=float)
+    q_pt = Point(float(q_arr[0]), float(q_arr[1]), float(q_arr[2]) if q_arr.shape[0] > 2 else None)
+    pts = [line_closest_point(seg, q_pt) for seg in _pair(points, closed)]
+    dists = np.linalg.norm(np.asarray(pts, dtype=float) - q_arr, axis=1)
     min_seg = int(np.argmin(dists))
     r = pts[min_seg]
     dim = points.shape[1]
@@ -447,7 +447,7 @@ def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], d
                 n = unit([-dirs[i][1], dirs[i][0], 0])
                 out.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
         else:
-            n = unit(cross(dirs[i], cross(plane[0], plane[1])))
+            n = unit(np.cross(dirs[i], np.cross(plane[0], plane[1])))
             out.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
     return out
 
@@ -468,7 +468,11 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vect
     """
     lower = -1 if closed else 0
     while i >= lower:
-        if not is_collinear(points[ind], points[ind - 1], _select(points, i)):
+        sel = _select(points, i)
+        pa = Point(float(points[ind][0]), float(points[ind][1]), float(points[ind][2]))
+        pb = Point(float(points[ind - 1][0]), float(points[ind - 1][1]), float(points[ind - 1][2]))
+        pc = Point(float(sel[0]), float(sel[1]), float(sel[2]))
+        if not is_collinear(pa, pb, pc):
             p_i = _select(points, i)
             return [
                 Vector([float(a - b) for a, b in zip(p_i, points[ind - 1], strict=False)]),
