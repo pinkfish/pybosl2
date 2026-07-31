@@ -13,7 +13,7 @@ and transforms while omitting inherently 2-D operations (polygon, area, offset).
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Iterator
 
 import numpy as np
 
@@ -42,7 +42,7 @@ from pybosl2.points import Point, Vector
 from pybosl2.rounding import Roundable
 from pybosl2.shapes2d import _frag_count, _pick_radius
 from pybosl2.skin import Sweepable
-from pybosl2.vectors import add_scalar, unit
+from pybosl2.vectors import unit
 
 __all__ = ["Path3D", "helix"]
 
@@ -101,7 +101,7 @@ def helix(
         maxtheta = 360.0 * length / dz
     nseg = _frag_count(max(r1v, r2v))
     count = max(3, math.ceil(abs(maxtheta) * nseg / 360))
-    out = []
+    out: list[list[float]] = []
     for theta in lerpn(0, maxtheta, count):
         radius = lerp(r1v, r2v, theta / maxtheta) if maxtheta != 0 else r1v
         out.append(
@@ -112,11 +112,6 @@ def helix(
             ]
         )
     return Path3D(out, closed=False)
-
-
-# --- turtle ----------------------------------------------------------------
-
-_TURTLE_TWO_ARG = ("arcleft", "arcright", "arcleftto", "arcrightto")
 
 
 # Section: Path3D object
@@ -161,10 +156,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __len__(self) -> int:
         return len(self._points)
 
-    def __getitem__(self, key: int | slice | tuple) -> np.ndarray:
+    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray:
         return self._points[key]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[np.ndarray]:
         return iter(self._points)
 
     def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
@@ -186,10 +181,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of ``[x, y, z]`` triples."""
-        return self._points.tolist()
+        return [list(map(float, p)) for p in self._points.tolist()]
 
     @classmethod
-    def from_list(cls, lst: Sequence, closed: bool = True) -> "Path3D":
+    def from_list(cls, lst: Sequence[Any], closed: bool = True) -> "Path3D":
         """Create a Path3D from a plain list of ``[x, y, z]`` coordinate triples.
 
         Args:
@@ -265,7 +260,20 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_tangents(self._points, closed, uniform=uniform)
+        if not uniform:
+            diameter = np.asarray(
+                deriv(self._points, closed=closed, height=np.linalg.norm(np.diff(self._points, axis=0), axis=1)),
+                dtype=float,
+            )
+        else:
+            diameter = np.asarray(deriv(self._points, closed=closed), dtype=float)
+        norms = np.linalg.norm(diameter, axis=1, keepdims=True)
+        assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
+        result = diameter / norms
+        dim = self._points.shape[1]
+        if dim == 2:
+            return [Vector([float(r[0]), float(r[1])]) for r in result]
+        return [Vector([float(r[0]), float(r[1]), float(r[2])]) for r in result]
 
     def normals(self, tangents: "list[Vector] | None" = None, closed: bool | None = None) -> "list[Vector]":
         """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
@@ -282,7 +290,28 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_normals(self._points, closed, tangents=tangents)
+        if tangents is None:
+            tangents = self.tangents(closed=closed)
+        dim = self._points.shape[1]
+        if dim == 2:
+            return [Vector([float(t[1]), float(-t[0])]) for t in tangents]
+        sides = len(self._points)
+        out: list[Vector] = []
+        pts = self._points
+        for i in range(sides):
+            if i == 0:
+                idx = [-1, 0, 1] if closed else [0, 1, 2]
+            elif i == sides - 1:
+                idx = [i - 1, i, (i + 1) % sides] if closed else [i - 2, i - 1, i]
+            else:
+                idx = [i - 1, i, i + 1]
+            p = pts[idx]
+            ta = np.asarray(tangents[i], dtype=float)
+            v = np.cross(np.cross(p[1] - p[0], p[2] - p[0]), ta)
+            norm = float(np.linalg.norm(v))
+            assert norm > EPSILON, "3D path contains collinear points"
+            out.append(Vector([float(x) for x in (v / norm)]))
+        return out
 
     def curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Numeric curvature estimate of the path at each point, as an ndarray.
@@ -295,7 +324,13 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_curvature(self._points, closed)
+        d1 = np.asarray(deriv(self._points, closed=closed), dtype=float)
+        d2 = np.asarray(deriv2(self._points, closed=closed), dtype=float)
+        n1 = np.linalg.norm(d1, axis=1)
+        n2 = np.linalg.norm(d2, axis=1)
+        dot = np.einsum("ij,ij->i", d1, d2)
+        val = np.clip((n1 * n2) ** 2 - dot**2, 0.0, None)
+        return np.sqrt(val) / n1**3  # type: ignore[no-any-return]
 
     def torsion(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Numeric torsion estimate of the path at each point, as an ndarray.
@@ -308,7 +343,13 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_torsion(self._points, closed)
+        d1 = np.asarray(deriv(self._points, closed=closed), dtype=float)
+        d2 = np.asarray(deriv2(self._points, closed=closed), dtype=float)
+        d3 = np.asarray(deriv3(self._points, closed=closed), dtype=float)
+        crossterm = np.cross(d1, d2)
+        dot = np.einsum("ij,ij->i", crossterm, d3)
+        denom = np.einsum("ij,ij->i", crossterm, crossterm)
+        return dot / denom  # type: ignore[no-any-return]
 
     def cut(self, cutdist: float | Sequence[float], closed: bool | None = None) -> list["Path3D"]:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
@@ -322,8 +363,13 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        sub_paths = _path_cut(self._points, closed, cutdist)
-        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
+        cd = [float(cutdist)] if isinstance(cutdist, (int, float)) else [float(c) for c in cutdist]
+        total = self.perimeter()
+        assert cd[-1] < total, "Cut distances must be smaller than the path length"
+        assert cd[0] > 0, "Cut distances must be strictly positive"
+        cutlist: list[CutPoint] = _path_cut_points(self._points, closed, cd)
+        sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
+        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]  # type: ignore[arg-type]
 
     def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list["Path3D"]:
         """Reconstruct sub-paths from the output of cut_points().
@@ -336,7 +382,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A list of :class:`Path3D` subpaths.
         """
         sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
-        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
+        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]  # type: ignore[arg-type]
 
     def cut_points(
         self,
@@ -415,7 +461,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                     n = unit([-ty, tx, 0.0])
                     result.append(Vector(float(n[0]), float(n[1]), float(n[2])))
             else:
-                n = unit(np.cross([tx, ty, tz], np.cross(plane[0], plane[1])))
+                n = unit(np.cross([tx, ty, tz], np.cross(plane[0], plane[1])))  # type: ignore[no-untyped-call]
                 result.append(Vector(float(n[0]), float(n[1]), float(n[2])))
         return result
 
@@ -473,15 +519,39 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         assert points_per_segment is None or method == SubdivideMethod.SEGMENT, (
             "points_per_segment requires method=SubdivideMethod.SEGMENT"
         )
-        pts = _subdivide_path(
-            self._points,
-            closed,
-            sides=points,  # type: ignore[arg-type]
-            maxlen=maxlen,
-            exact=exact,
-            method=method.value,
+        method_val = method.value
+        pts_arr = self._points
+        assert sum(x is not None for x in (points, None, maxlen)) == 1, (
+            "Must give exactly one of sides, refine, and maxlen"
         )
-        return self.__class__(pts, closed=self.closed)
+        if points == len(pts_arr):
+            return self.__class__(list(pts_arr), closed=self.closed)
+        if maxlen is not None:
+            out: list[Any] = []
+            for p0, p1 in _pair(pts_arr, closed):
+                steps = math.ceil(math.dist(p1, p0) / maxlen)
+                out.extend(lerpn(p0, p1, steps, endpoint=False))
+            if not closed:
+                out.append(pts_arr[-1])
+            return self.__class__(out, closed=self.closed)
+        assert isinstance(points, (int, float)) and points > 0, "Parameter sides must be positive number"
+        count = len(pts_arr) - (0 if closed else 1)
+        if method_val == "segment":
+            add_guess: Any = _repeat((points - len(pts_arr)) / count, count)
+        else:
+            path_lens = np.linalg.norm(np.diff(pts_arr, axis=0), axis=1)
+            if closed:
+                path_lens = np.append(path_lens, np.linalg.norm(pts_arr[0] - pts_arr[-1]))
+            add_density = (points - len(pts_arr)) / sum(path_lens)
+            add_guess = [float(ln * add_density) for ln in path_lens]
+        add_list = [float(v) for v in add_guess]
+        add = _sum_preserving_round(add_list) if exact else [_scad_round(v) for v in add_list]
+        out2: list[Any] = []
+        for i in range(count):
+            out2.extend(lerpn(pts_arr[i], _select(pts_arr, i + 1), 1 + int(add[i]), endpoint=False))
+        if not closed:
+            out2.append(pts_arr[-1])
+        return self.__class__(out2, closed=self.closed)
 
     def resample_path(
         self,
@@ -883,53 +953,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 # ---------------------------------------------------------------------------
 
 
-def _path_total_length(points: np.ndarray, closed: bool) -> float:
-    """Total length of the path.
-
-    Args:
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        The total path length as a float.
-    """
-    if len(points) < 2:
-        return 0.0
-    total = float(np.linalg.norm(np.diff(points, axis=0), axis=1).sum())
-    if closed:
-        total += float(np.linalg.norm(points[-1] - points[0]))
-    return total
-
-
-def _path_segment_lengths(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
-    """Length of each segment of the path, as an ndarray.
-
-    Args:
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        An ndarray of segment lengths.
-    """
-    lens = np.linalg.norm(np.diff(points, axis=0), axis=1)
-    if closed:
-        lens = np.append(lens, np.linalg.norm(points[0] - points[-1]))
-    return lens
-
-
-def _path_length_fractions(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
-    """Distance fraction of each point in the path (0 at start, 1 at end).
-
-    Args:
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        An ndarray of cumulative length fractions, from 0 to 1.
-    """
-    lengths = np.concatenate(([0.0], _path_segment_lengths(points, closed)))
-    partial = np.cumsum(lengths)
-    total = partial[-1]
-    return partial / total
-
-
 # -- Path2D Geometry ---------------------------------------------------------------------
 
 
@@ -955,127 +978,10 @@ def _path_closest_point(points: np.ndarray, closed: bool, pt: Point | Sequence[f
     return Point(float(r[0]), float(r[1])) if dim == 2 else Point(float(r[0]), float(r[1]), float(r[2]))
 
 
-def _path_tangents(points: np.ndarray, closed: bool, uniform: bool = True) -> list[Vector]:
-    """Normalized tangent vector at each point of the path.
-
-    Args:
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-        uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
-
-    Returns:
-        A list of :class:`Vector` unit tangent vectors, one per path point.
-    """
-    if not uniform:
-        diameter = np.asarray(
-            deriv(points, closed=closed, height=_path_segment_lengths(points, closed)),
-            dtype=float,
-        )
-    else:
-        diameter = np.asarray(deriv(points, closed=closed), dtype=float)
-    norms = np.linalg.norm(diameter, axis=1, keepdims=True)
-    assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
-    result = diameter / norms
-    dim = points.shape[1]
-    if dim == 2:
-        return [Vector([float(r[0]), float(r[1])]) for r in result]
-    return [Vector([float(r[0]), float(r[1]), float(r[2])]) for r in result]
-
-
-def _path_normals(points: np.ndarray, closed: bool, tangents: list[Vector] | None = None) -> list[Vector]:
-    """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
-
-    For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
-    principal normal estimated via the triple-product cross.
-
-    Args:
-        tangents: Optional pre-computed tangent vectors; computed automatically if None.
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        An ndarray of unit normal vectors, one per path point.
-    """
-    if tangents is None:
-        tangents = _path_tangents(points, closed)
-    dim = points.shape[1]
-    if dim == 2:
-        return [Vector([float(t[1]), float(-t[0])]) for t in tangents]
-    sides = len(points)
-    out: list[Vector] = []
-    for i in range(sides):
-        if i == 0:
-            idx = [-1, 0, 1] if closed else [0, 1, 2]
-        elif i == sides - 1:
-            idx = [i - 1, i, (i + 1) % sides] if closed else [i - 2, i - 1, i]
-        else:
-            idx = [i - 1, i, i + 1]
-        pts = points[idx]
-        ta = np.asarray(tangents[i], dtype=float)
-        v = np.cross(np.cross(pts[1] - pts[0], pts[2] - pts[0]), ta)
-        norm = float(np.linalg.norm(v))
-        assert norm > EPSILON, "3D path contains collinear points"
-        out.append(Vector([float(x) for x in (v / norm)]))
-    return out
-
-
-def _path_curvature(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
-    """Numeric curvature estimate of the path at each point, as an ndarray.
-
-    Args:
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        An ndarray of curvature values, one per path point.
-    """
-    diameter1 = np.asarray(deriv(points, closed=closed), dtype=float)
-    diameter2 = np.asarray(deriv2(points, closed=closed), dtype=float)
-    n1 = np.linalg.norm(diameter1, axis=1)
-    n2 = np.linalg.norm(diameter2, axis=1)
-    dot = np.einsum("ij,ij->i", diameter1, diameter2)
-    val = np.clip((n1 * n2) ** 2 - dot**2, 0.0, None)
-    return np.sqrt(val) / n1**3
-
-
-def _path_torsion(points: np.ndarray, closed: bool) -> NDArray[np.float64]:
-    """Numeric torsion estimate of the path at each point, as an ndarray.
-
-    Args:
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        An ndarray of torsion values, one per path point.
-    """
-    diameter1 = np.asarray(deriv(points, closed=closed), dtype=float)
-    diameter2 = np.asarray(deriv2(points, closed=closed), dtype=float)
-    d3 = np.asarray(deriv3(points, closed=closed), dtype=float)
-    crossterm = np.cross(diameter1, diameter2)
-    dot = np.einsum("ij,ij->i", crossterm, d3)
-    denom = np.einsum("ij,ij->i", crossterm, crossterm)
-    return dot / denom
-
-
 # -- Breaking paths up into subpaths ---------------------------------------------------
 
 
-def _path_cut(points: np.ndarray, closed: bool, cutdist: float | Sequence[float]) -> list:
-    """Cut path into subpaths at the given ascending list of distances (or a single distance).
-
-    Args:
-        cutdist: A single distance or a list of ascending distances from the start.
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        A list of subpath point lists.
-    """
-    if isinstance(cutdist, (int, float)):
-        return _path_cut(points, closed, [cutdist])
-    assert isinstance(cutdist, (list, tuple, np.ndarray))
-    assert cutdist[-1] < _path_total_length(points, closed), "Cut distances must be smaller than the path length"
-    assert cutdist[0] > 0, "Cut distances must be strictly positive"
-    cutlist: list[CutPoint] = _path_cut_points(points, closed, cutdist)
-    return _path_cut_getpaths(points, closed, cutlist)
-
-
-def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]) -> list:
+def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]) -> list[list[float]]:
     """Reconstruct sub-paths from the output of path_path_cut_points().
 
     Args:
@@ -1152,7 +1058,7 @@ def _path_cut_points(
     ]
 
 
-def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[float]) -> list[CutPoint]:
+def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[float]) -> list[CutPoint]:  # type: ignore[arg-type]
     """Walk the path accumulating distance until each cut distance is reached.
 
     Args:
@@ -1181,7 +1087,7 @@ def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[f
     return result
 
 
-def _to_point(arr, dim: int) -> Point:
+def _to_point(arr: np.ndarray | Sequence[float], dim: int) -> Point:
     """Convert an array-like to a :class:`Point` of the given dimension."""
     a = np.asarray(arr, dtype=float)
     if dim == 2:
@@ -1340,77 +1246,6 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
 # -- Resampling -- changing the number of points in a path -----------------------------
 
 
-def _subdivide_path(
-    points: np.ndarray,
-    closed: bool,
-    sides: float | Sequence[int] | None = None,
-    refine: int | None = None,
-    maxlen: float | None = None,
-    exact: bool | None = None,
-    method: str | None = None,
-) -> list:
-    """Subdivide path to produce a more finely sampled path; see BOSL2 subdivide_path().
-
-    Args:
-        sides: Target number of points.
-        refine: Multiplier for point count.
-        maxlen: Maximum segment length.
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-        exact: If True, use sum-preserving rounding.
-        method: "length" or "segment".
-
-    Returns:
-        A list of subdivided path points.
-    """
-    assert sum(x is not None for x in (sides, refine, maxlen)) == 1, (
-        "Must give exactly one of sides, refine, and maxlen"
-    )
-    if refine == 1 or sides == len(points):
-        return list(points)
-    if maxlen is not None:
-        assert method is None, "Cannot give method with maxlen"
-        assert exact is None, "Cannot give exact with maxlen"
-        out: list[Any] = []
-        for p0, p1 in _pair(points, closed):
-            steps = math.ceil(math.dist(p1, p0) / maxlen)
-            out.extend(lerpn(p0, p1, steps, endpoint=False))
-        if not closed:
-            out.append(points[-1])
-        return out
-    exact = True if exact is None else exact
-    method = "length" if method is None else method
-    assert method in ("length", "segment")
-    if sides is None:
-        assert refine is not None, "Must give exactly one of sides, refine, and maxlen"
-        sides = len(points) * refine
-    assert (isinstance(sides, (int, float)) and sides > 0) or isinstance(sides, (list, tuple)), (
-        "Parameter sides to subdivide_path must be positive number or vector"
-    )
-    count = len(points) - (0 if closed else 1)
-    if method == "segment":
-        if isinstance(sides, (list, tuple)):
-            assert len(sides) == count, "Vector parameter sides to subdivide_path has the wrong length"
-            add_guess = add_scalar(list(sides), -1)
-        else:
-            add_guess_r = _repeat((sides - len(points)) / count, count)
-            add_guess = add_guess_r  # type: ignore[assignment]
-    else:
-        assert isinstance(sides, (int, float)), (
-            'Parameter sides to subdivide path must be a number when method="length"'
-        )
-        path_lens = _path_segment_lengths(points, closed)
-        add_density = (sides - len(points)) / sum(path_lens)
-        add_guess = [float(ln * add_density) for ln in path_lens]  # type: ignore[assignment]
-    add_list = [float(v) for v in add_guess]
-    add = _sum_preserving_round(add_list) if exact else [_scad_round(v) for v in add_list]
-    out2: list[Any] = []
-    for i in range(count):
-        out2.extend(lerpn(points[i], _select(points, i + 1), 1 + int(add[i]), endpoint=False))
-    if not closed:
-        out2.append(points[-1])
-    return out2
-
-
 def _resample_path(points: np.ndarray, closed: bool, sides: int | None = None, spacing: float | None = None) -> list:
     """Uniformly resample path to sides points, or to a spacing near spacing.
 
@@ -1423,7 +1258,11 @@ def _resample_path(points: np.ndarray, closed: bool, sides: int | None = None, s
         A list of uniformly resampled path points.
     """
     assert (sides is None) != (spacing is None), "Must define exactly one of sides and spacing"
-    length = _path_total_length(points, closed)
+    length = 0.0
+    if len(points) >= 2:
+        length = float(np.linalg.norm(np.diff(points, axis=0), axis=1).sum())
+        if closed:
+            length += float(np.linalg.norm(points[-1] - points[0]))
     if sides is not None:
         n_use = sides - (0 if closed else 1)
     else:
