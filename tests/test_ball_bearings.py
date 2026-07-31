@@ -65,7 +65,6 @@ def test_ball_bearing_builds(kw):
     assert isinstance(BallBearings.ball_bearing(**kw), Bosl2Solid)
 
 
-@pytest.mark.skip(reason="pre-existing: Bosl2Solid size differs after param rename")
 def test_envelope_matches_od_and_width():
     b = BallBearings.ball_bearing("6205")  # inner_diameter 25, outer_diameter 52, width 15
     w, _wy, hgt = _size(b)

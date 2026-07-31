@@ -241,3 +241,15 @@ class SolidBackend(Protocol):
         Bosl2Solid on the CSG backend and a PyShape on the SDF one.
         """
         ...
+
+    def stroke(
+        self,
+        path: Any,
+        width: float = 1,
+        closed: bool | None = None,
+        endcap1: Any = None,
+        endcap2: Any = None,
+        **kwargs: Any,
+    ) -> Solid:
+        """3-D tube along *path*."""
+        ...

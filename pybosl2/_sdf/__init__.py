@@ -87,6 +87,18 @@ class SdfBackend:
     def difference(self, solids: Any) -> _s.PyShape:
         return _s.PyShape.difference(*solids)
 
+    def stroke(
+        self,
+        path: Any,
+        width: float = 1,
+        closed: bool | None = None,
+        endcap1: Any = None,
+        endcap2: Any = None,
+        **_: Any,
+    ) -> _s.PyShape:
+        """3-D stroke via the SDF backend's own cylinder/sphere primitives."""
+        return _s.stroke_3d(path, width=width, closed=closed, endcap1=endcap1, endcap2=endcap2)
+
     def intersection(self, solids: Any) -> _s.PyShape:
         return _s.PyShape.intersection(*solids)
 

@@ -253,3 +253,101 @@ def test_sdf_stroke_rejects_a_revolved_endcap():
         assert spine.stroke(width=3, endcaps=CapType.ROUND).backend == "sdf"  # sphere caps are shared
         with pytest.raises(UnsupportedByBackendError):
             spine.stroke(width=3, endcaps=CapType.ARROW)
+
+
+# -- SDF stroke native tests --------------------------------------------------
+
+
+def test_sdf_stroke_basic_open_path():
+    from pybosl2.path3d import Path3D
+
+    spine = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0]], closed=False)
+    with use_backend("sdf"):
+        tube = spine.stroke(width=2)
+    assert tube.backend == "sdf"
+
+
+def test_sdf_stroke_closed_loop():
+    from pybosl2.path3d import Path3D
+
+    loop = Path3D([[10, 0, 0], [0, 10, 0], [-10, 0, 0], [0, -10, 0]], closed=True)
+    with use_backend("sdf"):
+        tube = loop.stroke(width=1.5)
+    assert tube.backend == "sdf"
+
+
+def test_sdf_stroke_two_point_segment():
+    from pybosl2.path3d import Path3D
+
+    line = Path3D([[0, 0, 0], [0, 0, 50]], closed=False)
+    with use_backend("sdf"):
+        tube = line.stroke(width=5)
+    assert tube.backend == "sdf"
+
+
+def test_sdf_stroke_zero_length_segment_is_skipped():
+    from pybosl2.path3d import Path3D
+
+    spine = Path3D([[0, 0, 0], [0, 0, 0], [10, 0, 0]], closed=False)
+    with use_backend("sdf"):
+        tube = spine.stroke(width=1)
+    assert tube.backend == "sdf"
+
+
+def test_sdf_stroke_butt_endcaps():
+    from pybosl2.caps import CapType
+    from pybosl2.path3d import Path3D
+
+    spine = Path3D([[0, 0, 0], [20, 0, 0], [20, 0, 20]], closed=False)
+    with use_backend("sdf"):
+        tube = spine.stroke(width=2, endcaps=CapType.BUTT)
+    assert tube.backend == "sdf"
+
+
+def test_sdf_stroke_dot_endcaps():
+    from pybosl2.caps import CapType
+    from pybosl2.path3d import Path3D
+
+    spine = Path3D([[0, 0, 0], [20, 0, 0]], closed=False)
+    with use_backend("sdf"):
+        tube = spine.stroke(width=2, endcaps=CapType.DOT)
+    assert tube.backend == "sdf"
+
+
+def test_sdf_stroke_diamond_cap_raises():
+    from pybosl2.caps import CapType
+    from pybosl2.exceptions import UnsupportedByBackendError
+    from pybosl2.path3d import Path3D
+
+    spine = Path3D([[0, 0, 0], [20, 0, 0]], closed=False)
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
+        spine.stroke(width=2, endcaps=CapType.DIAMOND)
+
+
+def test_sdf_stroke_chisel_cap_raises():
+    from pybosl2.caps import CapType
+    from pybosl2.exceptions import UnsupportedByBackendError
+    from pybosl2.path3d import Path3D
+
+    spine = Path3D([[0, 0, 0], [20, 0, 0]], closed=False)
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
+        spine.stroke(width=2, endcaps=CapType.CHISEL)
+
+
+def test_sdf_stroke_none_cap_skipped():
+    from pybosl2.caps import CapType
+    from pybosl2.path3d import Path3D
+
+    spine = Path3D([[0, 0, 0], [20, 0, 0]], closed=False)
+    with use_backend("sdf"):
+        tube = spine.stroke(width=2, endcaps=CapType.NONE)
+    assert tube.backend == "sdf"
+
+
+def test_sdf_stroke_3d_diagonal():
+    from pybosl2.path3d import Path3D
+
+    spine = Path3D([[0, 0, 0], [10, 10, 10], [20, 0, 20]], closed=False)
+    with use_backend("sdf"):
+        tube = spine.stroke(width=1)
+    assert tube.backend == "sdf"

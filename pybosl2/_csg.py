@@ -67,5 +67,19 @@ class CsgBackend:
     def intersection(self, solids: Any) -> Any:
         return functools.reduce(operator.and_, solids)
 
+    def stroke(
+        self,
+        path: Any,
+        width: float = 1,
+        closed: bool | None = None,
+        endcap1: Any = None,
+        endcap2: Any = None,
+        **_: Any,
+    ) -> Any:
+        """3-D tube along *path* via the CSG stroke_3d."""
+        from pybosl2._stroke3d import stroke_3d
+
+        return stroke_3d(path, width=width, closed=closed, endcap1=endcap1, endcap2=endcap2)
+
 
 register_backend("csg", CsgBackend())

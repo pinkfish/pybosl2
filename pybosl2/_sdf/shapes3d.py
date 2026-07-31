@@ -2216,3 +2216,80 @@ def bezier_sweep(
 
     path = Bezier(control_points).curve(splinesteps=splinesteps)  # type: ignore[arg-type]
     return path_sweep(profile, path, res=res, twist=twist)
+
+
+def stroke_3d(
+    path: Any,
+    width: float = 1,
+    closed: bool | None = None,
+    endcap1: Any = None,
+    endcap2: Any = None,
+) -> PyShape:
+    """3-D stroke for the SDF backend: a tube along *path* built from native SDF cylinders and spheres.
+
+    Unlike the CSG stroke, this does NOT use ``rotate_extrude`` — it builds each segment as a
+    Z-axis cylinder oriented along the path via ``multmatrix``, with spheres at joints and
+    (for round caps) at the ends.  Fancy endcaps (arrow, diamond, etc.) are rejected with
+    ``UnsupportedByBackendError`` since they require ``rotate_extrude``.
+
+    Args:
+        path: A point list or Path3D object.
+        width: Tube diameter.
+        closed: True to close the path loop.
+        endcap1: Cap style for the start (CapType or CapSpec).
+        endcap2: Cap style for the end (CapType or CapSpec).
+
+    Returns:
+        A :class:`PyShape` union of the tube segments.
+    """
+    import numpy as np
+
+    from pybosl2._helpers import rot_from_to4
+    from pybosl2.caps import CapSpec, CapType, _normalize_one
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    pts = [list(map(float, p)) for p in path]
+    assert len(pts) >= 2, "stroke_3d: need at least 2 points."
+    is_closed = closed if closed is not None else getattr(path, "closed", False)
+    ec1 = endcap1 if isinstance(endcap1, CapSpec) else _normalize_one(endcap1)
+    ec2 = endcap2 if isinstance(endcap2, CapSpec) else _normalize_one(endcap2)
+
+    radius = width / 2
+    shapes: list[PyShape] = []
+    sides = len(pts)
+
+    for i in range(sides) if is_closed else range(sides - 1):
+        a = np.asarray(pts[i], dtype=float)
+        b = np.asarray(pts[(i + 1) % sides], dtype=float)
+        d = b - a
+        seg_len = float(np.linalg.norm(d))
+        if seg_len < 1e-9:
+            continue
+        mid = (a + b) / 2
+        seg = cylinder(length=seg_len, radius=radius, center=True)
+        rot = rot_from_to4([0, 0, 1], d)
+        rot[:3, 3] = mid
+        shapes.append(seg.multmatrix(rot))
+
+    for i in range(sides) if is_closed else range(1, sides - 1):
+        shapes.append(sphere(radius=radius).translate(pts[i]))
+
+    if not is_closed and sides >= 2:
+        caps = [(ec1, pts[0], pts[1]), (ec2, pts[-1], pts[-2])]
+        for cap, end, _ref in caps:
+            if cap.cap_type in (CapType.NONE, CapType.BUTT):
+                continue
+            if cap.cap_type == CapType.ROUND:
+                shapes.append(sphere(radius=radius).translate(end))
+                continue
+            if cap.cap_type == CapType.DOT:
+                shapes.append(sphere(radius=width).translate(end))
+                continue
+            raise UnsupportedByBackendError(
+                f"stroke(endcap={cap.cap_type!r})",
+                "sdf",
+                hint="fancy endcaps need rotate_extrude; use the csg backend for those.",
+            )
+
+    assert shapes, "stroke_3d: path has no drawable segments."
+    return PyShape.union(*shapes)

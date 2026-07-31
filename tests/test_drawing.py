@@ -194,21 +194,6 @@ ALL_ENDCAPS = [
 
 @pytest.mark.parametrize("style", ALL_ENDCAPS)
 def test_every_endcap_style_builds_2d(style):
-    if style in (
-        CapType.ARROW,
-        CapType.ARROW2,
-        CapType.ARROW3,
-        CapType.TAIL,
-        CapType.TAIL2,
-        CapType.DIAMOND,
-        CapType.CHISEL,
-        CapType.BLOCK,
-        CapType.LINE,
-        CapType.X,
-        CapType.CROSS,
-        CapType.DOT,
-    ):
-        pytest.skip("fancy 2D endcaps not yet in Shapely stroke")
     pts = [[0, 0], [20, 0], [20, 20], [0, 20]]
     assert Path2D(pts, closed=True).stroke(width=3, endcap1=style, endcap2=style) is not None
 

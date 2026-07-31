@@ -1155,6 +1155,20 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])
                 path3d.stroke(width=2).show()
         """
+        from pybosl2._backend import current_backend
+
+        backend_name = current_backend()
+        if backend_name != "csg":
+            from pybosl2._backend import get_backend
+
+            return get_backend().stroke(  # type: ignore[return-value]
+                self,
+                width=width,
+                closed=self.closed if closed is None else closed,
+                endcap1=endcap1 if endcap1 is not None else endcaps,
+                endcap2=endcap2 if endcap2 is not None else endcaps,
+            )
+
         from pybosl2._stroke3d import stroke_3d
 
         return stroke_3d(
@@ -1307,7 +1321,7 @@ def _path_cut_points(
                 n = unit([-dirs[i][1], dirs[i][0], 0])
                 normals.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
         else:
-            n = unit(np.cross(dirs[i], np.cross(plane[0], plane[1])))  # type: ignore[no-untyped-call]
+            n = unit(np.cross(dirs[i], np.cross(plane[0], plane[1])))
             normals.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
     return [
         CutPoint(
