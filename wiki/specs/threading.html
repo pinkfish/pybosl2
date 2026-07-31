@@ -34,7 +34,7 @@
             <div class="info">
               <div style="display:flex;align-items:center;gap:12px">
                 <h2>rendered &amp; measured</h2>
-                <span class="pill pass" id="wtpill">watertight</span>
+                <span class="pill pass" id="wtpill" style="display:none">watertight</span>
               </div>
               <p>Every thread form builds the rod (core + helical thread) as one manifold polyhedron — an angular sweep of the thread profile stacked over every turn — so the result is always watertight. Nuts are a hex/square block with a matching threaded hole cut by a tap.</p>
               <div class="taglabel">variants · click to load</div>
@@ -45,7 +45,7 @@
                 <button class="tag" type="button">ACME rod</button>
               </div>
               <div class="stats">
-                <div><span class="v" id="s-tris">—</span><span class="l">triangles</span></div>
+                <div><span class="v" id="s-tris">0</span><span class="l">triangles</span></div>
                 <div><span class="v" id="s-vol">—</span><span class="l">mm&sup3; volume</span></div>
                 <div><span class="v" id="s-bbox">—</span><span class="l">bbox mm</span></div>
               </div>
@@ -60,7 +60,7 @@
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "iso-rod", "label": "ISO rod", "uri": "_stl/threading-iso-rod.stl", "code": "Threading.<span class=\"k\">threaded_rod</span>(d=20, l=30, pitch=2.5, fa=6, fs=1)", "part": "threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)", "tris": null, "vol": "\u2014", "bbox": "\u2014", "wt": true}, {"id": "iso-nut", "label": "ISO nut", "uri": "_stl/threading-iso-nut.stl", "code": "Threading.<span class=\"k\">threaded_nut</span>(nutwidth=13, id=8, h=6.8, pitch=1.25)", "part": "threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)", "tris": null, "vol": "\u2014", "bbox": "\u2014", "wt": true}, {"id": "trapezoidal", "label": "trapezoidal rod", "uri": "_stl/threading-trapezoidal.stl", "code": "Threading.<span class=\"k\">trapezoidal_threaded_rod</span>(d=20, l=30, pitch=4, fa=6, fs=1)", "part": "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)", "tris": null, "vol": "\u2014", "bbox": "\u2014", "wt": true}, {"id": "acme", "label": "ACME rod", "uri": "_stl/threading-acme.stl", "code": "Threading.<span class=\"k\">acme_threaded_rod</span>(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "part": "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "tris": null, "vol": "\u2014", "bbox": "\u2014", "wt": true}];
+const V = [{"id": "iso-rod", "label": "ISO rod", "uri": "_stl/threading-iso-rod.stl", "code": "Threading.<span class=\"k\">threaded_rod</span>(d=20, l=30, pitch=2.5, fa=6, fs=1)", "part": "threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "iso-nut", "label": "ISO nut", "uri": "_stl/threading-iso-nut.stl", "code": "Threading.<span class=\"k\">threaded_nut</span>(nutwidth=13, id=8, h=6.8, pitch=1.25)", "part": "threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "trapezoidal", "label": "trapezoidal rod", "uri": "_stl/threading-trapezoidal.stl", "code": "Threading.<span class=\"k\">trapezoidal_threaded_rod</span>(d=20, l=30, pitch=4, fa=6, fs=1)", "part": "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "acme", "label": "ACME rod", "uri": "_stl/threading-acme.stl", "code": "Threading.<span class=\"k\">acme_threaded_rod</span>(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "part": "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}];
 const box = document.getElementById("viewer"), poster = document.getElementById("poster");
 let renderer, scene, camera, controls, mesh, ready = false;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;

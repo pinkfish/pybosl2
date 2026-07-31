@@ -353,10 +353,226 @@
    "wt": true
   }
  },
- "threading": {},
- "screw_drive": {},
- "bottlecaps": {},
- "sliders": {},
- "shapes3d": {},
- "shapes2d": {}
+ "threading": {
+  "iso-rod": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "iso-nut": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "trapezoidal": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "acme": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  }
+ },
+ "screw_drive": {
+  "phillips": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "hex": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "torx": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "robertson": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  }
+ },
+ "bottlecaps": {
+  "pco1810-neck": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "pco1810-cap": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "pco1881-neck": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  }
+ },
+ "sliders": {
+  "slider": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "rail": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  }
+ },
+ "shapes3d": {
+  "cuboid": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "sphere": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "cylinder": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "cone": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "prismoid": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "torus": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "tube": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "teardrop": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "capsule": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "rounded-cuboid": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "chamfered-cylinder": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "octahedron": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  }
+ },
+ "shapes2d": {
+  "circle": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "square": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "rect": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "trapezoid": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "star": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "ring": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "pie-slice": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "squircle": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "keyhole": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  },
+  "rounded-square": {
+   "tris": 0,
+   "vol": "\u2014",
+   "bbox": "\u2014",
+   "wt": false
+  }
+ }
 }

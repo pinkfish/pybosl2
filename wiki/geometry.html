@@ -144,101 +144,130 @@
 </div>
 <div class="ps-content">
 <ul class="pysidebar-list">
-<li class="ps-func"><a href="#pybosl2.geometry.cross">cross</a></li>
 <li class="ps-func"><a href="#pybosl2.geometry.is_collinear">is_collinear</a></li>
 <li class="ps-func"><a href="#pybosl2.geometry.line_normal">line_normal</a></li>
 <li class="ps-func"><a href="#pybosl2.geometry.line_closest_point">line_closest_point</a></li>
-<li class="ps-func"><a href="#pybosl2.geometry.pointlist_bounds">pointlist_bounds</a></li>
 <li class="ps-func"><a href="#pybosl2.geometry.general_line_intersection">general_line_intersection</a></li>
 <li class="ps-func"><a href="#pybosl2.geometry.circle_circle_tangents">circle_circle_tangents</a></li>
 </ul></div></aside>
 <script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="module-pybosl2.geometry">
 <span id="geometry-helpers"></span><h1>Geometry helpers<a class="headerlink" href="#module-pybosl2.geometry" title="Link to this heading">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.geometry.cross">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">cross</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#cross"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.cross" title="Link to this definition">¶</a></dt>
-<dd><p>3D cross product (returns an ndarray), or 2D cross product (returns a scalar).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.geometry.is_collinear">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">is_collinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#is_collinear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.is_collinear" title="Link to this definition">¶</a></dt>
-<dd><p>True if points <em>a</em>, <em>b</em>, <em>c</em> lie on a common line (any dimension).</p>
+<dt class="sig sig-object py" id="pybosl2.geometry.circle_circle_tangents">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">circle_circle_tangents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#circle_circle_tangents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.circle_circle_tangents" title="Link to this definition">¶</a></dt>
+<dd><p>Tangent lines between two circles.</p>
+<p>Computes up to four common tangent lines: two external tangents plus,
+when the circles do not overlap, two internal (crossing) tangents.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>eps</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius1</strong> (<em>float</em><em> | </em><em>None</em>) – Radius of the first circle (mutually exclusive with <em>diameter1</em>).</p></li>
+<li><p><strong>center1</strong> (<em>Point</em><em> | </em><em>None</em>) – Centre point of the first circle.</p></li>
+<li><p><strong>radius2</strong> (<em>float</em><em> | </em><em>None</em>) – Radius of the second circle (mutually exclusive with <em>diameter2</em>).</p></li>
+<li><p><strong>center2</strong> (<em>Point</em><em> | </em><em>None</em>) – Centre point of the second circle.</p></li>
+<li><p><strong>diameter1</strong> (<em>float</em><em> | </em><em>None</em>) – Diameter of the first circle.</p></li>
+<li><p><strong>diameter2</strong> (<em>float</em><em> | </em><em>None</em>) – Diameter of the second circle.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>bool</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of <code class="docutils literal notranslate"><span class="pre">(point_on_circle1,</span> <span class="pre">point_on_circle2)</span></code> <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code> tuples.
+Returns up to 4 entries (2 external + 2 internal), 2 entries when
+only external tangents exist, or an empty list when no tangent can be drawn.</p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.geometry.line_normal">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">line_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#line_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.line_normal" title="Link to this definition">¶</a></dt>
-<dd><p>Return the unit 2D normal (perpendicular, to the left) of the line through p1, p2.</p>
-<dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.geometry.line_closest_point">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">line_closest_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#line_closest_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.line_closest_point" title="Link to this definition">¶</a></dt>
-<dd><p>Closest point on the bounded <em>segment</em> = (a, b) to point <em>pt</em>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.geometry.pointlist_bounds">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">pointlist_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#pointlist_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.pointlist_bounds" title="Link to this definition">¶</a></dt>
-<dd><p>Return [min_corner, max_corner] bounding box of a list of points, as a (2, dim) ndarray.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+<dd class="field-odd"><p>list[tuple[<em>Point</em>, <em>Point</em>]]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pybosl2.geometry.general_line_intersection">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">general_line_intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#general_line_intersection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.general_line_intersection" title="Link to this definition">¶</a></dt>
-<dd><p>Intersection of infinite lines through segments s1=(a,b), s2=(c,diameter).</p>
-<p>Returns [point, t, u] where t/u are the parametric positions of the
-intersection along s1/s2 (0 at the first point, 1 at the second), or
-None if the lines are parallel or coincident.</p>
+<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">general_line_intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#general_line_intersection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.general_line_intersection" title="Link to this definition">¶</a></dt>
+<dd><p>Intersection point of two infinite lines.</p>
+<p>Computes the intersection of the lines through <em>line1</em> and <em>line2</em>.
+Returns parametric positions so the caller can check segment bounds.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>eps</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>line1</strong> (<em>tuple</em><em>[</em><em>Point</em><em>, </em><em>Point</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code> pair of <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code> objects.</p></li>
+<li><p><strong>line2</strong> (<em>tuple</em><em>[</em><em>Point</em><em>, </em><em>Point</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code> pair of <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code> objects.</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – Epsilon for parallel-line detection.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(point,</span> <span class="pre">t,</span> <span class="pre">u)</span></code> where <em>point</em> is the intersection <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code>,
+<em>t</em> and <em>u</em> are the parametric positions along <em>line1</em> and <em>line2</em>
+(0 at the first endpoint, 1 at the second).  Returns <code class="docutils literal notranslate"><span class="pre">None</span></code>
+for parallel or coincident lines.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[<em>Point</em>, float, float] | None</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.geometry.circle_circle_tangents">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">circle_circle_tangents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#circle_circle_tangents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.circle_circle_tangents" title="Link to this definition">¶</a></dt>
-<dd><p>Tangent lines between two circles (radius1, cp1) and (radius2, cp2).</p>
-<p>Returns a list of up to 4 tangent lines, each a [point_on_circle1, point_on_circle2]
-pair: 2 external tangents plus 2 internal (crossing) tangents if the circles don’t
-overlap, or just the 2 external tangents if they do.</p>
+<dt class="sig sig-object py" id="pybosl2.geometry.is_collinear">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">is_collinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#is_collinear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.is_collinear" title="Link to this definition">¶</a></dt>
+<dd><p>True if three points lie on a common line (works in 2-D or 3-D).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>radius1</strong> (<em>float</em>)</p></li>
-<li><p><strong>radius2</strong> (<em>float</em>)</p></li>
-<li><p><strong>diameter1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>diameter2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>point1</strong> (<em>Point</em>) – First point.</p></li>
+<li><p><strong>point2</strong> (<em>Point</em>) – Second point.</p></li>
+<li><p><strong>point3</strong> (<em>Point</em>) – Third point.</p></li>
+<li><p><strong>eps</strong> (<em>float</em>) – Epsilon for collinearity tolerance.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[list[list[float]]]</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the three points are collinear within <em>eps</em>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pybosl2.geometry.line_closest_point">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">line_closest_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">segment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_point</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#line_closest_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.line_closest_point" title="Link to this definition">¶</a></dt>
+<dd><p>Closest point on a bounded segment to a query point.</p>
+<p>Projects <em>query_point</em> onto the infinite line through the segment and then
+clamps the parameter to the segment’s bounds using <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.clip.html#numpy.clip" title="(in NumPy v2.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.clip()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>segment</strong> (<em>tuple</em><em>[</em><em>Point</em><em>, </em><em>Point</em><em>]</em>) – A <code class="docutils literal notranslate"><span class="pre">(start,</span> <span class="pre">end)</span></code> pair of <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code> objects.</p></li>
+<li><p><strong>query_point</strong> (<em>Point</em>) – The point to project onto the segment.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The closest point on the segment as an ndarray.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NDArray[np.float64]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pybosl2.geometry.line_normal">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">line_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#line_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.line_normal" title="Link to this definition">¶</a></dt>
+<dd><p>Unit 2-D normal vector perpendicular to the line direction, pointing left.</p>
+<p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code> of length 2, perpendicular to
+the line from <em>point1</em> to <em>point2</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point1</strong> (<em>Point</em>) – First endpoint.</p></li>
+<li><p><strong>point2</strong> (<em>Point</em>) – Second endpoint.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A unit-length <code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code> normal to the line.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Vector</em></p>
 </dd>
 </dl>
 </dd></dl>

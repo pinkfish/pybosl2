@@ -142,190 +142,261 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/geometry.py</span>
-<span class="c1">#    Pure-Python port of the pieces of BOSL2&#39;s geometry.scad (plus</span>
-<span class="c1">#    pointlist_bounds() from vectors.scad) that pybosl2/paths.py depends on.</span>
-<span class="c1">#    No osuse()/BOSL2 runtime dependency. Built on numpy: every</span>
-<span class="c1">#    vector/point-valued function here returns a real numpy ndarray rather</span>
-<span class="c1">#    than a plain list. Only handles 2D/3D points, and only the subset of</span>
-<span class="c1">#    behavior (e.g. segment-bounded line_closest_point) that paths.py</span>
-<span class="c1">#    actually needs.</span>
+<span class="c1">#    Pure-Python port of the pieces of BOSL2&#39;s geometry.scad that</span>
+<span class="c1">#    pybosl2/paths.py depends on.  No osuse()/BOSL2 runtime dependency.</span>
+<span class="c1">#    Handles 2-D and 3-D point collinearity, line normals, segment</span>
+<span class="c1">#    projection, line intersections, and circle tangents.</span>
 <span class="c1">#</span>
 <span class="c1"># FileSummary: Points, lines and polygon geometry helpers (BOSL2 geometry.scad).</span>
 <span class="c1"># DocCategory: Math &amp; geometry</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">EPSILON</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Vector</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
-<div class="viewcode-block" id="cross">
-<a class="viewcode-back" href="../../geometry.html#pybosl2.geometry.cross">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;3D cross product (returns an ndarray), or 2D cross product (returns a scalar).&quot;&quot;&quot;</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;circle_circle_tangents&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;general_line_intersection&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_collinear&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;line_closest_point&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;line_normal&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cross2d</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;2-D cross product scalar: a_x * b_y - a_y * b_x.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="is_collinear">
 <a class="viewcode-back" href="../../geometry.html#pybosl2.geometry.is_collinear">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">is_collinear</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if points *a*, *b*, *c* lie on a common line (any dimension).&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">a</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_collinear</span><span class="p">(</span>
+    <span class="n">point1</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+    <span class="n">point2</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+    <span class="n">point3</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if three points lie on a common line (works in 2-D or 3-D).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        point1: First point.</span>
+<span class="sd">        point2: Second point.</span>
+<span class="sd">        point3: Third point.</span>
+<span class="sd">        eps: Epsilon for collinearity tolerance.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the three points are collinear within *eps*.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dx1</span> <span class="o">=</span> <span class="n">point2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">x</span>
+    <span class="n">dy1</span> <span class="o">=</span> <span class="n">point2</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">y</span>
+    <span class="n">dx2</span> <span class="o">=</span> <span class="n">point3</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">x</span>
+    <span class="n">dy2</span> <span class="o">=</span> <span class="n">point3</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">y</span>
+    <span class="k">if</span> <span class="n">point1</span><span class="o">.</span><span class="n">is_2d</span><span class="p">:</span>
+        <span class="n">n1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx1</span><span class="p">,</span> <span class="n">dy1</span><span class="p">)</span>
+        <span class="n">n2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx2</span><span class="p">,</span> <span class="n">dy2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n1</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="ow">or</span> <span class="n">n2</span> <span class="o">&lt;=</span> <span class="n">eps</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
-        <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-        <span class="c1"># BOSL2 checks every triple, not just the first three; match that.</span>
-        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_collinear</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="n">eps</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-    <span class="p">)</span>
-    <span class="n">v1</span> <span class="o">=</span> <span class="n">b</span> <span class="o">-</span> <span class="n">a</span>
-    <span class="n">v2</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="n">a</span>
-    <span class="n">n1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v1</span><span class="p">))</span>
-    <span class="n">n2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v2</span><span class="p">))</span>
+        <span class="n">cross2d</span> <span class="o">=</span> <span class="n">dx1</span> <span class="o">*</span> <span class="n">dy2</span> <span class="o">-</span> <span class="n">dy1</span> <span class="o">*</span> <span class="n">dx2</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">cross2d</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">))</span>
+
+    <span class="n">dz1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">point2</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">z</span>  <span class="c1"># type: ignore[operator]</span>
+    <span class="n">dz2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">point3</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">z</span>  <span class="c1"># type: ignore[operator]</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx1</span><span class="p">,</span> <span class="n">dy1</span><span class="p">,</span> <span class="n">dz1</span><span class="p">)</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx2</span><span class="p">,</span> <span class="n">dy2</span><span class="p">,</span> <span class="n">dz2</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">n1</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="ow">or</span> <span class="n">n2</span> <span class="o">&lt;=</span> <span class="n">eps</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">))</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)))</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="o">*</span> <span class="n">n1</span> <span class="o">*</span> <span class="n">n2</span></div>
+    <span class="n">cross_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">([</span><span class="n">dx1</span><span class="p">,</span> <span class="n">dy1</span><span class="p">,</span> <span class="n">dz1</span><span class="p">],</span> <span class="p">[</span><span class="n">dx2</span><span class="p">,</span> <span class="n">dy2</span><span class="p">,</span> <span class="n">dz2</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cross_v</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="o">*</span> <span class="n">n1</span> <span class="o">*</span> <span class="n">n2</span></div>
 
 
 
 <div class="viewcode-block" id="line_normal">
 <a class="viewcode-back" href="../../geometry.html#pybosl2.geometry.line_normal">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">line_normal</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the unit 2D normal (perpendicular, to the left) of the line through p1, p2.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">p2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">unit</span><span class="p">([</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span></div>
+<span class="k">def</span><span class="w"> </span><span class="nf">line_normal</span><span class="p">(</span>
+    <span class="n">point1</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+    <span class="n">point2</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unit 2-D normal vector perpendicular to the line direction, pointing left.</span>
+
+<span class="sd">    Returns a :class:`~pybosl2.points.Vector` of length 2, perpendicular to</span>
+<span class="sd">    the line from *point1* to *point2*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        point1: First endpoint.</span>
+<span class="sd">        point2: Second endpoint.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A unit-length :class:`~pybosl2.points.Vector` normal to the line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="n">unit</span><span class="p">([</span><span class="n">point1</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">point2</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">point2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">x</span><span class="p">]))</span></div>
 
 
 
 <div class="viewcode-block" id="line_closest_point">
 <a class="viewcode-back" href="../../geometry.html#pybosl2.geometry.line_closest_point">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">line_closest_point</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">pt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Closest point on the bounded *segment* = (a, b) to point *pt*.&quot;&quot;&quot;</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">diameter</span> <span class="o">=</span> <span class="n">b</span> <span class="o">-</span> <span class="n">a</span>
-    <span class="n">dd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">diameter</span> <span class="o">@</span> <span class="n">diameter</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">dd</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">pt</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">@</span> <span class="n">diameter</span><span class="p">)</span> <span class="o">/</span> <span class="n">dd</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="n">diameter</span></div>
+<span class="k">def</span><span class="w"> </span><span class="nf">line_closest_point</span><span class="p">(</span>
+    <span class="n">segment</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="n">Point</span><span class="p">],</span>
+    <span class="n">query_point</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Closest point on a bounded segment to a query point.</span>
+
+<span class="sd">    Projects *query_point* onto the infinite line through the segment and then</span>
+<span class="sd">    clamps the parameter to the segment&#39;s bounds using :func:`numpy.clip`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        segment: A ``(start, end)`` pair of :class:`~pybosl2.points.Point` objects.</span>
+<span class="sd">        query_point: The point to project onto the segment.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The closest point on the segment as an ndarray.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">query_point</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="n">length_sq</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">direction</span> <span class="o">@</span> <span class="n">direction</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">length_sq</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">start</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">t</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">query</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">@</span> <span class="n">direction</span><span class="p">)</span> <span class="o">/</span> <span class="n">length_sq</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">start</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="n">direction</span></div>
 
 
 
-<div class="viewcode-block" id="pointlist_bounds">
-<a class="viewcode-back" href="../../geometry.html#pybosl2.geometry.pointlist_bounds">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">pointlist_bounds</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return [min_corner, max_corner] bounding box of a list of points, as a (2, dim) ndarray.&quot;&quot;&quot;</span>
-    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">arr</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">arr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)])</span></div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_is_point_on_segment</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">seg</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">v1</span> <span class="o">=</span> <span class="n">b</span> <span class="o">-</span> <span class="n">a</span>
-    <span class="n">v0</span> <span class="o">=</span> <span class="n">point</span> <span class="o">-</span> <span class="n">a</span>
-    <span class="n">vv1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v1</span> <span class="o">@</span> <span class="n">v1</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_point_on_segment</span><span class="p">(</span>
+    <span class="n">point</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+    <span class="n">segment</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]],</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if *point* lies on the bounded *segment* within tolerance *eps*.&quot;&quot;&quot;</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">v1</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="n">v0</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">query</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="n">vv1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v1</span> <span class="o">@</span> <span class="n">v1</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">vv1</span> <span class="o">&lt;</span> <span class="n">eps</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v0</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">eps</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v0</span> <span class="o">@</span> <span class="n">v1</span><span class="p">)</span> <span class="o">/</span> <span class="n">vv1</span>
-    <span class="n">on_line</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">cross</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v1</span><span class="p">)))</span>
+    <span class="n">t</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v0</span> <span class="o">@</span> <span class="n">v1</span><span class="p">))</span> <span class="o">/</span> <span class="n">vv1</span>
+    <span class="n">on_line</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">_cross2d</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">eps</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v1</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">on_line</span> <span class="ow">and</span> <span class="p">(</span><span class="o">-</span><span class="n">eps</span> <span class="o">&lt;=</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="general_line_intersection">
 <a class="viewcode-back" href="../../geometry.html#pybosl2.geometry.general_line_intersection">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">general_line_intersection</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Intersection of infinite lines through segments s1=(a,b), s2=(c,diameter).</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">general_line_intersection</span><span class="p">(</span>
+    <span class="n">line1</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="n">Point</span><span class="p">],</span>
+    <span class="n">line2</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="n">Point</span><span class="p">],</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Intersection point of two infinite lines.</span>
 
-<span class="sd">    Returns [point, t, u] where t/u are the parametric positions of the</span>
-<span class="sd">    intersection along s1/s2 (0 at the first point, 1 at the second), or</span>
-<span class="sd">    None if the lines are parallel or coincident.</span>
+<span class="sd">    Computes the intersection of the lines through *line1* and *line2*.</span>
+<span class="sd">    Returns parametric positions so the caller can check segment bounds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line1: A ``(start, end)`` pair of :class:`~pybosl2.points.Point` objects.</span>
+<span class="sd">        line2: A ``(start, end)`` pair of :class:`~pybosl2.points.Point` objects.</span>
+<span class="sd">        eps: Epsilon for parallel-line detection.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(point, t, u)`` where *point* is the intersection :class:`~pybosl2.points.Point`,</span>
+<span class="sd">        *t* and *u* are the parametric positions along *line1* and *line2*</span>
+<span class="sd">        (0 at the first endpoint, 1 at the second).  Returns ``None``</span>
+<span class="sd">        for parallel or coincident lines.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">s1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">s1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">c</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">s2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">s2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">v1</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span>
-    <span class="n">v2</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="n">diameter</span>
-    <span class="n">denominator</span> <span class="o">=</span> <span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+    <span class="n">s1a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">s1b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">s2a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">s2b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">v1</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">s1a</span> <span class="o">-</span> <span class="n">s1b</span>
+    <span class="n">v2</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">s2a</span> <span class="o">-</span> <span class="n">s2b</span>
+    <span class="n">denominator</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_cross2d</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">denominator</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">eps</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">ac</span> <span class="o">=</span> <span class="n">a</span> <span class="o">-</span> <span class="n">c</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">cross</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
-    <span class="n">u</span> <span class="o">=</span> <span class="n">cross</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
-    <span class="n">point</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">point</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">u</span><span class="p">]</span></div>
+    <span class="n">ac</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">s1a</span> <span class="o">-</span> <span class="n">s2a</span>
+    <span class="n">t</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_cross2d</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_cross2d</span><span class="p">(</span><span class="n">ac</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="n">intersection_point</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">s1a</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">s1b</span> <span class="o">-</span> <span class="n">s1a</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">intersection_point</span><span class="p">),</span> <span class="n">t</span><span class="p">,</span> <span class="n">u</span></div>
 
 
 
 <div class="viewcode-block" id="circle_circle_tangents">
 <a class="viewcode-back" href="../../geometry.html#pybosl2.geometry.circle_circle_tangents">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">circle_circle_tangents</span><span class="p">(</span>
-    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">cp1</span><span class="p">,</span>
-    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">cp2</span><span class="p">,</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">center1</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">center2</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tangent lines between two circles (radius1, cp1) and (radius2, cp2).</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="n">Point</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tangent lines between two circles.</span>
 
-<span class="sd">    Returns a list of up to 4 tangent lines, each a [point_on_circle1, point_on_circle2]</span>
-<span class="sd">    pair: 2 external tangents plus 2 internal (crossing) tangents if the circles don&#39;t</span>
-<span class="sd">    overlap, or just the 2 external tangents if they do.</span>
+<span class="sd">    Computes up to four common tangent lines: two external tangents plus,</span>
+<span class="sd">    when the circles do not overlap, two internal (crossing) tangents.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        radius1: Radius of the first circle (mutually exclusive with *diameter1*).</span>
+<span class="sd">        center1: Centre point of the first circle.</span>
+<span class="sd">        radius2: Radius of the second circle (mutually exclusive with *diameter2*).</span>
+<span class="sd">        center2: Centre point of the second circle.</span>
+<span class="sd">        diameter1: Diameter of the first circle.</span>
+<span class="sd">        diameter2: Diameter of the second circle.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of ``(point_on_circle1, point_on_circle2)`` :class:`~pybosl2.points.Point` tuples.</span>
+<span class="sd">        Returns up to 4 entries (2 external + 2 internal), 2 entries when</span>
+<span class="sd">        only external tangents exist, or an empty list when no tangent can be drawn.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">r1v</span> <span class="o">=</span> <span class="n">radius1</span> <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">diameter1</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">r2v</span> <span class="o">=</span> <span class="n">radius2</span> <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">diameter2</span> <span class="o">/</span> <span class="mi">2</span>
-    <span class="n">cp1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cp1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">cp2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cp2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">dist</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cp2</span> <span class="o">-</span> <span class="n">cp1</span><span class="p">))</span>
-    <span class="n">r_vals</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">r1v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">radius1</span> <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter1</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">r2v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">radius2</span> <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter2</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">c1_arr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">c2_arr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">dist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">c2_arr</span> <span class="o">-</span> <span class="n">c1_arr</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">r_vals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="n">r2v</span> <span class="o">-</span> <span class="n">r1v</span><span class="p">)</span> <span class="o">/</span> <span class="n">dist</span><span class="p">,</span>
         <span class="p">(</span><span class="n">r2v</span> <span class="o">-</span> <span class="n">r1v</span><span class="p">)</span> <span class="o">/</span> <span class="n">dist</span><span class="p">,</span>
         <span class="p">(</span><span class="o">-</span><span class="n">r2v</span> <span class="o">-</span> <span class="n">r1v</span><span class="p">)</span> <span class="o">/</span> <span class="n">dist</span><span class="p">,</span>
         <span class="p">(</span><span class="o">-</span><span class="n">r2v</span> <span class="o">-</span> <span class="n">r1v</span><span class="p">)</span> <span class="o">/</span> <span class="n">dist</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="n">k_vals</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-    <span class="n">ext</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">k_vals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">ext</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">if</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">r_vals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">sides</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="k">elif</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">r_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">u</span> <span class="o">=</span> <span class="n">unit</span><span class="p">(</span><span class="n">cp2</span> <span class="o">-</span> <span class="n">cp1</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">u</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit</span><span class="p">(</span><span class="n">c2_arr</span> <span class="o">-</span> <span class="n">c1_arr</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="n">Point</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">):</span>
-        <span class="n">radius</span> <span class="o">=</span> <span class="n">r_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">radius</span><span class="p">))</span>
-        <span class="n">k</span> <span class="o">=</span> <span class="n">k_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">radius</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-        <span class="n">p1</span> <span class="o">=</span> <span class="n">cp1</span> <span class="o">-</span> <span class="n">r1v</span> <span class="o">*</span> <span class="n">coef</span>
-        <span class="n">p2</span> <span class="o">=</span> <span class="n">cp2</span> <span class="o">-</span> <span class="n">ext</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">r2v</span> <span class="o">*</span> <span class="n">coef</span>
+        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">r_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">sin_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">radius</span><span class="p">))</span>
+        <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">k_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">coef</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">radius</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">sin_angle</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">k</span> <span class="o">*</span> <span class="n">sin_angle</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="p">)</span>
+        <span class="n">p1</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">c1_arr</span> <span class="o">-</span> <span class="n">r1v</span> <span class="o">*</span> <span class="n">coef</span>
+        <span class="n">p2</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">c2_arr</span> <span class="o">-</span> <span class="n">ext</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">r2v</span> <span class="o">*</span> <span class="n">coef</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">):</span>
-            <span class="c1"># Plain Python floats, not ndarrays -- these points typically end up embedded</span>
-            <span class="c1"># directly in path/region lists passed across the python&lt;-&gt;scad bridge (e.g.</span>
-            <span class="c1"># components.py&#39;s FingerHoleWall()), which doesn&#39;t know how to convert numpy</span>
-            <span class="c1"># scalars and silently produces a broken region otherwise.</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">p1</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">p2</span><span class="o">.</span><span class="n">tolist</span><span class="p">()])</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">Point</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">p1</span><span class="p">),</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">p2</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 </pre></div>
