@@ -997,7 +997,7 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]
     """
     cuts = len(cutlist)
     result = []
-    seg0 = list(_list_head(points, cutlist[0].next_index - 1))
+    seg0 = list(points[: cutlist[0].next_index])
     if not approx(cutlist[0].point, points[cutlist[0].next_index - 1]):
         seg0.append(cutlist[0].point)
     result.append(seg0)
@@ -1319,15 +1319,6 @@ def _pair(lst: Sequence[Any] | np.ndarray, wrap: bool = False) -> list[Any]:
     if wrap:
         out.append((lst[length], lst[0]))
     return out
-
-
-def _list_head(lst: Sequence[Any] | np.ndarray, to: int = -2) -> list[Any]:
-    # Elements of lst up to and including index to (BOSL2 _list_head()).
-    if to < 0:
-        return list(lst[: len(lst) + to + 1])
-    if to < len(lst):
-        return list(lst[: to + 1])
-    return list(lst)
 
 
 def _sum_preserving_round(data: Sequence[float]) -> list[float]:
