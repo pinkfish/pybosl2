@@ -278,9 +278,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         norms = np.linalg.norm(diameter, axis=1, keepdims=True)
         assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
         result = diameter / norms
-        dim = self._points.shape[1]
-        if dim == 2:
-            return [Vector([float(r[0]), float(r[1])]) for r in result]
         return [Vector([float(r[0]), float(r[1]), float(r[2])]) for r in result]
 
     def normals(self, tangents: "list[Vector] | None" = None, closed: bool | None = None) -> "list[Vector]":
@@ -300,9 +297,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         if tangents is None:
             tangents = self.tangents(closed=closed)
-        dim = self._points.shape[1]
-        if dim == 2:
-            return [Vector([float(t[1]), float(-t[0])]) for t in tangents]
         sides = len(self._points)
         out: list[Vector] = []
         pts = self._points
