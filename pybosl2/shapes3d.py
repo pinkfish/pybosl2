@@ -164,7 +164,10 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
     #: which realize backend produced this solid -- see pybosl2/_backend.py. Bosl2Solid is the
     #: exact-CSG (PythonSCAD) backend's Solid; the libfive/SDF backend uses its own wrapper.
-    backend = "csg"
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+
+    backend: str
 
     def __init__(
         self,
@@ -175,9 +178,10 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         self.shape = shape
         self.size = size
         self.anchor = anchor if anchor is not None else CENTER
-        # True once a positional transform (translate/rotate/scale/...) has been applied, so the
-        # tracked cuboid size/anchor metadata no longer describes the object's current position.
         self._moved = False
+        from pybosl2._backend import current_backend
+
+        self.backend = current_backend()
 
     @staticmethod
     def _unwrap(x):
@@ -191,12 +195,14 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         Use for ops that do NOT move/resize the geometry (colour, repair, native mesh ops)."""
         out = Bosl2Solid(new_shape, self.size, self.anchor)
         out._moved = self._moved
+        out.backend = self.backend
         return out
 
     def _wrap_moved(self, new_shape: PyOpenSCAD) -> "Bosl2Solid":
         """Wrap a native result of a positional transform, flagging the tracked metadata stale."""
         out = Bosl2Solid(new_shape, self.size, self.anchor)
         out._moved = True
+        out.backend = self.backend
         return out
 
     def __getattr__(self, name):
@@ -413,15 +419,15 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         )
 
     def __or__(self, other) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
+        _check_operand_backend(self.backend, other)
         return self._wrap(self.shape | Bosl2Solid._unwrap(other))
 
     def __and__(self, other) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
+        _check_operand_backend(self.backend, other)
         return self._wrap(self.shape & Bosl2Solid._unwrap(other))
 
     def __sub__(self, other) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
+        _check_operand_backend(self.backend, other)
         return self._wrap(self.shape - Bosl2Solid._unwrap(other))
 
     def __ror__(self, other) -> "Bosl2Solid":

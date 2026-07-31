@@ -1126,9 +1126,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         self,
         width: float = 1,
         closed: bool | None = None,
-        endcaps: CapType | CapSpec = CapType.ROUND,  # noqa: ARG002
-        endcap1: CapType | CapSpec = CapType.ROUND,
-        endcap2: CapType | CapSpec = CapType.ROUND,
+        endcaps: CapType | CapSpec = CapType.ROUND,
+        endcap1: CapType | CapSpec | None = None,
+        endcap2: CapType | CapSpec | None = None,
         joints: CapType | CapSpec = CapType.ROUND,  # noqa: ARG002
     ) -> "Bosl2Solid":
         """Render this 3-D path as a solid tube.
@@ -1158,7 +1158,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         from pybosl2._stroke3d import stroke_3d
 
         return stroke_3d(
-            self, width=width, closed=self.closed if closed is None else closed, endcap1=endcap1, endcap2=endcap2
+            self,
+            width=width,
+            closed=self.closed if closed is None else closed,
+            endcap1=endcap1 if endcap1 is not None else endcaps,
+            endcap2=endcap2 if endcap2 is not None else endcaps,
         )
 
     def dashed_stroke(
