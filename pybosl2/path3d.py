@@ -552,7 +552,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         )
         out2: list[Any] = []
         for i in range(count):
-            out2.extend(lerpn(pts_arr[i], _select(pts_arr, i + 1), 1 + int(add[i]), endpoint=False))
+            out2.extend(lerpn(pts_arr[i], pts_arr[(i + 1) % len(pts_arr)], 1 + int(add[i]), endpoint=False))
         if not closed:
             out2.append(pts_arr[-1])
         return self.__class__(out2, closed=self.closed)
@@ -1009,16 +1009,25 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]
             result.append([])
             continue
         seg = []
-        if not approx(cutlist[i].point, _select(points, cutlist[i].next_index)):
+        if not approx(cutlist[i].point, points[(cutlist[i].next_index) % len(points)]):
             seg.append(cutlist[i].point)
-        seg.extend(_slice(points, cutlist[i].next_index, cutlist[i + 1].next_index - 1))
-        if not approx(cutlist[i + 1].point, _select(points, cutlist[i + 1].next_index - 1)):
+        seg.extend(points[cutlist[i].next_index : cutlist[i + 1].next_index])
+        if not approx(cutlist[i + 1].point, points[(cutlist[i + 1].next_index - 1) % len(points)]):
             seg.append(cutlist[i + 1].point)
         result.append(seg)
     last_seg = []
-    if not approx(cutlist[cuts - 1].point, _select(points, cutlist[cuts - 1].next_index)):
+    if not approx(cutlist[cuts - 1].point, points[(cutlist[cuts - 1].next_index) % len(points)]):
         last_seg.append(cutlist[cuts - 1].point)
-    last_seg.extend(_select(points, cutlist[cuts - 1].next_index, 0 if closed else -1))
+    n = len(points)
+    a = cutlist[cuts - 1].next_index % n
+    if closed:
+        e = 0
+        if a <= e:
+            last_seg.extend([points[i] for i in range(a, e + 1)])
+        else:
+            last_seg.extend([points[i] for i in range(a, n)] + [points[i] for i in range(e + 1)])
+    else:
+        last_seg.extend(points[a:])
     result.append(last_seg)
     return result
 
@@ -1094,10 +1103,10 @@ def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[f
     dtotal = 0.0
     for dind in range(len(dists)):
         lastpt: Point | list[float] = [] if len(result) == 0 else result[-1].point
-        dpartial = 0.0 if len(result) == 0 else math.dist(lastpt, _select(points, pind))
+        dpartial = 0.0 if len(result) == 0 else math.dist(lastpt, points[(pind) % len(points)])
         if dists[dind] < dpartial + dtotal:
             t = (dists[dind] - dtotal) / dpartial
-            a_arr = np.asarray(lerp(lastpt, _select(points, pind), t), dtype=float)
+            a_arr = np.asarray(lerp(lastpt, points[pind % len(points)], t), dtype=float)
             nextpoint = CutPoint(point=Point(float(a_arr[0]), float(a_arr[1]), float(a_arr[2])), next_index=pind)
         else:
             nextpoint = _path_cut_single(points, closed, dists[dind] - dtotal - dpartial, pind)
@@ -1122,20 +1131,20 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
     while True:
         if ind == len(points) - (0 if closed else 1):
             assert dist < eps, "Path2D is too short for specified cut distance"
-            pt_arr = np.asarray(_select(points, ind), dtype=float)
+            pt_arr = np.asarray(points[(ind) % len(points)], dtype=float)
             return CutPoint(
                 point=Point(float(pt_arr[0]), float(pt_arr[1]), float(pt_arr[2])),
                 next_index=ind + 1,
             )
-        diameter = math.dist(points[ind], _select(points, ind + 1))
+        diameter = math.dist(points[ind], points[(ind + 1) % len(points)])
         if diameter > dist:
             return CutPoint(
                 point=Point(
                     *[
                         float(v)
-                        for v in np.asarray(lerp(points[ind], _select(points, ind + 1), dist / diameter), dtype=float)[
-                            :3
-                        ]
+                        for v in np.asarray(
+                            lerp(points[ind], points[(ind + 1) % len(points)], dist / diameter), dtype=float
+                        )[:3]
                     ]
                 ),
                 next_index=ind + 1,
@@ -1160,8 +1169,8 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vect
     """
     lower = -1 if closed else 0
     while i >= lower:
-        if not is_collinear(points[ind], points[ind - 1], _select(points, i)):
-            p_i = _select(points, i)
+        if not is_collinear(points[ind], points[ind - 1], points[(i) % len(points)]):
+            p_i = points[(i) % len(points)]
             return [
                 Vector([float(a - b) for a, b in zip(p_i, points[ind - 1], strict=False)]),
                 Vector([float(a - b) for a, b in zip(points[ind], points[ind - 1], strict=False)]),
@@ -1189,8 +1198,8 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
             [
                 a - b
                 for a, b in zip(
-                    _select(points, nextind + 1),
-                    _select(points, nextind),
+                    points[(nextind + 1) % len(points)],
+                    points[(nextind) % len(points)],
                     strict=False,
                 )
             ],
@@ -1200,8 +1209,8 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
             [
                 a - b
                 for a, b in zip(
-                    _select(points, nextind),
-                    _select(points, nextind - 1),
+                    points[(nextind) % len(points)],
+                    points[(nextind - 1) % len(points)],
                     strict=False,
                 )
             ],
@@ -1211,8 +1220,8 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
             [
                 a - b
                 for a, b in zip(
-                    _select(points, nextind - 1),
-                    _select(points, nextind - 2),
+                    points[(nextind - 1) % len(points)],
+                    points[(nextind - 2) % len(points)],
                     strict=False,
                 )
             ],
@@ -1220,9 +1229,11 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
         )
         if nextind == len(points) and not closed:
             nextdir = lastpath
-        elif (nextind <= len(points) - 2 or closed) and approx(cuts[ci].point, _select(points, nextind), eps=eps):
+        elif (nextind <= len(points) - 2 or closed) and approx(
+            cuts[ci].point, points[(nextind) % len(points)], eps=eps
+        ):
             nextdir = unit([a + b for a, b in zip(nextpath, thispath, strict=False)])
-        elif (nextind > 1 or closed) and approx(cuts[ci].point, _select(points, nextind - 1), eps=eps):
+        elif (nextind > 1 or closed) and approx(cuts[ci].point, points[(nextind - 1) % len(points)], eps=eps):
             nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
         else:
             nextdir = thispath
@@ -1317,36 +1328,6 @@ def _list_head(lst: Sequence[Any] | np.ndarray, to: int = -2) -> list[Any]:
     if to < len(lst):
         return list(lst[: to + 1])
     return list(lst)
-
-
-def _slice(lst: Sequence[Any] | np.ndarray, start: int = 0, end: int = -1) -> list[Any]:
-    # lst[start..end] inclusive, negative indices from the end, clamped (BOSL2 _slice()).
-    if len(lst) == 0:
-        return []
-    length = len(lst)
-    s = max(0, min(length - 1, start + (length if start < 0 else 0)))
-    e = max(0, min(length - 1, end + (length if end < 0 else 0)))
-    if e < s:
-        return []
-    return lst[s : e + 1]  # type: ignore[return-value]
-
-
-def _select(lst: Sequence[Any] | np.ndarray, start: int, end: int | None = None) -> list[Any]:
-    # Circular list indexing/slicing (BOSL2 _select()). Wraps index modulo len;
-    # slice form returns inclusive circular slice from start to end, wrapping past end.
-    sides = len(lst)
-    if sides == 0:
-        return []
-    if end is None:
-        if isinstance(start, (list, tuple)):
-            return [lst[i % sides] for i in start]
-        return lst[start % sides]
-    assert isinstance(start, int), "_path_select(): slice form needs integer start"
-    s = start % sides
-    e = end % sides
-    if s <= e:
-        return [lst[i] for i in range(s, e + 1)]
-    return [lst[i] for i in range(s, sides)] + [lst[i] for i in range(e + 1)]
 
 
 def _sum_preserving_round(data: Sequence[float]) -> list[float]:
