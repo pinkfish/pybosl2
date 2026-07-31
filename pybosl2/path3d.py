@@ -461,7 +461,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                     n = unit([-ty, tx, 0.0])
                     result.append(Vector(float(n[0]), float(n[1]), float(n[2])))
             else:
-                n = unit(np.cross([tx, ty, tz], np.cross(plane[0], plane[1])))  # type: ignore[no-untyped-call]
+                n = unit(np.cross([tx, ty, tz], np.cross(plane[0], plane[1])))
                 result.append(Vector(float(n[0]), float(n[1]), float(n[2])))
         return result
 
@@ -585,26 +585,39 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        pts = _resample_path(self._points, closed, sides=sides, spacing=spacing)
-        return self.__class__(pts, closed=self.closed)
+        points = self._points
+        assert (sides is None) != (spacing is None), "Must define exactly one of sides and spacing"
+        length = self.perimeter()
+        if sides is not None:
+            n_use = sides - (0 if closed else 1)
+        else:
+            assert spacing is not None
+            n_use = round(length / spacing)
+        distlist = lerpn(0, length, n_use, endpoint=False)
+        cuts = _path_cut_points(points, closed, distlist)  # type: ignore[arg-type]
+        pts = [c.point for c in cuts]
+        if not closed:
+            pts.append(points[-1])
+        return self.__class__(pts, closed=self.closed)  # type: ignore[arg-type]
 
     def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path3D":
-        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
-
-        Args:
-            s1: Starting segment index.
-            u1: Fraction along segment s1 (0 to 1).
-            s2: Ending segment index.
-            u2: Fraction along segment s2 (0 to 1).
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            A :class:`Path3D` representing the selected portion of the path.
-        """
+        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2."""
         if closed is None:
             closed = self.closed
-        pts = _path_select(self._points, closed, s1, u1, s2, u2)
-        return self.__class__(pts, closed=self.closed)
+        points = self._points
+        lp = len(points)
+        limit = lp - (0 if closed else 1)
+        u1c = 0.0 if s1 < 0 else (1.0 if s1 > limit else u1)
+        u2c = 0.0 if s2 < 0 else (1.0 if s2 > limit else u2)
+        s1c = max(0, min(limit, s1))
+        s2c = max(0, min(limit, s2))
+        out = []
+        if s1c < limit and u1c < 1:
+            out.append(lerp(points[s1c], points[(s1c + 1) % lp], u1c))
+        out.extend(points[i] for i in range(s1c + 1, s2c + 1))
+        if s2c < limit and u2c > 0:
+            out.append(lerp(points[s2c], points[(s2c + 1) % lp], u2c))
+        return self.__class__(out, closed=self.closed)
 
     # -- measurement -----------------------------------------------------------------------
 
@@ -1088,7 +1101,7 @@ def _path_cut_points(
                 n = unit([-dirs[i][1], dirs[i][0], 0])
                 normals.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
         else:
-            n = unit(cross(dirs[i], cross(plane[0], plane[1])))
+            n = unit(cross(dirs[i], cross(plane[0], plane[1])))  # type: ignore[no-untyped-call]
             normals.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
     return [
         CutPoint(
@@ -1101,7 +1114,7 @@ def _path_cut_points(
     ]
 
 
-def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[float]) -> list[CutPoint]:  # type: ignore[arg-type]
+def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[float]) -> list[CutPoint]:
     """Walk the path accumulating distance until each cut distance is reached.
 
     Args:
@@ -1255,67 +1268,3 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
 
 
 # -- Resampling -- changing the number of points in a path -----------------------------
-
-
-def _resample_path(points: np.ndarray, closed: bool, sides: int | None = None, spacing: float | None = None) -> list:
-    """Uniformly resample path to sides points, or to a spacing near spacing.
-
-    Args:
-        sides: Target number of points.
-        spacing: Approximate spacing between points.
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        A list of uniformly resampled path points.
-    """
-    assert (sides is None) != (spacing is None), "Must define exactly one of sides and spacing"
-    length = 0.0
-    if len(points) >= 2:
-        length = float(np.linalg.norm(np.diff(points, axis=0), axis=1).sum())
-        if closed:
-            length += float(np.linalg.norm(points[-1] - points[0]))
-    if sides is not None:
-        n_use = sides - (0 if closed else 1)
-    else:
-        assert spacing is not None
-        n_use = round(length / spacing)
-    distlist = lerpn(0, length, n_use, endpoint=False)
-    cuts = _path_cut_points(points, closed, distlist)  # type: ignore[arg-type]
-    out = [c.point for c in cuts]
-    if not closed:
-        out.append(points[-1])
-    return out
-
-
-def _path_select(points: np.ndarray, closed: bool, s1: int, u1: float, s2: int, u2: float) -> list:
-    """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
-
-    Args:
-        s1: Starting segment index.
-        u1: Fraction along segment s1 (0 to 1).
-        s2: Ending segment index.
-        u2: Fraction along segment s2 (0 to 1).
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        A list of points representing the selected portion of the path.
-    """
-    lp = len(points)
-    limit = lp - (0 if closed else 1)
-    u1c = 0.0 if s1 < 0 else (1.0 if s1 > limit else u1)
-    u2c = 0.0 if s2 < 0 else (1.0 if s2 > limit else u2)
-    s1c = max(0, min(limit, s1))
-    s2c = max(0, min(limit, s2))
-    out = []
-    if s1c < limit and u1c < 1:
-        out.append(lerp(points[s1c], points[(s1c + 1) % lp], u1c))
-    out.extend(points[i] for i in range(s1c + 1, s2c + 1))
-    if s2c < limit and u2c > 0:
-        out.append(lerp(points[s2c], points[(s2c + 1) % lp], u2c))
-    return out
-
-
-# ---------------------------------------------------------------------------
-
-
-# ---------------------------------------------------------------------------
