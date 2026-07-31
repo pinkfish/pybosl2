@@ -16,13 +16,41 @@ Concrete math helpers live in :mod:`pybosl2._path_math`.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2._path_math import CutPoint
 from pybosl2.caps import CapSpec, CapType
+from pybosl2.points import Point
+
+
+@dataclass(frozen=True, slots=True)
+class CutPoint:
+    """A point along a path where it was cut, with the index of the next segment.
+
+    Returned by :meth:`~pybosl2.path2d.Path2D.cut_points` and related methods.
+    When requested with ``direction=True``, the *direction* and *normal*
+    attributes are populated; otherwise they are ``None``.
+
+    Attributes:
+        point: The (x, y) or (x, y, z) coordinates of the cut point.
+        next_index: The 0-based index of the next point in the original path.
+        direction: Unit tangent vector at the cut point, or None.
+        normal: Unit normal vector at the cut point, or None.
+    """
+
+    point: Point
+    next_index: int
+    direction: np.ndarray | None = None
+    normal: np.ndarray | None = None
+
+    @property
+    def is_directed(self) -> bool:
+        """True if direction and normal vectors are present."""
+        return self.direction is not None and self.normal is not None
+
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
