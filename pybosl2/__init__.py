@@ -41,7 +41,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "approx": ("pybosl2.comparisons", "approx"),
     "EPSILON": ("pybosl2.comparisons", "EPSILON"),
     # colour
-    "hsl": ("pybosl2.color", "hsl"),
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),
     # 2-D shapes

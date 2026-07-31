@@ -72,7 +72,7 @@ _PREAMBLE = (
     "from pybosl2.path2d import Path2D\n"
     "from pybosl2.path3d import Path3D\n"
     "from pybosl2.distributors import distribute, xdistribute, ydistribute, zdistribute\n"
-    "from pybosl2.color import hsl, rainbow, rainbow_colors\n"
+    "from pybosl2.color import rainbow, rainbow_colors\n"
     "from pybosl2.partitions import partition_path, partition_mask, partition_cut_mask\n"
     "from pybosl2.miscellaneous import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
     "from pybosl2.nurbs import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
