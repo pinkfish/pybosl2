@@ -52,10 +52,19 @@ jobs:
           APPIMAGE=$(ls /tmp/*qt6*x86_64.AppImage | head -1)
           chmod +x "$APPIMAGE"
           "$APPIMAGE" --appimage-extract
-          sudo cp squashfs-root/AppRun /usr/local/bin/pythonscad
-          pythonscad --version || echo "PythonSCAD binary installed (version check may fail headless)"
+          sudo mkdir -p /opt/pythonscad/bin
+          sudo cp squashfs-root/AppRun /opt/pythonscad/bin/pythonscad
+          echo "/opt/pythonscad/bin" >> "$GITHUB_PATH"
+          chmod +x /opt/pythonscad/bin/pythonscad
+          /opt/pythonscad/bin/pythonscad --version
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Verify PythonSCAD renders
+        run: |
+          echo "from pythonscad import cube; cube([1,1,1]).show()" > /tmp/test_render.py
+          /opt/pythonscad/bin/pythonscad --trust-python --enable python-engine -o /tmp/test.stl --backend Manifold /tmp/test_render.py
+          ls -la /tmp/test.stl
 
       - name: Install package and remaining docs dependencies
         run: |

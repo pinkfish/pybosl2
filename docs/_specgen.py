@@ -1375,7 +1375,12 @@ def _derive_code(expr: str) -> tuple[str, str]:
 def build_variant_stls(force: bool = False) -> dict:
     """Render every variant to specs/_stl/<module>-<id>.stl and measure it; cache to metrics.json.
 
-    Returns {module: {id: {tris, vol, bbox, wt}}}. Renders only what's missing unless *force*."""
+    Returns {module: {id: {tris, vol, bbox, wt}}}.  When a cached STL already exists the
+    variant is STILL re-rendered; if the new metrics differ by more than 5 % (tri count or
+    volume) from the cached entry the STL and metrics are overwritten, otherwise the
+    cached version is kept unchanged.  With *force* the comparison is skipped and every
+    variant is unconditionally overwritten.
+    """
     STL_DIR.mkdir(parents=True, exist_ok=True)
     cache_path = STL_DIR / "metrics.json"
     cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
@@ -1384,12 +1389,46 @@ def build_variant_stls(force: bool = False) -> dict:
         cache.setdefault(mod, {})
         for vid, _label, expr in variants:
             stl = STL_DIR / f"{mod}-{vid}.stl"
-            if not force and stl.exists() and vid in cache[mod]:
+            cached = vid in cache[mod]
+            if not force and not have_app and cached:
+                continue
+            if not have_app and not cached:
+                print(f"  ! no app and no cache for {mod}-{vid}; viewer will show the poster")
                 continue
             if not have_app:
-                if vid not in cache[mod]:
-                    print(f"  ! no app and no cache for {mod}-{vid}; viewer will show the poster")
                 continue
+
+            if not force and cached and stl.exists():
+                tmp_stl = STL_DIR / f"{mod}-{vid}.tmp.stl"
+                res = render_object(expr, tmp_stl, setup=SETUP[mod], timeout=240, export_format="binstl")
+                if not res.ok:
+                    tmp_stl.unlink(missing_ok=True)
+                    print(f"  ! render FAILED {mod}-{vid}: {(res.error or '')[:120]}")
+                    continue
+                new_mm = stl_metrics(tmp_stl)
+                cached_entry = cache[mod][vid]
+                cached_tris = float(cached_entry["tris"])
+                tris_delta = abs(float(new_mm.ntris) - cached_tris) / max(cached_tris, 1)
+                try:
+                    cached_vol = float(cached_entry["vol"].replace(",", ""))
+                    vol_delta = abs(new_mm.volume - cached_vol) / max(cached_vol, 1.0)
+                except (ValueError, ZeroDivisionError):
+                    vol_delta = 1.0
+                if tris_delta > 0.05 or vol_delta > 0.05:
+                    tmp_stl.replace(stl)
+                    size = "×".join(str(round(float(v))) for v in new_mm.size)
+                    cache[mod][vid] = {
+                        "tris": new_mm.ntris,
+                        "vol": f"{new_mm.volume:,.1f}",
+                        "bbox": size,
+                        "wt": bool(new_mm.watertight),
+                    }
+                    print(f"  updated {mod}-{vid}: {new_mm.ntris} tris (was {cached_entry['tris']})")
+                else:
+                    tmp_stl.unlink()
+                    print(f"  unchanged {mod}-{vid}")
+                continue
+
             res = render_object(expr, stl, setup=SETUP[mod], timeout=240, export_format="binstl")
             if not res.ok:
                 print(f"  ! render FAILED {mod}-{vid}: {(res.error or '')[:120]}")
