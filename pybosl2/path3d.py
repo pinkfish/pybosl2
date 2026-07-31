@@ -528,7 +528,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             return self.__class__(list(pts_arr), closed=self.closed)
         if maxlen is not None:
             out: list[Any] = []
-            for p0, p1 in _pair(pts_arr, closed):
+            pairs = list(zip(pts_arr, pts_arr[1:], strict=False))
+            if closed:
+                pairs.append((pts_arr[-1], pts_arr[0]))
+            for p0, p1 in pairs:
                 steps = math.ceil(math.dist(p1, p0) / maxlen)
                 out.extend(lerpn(p0, p1, steps, endpoint=False))
             if not closed:
@@ -545,11 +548,18 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             add_density = (points - len(pts_arr)) / sum(path_lens)
             add_guess = [float(ln * add_density) for ln in path_lens]
         add_list = [float(v) for v in add_guess]
-        add = (
-            _sum_preserving_round(add_list)
-            if exact
-            else [math.floor(v + 0.5) if v >= 0 else math.ceil(v - 0.5) for v in add_list]
-        )
+        if exact:
+            add = list(add_list)
+            err = 0.0
+            for i in range(len(add) - 1):
+                x = add[i] + err
+                newval = math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
+                err = add[i] + err - newval
+                add[i] = newval
+            lx = add[-1] + err
+            add[-1] = math.floor(lx + 0.5) if lx >= 0 else math.ceil(lx - 0.5)
+        else:
+            add = [math.floor(v + 0.5) if v >= 0 else math.ceil(v - 0.5) for v in add_list]
         out2: list[Any] = []
         for i in range(count):
             out2.extend(lerpn(pts_arr[i], pts_arr[(i + 1) % len(pts_arr)], 1 + int(add[i]), endpoint=False))
@@ -974,7 +984,10 @@ def _path_closest_point(points: np.ndarray, closed: bool, pt: Point | Sequence[f
         q = np.array([pt.x, pt.y]) if pt.is_2d else np.array([pt.x, pt.y, pt.z])
     else:
         q = np.asarray(pt, dtype=float)
-    pts = [line_closest_point(seg, q) for seg in _pair(points, closed)]
+    segs = list(zip(points, points[1:], strict=False))
+    if closed:
+        segs.append((points[-1], points[0]))
+    pts = [line_closest_point(seg, q) for seg in segs]
     dists = np.linalg.norm(np.asarray(pts, dtype=float) - q, axis=1)
     min_seg = int(np.argmin(dists))
     r = pts[min_seg]
@@ -1306,30 +1319,3 @@ def _path_select(points: np.ndarray, closed: bool, s1: int, u1: float, s2: int, 
 
 
 # ---------------------------------------------------------------------------
-# Static path utility functions (moved from Path2D to avoid circular imports)
-# ---------------------------------------------------------------------------
-
-
-def _pair(lst: Sequence[Any] | np.ndarray, wrap: bool = False) -> list[Any]:
-    # List of consecutive (lst[i], lst[i+1]) pairs; if wrap, also (last, first).
-    length = len(lst) - 1
-    if length < 1:
-        return []
-    out = [(lst[i], lst[i + 1]) for i in range(length)]
-    if wrap:
-        out.append((lst[length], lst[0]))
-    return out
-
-
-def _sum_preserving_round(data: Sequence[float]) -> list[float]:
-    # Round every entry to an integer, carrying the rounding error forward so the sum is preserved.
-    out = list(data)
-    error = 0.0
-    for i in range(len(out) - 1):
-        x = out[i] + error
-        newval = math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
-        error = out[i] + error - newval
-        out[i] = newval
-    lx = out[-1] + error
-    out[-1] = math.floor(lx + 0.5) if lx >= 0 else math.ceil(lx - 0.5)
-    return out
