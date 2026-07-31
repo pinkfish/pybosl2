@@ -249,12 +249,18 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @property
     def array(self) -> np.ndarray:
-        """The points as an (N, 2) numpy array, for doing your own vectorised maths."""
+        """The points as an (N, 2) numpy array, for doing your own vectorised maths.
+
+        Returns:
+            An (N, 2) float64 numpy array."""
         return self._points
 
     @property
     def to_list(self) -> list[list[float]]:
-        """The points as a list of ``[x, y]`` plain-Python-float pairs."""
+        """The points as a list of ``[x, y]`` plain-Python-float pairs.
+
+        Returns:
+            A list of ``[x, y]`` pairs."""
         return self._points.tolist()
 
     @property
@@ -764,6 +770,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def bounds(self) -> Bounds2D:
         """Axis-aligned bounding box with pre-computed width and length.
 
+        Returns:
+            A :class:`Bounds2D` named tuple.
+
         Returns a :class:`Bounds2D` named tuple with ``min_x``, ``min_y``,
         ``max_x``, ``max_y``, ``width``, and ``length`` fields.
         """
@@ -799,11 +808,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def perimeter(self) -> float:
         """Total length around the path."""
         return float(self._shapely.length)
-
-    @property
-    def length(self) -> float:
-        """Total length around the path (alias for :meth:`perimeter`)."""
-        return self.perimeter()
 
     def contains(self, point: Sequence[float]) -> bool:
         """True if *point* is inside the closed polygon (on the boundary counts as inside).

@@ -35,14 +35,11 @@ from pybosl2._path_math import (
     _path_cut_points_recurse,
     _path_cut_single,
     _path_cuts_dir,
-    _path_length_fractions,
     _path_normals,
     _path_plane,
-    _path_segment_lengths,
     _path_select,
     _path_tangents,
     _path_torsion,
-    _path_total_length,
     _resample_path,
     _subdivide_path,
 )
@@ -193,12 +190,18 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @property
     def array(self) -> np.ndarray:
-        """The points as an (N, 3) numpy array, for doing your own vectorised maths."""
+        """The points as an (N, 3) numpy array, for doing your own vectorised maths.
+
+        Returns:
+            An (N, 3) float64 numpy array."""
         return self._points
 
     @property
     def to_list(self) -> list[list[float]]:
-        """The points as a list of ``[x, y, z]`` plain-Python-float triples."""
+        """The points as a list of ``[x, y, z]`` plain-Python-float triples.
+
+        Returns:
+            A list of ``[x, y, z]`` triples."""
         return self._points.tolist()
 
     @classmethod
@@ -227,7 +230,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_segment_lengths(self._points, closed)
+        pts = self._points if not closed else np.vstack([self._points, self._points[0]])
+        if len(pts) < 2:
+            return np.array([], dtype=np.float64)
+        return np.linalg.norm(np.diff(pts, axis=0), axis=1)
 
     def length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Distance fraction of each point in the path (0 at start, 1 at end).
@@ -240,7 +246,14 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_length_fractions(self._points, closed)
+        pts = self._points if not closed else np.vstack([self._points, self._points[0]])
+        if len(pts) < 2:
+            return np.zeros(len(self._points), dtype=np.float64)
+        segs = np.linalg.norm(np.diff(pts, axis=0), axis=1)
+        cum = np.concatenate([[0.0], np.cumsum(segs)])
+        if closed:
+            return cum[:-1] / cum[-1] if cum[-1] > 1e-12 else np.zeros(len(self._points), dtype=np.float64)
+        return cum / cum[-1] if cum[-1] > 1e-12 else np.zeros(len(self._points), dtype=np.float64)
 
     def closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
         """The closest point on the path to *pt*.
@@ -545,13 +558,16 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         )
 
     def perimeter(self) -> float:
-        """Total length along the path."""
-        return _path_total_length(self._points, self.closed)
+        """Total length along the path.
 
-    @property
-    def length(self) -> float:
-        """Total length around the path (alias for :meth:`perimeter`)."""
-        return self.perimeter()
+        Returns:
+            The total path length as a float."""
+        if len(self._points) < 2:
+            return 0.0
+        diffs = np.diff(self._points, axis=0)
+        if self.closed and len(self._points) >= 2:
+            diffs = np.vstack([diffs, self._points[0] - self._points[-1]])
+        return float(np.sum(np.linalg.norm(diffs, axis=1)))
 
     def is_closed(self) -> bool:
         """True if the first and last points of the path coincide."""
@@ -620,7 +636,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.__class__(pts, closed=self.closed)
 
     def deduplicated(self) -> "Path3D":
-        """Drop consecutive repeated points."""
+        """Drop consecutive repeated points.
+
+        Returns:
+            A new :class:`Path3D` with duplicate points removed."""
         return self.__class__(Path2D._deduplicate(self._points, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path3D":

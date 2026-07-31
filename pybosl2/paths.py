@@ -91,6 +91,15 @@ class Path(ABC):
         ...
 
     @abstractmethod
+    def perimeter(self) -> float:
+        """Total length along the path.
+
+        Returns:
+            The total path length as a float.
+        """
+        ...
+
+    @abstractmethod
     def length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Distance fraction of each point in the path (0 at start, 1 at end).
 
