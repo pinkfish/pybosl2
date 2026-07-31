@@ -799,8 +799,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         poly = self._shapely_polygon
         if signed:
-            ring = self._shapely
-            return float(poly.area if ring.is_ccw else -poly.area)
+            x = self._points[:, 0]
+            y = self._points[:, 1]
+            shoelace = np.sum(x * np.roll(y, -1) - np.roll(x, -1) * y)
+            return float(poly.area if shoelace > 0 else -poly.area)
         return float(poly.area)
 
     def is_clockwise(self) -> bool:
