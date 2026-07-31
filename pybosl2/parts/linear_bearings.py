@@ -12,6 +12,7 @@
 #    bearing to a plate with a teardrop bore and a screw.
 #
 # FileSummary: Linear (LMxUU) ball bearings and their pillow-block housings.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

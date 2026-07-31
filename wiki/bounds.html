@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Bounds &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
+    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+
+
+
+
+  </head><body>
+  <div class="document">
+
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pybosl2 (PythonSCAD port)</a></h1>
+
+
+
+<p class="blurb">A pure-Python PythonSCAD port of BOSL2</p>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> native_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="path2d.html"> 2-D path operations: area, offset, polygon containment, round_corners, linear_extrude, and more</a></li>
+<li class="toctree-l1"><a class="reference internal" href="path3d.html"> 3-D path operations: tangents, normals, curvature, torsion, resampling, cutting, and 3-D transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extras</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a></li>
+</ul>
+
+
+<hr />
+<ul>
+
+    <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
+
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+
+
+          <div class="body" role="main">
+
+  <aside id="pysidebar-global">
+<div class="ps-header">
+<p class="pysidebar-title">In this module</p>
+<button class="ps-toggle" title="Toggle sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+</div>
+<div class="ps-content">
+<ul class="pysidebar-list">
+<li class="ps-class"><a href="#pybosl2.bounds.Bounds2D"><strong>Bounds2D</strong></a></li>
+<li class="ps-class"><a href="#pybosl2.bounds.Bounds3D"><strong>Bounds3D</strong></a></li>
+</ul></div></aside>
+<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="bounds">
+<h1>Bounds<a class="headerlink" href="#bounds" title="Link to this heading">¶</a></h1>
+<p>Axis-aligned bounding boxes for 2-D and 3-D geometry</p>
+<p id="module-pybosl2.bounds">Axis-aligned bounding boxes for 2-D and 3-D geometry.</p>
+<p>Provides <a class="reference internal" href="#pybosl2.bounds.Bounds2D" title="pybosl2.bounds.Bounds2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds2D</span></code></a> and <a class="reference internal" href="#pybosl2.bounds.Bounds3D" title="pybosl2.bounds.Bounds3D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds3D</span></code></a> dataclasses returned
+by <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.bounds()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path3D.bounds()</span></code>, and solid bounding-box
+methods throughout pybosl2. Each holds the min/max corners and
+pre-computed width/length (or width/length/height) so users can write
+<code class="docutils literal notranslate"><span class="pre">path.bounds().width</span></code> instead of <code class="docutils literal notranslate"><span class="pre">path.bounds()[1][0]</span> <span class="pre">-</span> <span class="pre">path.bounds()[0][0]</span></code>.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds2D">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.bounds.</span></span><span class="sig-name descname"><span class="pre">Bounds2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/bounds.html#Bounds2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.bounds.Bounds2D" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Axis-aligned bounding box of a 2-D path.</p>
+<p>Returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">bounds()</span></code> with the min/max
+corners and pre-computed width and length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_x</strong> (<em>float</em>)</p></li>
+<li><p><strong>min_y</strong> (<em>float</em>)</p></li>
+<li><p><strong>max_x</strong> (<em>float</em>)</p></li>
+<li><p><strong>max_y</strong> (<em>float</em>)</p></li>
+<li><p><strong>width</strong> (<em>float</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds2D.min_x">
+<span class="sig-name descname"><span class="pre">min_x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds2D.min_x" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds2D.min_y">
+<span class="sig-name descname"><span class="pre">min_y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds2D.min_y" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds2D.max_x">
+<span class="sig-name descname"><span class="pre">max_x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds2D.max_x" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds2D.max_y">
+<span class="sig-name descname"><span class="pre">max_y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds2D.max_y" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds2D.width">
+<span class="sig-name descname"><span class="pre">width</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds2D.width" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds2D.length">
+<span class="sig-name descname"><span class="pre">length</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds2D.length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.bounds.</span></span><span class="sig-name descname"><span class="pre">Bounds3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/bounds.html#Bounds3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.bounds.Bounds3D" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Axis-aligned bounding box of a 3-D path or solid.</p>
+<p>Returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">bounds()</span></code> and solid bounding-box
+methods with the min/max corners and pre-computed width, length, and
+height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_x</strong> (<em>float</em>)</p></li>
+<li><p><strong>min_y</strong> (<em>float</em>)</p></li>
+<li><p><strong>min_z</strong> (<em>float</em>)</p></li>
+<li><p><strong>max_x</strong> (<em>float</em>)</p></li>
+<li><p><strong>max_y</strong> (<em>float</em>)</p></li>
+<li><p><strong>max_z</strong> (<em>float</em>)</p></li>
+<li><p><strong>width</strong> (<em>float</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em>)</p></li>
+<li><p><strong>height</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.min_x">
+<span class="sig-name descname"><span class="pre">min_x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.min_x" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.min_y">
+<span class="sig-name descname"><span class="pre">min_y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.min_y" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.min_z">
+<span class="sig-name descname"><span class="pre">min_z</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.min_z" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.max_x">
+<span class="sig-name descname"><span class="pre">max_x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.max_x" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.max_y">
+<span class="sig-name descname"><span class="pre">max_y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.max_y" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.max_z">
+<span class="sig-name descname"><span class="pre">max_z</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.max_z" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.width">
+<span class="sig-name descname"><span class="pre">width</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.width" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.length">
+<span class="sig-name descname"><span class="pre">length</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.length" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.bounds.Bounds3D.height">
+<span class="sig-name descname"><span class="pre">height</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.bounds.Bounds3D.height" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2026, pinkfish.
+
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+
+      |
+      <a href="_sources/bounds.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+
+
+
+  </body>
+</html>

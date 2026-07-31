@@ -15,6 +15,7 @@
 #    now live inline / on the Path2D object, not here.
 #
 # FileSummary: Approximate comparison (BOSL2 comparisons.scad).
+# DocCategory: Math & geometry
 # FileGroup: BOSL2
 
 from __future__ import annotations

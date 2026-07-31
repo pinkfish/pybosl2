@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: internal
 
 """End-cap specifications shared by sweep, skin, bezier, and stroke drawing.
 
@@ -30,7 +31,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import Sequence, Union
+from typing import Any, Sequence, Union
 
 import numpy as np
 
@@ -318,14 +319,14 @@ def _endcap_trim(spec: CapSpec, width: float) -> float:
     return 0.0
 
 
-def _place(poly, theta_deg: float, at):
+def _place(poly: Sequence[Sequence[float]], theta_deg: float, at: Sequence[float]) -> list[list[float]]:
     """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
     radius = math.radians(theta_deg)
     c, s = math.cos(radius), math.sin(radius)
     return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]
 
 
-def _trim_ends(body, trim1: float, trim2: float):
+def _trim_ends(body: list[list[float]], trim1: float, trim2: float) -> list[list[float]]:
     """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment)."""
     import numpy as np
 
@@ -341,7 +342,7 @@ def _trim_ends(body, trim1: float, trim2: float):
     return body
 
 
-def _oriented_to(shape, outdir, at):
+def _oriented_to(shape: Any, outdir: Sequence[float], at: Sequence[float]) -> Any:
     """Rotate a Z-up solid so +Z points along 3-D *outdir*, then translate it to *at*.
 
     Uses ``rotate(angle, axis)`` rather than a 4x4 ``multmatrix`` so it works on either backend's

@@ -11,6 +11,7 @@
 #    :meth:`~Wiring.hex_offsets` exposes the optimal hex-packing centre points it uses.
 #
 # FileSummary: Routed bundles of wires.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

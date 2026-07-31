@@ -18,13 +18,14 @@
 #    polyhedron() from a computed vertex/face grid (see _heightfield_polyhedron()).
 #
 # FileSummary: Attachable cubes, cylinders, spheres, text and rulers (BOSL2 shapes3d.scad).
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations
 
 import math
 import numbers
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -43,7 +44,6 @@ from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
-from pybosl2.geometry import cross
 from pybosl2.miscellaneous import Miscellaneous
 from pybosl2.partitions import Partitionable
 from pybosl2.vectors import is_vector, unit
@@ -164,7 +164,10 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
 
     #: which realize backend produced this solid -- see pybosl2/_backend.py. Bosl2Solid is the
     #: exact-CSG (PythonSCAD) backend's Solid; the libfive/SDF backend uses its own wrapper.
-    backend = "csg"
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+
+    backend: str
 
     def __init__(
         self,
@@ -175,9 +178,10 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         self.shape = shape
         self.size = size
         self.anchor = anchor if anchor is not None else CENTER
-        # True once a positional transform (translate/rotate/scale/...) has been applied, so the
-        # tracked cuboid size/anchor metadata no longer describes the object's current position.
         self._moved = False
+        from pybosl2._backend import current_backend
+
+        self.backend = current_backend()
 
     @staticmethod
     def _unwrap(x):
@@ -191,12 +195,14 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         Use for ops that do NOT move/resize the geometry (colour, repair, native mesh ops)."""
         out = Bosl2Solid(new_shape, self.size, self.anchor)
         out._moved = self._moved
+        out.backend = self.backend
         return out
 
     def _wrap_moved(self, new_shape: PyOpenSCAD) -> "Bosl2Solid":
         """Wrap a native result of a positional transform, flagging the tracked metadata stale."""
         out = Bosl2Solid(new_shape, self.size, self.anchor)
         out._moved = True
+        out.backend = self.backend
         return out
 
     def __getattr__(self, name):
@@ -413,15 +419,15 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
         )
 
     def __or__(self, other) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
+        _check_operand_backend(self.backend, other)
         return self._wrap(self.shape | Bosl2Solid._unwrap(other))
 
     def __and__(self, other) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
+        _check_operand_backend(self.backend, other)
         return self._wrap(self.shape & Bosl2Solid._unwrap(other))
 
     def __sub__(self, other) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
+        _check_operand_backend(self.backend, other)
         return self._wrap(self.shape - Bosl2Solid._unwrap(other))
 
     def __ror__(self, other) -> "Bosl2Solid":
@@ -719,7 +725,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def edge_mask(
         self,
         edges: str | list = "ALL",
-        except_edges: list | None = None,
+        except_edges: list[Any] | None = None,
         children: PyOpenSCAD | None = None,
         bbox=None,
     ) -> "Bosl2Solid":
@@ -752,7 +758,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def edge_profile(
         self,
         edges: str | list = "ALL",
-        except_edges: list | None = None,
+        except_edges: list[Any] | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
         bbox=None,
@@ -795,7 +801,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def edge_profile_asym(
         self,
         edges: str | list = "ALL",
-        except_edges: list | None = None,
+        except_edges: list[Any] | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
     ) -> "Bosl2Solid":
@@ -804,7 +810,7 @@ class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
     def corner_profile(
         self,
         corners: str | list = "ALL",
-        except_corners: list | None = None,
+        except_corners: list[Any] | None = None,
         radius: float | None = None,
         diameter: float | None = None,
         children: Sequence[Sequence[float]] | None = None,
@@ -881,7 +887,7 @@ def _orient_rotate(shape: PyOpenSCAD, orient: Sequence[float]) -> PyOpenSCAD:
         return shape
     if o == [0, 0, -1]:
         return shape.rotate(180, [1, 0, 0])
-    axis = np.asarray(cross([0, 0, 1], o), dtype=float)
+    axis = np.asarray(np.cross([0, 0, 1], o), dtype=float)
     sides = float(np.linalg.norm(axis))
     if sides < 1e-12:
         return shape
@@ -901,11 +907,13 @@ def _rot_from_to(a: Sequence[float], b: Sequence[float]) -> "tuple[float, list[f
     if diameter > 1 - 1e-9:
         return 0.0, [0.0, 0.0, 1.0]
     if diameter < -1 + 1e-9:
-        axis = cross(au, [1.0, 0.0, 0.0])
-        if float(np.linalg.norm(np.asarray(axis, dtype=float))) < 1e-9:
-            axis = cross(au, [0.0, 1.0, 0.0])
-        return 180.0, list(unit(axis))
-    axis = list(unit(cross(au, bu)))
+        perp = np.cross(au, [1.0, 0.0, 0.0])
+        if float(np.linalg.norm(np.asarray(perp, dtype=float))) < 1e-9:
+            perp = np.cross(au, [0.0, 1.0, 0.0])
+        perp_u = unit(perp)
+        return 180.0, [float(perp_u[0]), float(perp_u[1]), float(perp_u[2])]
+    axis_u = unit(np.cross(au, bu))
+    axis: list[float] = [float(axis_u[0]), float(axis_u[1]), float(axis_u[2])]
     return math.degrees(math.acos(diameter)), axis
 
 
@@ -1201,7 +1209,7 @@ def cuboid(
     chamfer: float | None = None,
     rounding: float | None = None,
     edges: str | list = "ALL",
-    except_edges: list | None = None,
+    except_edges: list[Any] | None = None,
     trimcorners: bool = True,
     teardrop: bool | float = False,
     anchor: Sequence[float] = CENTER,
@@ -3006,17 +3014,17 @@ def _frame_map(
     yu = unit(y) if y is not None else None
     zu = unit(z) if z is not None else None
     if xu is None:
-        m = [cross(yu, zu), yu, zu]
+        m = [np.cross(yu, zu), yu, zu]  # type: ignore[arg-type]
     elif yu is None:
-        m = [xu, cross(zu, xu), zu]
+        m = [xu, np.cross(zu, xu), zu]  # type: ignore[arg-type]
     elif zu is None:
-        m = [xu, yu, cross(xu, yu)]
+        m = [xu, yu, np.cross(xu, yu)]  # type: ignore[arg-type]
     else:
         m = [xu, yu, zu]
     return [
-        [m[0][0], m[1][0], m[2][0], 0.0],
-        [m[0][1], m[1][1], m[2][1], 0.0],
-        [m[0][2], m[1][2], m[2][2], 0.0],
+        [m[0][0], m[1][0], m[2][0], 0.0],  # type: ignore[index]
+        [m[0][1], m[1][1], m[2][1], 0.0],  # type: ignore[index]
+        [m[0][2], m[1][2], m[2][2], 0.0],  # type: ignore[index]
         [0.0, 0.0, 0.0, 1.0],
     ]
 
@@ -3026,7 +3034,7 @@ def _point3d(v: Sequence[float]) -> list[float]:
 
 
 def _cut_interp(
-    pathcut: list, path: Sequence[Sequence[float]] | Path2D | Path3D, data: Sequence[Sequence[float]]
+    pathcut: list[Any], path: Sequence[Sequence[float]] | Path2D | Path3D, data: Sequence[Sequence[float]]
 ) -> list[list[float]]:
     """Port of BOSL2's `_cut_interp()`: linearly interpolates a per-path-vertex vector array
     `data` to the fractional position of each `cut_points()` cut point.

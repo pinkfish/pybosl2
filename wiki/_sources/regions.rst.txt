@@ -1,6 +1,6 @@
 Regions
 =======
-.. automodule:: bosl2.regions
+.. automodule:: pybosl2.regions
    :members:
    :undoc-members:
    :show-inheritance:

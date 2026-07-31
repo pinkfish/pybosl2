@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: internal
 
 # Exceptions for the dual-backend (CSG / SDF) solid system. pybosl2 realizes solids through either
 # the exact-CSG backend (PythonSCAD, the default) or the F-Rep/signed-distance backend (libfive).

@@ -22,6 +22,7 @@
 #    modules.
 #
 # FileSummary: NURBS curve/surface evaluation and meshing (de Boor).
+# DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
 from __future__ import annotations

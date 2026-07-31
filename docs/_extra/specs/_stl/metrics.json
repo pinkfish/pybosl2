@@ -352,5 +352,11 @@
    "bbox": "34\u00d739\u00d75",
    "wt": true
   }
- }
+ },
+ "threading": {},
+ "screw_drive": {},
+ "bottlecaps": {},
+ "sliders": {},
+ "shapes3d": {},
+ "shapes2d": {}
 }

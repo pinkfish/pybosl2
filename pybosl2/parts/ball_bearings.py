@@ -15,6 +15,7 @@
 #    The trade-size table is transcribed verbatim from ball_bearings.scad.
 #
 # FileSummary: Standard ball-bearing cartridge models.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

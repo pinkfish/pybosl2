@@ -23,6 +23,7 @@
 #    opposite hand from BOSL2. A helical gear still meshes its opposite-hand mate either way.
 #
 # FileSummary: Gears: spur (with undercut), helical, herringbone, rack, ring, bevel, worm.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

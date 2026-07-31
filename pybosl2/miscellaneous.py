@@ -21,6 +21,7 @@
 #    the mixins during their own import without a cycle.
 #
 # FileSummary: Extrusions, bounding box, chain hull, and minkowski-based transforms.
+# DocCategory: Extras
 # FileGroup: BOSL2
 
 from __future__ import annotations
@@ -38,7 +39,6 @@ import numpy as np
 
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
 from pybosl2.constants import BACK, UP
-from pybosl2.geometry import pointlist_bounds
 from pybosl2.transforms import axis_angle_matrix, rot_from_to
 from pybosl2.vectors import unit
 
@@ -281,8 +281,10 @@ class Extrudable:
         sides = len(pts)
         assert sides >= 2, "path_extrude2d(): need at least two points."
         if s is None:
-            b = pointlist_bounds(pts)
-            s = float(np.linalg.norm(b[1] - b[0]))
+            bbox_arr = np.asarray(pts, dtype=float)
+            mn = bbox_arr.min(axis=0)
+            mx = bbox_arr.max(axis=0)
+            s = math.hypot(float(mx[0] - mn[0]), float(mx[1] - mn[1]))
         factory = _profile_factory(profile)
         parts = []
         # straight segments

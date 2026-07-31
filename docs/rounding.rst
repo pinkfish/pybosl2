@@ -2,9 +2,9 @@ Rounding: round_corners & smooth_path
 =====================================
 
 Pure-Python port of the path-rounding core of BOSL2's ``rounding.scad``:
-:func:`~pybosl2.rounding.round_corners` rounds every corner of a path, and
+:func:`~pybosl2._sdf.paths` rounds every corner of a path, and
 :func:`~pybosl2.rounding.smooth_path` fits a continuous-curvature curve through a path. Both work on
-2-D and 3-D paths and are methods on :class:`~pybosl2.paths.Path` and :class:`~pybosl2.paths.Path3D`::
+2-D and 3-D paths and are methods on :class:`~pybosl2.paths` and :class:`~pybosl2._sdf.skin.path3d`::
 
     Path([[0, 0], [40, 0], [40, 30], [0, 30]]).round_corners(radius=5)
     Path([[0, 0], [40, 0], [40, 30], [0, 30]]).round_corners(method="smooth", joint=8)
@@ -30,7 +30,7 @@ Coverage of BOSL2 ``rounding.scad``
      - Notes
    * - ``round_corners``
      - ported
-     - :func:`~pybosl2.rounding.round_corners` -- all three methods, all four size measures, open/closed,
+     - :func:`~pybosl2._sdf.paths` -- all three methods, all four size measures, open/closed,
        2-D and 3-D. The roundover-overflow (scale-factor) check is included.
    * - ``smooth_path``
      - ported (``method="edges"``)

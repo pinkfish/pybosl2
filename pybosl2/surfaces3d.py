@@ -13,12 +13,13 @@
 #    re-exported from shapes3d for backward-compatible `from pybosl2.shapes3d import heightfield`.
 #
 # FileSummary: Heightfields, function plots, fillets, textured tiles and the ruler annotation.
+# DocCategory: internal
 # FileGroup: BOSL2
 
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
 
@@ -97,7 +98,7 @@ def _heightfield_dedupe(
     several consecutive rows can share literally identical positions there but at different grid
     indices. Left un-merged, that turns into a naked seam once degenerate triangles get dropped.
     """
-    remap: list[int] = []
+    remap: list[Any] = []
     seen: dict[tuple[float, float, float], int] = {}
     merged: list[list[float]] = []
     for p in pts:
@@ -835,7 +836,7 @@ def ruler(
     labels: bool = False,
     pipscale: float = 1 / 3,
     maxscale: float | None = None,
-    colors: list[str] | None = None,
+    colors: list[Any] | None = None,
     alpha: float = 1.0,
     unit: float = 1,
     inch: bool = False,

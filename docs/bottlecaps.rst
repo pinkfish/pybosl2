@@ -10,7 +10,7 @@ Bottle caps: PCO-1810 & PCO-1881 necks and caps
 
 
 Pure-Python port of the standard soda-bottle threadings from BOSL2's ``bottlecaps.scad``. The
-:class:`~pybosl2.bottlecaps.BottleCaps` class builds a threaded **neck** to graft onto a bottle body
+:class:`~pybosl2.parts.bottlecaps` class builds a threaded **neck** to graft onto a bottle body
 and a matching **cap**, for the two common beverage-bottle standards::
 
     BottleCaps.pco1810_neck()      # PCO-1810 neck
@@ -19,8 +19,8 @@ and a matching **cap**, for the two common beverage-bottle standards::
     BottleCaps.pco1881_cap()       # matching PCO-1881 cap
 
 The neck outline (inner bore, support ring, tamper-ring channel and sealing lip) is a
-:func:`~pybosl2.drawing.turtle` path revolved with ``rotate_extrude``, exactly as BOSL2 builds it; the
-thread is :meth:`~pybosl2.threading.Threading.thread_helix` with the two thread breaks cut by the same
+:func:`~pybosl2.turtle.turtle2d` path revolved with ``rotate_extrude``, exactly as BOSL2 builds it; the
+thread is :meth:`~pybosl2.parts.threading.Threading.thread_helix` with the two thread breaks cut by the same
 prismoids. Geometry is anchored with its bottom on the XY plane.
 
 Approximations relative to BOSL2
@@ -63,7 +63,8 @@ A PCO-1881 neck and its cap, side by side:
 
 API reference
 -------------
-.. autoclass:: pybosl2.bottlecaps.BottleCaps
+
+.. autoclass:: pybosl2.parts.bottlecaps.BottleCaps
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

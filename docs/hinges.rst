@@ -10,12 +10,13 @@ Hinges
 
 
 Pure-Python port of the hinges in BOSL2's ``hinges.scad``: a print-in-place
-:meth:`~pybosl2.hinges.Hinges.living_hinge_mask` (differenced from a plate to make a folding "live"
-hinge), a functional interlocking :meth:`~pybosl2.hinges.Hinges.knuckle_hinge` leaf (with
-:meth:`~pybosl2.hinges.Hinges.knuckle_hinge_pair` for both leaves meshed around one pin, at any fold
-angle), and simple :meth:`~pybosl2.hinges.Hinges.snap_lock` / :meth:`~pybosl2.hinges.Hinges.snap_socket`
+:meth:`~pybosl2.parts.hinges.Hinges.living_hinge_mask` (differenced from a plate to make a folding "live"
+hinge), a functional interlocking :meth:`~pybosl2._sdf.joiners` leaf (with
+:meth:`~pybosl2.parts.hinges.Hinges.knuckle_hinge_pair` for both leaves meshed around one pin, at any fold
+angle), and simple :meth:`~pybosl2.parts.hinges.Hinges.snap_lock` / :meth:`~pybosl2.parts.hinges.Hinges.snap_socket`
 connectors.
-.. autoclass:: pybosl2.hinges.Hinges
+
+.. autoclass:: pybosl2.parts.hinges.Hinges
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

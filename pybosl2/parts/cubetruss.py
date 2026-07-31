@@ -19,6 +19,7 @@
 #    FRONT/BACK/LEFT/RIGHT faces).
 #
 # FileSummary: Modular cubical truss segments and trusses.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

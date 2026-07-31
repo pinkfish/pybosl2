@@ -11,14 +11,15 @@ NEMA steppers
 
 Pure-Python port of BOSL2's ``nema_steppers.scad``: models of NEMA-standard stepper motors and the
 masks that cut their mounting-hole pattern into a plate.
-:meth:`~pybosl2.nema_steppers.NemaSteppers.nema_stepper_motor` builds a motor (body, plinth, shaft and
-blind screw holes) for a NEMA size; :meth:`~pybosl2.nema_steppers.NemaSteppers.nema_mount_mask` is the
-bolt-pattern-plus-plinth cutout; :meth:`~pybosl2.nema_steppers.NemaSteppers.nema_motor_info` returns
-the standard dimensions as a :class:`~pybosl2.nema_steppers.NemaSpec`.
-.. autoclass:: pybosl2.nema_steppers.NemaSpec
+:meth:`~pybosl2.parts.nema_steppers.NemaSteppers.nema_stepper_motor` builds a motor (body, plinth, shaft and
+blind screw holes) for a NEMA size; :meth:`~pybosl2.parts.nema_steppers.NemaSteppers.nema_mount_mask` is the
+bolt-pattern-plus-plinth cutout; :meth:`~pybosl2.parts.nema_steppers.NemaSteppers.nema_motor_info` returns
+the standard dimensions as a :class:`~pybosl2.parts.nema_steppers`.
+
+.. autoclass:: pybosl2.parts.nema_steppers.NemaSpec
    :members:
 
-.. autoclass:: pybosl2.nema_steppers.NemaSteppers
+.. autoclass:: pybosl2.parts.nema_steppers.NemaSteppers
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

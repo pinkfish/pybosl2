@@ -19,6 +19,7 @@
 #    to a small positive ``border`` (BOSL2 uses 0) so its tile seams watertight.
 #
 # FileSummary: The texture() named-texture engine.
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations

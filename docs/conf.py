@@ -129,19 +129,33 @@ html_sidebars = {
 
 
 def setup(app):
-    """Regenerate the visual spec-sheet pages (``_extra/specs/*.html`` + ``spec.css``) from the
-    committed STL cache (``_extra/specs/_stl/metrics.json``) before Sphinx copies ``_extra/``.
+    """Regenerate docs artifacts from the live module structure before each build.
 
-    ``_specgen.py`` is the single source of truth for those pages, so they are treated as build
-    artifacts (see ``docs/.gitignore``) rather than checked in -- eliminating the hand-sync drift
-    between the generator and its output. No rendering happens here: ``build_variant_stls`` reuses
-    the cached meshes/metrics, so this is a sub-second, FFI-free step.
+    ``_specgen.py`` rebuilds the visual spec-sheet pages (``_extra/specs/*.html``)
+    from committed STL caches. ``_rstgen.py`` regenerates ``index.rst``, creates
+    stub ``.rst`` files for new modules, and validates all cross-references against
+    the current package layout — so module moves/renames are caught automatically.
     """
+    _regenerate_specs_patched(app)
+    _regenerate_rsts_patched(app)
+    return {"parallel_read_safe": True, "parallel_write_safe": True}
 
+
+def _regenerate_specs_patched(app):
     def _regenerate_specs(_app):
-        import _specgen  # docs/ is on sys.path (added above)
+        import _specgen
 
         _specgen.main()
 
     app.connect("builder-inited", _regenerate_specs)
-    return {"parallel_read_safe": True, "parallel_write_safe": True}
+
+
+def _regenerate_rsts_patched(app):
+    def _regenerate_rsts(_app):
+        import _rstgen
+
+        warnings = _rstgen.main(verbose=True)
+        if warnings:
+            print(f"_rstgen: {len(warnings)} broken cross-references detected")
+
+    app.connect("builder-inited", _regenerate_rsts)

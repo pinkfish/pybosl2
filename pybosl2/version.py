@@ -15,6 +15,7 @@
 #      * ``pybosl2.Version`` / ``pybosl2.version`` expose the parsed components.
 #
 # FileSummary: Package version metadata and the Version class.
+# DocCategory: internal
 # FileGroup: BOSL2
 
 from __future__ import annotations

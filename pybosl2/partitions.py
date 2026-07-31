@@ -20,6 +20,7 @@
 #    them, so shapes3d.py can pull in the mixin during its own import without a cycle.
 #
 # FileSummary: Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints).
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations
@@ -38,7 +39,6 @@ import numpy as np
 
 from pybosl2._helpers import is_num, zrot4
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
-from pybosl2.geometry import pointlist_bounds
 from pybosl2.transforms import axis_angle_matrix, rot_about_axis, rot_from_to
 from pybosl2.vectors import unit
 
@@ -272,15 +272,15 @@ def _ptn_sect(
             return _yscale(-1, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs))
         if opt == "xflip":
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
-            b = pointlist_bounds(sect)
-            xpos = (b[1][0] + b[0][0]) / 2
-            return Path2D(_xflip(xpos, sect)[::-1])
+            b = sect.bounds()
+            xpos = (b.max_x + b.min_x) / 2
+            return Path2D(_xflip(xpos, sect)[::-1])  # type: ignore[arg-type]
         if opt in ("addflip", "wave"):
             sect1 = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             sect2 = _ptn_sect(base + " yflip xflip", length, width, fn=fn, fa=fa, fs=fs)
-            b1, b2 = pointlist_bounds(sect1), pointlist_bounds(sect2)
-            osect1 = _scale2(0.5, 0.5, _left(b1[0][0], sect1))
-            osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2[0][0], sect2)))
+            b1, b2 = sect1.bounds(), sect2.bounds()
+            osect1 = _scale2(0.5, 0.5, _left(b1.min_x, sect1))
+            osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2.min_x, sect2)))
             return _merge_collinear(list(osect1) + list(osect2))
         if opt and opt[0].isdigit() and opt.endswith("x") and opt[:-1].isdigit():  # "3x": repeat
             reps = int(opt[:-1])
@@ -641,12 +641,11 @@ def partition_cut_mask(
             from pybosl2.partitions import partition_cut_mask
             (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath="jigsaw", slop=0.15)).show()
     """
-    from pybosl2.drawing import stroke as _stroke
     from pybosl2.shapes3d import Bosl2Solid
 
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]
     path = _partition_cutpath(length, height, cs, cutpath, gap, cutpath_centered, fn, fa, fs)  # type: ignore[arg-type]
-    ribbon = _stroke(path, width=max(0.1, slop * 2))
+    ribbon = path.stroke(width=max(0.1, slop * 2))
     return Bosl2Solid(ribbon.linear_extrude(height=height, center=True))
 
 

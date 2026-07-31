@@ -14,6 +14,7 @@
 #    the hirth/rabbit-clip couplings are not ported.
 #
 # FileSummary: Dovetail joints and snap-pin connectors.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

@@ -16,6 +16,7 @@ with :mod:`pybosl2.turtle3d` so that both turtles accept the same command set.
 
 # LibFile: pybosl2/turtle2d.py
 # FileSummary: 2-D turtle-graphics path builder.
+# DocCategory: internal
 # FileGroup: BOSL2
 
 from __future__ import annotations
@@ -222,15 +223,27 @@ class Turtle2D:
         elif ct == TurtleCommandType.YJUMP:
             self._state = self._state.with_point([float(lastpt[0]), self._n(cmd.size, float(lastpt[0]))])
         elif ct == TurtleCommandType.UNTILX:
-            res = general_line_intersection([lastpt, lastpt + step], [[self._n(cmd.size), 0], [self._n(cmd.size), 1]])
+            res = general_line_intersection(
+                (
+                    Point(float(lastpt[0]), float(lastpt[1])),
+                    Point(float(lastpt[0] + step[0]), float(lastpt[1] + step[1])),
+                ),
+                (Point(self._n(cmd.size), 0), Point(self._n(cmd.size), 1)),
+            )
             if res is None:
                 raise ValueError(f'"untilx" never reaches the goal at index {index}')
-            self._state = self._state.with_point([float(res[0][0]), float(res[0][1])])
+            self._state = self._state.with_point([res[0].x, res[0].y])
         elif ct == TurtleCommandType.UNTILY:
-            res = general_line_intersection([lastpt, lastpt + step], [[0, self._n(cmd.size)], [1, self._n(cmd.size)]])
+            res = general_line_intersection(
+                (
+                    Point(float(lastpt[0]), float(lastpt[1])),
+                    Point(float(lastpt[0] + step[0]), float(lastpt[1] + step[1])),
+                ),
+                (Point(0, self._n(cmd.size)), Point(1, self._n(cmd.size))),
+            )
             if res is None:
                 raise ValueError(f'"untily" never reaches the goal at index {index}')
-            self._state = self._state.with_point([float(res[0][0]), float(res[0][1])])
+            self._state = self._state.with_point([res[0].x, res[0].y])
         elif ct == TurtleCommandType.LEFT:
             self._state = self._state.with_step(_rot2(ang if ang is not None else self._state.angle, step))
         elif ct == TurtleCommandType.RIGHT:
@@ -316,13 +329,13 @@ class Turtle2D:
         if not absolute_angle:
             myangle = cmd.angle if isinstance(cmd.angle, (int, float)) else self._state.angle
             radius = radius_val * (1 if myangle >= 0 else -1)
-            center = lastpt + lrsign * radius * line_normal([0, 0], step)
+            center = lastpt + lrsign * radius * line_normal(Point(0.0, 0.0), Point(float(step[0]), float(step[1])))
             turn = math.copysign(1, radius_val) * lrsign * myangle
             rot_step = _rot2(lrsign * myangle, step)
         else:
             assert isinstance(cmd.angle, (int, float)), f'"{cmd.cmd_type.value}" needs a numeric angle at index {index}'
             radius = radius_val
-            center = lastpt + lrsign * radius * line_normal([0, 0], step)
+            center = lastpt + lrsign * radius * line_normal(Point(0.0, 0.0), Point(float(step[0]), float(step[1])))
             start_angle = math.degrees(math.atan2(step[1], step[0])) % 360
             end_angle = float(cmd.angle) % 360
             if lrsign * end_angle < lrsign * start_angle:
@@ -362,7 +375,7 @@ class Turtle2D:
         radius = abs(radius_val)
         steps = _frag_count(radius) if self._state.arcsteps == 0 else int(self._state.arcsteps)
 
-        center = lastpt + lrsign * radius * line_normal([0, 0], step)
+        center = lastpt + lrsign * radius * line_normal(Point(0.0, 0.0), Point(float(step[0]), float(step[1])))
         turn = lrsign * abs(myangle)
         rot_step = _rot2(turn, step)
 
@@ -433,7 +446,7 @@ class Turtle2D:
 
             lrsign = 1 if angle >= 0 else -1
             turn = lrsign * abs(angle)
-            center = lastpt + lrsign * abs(radius) * line_normal([0, 0], step)
+            center = lastpt + lrsign * abs(radius) * line_normal(Point(0.0, 0.0), Point(float(step[0]), float(step[1])))
 
             steps_count = max(2, _frag_count(abs(radius))) if self._state.arcsteps == 0 else int(self._state.arcsteps)
             if usersteps != 1:

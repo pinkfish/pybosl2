@@ -19,6 +19,7 @@
 #    the bevel machinery -- are NOT ported (a follow-up), so ends are cut flush.
 #
 # FileSummary: Screw threading: threaded rods and nuts (ISO/trapezoidal/acme/square/buttress).
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

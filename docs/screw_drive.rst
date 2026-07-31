@@ -10,8 +10,8 @@ Screw drives: Phillips, hex, Torx & Robertson recesses
 
 
 Pure-Python port of BOSL2's ``screw_drive.scad``: masks for the driver recess cut into a screw
-head. The :class:`~pybosl2.screw_drive.ScrewDrive` class groups them as static methods that return a
-:class:`~pybosl2.shapes3d.Bosl2Solid` mask -- subtract one from a head to make the recess::
+head. The :class:`~pybosl2.parts.screw_drive` class groups them as static methods that return a
+:class:`~pybosl2.shapes3d` mask -- subtract one from a head to make the recess::
 
     head - ScrewDrive.phillips_mask("#2")     # a #2 Phillips recess
     head - ScrewDrive.hex_drive_mask(5, 4)    # a 5mm hex (Allen) recess, 4mm deep
@@ -19,10 +19,10 @@ head. The :class:`~pybosl2.screw_drive.ScrewDrive` class groups them as static m
     head - ScrewDrive.robertson_mask(2)       # a #2 Robertson/square recess
 
 Every ``*_mask`` is built bottom-on-the-XY-plane (BOSL2's ``anchor=BOTTOM``); pass ``center=True``
-to center it vertically. The dimensional helpers -- :meth:`~pybosl2.screw_drive.ScrewDrive.torx_info`,
-:meth:`~pybosl2.screw_drive.ScrewDrive.torx_diam`, :meth:`~pybosl2.screw_drive.ScrewDrive.torx_depth`,
-:meth:`~pybosl2.screw_drive.ScrewDrive.phillips_depth` and
-:meth:`~pybosl2.screw_drive.ScrewDrive.phillips_diam` -- return the same numbers as their BOSL2
+to center it vertically. The dimensional helpers -- :meth:`~pybosl2.parts.screw_drive.ScrewDrive.torx_info`,
+:meth:`~pybosl2.parts.screw_drive.ScrewDrive.torx_diam`, :meth:`~pybosl2.parts.screw_drive.ScrewDrive.torx_depth`,
+:meth:`~pybosl2.parts.screw_drive.ScrewDrive.phillips_depth` and
+:meth:`~pybosl2.parts.screw_drive.ScrewDrive.phillips_diam` -- return the same numbers as their BOSL2
 counterparts.
 
 The dimension tables (Phillips ISO 4757, the Torx ISO 14583 OD/ID/depth/rounding table, and the
@@ -48,7 +48,8 @@ A T30 Torx tip:
 
 API reference
 -------------
-.. autoclass:: pybosl2.screw_drive.ScrewDrive
+
+.. autoclass:: pybosl2.parts.screw_drive.ScrewDrive
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

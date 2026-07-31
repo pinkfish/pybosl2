@@ -1,6 +1,6 @@
 Vector helpers
 ==============
-.. automodule:: bosl2.vectors
+.. automodule:: pybosl2.vectors
    :members:
    :undoc-members:
    :show-inheritance:

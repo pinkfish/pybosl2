@@ -1,6 +1,6 @@
 Geometry helpers
 ================
-.. automodule:: bosl2.geometry
+.. automodule:: pybosl2.geometry
    :members:
    :undoc-members:
    :show-inheritance:

@@ -12,6 +12,7 @@
 #    returns the standard dimensions as a :class:`NemaSpec`.
 #
 # FileSummary: NEMA stepper-motor models and mounting masks.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

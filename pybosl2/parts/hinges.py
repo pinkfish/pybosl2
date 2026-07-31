@@ -15,6 +15,7 @@
 #    elaborate screw-pin / teardrop / clip / tag refinements are not reproduced.
 #
 # FileSummary: Living (folding) hinges, knuckle hinges, and snap connectors.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

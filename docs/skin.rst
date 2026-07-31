@@ -2,7 +2,7 @@ Sweeps (skin)
 =============
 
 Pure-Python port of the surface generators from BOSL2's ``skin.scad`` — every one builds a
-:class:`~pybosl2.vnf.VNF` you render with ``.polyhedron()``.
+:class:`~pybosl2.vnf` you render with ``.polyhedron()``.
 
 Coverage of BOSL2 ``skin.scad``
 -------------------------------
@@ -16,10 +16,10 @@ Coverage of BOSL2 ``skin.scad``
      - Notes
    * - ``sweep(shape, transforms)``
      - ported
-     - :func:`~pybosl2.skin.sweep`
+     - :func:`~pybosl2.skin.skin`
    * - ``path_sweep(shape, path)``
      - ported
-     - :func:`~pybosl2.skin.path_sweep` — methods ``incremental`` / ``manual`` / ``natural``, twist,
+     - :func:`~pybosl2._sdf.shapes3d` — methods ``incremental`` / ``manual`` / ``natural``, twist,
        scale (scalar / ``[x, y]`` / per-point / ``Nx2``), open & closed paths, flat caps, user
        tangents, and the ``transforms=True`` mode
    * - ``skin(profiles, slices)``
@@ -40,11 +40,11 @@ Coverage of BOSL2 ``skin.scad``
        handled up to the path's tightest radius)
    * - ``rot_resample(rotlist, n)``
      - ported
-     - :func:`~pybosl2.skin.rot_resample` — resample a transform list along its screw motion, with
+     - :func:`~pybosl2.skin.skin` — resample a transform list along its screw motion, with
        ``rot_decode`` / ``rot_inverse`` in :mod:`pybosl2.transforms`
    * - ``subdivide_and_slice`` / ``slice_profiles``
      - ported
-     - :func:`~pybosl2.skin.subdivide_and_slice`, :func:`~pybosl2.skin.slice_profiles`
+     - :func:`~pybosl2.skin.skin`, :func:`~pybosl2.skin.skin`
    * - ``skin()`` ``distance`` / ``tangent`` methods
      - not ported
      - use ``direct`` / ``reindex`` (they need the dynamic-programming vertex matcher)

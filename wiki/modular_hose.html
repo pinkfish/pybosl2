@@ -5,17 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Modular hose &#8212; bosl2 (PythonSCAD port) 0.6.2 documentation</title>
+    <title>Modular hose &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=1c28bd9a"></script>
+    <script src="_static/documentation_options.js?v=b8503983"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Miscellaneous: extrusions, bbox, hull &amp; minkowski" href="miscellaneous.html" />
+    <link rel="next" title="NEMA steppers" href="nema_steppers.html" />
     <link rel="prev" title="Linear bearings" href="linear_bearings.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -29,7 +29,7 @@
 
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
+<h1 class="logo"><a href="index.html">pybosl2 (PythonSCAD port)</a></h1>
 
 
 
@@ -43,64 +43,64 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html"> CSG &amp; SDF backends</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Colour</a></li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
-<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="walls.html">Walls</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wiring.html">Wiring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders</a></li>
-<li class="toctree-l1"><a class="reference internal" href="polyhedra.html">Polyhedra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Modular Hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Extras</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a></li>
 </ul>
 
 
@@ -115,7 +115,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="linear_bearings.html" title="previous chapter">Linear bearings</a></li>
-      <li>Next: <a href="miscellaneous.html" title="next chapter">Miscellaneous: extrusions, bbox, hull &amp; minkowski</a></li>
+      <li>Next: <a href="nema_steppers.html" title="next chapter">NEMA steppers</a></li>
   </ul></li>
 </ul>
 </div>
@@ -137,33 +137,71 @@
 
           <div class="body" role="main">
 
-  <aside id="pysidebar-global">
-<div class="ps-header">
-<p class="pysidebar-title">In this module</p>
-<button class="ps-toggle" title="Toggle sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-</div>
-<div class="ps-content">
-<ul class="pysidebar-list">
-<li class="ps-class"><a href="#bosl2.modular_hose.ModularHose.ModularHose"><strong>ModularHose</strong></a></li>
-<li class="ps-meth"><a href="#bosl2.modular_hose.ModularHose.ModularHose.modular_hose">.modular_hose</a></li>
-<li class="ps-meth"><a href="#bosl2.modular_hose.ModularHose.ModularHose.modular_hose_radius">.modular_hose_radius</a></li>
-</ul></div></aside>
-<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="modular-hose">
+  <section id="modular-hose">
 <h1>Modular hose<a class="headerlink" href="#modular-hose" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/modular_hose.html">Spec sheet &rarr;</a></b>
   &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.
 </p><p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">modular_hose.scad</span></code>: the ball-and-socket segments of a modular
-“Loc-Line” style adjustable/coolant hose. <code class="xref py py-meth docutils literal notranslate"><span class="pre">modular_hose()</span></code>
+“Loc-Line” style adjustable/coolant hose. <a class="reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose" title="pybosl2.parts.modular_hose.ModularHose.modular_hose"><code class="xref py py-meth docutils literal notranslate"><span class="pre">modular_hose()</span></code></a>
 revolves a ball end, a socket end, or a full segment for the 1/4”, 1/2” and 3/4” sizes;
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">modular_hose_radius()</span></code> gives the bore radius.
-.. autoclass:: bosl2.modular_hose.ModularHose</p>
-<blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">members<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
+<a class="reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius" title="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius"><code class="xref py py-meth docutils literal notranslate"><span class="pre">modular_hose_radius()</span></code></a> gives the bore radius.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pybosl2.parts.modular_hose.ModularHose">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.modular_hose.</span></span><span class="sig-name descname"><span class="pre">ModularHose</span></span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#ModularHose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Modular ball-and-socket hose segments (BOSL2 modular_hose.scad).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.parts.modular_hose.ModularHose.modular_hose">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">modular_hose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'segment'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clearance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waist_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#ModularHose.modular_hose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose" title="Link to this definition">¶</a></dt>
+<dd><p>A modular-hose ball end, socket end, or full segment (BOSL2 modular_hose()).</p>
+<p><em>size</em> is 0.25, 0.5 or 0.75 (the 1/4”, 1/2”, 3/4” hose families). <em>type</em> is <code class="docutils literal notranslate"><span class="pre">&quot;ball&quot;</span></code>/
+<code class="docutils literal notranslate"><span class="pre">&quot;small&quot;</span></code> (the ball end), <code class="docutils literal notranslate"><span class="pre">&quot;socket&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;big&quot;</span></code> (the socket end), or <code class="docutils literal notranslate"><span class="pre">&quot;segment&quot;</span></code> (a full
+segment with a ball on one end and a socket on the other). <em>clearance</em> loosens the fit.</p>
+<p class="rubric">Examples</p>
+<p>A 1/2” hose segment:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModularHose</span>
+<span class="n">ModularHose</span><span class="o">.</span><span class="n">modular_hose</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;segment&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>float</em>)</p></li>
+<li><p><strong>type</strong> (<em>str</em>)</p></li>
+<li><p><strong>clearance</strong> (<em>float</em><em> | </em><em>list</em>)</p></li>
+<li><p><strong>waist_len</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+</dd>
 </dl>
-</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">modular_hose_radius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#ModularHose.modular_hose_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius" title="Link to this definition">¶</a></dt>
+<dd><p>The inner (bore) or <em>outer</em> radius of a modular hose of <em>size</em> (BOSL2
+modular_hose_radius()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>float</em>)</p></li>
+<li><p><strong>outer</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
 <p>These mirror the examples in BOSL2’s <code class="docutils literal notranslate"><span class="pre">modular_hose.scad</span></code>, rendered live through PythonSCAD.
@@ -174,13 +212,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-596b9182d6b7404fa13ebb6fe7fd0530" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c774317db2d44beb825dfdca4928f6a5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-596b9182d6b7404fa13ebb6fe7fd0530");
+const el = document.getElementById("stlviewer-c774317db2d44beb825dfdca4928f6a5");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -229,13 +267,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-144edea94a89408eaa5e8e2e734e4236" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ad24fd3982bd405ca0653aeb55e52431" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-144edea94a89408eaa5e8e2e734e4236");
+const el = document.getElementById("stlviewer-ad24fd3982bd405ca0653aeb55e52431");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -284,13 +322,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-fbb204a802d74755969fc68aa49f2917" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-69c7e468fef4427297d0db70d6d745c9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-fbb204a802d74755969fc68aa49f2917");
+const el = document.getElementById("stlviewer-69c7e468fef4427297d0db70d6d745c9");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -339,13 +377,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-27a6ab9aa6784e3d9c571572e816940a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c71f26219e404fb2ad35359997d14d4e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-27a6ab9aa6784e3d9c571572e816940a");
+const el = document.getElementById("stlviewer-c71f26219e404fb2ad35359997d14d4e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -394,13 +432,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-00d5a81e1487454f843ee2627a003743" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ef95315303e2479b87cf37ddddc919d1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-00d5a81e1487454f843ee2627a003743");
+const el = document.getElementById("stlviewer-ef95315303e2479b87cf37ddddc919d1");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

@@ -11,6 +11,7 @@
 #    through-hole.
 #
 # FileSummary: Hooks and hook-like parts (the ring hook).
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

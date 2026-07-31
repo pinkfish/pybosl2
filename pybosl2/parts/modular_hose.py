@@ -12,6 +12,7 @@
 #    profiles are the same turtle paths BOSL2 uses.
 #
 # FileSummary: Modular (Loc-Line style) ball-and-socket hose segments.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

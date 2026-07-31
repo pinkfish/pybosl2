@@ -17,6 +17,7 @@
 #    anchoring, which feeds PythonSCAD's .multmatrix().
 #
 # FileSummary: Affine-matrix reorient/apply and polar_to_xy (BOSL2 transforms.scad, coords.scad).
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 import math

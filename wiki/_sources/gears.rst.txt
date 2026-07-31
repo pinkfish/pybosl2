@@ -16,13 +16,14 @@ profile shift that avoids undercut. The involute spur teeth are **rack-generated
 involute flank plus the trochoid a meshing rack would carve -- so low-tooth gears show a real
 undercut.
 
-Includes the involute :meth:`~bosl2.gears.Gears.spur_gear2d` / :meth:`~bosl2.gears.Gears.spur_gear`
-(helical and/or ``herringbone``), the internal :meth:`~bosl2.gears.Gears.ring_gear`, the linear
-:meth:`~bosl2.gears.Gears.rack`, the :meth:`~bosl2.gears.Gears.bevel_gear`, the
-:meth:`~bosl2.gears.Gears.worm` / :meth:`~bosl2.gears.Gears.worm_gear` pair, the dimension helpers,
-:meth:`~bosl2.gears.Gears.auto_profile_shift`, and :meth:`~bosl2.gears.Gears.gear_dist` for the
+Includes the involute :meth:`~pybosl2.parts.gears.Gears.spur_gear2d` / :meth:`~pybosl2.parts.gears.Gears.spur_gear`
+(helical and/or ``herringbone``), the internal :meth:`~pybosl2.parts.gears.Gears.ring_gear`, the linear
+:meth:`~pybosl2.parts.gears.Gears.rack`, the :meth:`~pybosl2.parts.gears.Gears.bevel_gear`, the
+:meth:`~pybosl2.parts.gears.Gears.worm` / :meth:`~pybosl2.parts.gears.Gears.worm_gear` pair, the dimension helpers,
+:meth:`~pybosl2.parts.gears.Gears.auto_profile_shift`, and :meth:`~pybosl2.parts.gears.Gears.gear_dist` for the
 meshing centre distance.
-.. autoclass:: bosl2.gears.Gears
+
+.. autoclass:: pybosl2.parts.gears.Gears
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

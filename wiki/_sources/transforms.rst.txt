@@ -1,6 +1,6 @@
 Transforms (affine / reorient)
 ==============================
-.. automodule:: bosl2.transforms
+.. automodule:: pybosl2.transforms
    :members:
    :undoc-members:
    :show-inheritance:

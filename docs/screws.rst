@@ -2,7 +2,7 @@ Screws: metric screws, nuts & screw holes
 =========================================
 
 Pure-Python port of the core of BOSL2's ``screws.scad``, built on top of the
-:class:`~pybosl2.threading.Threading` thread generator. The :class:`~pybosl2.screws.Screws` class turns a
+:class:`~pybosl2.parts.threading` thread generator. The :class:`~pybosl2.parts.screws` class turns a
 metric screw name into ready-to-print geometry::
 
     Screws.screw("M6", 20, head="socket", drive="hex")   # M6 x 20 socket cap screw, hex recess
@@ -12,7 +12,7 @@ metric screw name into ready-to-print geometry::
 A screw is specified by name -- ``"M6"`` (coarse pitch looked up from the ISO table), ``"M8x1"`` (an
 explicit fine pitch), a bare number, or a ``{"diameter": ..., "pitch": ...}`` dict. Screws are built
 *head-up*: the shaft occupies ``z in [-length, 0]`` (tip at the bottom) and the head sits above
-``z = 0``, so a screw drops straight into a mating :meth:`~pybosl2.screws.Screws.screw_hole` cut with
+``z = 0``, so a screw drops straight into a mating :meth:`~pybosl2.parts.screws.Screws.screw_hole` cut with
 its mouth at ``z = 0``.
 
 The dimension tables (ISO coarse/fine pitches, and the socket-cap, hex, button, pan, countersunk,
@@ -47,8 +47,8 @@ Coverage of BOSL2 ``screws.scad``
      - the two most common recesses; cut into the head (or the shaft top for a setscrew).
    * - phillips / torx drive recesses
      - ported separately
-     - available as masks in :doc:`screw_drive` (:class:`~pybosl2.screw_drive.ScrewDrive`); not yet
-       wired into :meth:`~pybosl2.screws.Screws.screw`'s ``drive=`` argument.
+     - available as masks in :doc:`screw_drive` (:class:`~pybosl2.parts.screw_drive`); not yet
+       wired into :meth:`~pybosl2.parts.screws.Screws.screw`'s ``drive=`` argument.
    * - UTS / imperial specs, shoulder screws, named anchors, per-tolerance thread classes
      - not ported
      - a follow-up; this port covers the metric fastener geometry the toolkit needs.
@@ -78,7 +78,8 @@ A screw threaded into its matching hex nut (shown side by side):
 
 API reference
 -------------
-.. autoclass:: pybosl2.screws.Screws
+
+.. autoclass:: pybosl2.parts.screws.Screws
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

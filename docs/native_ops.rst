@@ -2,7 +2,7 @@ Native-only mesh operations
 ===========================
 
 These operations wrap PythonSCAD builtins that **BOSL2 has no counterpart for**, exposed as
-first-class :class:`~pybosl2.shapes3d.Bosl2Solid` methods (and one 2-D→3-D constructor) so they chain
+first-class :class:`~pybosl2.shapes3d` methods (and one 2-D→3-D constructor) so they chain
 fluently and keep their anchoring metadata, rather than leaking raw native handles. They execute
 only inside the real PythonSCAD app; under the numeric test mock they degrade to identity/AABB
 stand-ins, so the pure-Python fast suite still runs and the real geometry is covered by the STL
@@ -69,11 +69,11 @@ Pulling a block apart stretches the material between the halves:
 API reference
 -------------
 
-The methods live on :class:`~pybosl2.shapes3d.Bosl2Solid`
+The methods live on :class:`~pybosl2.shapes3d`
 (:meth:`~pybosl2.shapes3d.Bosl2Solid.repair`, :meth:`~pybosl2.shapes3d.Bosl2Solid.oversample`,
 :meth:`~pybosl2.shapes3d.Bosl2Solid.pull`, :meth:`~pybosl2.shapes3d.Bosl2Solid.wrap`,
 :meth:`~pybosl2.shapes3d.Bosl2Solid.separate`, :meth:`~pybosl2.shapes3d.Bosl2Solid.inside`); the roof
-constructor is :func:`~pybosl2.shapes3d.roof`.
+constructor is :func:`~pybosl2.shapes3d`.
 
 .. autofunction:: pybosl2.shapes3d.roof
    :no-index:

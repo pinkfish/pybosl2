@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: Paths, regions & surfaces
 
 """Object API for 2-D paths and regions.
 
@@ -19,7 +20,6 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
 
-from pybosl2.caps import CapSpec, CapType
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D  # re-exported here for compatibility
 from pybosl2.shapes3d import text3d
@@ -111,8 +111,12 @@ class Region:
                 accepted.
         """
         if isinstance(paths, (Polygon, MultiPolygon)):
-            self._polygon = MultiPolygon([paths]) if not paths.is_empty else MultiPolygon()
-
+            if paths.is_empty:
+                self._polygon = MultiPolygon()
+            elif isinstance(paths, MultiPolygon):
+                self._polygon = paths
+            else:
+                self._polygon = MultiPolygon([paths])
             return
 
         items = list(paths)
@@ -422,6 +426,43 @@ class Region:
         """
         return self.geometry().rotate_extrude(angle, fn=fn, fa=fa, fs=fs)
 
+    def stroke(
+        self,
+        width: float = 1,
+        closed: bool | None = None,  # noqa: ARG002
+        **kwargs: Any,
+    ) -> Region:
+        """Stroke every path in the region (closed) and return the union as a Region."""
+        from pybosl2._stroke2d import stroke_2d
+
+        polygons = [stroke_2d(p, width=width, closed=True, **kwargs) for p in self.paths]
+        if not polygons:
+            return Region([])
+        return Region(polygons)
+
+    def dashed_stroke(
+        self,
+        dashpat: Any = None,
+        closed: bool | None = None,  # noqa: ARG002
+        fit: bool = True,
+        mindash: float = 0.5,
+    ) -> Region:
+        """Break every path in the region into dashed polygon outlines.
+
+        Returns a :class:`Region` of all dash polygons.
+        """
+        from pybosl2._stroke2d import dashed_stroke_2d
+
+        results: list[Region] = [
+            dashed_stroke_2d(p, dashpat=dashpat, closed=True, fit=fit, mindash=mindash) for p in self.paths
+        ]
+        if not results:
+            return Region([])
+        combined = results[0]
+        for r in results[1:]:
+            combined = combined | r
+        return combined
+
     def debug_region(self, size: float = 1, vertices: bool = True) -> Any:
         """Visualize this region with vertex labels for debugging.
 
@@ -462,63 +503,6 @@ class Region:
             for i, (x, y) in enumerate(path)
         ]
         return reduce(operator.or_, [solid, *labels])
-
-    def stroke(
-        self,
-        width: float = 1,
-        endcaps: CapType | CapSpec = CapType.ROUND,
-        endcap1: CapType | CapSpec = CapType.ROUND,
-        endcap2: CapType | CapSpec = CapType.ROUND,
-        joints: CapType | CapSpec = CapType.ROUND,
-        dots: bool = False,
-        color: str | None = None,
-    ) -> Any:
-        """Draw every path in this region as a closed solid line.
-
-        Args:
-            width: The stroke width.
-            endcaps: Cap style for both ends (``endcap1``/``endcap2`` override).
-            endcap1: Cap style for the start.
-            endcap2: Cap style for the end.
-            joints: Style for interior corners (default ``ROUND``).
-            dots: If True, mark every vertex with a round dot.
-            color: Optional colour applied to the whole stroke.
-
-        Returns:
-            A 2-D or 3-D object depending on the backend.
-        """
-        from pybosl2.drawing import stroke as _stroke
-
-        return _stroke(
-            self,
-            width=width,
-            endcaps=endcaps,
-            endcap1=endcap1,
-            endcap2=endcap2,
-            joints=joints,
-            dots=dots,
-            color=color,
-        )
-
-    def dashed_stroke(
-        self,
-        dashpat: Sequence[float] = (3, 3),
-        fit: bool = True,
-        mindash: float = 0.5,
-    ) -> "list[Path2D | Path3D]":
-        """Break every path in this region into dash sub-paths.
-
-        Args:
-            dashpat: The dash pattern as alternating lengths ``[dash, gap, ...]``.
-            fit: Scale the pattern to fit a whole number of repeats.
-            mindash: Drop a trailing dash shorter than this.
-
-        Returns:
-            A list of :class:`Path2D` or :class:`Path3D` dash segments.
-        """
-        from pybosl2.drawing import dashed_stroke as _dashed
-
-        return _dashed(self, dashpat=dashpat, fit=fit, mindash=mindash)
 
     # -----------------------------------------------------------------------------------
     # 2-D boolean set operations

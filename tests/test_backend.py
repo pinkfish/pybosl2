@@ -46,11 +46,10 @@ def test_unknown_backend_raises():
 
 
 def test_bosl2solid_is_csg_backend_and_conforms_to_solid_protocol():
-    from pybosl2.shapes3d import Bosl2Solid, cuboid
+    from pybosl2.shapes3d import cuboid
 
     box = cuboid([10, 10, 10])
     assert box.backend == "csg"
-    assert Bosl2Solid.backend == "csg"
     assert isinstance(box, _backend.Solid)  # runtime-checkable Protocol conformance
 
 

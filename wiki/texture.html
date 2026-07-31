@@ -5,18 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Textures &#8212; bosl2 (PythonSCAD port) 0.6.2 documentation</title>
+    <title>Textures &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=1c28bd9a"></script>
+    <script src="_static/documentation_options.js?v=b8503983"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Direction constants" href="constants.html" />
-    <link rel="prev" title="Native-only mesh operations" href="native_ops.html" />
+    <link rel="next" title="Transforms (affine / reorient)" href="transforms.html" />
+    <link rel="prev" title="3-D shapes and Bosl2Solid" href="shapes3d.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
 
@@ -29,7 +29,7 @@
 
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
+<h1 class="logo"><a href="index.html">pybosl2 (PythonSCAD port)</a></h1>
 
 
 
@@ -43,64 +43,64 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html"> CSG &amp; SDF backends</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Colour</a></li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Textures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
-<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="walls.html">Walls</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wiring.html">Wiring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders</a></li>
-<li class="toctree-l1"><a class="reference internal" href="polyhedra.html">Polyhedra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Extras</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a></li>
 </ul>
 
 
@@ -114,8 +114,8 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="native_ops.html" title="previous chapter">Native-only mesh operations</a></li>
-      <li>Next: <a href="constants.html" title="next chapter">Direction constants</a></li>
+      <li>Previous: <a href="shapes3d.html" title="previous chapter">3-D shapes and Bosl2Solid</a></li>
+      <li>Next: <a href="transforms.html" title="next chapter">Transforms (affine / reorient)</a></li>
   </ul></li>
 </ul>
 </div>
@@ -137,24 +137,10 @@
 
           <div class="body" role="main">
 
-  <aside id="pysidebar-global">
-<div class="ps-header">
-<p class="pysidebar-title">In this module</p>
-<button class="ps-toggle" title="Toggle sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-</div>
-<div class="ps-content">
-<ul class="pysidebar-list">
-<li class="ps-func"><a href="#bosl2.texture.texture.texture">texture</a></li>
-<li class="ps-func"><a href="#bosl2.texture.texture.is_watertight_topology">is_watertight_topology</a></li>
-<li class="ps-func"><a href="#bosl2.texture.texture.rasterize_vnf_texture">rasterize_vnf_texture</a></li>
-<li class="ps-func"><a href="#bosl2.texture.texture.vnf_tile_to_solid">vnf_tile_to_solid</a></li>
-<li class="ps-func"><a href="#bosl2.texture.texture.is_heightfield_texture">is_heightfield_texture</a></li>
-<li class="ps-func"><a href="#bosl2.texture.texture.is_vnf_texture">is_vnf_texture</a></li>
-</ul></div></aside>
-<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="textures">
+  <section id="textures">
 <h1>Textures<a class="headerlink" href="#textures" title="Link to this heading">¶</a></h1>
 <p>Port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">texture()</span></code> engine (from <code class="docutils literal notranslate"><span class="pre">skin.scad</span></code>): the named-texture table that
-<code class="xref py py-func docutils literal notranslate"><span class="pre">textured_tile()</span></code> builds from. <code class="xref py py-func docutils literal notranslate"><span class="pre">texture()</span></code> resolves a texture
+<code class="xref py py-func docutils literal notranslate"><span class="pre">surfaces3d()</span></code> builds from. <code class="xref py py-func docutils literal notranslate"><span class="pre">texture()</span></code> resolves a texture
 <strong>name</strong> to its data — either a <strong>height-field</strong> (a 2-D array of heights in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>) or a <strong>VNF
 tile</strong> <code class="docutils literal notranslate"><span class="pre">(verts,</span> <span class="pre">faces)</span></code> describing one unit cell of the surface.</p>
 <p>All of BOSL2’s textures are ported (9 height-field + 12 VNF). Height-field textures: <code class="docutils literal notranslate"><span class="pre">ribs</span></code>,
@@ -164,10 +150,10 @@ tile</strong> <code class="docutils literal notranslate"><span class="pre">(vert
 <code class="docutils literal notranslate"><span class="pre">$fn</span></code>-parametric <code class="docutils literal notranslate"><span class="pre">cones</span></code>, <code class="docutils literal notranslate"><span class="pre">dots</span></code> and <code class="docutils literal notranslate"><span class="pre">hex_grid</span></code> (pass <em>fn</em> for their resolution). A few VNF
 tiles that can’t be tiled watertight directly (<code class="docutils literal notranslate"><span class="pre">bricks_vnf</span></code>, <code class="docutils literal notranslate"><span class="pre">checkers</span></code>, <code class="docutils literal notranslate"><span class="pre">trunc_diamonds</span></code>) fall
 back to a sampled height-field, which slightly flattens their vertical faces.
-.. autofunction:: bosl2.texture.texture</p>
+.. autofunction:: pybosl2.texture.texture</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="bosl2.texture.vnf_tile_to_solid">
-<span class="sig-prename descclassname"><span class="pre">bosl2.texture.</span></span><span class="sig-name descname"><span class="pre">vnf_tile_to_solid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tex_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/texture.html#vnf_tile_to_solid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.texture.vnf_tile_to_solid" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.texture.vnf_tile_to_solid">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.texture.</span></span><span class="sig-name descname"><span class="pre">vnf_tile_to_solid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tex_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/texture.html#vnf_tile_to_solid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.texture.vnf_tile_to_solid" title="Link to this definition">¶</a></dt>
 <dd><p>Tile a VNF texture cell over a <em>size</em> <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> rectangle <em>reps</em> <code class="docutils literal notranslate"><span class="pre">[nx,</span> <span class="pre">ny]</span></code> times and close
 it into a watertight solid. Returns <code class="docutils literal notranslate"><span class="pre">(verts,</span> <span class="pre">faces)</span></code> for a polyhedron.</p>
 </dd></dl>

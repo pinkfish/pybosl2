@@ -5,17 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Partitions: planar cuts &amp; interlocking splits &#8212; bosl2 (PythonSCAD port) 0.6.2 documentation</title>
+    <title>Partitions: planar cuts &amp; interlocking splits &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=1c28bd9a"></script>
+    <script src="_static/documentation_options.js?v=b8503983"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Native-only mesh operations" href="native_ops.html" />
+    <link rel="next" title="2-D shapes" href="shapes2d.html" />
     <link rel="prev" title="Edge/corner masking" href="masking.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -29,7 +29,7 @@
 
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
+<h1 class="logo"><a href="index.html">pybosl2 (PythonSCAD port)</a></h1>
 
 
 
@@ -43,64 +43,64 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html"> CSG &amp; SDF backends</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Colour</a></li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Partitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
-<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="walls.html">Walls</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wiring.html">Wiring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders</a></li>
-<li class="toctree-l1"><a class="reference internal" href="polyhedra.html">Polyhedra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Extras</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a></li>
 </ul>
 
 
@@ -115,7 +115,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="masking.html" title="previous chapter">Edge/corner masking</a></li>
-      <li>Next: <a href="native_ops.html" title="next chapter">Native-only mesh operations</a></li>
+      <li>Next: <a href="shapes2d.html" title="next chapter">2-D shapes</a></li>
   </ul></li>
 </ul>
 </div>
@@ -144,25 +144,25 @@
 </div>
 <div class="ps-content">
 <ul class="pysidebar-list">
-<li class="ps-func"><a href="#bosl2.partitions.partition_path">partition_path</a></li>
-<li class="ps-func"><a href="#bosl2.partitions.partition_mask">partition_mask</a></li>
-<li class="ps-func"><a href="#bosl2.partitions.partition_cut_mask">partition_cut_mask</a></li>
-<li class="ps-class"><a href="#bosl2.partitions.Partitionable"><strong>Partitionable</strong></a></li>
-<li class="ps-meth"><a href="#bosl2.partitions.Partitionable.half_of">.half_of</a></li>
-<li class="ps-meth"><a href="#bosl2.partitions.Partitionable.left_half">.left_half</a></li>
-<li class="ps-meth"><a href="#bosl2.partitions.Partitionable.right_half">.right_half</a></li>
-<li class="ps-meth"><a href="#bosl2.partitions.Partitionable.front_half">.front_half</a></li>
-<li class="ps-meth"><a href="#bosl2.partitions.Partitionable.back_half">.back_half</a></li>
-<li class="ps-meth"><a href="#bosl2.partitions.Partitionable.bottom_half">.bottom_half</a></li>
-<li class="ps-meth"><a href="#bosl2.partitions.Partitionable.top_half">.top_half</a></li>
-<li class="ps-meth"><a href="#bosl2.partitions.Partitionable.partition">.partition</a></li>
+<li class="ps-func"><a href="#pybosl2.partitions.partition_path">partition_path</a></li>
+<li class="ps-func"><a href="#pybosl2.partitions.partition_mask">partition_mask</a></li>
+<li class="ps-func"><a href="#pybosl2.partitions.partition_cut_mask">partition_cut_mask</a></li>
+<li class="ps-class"><a href="#pybosl2.partitions.Partitionable"><strong>Partitionable</strong></a></li>
+<li class="ps-meth"><a href="#pybosl2.partitions.Partitionable.half_of">.half_of</a></li>
+<li class="ps-meth"><a href="#pybosl2.partitions.Partitionable.left_half">.left_half</a></li>
+<li class="ps-meth"><a href="#pybosl2.partitions.Partitionable.right_half">.right_half</a></li>
+<li class="ps-meth"><a href="#pybosl2.partitions.Partitionable.front_half">.front_half</a></li>
+<li class="ps-meth"><a href="#pybosl2.partitions.Partitionable.back_half">.back_half</a></li>
+<li class="ps-meth"><a href="#pybosl2.partitions.Partitionable.bottom_half">.bottom_half</a></li>
+<li class="ps-meth"><a href="#pybosl2.partitions.Partitionable.top_half">.top_half</a></li>
+<li class="ps-meth"><a href="#pybosl2.partitions.Partitionable.partition">.partition</a></li>
 </ul></div></aside>
 <script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="partitions-planar-cuts-interlocking-splits">
 <h1>Partitions: planar cuts &amp; interlocking splits<a class="headerlink" href="#partitions-planar-cuts-interlocking-splits" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code> – slice an object with a plane, or partition a
 large object into two interlocking pieces for printing. The cut operators are methods on
-<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> via the <a class="reference internal" href="#bosl2.partitions.Partitionable" title="bosl2.partitions.Partitionable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Partitionable</span></code></a> mixin; the
-2-D cut-path generators return <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> objects and the mask builders return
+<a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code></a> via the <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-class docutils literal notranslate"><span class="pre">partitions</span></code></a> mixin; the
+2-D cut-path generators return <a class="reference internal" href="paths.html#module-pybosl2.paths" title="pybosl2.paths"><code class="xref py py-class docutils literal notranslate"><span class="pre">paths</span></code></a> objects and the mask builders return
 Bosl2Solids.</p>
 <section id="planar-half-cuts">
 <h2>Planar half-cuts<a class="headerlink" href="#planar-half-cuts" title="Link to this heading">¶</a></h2>
@@ -175,7 +175,7 @@ the solid with a half-space mask <strong>auto-sized from the object’s own boun
 <span class="n">sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">half_of</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>            <span class="c1"># cut on an arbitrary plane through the centre</span>
 </pre></div>
 </div>
-<p>Passing <code class="docutils literal notranslate"><span class="pre">cut_path=</span></code> (a 2-D <a class="reference internal" href="#bosl2.partitions.partition_path" title="bosl2.partitions.partition_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a>) makes the cut face follow an
+<p>Passing <code class="docutils literal notranslate"><span class="pre">cut_path=</span></code> (a 2-D <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a>) makes the cut face follow an
 interlocking profile instead of a flat plane; <code class="docutils literal notranslate"><span class="pre">cut_angle</span></code> spins that face about the normal and
 <code class="docutils literal notranslate"><span class="pre">offset</span></code> grows the mask.</p>
 </section>
@@ -186,10 +186,10 @@ interlocking profile instead of a flat plane; <code class="docutils literal notr
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">back</span><span class="p">,</span> <span class="n">front</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">spread</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;dovetail&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><a class="reference internal" href="#bosl2.partitions.partition_path" title="bosl2.partitions.partition_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> builds the joint profile from a list of segment
-descriptors, and <a class="reference internal" href="#bosl2.partitions.partition_mask" title="bosl2.partitions.partition_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_mask()</span></code></a> / <a class="reference internal" href="#bosl2.partitions.partition_cut_mask" title="bosl2.partitions.partition_cut_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_cut_mask()</span></code></a>
+<p><a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a> builds the joint profile from a list of segment
+descriptors, and <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a> / <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a>
 give the raw masks if you want to cut manually. Every <code class="docutils literal notranslate"><span class="pre">partition_path</span></code> output is pinned to the
-real BOSL2 in <code class="docutils literal notranslate"><span class="pre">tests/test_bosl2_reorient.py</span></code>.</p>
+real BOSL2 in <code class="docutils literal notranslate"><span class="pre">tests/test_pybosl2_reorient.py</span></code>.</p>
 </section>
 <section id="coverage-of-bosl2-partitions-scad">
 <h2>Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code><a class="headerlink" href="#coverage-of-bosl2-partitions-scad" title="Link to this heading">¶</a></h2>
@@ -208,7 +208,7 @@ real BOSL2 in <code class="docutils literal notranslate"><span class="pre">tests
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">half_of</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#bosl2.partitions.Partitionable.half_of" title="bosl2.partitions.Partitionable.half_of"><code class="xref py py-meth docutils literal notranslate"><span class="pre">half_of()</span></code></a> – any plane; <code class="docutils literal notranslate"><span class="pre">cut_path</span></code> /
+<td><p><a class="reference internal" href="#pybosl2.partitions.Partitionable.half_of" title="pybosl2.partitions.Partitionable.half_of"><code class="xref py py-meth docutils literal notranslate"><span class="pre">half_of()</span></code></a> – any plane; <code class="docutils literal notranslate"><span class="pre">cut_path</span></code> /
 <code class="docutils literal notranslate"><span class="pre">cut_angle</span></code> / <code class="docutils literal notranslate"><span class="pre">offset</span></code> supported. Auto-sizes the mask; the 2-D <code class="docutils literal notranslate"><span class="pre">planar</span></code> form is not
 ported (Bosl2Solid is 3-D).</p></td>
 </tr>
@@ -218,16 +218,16 @@ ported (Bosl2Solid is 3-D).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partition</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#bosl2.partitions.Partitionable.partition" title="bosl2.partitions.Partitionable.partition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">partition()</span></code></a> – returns the two interlocking pieces
+<td><p><a class="reference internal" href="#pybosl2.partitions.Partitionable.partition" title="pybosl2.partitions.Partitionable.partition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">partition()</span></code></a> – returns the two interlocking pieces
 (<code class="docutils literal notranslate"><span class="pre">spread</span></code>/<code class="docutils literal notranslate"><span class="pre">cutsize</span></code>/<code class="docutils literal notranslate"><span class="pre">cutpath</span></code>/<code class="docutils literal notranslate"><span class="pre">gap</span></code>/<code class="docutils literal notranslate"><span class="pre">spin</span></code>/<code class="docutils literal notranslate"><span class="pre">slop</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">partition_mask</span></code> / <code class="docutils literal notranslate"><span class="pre">partition_cut_mask</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#bosl2.partitions.partition_mask" title="bosl2.partitions.partition_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_mask()</span></code></a> / <a class="reference internal" href="#bosl2.partitions.partition_cut_mask" title="bosl2.partitions.partition_cut_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_cut_mask()</span></code></a>.</p></td>
+<td><p><a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a> / <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partition_path</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#bosl2.partitions.partition_path" title="bosl2.partitions.partition_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> – the full segment grammar, including the
+<td><p><a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a> – the full segment grammar, including the
 <code class="docutils literal notranslate"><span class="pre">xflip</span></code>/<code class="docutils literal notranslate"><span class="pre">yflip</span></code>/<code class="docutils literal notranslate"><span class="pre">addflip</span></code>/<code class="docutils literal notranslate"><span class="pre">wave</span></code>/<code class="docutils literal notranslate"><span class="pre">Nx</span></code>/<code class="docutils literal notranslate"><span class="pre">WxH</span></code>/<code class="docutils literal notranslate"><span class="pre">skew:</span></code>/<code class="docutils literal notranslate"><span class="pre">pinch:</span></code> modifiers and
 the <code class="docutils literal notranslate"><span class="pre">altpath</span></code> redirect.</p></td>
 </tr>
@@ -246,13 +246,13 @@ the <code class="docutils literal notranslate"><span class="pre">altpath</span><
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-08d24d010d0f4bd787f498f30e230071" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9000d2889c4446c0a2fc38120c05fd7f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-08d24d010d0f4bd787f498f30e230071");
+const el = document.getElementById("stlviewer-9000d2889c4446c0a2fc38120c05fd7f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -302,13 +302,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-16c382d1c57c483e9ef1cdc00a0ba017" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-65eb6d961019419d841ec50adba59d94" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-16c382d1c57c483e9ef1cdc00a0ba017");
+const el = document.getElementById("stlviewer-65eb6d961019419d841ec50adba59d94");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -353,11 +353,11 @@ window.addEventListener("resize", resize);
 </script>
 <p><a class="reference external" href="_stl/69a3605fa9f19902.stl">⬇ Download STL mesh</a></p>
 </section>
-<section id="module-bosl2.partitions">
-<span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-bosl2.partitions" title="Link to this heading">¶</a></h2>
+<section id="module-pybosl2.partitions">
+<span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-pybosl2.partitions" title="Link to this heading">¶</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="bosl2.partitions.partition_path">
-<span class="sig-prename descclassname"><span class="pre">bosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pathdesc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">altpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seglen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#partition_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.partition_path" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.partition_path">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pathdesc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">altpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seglen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#partition_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.partition_path" title="Link to this definition">¶</a></dt>
 <dd><p>Build a 2-D interlocking cut path from a list of segment descriptors (BOSL2 partition_path()).</p>
 <p>Each item of <em>pathdesc</em> is a numeric length (a flat section), a 2-D path (used as-is), or a
 named section pattern – <code class="docutils literal notranslate"><span class="pre">&quot;flat&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;sawtooth&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;square&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;triangle&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;halfsine&quot;</span></code>,
@@ -368,10 +368,10 @@ resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pathdesc</strong> – list of segment descriptors</p></li>
+<li><p><strong>pathdesc</strong> (<em>Sequence</em><em>[</em><em>Any</em><em>]</em>) – list of segment descriptors</p></li>
 <li><p><strong>repeat</strong> (<em>int</em>) – repeat the whole <em>pathdesc</em> this many times (default 1)</p></li>
-<li><p><strong>y</strong> – if given, close the path at this Y (for a polygon); its sign orients the result</p></li>
-<li><p><strong>altpath</strong> – optional base path the pattern is redirected along</p></li>
+<li><p><strong>y</strong> (<em>float</em><em> | </em><em>None</em>) – if given, close the path at this Y (for a polygon); its sign orients the result</p></li>
+<li><p><strong>altpath</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>) – optional base path the pattern is redirected along</p></li>
 <li><p><strong>seglen</strong> (<em>float</em>) – default length for named sections (default 25)</p></li>
 <li><p><strong>segwidth</strong> (<em>float</em>) – default width for named sections (default 25)</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
@@ -380,10 +380,10 @@ resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code> (closed when <em>y</em> is given).</p>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> (closed when <em>y</em> is given).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
+<dd class="field-odd"><p><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D">Path2D</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -393,13 +393,13 @@ resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3b00b82e3c94406f9c12741c59626838" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-447f9f3d8a2f48e4b95367157593dd1e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3b00b82e3c94406f9c12741c59626838");
+const el = document.getElementById("stlviewer-447f9f3d8a2f48e4b95367157593dd1e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -446,8 +446,8 @@ window.addEventListener("resize", resize);
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bosl2.partitions.partition_mask">
-<span class="sig-prename descclassname"><span class="pre">bosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jigsaw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath_centered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#partition_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.partition_mask" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.partition_mask">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jigsaw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath_centered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#partition_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.partition_mask" title="Link to this definition">¶</a></dt>
 <dd><p>A mask to remove half of an object, leaving an interlocking edge (BOSL2 partition_mask()).</p>
 <p>Intersect it with (or subtract it from) a solid to keep the half within <em>w</em> of the cut plane.
 Pair a plain mask with an <code class="docutils literal notranslate"><span class="pre">inverse=True</span></code> one to split a part into two mating pieces.</p>
@@ -455,10 +455,10 @@ Pair a plain mask with an <code class="docutils literal notranslate"><span class
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>length</strong> (<em>float</em>) – length of the cut axis</p></li>
-<li><p><strong>w</strong> – width of the kept part, back from the cut plane</p></li>
+<li><p><strong>w</strong> (<em>float</em>) – width of the kept part, back from the cut plane</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – height of the part</p></li>
-<li><p><strong>cutsize</strong> – cut-pattern width (scalar, or <code class="docutils literal notranslate"><span class="pre">[length,</span> <span class="pre">width]</span></code>)</p></li>
-<li><p><strong>cutpath</strong> – named cut pattern or an explicit 2-D path</p></li>
+<li><p><strong>cutsize</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – cut-pattern width (scalar, or <code class="docutils literal notranslate"><span class="pre">[length,</span> <span class="pre">width]</span></code>)</p></li>
+<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a>) – named cut pattern or an explicit 2-D path</p></li>
 <li><p><strong>gap</strong> (<em>float</em>) – empty gaps between pattern iterations</p></li>
 <li><p><strong>cutpath_centered</strong> (<em>bool</em>) – keep the pattern centered (default True)</p></li>
 <li><p><strong>inverse</strong> (<em>bool</em>) – build the mating (inverted) mask</p></li>
@@ -469,21 +469,35 @@ Pair a plain mask with an <code class="docutils literal notranslate"><span class
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>A jigsaw-pattern mask for a 100×100×10 mm part:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">partition_mask</span>
+<span class="p">(</span><span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">partition_mask</span><span class="p">(</span><span class="n">w</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.15</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bosl2.partitions.partition_cut_mask">
-<span class="sig-prename descclassname"><span class="pre">bosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_cut_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jigsaw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath_centered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#partition_cut_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.partition_cut_mask" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.partition_cut_mask">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_cut_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jigsaw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath_centered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#partition_cut_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask" title="Link to this definition">¶</a></dt>
 <dd><p>A thin mask to cut an object into two mating pieces (BOSL2 partition_cut_mask()).</p>
 <p>Subtract it from a solid to split it along the cut path with a <em>slop</em>-wide kerf.</p>
+<p class="rubric">Examples</p>
+<p>Split a 100×100×10 mm plate with a jigsaw cut:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">partition_cut_mask</span>
+<span class="p">(</span><span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span> <span class="o">-</span> <span class="n">partition_cut_mask</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.15</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>length</strong> (<em>float</em>)</p></li>
 <li><p><strong>height</strong> (<em>float</em>)</p></li>
+<li><p><strong>cutsize</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
+<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a>)</p></li>
 <li><p><strong>gap</strong> (<em>float</em>)</p></li>
 <li><p><strong>cutpath_centered</strong> (<em>bool</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
@@ -493,123 +507,202 @@ Pair a plain mask with an <code class="docutils literal notranslate"><span class
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">Partitionable</span></span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">Partitionable</span></span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Mixin adding the partitions.scad planar cuts and the partition() split as methods.</p>
-<p>Inherited by <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>. A half-cut intersects the solid with a
+<p>Inherited by <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>. A half-cut intersects the solid with a
 half-space mask whose size defaults to the object’s own bounding box (so BOSL2’s <code class="docutils literal notranslate"><span class="pre">s=</span></code>
-argument is optional). <code class="docutils literal notranslate"><span class="pre">cut_path=</span></code> follows a 2-D <a class="reference internal" href="#bosl2.partitions.partition_path" title="bosl2.partitions.partition_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> to make an
+argument is optional). <code class="docutils literal notranslate"><span class="pre">cut_path=</span></code> follows a 2-D <a class="reference internal" href="#pybosl2.partitions.partition_path" title="pybosl2.partitions.partition_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> to make an
 interlocking cut face instead of a flat plane.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable.half_of">
-<span class="sig-name descname"><span class="pre">half_of</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable.half_of"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable.half_of" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable.half_of">
+<span class="sig-name descname"><span class="pre">half_of</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.0,</span> <span class="pre">0.0,</span> <span class="pre">1.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.half_of"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of" title="Link to this definition">¶</a></dt>
 <dd><p>Keep the half of this solid on the side the normal <em>v</em> points to (BOSL2 half_of()).</p>
 <p><em>center</em> is a point on the cut plane, or a scalar distance to shift the plane along <em>v</em>. <em>s</em>
 (the mask size) defaults to twice the object’s bounding-box reach, so it rarely needs
-setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#bosl2.partitions.partition_path" title="bosl2.partitions.partition_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> for an interlocking cut face;
+setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#pybosl2.partitions.partition_path" title="pybosl2.partitions.partition_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> for an interlocking cut face;
 <em>cut_angle</em> spins that face about <em>v</em>; <em>offset</em> grows the mask.</p>
+<p class="rubric">Examples</p>
+<p>Cut a cube in half along a jigsaw pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="n">partition_path</span><span class="p">([</span><span class="s2">&quot;finger&quot;</span><span class="p">,</span> <span class="s2">&quot;10x15&quot;</span><span class="p">,</span> <span class="s2">&quot;finger&quot;</span><span class="p">],</span> <span class="n">seglen</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">half_of</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="n">UP</span><span class="p">,</span> <span class="n">cut_path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<em>Any</em>)</p></li>
 <li><p><strong>center</strong> (<em>bool</em><em> | </em><em>list</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
 <li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>offset</strong> (<em>float</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable.left_half">
-<span class="sig-name descname"><span class="pre">left_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable.left_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable.left_half" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable.left_half">
+<span class="sig-name descname"><span class="pre">left_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.left_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half" title="Link to this definition">¶</a></dt>
 <dd><p>Keep the left (-X) half, cut at <code class="docutils literal notranslate"><span class="pre">X=x</span></code> (BOSL2 left_half()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cut_angle</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>)</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>offset</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable.right_half">
-<span class="sig-name descname"><span class="pre">right_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable.right_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable.right_half" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable.right_half">
+<span class="sig-name descname"><span class="pre">right_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.right_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half" title="Link to this definition">¶</a></dt>
 <dd><p>Keep the right (+X) half, cut at <code class="docutils literal notranslate"><span class="pre">X=x</span></code> (BOSL2 right_half()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cut_angle</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>)</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>offset</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable.front_half">
-<span class="sig-name descname"><span class="pre">front_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable.front_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable.front_half" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable.front_half">
+<span class="sig-name descname"><span class="pre">front_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.front_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half" title="Link to this definition">¶</a></dt>
 <dd><p>Keep the front (-Y) half, cut at <code class="docutils literal notranslate"><span class="pre">Y=y</span></code> (BOSL2 front_half()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cut_angle</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>float</em>)</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>offset</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable.back_half">
-<span class="sig-name descname"><span class="pre">back_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable.back_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable.back_half" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable.back_half">
+<span class="sig-name descname"><span class="pre">back_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.back_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half" title="Link to this definition">¶</a></dt>
 <dd><p>Keep the back (+Y) half, cut at <code class="docutils literal notranslate"><span class="pre">Y=y</span></code> (BOSL2 back_half()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cut_angle</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>float</em>)</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>offset</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable.bottom_half">
-<span class="sig-name descname"><span class="pre">bottom_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable.bottom_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable.bottom_half" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable.bottom_half">
+<span class="sig-name descname"><span class="pre">bottom_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.bottom_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half" title="Link to this definition">¶</a></dt>
 <dd><p>Keep the bottom (-Z) half, cut at <code class="docutils literal notranslate"><span class="pre">Z=z</span></code> (BOSL2 bottom_half()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cut_angle</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>float</em>)</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>offset</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable.top_half">
-<span class="sig-name descname"><span class="pre">top_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable.top_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable.top_half" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable.top_half">
+<span class="sig-name descname"><span class="pre">top_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.top_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half" title="Link to this definition">¶</a></dt>
 <dd><p>Keep the top (+Z) half, cut at <code class="docutils literal notranslate"><span class="pre">Z=z</span></code> (BOSL2 top_half()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cut_angle</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>float</em>)</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
+<li><p><strong>offset</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.partitions.Partitionable.partition">
-<span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jigsaw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath_centered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/partitions.html#Partitionable.partition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.partitions.Partitionable.partition" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.partitions.Partitionable.partition">
+<span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spread</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jigsaw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutpath_centered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.partition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition" title="Link to this definition">¶</a></dt>
 <dd><p>Cut this solid into two interlocking pieces, spread apart (BOSL2 partition()).</p>
 <p>Returns <code class="docutils literal notranslate"><span class="pre">[back_piece,</span> <span class="pre">front_piece]</span></code> – the two halves with matched joining edges, moved
 <em>spread</em> apart along the (spun) Y axis so they print separately and snap back together.
 The joint follows <em>cutpath</em> (<code class="docutils literal notranslate"><span class="pre">&quot;jigsaw&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;dovetail&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;hammerhead&quot;</span></code>, …); <em>spin</em>
 rotates the cut direction; <em>slop</em> leaves a printer-fit clearance.</p>
+<p class="rubric">Examples</p>
+<p>Split a block into two dovetailed halves:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">halves</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">spread</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;dovetail&quot;</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+<span class="n">halves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spread</strong> (<em>float</em>)</p></li>
+<li><p><strong>cutsize</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
+<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a>)</p></li>
 <li><p><strong>gap</strong> (<em>float</em>)</p></li>
 <li><p><strong>cutpath_centered</strong> (<em>bool</em>)</p></li>
+<li><p><strong>spin</strong> (<em>float</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[Self]</p>
 </dd>
 </dl>
 </dd></dl>

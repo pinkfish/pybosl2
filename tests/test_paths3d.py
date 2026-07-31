@@ -155,7 +155,8 @@ def test_path2d_drops_z():
 
 
 def test_stroke_and_dashed_build():
+    from pybosl2.shapes3d import Bosl2Solid
+
     p = Path3D([[0, 0, 0], [20, 0, 0], [20, 20, 10]], closed=False)
     assert p.stroke(width=3) is not None
-    dashes = p.dashed_stroke(dashpat=[5, 5])
-    assert all(isinstance(d, Path3D) for d in dashes)
+    assert isinstance(p.dashed_stroke(dashpat=[5, 5]), Bosl2Solid)

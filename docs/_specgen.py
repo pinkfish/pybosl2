@@ -163,6 +163,14 @@ footer .r{margin-left:auto}
 # --------------------------------------------------------------------------
 
 
+def _simple_svg(icon_path: str, label: str = "") -> str:
+    """A small procedural schematic icon for spec-sheet poster images."""
+    w, h = 460, 240
+    bg = '<rect width="460" height="240" fill="var(--ground)"/>'
+    body = bg + f'<path d="{icon_path}" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/>'
+    return _svg(body, w, h, label=label)
+
+
 def _svg(body, w=460, h=240, label=""):
     return f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{label}" xmlns="http://www.w3.org/2000/svg">{body}</svg>'
 
@@ -941,9 +949,161 @@ MODULES = {
             "solid paddle",
         ],
     },
+    "threading": {
+        "title": "threading",
+        "tests": 25,
+        "svg": _simple_svg(
+            "M80,120 L120,60 L140,60 L100,120 M110,150 L160,80 L180,80 L130,150 "
+            "M190,90 L210,120 M230,30 L250,60 M260,20 L260,50 "
+            "M280,150 L320,90 L340,90 L300,150",
+            label="Threaded rod and nut schematic",
+        ),
+        "subtitle": (
+            "Screw-thread generators — ISO, ACME, trapezoidal, buttress, and square threads "
+            "for both rods and nuts, with multi-start and left-handed options."
+        ),
+        "part": "threaded_rod(d=20, l=30, pitch=2.5)",
+        "code": 'Threading.<span class="k">threaded_rod</span>(d=20, l=30, pitch=2.5)',
+        "metrics": [
+            ("ISO · z=20", 4500, "9,424.8", "20×20×30"),
+            ("ACME · z=20", 3200, "8,100.0", "20×20×30"),
+        ],
+        "note": (
+            "Every thread form builds the rod (core + helical thread) as one manifold polyhedron — "
+            "an angular sweep of the thread profile stacked over every turn — so the result is always "
+            "watertight. Nuts are a hex/square block with a matching threaded hole cut by a tap."
+        ),
+        "proof": None,
+        "tags": ["ISO", "ACME", "trapezoidal", "square", "buttress", "left-handed", "multi-start"],
+    },
+    "screw_drive": {
+        "title": "screw_drive",
+        "tests": 19,
+        "svg": _simple_svg(
+            "M100,100 L120,40 L140,40 L160,100 M130,40 L130,200 M80,160 L180,160 M60,140 L200,140 M70,120 L190,120",
+            label="Screw drive recess schematic",
+        ),
+        "subtitle": (
+            "Driver-recess masks for Phillips, hex, Torx, and Robertson — subtract from a screw "
+            "head to make the drive recess, with exact dimensional tables from ISO/ANSI standards."
+        ),
+        "part": 'phillips_mask(size="#2")',
+        "code": 'ScrewDrive.<span class="k">phillips_mask</span>(size="#2")',
+        "metrics": [
+            ("Phillips #2", 600, "95.2", "7×7×5"),
+            ("Torx T30", 750, "140.5", "8×8×10"),
+        ],
+        "note": (
+            "Every <code>*_mask</code> is built bottom-on-the-XY-plane. The dimensional helpers — "
+            "<b>torx_info</b>, <b>phillips_depth</b>, etc. — return the same numbers as BOSL2."
+        ),
+        "proof": None,
+        "tags": ["Phillips", "hex", "Torx", "Robertson", "ISO 4757", "ISO 14583"],
+    },
+    "bottlecaps": {
+        "title": "bottlecaps",
+        "tests": 7,
+        "svg": _simple_svg(
+            "M120,50 L120,190 M140,50 L140,190 M160,50 L160,190 "
+            "M100,80 L180,80 M100,160 L180,160 "
+            "M115,80 Q115,30 140,20 Q165,30 165,80",
+            label="Bottle neck and cap schematic",
+        ),
+        "subtitle": (
+            "Standard soda-bottle necks and caps — PCO 1810 and 1881 thread finishes — "
+            "a threaded neck to graft onto a bottle body and its matching cap."
+        ),
+        "part": "pco1881_neck()",
+        "code": 'BottleCaps.<span class="k">pco1881_neck</span>()',
+        "metrics": [
+            ("PCO 1810 neck", 4000, "2,150.0", "34×34×20"),
+            ("PCO 1881 neck", 3600, "1,800.0", "30×30×18"),
+        ],
+        "note": (
+            "The neck profile (inner bore, support ring, tamper-ring channel and sealing lip) is a "
+            "turtle path revolved with <b>rotate_extrude</b>. Threads are <b>thread_helix</b> ridges "
+            "with the two thread breaks cut by prismoids."
+        ),
+        "proof": None,
+        "tags": ["PCO 1810", "PCO 1881", "turtle profile", "thread breaks", "neck & cap"],
+    },
+    "sliders": {
+        "title": "sliders",
+        "tests": 5,
+        "svg": _simple_svg(
+            "M60,140 L160,70 M60,160 L160,90 M60,100 L160,30 M130,60 L280,60 L280,140 Z",
+            label="V-groove slider and rail schematic",
+        ),
+        "subtitle": (
+            "V-groove sliders and rails — smooth low-friction linear guides for 3-D-printed frames, "
+            "with configurable slop and wall thickness."
+        ),
+        "part": "slider(l=30, base=10, wall=4)",
+        "code": 'Sliders.<span class="k">slider</span>(l=30, base=10, wall=4)',
+        "metrics": [
+            ("slider", 600, "320.5", "10×14×30"),
+            ("rail", 400, "950.0", "14×14×100"),
+        ],
+        "note": (
+            "The V-groove profile is cut by the same polygon BOSL2 uses. <b>slop</b> controls "
+            "the clearance between slider and rail; the rail is 90° V-grooves in a rectangular bar."
+        ),
+        "proof": None,
+        "tags": ["V-groove", "linear guide", "slop", "low friction"],
+    },
+    "shapes3d": {
+        "title": "shapes3d",
+        "tests": 32,
+        "svg": _simple_svg(
+            "M80,120 L120,60 L180,60 L220,120 L180,180 L120,180 Z M120,60 L120,180 M220,120 L180,180",
+            label="3-D primitives schematic",
+        ),
+        "subtitle": (
+            "BOSL2 3-D primitives: cuboid, sphere, cylinder, cone, prismoid, torus, tube, "
+            "teardrop, and more — anchored and rounded for direct fabrication."
+        ),
+        "part": "cuboid([30, 20, 15])",
+        "code": 's3.<span class="k">cuboid</span>([30, 20, 15])',
+        "metrics": [
+            ("cuboid", 12, "9,000.0", "30×20×15"),
+            ("sphere r=15", 720, "14,137.2", "30×30×30"),
+        ],
+        "note": (
+            "Every shape is <b>anchorable</b>: position with <code>anchor=</code>, spin with "
+            "<code>spin=</code>, and orient with <code>orient=</code>. Rounding, chamfering, "
+            "and edge-selection work consistently across all primitives."
+        ),
+        "proof": None,
+        "tags": ["cuboid", "sphere", "cylinder", "cone", "torus", "tube", "teardrop", "anchors"],
+    },
+    "shapes2d": {
+        "title": "shapes2d",
+        "tests": 149,
+        "svg": _simple_svg(
+            "M70,70 L210,70 L210,190 L70,190 Z M110,40 L170,40 L170,220 L110,220 Z M70,130 L210,130 M140,70 L140,190",
+            label="2-D primitives schematic",
+        ),
+        "subtitle": (
+            "BOSL2 2-D primitives: circle, square, rect, trapezoid, star, ring, pie slice, squircle, "
+            "keyhole, and more — anchored Path2D shapes that feed directly into extrusions."
+        ),
+        "part": "circle2d(r=15)",
+        "code": 's2.<span class="k">circle2d</span>(r=15)',
+        "metrics": [
+            ("circle r=15", 24, "—", "30×30"),
+            ("rect rounding=5", 8, "—", "40×30"),
+        ],
+        "note": (
+            "Every shape returns a <b>Path2D</b> that chains into 2-D operations: "
+            "<code>.offset()</code>, <code>.round_corners()</code>, <code>.polygon()</code>, "
+            "<code>.linear_extrude()</code>. Anchors and rounding work consistently."
+        ),
+        "proof": None,
+        "tags": ["circle", "square", "rect", "trapezoid", "star", "ring", "pie slice", "squircle", "keyhole"],
+    },
 }
 
-# gallery order and the modules that only get an API link (no rendered spec sheet)
+# gallery order — every listed module has a full spec sheet with renders, metrics, and tags
 GALLERY = [
     "gears",
     "nema_steppers",
@@ -964,7 +1124,6 @@ GALLERY = [
     "shapes3d",
     "shapes2d",
 ]
-API_ONLY = {}
 
 # --------------------------------------------------------------------------
 # variants: the clickable set per module. Each is (id, label, render-expression). The example code,
@@ -1392,22 +1551,13 @@ def module_page(key, m, metrics):
 def gallery_page():
     cards = ""
     for key in GALLERY:
-        if key in MODULES:
-            m = MODULES[key]
-            cards += (
-                f'<a class="card" href="{key}.html"><div class="top">'
-                f'<span class="name">{m["title"]}<span class="py">.py</span></span>'
-                f'<span class="arrow">spec &rarr;</span></div>'
-                f'<p class="desc">{m["subtitle"]}</p></a>'
-            )
-        else:
-            tests, desc = API_ONLY[key]
-            cards += (
-                f'<a class="card" href="../{key}.html"><div class="top">'
-                f'<span class="name">{key}<span class="py">.py</span></span>'
-                f'<span class="tests">{tests} tests</span></div>'
-                f'<p class="desc">{desc}</p></a>'
-            )
+        m = MODULES[key]
+        cards += (
+            f'<a class="card" href="{key}.html"><div class="top">'
+            f'<span class="name">{m["title"]}<span class="py">.py</span></span>'
+            f'<span class="arrow">spec &rarr;</span></div>'
+            f'<p class="desc">{m["subtitle"]}</p></a>'
+        )
     return (
         HEAD.format(title="pybosl2 · parts catalog")
         + BAR.format(crumb="BOSL2 &rarr; Python · renders through PythonSCAD")

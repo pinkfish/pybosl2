@@ -9,13 +9,13 @@ Threading: screw threads, rods & nuts
    </p>
 
 
-Pure-Python port of the core of BOSL2's ``threading.scad``. The :class:`~bosl2.threading.Threading`
+Pure-Python port of the core of BOSL2's ``threading.scad``. The :class:`~pybosl2.parts.threading`
 class builds screw threads by generating the whole rod (core + helical thread) as one manifold
 polyhedron -- an angular sweep of the thread profile stacked over every turn -- so the result is
 always watertight. (Sweeping the thread and CSG-unioning a coaxial core instead is what Manifold
 cannot triangulate cleanly, so this port builds the polyhedron directly, as BOSL2 does.)
 
-Every method is a class method returning a :class:`~bosl2.shapes3d.Bosl2Solid`::
+Every method is a class method returning a :class:`~pybosl2.shapes3d`::
 
     Threading.threaded_rod(12, 24, 1.75)                 # ISO M12 x 1.75
     Threading.acme_threaded_rod(20, 30, 4)               # 29-degree ACME
@@ -90,7 +90,7 @@ A rod threaded into its matching hex nut (shown side by side):
 
 API reference
 -------------
-.. autoclass:: bosl2.threading.Threading
+.. autoclass:: pybosl2.parts.threading.Threading
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

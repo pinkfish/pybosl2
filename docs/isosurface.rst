@@ -3,8 +3,8 @@ Isosurface: marching cubes & metaballs
 
 Pure-Python port of the 3-D core of BOSL2's ``isosurface.scad``:
 :func:`~pybosl2.isosurface.isosurface` meshes the level set of a scalar field over a voxel grid
-(marching cubes) into a :class:`~pybosl2.vnf.VNF`; the ``mb_*`` functions are metaball field
-primitives; and :func:`~pybosl2.isosurface.metaballs` sums transformed primitives and meshes the
+(marching cubes) into a :class:`~pybosl2.vnf`; the ``mb_*`` functions are metaball field
+primitives; and :func:`~pybosl2.isosurface.isosurface` sums transformed primitives and meshes the
 result into a blobby surface::
 
     isosurface(field_fn, isovalue=1, bounding_box=60, voxel_size=2)
@@ -37,7 +37,7 @@ Coverage of BOSL2 ``isosurface.scad``
        isovalues ``[lo, hi]`` (collapsed to a one-sided threshold).
    * - ``metaballs``
      - ported
-     - :func:`~pybosl2.isosurface.metaballs` -- a list of ``(transform, metaball)`` pairs (or the
+     - :func:`~pybosl2.isosurface.isosurface` -- a list of ``(transform, metaball)`` pairs (or the
        BOSL2 flat form).
    * - ``mb_sphere`` / ``mb_cuboid`` / ``mb_torus`` / ``mb_capsule`` / ``mb_disk`` / ``mb_octahedron`` / ``mb_connector``
      - ported

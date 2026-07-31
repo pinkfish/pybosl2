@@ -17,7 +17,8 @@
 html{scroll-behavior:smooth}
 body{margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans);
   font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
   background-size:40px 40px; background-position:-1px -1px;}
 .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
 .mono{font-family:var(--mono)}
@@ -48,7 +49,8 @@ section{padding:52px 0}
 .spec .draw{border-right:1px solid var(--line); padding:22px; display:flex; flex-direction:column; gap:12px;
   background:radial-gradient(circle at 1px 1px,var(--line) 1px,transparent 0) 0 0/22px 22px,var(--panel-2)}
 @media (max-width:760px){.spec .draw{border-right:0; border-bottom:1px solid var(--line)}}
-.spec .caption{font-family:var(--mono); font-size:11.5px; color:var(--ink-dim); display:flex; justify-content:space-between; gap:10px}
+.spec .caption{font-family:var(--mono); font-size:11.5px; color:var(--ink-dim);
+  display:flex; justify-content:space-between; gap:10px}
 .spec svg{width:100%; height:auto; display:block}
 .spec .info{padding:22px 24px; display:flex; flex-direction:column; gap:15px}
 .spec h2{font-family:var(--mono); font-size:19px; margin:0}
@@ -57,7 +59,8 @@ section{padding:52px 0}
   padding:2px 9px; border-radius:999px; border:1px solid; text-transform:uppercase}
 .pill.pass{color:var(--pass); border-color:color-mix(in srgb,var(--pass) 45%,var(--line))}
 .pill.pass::before{content:""; width:7px;height:7px;border-radius:50%;background:var(--pass)}
-table.metrics{width:100%; border-collapse:collapse; font-family:var(--mono); font-size:13px; font-variant-numeric:tabular-nums}
+table.metrics{width:100%; border-collapse:collapse; font-family:var(--mono);
+  font-size:13px; font-variant-numeric:tabular-nums}
 table.metrics th{text-align:left; font-weight:400; color:var(--ink-dim); padding:7px 0; font-size:10.5px;
   text-transform:uppercase; letter-spacing:.12em; border-bottom:1px solid var(--line)}
 table.metrics td{padding:9px 10px 9px 0; border-bottom:1px solid var(--line)}
@@ -65,13 +68,15 @@ table.metrics td.num{text-align:right; padding-right:0}
 table.metrics tr:last-child td{border-bottom:0}
 .proof{border:1px dashed color-mix(in srgb,var(--pass) 45%,var(--line)); border-radius:10px; padding:13px 15px;
   background:color-mix(in srgb,var(--pass) 8%,var(--panel)); display:flex; gap:13px; align-items:center}
-.proof .big{font-family:var(--mono); font-weight:700; font-size:24px; color:var(--pass); font-variant-numeric:tabular-nums; line-height:1}
+.proof .big{font-family:var(--mono); font-weight:700; font-size:24px; color:var(--pass);
+  font-variant-numeric:tabular-nums; line-height:1}
 .proof .txt{font-size:13px; color:var(--ink-dim)} .proof .txt b{color:var(--ink)}
 .code{font-family:var(--mono); font-size:12.5px; background:var(--panel-2); border:1px solid var(--line);
   border-radius:8px; padding:11px 13px; overflow-x:auto; color:var(--ink)}
 .code .k{color:var(--accent)}
 .tags{display:flex; flex-wrap:wrap; gap:6px}
-.tag{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); border:1px solid var(--line); border-radius:5px; padding:2px 7px}
+.tag{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); border:1px solid var(--line);
+  border-radius:5px; padding:2px 7px}
 .tag.hot{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
 /* interactive variant viewer + clickable variant tags */
 .spec .viewer{position:relative; width:100%; min-height:300px; border-radius:8px; overflow:hidden;
@@ -80,9 +85,11 @@ table.metrics tr:last-child td{border-bottom:0}
 .spec .viewer .poster{width:100%; display:block}
 .spec .viewer .hint{position:absolute; left:10px; bottom:9px; font-family:var(--mono); font-size:10px;
   color:var(--ink-faint); pointer-events:none}
-.taglabel{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--ink-faint)}
+.taglabel{font-family:var(--mono); font-size:10px; text-transform:uppercase;
+  letter-spacing:.14em; color:var(--ink-faint)}
 button.tag{cursor:pointer; font:inherit; font-family:var(--mono); font-size:10.5px; color:var(--ink-dim);
-  background:transparent; border:1px solid var(--line); border-radius:5px; padding:3px 9px; transition:color .13s,background .13s,border-color .13s}
+  background:transparent; border:1px solid var(--line); border-radius:5px;
+  padding:3px 9px; transition:color .13s,background .13s,border-color .13s}
 button.tag:hover{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
 button.tag[aria-selected="true"]{color:var(--ground); background:var(--accent); border-color:var(--accent)}
 @media (prefers-color-scheme:light){button.tag[aria-selected="true"]{color:#fff}}
@@ -90,14 +97,16 @@ button.tag[aria-selected="true"]{color:var(--ground); background:var(--accent); 
 .stats>div{display:flex; flex-direction:column; gap:2px}
 .stats .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.05}
 .stats .l{font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-dim)}
-.sec-head{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:24px}
+.sec-head{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--line);
+  padding-bottom:12px; margin-bottom:24px}
 .sec-head h3{font-family:var(--mono); font-size:15px; margin:0}
 .sec-head .count{margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--ink-dim)}
 .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
 @media (max-width:720px){.grid{grid-template-columns:1fr}}
 .card{border:1px solid var(--line); border-radius:10px; background:var(--panel); padding:16px 18px; display:flex;
   flex-direction:column; gap:9px; transition:border-color .15s, transform .15s; color:inherit}
-a.card:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line)); transform:translateY(-2px); text-decoration:none}
+a.card:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));
+  transform:translateY(-2px); text-decoration:none}
 .card .top{display:flex; align-items:baseline; gap:10px}
 .card .name{font-family:var(--mono); font-weight:700; font-size:15px}
 .card .name .py{color:var(--ink-faint); font-weight:400}

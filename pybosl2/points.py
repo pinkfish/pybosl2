@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: internal
 
 """Lightweight 2‑D / 3‑D point and vector types shared across the pybosl2 geometry layer.
 
@@ -15,7 +16,7 @@ and path operations.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Iterable, Sequence
 
 import numpy as np
 
@@ -145,6 +146,26 @@ class Point:
             raise ValueError("cross() requires a 3‑D point")
         return np.cross(np.asarray(self), np.asarray(other, dtype=float))
 
+    @classmethod
+    def from_seq(cls, seq: Sequence[float] | np.ndarray) -> "Point":
+        """Create a :class:`Point` from any array-like sequence of 2 or 3 values.
+
+        Args:
+            seq: A sequence, list, tuple, or ndarray of ``[x, y]`` or ``[x, y, z]``.
+
+        Returns:
+            A new :class:`Point`.
+
+        Raises:
+            ValueError: If the sequence has fewer than 2 or more than 3 elements.
+        """
+        arr = np.asarray(seq, dtype=float)
+        if arr.shape[0] == 2:
+            return cls(float(arr[0]), float(arr[1]))
+        if arr.shape[0] == 3:
+            return cls(float(arr[0]), float(arr[1]), float(arr[2]))
+        raise ValueError(f"Expected 2 or 3 values, got {arr.shape[0]}")
+
     def astuple(self) -> tuple[float, float] | tuple[float, float, float]:
         """Return the point as a ``(x, y)`` or ``(x, y, z)`` tuple."""
         if self.is_2d:
@@ -188,6 +209,22 @@ class Vector(list[float]):
     ``len() == 2`` means a 2‑D vector (``is_2d`` is ``True``); ``len() == 3``
     is a 3‑D vector.  Use :meth:`to_3d` to add a Z coordinate.
     """
+
+    def __init__(
+        self, x: float | Sequence[float] | Iterable[float], y: float | None = None, z: float | None = None
+    ) -> None:
+        if isinstance(x, (list, tuple, np.ndarray)):
+            super().__init__([float(v) for v in x])
+        elif isinstance(x, (int, float)) and y is not None and z is not None:
+            super().__init__([float(x), float(y), float(z)])
+        elif isinstance(x, (int, float)) and y is not None:
+            super().__init__([float(x), float(y)])
+        elif isinstance(x, (int, float)):
+            super().__init__([float(x)])
+        else:
+            super().__init__([float(v) for v in x])
+        if len(self) not in (2, 3):
+            raise ValueError(f"Vector must be 2-D or 3-D, got {len(self)} dimensions")
 
     @property
     def x(self) -> float:

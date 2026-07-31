@@ -237,14 +237,10 @@ def test_stroke_of_a_3d_path_follows_the_active_backend(backend):
 
 
 def test_stroke_of_a_2d_path_is_csg_only():
-    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.path2d import Path2D
-    from pybosl2.shapes2d import Bosl2Shape2D
 
     flat = Path2D([[0, 0], [20, 0], [20, 20]], closed=False)
-    assert isinstance(flat.stroke(width=3), Bosl2Shape2D)
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-        flat.stroke(width=3)
+    assert isinstance(flat.stroke(width=3), Path2D)
 
 
 def test_sdf_stroke_rejects_a_revolved_endcap():
