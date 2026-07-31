@@ -196,7 +196,7 @@ def circle_circle_tangents(
     center2: Point | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-) -> list[list[list[float]]]:
+) -> list[tuple[Point, Point]]:
     """Tangent lines between two circles.
 
     Computes up to four common tangent lines: two external tangents plus,
@@ -211,10 +211,9 @@ def circle_circle_tangents(
         diameter2: Diameter of the second circle.
 
     Returns:
-        A list of tangent line pairs ``[[point_on_circle1, point_on_circle2], ...]``
-        with each inner entry a list of two ``[x, y]`` coordinate lists.
+        A list of ``(point_on_circle1, point_on_circle2)`` :class:`~pybosl2.points.Point` tuples.
         Returns up to 4 entries (2 external + 2 internal), 2 entries when
-        only external tangents exist, or 0 when no tangent can be drawn.
+        only external tangents exist, or an empty list when no tangent can be drawn.
     """
     r1v: float = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 1.0)
     r2v: float = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 1.0)
@@ -238,7 +237,7 @@ def circle_circle_tangents(
     else:
         sides = 0
     u: NDArray[np.float64] = unit(c2_arr - c1_arr)
-    result: list[list[list[float]]] = []
+    result: list[tuple[Point, Point]] = []
     for i in range(sides):
         radius: float = r_vals[i]
         sin_angle: float = math.sqrt(max(0.0, 1 - radius * radius))
@@ -249,5 +248,5 @@ def circle_circle_tangents(
         p1: NDArray[np.float64] = c1_arr - r1v * coef
         p2: NDArray[np.float64] = c2_arr - ext[i] * r2v * coef
         if not np.array_equal(p1, p2):
-            result.append([p1.tolist(), p2.tolist()])
+            result.append((Point.from_seq(p1), Point.from_seq(p2)))
     return result
