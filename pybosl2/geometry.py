@@ -20,11 +20,10 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pybosl2.bounds import Bounds2D
 from pybosl2.math import EPSILON
 from pybosl2.points import Point, Vector
 from pybosl2.vectors import unit
@@ -40,7 +39,6 @@ __all__ = [
     "is_collinear",
     "line_closest_point",
     "line_normal",
-    "pointlist_bounds",
 ]
 
 
@@ -133,34 +131,6 @@ def line_closest_point(
     t: float = float((query - start) @ direction) / length_sq
     t = float(np.clip(t, 0.0, 1.0))
     return start + t * direction
-
-
-def pointlist_bounds(
-    points: Any,
-) -> Bounds2D:
-    """Axis-aligned 2-D bounding box of a list of points.
-
-    Provided for parity with BOSL2's ``pointlist_bounds()``.  Accepts any
-    array-like (sequences, ndarrays, :class:`Path2D`, etc.).
-
-    Args:
-        points: An array-like of *n*-dimensional points.
-
-    Returns:
-        A :class:`~pybosl2.bounds.Bounds2D` with pre-computed ``min_x``,
-        ``min_y``, ``max_x``, ``max_y``, ``width``, and ``length``.
-    """
-    arr = np.asarray(points, dtype=float)
-    mn = arr.min(axis=0)
-    mx = arr.max(axis=0)
-    return Bounds2D(
-        min_x=float(mn[0]),
-        min_y=float(mn[1]),
-        max_x=float(mx[0]),
-        max_y=float(mx[1]),
-        width=float(mx[0] - mn[0]),
-        length=float(mx[1] - mn[1]),
-    )
 
 
 def _is_point_on_segment(

@@ -44,7 +44,6 @@ from pybosl2.geometry import (
     general_line_intersection,
     is_collinear,
     line_normal,
-    pointlist_bounds,
 )
 from pybosl2.math import EPSILON, lerpn
 from pybosl2.miscellaneous import Extrudable
@@ -2116,7 +2115,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for numerical comparisons.
         """
         point = np.asarray(point, dtype=float)
-        box = pointlist_bounds(poly)
+        box = poly.bounds() if isinstance(poly, Path2D) else Bounds2D.from_points(poly)
         if (
             point[0] < box.min_x - eps
             or point[0] > box.max_x + eps

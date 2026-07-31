@@ -39,7 +39,6 @@ import numpy as np
 
 from pybosl2._helpers import is_num, zrot4
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
-from pybosl2.geometry import pointlist_bounds
 from pybosl2.transforms import axis_angle_matrix, rot_about_axis, rot_from_to
 from pybosl2.vectors import unit
 
@@ -273,13 +272,13 @@ def _ptn_sect(
             return _yscale(-1, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs))
         if opt == "xflip":
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
-            b = pointlist_bounds(sect)
+            b = sect.bounds()
             xpos = (b.max_x + b.min_x) / 2
             return Path2D(_xflip(xpos, sect)[::-1])  # type: ignore[arg-type]
         if opt in ("addflip", "wave"):
             sect1 = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             sect2 = _ptn_sect(base + " yflip xflip", length, width, fn=fn, fa=fa, fs=fs)
-            b1, b2 = pointlist_bounds(sect1), pointlist_bounds(sect2)
+            b1, b2 = sect1.bounds(), sect2.bounds()
             osect1 = _scale2(0.5, 0.5, _left(b1.min_x, sect1))
             osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2.min_x, sect2)))
             return _merge_collinear(list(osect1) + list(osect2))

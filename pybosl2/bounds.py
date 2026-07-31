@@ -17,6 +17,7 @@ pre-computed width/length (or width/length/height) so users can write
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 __all__ = ["Bounds2D", "Bounds3D"]
 
@@ -35,6 +36,23 @@ class Bounds2D:
     max_y: float
     width: float
     length: float
+
+    @classmethod
+    def from_points(cls, points: Any) -> "Bounds2D":
+        """Create from any array-like of 2-D points."""
+        import numpy as np
+
+        arr = np.asarray(points, dtype=float)
+        mn = arr.min(axis=0)
+        mx = arr.max(axis=0)
+        return cls(
+            min_x=float(mn[0]),
+            min_y=float(mn[1]),
+            max_x=float(mx[0]),
+            max_y=float(mx[1]),
+            width=float(mx[0] - mn[0]),
+            length=float(mx[1] - mn[1]),
+        )
 
 
 @dataclass(frozen=True)

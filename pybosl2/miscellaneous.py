@@ -38,8 +38,8 @@ from functools import reduce
 import numpy as np
 
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
+from pybosl2.bounds import Bounds2D
 from pybosl2.constants import BACK, UP
-from pybosl2.geometry import pointlist_bounds
 from pybosl2.transforms import axis_angle_matrix, rot_from_to
 from pybosl2.vectors import unit
 
@@ -282,7 +282,7 @@ class Extrudable:
         sides = len(pts)
         assert sides >= 2, "path_extrude2d(): need at least two points."
         if s is None:
-            box = pointlist_bounds(pts)
+            box = Bounds2D.from_points(pts)
             s = math.hypot(box.width, box.length)
         factory = _profile_factory(profile)
         parts = []
