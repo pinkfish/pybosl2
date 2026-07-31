@@ -1076,23 +1076,14 @@ def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[f
         dpartial = 0.0 if len(result) == 0 else math.dist(lastpt, _select(points, pind))
         if dists[dind] < dpartial + dtotal:
             t = (dists[dind] - dtotal) / dpartial
-            nextpoint = CutPoint(
-                point=_to_point(lerp(lastpt, _select(points, pind), t), points.shape[1]), next_index=pind
-            )
+            a_arr = np.asarray(lerp(lastpt, _select(points, pind), t), dtype=float)
+            nextpoint = CutPoint(point=Point(float(a_arr[0]), float(a_arr[1]), float(a_arr[2])), next_index=pind)
         else:
             nextpoint = _path_cut_single(points, closed, dists[dind] - dtotal - dpartial, pind)
         result.append(nextpoint)
         dtotal = dists[dind]
         pind = nextpoint.next_index
     return result
-
-
-def _to_point(arr: np.ndarray | Sequence[float], dim: int) -> Point:
-    """Convert an array-like to a :class:`Point` of the given dimension."""
-    a = np.asarray(arr, dtype=float)
-    if dim == 2:
-        return Point(float(a[0]), float(a[1]))
-    return Point(float(a[0]), float(a[1]), float(a[2]))
 
 
 def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0, eps: float = 1e-7) -> CutPoint:
@@ -1110,11 +1101,22 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
     while True:
         if ind == len(points) - (0 if closed else 1):
             assert dist < eps, "Path2D is too short for specified cut distance"
-            return CutPoint(point=_to_point(_select(points, ind), points.shape[1]), next_index=ind + 1)
+            pt_arr = np.asarray(_select(points, ind), dtype=float)
+            return CutPoint(
+                point=Point(float(pt_arr[0]), float(pt_arr[1]), float(pt_arr[2])),
+                next_index=ind + 1,
+            )
         diameter = math.dist(points[ind], _select(points, ind + 1))
         if diameter > dist:
             return CutPoint(
-                point=_to_point(lerp(points[ind], _select(points, ind + 1), dist / diameter), points.shape[1]),
+                point=Point(
+                    *[
+                        float(v)
+                        for v in np.asarray(lerp(points[ind], _select(points, ind + 1), dist / diameter), dtype=float)[
+                            :3
+                        ]
+                    ]
+                ),
                 next_index=ind + 1,
             )
         dist -= diameter
