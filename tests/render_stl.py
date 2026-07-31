@@ -35,9 +35,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _CANDIDATE_BINARIES = [
     "/Applications/PythonSCAD-dev.app/Contents/MacOS/PythonSCAD",
     "/Applications/PythonSCAD.app/Contents/MacOS/PythonSCAD",
-    # AppImage extracted by CI (see .github/workflows/docs.yml)
     "/usr/local/bin/pythonscad",
     "squashfs-root/AppRun",
+    "/opt/pythonscad/AppRun",
 ]
 
 
@@ -72,7 +72,7 @@ _PREAMBLE = (
     "from pybosl2.path2d import Path2D\n"
     "from pybosl2.path3d import Path3D\n"
     "from pybosl2.distributors import distribute, xdistribute, ydistribute, zdistribute\n"
-    "from pybosl2.color import hsl, hsv, rainbow, rainbow_colors\n"
+    "from pybosl2.color import hsl, rainbow, rainbow_colors\n"
     "from pybosl2.partitions import partition_path, partition_mask, partition_cut_mask\n"
     "from pybosl2.miscellaneous import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
     "from pybosl2.nurbs import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"

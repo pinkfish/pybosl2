@@ -4,26 +4,18 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for pybosl2/color.py: the HSL/HSV conversions, rainbow(), and the Colorable colour operators
-on Bosl2Solid. The conversions are pinned to real BOSL2 in tests/test_bosl2_reorient.py; here we
-check edge cases and the object-level operators (native colour is mocked, so we assert type/wrapper
-behaviour, verified for real in test_stl_render.py)."""
+"""Tests for pybosl2/color.py: the HSL conversion, rainbow(), and the Colorable colour operators
+on Bosl2Solid. HSV is handled by Python's ``colorsys`` module via the :meth:`Colorable.hsv`
+method; the standalone ``hsv()`` function no longer exists."""
+
+import colorsys
 
 import numpy as np
-import pytest
 
-from pybosl2.color import hsl, hsv, rainbow, rainbow_colors
+from pybosl2.color import hsl, rainbow, rainbow_colors
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
-# -- HSV / HSL primaries ------------------------------------------------------------------
-
-
-def test_hsv_primaries():
-    np.testing.assert_allclose(hsv(0, 1, 1), [1, 0, 0], atol=1e-9)
-    np.testing.assert_allclose(hsv(120, 1, 1), [0, 1, 0], atol=1e-9)
-    np.testing.assert_allclose(hsv(240, 1, 1), [0, 0, 1], atol=1e-9)
-    np.testing.assert_allclose(hsv(60, 1, 1), [1, 1, 0], atol=1e-9)  # yellow
-    np.testing.assert_allclose(hsv(180, 1, 1), [0, 1, 1], atol=1e-9)  # cyan
+# -- HSL primaries ------------------------------------------------------------------
 
 
 def test_hsl_primaries():
@@ -38,34 +30,34 @@ def test_hsl_lightness_extremes():
 
 
 def test_grayscale_when_saturation_zero():
-    np.testing.assert_allclose(hsv(123, 0, 0.4), [0.4, 0.4, 0.4], atol=1e-9)
+    np.testing.assert_allclose(list(colorsys.hsv_to_rgb(123 / 360, 0, 0.4)), [0.4, 0.4, 0.4], atol=1e-9)
     np.testing.assert_allclose(hsl(123, 0, 0.4), [0.4, 0.4, 0.4], atol=1e-9)
 
 
-def test_alpha_appended_only_when_given():
-    assert len(hsv(120, 1, 1)) == 3
+def test_alpha_handling_on_hsl():
     assert len(hsl(120, 1, 0.5)) == 3
-    assert hsv(120, 1, 1, 0.25)[-1] == 0.25
-    assert len(hsv(120, 1, 1, 0.25)) == 4
     assert hsl(120, 1, 0.5, 0.25)[-1] == 0.25
     assert len(hsl(120, 1, 0.5, 0.25)) == 4
 
 
-def test_hue_wraps_modulo_360():
-    np.testing.assert_allclose(hsv(360, 1, 1), hsv(0, 1, 1), atol=1e-9)
-    np.testing.assert_allclose(hsv(480, 1, 1), hsv(120, 1, 1), atol=1e-9)
+def test_hsv_primaries_via_colorsys():
+    r, g, b = colorsys.hsv_to_rgb(0 / 360, 1, 1)
+    np.testing.assert_allclose([r, g, b], [1, 0, 0], atol=1e-9)
+
+    r, g, b = colorsys.hsv_to_rgb(120 / 360, 1, 1)
+    np.testing.assert_allclose([r, g, b], [0, 1, 0], atol=1e-9)
+
+    r, g, b = colorsys.hsv_to_rgb(240 / 360, 1, 1)
+    np.testing.assert_allclose([r, g, b], [0, 0, 1], atol=1e-9)
 
 
-def test_hsv_validates_ranges():
-    with pytest.raises(AssertionError):
-        hsv(0, 1.5, 1)
-    with pytest.raises(AssertionError):
-        hsv(0, 1, -0.1)
-    with pytest.raises(AssertionError):
-        hsv(0, 1, 1, a=2)
+def test_hue_wraps_modulo_360_via_colorsys():
+    hue_wrap = colorsys.hsv_to_rgb(360 / 360, 1, 1)
+    hue_zero = colorsys.hsv_to_rgb(0 / 360, 1, 1)
+    np.testing.assert_allclose(hue_wrap, hue_zero, atol=1e-9)
 
 
-# -- rainbow ------------------------------------------------------------------------------
+# -- rainbow ----------------------------------------------------------------------
 
 
 def test_rainbow_colors_count_and_spread():
@@ -92,7 +84,8 @@ def test_rainbow_colors_each_object():
     assert all(isinstance(o, Bosl2Solid) for o in out)
 
 
-# -- Colorable operators on Bosl2Solid ----------------------------------------------------
+# -- Colorable operators on Bosl2Solid -------------------------------------------
+
 
 BOX = cuboid([10, 10, 10])
 
@@ -111,7 +104,6 @@ def test_color_noop_when_nothing_given():
 def test_recolor_and_color_this():
     assert isinstance(BOX.recolor("blue"), Bosl2Solid)
     assert isinstance(BOX.color_this("green"), Bosl2Solid)
-    # "default"/None leaves the object unchanged (no $color scheme in the native backend)
     assert BOX.recolor("default") is BOX
     assert BOX.recolor(None) is BOX
     assert BOX.color_this("default") is BOX
@@ -131,6 +123,5 @@ def test_highlight_and_ghost():
 
 
 def test_color_chains_with_transforms():
-    # colour returns a Bosl2Solid, so the fluent chain keeps working
     result = cuboid([10, 10, 10]).hsv(30).right(5).up(2)
     assert isinstance(result, Bosl2Solid)
