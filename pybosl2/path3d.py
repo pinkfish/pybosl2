@@ -68,12 +68,16 @@ def helix(
     spiral is ``height=0`` with a turn count).
 
     Args:
-        length/height:     height of the helix (0 for a flat spiral)
-        turns:   number of turns (positive = right-handed)
-        angle:   helix angle in degrees (measured at the base radius)
-        radius/diameter:     radius / diameter (constant helix)
-        radius1/diameter1:   bottom radius / diameter
-        radius2/diameter2:   top radius / diameter
+        length: Height of the helix (0 for a flat spiral).
+        height: Height of the helix (0 for a flat spiral).
+        turns: Number of turns (positive = right-handed).
+        angle: Helix angle in degrees (measured at the base radius).
+        radius: Radius for a constant-radius helix.
+        radius1: Bottom radius.
+        radius2: Top radius.
+        diameter: Diameter for a constant-radius helix.
+        diameter1: Bottom diameter.
+        diameter2: Top diameter.
 
     Examples:
         A 2.5-turn helix drawn as a tube:
@@ -257,14 +261,14 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Point(float(r[0]), float(r[1]), float(r[2]))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Vector]":
-        """Normalized tangent vector at each point of the path, as an ndarray.
+        """Normalized tangent vector at each point of the path, as a list of :class:`~pybosl2.points.Vector` values.
 
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
             uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
 
         Returns:
-            An ndarray of unit tangent vectors, one per path point.
+            A list of unit tangent vectors, one per path point.
         """
         if closed is None:
             closed = self.closed
@@ -291,7 +295,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            An ndarray of unit normal vectors, one per path point.
+            A list of unit normal vectors, one per path point.
         """
         if closed is None:
             closed = self.closed
@@ -362,6 +366,19 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`Path3D` subpaths.
+
+        Raises:
+            AssertionError: If the first cut distance is not positive or the last cut
+                distance exceeds the path length.
+
+        Examples:
+            Splitting a path into two segments and stroking each:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                pieces = path3d.cut(15)
+                pieces[0].stroke(width=1).show()
         """
         if closed is None:
             closed = self.closed
@@ -394,7 +411,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     ) -> list[CutPoint]:
         """Cut path at given distance(s) from start.
 
-        Returns a list of :class:`CutPoint` entries (or :class:`` if direction is True).
+        Returns a list of :class:`CutPoint` entries, with optional direction and normal
+        data when *direction* is True.
 
         Args:
             cutdist: A single distance or a list of ascending distances from the start.
@@ -402,7 +420,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             direction: If True, also include direction and normal at each cut point.
 
         Returns:
-            A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
+            A list of :class:`CutPoint` entries, one per cut distance.
         """
         if closed is None:
             closed = self.closed
@@ -435,7 +453,19 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
 
     def cuts_path_normals(self, cuts: list[CutPoint], closed: bool = False) -> "list[Vector]":
-        """Compute normals at each cut point from the path geometry."""
+        """Compute normal vectors at each cut point from the local path geometry.
+
+        For each cut point, the normal is derived from the local plane of three consecutive
+        path points. When the points are collinear or a plane cannot be determined, a
+        perpendicular vector in the XY plane is used instead.
+
+        Args:
+            cuts: List of cut entries from :meth:`cut_points`.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of :class:`~pybosl2.points.Vector` normal vectors, one per cut point.
+        """
         from pybosl2.vectors import unit
 
         result: list[Vector] = []
@@ -476,8 +506,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A 2x3 ndarray of two basis vectors defining the local plane, or None if no
-            non-collinear point is found.
+            A list of two :class:`~pybosl2.points.Vector` basis vectors defining the local plane.
         """
         return _path_plane(self._points, closed, ind, i)
 
@@ -515,6 +544,18 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` with the subdivided points.
+
+        Raises:
+            AssertionError: If more than one of *points*, *points_per_segment*, and *maxlen*
+                is given, or if *points_per_segment* is given without ``SEGMENT`` method.
+
+        Examples:
+            Subdividing a helix into 200 evenly spaced points and stroking it:
+
+            .. pythonscad-example::
+
+                coil = helix(turns=3, height=60, radius=20).subdivide_path(points=200)
+                coil.stroke(width=4).show()
         """
         if closed is None:
             closed = self.closed
@@ -584,6 +625,17 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` with the uniformly resampled points.
+
+        Raises:
+            AssertionError: If both or neither of *sides* and *spacing* are given.
+
+        Examples:
+            Resampling a helix to 120 evenly spaced points:
+
+            .. pythonscad-example::
+
+                coil = helix(turns=3, height=60, radius=20).resample_path(sides=120)
+                coil.stroke(width=4).show()
         """
         if closed is None:
             closed = self.closed
@@ -603,7 +655,31 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.__class__(pts, closed=self.closed)  # type: ignore[arg-type]
 
     def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path3D":
-        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2."""
+        """Extract a portion of the path from one segment to another.
+
+        Returns the sub-path starting at the *u1* fraction of segment *s1* and ending
+        at the *u2* fraction of segment *s2*. Segments indices out of range are clamped,
+        and partial endpoint fractions include the interpolated point.
+
+        Args:
+            s1: Starting segment index.
+            u1: Fraction (0 to 1) along the starting segment.
+            s2: Ending segment index.
+            u2: Fraction (0 to 1) along the ending segment.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+
+        Returns:
+            A new :class:`Path3D` containing the selected sub-path.
+
+        Examples:
+            Selecting the middle portion of a 3-D path:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                mid = path3d.select(0, 0.5, 2, 0.5)
+                mid.stroke(width=1).show()
+        """
         if closed is None:
             closed = self.closed
         points = self._points
@@ -624,7 +700,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     # -- measurement -----------------------------------------------------------------------
 
     def bounds(self) -> Bounds3D:
-        """Axis-aligned bounding box with pre-computed width, length, and height."""
+        """Compute the axis-aligned bounding box with pre-computed width, length, and height.
+
+        Returns:
+            A :class:`~pybosl2.bounds.Bounds3D` enclosing all path points.
+        """
         pts = self._points
         min_pt = pts.min(axis=0)
         max_pt = pts.max(axis=0)
@@ -653,7 +733,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return float(np.sum(np.linalg.norm(diffs, axis=1)))
 
     def is_closed(self) -> bool:
-        """True if the first and last points of the path coincide."""
+        """Check whether the first and last points of the path coincide.
+
+        Returns:
+            True if the path endpoints are coincident, False otherwise.
+        """
         return bool(Path2D._is_closed_path(self._points))
 
     def close(self) -> "Path3D":
@@ -661,6 +745,18 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns a new Path3D with the first point appended to the end, making
         it a closed loop. Has no effect if already closed.
+
+        Returns:
+            A new :class:`Path3D` guaranteed to form a closed loop.
+
+        Examples:
+            Closing an open path into a loop:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0]], closed=False)
+                loop = path3d.close()
+                loop.stroke(width=1).show()
         """
         return self.__class__(Path2D._close_path(self), closed=self.closed)
 
@@ -669,13 +765,37 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         If the first and last points coincide this returns a new Path3D with
         the duplicate removed, turning the path into an open one.
+
+        Returns:
+            A new :class:`Path3D` with the duplicate end point removed.
+
+        Examples:
+            Converting a closed loop to an open path:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 0, 0]])
+                result = path3d.cleanup()
+                result.stroke(width=1).show()
         """
         return self.__class__(Path2D._cleanup_path(self), closed=self.closed)
 
     def reverse(self) -> "Path3D":
-        """The same path wound the other way.
+        """Return the same path wound in the opposite direction.
 
         Returns a new Path3D with all points in reverse order.
+
+        Returns:
+            A new :class:`Path3D` with reversed point order.
+
+        Examples:
+            Reversing the direction of a 3-D path:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.reverse()
+                result.stroke(width=1).show()
         """
         return self.__class__(list(reversed(self._points)), closed=self.closed)
 
@@ -688,6 +808,15 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` with collinear points removed.
+
+        Examples:
+            Removing a redundant middle point from a straight segment:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [15, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.merge_collinear()
+                result.stroke(width=1).show()
         """
         if closed is None:
             closed = self.closed
@@ -712,6 +841,15 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` with duplicate points removed.
+
+        Examples:
+            Cleaning up a path with repeated consecutive points:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.deduplicate()
+                result.stroke(width=1).show()
         """
         if closed is None:
             closed = self.closed
@@ -734,6 +872,15 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` with additional interpolated points.
+
+        Examples:
+            Subdividing a 3-D path using the sides parameter:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.subdivide(sides=100)
+                result.stroke(width=1).show()
         """
         if "sides" in kwargs:
             kwargs.setdefault("points", kwargs.pop("sides"))
@@ -751,6 +898,15 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` with uniformly resampled points.
+
+        Examples:
+            Resampling a 3-D path to 50 evenly spaced points:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
+                result = path3d.resample(sides=50)
+                result.stroke(width=1).show()
         """
         return self.resample_path(**kwargs)
 
@@ -947,7 +1103,30 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         endcap2: CapType | CapSpec = CapType.ROUND,
         joints: CapType | CapSpec = CapType.ROUND,  # noqa: ARG002
     ) -> "Bosl2Solid":
-        """Render this 3-D path as a solid tube."""
+        """Render this 3-D path as a solid tube.
+
+        Converts the path into a tubular 3-D solid with the given width, using
+        rounded endcaps and joints by default.
+
+        Args:
+            width: Thickness of the tube.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            endcaps: Cap style for both ends (unused when explicit endcaps are given).
+            endcap1: Cap style for the start of the path.
+            endcap2: Cap style for the end of the path.
+            joints: Joint style between segments (unused when explicit endcaps are given).
+
+        Returns:
+            A :class:`~pybosl2.shapes3d.Bosl2Solid` representing the tubular stroke.
+
+        Examples:
+            A simple path stroked as a tube:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])
+                path3d.stroke(width=2).show()
+        """
         from pybosl2._stroke3d import stroke_3d
 
         return stroke_3d(
@@ -961,7 +1140,28 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         fit: bool = True,
         mindash: float = 0.5,
     ) -> "Bosl2Solid":
-        """Break this 3-D path into dashed tube segments, unioned."""
+        """Render this 3-D path as dashed tube segments, unioned together.
+
+        Breaks the path into individual solid dashes based on the given dash pattern.
+
+        Args:
+            dashpat: Alternating dash/gap lengths. Defaults to ``[3, 2]`` (3-unit dashes,
+                2-unit gaps) when None.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            fit: If True, adjust the pattern so dashes fit evenly along the path.
+            mindash: Minimum dash length when *fit* is True.
+
+        Returns:
+            A :class:`~pybosl2.shapes3d.Bosl2Solid` of unioned dash segments.
+
+        Examples:
+            A dashed stroke along a 3-D path:
+
+            .. pythonscad-example::
+
+                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])
+                path3d.dashed_stroke(dashpat=[5, 2]).show()
+        """
         from pybosl2._stroke3d import dashed_stroke_3d
 
         return dashed_stroke_3d(
