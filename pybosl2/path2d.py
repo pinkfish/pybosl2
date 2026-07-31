@@ -14,6 +14,7 @@ the dimension-agnostic measurements from :class:`~pybosl2.paths.Path`.
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
@@ -57,7 +58,7 @@ from pybosl2.rounding import Roundable
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import unit
 
-__all__ = ["Path2D", "MinkowskiJoin", "catenary"]
+__all__ = ["Path2D", "MinkowskiJoin", "catenary", "SelfIntersection"]
 
 
 def catenary(
@@ -150,6 +151,25 @@ class MinkowskiJoin(Enum):
     ROUND = 1
     MITRE = 2
     BEVEL = 3
+
+
+@dataclass(frozen=True, slots=True)
+class SelfIntersection:
+    """A single self-intersection point on a path.
+
+    Attributes:
+        point: The (x, y) intersection point.
+        seg1: Index of the first segment involved.
+        prop1: Proportion along the first segment (0 to 1).
+        seg2: Index of the second segment involved.
+        prop2: Proportion along the second segment (0 to 1).
+    """
+
+    point: Point
+    seg1: int
+    prop1: float
+    seg2: int
+    prop2: float
 
 
 class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
@@ -329,7 +349,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             return [Vector(float(v[0]), float(v[1])) for v in dirs]
 
         seg_lens = lengths.flatten()
-        result = []
+        result: list[Vector] = []
         m = len(dirs)
         for i in range(n):
             if closed:
@@ -445,7 +465,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         num = len(cutlist)
         if num < 2:
             return [self.__class__(self._points.tolist(), closed=self.closed)]
-        result = []
+        result: list[Path2D] = []
         for i in range(1, num):
             d1 = cutlist[i - 1].point
             d2 = cutlist[i].point
@@ -463,19 +483,42 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         self,
         cutdist: float | Sequence[float],
         closed: bool | None = None,
-        direction: bool = False,  # noqa: ARG002
+        direction: bool = False,
     ) -> list[CutPoint]:
-        """Cut path at given distance(s) from start."""
+        """Cut path at given distance(s) from start.
+
+        If *direction* is True, each CutPoint includes direction and normal.
+        """
         if closed is None:
             closed = self.closed
-        ls = self._shapely
+
+        coords = self._closed_coords() if closed else np.asarray(self._shapely.coords)
+        ls = LineString(coords)
         total = ls.length
         cuts = [float(cutdist)] if isinstance(cutdist, (int, float)) else [float(c) for c in cutdist]
-        result = []
+        result: list[CutPoint] = []
         for c in cuts:
             c = max(0.0, min(total, c))
             p = ls.interpolate(c)
-            result.append(CutPoint(Point(float(p.x), float(p.y)), 0))
+            if direction:
+                d0 = max(0.0, c - 1e-5)
+                d1 = min(total, c + 1e-5)
+                p0 = ls.interpolate(d0)
+                p1 = ls.interpolate(d1)
+                dx = float(p1.x - p0.x)
+                dy = float(p1.y - p0.y)
+                n = float(np.linalg.norm([dx, dy])) or 1.0
+                tx, ty = dx / n, dy / n
+                result.append(
+                    CutPoint(
+                        Point(float(p.x), float(p.y)),
+                        0,
+                        direction=np.array([tx, ty, 0.0], dtype=float),
+                        normal=np.array([-ty, tx, 0.0], dtype=float),
+                    )
+                )
+            else:
+                result.append(CutPoint(Point(float(p.x), float(p.y)), 0))
         return result
 
     def cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list[CutPoint]:
@@ -1607,19 +1650,19 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     # Private instance methods -- 2-D-specific path operations
     # ======================================================================================
 
-    def self_intersections(self, closed: bool | None = None, eps: float = EPSILON) -> list[Any]:
-        """All self-intersection points of path: list of [POINT, SEGNUM1, PROPORTION1, SEGNUM2, PROPORTION2].
+    def self_intersections(self, closed: bool | None = None, eps: float = EPSILON) -> list[SelfIntersection]:
+        """All self-intersection points of the path.
 
-        Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-            eps: Epsilon for numerical comparisons.
+        Returns:
+            A list of :class:`SelfIntersection` entries with ``.point``, ``.seg1``,
+            ``.prop1``, ``.seg2``, and ``.prop2`` fields.
         """
         if closed is None:
             closed = self.closed
         p = Path2D._close_path(self._points, eps=eps) if closed else list(self._points)
         arr = np.asarray(p, dtype=float)
         plen = len(arr)
-        result = []
+        result: list[SelfIntersection] = []
         for i in range(plen - 2):
             a1, a2 = arr[i], arr[i + 1]
             diameter = a2 - a1
@@ -1640,7 +1683,16 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                     b1, b2 = arr[j].tolist(), arr[j + 1].tolist()
                     isect = general_line_intersection([a1.tolist(), a2.tolist()], [b1, b2], eps=eps)
                     if isect and -eps <= isect[1] <= 1 + eps and -eps <= isect[2] <= 1 + eps:
-                        result.append([isect[0], i, isect[1], j, isect[2]])
+                        pt = [float(v) for v in isect[0]]
+                        result.append(
+                            SelfIntersection(
+                                Point(float(pt[0]), float(pt[1])),
+                                i,
+                                float(isect[1]),
+                                j,
+                                float(isect[2]),
+                            )
+                        )
         return result
 
     def merge_collinear(self, closed: bool | None = None, eps: float = EPSILON) -> list[Any]:
@@ -1695,8 +1747,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         temp = Path2D(path)
         raw = []
         for a in temp.self_intersections(closed=closed, eps=eps):
-            raw.append([a[1], a[2]])
-            raw.append([a[3], a[4]])
+            raw.append([a.seg1, a.prop1])
+            raw.append([a.seg2, a.prop2])
         raw.sort(key=lambda x: (x[0], x[1]))
         isects = Path2D._deduplicate([[0, 0]] + raw + [[len(path) - (1 if closed else 2), 1]], eps=eps)
         out = []
