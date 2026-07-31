@@ -216,7 +216,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __len__(self) -> int:
         return len(self._points)
 
-    def __getitem__(self, key: int | slice | tuple) -> np.ndarray:
+    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray:
         return self._points[key]
 
     def __iter__(self):
@@ -246,7 +246,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Polygon(coords.tolist()) if len(coords) >= 3 else Polygon()
 
     @classmethod
-    def from_list(cls, lst: Sequence, closed: bool = True) -> "Path2D":
+    def from_list(cls, lst: Sequence[Any], closed: bool = True) -> "Path2D":
         """Create a Path2D from a plain list of ``[x, y]`` coordinate pairs.
 
         Args:
@@ -397,7 +397,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         return np.zeros(len(self._points), dtype=np.float64)
 
-    def cut(self, cutdist: float | Sequence[float], closed: bool | None = None) -> list["Path2D"]:
+    def cut(self, cutdist: float | Sequence[float], closed: bool | None = None) -> list[Path2D]:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
 
         Args:
@@ -436,7 +436,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             sub_paths = [self.__class__(self._points.tolist(), closed=self.closed)]
         return sub_paths
 
-    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool = False) -> list["Path2D"]:  # noqa: ARG002
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool = False) -> list[Path2D]:  # noqa: ARG002
         """Reconstruct sub-paths from the output of cut_points()."""
         from shapely.geometry import Point as _Point
         from shapely.ops import substring
@@ -489,9 +489,32 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         p = ls.interpolate(max(0.0, min(total, float(dist))))
         return CutPoint(Point(float(p.x), float(p.y)), 0)
 
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> "list[Vector]":  # noqa: ARG002
-        """Compute normals at each cut point (perpendicular to direction)."""
-        return [Vector(-d[1], d[0]) if len(d) >= 2 else Vector(0.0, 0.0) for d in dirs]
+    def cuts_path_normals(self, cuts: list[CutPoint], closed: bool = False) -> "list[Vector]":
+        """Compute normals at each cut point from the path geometry.
+
+        Uses the Shapely line to find the local tangent at each cut location,
+        then returns the perpendicular (normal) vector.
+        """
+        from shapely.geometry import LineString
+        from shapely.geometry import Point as _Point
+
+        coords = self._closed_coords() if closed else np.asarray(self._shapely.coords)
+        ls = LineString(coords)
+        total = ls.length
+        result: list[Vector] = []
+        for cut in cuts:
+            sp = _Point(cut.point.x, cut.point.y)
+            d = ls.project(sp)
+            d0 = max(0.0, d - 1e-5)
+            d1 = min(total, d + 1e-5)
+            p0 = ls.interpolate(d0)
+            p1 = ls.interpolate(d1)
+            dx = float(p1.x - p0.x)
+            dy = float(p1.y - p0.y)
+            n = float(np.linalg.norm([dx, dy])) or 1.0
+            tx, ty = dx / n, dy / n
+            result.append(Vector(-ty, tx))
+        return result
 
     def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":  # noqa: ARG002
         """Local plane at path point (always XY for 2-D)."""
@@ -866,7 +889,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return self.resample_path(**kwargs)
 
-    def split_at_self_crossings(self, eps: float = EPSILON) -> list["Path2D"]:
+    def split_at_self_crossings(self, eps: float = EPSILON) -> list[Path2D]:
         """Split this 2-D path into subpaths wherever it crosses itself.
 
         Args:
@@ -880,7 +903,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             for sub in self._split_path_at_self_crossings(eps=eps, closed=self.closed)
         ]
 
-    def polygon_parts(self, nonzero: bool = False, eps: float = EPSILON) -> list["Path2D"]:
+    def polygon_parts(self, nonzero: bool = False, eps: float = EPSILON) -> list[Path2D]:
         """Split a possibly self-intersecting polygon into non-intersecting simple polygons.
 
         Args:
@@ -1562,7 +1585,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit, mindash=mindash
         )
 
-    def _distribute(self, mats: list[np.ndarray]) -> list["Path2D"]:
+    def _distribute(self, mats: list[np.ndarray]) -> list[Path2D]:
         # Apply each copier matrix, returning the list of 2-D copies (BOSL2's function form).
         # Raises if a copier lifts the 2-D path out of the XY plane; use Path3D for those.
         if not len(self):
@@ -1584,7 +1607,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     # Private instance methods -- 2-D-specific path operations
     # ======================================================================================
 
-    def self_intersections(self, closed: bool | None = None, eps: float = EPSILON) -> list:
+    def self_intersections(self, closed: bool | None = None, eps: float = EPSILON) -> list[Any]:
         """All self-intersection points of path: list of [POINT, SEGNUM1, PROPORTION1, SEGNUM2, PROPORTION2].
 
         Args:
@@ -1620,7 +1643,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                         result.append([isect[0], i, isect[1], j, isect[2]])
         return result
 
-    def merge_collinear(self, closed: bool | None = None, eps: float = EPSILON) -> list:
+    def merge_collinear(self, closed: bool | None = None, eps: float = EPSILON) -> list[Any]:
         """Remove unnecessary sequential collinear points from the path.
 
         Args:
@@ -1659,7 +1682,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 return False
         return len(self.self_intersections(closed=closed, eps=eps)) == 0
 
-    def _split_path_at_self_crossings(self, closed: bool | None = None, eps: float = EPSILON) -> list:
+    def _split_path_at_self_crossings(self, closed: bool | None = None, eps: float = EPSILON) -> list[Any]:
         """Split a 2D path into subpaths wherever it crosses itself.
 
         Args:
@@ -1684,7 +1707,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 out.append(outpath)
         return out
 
-    def _tag_self_crossing_subpaths(self, nonzero: bool, closed: bool | None = None, eps: float = EPSILON) -> list:
+    def _tag_self_crossing_subpaths(self, nonzero: bool, closed: bool | None = None, eps: float = EPSILON) -> list[Any]:
         """Tag each subpath as "I" (inside) or "O" (outside) the original polygon.
 
         Args:
@@ -1894,7 +1917,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return lst[s : e + 1]  # type: ignore[return-value]
 
     @staticmethod
-    def _repeat(val: Any, sides: int) -> list:
+    def _repeat(val: Any, sides: int) -> list[Any]:
         """*val* repeated *sides* times."""
         return [val for _ in range(sides)]
 
@@ -2005,7 +2028,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return approx(path[0], path[-1], eps=eps)
 
     @staticmethod
-    def _close_path(path: Sequence[Sequence[float]] | np.ndarray | "Path2D" | "Path3D", eps: float = EPSILON) -> list:
+    def _close_path(
+        path: Sequence[Sequence[float]] | np.ndarray | "Path2D" | "Path3D", eps: float = EPSILON
+    ) -> list[Any]:
         """Append the start point to path if it isn't already closed.
 
         Args:
@@ -2015,7 +2040,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return list(path) if Path2D._is_closed_path(path, eps=eps) else list(path) + [path[0]]
 
     @staticmethod
-    def _cleanup_path(path: Sequence[Sequence[float]] | np.ndarray | "Path2D" | "Path3D", eps: float = EPSILON) -> list:
+    def _cleanup_path(
+        path: Sequence[Sequence[float]] | np.ndarray | "Path2D" | "Path3D", eps: float = EPSILON
+    ) -> list[Any]:
         """Drop the last point of path if it coincides with the first.
 
         Args:
@@ -2063,7 +2090,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(radius)) / fs))))
 
     @staticmethod
-    def _cut_to_seg_u_form(pathcut: list[CutPoint], path: Sequence, closed: bool) -> list:
+    def _cut_to_seg_u_form(pathcut: list[CutPoint], path: Sequence[Any], closed: bool) -> list[Any]:
         """Convert cut_points() output to [segment, u] form usable with select().
 
         Args:
@@ -2093,8 +2120,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _extreme_angle_fragment(
-        seg: list[np.ndarray], fragments: list, rightmost: bool = True, eps: float = EPSILON
-    ) -> list:
+        seg: list[np.ndarray], fragments: list[Any], rightmost: bool = True, eps: float = EPSILON
+    ) -> list[Any]:
         """Pick the fragment with the most extreme turning angle from the given segment.
 
         Args:
@@ -2135,7 +2162,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         rightmost: bool = True,
         startfrag: int = 0,
         eps: float = EPSILON,
-    ) -> list:
+    ) -> list[Any]:
         """Assemble fragments into one closed polygon path; returns [path, remaining_fragments].
 
         Args:
@@ -2171,7 +2198,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             remainder = remainder2
 
     @staticmethod
-    def _assemble_path_fragments(fragments: list[Any], eps: float = EPSILON) -> list:
+    def _assemble_path_fragments(fragments: list[Any], eps: float = EPSILON) -> list[Any]:
         """Assemble fragments into complete closed polygon paths, discarding any with area < eps.
 
         Args:

@@ -244,12 +244,11 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list[Vector], closed: bool = False) -> list[Vector]:
-        """Compute normals at each cut point (perpendicular to the direction, in local plane).
+    def cuts_path_normals(self, cuts: list[CutPoint], closed: bool = False) -> list[Vector]:
+        """Compute normals at each cut point from the path geometry.
 
         Args:
             cuts: List of cut entries from cut_points().
-            dirs: List of direction vectors at each cut.
             closed: Whether the path is closed.
 
         Returns:

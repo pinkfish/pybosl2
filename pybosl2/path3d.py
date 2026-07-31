@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
-    from pybosl2.points import Point, Vector
+    from pybosl2.points import Point
     from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -35,7 +35,6 @@ from pybosl2._path_math import (
     _path_cut_points_recurse,
     _path_cut_single,
     _path_cuts_dir,
-    _path_cuts_normals,
     _path_length_fractions,
     _path_normals,
     _path_plane,
@@ -58,6 +57,7 @@ from pybosl2.paths import (
     Path,
     SubdivideMethod,
 )
+from pybosl2.points import Vector
 from pybosl2.rounding import Roundable
 from pybosl2.shapes2d import _frag_count, _pick_radius
 from pybosl2.skin import Sweepable
@@ -388,18 +388,38 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
 
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> "list[Vector]":
-        """Compute normals at each cut point (perpendicular to the direction, in local plane).
+    def cuts_path_normals(self, cuts: list[CutPoint], closed: bool = False) -> "list[Vector]":
+        """Compute normals at each cut point from the path geometry."""
+        from pybosl2.vectors import unit
 
-        Args:
-            cuts: List of cut entries from cut_points().
-            dirs: List of direction vectors at each cut.
-            closed: Whether the path is closed.
+        result: list[Vector] = []
+        pts = self._points
+        n_pts = len(pts)
+        for cut in cuts:
+            idx = cut.next_index
+            a = pts[idx % n_pts]
+            b = pts[(idx + 1) % n_pts]
+            d = np.asarray(b, float) - np.asarray(a, float)
+            nd = float(np.linalg.norm(d)) or 1.0
+            tx, ty, tz = d[0] / nd, d[1] / nd, d[2] / nd
 
-        Returns:
-            A list of :class:`Vector` normal vectors, one per cut point.
-        """
-        return _path_cuts_normals(self._points, closed, cuts, dirs)
+            plane = None
+            if n_pts >= 3 and closed:
+                start = max(min(idx, n_pts - 1), 2)
+                try:
+                    plane = _path_plane(pts, closed, start, start - 2)
+                except ValueError:
+                    plane = None
+            if plane is None:
+                if abs(tx) < 1e-12 and abs(ty) < 1e-12:
+                    result.append(Vector(1.0, 0.0, 0.0))
+                else:
+                    n = unit([-ty, tx, 0.0])
+                    result.append(Vector(float(n[0]), float(n[1]), float(n[2])))
+            else:
+                n = unit(np.cross([tx, ty, tz], np.cross(plane[0], plane[1])))
+                result.append(Vector(float(n[0]), float(n[1]), float(n[2])))
+        return result
 
     def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
