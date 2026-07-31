@@ -277,8 +277,16 @@ def grid_copies(
         if inside is None:
             return True
         from pybosl2.path2d import Path2D
+        from pybosl2.points import Point
 
-        return Path2D._point_in_polygon(pos, inside, nonzero=bool(nonzero)) >= 0
+        return (
+            Path2D._point_in_polygon(
+                Point(float(pos[0]), float(pos[1])),
+                Path2D(inside) if not isinstance(inside, Path2D) else inside,
+                nonzero=bool(nonzero),
+            )
+            >= 0
+        )
 
     mats = []
     if stagger is False:

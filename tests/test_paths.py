@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from pybosl2.path2d import Path2D
+from pybosl2.points import Point
 
 SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]
 UNIT = [[0, 0], [10, 0], [10, 10], [0, 10]]
@@ -312,9 +313,9 @@ def test_polygon_area_static():
 
 
 def test_point_in_polygon_static():
-    assert Path2D._point_in_polygon([40, 30], SQUARE) == 1
-    assert Path2D._point_in_polygon([100, 100], SQUARE) == -1
-    assert Path2D._point_in_polygon([0, 30], SQUARE) == 0  # on the boundary
+    assert Path2D._point_in_polygon(Point(40, 30), Path2D(SQUARE, closed=True)) == 1
+    assert Path2D._point_in_polygon(Point(100, 100), Path2D(SQUARE, closed=True)) == -1
+    assert Path2D._point_in_polygon(Point(0, 30), Path2D(SQUARE, closed=True)) == 0  # on the boundary
 
 
 def test_path_length_accepts_3d():

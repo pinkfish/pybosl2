@@ -1871,8 +1871,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             sides = [x / 2048 for x in ln]
             p1 = [mp[0] + sides[0], mp[1] + sides[1]]
             p2 = [mp[0] - sides[0], mp[1] - sides[1]]
-            p1in = Path2D._point_in_polygon(p1, list(self._points), nonzero=nonzero) >= 0
-            p2in = Path2D._point_in_polygon(p2, list(self._points), nonzero=nonzero) >= 0
+            p1in = (
+                Path2D._point_in_polygon(Point(float(p1[0]), float(p1[1])), Path2D(list(self._points)), nonzero=nonzero)
+                >= 0
+            )
+            p2in = (
+                Path2D._point_in_polygon(Point(float(p2[0]), float(p2[1])), Path2D(list(self._points)), nonzero=nonzero)
+                >= 0
+            )
             tag = "I" if (p1in and p2in) else "O"
             out.append([tag, subpath])
         return out
@@ -2105,26 +2111,25 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _point_in_polygon(
-        point: Sequence[float] | np.ndarray,
-        poly: Sequence[Sequence[float]] | np.ndarray | "Path2D",
+        point: Point,
+        poly: "Path2D",
         nonzero: bool = False,
         eps: float = EPSILON,
     ) -> int:
         """Whether point is inside 2-D polygon poly: 1 inside, -1 outside, 0 boundary.
 
         Args:
-            point: An [x, y] coordinate to test for containment.
-            poly: A sequence of [x, y] points defining the polygon.
+            point: The :class:`~pybosl2.points.Point` to test.
+            poly: The :class:`Path2D` defining the polygon boundary.
             nonzero: If True, use non-zero winding rule instead of even-odd.
             eps: Epsilon for numerical comparisons.
         """
-        point = np.asarray(point, dtype=float)
-        box = poly.bounds() if isinstance(poly, Path2D) else Path2D(poly, closed=False).bounds()
+        box = poly.bounds()
         if (
-            point[0] < box.min_x - eps
-            or point[0] > box.max_x + eps
-            or point[1] < box.min_y - eps
-            or point[1] > box.max_y + eps
+            point.x < box.min_x - eps
+            or point.x > box.max_x + eps
+            or point.y < box.min_y - eps
+            or point.y > box.max_y + eps
         ):
             return -1
 
@@ -2134,30 +2139,36 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         for seg in segs:
             seg_len = float(np.linalg.norm(seg[1] - seg[0]))
-            if seg_len > eps and _is_point_on_segment(Point(float(point[0]), float(point[1])), seg, eps=eps):
+            if seg_len > eps and _is_point_on_segment(point, seg, eps=eps):
                 return 0
+
+        px, py = float(point.x), float(point.y)
 
         if nonzero:
             winding = 0
             for seg in segs:
-                p0 = seg[0] - point
-                p1 = seg[1] - point
-                if float(np.linalg.norm(p1 - p0)) <= eps:
+                p0x = seg[0][0] - px
+                p0y = seg[0][1] - py
+                p1x = seg[1][0] - px
+                p1y = seg[1][1] - py
+                if math.hypot(p1x - p0x, p1y - p0y) <= eps:
                     continue
-                if p0[1] <= 0:
-                    if p1[1] > 0 and (p0[0] * (p1[1] - p0[1]) - p0[1] * (p1[0] - p0[0])) > 0:
+                if p0y <= 0:
+                    if p1y > 0 and (p0x * (p1y - p0y) - p0y * (p1x - p0x)) > 0:
                         winding += 1
                 else:
-                    if p1[1] <= 0 and (p0[0] * (p1[1] - p0[1]) - p0[1] * (p1[0] - p0[0])) < 0:
+                    if p1y <= 0 and (p0x * (p1y - p0y) - p0y * (p1x - p0x)) < 0:
                         winding -= 1
             return 1 if winding != 0 else -1
 
         crossings = 0
         for seg in segs:
-            p0 = seg[0] - point
-            p1 = seg[1] - point
-            if ((p1[1] > eps and p0[1] <= eps) or (p1[1] <= eps and p0[1] > eps)) and (
-                -eps < p0[0] - p0[1] * (p1[0] - p0[0]) / (p1[1] - p0[1])
+            p0x = seg[0][0] - px
+            p0y = seg[0][1] - py
+            p1x = seg[1][0] - px
+            p1y = seg[1][1] - py
+            if ((p1y > eps and p0y <= eps) or (p1y <= eps and p0y > eps)) and (
+                -eps < p0x - p0y * (p1x - p0x) / (p1y - p0y)
             ):
                 crossings += 1
         return 2 * (crossings % 2) - 1
