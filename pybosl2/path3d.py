@@ -537,7 +537,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         assert isinstance(points, (int, float)) and points > 0, "Parameter sides must be positive number"
         count = len(pts_arr) - (0 if closed else 1)
         if method_val == "segment":
-            add_guess: Any = _repeat((points - len(pts_arr)) / count, count)
+            add_guess: Any = [(points - len(pts_arr)) / count] * count
         else:
             path_lens = np.linalg.norm(np.diff(pts_arr, axis=0), axis=1)
             if closed:
@@ -545,7 +545,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             add_density = (points - len(pts_arr)) / sum(path_lens)
             add_guess = [float(ln * add_density) for ln in path_lens]
         add_list = [float(v) for v in add_guess]
-        add = _sum_preserving_round(add_list) if exact else [_scad_round(v) for v in add_list]
+        add = (
+            _sum_preserving_round(add_list)
+            if exact
+            else [math.floor(v + 0.5) if v >= 0 else math.ceil(v - 0.5) for v in add_list]
+        )
         out2: list[Any] = []
         for i in range(count):
             out2.extend(lerpn(pts_arr[i], _select(pts_arr, i + 1), 1 + int(add[i]), endpoint=False))
@@ -1345,23 +1349,15 @@ def _select(lst: Sequence[Any] | np.ndarray, start: int, end: int | None = None)
     return [lst[i] for i in range(s, sides)] + [lst[i] for i in range(e + 1)]
 
 
-def _repeat(val: Any, sides: int) -> list:
-    """*val* repeated *sides* times."""
-    return [val for _ in range(sides)]
-
-
 def _sum_preserving_round(data: Sequence[float]) -> list[float]:
     # Round every entry to an integer, carrying the rounding error forward so the sum is preserved.
     out = list(data)
     error = 0.0
     for i in range(len(out) - 1):
-        newval = _scad_round(out[i] + error)
+        x = out[i] + error
+        newval = math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
         error = out[i] + error - newval
         out[i] = newval
-    out[-1] = _scad_round(out[-1] + error)
+    lx = out[-1] + error
+    out[-1] = math.floor(lx + 0.5) if lx >= 0 else math.ceil(lx - 0.5)
     return out
-
-
-def _scad_round(x: float) -> float:
-    # Round half away from zero, matching OpenSCAD's round().
-    return math.floor(x + 0.5) if x >= 0 else math.ceil(x - 0.5)
