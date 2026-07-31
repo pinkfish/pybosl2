@@ -97,9 +97,9 @@ def dashed_stroke_2d(
     """
     from pybosl2.regions import Region
 
-    dpat = list(dashpat) if dashpat else [3, 3]
+    dpat = list(dashpat) if dashpat else [3.0, 3.0]
     if len(dpat) % 2 == 1:
-        dpat = dpat + [0]
+        dpat = dpat + [0.0]
 
     pts = [list(map(float, p)) for p in path]
     assert len(pts) >= 2, "dashed_stroke(): need at least 2 points."
