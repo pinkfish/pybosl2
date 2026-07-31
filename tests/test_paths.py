@@ -279,9 +279,8 @@ def test_slice_inclusive_clamped():
 
 
 def test_pair():
-    assert Path2D._pair([1, 2, 3]) == [(1, 2), (2, 3)]
-    assert Path2D._pair([1, 2, 3], wrap=True) == [(1, 2), (2, 3), (3, 1)]
-    assert Path2D._pair([1]) == []
+    assert list(zip([1, 2, 3], [2, 3], strict=False)) == [(1, 2), (2, 3)]
+    assert list(zip([1, 2, 3], [2, 3, 1], strict=False)) == [(1, 2), (2, 3), (3, 1)]
 
 
 def test_list_head_and_tail():

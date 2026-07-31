@@ -1844,7 +1844,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         raw.sort(key=lambda x: (x[0], x[1]))
         isects = Path2D._deduplicate([[0, 0]] + raw + [[len(path) - (1 if closed else 2), 1]], eps=eps)
         out = []
-        for p0, p1 in Path2D._pair(isects):
+        for p0, p1 in zip(isects, isects[1:], strict=False):
             section = temp.select(p0[0], p0[1], p1[0], p1[1], closed=closed)
             outpath = Path2D._deduplicate(section, eps=eps)  # type: ignore[arg-type]
             if len(outpath) > 1:
@@ -2028,17 +2028,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if s <= e:
             return [lst[i] for i in range(s, e + 1)]
         return [lst[i] for i in range(s, sides)] + [lst[i] for i in range(e + 1)]
-
-    @staticmethod
-    def _pair(lst: Sequence[Any] | np.ndarray, wrap: bool = False) -> list[Any]:
-        # List of consecutive (lst[i], lst[i+1]) pairs; if wrap, also (last, first).
-        length = len(lst) - 1
-        if length < 1:
-            return []
-        out = [(lst[i], lst[i + 1]) for i in range(length)]
-        if wrap:
-            out.append((lst[length], lst[0]))
-        return out
 
     @staticmethod
     def _list_head(lst: Sequence[Any] | np.ndarray, to: int = -2) -> list[Any]:
