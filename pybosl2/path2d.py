@@ -295,7 +295,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return np.linalg.norm(np.diff(coords, axis=0), axis=1)
 
     def length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
-        """Distance fraction of each point in the path (0 at start, 1 at end)."""
+        """Distance fraction of each point in the path (0 at start, 1 at end).
+
+        Args:
+            closed: Override the instance's closed flag.
+
+        Returns:
+            An ndarray of cumulative length fractions, from 0 to 1."""
         if closed is None:
             closed = self.closed
         coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
@@ -384,7 +390,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return [Vector(-t[1], t[0]) for t in tangents]
 
     def curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
-        """Numeric curvature estimate at each point (0 for 2-D collinear paths)."""
+        """Numeric curvature estimate at each point (0 for 2-D collinear paths).
+
+        Args:
+            closed: Override the instance's closed flag.
+
+        Returns:
+            An ndarray of curvature values."""
         if closed is None:
             closed = self.closed
         coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
@@ -412,7 +424,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return curv
 
     def torsion(self, closed: bool | None = None) -> NDArray[np.float64]:
-        """Numeric torsion estimate (always 0 for 2-D paths)."""
+        """Numeric torsion estimate (always 0 for 2-D paths).
+
+        Args:
+            closed: Override the instance's closed flag.
+
+        Returns:
+            An ndarray of torsion values (all zeros for 2-D)."""
         if closed is None:
             closed = self.closed
         return np.zeros(len(self._points), dtype=np.float64)
@@ -457,7 +475,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return sub_paths
 
     def cut_getpaths(self, cutlist: list[CutPoint], closed: bool = False) -> list[Path2D]:  # noqa: ARG002
-        """Reconstruct sub-paths from the output of cut_points()."""
+        """Reconstruct sub-paths from the output of cut_points().
+
+        Args:
+            cutlist: Output from cut_points(), a list of :class:`CutPoint` entries.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of :class:`Path2D` subpaths."""
         from shapely.geometry import Point as _Point
         from shapely.ops import substring
 
@@ -522,11 +547,27 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return result
 
     def cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list[CutPoint]:
-        """Walk the path accumulating distance until each cut distance is reached."""
+        """Walk the path accumulating distance until each cut distance is reached.
+
+        Args:
+            dists: Ordered list of distances from the start at which to cut.
+            closed: Whether the path is closed.
+
+        Returns:
+            A list of :class:`CutPoint` entries, one per cut distance."""
         return self.cut_points(dists, closed=closed)
 
     def cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> CutPoint:  # noqa: ARG002
-        """Find the single cut point at distance dist."""
+        """Find the single cut point at distance dist.
+
+        Args:
+            dist: Distance along the path from the given segment index.
+            closed: Whether the path is closed.
+            ind: The segment index to start searching from.
+            eps: Epsilon for distance comparison.
+
+        Returns:
+            A :class:`CutPoint` with the cut point and its next segment index."""
         ls = self._shapely
         total = ls.length
         p = ls.interpolate(max(0.0, min(total, float(dist))))
@@ -560,11 +601,27 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return result
 
     def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":  # noqa: ARG002
-        """Local plane at path point (always XY for 2-D)."""
+        """Local plane at path point (always XY for 2-D).
+
+        Args:
+            ind: Index of the first point defining the plane.
+            i: Index of the search start for the third non-collinear point.
+            closed: Whether the path is closed.
+
+        Returns:
+            Two basis vectors defining the XY plane."""
         return [Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0)]
 
     def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Vector]":  # noqa: ARG002
-        """Compute direction vectors at each cut point."""
+        """Compute direction vectors at each cut point.
+
+        Args:
+            cuts: List of cut entries from cut_points().
+            closed: Whether the path is closed.
+            eps: Epsilon for numerical comparisons.
+
+        Returns:
+            A list of :class:`Vector` direction vectors, one per cut point."""
         from shapely.geometry import Point as _Point
 
         ls = self._shapely
