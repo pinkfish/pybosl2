@@ -13,7 +13,11 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
+
+if TYPE_CHECKING:
+    from pybosl2.caps import CapSpec
+    from pybosl2.path3d import Path3D
 
 from pybosl2._backend import SolidBackend, register_backend
 from pybosl2._sdf import shapes3d as _s
@@ -86,6 +90,18 @@ class SdfBackend:
 
     def difference(self, solids: Any) -> _s.PyShape:
         return _s.PyShape.difference(*solids)
+
+    def stroke(
+        self,
+        path: Path3D,
+        width: float = 1,
+        closed: bool | None = None,
+        endcap1: CapSpec | None = None,
+        endcap2: CapSpec | None = None,
+        **_: Any,
+    ) -> _s.PyShape:
+        """3-D stroke via the SDF backend's own cylinder/sphere primitives."""
+        return _s.stroke_3d(path, width=width, closed=closed, endcap1=endcap1, endcap2=endcap2)
 
     def intersection(self, solids: Any) -> _s.PyShape:
         return _s.PyShape.intersection(*solids)
