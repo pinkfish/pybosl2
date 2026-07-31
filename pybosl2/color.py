@@ -5,14 +5,16 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # LibFile: pybosl2/color.py
-#    Pure-Python port of BOSL2's color.scad: the HSL/HSV -> RGB colorspace conversions and the
-#    rainbow() helper for colouring a list of objects. The colour-application operators
-#    (color/recolor/color_this/hsl/hsv/highlight/ghost) live on :class:`~pybosl2.shapes3d.Bosl2Solid`
-#    via the :class:`Colorable` mixin defined here; each resolves to the native PythonSCAD
-#    ``color()`` / ``highlight()`` (# modifier) / ``background()`` (% modifier) calls.
-#
-#    Only pure math is imported at load time, so shapes3d.py can pull in the mixin during its own
-#    import without a cycle.
+#    Pure-Python port of BOSL2's color.scad: the HSL/HSV -> RGB colourspace
+#    conversions and the rainbow() helper for colouring a list of objects.
+#    Python's standard library ``colorsys`` module provides ``hls_to_rgb``
+#    and ``hsv_to_rgb``, but BOSL2's ``hsl()`` uses a different formula
+#    than the HLS model — the custom implementations here match OpenSCAD's
+#    output exactly rather than the generic colour-science approximations.
+#    The colour operators (``color``/``recolor``/``color_this``/``hsl``/
+#    ``hsv``/``highlight``/``ghost``) are provided by the
+#    :class:`Colorable` mixin defined here and consumed by
+#    :class:`~pybosl2.shapes3d.Bosl2Solid`.
 #
 # FileSummary: HSL/HSV colour conversion, rainbow(), and the Colorable colour operators.
 # DocCategory: Foundational
@@ -20,6 +22,7 @@
 
 from __future__ import annotations
 
+import colorsys
 import random
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
@@ -30,22 +33,31 @@ if TYPE_CHECKING:
 
     from shapes3d import Bosl2Solid
 
-__all__ = ["hsl", "hsv", "rainbow", "rainbow_colors", "Colorable"]
+__all__ = ["hsl", "rainbow", "rainbow_colors", "Colorable"]
+
+
+def _to_3d_drop_alpha() -> Any:
+    """OpenSCAD ``color([r, g, b])`` discards alpha, so BOSL2 does too."""
 
 
 # ---------------------------------------------------------------------------
-# Section: colorspace conversion
+# Section: colourspace conversion
 # ---------------------------------------------------------------------------
 
 
 def hsl(height: float, s: float = 1.0, length: float = 0.5, a: float | None = None) -> list[float]:
-    """Convert HSL to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsl().
+    """Convert HSL to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given).
+
+    Uses the exact HSL formula from BOSL2/OpenSCAD, which differs from Python's
+    ``colorsys.hls_to_rgb`` (HLS uses a double-hexcone model; HSL uses a hexagonal
+    cone).  For generic colour processing prefer ``colorsys``; use this function
+    only when BOSL2 parity is required.
 
     Args:
-        height: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)
-        s: saturation 0..1 (0 = grey, 1 = vivid). Default 1
-        length: lightness 0..1 (0 = black, 0.5 = bright, 1 = white). Default 0.5
-        a: optional alpha 0..1; when given the result is ``[R, G, B, A]``
+        height: Hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta).
+        s: Saturation 0..1 (0 = grey, 1 = vivid).
+        length: Lightness 0..1 (0 = black, 0.5 = bright, 1 = white).
+        a: Optional alpha 0..1; when given the result is ``[R, G, B, A]``.
 
     Returns:
         ``[R, G, B]`` (each 0..1), or ``[R, G, B, A]`` when *a* is given.
@@ -58,49 +70,6 @@ def hsl(height: float, s: float = 1.0, length: float = 0.5, a: float | None = No
     return rgb + ([a] if a is not None else [])
 
 
-def hsv(height: float, s: float = 1.0, v: float = 1.0, a: float | None = None) -> list[float]:
-    """Convert HSV to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given) -- BOSL2 hsv().
-
-    Args:
-        height: hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)
-        s: saturation 0..1 (0 = grey, 1 = vivid). Default 1
-        v: value 0..1 (0 = black, 1 = bright). Default 1
-        a: optional alpha 0..1; when given the result is ``[R, G, B, A]``
-
-    Returns:
-        ``[R, G, B]`` (each 0..1), or ``[R, G, B, A]`` when *a* is given.
-    """
-    assert 0 <= s <= 1, "hsv(): saturation must be in 0..1."
-    assert 0 <= v <= 1, "hsv(): value must be in 0..1."
-    assert a is None or 0 <= a <= 1, "hsv(): alpha must be in 0..1."
-    hm = height % 360
-    c = v * s
-    hp = hm / 60
-    x = c * (1 - abs(hp % 2 - 1))
-    if hp <= 1:
-        rp = [c, x, 0.0]
-    elif hp <= 2:
-        rp = [x, c, 0.0]
-    elif hp <= 3:
-        rp = [0.0, c, x]
-    elif hp <= 4:
-        rp = [0.0, x, c]
-    elif hp <= 5:
-        rp = [x, 0.0, c]
-    elif hp <= 6:
-        rp = [c, 0.0, x]
-    else:
-        rp = [0.0, 0.0, 0.0]
-    m = v - c
-    rgb = [rp[0] + m, rp[1] + m, rp[2] + m]
-    return rgb + ([a] if a is not None else [])
-
-
-# ---------------------------------------------------------------------------
-# Section: rainbow
-# ---------------------------------------------------------------------------
-
-
 def rainbow_colors(
     sides: int,
     stride: int = 1,
@@ -108,14 +77,20 @@ def rainbow_colors(
     shuffle: bool = False,
     seed: int | None = None,
 ) -> list[list[float]]:
-    """The list of ``sides`` ``[R, G, B]`` colours stepped around the ROYGBIV wheel (BOSL2 rainbow()).
+    """Generate *sides* ``[R, G, B]`` colours stepped around the hue wheel.
+
+    Equivalent to BOSL2's ``rainbow()`` colour generation without applying the
+    colours to objects.
 
     Args:
-        sides:       how many colours to generate
-        stride:  consecutive colours stride this many steps around the wheel
-        maxhues: cap the number of distinct hues (default: *sides*)
-        shuffle: shuffle the hue order
-        seed:    seed for the shuffle
+        sides: How many colours to generate.
+        stride: Consecutive colours stride this many steps around the wheel.
+        maxhues: Cap the number of distinct hues (default: *sides*).
+        shuffle: Shuffle the hue order before generating colours.
+        seed: Seed for the shuffle operation.
+
+    Returns:
+        A list of ``[R, G, B]`` lists, each with values 0..1.
     """
     if sides <= 0:
         return []
@@ -124,7 +99,7 @@ def rainbow_colors(
     hues = [(i * huestep + i * 360 / stride) % 360 for i in range(sides)]
     if shuffle:
         random.Random(seed).shuffle(hues)
-    return [hsv(height=hue) for hue in hues]
+    return [list(colorsys.hsv_to_rgb(hue / 360, 1.0, 1.0)) for hue in hues]
 
 
 def rainbow(
@@ -134,17 +109,21 @@ def rainbow(
     shuffle: bool = False,
     seed: int | None = None,
 ) -> list[Any]:
-    """Colour each object in *items* a different hue, returning the coloured list (BOSL2 rainbow()).
+    """Colour each object in *items* a different hue.
 
-    Each item must support ``.color([r, g, b])`` (a :class:`~pybosl2.shapes3d.Bosl2Solid` or a native
-    solid). Useful for telling apart the parts of a multi-piece model or debugging a list of paths.
+    Each item must support ``.color([r, g, b])`` (a :class:`~pybosl2.shapes3d.Bosl2Solid`
+    or native solid).  Useful for telling apart the parts of a multi-piece model
+    or debugging a list of paths.
 
     Args:
-        items:   the objects to colour
-        stride:  consecutive colours stride this many steps around the wheel
-        maxhues: cap the number of distinct hues (default: ``len(items)``)
-        shuffle: shuffle the hue order
-        seed:    seed for the shuffle
+        items: The objects to colour.
+        stride: Consecutive colours stride this many steps around the wheel.
+        maxhues: Cap the number of distinct hues (default: ``len(items)``).
+        shuffle: Shuffle the hue order before colouring.
+        seed: Seed for the shuffle operation.
+
+    Returns:
+        A list of coloured objects, one per element of *items*.
     """
     items = list(items)
     colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
@@ -159,12 +138,15 @@ def rainbow(
 class Colorable(ABC):
     """Mixin adding the color.scad colour operators as methods.
 
-    Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`. Every operator resolves to the host's native
-    colour primitives, which the host provides as ``_color_native`` (PythonSCAD ``color()``),
-    ``_highlight_native`` (the ``#`` modifier) and ``_ghost_native`` (the ``%`` modifier). Because
-    the toolkit builds native geometry rather than a BOSL2 ``$color`` attachment tree,
-    :meth:`recolor` and :meth:`color_this` both apply the colour directly (an object's
-    already-coloured children keep their colour, matching OpenSCAD's ``color()`` semantics).
+    Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`.  Every operator resolves
+    to the host's native colour primitives, which the host provides as
+    ``_color_native`` (PythonSCAD ``color()``), ``_highlight_native`` (the ``#``
+    modifier) and ``_ghost_native`` (the ``%`` modifier).
+
+    Because the toolkit builds native geometry rather than a BOSL2 ``$color``
+    attachment tree, :meth:`recolor` and :meth:`color_this` both apply the
+    colour directly — an object's already-coloured children keep their colour,
+    matching OpenSCAD's ``color()`` semantics.
     """
 
     @abstractmethod
@@ -180,40 +162,110 @@ class Colorable(ABC):
         raise NotImplementedError
 
     def color(self, c: Any = None, alpha: float | None = None) -> Self:
-        """Colour this object. *c* is a name (``"red"``), ``[R, G, B]``, or ``[R, G, B, A]``."""
+        """Colour this object.
+
+        Args:
+            c: A colour name (``"red"``), ``[R, G, B]`` list, or ``[R, G, B, A]`` list.
+               Pass ``None`` to leave the colour unchanged.
+            alpha: Optional alpha transparency 0..1.
+
+        Returns:
+            This object with the colour applied, or ``self`` unchanged when both
+            *c* and *alpha* are ``None``.
+        """
         if c is None and alpha is None:
             return self
         return self._color_native(c, alpha)
 
     def recolor(self, c: Any = "default", alpha: float | None = None) -> Self:
-        """Set the colour of this object and its uncoloured descendants (BOSL2 recolor()).
+        """Set the colour of this object and its uncoloured descendants.
 
-        ``"default"`` / ``None`` leaves the colour unchanged (there is no ``$color`` scheme to
-        revert to in the native backend)."""
+        In the native backend there is no ``$color`` attachment tree to revert
+        to, so ``"default"`` / ``None`` leaves the colour unchanged.
+
+        Args:
+            c: A colour name, ``[R, G, B]`` list, or ``"default"``/``None`` to skip.
+            alpha: Optional alpha transparency 0..1.
+
+        Returns:
+            This object recoloured, or ``self`` unchanged when *c* is ``"default"``
+            or ``None``.
+        """
         if c is None or c == "default":
             return self
         return self._color_native(c, alpha)
 
     def color_this(self, c: Any = "default", alpha: float | None = None) -> Self:
-        """Colour just this object (BOSL2 color_this()); equivalent to :meth:`color` in the native
-        backend, where there is no ``$color`` attachment tree to preserve separately."""
+        """Colour just this object, without tinting its descendants.
+
+        Equivalent to :meth:`color` in the native backend, where there is no
+        ``$color`` attachment tree to preserve separately.
+
+        Args:
+            c: A colour name, ``[R, G, B]`` list, or ``"default"``/``None`` to skip.
+            alpha: Optional alpha transparency 0..1.
+
+        Returns:
+            This object coloured, or ``self`` unchanged when *c* is ``"default"``
+            or ``None``.
+        """
         if c is None or c == "default":
             return self
         return self._color_native(c, alpha)
 
     def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None) -> Self:
-        """Colour this object from an HSL hue/saturation/lightness (BOSL2 hsl())."""
+        """Colour this object from an HSL hue/saturation/lightness.
+
+        Args:
+            height: Hue in degrees.
+            s: Saturation 0..1.
+            length: Lightness 0..1.
+            a: Optional alpha 0..1.
+
+        Returns:
+            This object coloured with the computed ``[R, G, B]`` value.
+        """
         return self._color_native(hsl(height, s, length), a)
 
     def hsv(self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None) -> Self:
-        """Colour this object from an HSV hue/saturation/value (BOSL2 hsv())."""
-        return self._color_native(hsv(height, s, v), a)
+        """Colour this object from an HSV hue/saturation/value.
+
+        Uses Python's :func:`colorsys.hsv_to_rgb` for the conversion.
+
+        Args:
+            height: Hue in degrees.
+            s: Saturation 0..1.
+            v: Value 0..1.
+            a: Optional alpha 0..1.
+
+        Returns:
+            This object coloured with the computed ``[R, G, B]`` value.
+        """
+        rgb = list(colorsys.hsv_to_rgb(height / 360, s, v))
+        return self._color_native(rgb, a)
 
     def highlight(self, highlight: bool = True) -> Self:
-        """Apply the ``#`` debug modifier (BOSL2 highlight()); ``False`` leaves it unmodified."""
+        """Apply the ``#`` debug modifier (BOSL2 highlight()).
+
+        Args:
+            highlight: If True (default), apply the highlight modifier.
+                       If False, return *self* unchanged.
+
+        Returns:
+            This object with the highlight modifier applied, or *self* unchanged
+            when *highlight* is ``False``.
+        """
         return self._highlight_native() if highlight else self
 
     def ghost(self, ghost: bool = True) -> Self:
-        """Apply the ``%`` (transparent, non-interacting) modifier (BOSL2 ghost()); ``False`` leaves
-        it unmodified."""
+        """Apply the ``%`` (transparent, non-interacting) debug modifier.
+
+        Args:
+            ghost: If True (default), apply the ghost modifier.
+                   If False, return *self* unchanged.
+
+        Returns:
+            This object with the ghost modifier applied, or *self* unchanged
+            when *ghost* is ``False``.
+        """
         return self._ghost_native() if ghost else self
