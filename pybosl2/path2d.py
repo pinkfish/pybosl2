@@ -236,8 +236,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __len__(self) -> int:
         return len(self._points)
 
-    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray:
-        return self._points[key]
+    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray | Point:
+        result = self._points[key]
+        if isinstance(key, int):
+            return Point.from_seq(result)
+        return result
 
     def __iter__(self):
         return iter(self._points)
@@ -2115,10 +2118,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         point = np.asarray(point, dtype=float)
         box = pointlist_bounds(poly)
         if (
-            point[0] < box[0][0] - eps
-            or point[0] > box[1][0] + eps
-            or point[1] < box[0][1] - eps
-            or point[1] > box[1][1] + eps
+            point[0] < box.min_x - eps
+            or point[0] > box.max_x + eps
+            or point[1] < box.min_y - eps
+            or point[1] > box.max_y + eps
         ):
             return -1
 

@@ -148,7 +148,16 @@ def _path_closest_point(points: np.ndarray, closed: bool, pt: Point | Sequence[f
     else:
         q_arr = np.asarray(pt, dtype=float)
     q_pt = Point(float(q_arr[0]), float(q_arr[1]), float(q_arr[2]) if q_arr.shape[0] > 2 else None)
-    pts = [line_closest_point(seg, q_pt) for seg in _pair(points, closed)]
+    pts = [
+        line_closest_point(
+            (
+                Point(float(s[0][0]), float(s[0][1]), float(s[0][2])),
+                Point(float(s[1][0]), float(s[1][1]), float(s[1][2])),
+            ),
+            q_pt,
+        )
+        for s in _pair(points, closed)
+    ]
     dists = np.linalg.norm(np.asarray(pts, dtype=float) - q_arr, axis=1)
     min_seg = int(np.argmin(dists))
     r = pts[min_seg]

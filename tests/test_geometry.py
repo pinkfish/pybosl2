@@ -46,7 +46,7 @@ def test_line_normal_is_unit_and_perpendicular():
 
 
 def test_line_closest_point_clamps_to_segment():
-    seg = [[0, 0], [10, 0]]
+    seg = (Point(0, 0), Point(10, 0))
     np.testing.assert_allclose(line_closest_point(seg, Point(5, 5)), [5, 0], atol=1e-9)
     np.testing.assert_allclose(line_closest_point(seg, Point(-3, 2)), [0, 0], atol=1e-9)
     np.testing.assert_allclose(line_closest_point(seg, Point(15, 3)), [10, 0], atol=1e-9)
@@ -54,7 +54,12 @@ def test_line_closest_point_clamps_to_segment():
 
 def test_pointlist_bounds():
     b = pointlist_bounds([[0, 0], [3, 4], [-1, 2]])
-    np.testing.assert_allclose(b, [[-1, 0], [3, 4]])
+    assert b.min_x == -1
+    assert b.min_y == 0
+    assert b.max_x == 3
+    assert b.max_y == 4
+    assert b.width == 4
+    assert b.length == 4
 
 
 def test_general_line_intersection_crossing():

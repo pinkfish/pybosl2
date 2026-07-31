@@ -282,8 +282,8 @@ class Extrudable:
         sides = len(pts)
         assert sides >= 2, "path_extrude2d(): need at least two points."
         if s is None:
-            b = pointlist_bounds(pts)
-            s = float(np.linalg.norm(b[1] - b[0]))
+            box = pointlist_bounds(pts)
+            s = math.hypot(box.width, box.length)
         factory = _profile_factory(profile)
         parts = []
         # straight segments

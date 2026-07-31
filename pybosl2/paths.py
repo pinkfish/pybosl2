@@ -58,7 +58,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
-    from pybosl2.points import Point, Vector
+    from pybosl2.points import Vector
 
 __all__ = ["CutPoint", "Path", "SubdivideMethod"]
 
@@ -89,8 +89,11 @@ class Path(ABC):
     def __len__(self) -> int:
         return len(self._points)
 
-    def __getitem__(self, key: int | slice | tuple) -> np.ndarray:
-        return self._points[key]
+    def __getitem__(self, key: int | slice | tuple) -> np.ndarray | Point:
+        result = self._points[key]
+        if isinstance(key, int):
+            return Point.from_seq(result)
+        return result
 
     def __iter__(self):
         return iter(self._points)

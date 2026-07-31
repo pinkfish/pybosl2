@@ -161,8 +161,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __len__(self) -> int:
         return len(self._points)
 
-    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray:
-        return self._points[key]
+    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray | Point:
+        result = self._points[key]
+        if isinstance(key, int):
+            return Point.from_seq(result)
+        return result
 
     def __iter__(self) -> Iterator[np.ndarray]:
         return iter(self._points)
@@ -253,9 +256,20 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         pts = self._points
         q = np.array([pt.x, pt.y, pt.z]) if isinstance(pt, Point) else np.asarray(pt, dtype=float)
-        segs = list(zip(pts, pts[1:], strict=False))
+        segs = [
+            (
+                Point(float(a[0]), float(a[1]), float(a[2])),
+                Point(float(b[0]), float(b[1]), float(b[2])),
+            )
+            for a, b in zip(pts, pts[1:], strict=False)
+        ]
         if closed:
-            segs.append((pts[-1], pts[0]))
+            segs.append(
+                (
+                    Point(float(pts[-1][0]), float(pts[-1][1]), float(pts[-1][2])),
+                    Point(float(pts[0][0]), float(pts[0][1]), float(pts[0][2])),
+                )
+            )
         query = Point(float(q[0]), float(q[1]), float(q[2]))
         projs = [line_closest_point(seg, query) for seg in segs]
         dists = np.linalg.norm(np.asarray(projs, dtype=float) - q, axis=1)

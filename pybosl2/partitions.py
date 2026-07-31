@@ -274,14 +274,14 @@ def _ptn_sect(
         if opt == "xflip":
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             b = pointlist_bounds(sect)
-            xpos = (b[1][0] + b[0][0]) / 2
-            return Path2D(_xflip(xpos, sect)[::-1])
+            xpos = (b.max_x + b.min_x) / 2
+            return Path2D(_xflip(xpos, sect)[::-1])  # type: ignore[arg-type]
         if opt in ("addflip", "wave"):
             sect1 = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             sect2 = _ptn_sect(base + " yflip xflip", length, width, fn=fn, fa=fa, fs=fs)
             b1, b2 = pointlist_bounds(sect1), pointlist_bounds(sect2)
-            osect1 = _scale2(0.5, 0.5, _left(b1[0][0], sect1))
-            osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2[0][0], sect2)))
+            osect1 = _scale2(0.5, 0.5, _left(b1.min_x, sect1))
+            osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2.min_x, sect2)))
             return _merge_collinear(list(osect1) + list(osect2))
         if opt and opt[0].isdigit() and opt.endswith("x") and opt[:-1].isdigit():  # "3x": repeat
             reps = int(opt[:-1])

@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+from pybosl2.bounds import Bounds2D
 from pybosl2.math import EPSILON
 from pybosl2.points import Point, Vector
 from pybosl2.vectors import unit
@@ -107,7 +108,7 @@ def line_normal(
 
 
 def line_closest_point(
-    segment: Sequence[Sequence[float]] | tuple[NDArray[np.float64], NDArray[np.float64]],
+    segment: tuple[Point, Point],
     query_point: Point,
 ) -> NDArray[np.float64]:
     """Closest point on a bounded segment to a query point.
@@ -116,7 +117,7 @@ def line_closest_point(
     clamps the parameter to the segment's bounds using :func:`numpy.clip`.
 
     Args:
-        segment: A ``(start, end)`` pair defining the bounded line segment.
+        segment: A ``(start, end)`` pair of :class:`~pybosl2.points.Point` objects.
         query_point: The point to project onto the segment.
 
     Returns:
@@ -136,10 +137,9 @@ def line_closest_point(
 
 def pointlist_bounds(
     points: Any,
-) -> NDArray[np.float64]:
-    """Axis-aligned bounding box of a list of points.
+) -> Bounds2D:
+    """Axis-aligned 2-D bounding box of a list of points.
 
-    Equivalent to ``numpy.stack([arr.min(axis=0), arr.max(axis=0)])``.
     Provided for parity with BOSL2's ``pointlist_bounds()``.  Accepts any
     array-like (sequences, ndarrays, :class:`Path2D`, etc.).
 
@@ -147,10 +147,20 @@ def pointlist_bounds(
         points: An array-like of *n*-dimensional points.
 
     Returns:
-        A ``(2, dim)`` ndarray: ``[[xmin, ymin, ...], [xmax, ymax, ...]]``.
+        A :class:`~pybosl2.bounds.Bounds2D` with pre-computed ``min_x``,
+        ``min_y``, ``max_x``, ``max_y``, ``width``, and ``length``.
     """
     arr = np.asarray(points, dtype=float)
-    return np.stack([arr.min(axis=0), arr.max(axis=0)])
+    mn = arr.min(axis=0)
+    mx = arr.max(axis=0)
+    return Bounds2D(
+        min_x=float(mn[0]),
+        min_y=float(mn[1]),
+        max_x=float(mx[0]),
+        max_y=float(mx[1]),
+        width=float(mx[0] - mn[0]),
+        length=float(mx[1] - mn[1]),
+    )
 
 
 def _is_point_on_segment(
