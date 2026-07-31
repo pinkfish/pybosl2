@@ -24,9 +24,13 @@ from __future__ import annotations
 
 import contextlib
 import contextvars
-from typing import Any, Iterator, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Iterator, Protocol, runtime_checkable
 
 from pybosl2.exceptions import Bosl2Error
+
+if TYPE_CHECKING:
+    from pybosl2.caps import CapSpec
+    from pybosl2.path3d import Path3D
 
 __all__ = [
     "BackendName",
@@ -244,11 +248,11 @@ class SolidBackend(Protocol):
 
     def stroke(
         self,
-        path: Any,
+        path: Path3D,
         width: float = 1,
         closed: bool | None = None,
-        endcap1: Any = None,
-        endcap2: Any = None,
+        endcap1: CapSpec | None = None,
+        endcap2: CapSpec | None = None,
         **kwargs: Any,
     ) -> Solid:
         """3-D tube along *path*."""

@@ -13,7 +13,11 @@
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
+
+if TYPE_CHECKING:
+    from pybosl2.caps import CapSpec
+    from pybosl2.path3d import Path3D
 
 from pybosl2._backend import SolidBackend, register_backend
 from pybosl2._sdf import shapes3d as _s
@@ -89,11 +93,11 @@ class SdfBackend:
 
     def stroke(
         self,
-        path: Any,
+        path: Path3D,
         width: float = 1,
         closed: bool | None = None,
-        endcap1: Any = None,
-        endcap2: Any = None,
+        endcap1: CapSpec | None = None,
+        endcap2: CapSpec | None = None,
         **_: Any,
     ) -> _s.PyShape:
         """3-D stroke via the SDF backend's own cylinder/sphere primitives."""

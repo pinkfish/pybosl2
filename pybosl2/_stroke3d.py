@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2.caps import CapSpec, CapType, _endcap_polys, _normalize_one, _oriented_to
+from pybosl2.caps import CapSpec, CapType, _endcap_polys, _oriented_to
 from pybosl2.shapes3d import cyl as _cyl
 from pybosl2.shapes3d import sphere as _sphere
 
@@ -67,8 +67,8 @@ def stroke_3d(
     path: Any,
     width: float = 1,
     closed: bool | None = None,
-    endcap1: CapType | CapSpec = CapType.ROUND,
-    endcap2: CapType | CapSpec = CapType.ROUND,
+    endcap1: CapSpec | None = None,
+    endcap2: CapSpec | None = None,
 ) -> Bosl2Solid:
     """3-D stroke: a tube along *path* as a :class:`Bosl2Solid` union."""
     from pybosl2.shapes3d import Bosl2Solid
@@ -76,8 +76,8 @@ def stroke_3d(
     pts = [list(map(float, p)) for p in path]
     assert len(pts) >= 2, "stroke(): need at least 2 points."
     is_closed = closed if closed is not None else getattr(path, "closed", False)
-    ec1 = endcap1 if isinstance(endcap1, CapSpec) else _normalize_one(endcap1)
-    ec2 = endcap2 if isinstance(endcap2, CapSpec) else _normalize_one(endcap2)
+    ec1 = endcap1 if endcap1 is not None else CapSpec(cap_type=CapType.ROUND)
+    ec2 = endcap2 if endcap2 is not None else CapSpec(cap_type=CapType.ROUND)
 
     radius = width / 2
     shapes = []
@@ -154,7 +154,13 @@ def dashed_stroke_3d(
     shapes = []
     for seg in segments:
         if len(seg) >= 2:
-            s = stroke_3d(seg, width=1, closed=False, endcap1=CapType.BUTT, endcap2=CapType.BUTT)
+            s = stroke_3d(
+                seg,
+                width=1,
+                closed=False,
+                endcap1=CapSpec(cap_type=CapType.BUTT),
+                endcap2=CapSpec(cap_type=CapType.BUTT),
+            )
             if s is not None:
                 shapes.append(s)
 

@@ -53,6 +53,8 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike, NDArray
 
+    from pybosl2.caps import CapSpec
+
 
 def _matmul3(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
     return [[sum(a[i][k] * b[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
@@ -2222,8 +2224,8 @@ def stroke_3d(
     path: Any,
     width: float = 1,
     closed: bool | None = None,
-    endcap1: Any = None,
-    endcap2: Any = None,
+    endcap1: CapSpec | None = None,
+    endcap2: CapSpec | None = None,
 ) -> PyShape:
     """3-D stroke for the SDF backend: a tube along *path* built from native SDF cylinders and spheres.
 
@@ -2236,8 +2238,8 @@ def stroke_3d(
         path: A point list or Path3D object.
         width: Tube diameter.
         closed: True to close the path loop.
-        endcap1: Cap style for the start (CapType or CapSpec).
-        endcap2: Cap style for the end (CapType or CapSpec).
+        endcap1: Cap Spec for the start.
+        endcap2: Cap Spec for the end.
 
     Returns:
         A :class:`PyShape` union of the tube segments.
@@ -2245,14 +2247,14 @@ def stroke_3d(
     import numpy as np
 
     from pybosl2._helpers import rot_from_to4
-    from pybosl2.caps import CapSpec, CapType, _normalize_one
+    from pybosl2.caps import CapSpec, CapType
     from pybosl2.exceptions import UnsupportedByBackendError
 
     pts = [list(map(float, p)) for p in path]
     assert len(pts) >= 2, "stroke_3d: need at least 2 points."
     is_closed = closed if closed is not None else getattr(path, "closed", False)
-    ec1 = endcap1 if isinstance(endcap1, CapSpec) else _normalize_one(endcap1)
-    ec2 = endcap2 if isinstance(endcap2, CapSpec) else _normalize_one(endcap2)
+    ec1 = endcap1 if endcap1 is not None else CapSpec(cap_type=CapType.ROUND)
+    ec2 = endcap2 if endcap2 is not None else CapSpec(cap_type=CapType.ROUND)
 
     radius = width / 2
     shapes: list[PyShape] = []

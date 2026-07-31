@@ -1156,6 +1156,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d.stroke(width=2).show()
         """
         from pybosl2._backend import current_backend
+        from pybosl2.caps import CapSpec, _normalize_one
+
+        ec1_raw = endcap1 if endcap1 is not None else endcaps
+        ec2_raw = endcap2 if endcap2 is not None else endcaps
+        ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else _normalize_one(ec1_raw)
+        ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else _normalize_one(ec2_raw)
 
         backend_name = current_backend()
         if backend_name != "csg":
@@ -1165,8 +1171,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 self,
                 width=width,
                 closed=self.closed if closed is None else closed,
-                endcap1=endcap1 if endcap1 is not None else endcaps,
-                endcap2=endcap2 if endcap2 is not None else endcaps,
+                endcap1=ec1,
+                endcap2=ec2,
             )
 
         from pybosl2._stroke3d import stroke_3d
@@ -1175,8 +1181,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             self,
             width=width,
             closed=self.closed if closed is None else closed,
-            endcap1=endcap1 if endcap1 is not None else endcaps,
-            endcap2=endcap2 if endcap2 is not None else endcaps,
+            endcap1=ec1,
+            endcap2=ec2,
         )
 
     def dashed_stroke(
