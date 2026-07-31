@@ -52,8 +52,7 @@ if TYPE_CHECKING:
     from pybosl2.shapes3d import Bosl2Solid
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
-from pybosl2.color import Colorable
-from pybosl2.distributors import Distributable
+from pybosl2._shape import Bosl2Shape
 from pybosl2.geometry import is_collinear
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
@@ -429,7 +428,7 @@ def _finish(
 Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", Path2D, Sequence[Sequence[float]]]
 
 
-class Bosl2Shape2D(Distributable, Colorable):
+class Bosl2Shape2D(Bosl2Shape):
     """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent, chainable API that
     :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids. Every shape constructor in this file
     returns one of these, as do :meth:`~pybosl2.paths.Path2D.polygon` and

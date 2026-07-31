@@ -42,8 +42,7 @@ if TYPE_CHECKING:
     from pybosl2.texture import TextureType
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
-from pybosl2.color import Colorable
-from pybosl2.distributors import Distributable
+from pybosl2._shape import Bosl2Shape
 from pybosl2.miscellaneous import Miscellaneous
 from pybosl2.partitions import Partitionable
 from pybosl2.vectors import is_vector, unit
@@ -134,7 +133,7 @@ def _as_native_3d(obj) -> "PyOpenSCAD":
 # ---------------------------------------------------------------------------
 
 
-class Bosl2Solid(Distributable, Colorable, Partitionable, Miscellaneous):
+class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
     """Wraps a PyOpenSCAD solid together with the geometry metadata (nominal `size` and
     `anchor`) that BOSL2's $parent_geom attachment system would otherwise track, so that
     edge/corner/face masking (pybosl2/masking.py) work as plain chained methods instead of

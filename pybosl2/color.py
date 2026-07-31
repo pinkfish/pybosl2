@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Self
 
-    from shapes3d import Bosl2Solid
+    from pybosl2._shape import Bosl2Shape
 
 __all__ = ["rainbow", "rainbow_colors", "Colorable"]
 
@@ -80,17 +80,18 @@ def rainbow_colors(
 
 
 def rainbow(
-    items: Sequence[Bosl2Solid],
+    items: Sequence[Bosl2Shape],
     stride: int = 1,
     maxhues: int | None = None,
     shuffle: bool = False,
     seed: int | None = None,
-) -> list[Any]:
+) -> list[Bosl2Shape]:
     """Colour each object in *items* a different hue.
 
-    Each item must support ``.color([r, g, b])`` (a :class:`~pybosl2.shapes3d.Bosl2Solid`
-    or native solid).  Useful for telling apart the parts of a multi-piece model
-    or debugging a list of paths.
+    Each item must be a :class:`~pybosl2._shape.Bosl2Shape` (a
+    :class:`~pybosl2.shapes2d.Bosl2Shape2D` or
+    :class:`~pybosl2.shapes3d.Bosl2Solid`).  Useful for telling apart the
+    parts of a multi-piece model or debugging a list of paths.
 
     Args:
         items: The objects to colour.
@@ -100,7 +101,8 @@ def rainbow(
         seed: Seed for the shuffle operation.
 
     Returns:
-        A list of coloured objects, one per element of *items*.
+        A list of coloured objects, one per element of *items*, each
+        preserving its original 2-D or 3-D type.
     """
     items = list(items)
     colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
