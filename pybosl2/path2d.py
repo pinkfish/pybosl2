@@ -2119,7 +2119,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for numerical comparisons.
         """
         point = np.asarray(point, dtype=float)
-        box = poly.bounds() if isinstance(poly, Path2D) else Bounds2D.from_points(poly)
+        box = poly.bounds() if isinstance(poly, Path2D) else Path2D(poly, closed=False).bounds()
         if (
             point[0] < box.min_x - eps
             or point[0] > box.max_x + eps

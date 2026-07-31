@@ -10,7 +10,6 @@ import math
 
 import numpy as np
 
-from pybosl2.bounds import Bounds2D
 from pybosl2.geometry import (
     _is_point_on_segment,
     general_line_intersection,
@@ -18,6 +17,7 @@ from pybosl2.geometry import (
     line_closest_point,
     line_normal,
 )
+from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 
 
@@ -53,7 +53,7 @@ def test_line_closest_point_clamps_to_segment():
 
 
 def test_pointlist_bounds():
-    b = Bounds2D.from_points([[0, 0], [3, 4], [-1, 2]])
+    b = Path2D([[0, 0], [3, 4], [-1, 2]], closed=False).bounds()
     assert b.min_x == -1
     assert b.min_y == 0
     assert b.max_x == 3
