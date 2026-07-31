@@ -51,19 +51,28 @@ jobs:
             --dir /tmp
           APPIMAGE=$(ls /tmp/*qt6*x86_64.AppImage | head -1)
           chmod +x "$APPIMAGE"
+          cd /opt
           "$APPIMAGE" --appimage-extract
-          sudo mkdir -p /opt/pythonscad/bin
-          sudo cp squashfs-root/AppRun /opt/pythonscad/bin/pythonscad
-          echo "/opt/pythonscad/bin" >> "$GITHUB_PATH"
-          chmod +x /opt/pythonscad/bin/pythonscad
-          /opt/pythonscad/bin/pythonscad --version
+          # AppRun inside squashfs-root needs to find its bundled libraries;
+          # keep the whole tree intact under /opt/pythonscad.
+          sudo mv /tmp/squashfs-root /opt/pythonscad 2>/dev/null || \
+            sudo mv squashfs-root /opt/pythonscad 2>/dev/null || \
+            (sudo mkdir -p /opt/pythonscad && sudo cp -a squashfs-root/* /opt/pythonscad/ 2>/dev/null || true)
+          # AppRun may be at /opt/pythonscad/squashfs-root/AppRun or /opt/pythonscad/AppRun
+          BIN=$(find /opt/pythonscad -name AppRun -type f | head -1)
+          [ -n "$BIN" ] || BIN="$APPIMAGE"
+          sudo chmod +x "$BIN"
+          echo "PYTHONSCAD_BIN=$BIN" >> "$GITHUB_ENV"
+          echo "$(dirname "$BIN")" >> "$GITHUB_PATH"
+          "$BIN" --version
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Verify PythonSCAD renders
         run: |
+          BIN=$(find /opt/pythonscad -name AppRun -type f | head -1)
           echo "from pythonscad import cube; cube([1,1,1]).show()" > /tmp/test_render.py
-          /opt/pythonscad/bin/pythonscad --trust-python --enable python-engine -o /tmp/test.stl --backend Manifold /tmp/test_render.py
+          "$BIN" --trust-python --enable python-engine -o /tmp/test.stl --backend Manifold /tmp/test_render.py
           ls -la /tmp/test.stl
 
       - name: Install package and remaining docs dependencies
