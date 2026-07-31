@@ -42,7 +42,9 @@ def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.
     if isinstance(paths, np.ndarray):
         return [as_points(paths)] if paths.ndim == 2 else [as_points(q) for q in paths]
     first = paths[0]
-    if isinstance(first, np.ndarray) or isinstance(first[0], (list, tuple, np.ndarray)):
+    from pybosl2.paths import Path as _PathBase
+
+    if isinstance(first, (_PathBase, np.ndarray)) or isinstance(first[0], (list, tuple, np.ndarray)):
         return [as_points(q) for q in paths]
     return [as_points(paths)]
 

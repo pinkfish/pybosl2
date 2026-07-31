@@ -201,6 +201,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
+            self._coords: list[tuple[float, float]] = []
             self._geom = LineString()
             self.closed = closed
             return
@@ -209,22 +210,27 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         assert pts.dtype == np.float64, f"Path2D needs float64 points, got {pts.dtype}"
         self.closed = closed
         coords = [(float(p[0]), float(p[1])) for p in pts]
-        self._geom = LineString(coords)
+        self._coords = coords
+        if len(coords) < 2:
+            self._geom = LineString()
+        else:
+            self._geom = LineString(coords)
 
     def _closed_coords(self) -> np.ndarray:
         """Return coordinates with the closing segment appended for closed paths."""
-        coords = list(self._geom.coords)
+        coords = list(self._coords)
         if self.closed and len(coords) >= 2 and coords[0] != coords[-1]:
             coords.append(coords[0])
         return np.array(coords, dtype=np.float64)
 
     @property
     def _points(self) -> np.ndarray:
-        return np.array(self._geom.coords, dtype=np.float64)
+        return np.array(self._coords, dtype=np.float64)
 
     @_points.setter
     def _points(self, value: np.ndarray) -> None:
         coords = [(float(p[0]), float(p[1])) for p in value]
+        self._coords = coords
         self._geom = LineString(coords)
 
     @property
