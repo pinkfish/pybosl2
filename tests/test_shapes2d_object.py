@@ -489,3 +489,53 @@ def test_projection_chains_back_into_the_2d_operators():
 @needs_native_2d_bbox
 def test_projection_is_the_xy_footprint():
     np.testing.assert_allclose(cuboid([30, 20, 10]).projection().shape.size, [30, 20], atol=1e-6)
+
+
+# -- minkowski ------------------------------------------------------------------
+
+
+def test_minkowski_returns_2d_wrapper():
+    a = s2.square([10, 10], center=True)
+    b = s2.circle(radius=3)
+    result = a.minkowski(b)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_minkowski_accepts_native_shape():
+    a = s2.square([10, 10], center=True)
+    b = s2.circle(radius=2)
+    result = a.minkowski(b.shape)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_minkowski_chainable():
+    a = s2.square([10, 10], center=True)
+    result = a.minkowski(s2.circle(radius=2)).translate([0, 5]).rotate(45)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_minkowski_union_chains():
+    a = s2.square([10, 10], center=True)
+    b = s2.circle(radius=4)
+    c = s2.circle(radius=2)
+    result = a.minkowski(b) - a.minkowski(c)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_minkowski_linear_extrude():
+    a = s2.square([10, 10], center=True)
+    result = a.minkowski(s2.circle(radius=3)).linear_extrude(height=5)
+    assert isinstance(result, Bosl2Solid)
+
+
+@needs_native_2d_bbox
+def test_minkowski_grows_bounding_box():
+    a = s2.square([10, 10], center=True)
+    result = a.minkowski(s2.circle(radius=3))
+    np.testing.assert_allclose(result.shape.size, [16, 16], atol=0.1)
+
+
+def test_minkowski_moved_flag_is_set():
+    a = s2.square([10, 10], center=True)
+    result = a.minkowski(s2.circle(radius=2))
+    assert result._moved
