@@ -1046,7 +1046,24 @@ def _path_cut_points(
     if not direction:
         return cuts
     dirs = _path_cuts_dir(points, closed, cuts)
-    normals = _path_cuts_normals(points, closed, cuts, dirs)
+    normals: list[Vector] = []
+    for i in range(len(cuts)):
+        plane: list[Vector] | None = None
+        if len(points) >= 3:
+            start = max(min(cuts[i].next_index, len(points) - 1), 2)
+            try:
+                plane = _path_plane(points, closed, start, start - 2)
+            except ValueError:
+                plane = None
+        if plane is None:
+            if dirs[i][0] == 0 and dirs[i][1] == 0:
+                normals.append(Vector([1, 0, 0]))
+            else:
+                n = unit([-dirs[i][1], dirs[i][0], 0])
+                normals.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
+        else:
+            n = unit(cross(dirs[i], cross(plane[0], plane[1])))
+            normals.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
     return [
         CutPoint(
             point=cuts[i].point,
@@ -1121,42 +1138,6 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
             )
         dist -= diameter
         ind += 1
-
-
-def _path_cuts_normals(points: np.ndarray, closed: bool, cuts: list[CutPoint], dirs: list) -> list[Vector]:
-    """Compute normals at each cut point (perpendicular to the direction, in local plane).
-
-    Args:
-        cuts: List of cut entries from path_path_cut_points().
-        dirs: List of direction vectors at each cut.
-        closed: Whether the path is closed.
-
-    Returns:
-        A list of :class:`Vector` normal vectors, one per cut point.
-    """
-    out: list[Vector] = []
-    dim = points.shape[1]
-    for i in range(len(cuts)):
-        if dim == 2:
-            out.append(Vector([-dirs[i][1], dirs[i][0]]))
-            continue
-        plane = None
-        if len(points) >= 3:
-            start = max(min(cuts[i].next_index, len(points) - 1), 2)
-            try:
-                plane = _path_plane(points, closed, start, start - 2)
-            except ValueError:
-                plane = None
-        if plane is None:
-            if dirs[i][0] == 0 and dirs[i][1] == 0:
-                out.append(Vector([1, 0, 0]))
-            else:
-                n = unit([-dirs[i][1], dirs[i][0], 0])
-                out.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
-        else:
-            n = unit(cross(dirs[i], cross(plane[0], plane[1])))
-            out.append(Vector([float(n[0]), float(n[1]), float(n[2])]))
-    return out
 
 
 def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Vector]:
