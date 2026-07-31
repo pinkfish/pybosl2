@@ -608,6 +608,25 @@ class Bosl2Shape2D(Distributable, Colorable):
         # The offset moves the outline, so the nominal box size no longer describes it.
         return self._wrap_moved(self.shape.offset(**kw))
 
+    def minkowski(self, other: "Bosl2Shape2D | PyOpenSCAD") -> "Bosl2Shape2D":
+        """Minkowski sum of this shape with *other*.
+
+        Args:
+            other: A second 2-D shape to sweep along the outline of this one.
+
+        Returns:
+            A new :class:`Bosl2Shape2D` whose geometry is the Minkowski sum.
+
+        Examples:
+            .. pythonscad-example::
+
+                s2.square([10, 10], center=True).minkowski(s2.circle(radius=3)).linear_extrude(height=2).show()
+        """
+        from pythonscad import minkowski as _minkowski
+
+        result = _minkowski(self.shape, Bosl2Shape2D._unwrap(other))
+        return self._wrap_moved(result)
+
     def fill(self) -> "Bosl2Shape2D":
         """This shape with every hole filled in -- only the outermost outline survives
         (OpenSCAD ``fill()``).
