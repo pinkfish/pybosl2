@@ -153,30 +153,30 @@ def _is_point_on_segment(
 
 
 def general_line_intersection(
-    segment1: Sequence[Sequence[float]] | tuple[NDArray[np.float64], NDArray[np.float64]],
-    segment2: Sequence[Sequence[float]] | tuple[NDArray[np.float64], NDArray[np.float64]],
+    line1: tuple[Point, Point],
+    line2: tuple[Point, Point],
     eps: float = EPSILON,
-) -> list[NDArray[np.float64] | float] | None:
+) -> tuple[Point, float, float] | None:
     """Intersection point of two infinite lines.
 
-    Computes the intersection of the lines through *segment1* and *segment2*.
+    Computes the intersection of the lines through *line1* and *line2*.
     Returns parametric positions so the caller can check segment bounds.
 
     Args:
-        segment1: A ``(start, end)`` pair defining the first line.
-        segment2: A ``(start, end)`` pair defining the second line.
+        line1: A ``(start, end)`` pair of :class:`~pybosl2.points.Point` objects.
+        line2: A ``(start, end)`` pair of :class:`~pybosl2.points.Point` objects.
         eps: Epsilon for parallel-line detection.
 
     Returns:
-        ``[point, t, u]`` where *point* is the intersection coordinate,
-        *t* and *u* are the parametric positions along *segment1* and *segment2*
+        ``(point, t, u)`` where *point* is the intersection :class:`~pybosl2.points.Point`,
+        *t* and *u* are the parametric positions along *line1* and *line2*
         (0 at the first endpoint, 1 at the second).  Returns ``None``
         for parallel or coincident lines.
     """
-    s1a = np.asarray(segment1[0], dtype=float)
-    s1b = np.asarray(segment1[1], dtype=float)
-    s2a = np.asarray(segment2[0], dtype=float)
-    s2b = np.asarray(segment2[1], dtype=float)
+    s1a = np.asarray(line1[0], dtype=float)
+    s1b = np.asarray(line1[1], dtype=float)
+    s2a = np.asarray(line2[0], dtype=float)
+    s2b = np.asarray(line2[1], dtype=float)
     v1: NDArray[np.float64] = s1a - s1b
     v2: NDArray[np.float64] = s2a - s2b
     denominator: float = _cross2d(v1, v2)
@@ -186,7 +186,7 @@ def general_line_intersection(
     t: float = _cross2d(ac, v2) / denominator
     u: float = _cross2d(ac, v1) / denominator
     intersection_point: NDArray[np.float64] = s1a + t * (s1b - s1a)
-    return [intersection_point, t, u]
+    return Point.from_seq(intersection_point), t, u
 
 
 def circle_circle_tangents(

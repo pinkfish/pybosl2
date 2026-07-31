@@ -1744,12 +1744,16 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             for j in range(i + 2, upper2 + 1):
                 if signals[j - i - 2] * signals[j - i - 1] <= 0:
                     b1, b2 = arr[j].tolist(), arr[j + 1].tolist()
-                    isect = general_line_intersection([a1.tolist(), a2.tolist()], [b1, b2], eps=eps)
+                    isect = general_line_intersection(
+                        (Point(float(a1[0]), float(a1[1])), Point(float(a2[0]), float(a2[1]))),
+                        (Point(float(b1[0]), float(b1[1])), Point(float(b2[0]), float(b2[1]))),
+                        eps=eps,
+                    )
                     if isect and -eps <= isect[1] <= 1 + eps and -eps <= isect[2] <= 1 + eps:
-                        pt = [float(v) for v in isect[0]]  # type: ignore[union-attr]
+                        pt = isect[0]
                         result.append(
                             SelfIntersection(
-                                Point(float(pt[0]), float(pt[1])),
+                                pt,
                                 i,
                                 float(isect[1]),
                                 j,

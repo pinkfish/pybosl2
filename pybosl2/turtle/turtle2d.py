@@ -224,20 +224,26 @@ class Turtle2D:
             self._state = self._state.with_point([float(lastpt[0]), self._n(cmd.size, float(lastpt[0]))])
         elif ct == TurtleCommandType.UNTILX:
             res = general_line_intersection(
-                [lastpt, lastpt + step],  # type: ignore[list-item]
-                [[self._n(cmd.size), 0], [self._n(cmd.size), 1]],
+                (
+                    Point(float(lastpt[0]), float(lastpt[1])),
+                    Point(float(lastpt[0] + step[0]), float(lastpt[1] + step[1])),
+                ),
+                (Point(self._n(cmd.size), 0), Point(self._n(cmd.size), 1)),
             )
             if res is None:
                 raise ValueError(f'"untilx" never reaches the goal at index {index}')
-            self._state = self._state.with_point([float(res[0][0]), float(res[0][1])])  # type: ignore[index,union-attr]
+            self._state = self._state.with_point([res[0].x, res[0].y])
         elif ct == TurtleCommandType.UNTILY:
             res = general_line_intersection(
-                [lastpt, lastpt + step],  # type: ignore[list-item]
-                [[0, self._n(cmd.size)], [1, self._n(cmd.size)]],
+                (
+                    Point(float(lastpt[0]), float(lastpt[1])),
+                    Point(float(lastpt[0] + step[0]), float(lastpt[1] + step[1])),
+                ),
+                (Point(0, self._n(cmd.size)), Point(1, self._n(cmd.size))),
             )
             if res is None:
                 raise ValueError(f'"untily" never reaches the goal at index {index}')
-            self._state = self._state.with_point([float(res[0][0]), float(res[0][1])])  # type: ignore[index,union-attr]
+            self._state = self._state.with_point([res[0].x, res[0].y])
         elif ct == TurtleCommandType.LEFT:
             self._state = self._state.with_step(_rot2(ang if ang is not None else self._state.angle, step))
         elif ct == TurtleCommandType.RIGHT:

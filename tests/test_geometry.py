@@ -63,7 +63,10 @@ def test_pointlist_bounds():
 
 
 def test_general_line_intersection_crossing():
-    res = general_line_intersection([[0, 0], [10, 0]], [[5, -5], [5, 5]])
+    res = general_line_intersection(
+        (Point(0, 0), Point(10, 0)),
+        (Point(5, -5), Point(5, 5)),
+    )
     assert res is not None
     pt, t, u = res
     np.testing.assert_allclose(pt, [5, 0], atol=1e-9)
@@ -72,7 +75,13 @@ def test_general_line_intersection_crossing():
 
 
 def test_general_line_intersection_parallel_is_none():
-    assert general_line_intersection([[0, 0], [10, 0]], [[0, 1], [10, 1]]) is None
+    assert (
+        general_line_intersection(
+            (Point(0, 0), Point(10, 0)),
+            (Point(0, 1), Point(10, 1)),
+        )
+        is None
+    )
 
 
 def test_is_point_on_segment():
