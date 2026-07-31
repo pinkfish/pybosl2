@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: internal
 
 """Lightweight 2‑D / 3‑D point and vector types shared across the pybosl2 geometry layer.
 

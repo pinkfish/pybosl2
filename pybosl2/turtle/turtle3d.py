@@ -14,6 +14,7 @@
 #    rolls, arcs, ``repeat``) and compound commands.
 #
 # FileSummary: 3-D turtle graphics (the Turtle class).
+# DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
 from __future__ import annotations

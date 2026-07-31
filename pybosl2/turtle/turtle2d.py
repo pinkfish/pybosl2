@@ -16,6 +16,7 @@ with :mod:`pybosl2.turtle3d` so that both turtles accept the same command set.
 
 # LibFile: pybosl2/turtle2d.py
 # FileSummary: 2-D turtle-graphics path builder.
+# DocCategory: internal
 # FileGroup: BOSL2
 
 from __future__ import annotations

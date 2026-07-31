@@ -10,6 +10,7 @@
 #    without support. *slop* on the slider tunes the printed fit.
 #
 # FileSummary: V-groove sliders and rails.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

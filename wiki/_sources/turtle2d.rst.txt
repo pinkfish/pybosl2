@@ -1,0 +1,9 @@
+Turtle2D
+========
+
+2-D turtle-graphics path builder
+
+.. automodule:: pybosl2.turtle.turtle2d
+   :members:
+   :undoc-members:
+   :show-inheritance:

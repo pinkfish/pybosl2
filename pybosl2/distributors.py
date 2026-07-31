@@ -24,6 +24,7 @@
 #    imported lazily inside the few functions that need them.
 #
 # FileSummary: Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies.
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations

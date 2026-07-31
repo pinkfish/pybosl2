@@ -18,6 +18,7 @@
 #    Path2D/Bezier, keeps every operation as a method.
 #
 # FileSummary: VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad).
+# DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
 from typing import Any

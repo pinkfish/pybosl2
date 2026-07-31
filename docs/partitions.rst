@@ -3,8 +3,8 @@ Partitions: planar cuts & interlocking splits
 
 Pure-Python port of BOSL2's ``partitions.scad`` -- slice an object with a plane, or partition a
 large object into two interlocking pieces for printing. The cut operators are methods on
-:class:`~pybosl2.shapes3d.Bosl2Solid` via the :class:`~pybosl2.partitions.Partitionable` mixin; the
-2-D cut-path generators return :class:`~pybosl2.paths.Path` objects and the mask builders return
+:class:`~pybosl2.shapes3d` via the :class:`~pybosl2.partitions` mixin; the
+2-D cut-path generators return :class:`~pybosl2.paths` objects and the mask builders return
 Bosl2Solids.
 
 Planar half-cuts
@@ -19,7 +19,7 @@ the solid with a half-space mask **auto-sized from the object's own bounding box
     cuboid([40, 30, 20]).bottom_half(z=5)      # cut at Z=5, keep below
     sphere(radius=20).half_of([0, 1, 1])            # cut on an arbitrary plane through the centre
 
-Passing ``cut_path=`` (a 2-D :func:`~pybosl2.partitions.partition_path`) makes the cut face follow an
+Passing ``cut_path=`` (a 2-D :func:`~pybosl2.partitions`) makes the cut face follow an
 interlocking profile instead of a flat plane; ``cut_angle`` spins that face about the normal and
 ``offset`` grows the mask.
 
@@ -31,8 +31,8 @@ Interlocking partitions
 
     back, front = cuboid([60, 40, 20]).partition(spread=12, cutpath="dovetail")
 
-:func:`~pybosl2.partitions.partition_path` builds the joint profile from a list of segment
-descriptors, and :func:`~pybosl2.partitions.partition_mask` / :func:`~pybosl2.partitions.partition_cut_mask`
+:func:`~pybosl2.partitions` builds the joint profile from a list of segment
+descriptors, and :func:`~pybosl2.partitions` / :func:`~pybosl2.partitions`
 give the raw masks if you want to cut manually. Every ``partition_path`` output is pinned to the
 real BOSL2 in ``tests/test_pybosl2_reorient.py``.
 
@@ -60,10 +60,10 @@ Coverage of BOSL2 ``partitions.scad``
        (``spread``/``cutsize``/``cutpath``/``gap``/``spin``/``slop``).
    * - ``partition_mask`` / ``partition_cut_mask``
      - ported
-     - :func:`~pybosl2.partitions.partition_mask` / :func:`~pybosl2.partitions.partition_cut_mask`.
+     - :func:`~pybosl2.partitions` / :func:`~pybosl2.partitions`.
    * - ``partition_path``
      - ported
-     - :func:`~pybosl2.partitions.partition_path` -- the full segment grammar, including the
+     - :func:`~pybosl2.partitions` -- the full segment grammar, including the
        ``xflip``/``yflip``/``addflip``/``wave``/``Nx``/``WxH``/``skew:``/``pinch:`` modifiers and
        the ``altpath`` redirect.
    * - ``show_frameref``

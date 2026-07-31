@@ -15,6 +15,7 @@
 #    import without a cycle.
 #
 # FileSummary: HSL/HSV colour conversion, rainbow(), and the Colorable colour operators.
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations

@@ -23,6 +23,7 @@
 #    per-tolerance thread-class diameters.
 #
 # FileSummary: Metric screws, nuts and screw holes built on the threading port.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

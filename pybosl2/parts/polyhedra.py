@@ -14,6 +14,7 @@
 #    The Archimedean, Catalan and stellated families from the full BOSL2 module are not ported.
 #
 # FileSummary: The five Platonic solids as watertight polyhedra.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

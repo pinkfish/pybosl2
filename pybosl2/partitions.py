@@ -20,6 +20,7 @@
 #    them, so shapes3d.py can pull in the mixin during its own import without a cycle.
 #
 # FileSummary: Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints).
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations

@@ -10,6 +10,7 @@
 #    to borrow anchor/direction vectors from base_bgtk.py.
 #
 # FileSummary: Constants provided by BOSL2 (BOSL2 constants.scad).
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from pybosl2.points import Vector

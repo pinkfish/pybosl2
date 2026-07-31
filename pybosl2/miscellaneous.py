@@ -21,6 +21,7 @@
 #    the mixins during their own import without a cycle.
 #
 # FileSummary: Extrusions, bounding box, chain hull, and minkowski-based transforms.
+# DocCategory: Extras
 # FileGroup: BOSL2
 
 from __future__ import annotations

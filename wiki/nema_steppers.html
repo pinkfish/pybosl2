@@ -5,18 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>NEMA steppers &#8212; bosl2 (PythonSCAD port) 0.6.2 documentation</title>
+    <title>NEMA steppers &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=1c28bd9a"></script>
+    <script src="_static/documentation_options.js?v=b8503983"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Cube trusses" href="cubetruss.html" />
-    <link rel="prev" title="Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps" href="bottlecaps.html" />
+    <link rel="next" title="Polyhedra" href="polyhedra.html" />
+    <link rel="prev" title="Modular hose" href="modular_hose.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
 
@@ -29,7 +29,7 @@
 
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
+<h1 class="logo"><a href="index.html">pybosl2 (PythonSCAD port)</a></h1>
 
 
 
@@ -43,64 +43,64 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html"> CSG &amp; SDF backends</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Colour</a></li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
-<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">NEMA steppers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="walls.html">Walls</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wiring.html">Wiring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders</a></li>
-<li class="toctree-l1"><a class="reference internal" href="polyhedra.html">Polyhedra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Nema Steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Extras</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a></li>
 </ul>
 
 
@@ -114,8 +114,8 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="bottlecaps.html" title="previous chapter">Bottle caps: PCO-1810 &amp; PCO-1881 necks and caps</a></li>
-      <li>Next: <a href="cubetruss.html" title="next chapter">Cube trusses</a></li>
+      <li>Previous: <a href="modular_hose.html" title="previous chapter">Modular hose</a></li>
+      <li>Next: <a href="polyhedra.html" title="next chapter">Polyhedra</a></li>
   </ul></li>
 </ul>
 </div>
@@ -137,120 +137,104 @@
 
           <div class="body" role="main">
 
-  <aside id="pysidebar-global">
-<div class="ps-header">
-<p class="pysidebar-title">In this module</p>
-<button class="ps-toggle" title="Toggle sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-</div>
-<div class="ps-content">
-<ul class="pysidebar-list">
-<li class="ps-class"><a href="#bosl2.nema_steppers.NemaSpec.NemaSpec"><strong>NemaSpec</strong></a></li>
-<li class="ps-class"><a href="#bosl2.nema_steppers.NemaSpec.NemaSteppers"><strong>NemaSteppers</strong></a></li>
-<li class="ps-meth"><a href="#bosl2.nema_steppers.NemaSpec.NemaSteppers.nema_motor_info">.nema_motor_info</a></li>
-<li class="ps-meth"><a href="#bosl2.nema_steppers.NemaSpec.NemaSteppers.nema_stepper_motor">.nema_stepper_motor</a></li>
-<li class="ps-meth"><a href="#bosl2.nema_steppers.NemaSpec.NemaSteppers.nema_mount_mask">.nema_mount_mask</a></li>
-</ul></div></aside>
-<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="nema-steppers">
+  <section id="nema-steppers">
 <h1>NEMA steppers<a class="headerlink" href="#nema-steppers" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/nema_steppers.html">Spec sheet &rarr;</a></b>
   &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.
 </p><p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">nema_steppers.scad</span></code>: models of NEMA-standard stepper motors and the
 masks that cut their mounting-hole pattern into a plate.
-<a class="reference internal" href="#bosl2.nema_steppers.NemaSteppers.nema_stepper_motor" title="bosl2.nema_steppers.NemaSteppers.nema_stepper_motor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nema_stepper_motor()</span></code></a> builds a motor (body, plinth, shaft and
-blind screw holes) for a NEMA size; <a class="reference internal" href="#bosl2.nema_steppers.NemaSteppers.nema_mount_mask" title="bosl2.nema_steppers.NemaSteppers.nema_mount_mask"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nema_mount_mask()</span></code></a> is the
-bolt-pattern-plus-plinth cutout; <a class="reference internal" href="#bosl2.nema_steppers.NemaSteppers.nema_motor_info" title="bosl2.nema_steppers.NemaSteppers.nema_motor_info"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nema_motor_info()</span></code></a> returns
-the standard dimensions as a <code class="xref py py-class docutils literal notranslate"><span class="pre">NemaSpec</span></code>.
-.. autoclass:: bosl2.nema_steppers.NemaSpec</p>
-<blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">members<span class="colon">:</span></dt>
-<dd class="field-odd"><p></p></dd>
-</dl>
-</div></blockquote>
+<a class="reference internal" href="#pybosl2.parts.nema_steppers.NemaSteppers.nema_stepper_motor" title="pybosl2.parts.nema_steppers.NemaSteppers.nema_stepper_motor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nema_stepper_motor()</span></code></a> builds a motor (body, plinth, shaft and
+blind screw holes) for a NEMA size; <a class="reference internal" href="#pybosl2.parts.nema_steppers.NemaSteppers.nema_mount_mask" title="pybosl2.parts.nema_steppers.NemaSteppers.nema_mount_mask"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nema_mount_mask()</span></code></a> is the
+bolt-pattern-plus-plinth cutout; <a class="reference internal" href="#pybosl2.parts.nema_steppers.NemaSteppers.nema_motor_info" title="pybosl2.parts.nema_steppers.NemaSteppers.nema_motor_info"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nema_motor_info()</span></code></a> returns
+the standard dimensions as a <code class="xref py py-class docutils literal notranslate"><span class="pre">nema_steppers</span></code>.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="bosl2.nema_steppers.NemaSteppers">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.nema_steppers.</span></span><span class="sig-name descname"><span class="pre">NemaSteppers</span></span><a class="reference internal" href="_modules/bosl2/nema_steppers.html#NemaSteppers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.nema_steppers.NemaSteppers" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSpec">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.nema_steppers.</span></span><span class="sig-name descname"><span class="pre">NemaSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">motor_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plinth_height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plinth_diam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screw_spacing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screw_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screw_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shaft_diam</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/nema_steppers.html#NemaSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSpec" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Standard dimensions of a NEMA stepper motor (BOSL2 nema_motor_info()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>motor_width</strong> (<em>float</em>)</p></li>
+<li><p><strong>plinth_height</strong> (<em>float</em>)</p></li>
+<li><p><strong>plinth_diam</strong> (<em>float</em>)</p></li>
+<li><p><strong>screw_spacing</strong> (<em>float</em>)</p></li>
+<li><p><strong>screw_size</strong> (<em>float</em>)</p></li>
+<li><p><strong>screw_depth</strong> (<em>float</em>)</p></li>
+<li><p><strong>shaft_diam</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSpec.motor_width">
+<span class="sig-name descname"><span class="pre">motor_width</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSpec.motor_width" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSpec.plinth_height">
+<span class="sig-name descname"><span class="pre">plinth_height</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSpec.plinth_height" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSpec.plinth_diam">
+<span class="sig-name descname"><span class="pre">plinth_diam</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSpec.plinth_diam" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSpec.screw_spacing">
+<span class="sig-name descname"><span class="pre">screw_spacing</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSpec.screw_spacing" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSpec.screw_size">
+<span class="sig-name descname"><span class="pre">screw_size</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSpec.screw_size" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSpec.screw_depth">
+<span class="sig-name descname"><span class="pre">screw_depth</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSpec.screw_depth" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSpec.shaft_diam">
+<span class="sig-name descname"><span class="pre">shaft_diam</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSpec.shaft_diam" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSteppers">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.nema_steppers.</span></span><span class="sig-name descname"><span class="pre">NemaSteppers</span></span><a class="reference internal" href="_modules/pybosl2/parts/nema_steppers.html#NemaSteppers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSteppers" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>NEMA stepper-motor models and mounting masks (BOSL2 nema_steppers.scad).</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.nema_steppers.NemaSteppers.nema_motor_info">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_motor_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/nema_steppers.html#NemaSteppers.nema_motor_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.nema_steppers.NemaSteppers.nema_motor_info" title="Link to this definition">¶</a></dt>
-<dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">NemaSpec</span></code> for a NEMA <em>size</em> (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSteppers.nema_motor_info">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_motor_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/nema_steppers.html#NemaSteppers.nema_motor_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSteppers.nema_motor_info" title="Link to this definition">¶</a></dt>
+<dd><p>The <a class="reference internal" href="#pybosl2.parts.nema_steppers.NemaSpec" title="pybosl2.parts.nema_steppers.NemaSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">NemaSpec</span></code></a> for a NEMA <em>size</em> (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2
 nema_motor_info()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>size</strong> (<em>int</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>NemaSpec</em></p>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.parts.nema_steppers.NemaSpec" title="pybosl2.parts.nema_steppers.NemaSpec"><em>NemaSpec</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.nema_steppers.NemaSteppers.nema_stepper_motor">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_stepper_motor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">17</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shaft_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/nema_steppers.html#NemaSteppers.nema_stepper_motor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.nema_steppers.NemaSteppers.nema_stepper_motor" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSteppers.nema_stepper_motor">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_stepper_motor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">17</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shaft_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/nema_steppers.html#NemaSteppers.nema_stepper_motor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSteppers.nema_stepper_motor" title="Link to this definition">¶</a></dt>
 <dd><p>A model of a NEMA <em>size</em> stepper motor (BOSL2 nema_stepper_motor()).</p>
 <p>The motor’s mounting face is at <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">0</span></code> with the body below it and the plinth and <em>shaft_len</em>
 shaft projecting up; the four mounting holes are drilled into the face.</p>
 <p class="rubric">Examples</p>
 <p>A NEMA 17 motor:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.nema_steppers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NemaSteppers</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.nema_steppers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NemaSteppers</span>
 <span class="n">NemaSteppers</span><span class="o">.</span><span class="n">nema_stepper_motor</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-979985087dc7417ca7e8d8d16b29a424" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-979985087dc7417ca7e8d8d16b29a424");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/0ebb682e00091e81.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/0ebb682e00091e81.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -263,14 +247,14 @@ window.addEventListener("resize", resize);
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.nema_steppers.NemaSteppers.nema_mount_mask">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_mount_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/nema_steppers.html#NemaSteppers.nema_mount_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.nema_steppers.NemaSteppers.nema_mount_mask" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.nema_steppers.NemaSteppers.nema_mount_mask">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nema_mount_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/nema_steppers.html#NemaSteppers.nema_mount_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.nema_steppers.NemaSteppers.nema_mount_mask" title="Link to this definition">¶</a></dt>
 <dd><p>The mounting cutout for a NEMA <em>size</em> motor – difference it from a plate (BOSL2 nema_mount_mask()).</p>
 <p>Cuts the four screw holes and (<code class="docutils literal notranslate"><span class="pre">atype=&quot;full&quot;</span></code>) the central plinth clearance. A slot length
 <em>length</em> &gt; 0 elongates each hole so the motor can be positioned (e.g. to tension a belt).</p>
@@ -288,7 +272,7 @@ window.addEventListener("resize", resize);
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -305,13 +289,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9fc2e62eabc848f5aa670a3073f5ce94" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-bcd23a479a83479490238e2fea0ae56e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9fc2e62eabc848f5aa670a3073f5ce94");
+const el = document.getElementById("stlviewer-bcd23a479a83479490238e2fea0ae56e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -360,13 +344,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2fe57d946dd548128840c7e92697995f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-cd517212c458434cb63b07c32beda348" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2fe57d946dd548128840c7e92697995f");
+const el = document.getElementById("stlviewer-cd517212c458434cb63b07c32beda348");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -415,13 +399,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e453e20bbb0541f1bb1d822c4afceb4c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-0f11da6d97994e2dbcdb236923ad4219" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e453e20bbb0541f1bb1d822c4afceb4c");
+const el = document.getElementById("stlviewer-0f11da6d97994e2dbcdb236923ad4219");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -470,13 +454,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0227c5c40b1a4de9ae0f81be43600bcc" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-970d6f5ac01d45e2bdee90414f11d97c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0227c5c40b1a4de9ae0f81be43600bcc");
+const el = document.getElementById("stlviewer-970d6f5ac01d45e2bdee90414f11d97c");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -526,13 +510,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-1815d68bc4be447eb192c49d09e6a9eb" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-aa9e879faaf54d0da0ed354fd2008852" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-1815d68bc4be447eb192c49d09e6a9eb");
+const el = document.getElementById("stlviewer-aa9e879faaf54d0da0ed354fd2008852");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -581,13 +565,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-12dc91fa19004fb9896e992176c5c650" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e96f7dba0f2a4f27a1559cbfe9ff414e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-12dc91fa19004fb9896e992176c5c650");
+const el = document.getElementById("stlviewer-e96f7dba0f2a4f27a1559cbfe9ff414e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -636,13 +620,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-53a6619f4e40469f9ef5270a0a8f81c7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9835490f079c4e49aa5123e9c47480c8" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-53a6619f4e40469f9ef5270a0a8f81c7");
+const el = document.getElementById("stlviewer-9835490f079c4e49aa5123e9c47480c8");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: Paths, regions & surfaces
 
 # LibFile: pybosl2/rounding.py
 #    Pure-Python port of the path-rounding core of BOSL2's rounding.scad: :func:`round_corners`

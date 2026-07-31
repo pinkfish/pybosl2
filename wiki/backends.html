@@ -5,18 +5,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Solid backends: CSG and SDF &#8212; bosl2 (PythonSCAD port) 0.6.2 documentation</title>
+    <title>Solid backends: CSG and SDF &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=1c28bd9a"></script>
+    <script src="_static/documentation_options.js?v=b8503983"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="3-D shapes and Bosl2Solid" href="shapes3d.html" />
-    <link rel="prev" title="bosl2 — a pure-Python PythonSCAD port of BOSL2" href="index.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
 
@@ -29,7 +27,7 @@
 
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
+<h1 class="logo"><a href="index.html">pybosl2 (PythonSCAD port)</a></h1>
 
 
 
@@ -41,66 +39,64 @@
 
 
 <h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">CSG &amp; SDF backends</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Colour</a></li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> native_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="path2d.html"> 2-D path operations: area, offset, polygon containment, round_corners, linear_extrude, and more</a></li>
+<li class="toctree-l1"><a class="reference internal" href="path3d.html"> 3-D path operations: tangents, normals, curvature, torsion, resampling, cutting, and 3-D transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
-<li class="toctree-l1"><a class="reference internal" href="threading.html">Threading</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="walls.html">Walls</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wiring.html">Wiring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders</a></li>
-<li class="toctree-l1"><a class="reference internal" href="polyhedra.html">Polyhedra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Extras</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a></li>
 </ul>
 
 
@@ -114,8 +110,6 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">bosl2 — a pure-Python PythonSCAD port of BOSL2</a></li>
-      <li>Next: <a href="shapes3d.html" title="next chapter">3-D shapes and Bosl2Solid</a></li>
   </ul></li>
 </ul>
 </div>
@@ -139,22 +133,22 @@
 
   <section id="solid-backends-csg-and-sdf">
 <h1>Solid backends: CSG and SDF<a class="headerlink" href="#solid-backends-csg-and-sdf" title="Link to this heading">¶</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">bosl2</span></code> can realize a solid two different ways, and the choice is a switchable <em>backend</em>:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pybosl2</span></code> can realize a solid two different ways, and the choice is a switchable <em>backend</em>:</p>
 <ul class="simple">
 <li><p><strong>CSG</strong> (the default) — exact constructive solid geometry via PythonSCAD’s native
 primitives. Booleans are exact, the attachment/anchoring system is available, and shapes
-carry their BOSL2 metadata. This is today’s <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>.</p></li>
+carry their BOSL2 metadata. This is today’s <a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code></a>.</p></li>
 <li><p><strong>SDF</strong> — an F-Rep / signed-distance-field engine built on <a class="reference external" href="https://libfive.com">libfive</a> (the merged <code class="docutils literal notranslate"><span class="pre">pysolidfive</span></code> code). Shapes are implicit surfaces, so
 they round and blend smoothly and mesh at any resolution, at the cost of the CSG-only
 attachment features. Its solids are <code class="xref py py-class docutils literal notranslate"><span class="pre">PyShape</span></code> objects.</p></li>
 </ul>
 <p>Both backends expose the <em>same</em> shared constructors, so the same code builds either one.</p>
-<section id="the-bosl2-solid-facade">
-<h2>The <code class="docutils literal notranslate"><span class="pre">bosl2.solid</span></code> facade<a class="headerlink" href="#the-bosl2-solid-facade" title="Link to this heading">¶</a></h2>
-<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">bosl2.solid</span></code> is the backend-neutral entry point. Each constructor dispatches to whichever
-backend is active and returns a common <code class="xref py py-class docutils literal notranslate"><span class="pre">Solid</span></code> — a <code class="docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> on CSG,
+<section id="the-pybosl2-solid-facade">
+<h2>The <code class="docutils literal notranslate"><span class="pre">pybosl2.solid</span></code> facade<a class="headerlink" href="#the-pybosl2-solid-facade" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="solid.html#module-pybosl2.solid" title="pybosl2.solid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.solid</span></code></a> is the backend-neutral entry point. Each constructor dispatches to whichever
+backend is active and returns a common <a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2._backend.Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solid</span></code></a> — a <code class="docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> on CSG,
 a <code class="docutils literal notranslate"><span class="pre">PyShape</span></code> on SDF:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">use_backend</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">use_backend</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>          <span class="c1"># CSG (default)  -&gt; Bosl2Solid</span>
 <span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">):</span>
@@ -189,7 +183,7 @@ a <code class="docutils literal notranslate"><span class="pre">PyShape</span></c
 </ul>
 </td></tr></table>
 <p>plus the n-ary booleans <code class="docutils literal notranslate"><span class="pre">union</span></code>, <code class="docutils literal notranslate"><span class="pre">difference</span></code> and <code class="docutils literal notranslate"><span class="pre">intersection</span></code>. The backend-specific
-modules (<a class="reference internal" href="shapes3d.html#module-bosl2.shapes3d" title="bosl2.shapes3d"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bosl2.shapes3d</span></code></a>, <code class="docutils literal notranslate"><span class="pre">bosl2._sdf</span></code>) stay directly importable for anything not yet
+modules (<a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.shapes3d</span></code></a>, <code class="docutils literal notranslate"><span class="pre">pybosl2._sdf</span></code>) stay directly importable for anything not yet
 unified in the facade.</p>
 </section>
 <section id="selecting-a-backend">
@@ -217,14 +211,14 @@ and thread/async-safe (it is a <code class="xref py py-class docutils literal no
 </tr>
 </tbody>
 </table>
-<p>All three are re-exported from <code class="xref py py-mod docutils literal notranslate"><span class="pre">bosl2.solid</span></code> for convenience.</p>
+<p>All three are re-exported from <a class="reference internal" href="solid.html#module-pybosl2.solid" title="pybosl2.solid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.solid</span></code></a> for convenience.</p>
 </section>
 <section id="combining-and-converting-between-backends">
 <h2>Combining and converting between backends<a class="headerlink" href="#combining-and-converting-between-backends" title="Link to this heading">¶</a></h2>
 <p>A boolean or transform requires its operands to share the active backend. Combining solids from
-two different backends raises <code class="xref py py-class docutils literal notranslate"><span class="pre">CrossBackendError</span></code> rather than producing
+two different backends raises <a class="reference internal" href="exceptions.html#module-pybosl2.exceptions" title="pybosl2.exceptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions</span></code></a> rather than producing
 nonsense:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">use_backend</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">use_backend</span>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">cube</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>                       <span class="c1"># csg</span>
 <span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">):</span>
@@ -285,8 +279,8 @@ confusing <code class="docutils literal notranslate"><span class="pre">Attribute
 </tr>
 <tr class="row-odd"><td><p><strong>CSG only</strong></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">projection</span></code>, <code class="docutils literal notranslate"><span class="pre">fill</span></code>, and all 2-D geometry
-(<a class="reference internal" href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code></a>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path.polygon()</span></code>,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">Path.hull()</span></code>, <code class="docutils literal notranslate"><span class="pre">rotate_extrude</span></code>, a 2-D <code class="docutils literal notranslate"><span class="pre">stroke()</span></code>)</p></td>
+(<a class="reference internal" href="shapes2d.html#module-pybosl2.shapes2d" title="pybosl2.shapes2d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code></a>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.polygon()</span></code>,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.hull()</span></code>, <code class="docutils literal notranslate"><span class="pre">rotate_extrude</span></code>, a 2-D <code class="docutils literal notranslate"><span class="pre">stroke()</span></code>)</p></td>
 <td><p>Only the CSG backend has a 2-D shape object; an SDF is a field over 3-space, with no 2-D
 shadow to project and no outline to fill. See below.</p></td>
 </tr>
@@ -298,7 +292,7 @@ shadow to project and no outline to fill. See below.</p></td>
 </tbody>
 </table>
 <p>Query support directly with <code class="docutils literal notranslate"><span class="pre">supports(backend,</span> <span class="pre">feature)</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">supports</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">supports</span>
 
 <span class="n">supports</span><span class="p">(</span><span class="s2">&quot;csg&quot;</span><span class="p">,</span> <span class="s2">&quot;attach&quot;</span><span class="p">)</span>   <span class="c1"># True</span>
 <span class="n">supports</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">,</span> <span class="s2">&quot;attach&quot;</span><span class="p">)</span>   <span class="c1"># False</span>
@@ -309,8 +303,8 @@ shadow to project and no outline to fill. See below.</p></td>
 </section>
 <section id="d-on-the-two-backends">
 <h2>2-D on the two backends<a class="headerlink" href="#d-on-the-two-backends" title="Link to this heading">¶</a></h2>
-<p>2-D <em>geometry</em> is a CSG-only notion: <a class="reference internal" href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code></a> and every
-<code class="docutils literal notranslate"><span class="pre">bosl2.shapes2d</span></code> constructor build exact 2-D shapes, and stay on the CSG backend even inside a
+<p>2-D <em>geometry</em> is a CSG-only notion: <a class="reference internal" href="shapes2d.html#module-pybosl2.shapes2d" title="pybosl2.shapes2d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code></a> and every
+<code class="docutils literal notranslate"><span class="pre">pybosl2.shapes2d</span></code> constructor build exact 2-D shapes, and stay on the CSG backend even inside a
 <code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code> block (they do not silently change meaning). A <strong>path</strong>, on the other hand,
 is just points and so is backend-neutral — and the operations that take a path <em>to a 3-D solid</em>
 dispatch on the active backend:</p>
@@ -328,24 +322,24 @@ dispatch on the active backend:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Path.linear_extrude()</span></code>,
-<a class="reference internal" href="regions.html#bosl2.regions.Region.linear_extrude" title="bosl2.regions.Region.linear_extrude"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Region.linear_extrude()</span></code></a></p></td>
-<td><p>native <code class="docutils literal notranslate"><span class="pre">linear_extrude</span></code> → <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>; takes
+<a class="reference internal" href="regions.html#pybosl2.regions.Region.linear_extrude" title="pybosl2.regions.Region.linear_extrude"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Region.linear_extrude()</span></code></a></p></td>
+<td><p>native <code class="docutils literal notranslate"><span class="pre">linear_extrude</span></code> → <a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code></a>; takes
 <code class="docutils literal notranslate"><span class="pre">center</span></code>/<code class="docutils literal notranslate"><span class="pre">twist</span></code>/<code class="docutils literal notranslate"><span class="pre">scale</span></code>/<code class="docutils literal notranslate"><span class="pre">slices</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">polygon_prism</span></code> → <code class="xref py py-class docutils literal notranslate"><span class="pre">PyShape</span></code>; takes <code class="docutils literal notranslate"><span class="pre">center</span></code> plus
 <code class="docutils literal notranslate"><span class="pre">rounding_top</span></code>/<code class="docutils literal notranslate"><span class="pre">rounding_bottom</span></code>/<code class="docutils literal notranslate"><span class="pre">res</span></code>, and rejects the profile-shearing options</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.hull" title="bosl2.shapes3d.Bosl2Solid.hull"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.hull()</span></code></a> /
+<tr class="row-odd"><td><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.hull" title="pybosl2.shapes3d.Bosl2Solid.hull"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.hull()</span></code></a> /
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">PyShape.hull()</span></code></p></td>
 <td><p>exact native <code class="docutils literal notranslate"><span class="pre">hull()</span></code></p></td>
 <td><p>polyhedral hull of the children’s support points</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="drawing.html#bosl2.drawing.stroke" title="bosl2.drawing.stroke"><code class="xref py py-func docutils literal notranslate"><span class="pre">stroke()</span></code></a> of a <strong>3-D</strong> path</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D.stroke" title="pybosl2.path2d.Path2D.stroke"><code class="xref py py-func docutils literal notranslate"><span class="pre">stroke()</span></code></a> of a <strong>3-D</strong> path</p></td>
 <td><p>a tube of Bosl2Solid cylinders/spheres</p></td>
 <td><p>the same tube as one distance field</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid.projection" title="bosl2.shapes3d.Bosl2Solid.projection"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.projection()</span></code></a>,
+<tr class="row-odd"><td><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.projection" title="pybosl2.shapes3d.Bosl2Solid.projection"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.projection()</span></code></a>,
 <code class="docutils literal notranslate"><span class="pre">Path.polygon()</span></code>/<code class="docutils literal notranslate"><span class="pre">.fill()</span></code>/<code class="docutils literal notranslate"><span class="pre">.hull()</span></code>/<code class="docutils literal notranslate"><span class="pre">.rotate_extrude()</span></code>, 2-D <code class="docutils literal notranslate"><span class="pre">stroke()</span></code></p></td>
-<td><p>→ <a class="reference internal" href="shapes2d.html#bosl2.shapes2d.Bosl2Shape2D" title="bosl2.shapes2d.Bosl2Shape2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code></a> / <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a></p></td>
+<td><p>→ <a class="reference internal" href="shapes2d.html#module-pybosl2.shapes2d" title="pybosl2.shapes2d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code></a> / <a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code></a></p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackend</span></code></p></td>
 </tr>
 </tbody>
@@ -361,21 +355,21 @@ dispatch on the active backend:</p>
 <section id="sweeping-a-profile-along-a-path-sdf">
 <h2>Sweeping a profile along a path (SDF)<a class="headerlink" href="#sweeping-a-profile-along-a-path-sdf" title="Link to this heading">¶</a></h2>
 <p>The SDF backend can sweep a 2-D profile (<strong>convex or concave</strong>) along a 3-D path directly as a
-distance field (<code class="docutils literal notranslate"><span class="pre">bosl2._sdf.shapes3d.path_sweep</span></code> / <code class="docutils literal notranslate"><span class="pre">bezier_sweep</span></code>). The profile is placed in a
+distance field (<code class="docutils literal notranslate"><span class="pre">pybosl2._sdf.shapes3d.path_sweep</span></code> / <code class="docutils literal notranslate"><span class="pre">bezier_sweep</span></code>). The profile is placed in a
 rotation-minimizing frame at each path sample and unioned; the cross-section itself is evaluated with
 the convex-deficiency decomposition (the same one <code class="docutils literal notranslate"><span class="pre">polygon_prism</span></code> uses over the convex-only
 <code class="docutils literal notranslate"><span class="pre">polygon_extrude</span></code>), so concave outlines are handled correctly. The result is a true SDF — it can be
 <code class="docutils literal notranslate"><span class="pre">.round()</span></code>/<code class="docutils literal notranslate"><span class="pre">.chamfer()``ed,</span> <span class="pre">meshed</span> <span class="pre">at</span> <span class="pre">any</span> <span class="pre">resolution,</span> <span class="pre">or</span> <span class="pre">bridged</span> <span class="pre">to</span> <span class="pre">CSG</span> <span class="pre">with</span> <span class="pre">``.to_csg()</span></code>. Bezier
-generation stays bosl2’s canonical <a class="reference internal" href="beziers.html#bosl2.beziers.Bezier" title="bosl2.beziers.Bezier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bezier</span></code></a>; the sweep just consumes the
+generation stays pybosl2’s canonical <a class="reference internal" href="beziers.html#module-pybosl2.beziers" title="pybosl2.beziers"><code class="xref py py-class docutils literal notranslate"><span class="pre">beziers</span></code></a>; the sweep just consumes the
 sampled curve:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span><span class="o">,</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bosl2._sdf.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">bezier_sweep</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._sdf.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">bezier_sweep</span>
 
 <span class="n">circle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
 <span class="n">tube</span> <span class="o">=</span> <span class="n">bezier_sweep</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
 </pre></div>
 </div>
-<p>This is distinct from the CSG sweeps (<a class="reference internal" href="beziers.html#bosl2.beziers.Bezier.sweep" title="bosl2.beziers.Bezier.sweep"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bosl2.beziers.Bezier.sweep()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">skin</span></code>, <code class="docutils literal notranslate"><span class="pre">offset_sweep</span></code>),
+<p>This is distinct from the CSG sweeps (<a class="reference internal" href="skin.html#pybosl2.skin.skin" title="pybosl2.skin.skin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">skin()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">skin</span></code>, <code class="docutils literal notranslate"><span class="pre">offset_sweep</span></code>),
 which build a VNF/polyhedron mesh rather than a distance field. Denser paths give a smoother lateral
 surface; the ends cap perpendicular to the path.</p>
 </section>

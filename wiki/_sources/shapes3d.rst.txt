@@ -2,7 +2,7 @@
 =========================
 
 Pure-Python port of the 3-D shape generators from BOSL2's ``shapes3d.scad``. Each returns a
-:class:`~bosl2.shapes3d.Bosl2Solid` wrapping native geometry, with BOSL2-style anchor/spin/orient
+:class:`~pybosl2.shapes3d` wrapping native geometry, with BOSL2-style anchor/spin/orient
 support and bbox-backed attachment methods.
 
 Coverage of BOSL2 ``shapes3d.scad``
@@ -53,24 +53,24 @@ Coverage of BOSL2 ``shapes3d.scad``
      -
    * - ``plot3d``
      - ported
-     - :func:`~bosl2.shapes3d.plot3d` — a ``z = f(x, y)`` surface plot, with an optional solid base
+     - :func:`~pybosl2.surfaces3d` — a ``z = f(x, y)`` surface plot, with an optional solid base
    * - ``fillet``
      - ported
-     - :func:`~bosl2.shapes3d.fillet` — the concave edge-fillet mask (90-degree edges only; other
+     - :func:`~pybosl2.surfaces3d` — the concave edge-fillet mask (90-degree edges only; other
        dihedral ``ang`` not ported)
    * - ``plot_revolution``
      - ported
-     - :func:`~bosl2.shapes3d.plot_revolution` — a surface of revolution modulated by
+     - :func:`~pybosl2.surfaces3d` — a surface of revolution modulated by
        ``radius=f(angle, z)`` (the ``arclength`` form is not ported)
    * - ``textured_tile``
      - ported (height-field form)
-     - :func:`~bosl2.shapes3d.textured_tile` — a tiled scalar height-field texture; VNF-tile and
+     - :func:`~pybosl2.surfaces3d` — a tiled scalar height-field texture; VNF-tile and
        named-texture forms need the BOSL2 texture engine (not ported)
 
 Bosl2Solid & attachment
 -----------------------
 
-Every 3-D shape is a :class:`~bosl2.shapes3d.Bosl2Solid`, which carries the transform methods
+Every 3-D shape is a :class:`~pybosl2.shapes3d`, which carries the transform methods
 (``translate``/``move``, ``rotate``/``rot``, ``right``/``left``/``back``/``forward``/``up``/``down``,
 ``mirror``, ``scale``, ``color``) and the BOSL2 attachment methods —
 ``bounds``, ``anchor_point``, ``reanchor``, ``reorient``, ``orient``, ``position``, ``attach``,
@@ -85,7 +85,7 @@ are not ported — the methods above cover positioning/masking directly on the o
 
 API reference
 -------------
-.. automodule:: bosl2.shapes3d
+.. automodule:: pybosl2.shapes3d
    :members:
    :undoc-members:
    :show-inheritance:

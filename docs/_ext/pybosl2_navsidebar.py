@@ -132,9 +132,14 @@ def _on_html_page_context(
     if parts[0] != "pybosl2" or len(parts) < 2:
         return
 
-    filepath = Path(app.srcdir).parent / "pybosl2" / f"{parts[1]}.py"
+    filepath = Path(app.srcdir).parent / (module_ref.replace(".", "/") + ".py")
     if not filepath.is_file():
-        return
+        # Try __init__.py for package-level autodocs
+        init_path = Path(app.srcdir).parent / (module_ref.replace(".", "/") + "/__init__.py")
+        if init_path.is_file():
+            filepath = init_path
+        else:
+            return
 
     members = _parse_module(filepath)
     if not members:

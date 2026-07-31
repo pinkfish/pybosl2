@@ -13,6 +13,7 @@
 #    re-exported from shapes3d for backward-compatible `from pybosl2.shapes3d import heightfield`.
 #
 # FileSummary: Heightfields, function plots, fillets, textured tiles and the ruler annotation.
+# DocCategory: internal
 # FileGroup: BOSL2
 
 from __future__ import annotations

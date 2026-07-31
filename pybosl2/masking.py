@@ -38,6 +38,7 @@
 #    just an alias here.
 #
 # FileSummary: Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d/attachments.scad).
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations

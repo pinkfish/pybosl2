@@ -13,6 +13,7 @@
 #    PythonSCAD call should do so explicitly with `.tolist()`.
 #
 # FileSummary: Vector predicates and scalar-vector operations (BOSL2 vectors.scad).
+# DocCategory: Math & geometry
 # FileGroup: BOSL2
 
 import math

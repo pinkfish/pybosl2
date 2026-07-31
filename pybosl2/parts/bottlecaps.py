@@ -22,6 +22,7 @@
 #    Not ported (follow-ups): generic_bottle_neck/cap, the bottle adapters, and the SPI (sp_) threads.
 #
 # FileSummary: PCO-1810 / PCO-1881 bottle necks and caps.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

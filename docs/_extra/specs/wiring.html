@@ -9,7 +9,7 @@
   <body>
     <header class="bar">
       <div class="wrap">
-        <a class="logo" href="index.html">py<b>bosl2</b></a><span class="sep">/</span><span class="meta">spec sheet · wiring.py</span>
+        <a class="logo" href="index.html">pybosl2</a><span class="sep">/</span><span class="meta">spec sheet · wiring.py</span>
         <nav><a href="index.html">catalog</a><a href="../wiring.html">wiring.py API &rarr;</a><a href="../index.html">all API docs &rarr;</a></nav>
       </div>
     </header>
@@ -103,19 +103,23 @@ function load(uri) {
     const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
     const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
     geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
+    mesh = new THREE.Mesh(geo,
+      new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
     scene.add(mesh);
     const r = Math.max(s.x, s.y, s.z) || 1;
     camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
     poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
   }, undefined, () => {
     if (!box.querySelector(".hint")) { const h = document.createElement("div");
-      h.className = "hint"; h.textContent = "serve the docs over HTTP for the interactive 3-D view"; box.appendChild(h); }
+      h.className = "hint";
+      h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+      box.appendChild(h); }
   });
 }
 function select(i) {
   const v = V[i];
-  document.querySelectorAll(".tags button.tag").forEach((b, j) => b.setAttribute("aria-selected", j === i ? "true" : "false"));
+  document.querySelectorAll(".tags button.tag").forEach((b, j) =>
+    b.setAttribute("aria-selected", j === i ? "true" : "false"));
   document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
   document.getElementById("s-tris").textContent = v.tris == null ? "\u2014" : v.tris.toLocaleString();
   document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;

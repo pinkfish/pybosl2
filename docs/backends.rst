@@ -5,7 +5,7 @@ Solid backends: CSG and SDF
 
 * **CSG** (the default) — exact constructive solid geometry via PythonSCAD's native
   primitives. Booleans are exact, the attachment/anchoring system is available, and shapes
-  carry their BOSL2 metadata. This is today's :class:`~pybosl2.shapes3d.Bosl2Solid`.
+  carry their BOSL2 metadata. This is today's :class:`~pybosl2.shapes3d`.
 * **SDF** — an F-Rep / signed-distance-field engine built on `libfive
   <https://libfive.com>`_ (the merged ``pysolidfive`` code). Shapes are implicit surfaces, so
   they round and blend smoothly and mesh at any resolution, at the cost of the CSG-only
@@ -78,7 +78,7 @@ Combining and converting between backends
 -----------------------------------------
 
 A boolean or transform requires its operands to share the active backend. Combining solids from
-two different backends raises :class:`~pybosl2.exceptions.CrossBackendError` rather than producing
+two different backends raises :class:`~pybosl2.exceptions` rather than producing
 nonsense::
 
     from pybosl2.solid import cube, sphere, use_backend
@@ -128,7 +128,7 @@ confusing ``AttributeError`` — and, on the SDF side, instead of meshing via li
      - BOSL2's attachment / anchoring system has no signed-distance equivalent.
    * - **CSG only**
      - ``projection``, ``fill``, and all 2-D geometry
-       (:class:`~pybosl2.shapes2d.Bosl2Shape2D`, :meth:`Path2D.polygon() <pybosl2.paths.Path2D.polygon>`,
+       (:class:`~pybosl2.shapes2d`, :meth:`Path2D.polygon() <pybosl2.paths.Path2D.polygon>`,
        :meth:`Path2D.hull() <pybosl2.paths.Path2D.hull>`, ``rotate_extrude``, a 2-D ``stroke()``)
      - Only the CSG backend has a 2-D shape object; an SDF is a field over 3-space, with no 2-D
        shadow to project and no outline to fill. See below.
@@ -149,7 +149,7 @@ Query support directly with ``supports(backend, feature)``::
 2-D on the two backends
 -----------------------
 
-2-D *geometry* is a CSG-only notion: :class:`~pybosl2.shapes2d.Bosl2Shape2D` and every
+2-D *geometry* is a CSG-only notion: :class:`~pybosl2.shapes2d` and every
 ``pybosl2.shapes2d`` constructor build exact 2-D shapes, and stay on the CSG backend even inside a
 ``use_backend("sdf")`` block (they do not silently change meaning). A **path**, on the other hand,
 is just points and so is backend-neutral — and the operations that take a path *to a 3-D solid*
@@ -164,7 +164,7 @@ dispatch on the active backend:
      - SDF
    * - :meth:`Path.linear_extrude() <pybosl2.paths.Path.linear_extrude>`,
        :meth:`Region.linear_extrude() <pybosl2.regions.Region.linear_extrude>`
-     - native ``linear_extrude`` → :class:`~pybosl2.shapes3d.Bosl2Solid`; takes
+     - native ``linear_extrude`` → :class:`~pybosl2.shapes3d`; takes
        ``center``/``twist``/``scale``/``slices``
      - ``polygon_prism`` → :class:`PyShape`; takes ``center`` plus
        ``rounding_top``/``rounding_bottom``/``res``, and rejects the profile-shearing options
@@ -172,12 +172,12 @@ dispatch on the active backend:
        :meth:`PyShape.hull() <pybosl2._sdf.shapes3d.PyShape.hull>`
      - exact native ``hull()``
      - polyhedral hull of the children's support points
-   * - :func:`stroke() <pybosl2.drawing.stroke>` of a **3-D** path
+   * - :func:`stroke() <pybosl2.path2d.Path2D.stroke>` of a **3-D** path
      - a tube of Bosl2Solid cylinders/spheres
      - the same tube as one distance field
    * - :meth:`Bosl2Solid.projection() <pybosl2.shapes3d.Bosl2Solid.projection>`,
        ``Path.polygon()``/``.fill()``/``.hull()``/``.rotate_extrude()``, 2-D ``stroke()``
-     - → :class:`~pybosl2.shapes2d.Bosl2Shape2D` / :class:`~pybosl2.shapes3d.Bosl2Solid`
+     - → :class:`~pybosl2.shapes2d` / :class:`~pybosl2.shapes3d`
      - :class:`~pybosl2.exceptions.UnsupportedByBackend`
 
 So the same source builds on either backend as long as it goes path → solid::
@@ -196,7 +196,7 @@ rotation-minimizing frame at each path sample and unioned; the cross-section its
 the convex-deficiency decomposition (the same one ``polygon_prism`` uses over the convex-only
 ``polygon_extrude``), so concave outlines are handled correctly. The result is a true SDF — it can be
 ``.round()``/``.chamfer()``ed, meshed at any resolution, or bridged to CSG with ``.to_csg()``. Bezier
-generation stays pybosl2's canonical :class:`~pybosl2.beziers.Bezier`; the sweep just consumes the
+generation stays pybosl2's canonical :class:`~pybosl2.beziers`; the sweep just consumes the
 sampled curve::
 
     import math, numpy as np
@@ -205,6 +205,6 @@ sampled curve::
     circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
     tube = bezier_sweep(circle, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
 
-This is distinct from the CSG sweeps (:meth:`pybosl2.beziers.Bezier.sweep`, ``skin``, ``offset_sweep``),
+This is distinct from the CSG sweeps (:meth:`~pybosl2.skin.skin`, ``skin``, ``offset_sweep``),
 which build a VNF/polyhedron mesh rather than a distance field. Denser paths give a smoother lateral
 surface; the ends cap perpendicular to the path.

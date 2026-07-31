@@ -12,6 +12,7 @@
 #    (float64) rather than a plain list.
 #
 # FileSummary: General numeric helpers and numerical calculus (BOSL2 math.scad).
+# DocCategory: Math & geometry
 # FileGroup: BOSL2
 
 

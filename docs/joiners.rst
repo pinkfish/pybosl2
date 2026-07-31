@@ -10,11 +10,12 @@ Joiners
 
 
 Pure-Python port of the core joiners from BOSL2's ``joiners.scad`` — shapes for connecting two
-separately-printed parts. :meth:`~pybosl2.joiners.Joiners.dovetail` is the flagship: a (optionally
+separately-printed parts. :meth:`~pybosl2.parts.joiners.Joiners.dovetail` is the flagship: a (optionally
 tapered) dovetail joint you attach as a male tenon or difference out as a female socket. A functional
-:meth:`~pybosl2.joiners.Joiners.snap_pin` and its :meth:`~pybosl2.joiners.Joiners.snap_pin_socket` give a
+:meth:`~pybosl2.parts.joiners.Joiners.snap_pin` and its :meth:`~pybosl2.parts.joiners.Joiners.snap_pin_socket` give a
 press-and-click pin.
-.. autoclass:: pybosl2.joiners.Joiners
+
+.. autoclass:: pybosl2.parts.joiners.Joiners
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

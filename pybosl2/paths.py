@@ -11,6 +11,7 @@ Concrete math helpers live in :mod:`pybosl2._path_math`.
 
 # LibFile: pybosl2/paths.py
 # FileSummary: Abstract Path base class + CutPoint type.
+# DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
 from __future__ import annotations

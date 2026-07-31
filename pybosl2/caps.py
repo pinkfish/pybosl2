@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: internal
 
 """End-cap specifications shared by sweep, skin, bezier, and stroke drawing.
 

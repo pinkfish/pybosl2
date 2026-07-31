@@ -75,9 +75,42 @@ def process_items(items, config: dict):
 
 ## 2. Documentation & Docstring Guide
 
-AI agents must write fully populated docstrings that explicitly match the target code.
+### File Header Tags
 
-### Rules
+Every source file must carry metadata tags in its comment header block immediately
+after the license text.  These drive the auto-generated documentation:
+
+- ``# DocCategory: <section>`` — **Required.**  Assigns the module to a section in
+  the API-reference toctree.  Valid values are: ``Foundational``,
+  ``Paths, regions & surfaces``, ``Math & geometry``, ``Parts library``,
+  ``Extras``, or ``internal`` (for support/private modules excluded from the
+  public docs).
+
+- ``# LibFile: pybosl2/<name>.py`` — **Required for public modules.**  The
+  canonical path to the file; its basename (without ``.py``) becomes the
+  navigation label in the docs sidebar.
+
+- ``# FileSummary: …`` — **Required for public modules.**  A single-line summary
+  (shown as the RST page subtitle and as the tooltip in the sidebar).  Keep it
+  under 120 characters.
+
+- ``# FileGroup: BOSL2`` — The BOSL2 origin group.  All modules currently belong
+  to this group.
+
+Example header block::
+
+    # Copyright (c) 2026, pinkfish
+    #
+    # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
+    # root for the full license text.
+    # SPDX-License-Identifier: BSD-2-Clause
+
+    # LibFile: pybosl2/geometry.py
+    # FileSummary: Points, lines and polygon geometry helpers (BOSL2 geometry.scad).
+    # DocCategory: Math & geometry
+    # FileGroup: BOSL2
+
+### Docstring Rules
 
 - **Format style**: Adhere strictly to the Google Python Style Guide for all docstrings.
 - **Mandatory Fields**: Every public module, class, and function must include an explanatory docstring overview.

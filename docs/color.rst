@@ -2,8 +2,8 @@ Colour: colorspace conversion & colour operators
 ================================================
 
 Pure-Python port of BOSL2's ``color.scad`` -- the HSL/HSV -> RGB conversions, the
-:func:`~pybosl2.color.rainbow` helper, and the colour operators added onto
-:class:`~pybosl2.shapes3d.Bosl2Solid` via the :class:`~pybosl2.color.Colorable` mixin. Each operator
+:func:`~pybosl2.color` helper, and the colour operators added onto
+:class:`~pybosl2.shapes3d` via the :class:`~pybosl2.color` mixin. Each operator
 resolves to the native PythonSCAD calls: ``color()``, ``highlight()`` (the ``#`` modifier) and
 ``background()`` (the ``%`` / ghost modifier)::
 
@@ -32,8 +32,8 @@ Coverage of BOSL2 ``color.scad``
      - Notes
    * - ``hsl`` / ``hsv``
      - ported
-     - :func:`~pybosl2.color.hsl` / :func:`~pybosl2.color.hsv` -- the function form (RGB or RGBA) and
-       the module form as the :meth:`~pybosl2.color.Colorable.hsl` / :meth:`~pybosl2.color.Colorable.hsv`
+     - :func:`~pybosl2.color` / :func:`~pybosl2.color` -- the function form (RGB or RGBA) and
+       the module form as the :meth:`~pybosl2.color` / :meth:`~pybosl2.color`
        object methods.
    * - ``recolor`` / ``color_this``
      - ported
@@ -41,7 +41,7 @@ Coverage of BOSL2 ``color.scad``
        backend, so they are equivalent).
    * - ``rainbow``
      - ported
-     - :func:`~pybosl2.color.rainbow` colours a list of objects; :func:`~pybosl2.color.rainbow_colors`
+     - :func:`~pybosl2.color` colours a list of objects; :func:`~pybosl2.color`
        returns the RGB list for a given count.
    * - ``highlight`` / ``highlight_this``
      - ported

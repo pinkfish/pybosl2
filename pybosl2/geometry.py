@@ -14,6 +14,7 @@
 #    actually needs.
 #
 # FileSummary: Points, lines and polygon geometry helpers (BOSL2 geometry.scad).
+# DocCategory: Math & geometry
 # FileGroup: BOSL2
 
 import math

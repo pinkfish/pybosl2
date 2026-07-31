@@ -9,10 +9,11 @@ Sliders & rails
    </p>
 
 
-Pure-Python port of BOSL2's ``sliders.scad``: a V-groove :meth:`~bosl2.sliders.Sliders.slider` and
-the matching :meth:`~bosl2.sliders.Sliders.rail`, both designed to 3-D print without support. Tune
+Pure-Python port of BOSL2's ``sliders.scad``: a V-groove :meth:`~pybosl2.parts.sliders.Sliders.slider` and
+the matching :meth:`~pybosl2.parts.sliders.Sliders.rail`, both designed to 3-D print without support. Tune
 the printed fit with the slider's ``slop``.
-.. autoclass:: bosl2.sliders.Sliders
+
+.. autoclass:: pybosl2.parts.sliders.Sliders
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)

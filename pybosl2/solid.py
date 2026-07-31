@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: internal
 
 # The backend-neutral solid facade: unified shape constructors that build on whichever backend is
 # active (``"csg"`` by default, ``"sdf"`` under ``use_backend("sdf")``). Each returns a common

@@ -5,18 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Threading: screw threads, rods &amp; nuts &#8212; bosl2 (PythonSCAD port) 0.6.2 documentation</title>
+    <title>Threading: screw threads, rods &amp; nuts &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=1c28bd9a"></script>
+    <script src="_static/documentation_options.js?v=b8503983"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Screws: metric screws, nuts &amp; screw holes" href="screws.html" />
-    <link rel="prev" title="Gears" href="gears.html" />
+    <link rel="next" title="Walls" href="walls.html" />
+    <link rel="prev" title="Sliders &amp; rails" href="sliders.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
 
@@ -29,7 +29,7 @@
 
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">bosl2 (PythonSCAD port)</a></h1>
+<h1 class="logo"><a href="index.html">pybosl2 (PythonSCAD port)</a></h1>
 
 
 
@@ -43,64 +43,64 @@
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="backends.html">CSG &amp; SDF backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends.html"> CSG &amp; SDF backends</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html">3-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html">2-D shapes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html">Transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html">Distributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Colour</a></li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html">Masking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partitions.html">Partitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html">Native ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.html">Textures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="paths.html">Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html">Regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html">Rounding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html">Turtle (3-D)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html">Beziers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html">NURBS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html">Skin &amp; sweeps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html">VNF meshes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html">Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html">Vectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html">Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="gears.html">Gears</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Threading</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html">Screws</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html">Screw drives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html">Bottle caps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html">NEMA steppers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html">Cube trusses</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hinges.html">Hinges</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html">Joiners</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="walls.html">Walls</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wiring.html">Wiring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html">Sliders</a></li>
-<li class="toctree-l1"><a class="reference internal" href="polyhedra.html">Polyhedra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html">Ball bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html">Linear bearings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Extras</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a></li>
 </ul>
 
 
@@ -114,8 +114,8 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="gears.html" title="previous chapter">Gears</a></li>
-      <li>Next: <a href="screws.html" title="next chapter">Screws: metric screws, nuts &amp; screw holes</a></li>
+      <li>Previous: <a href="sliders.html" title="previous chapter">Sliders &amp; rails</a></li>
+      <li>Next: <a href="walls.html" title="next chapter">Walls</a></li>
   </ul></li>
 </ul>
 </div>
@@ -137,43 +137,17 @@
 
           <div class="body" role="main">
 
-  <aside id="pysidebar-global">
-<div class="ps-header">
-<p class="pysidebar-title">In this module</p>
-<button class="ps-toggle" title="Toggle sidebar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-</div>
-<div class="ps-content">
-<ul class="pysidebar-list">
-<li class="ps-class"><a href="#bosl2.threading.Threading.ThreadProfile"><strong>ThreadProfile</strong></a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.ThreadProfile.depth">.depth</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.ThreadProfile.depth_abs">.depth_abs</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.ThreadProfile.as_points">.as_points</a></li>
-<li class="ps-class"><a href="#bosl2.threading.Threading.Threading"><strong>Threading</strong></a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.generic_threaded_rod">.generic_threaded_rod</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.generic_threaded_nut">.generic_threaded_nut</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.threaded_rod">.threaded_rod</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.threaded_nut">.threaded_nut</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.trapezoidal_threaded_rod">.trapezoidal_threaded_rod</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.trapezoidal_threaded_nut">.trapezoidal_threaded_nut</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.acme_threaded_rod">.acme_threaded_rod</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.acme_threaded_nut">.acme_threaded_nut</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.square_threaded_rod">.square_threaded_rod</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.square_threaded_nut">.square_threaded_nut</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.buttress_threaded_rod">.buttress_threaded_rod</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.buttress_threaded_nut">.buttress_threaded_nut</a></li>
-<li class="ps-meth"><a href="#bosl2.threading.Threading.Threading.thread_helix">.thread_helix</a></li>
-</ul></div></aside>
-<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="threading-screw-threads-rods-nuts">
+  <section id="threading-screw-threads-rods-nuts">
 <h1>Threading: screw threads, rods &amp; nuts<a class="headerlink" href="#threading-screw-threads-rods-nuts" title="Link to this heading">¶</a></h1>
 <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
   &#9881;&#65039; <b><a href="specs/index.html">Parts catalog &rarr;</a></b>
   &nbsp;&mdash;&nbsp; this module is featured in the visual parts catalog.
-</p><p>Pure-Python port of the core of BOSL2’s <code class="docutils literal notranslate"><span class="pre">threading.scad</span></code>. The <a class="reference internal" href="#bosl2.threading.Threading" title="bosl2.threading.Threading"><code class="xref py py-class docutils literal notranslate"><span class="pre">Threading</span></code></a>
+</p><p>Pure-Python port of the core of BOSL2’s <code class="docutils literal notranslate"><span class="pre">threading.scad</span></code>. The <code class="xref py py-class docutils literal notranslate"><span class="pre">threading</span></code>
 class builds screw threads by generating the whole rod (core + helical thread) as one manifold
 polyhedron – an angular sweep of the thread profile stacked over every turn – so the result is
 always watertight. (Sweeping the thread and CSG-unioning a coaxial core instead is what Manifold
 cannot triangulate cleanly, so this port builds the polyhedron directly, as BOSL2 does.)</p>
-<p>Every method is a class method returning a <a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>:</p>
+<p>Every method is a class method returning a <a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code></a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">threaded_rod</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">)</span>                 <span class="c1"># ISO M12 x 1.75</span>
 <span class="n">Threading</span><span class="o">.</span><span class="n">acme_threaded_rod</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>               <span class="c1"># 29-degree ACME</span>
 <span class="n">Threading</span><span class="o">.</span><span class="n">threaded_nut</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">1.75</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>   <span class="c1"># matching hex nut</span>
@@ -245,13 +219,13 @@ watertight with the correct major/minor diameter and length.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9e616aa3fd6b4554a7eb9aeed0ec8f8a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-2fcf8e5493114534b34e32f023c07c7f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9e616aa3fd6b4554a7eb9aeed0ec8f8a");
+const el = document.getElementById("stlviewer-2fcf8e5493114534b34e32f023c07c7f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -300,13 +274,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-db8d591863a64d9fa29f00bc351ebbf2" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-28305560d8684e6890edc6efde6d6b5e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-db8d591863a64d9fa29f00bc351ebbf2");
+const el = document.getElementById("stlviewer-28305560d8684e6890edc6efde6d6b5e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -357,13 +331,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-dabedd7bd994490ebcf3ab53365f40a7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e0a82a0326bb439b9ca5695a35966252" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-dabedd7bd994490ebcf3ab53365f40a7");
+const el = document.getElementById("stlviewer-e0a82a0326bb439b9ca5695a35966252");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -411,17 +385,17 @@ window.addEventListener("resize", resize);
 <section id="api-reference">
 <h2>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="bosl2.threading.Threading">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bosl2.threading.</span></span><span class="sig-name descname"><span class="pre">Threading</span></span><a class="reference internal" href="_modules/bosl2/threading.html#Threading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.threading.</span></span><span class="sig-name descname"><span class="pre">Threading</span></span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Screw-thread generators (BOSL2 threading.scad). Every method returns a
-<a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>; call them on the class, e.g. <code class="docutils literal notranslate"><span class="pre">Threading.threaded_rod(...)</span></code>.</p>
+<a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>; call them on the class, e.g. <code class="docutils literal notranslate"><span class="pre">Threading.threaded_rod(...)</span></code>.</p>
 <p>A <em>rod</em> is a threaded cylinder; a <em>nut</em> is a hex/square block with a matching threaded hole
 (cut by a thread ‘tap’, with <em>slop</em> clearance). <em>pitch</em> is the axial distance between threads,
 <em>starts</em> the number of thread starts, and <em>left_handed</em> flips the helix.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.generic_threaded_rod">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generic_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.generic_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.generic_threaded_rod" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.generic_threaded_rod">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generic_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.generic_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.generic_threaded_rod" title="Link to this definition">¶</a></dt>
 <dd><p>A threaded rod from an explicit 2-D thread <em>profile</em> (x in [-1/2, 1/2], y the depth
 fraction, both in pitch units) – the core every other rod builds on (BOSL2 generic_threaded_rod()).</p>
 <dl class="field-list simple">
@@ -438,14 +412,14 @@ fraction, both in pitch units) – the core every other rod builds on (BOSL2 gen
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.generic_threaded_nut">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generic_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.generic_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.generic_threaded_nut" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.generic_threaded_nut">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">generic_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.generic_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.generic_threaded_nut" title="Link to this definition">¶</a></dt>
 <dd><p>A nut from an explicit thread <em>profile</em> (BOSL2 generic_threaded_nut()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -463,16 +437,21 @@ fraction, both in pitch units) – the core every other rod builds on (BOSL2 gen
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.threaded_rod">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.threaded_rod" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.threaded_rod">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.threaded_rod" title="Link to this definition">¶</a></dt>
 <dd><p>An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2
 threaded_rod()).</p>
+<p class="rubric">Examples</p>
+<p>An M20×2.5 threaded rod, 30 mm long:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -487,15 +466,20 @@ threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.threaded_nut">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.threaded_nut" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.threaded_nut">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.threaded_nut" title="Link to this definition">¶</a></dt>
 <dd><p>A hex/square nut for an ISO/UTS threaded rod (BOSL2 threaded_nut()).</p>
+<p class="rubric">Examples</p>
+<p>An M8 nut for an M8×1.25 rod:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">6.8</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mf">1.25</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -512,16 +496,21 @@ threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.trapezoidal_threaded_rod">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">trapezoidal_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.trapezoidal_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.trapezoidal_threaded_rod" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.trapezoidal_threaded_rod">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">trapezoidal_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.trapezoidal_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.trapezoidal_threaded_rod" title="Link to this definition">¶</a></dt>
 <dd><p>A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2
 trapezoidal_threaded_rod()).</p>
+<p class="rubric">Examples</p>
+<p>A Tr20×4 trapezoidal leadscrew, 40 mm long:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">trapezoidal_threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -538,14 +527,14 @@ trapezoidal_threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.trapezoidal_threaded_nut">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">trapezoidal_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.trapezoidal_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.trapezoidal_threaded_nut" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.trapezoidal_threaded_nut">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">trapezoidal_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.trapezoidal_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.trapezoidal_threaded_nut" title="Link to this definition">¶</a></dt>
 <dd><p>A nut for a trapezoidal threaded rod (BOSL2 trapezoidal_threaded_nut()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -565,15 +554,20 @@ trapezoidal_threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.acme_threaded_rod">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">acme_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.acme_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.acme_threaded_rod" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.acme_threaded_rod">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">acme_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.acme_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.acme_threaded_rod" title="Link to this definition">¶</a></dt>
 <dd><p>A 29-degree ACME threaded rod (BOSL2 acme_threaded_rod()).</p>
+<p class="rubric">Examples</p>
+<p>An ACME ½”-10 leadscrew, 30 mm long:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">acme_threaded_rod</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="mf">12.7</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mf">2.54</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -589,14 +583,14 @@ trapezoidal_threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.acme_threaded_nut">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">acme_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.acme_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.acme_threaded_nut" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.acme_threaded_nut">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">acme_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.acme_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.acme_threaded_nut" title="Link to this definition">¶</a></dt>
 <dd><p>A nut for an ACME threaded rod (BOSL2 acme_threaded_nut()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -615,14 +609,14 @@ trapezoidal_threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.square_threaded_rod">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">square_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.square_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.square_threaded_rod" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.square_threaded_rod">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">square_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.square_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.square_threaded_rod" title="Link to this definition">¶</a></dt>
 <dd><p>A square-profile threaded rod (BOSL2 square_threaded_rod()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -638,14 +632,14 @@ trapezoidal_threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.square_threaded_nut">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">square_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.square_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.square_threaded_nut" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.square_threaded_nut">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">square_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.square_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.square_threaded_nut" title="Link to this definition">¶</a></dt>
 <dd><p>A nut for a square threaded rod (BOSL2 square_threaded_nut()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -663,14 +657,14 @@ trapezoidal_threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.buttress_threaded_rod">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">buttress_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.buttress_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.buttress_threaded_rod" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.buttress_threaded_rod">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">buttress_threaded_rod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.buttress_threaded_rod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.buttress_threaded_rod" title="Link to this definition">¶</a></dt>
 <dd><p>An asymmetric buttress threaded rod (BOSL2 buttress_threaded_rod()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -686,14 +680,14 @@ trapezoidal_threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.buttress_threaded_nut">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">buttress_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.buttress_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.buttress_threaded_nut" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.buttress_threaded_nut">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">buttress_threaded_nut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nutwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hex'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.buttress_threaded_nut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.buttress_threaded_nut" title="Link to this definition">¶</a></dt>
 <dd><p>A nut for a buttress threaded rod (BOSL2 buttress_threaded_nut()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -711,17 +705,23 @@ trapezoidal_threaded_rod()).</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bosl2.threading.Threading.thread_helix">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">thread_helix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flank_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bosl2/threading.html#Threading.thread_helix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bosl2.threading.Threading.thread_helix" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.parts.threading.Threading.thread_helix">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">thread_helix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flank_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">turns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">left_handed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/threading.html#Threading.thread_helix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.threading.Threading.thread_helix" title="Link to this definition">¶</a></dt>
 <dd><p>A single helical thread ridge (no core), for adding threads onto your own cylinder
 (BOSL2 thread_helix()). The thread crest is at diameter <em>d</em>; give <em>thread_depth</em> and
 <em>flank_angle</em>, or an explicit <em>profile</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function does not accept <code class="docutils literal notranslate"><span class="pre">fn</span></code>/<code class="docutils literal notranslate"><span class="pre">fa</span></code>/<code class="docutils literal notranslate"><span class="pre">fs</span></code> — it builds its geometry
+entirely through <code class="xref py py-func docutils literal notranslate"><span class="pre">spiral_sweep()</span></code> (VNF / polyhedron output),
+which has no arc-based primitives and therefore no smoothing resolution to control.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -732,13 +732,10 @@ trapezoidal_threaded_rod()).</p>
 <li><p><strong>turns</strong> (<em>float</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
-<li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#bosl2.shapes3d.Bosl2Solid" title="bosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -755,72 +752,60 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">threaded_rod</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/add3f2e2dda328b3.png" src="_images/add3f2e2dda328b3.png" />
 <p>Left-handed:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">threaded_rod</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mf">1.25</span><span class="p">,</span> <span class="n">left_handed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/3e0b5c8f69494aa2.png" src="_images/3e0b5c8f69494aa2.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">threaded_nut</span></code></p>
 <p>A hex nut:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mf">1.25</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/078364ee6b96231a.png" src="_images/078364ee6b96231a.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">trapezoidal_threaded_rod</span></code></p>
 <p>A trapezoidal-thread rod:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">trapezoidal_threaded_rod</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/cf150ab390d0b39d.png" src="_images/cf150ab390d0b39d.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">trapezoidal_threaded_nut</span></code></p>
 <p>Its nut:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">trapezoidal_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/c9289f4ed8bd1164.png" src="_images/c9289f4ed8bd1164.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">acme_threaded_rod</span></code></p>
 <p>An Acme lead screw:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">acme_threaded_rod</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/1c160d8b47d0ae5b.png" src="_images/1c160d8b47d0ae5b.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">acme_threaded_nut</span></code></p>
 <p>An Acme nut:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">acme_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/8ad34e4ea3e6126f.png" src="_images/8ad34e4ea3e6126f.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">buttress_threaded_rod</span></code></p>
 <p>A buttress-thread rod:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">buttress_threaded_rod</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mf">1.25</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/794fa654528bf199.png" src="_images/794fa654528bf199.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">buttress_threaded_nut</span></code></p>
 <p>Its nut:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">buttress_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mf">1.25</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/860b24ac95e0d539.png" src="_images/860b24ac95e0d539.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">square_threaded_rod</span></code></p>
 <p>A square-thread rod:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">square_threaded_rod</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/2720ce07b9be79e9.png" src="_images/2720ce07b9be79e9.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">square_threaded_nut</span></code></p>
 <p>Its nut:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">square_threaded_nut</span><span class="p">(</span><span class="n">nutwidth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/f49a28a8ce80e99d.png" src="_images/f49a28a8ce80e99d.png" />
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">thread_helix</span></code></p>
 <p>A single thread ridge, swept as a helix:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Threading</span><span class="o">.</span><span class="n">thread_helix</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">thread_depth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">flank_angle</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">turns</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/0476e1b744ef8945.png" src="_images/0476e1b744ef8945.png" />
 </section>
 </section>
 

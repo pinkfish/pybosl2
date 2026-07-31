@@ -25,6 +25,7 @@
 #    point count for any rounded/curved portion of the shape.
 #
 # FileSummary: 2D primitives, polygons, curves, text and rounding (BOSL2 shapes2d.scad).
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations

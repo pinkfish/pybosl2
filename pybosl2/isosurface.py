@@ -20,6 +20,7 @@
 #    primitives, ``mb_cyl`` (a revolved-profile field), and the debug/anchor machinery.
 #
 # FileSummary: Isosurface meshing (marching cubes), metaball field primitives, and metaballs().
+# DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
 from __future__ import annotations

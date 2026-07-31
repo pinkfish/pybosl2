@@ -15,6 +15,7 @@
 #    The honeycomb hex_panel() is not ported.
 #
 # FileSummary: FDM-optimised walls: sparse, corrugated, thinning and struts.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

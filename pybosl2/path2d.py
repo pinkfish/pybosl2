@@ -3,6 +3,7 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
+# DocCategory: internal
 
 """2-D path operations: area, offset, polygon containment, round_corners, linear_extrude, and more.
 

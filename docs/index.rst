@@ -3,7 +3,7 @@ pybosl2 — a pure-Python PythonSCAD port of BOSL2
 
 ``pybosl2`` is a pure-Python / numpy port of the pieces of `BOSL2 <https://github.com/BelfrySCAD/BOSL2>`_
 that this toolkit uses, with **no** ``osuse()``/BOSL2 runtime dependency. Every operation hangs off
-an object — :class:`~pybosl2.paths.Path2D` for 2-D outlines, :class:`~pybosl2.regions.Region` for
+an object — :class:`~pybosl2.path2d.Path2D` for 2-D outlines, :class:`~pybosl2.regions.Region` for
 outlines-with-holes, :class:`~pybosl2.beziers.Bezier` / :class:`~pybosl2.beziers.BezierPatch` for bezier
 curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
 :class:`~pybosl2.shapes3d.Bosl2Solid` primitives — so new code reads as fluent chains::
@@ -73,71 +73,71 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 1
    :caption: Solid backends
 
-   CSG & SDF backends <backends>
+    CSG & SDF backends <backends>
 
 .. toctree::
    :maxdepth: 1
    :caption: Foundational
 
-   3-D shapes <shapes3d>
-   2-D shapes <shapes2d>
-   Transforms <transforms>
-   Distributors <distributors>
-   Drawing <drawing>
-   Colour <color>
-   Masking <masking>
-   Partitions <partitions>
-   Native ops <native_ops>
-   Textures <texture>
-   Constants <constants>
+    Color <color>
+    Constants <constants>
+    Distributors <distributors>
+    Masking <masking>
+    Partitions <partitions>
+    Shapes2D <shapes2d>
+    Shapes3D <shapes3d>
+    Texture <texture>
+    Transforms <transforms>
+    Drawing <drawing>
+    Native ops <native_ops>
 
 .. toctree::
    :maxdepth: 1
    :caption: Paths, regions & surfaces
 
-   Paths <paths>
-   Regions <regions>
-   Rounding <rounding>
-   Turtle (3-D) <turtle3d>
-   Beziers <beziers>
-   NURBS <nurbs>
-   Skin & sweeps <skin>
-   VNF meshes <vnf>
-   Isosurface <isosurface>
+    Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad) <beziers>
+    Isosurface <isosurface>
+    Nurbs <nurbs>
+    Abstract :class:`Path` base class for 2-D and 3-D path types <paths>
+    Object API for 2-D paths and regions <regions>
+    Rounding <rounding>
+    Skin <skin>
+    Turtle3D <turtle3d>
+    Vnf <vnf>
 
 .. toctree::
    :maxdepth: 1
    :caption: Math & geometry
 
-   Geometry <geometry>
-   Math <math>
-   Vectors <vectors>
-   Comparisons <comparisons>
+    Comparisons <comparisons>
+    Geometry <geometry>
+    Math <math>
+    Vectors <vectors>
 
 .. toctree::
    :maxdepth: 1
    :caption: Parts library
 
-   Gears <gears>
-   Threading <threading>
-   Screws <screws>
-   Screw drives <screw_drive>
-   Bottle caps <bottlecaps>
-   NEMA steppers <nema_steppers>
-   Cube trusses <cubetruss>
-   Hinges <hinges>
-   Joiners <joiners>
-   Hooks <hooks>
-   Walls <walls>
-   Wiring <wiring>
-   Sliders <sliders>
-   Polyhedra <polyhedra>
-   Ball bearings <ball_bearings>
-   Linear bearings <linear_bearings>
-   Modular hose <modular_hose>
+    Ball Bearings <ball_bearings>
+    Bottlecaps <bottlecaps>
+    Cubetruss <cubetruss>
+    Gears <gears>
+    Hinges <hinges>
+    Hooks <hooks>
+    Joiners <joiners>
+    Linear Bearings <linear_bearings>
+    Modular Hose <modular_hose>
+    Nema Steppers <nema_steppers>
+    Polyhedra <polyhedra>
+    Screw Drive <screw_drive>
+    Screws <screws>
+    Sliders <sliders>
+    Threading <threading>
+    Walls <walls>
+    Wiring <wiring>
 
 .. toctree::
    :maxdepth: 1
    :caption: Extras
 
-   Miscellaneous <miscellaneous>
+    Miscellaneous <miscellaneous>

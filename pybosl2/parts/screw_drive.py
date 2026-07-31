@@ -19,6 +19,7 @@
 #    zrot_copies ring placement, cyl() and prismoid() -- via this package's native-op wrappers.
 #
 # FileSummary: Phillips, hex, Torx and Robertson driver-recess masks.
+# DocCategory: Parts library
 # FileGroup: BOSL2
 
 from __future__ import annotations

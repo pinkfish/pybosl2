@@ -2,7 +2,7 @@ Textures
 ========
 
 Port of BOSL2's ``texture()`` engine (from ``skin.scad``): the named-texture table that
-:func:`~pybosl2.shapes3d.textured_tile` builds from. :func:`~pybosl2.texture.texture` resolves a texture
+:func:`~pybosl2.surfaces3d` builds from. :func:`~pybosl2.texture.texture` resolves a texture
 **name** to its data — either a **height-field** (a 2-D array of heights in ``[0, 1]``) or a **VNF
 tile** ``(verts, faces)`` describing one unit cell of the surface.
 

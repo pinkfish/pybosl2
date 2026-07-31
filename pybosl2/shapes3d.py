@@ -18,6 +18,7 @@
 #    polyhedron() from a computed vertex/face grid (see _heightfield_polyhedron()).
 #
 # FileSummary: Attachable cubes, cylinders, spheres, text and rulers (BOSL2 shapes3d.scad).
+# DocCategory: Foundational
 # FileGroup: BOSL2
 
 from __future__ import annotations
