@@ -246,7 +246,15 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        return _path_closest_point(self._points, closed, pt)
+        pts = self._points
+        q = np.array([pt.x, pt.y, pt.z]) if isinstance(pt, Point) else np.asarray(pt, dtype=float)
+        segs = list(zip(pts, pts[1:], strict=False))
+        if closed:
+            segs.append((pts[-1], pts[0]))
+        projs = [line_closest_point(seg, q) for seg in segs]
+        dists = np.linalg.norm(np.asarray(projs, dtype=float) - q, axis=1)
+        r = projs[int(np.argmin(dists))]
+        return Point(float(r[0]), float(r[1]), float(r[2]))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Vector]":
         """Normalized tangent vector at each point of the path, as an ndarray.
@@ -981,34 +989,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
 
 # -- Path2D Geometry ---------------------------------------------------------------------
-
-
-def _path_closest_point(points: np.ndarray, closed: bool, pt: Point | Sequence[float]) -> Point:
-    """The closest point on the path to *pt*.
-
-    Args:
-        pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
-        closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-    Returns:
-        A :class:`~pybosl2.points.Point` of the closest point on the path.
-    """
-    if isinstance(pt, Point):
-        q = np.array([pt.x, pt.y]) if pt.is_2d else np.array([pt.x, pt.y, pt.z])
-    else:
-        q = np.asarray(pt, dtype=float)
-    segs = list(zip(points, points[1:], strict=False))
-    if closed:
-        segs.append((points[-1], points[0]))
-    pts = [line_closest_point(seg, q) for seg in segs]
-    dists = np.linalg.norm(np.asarray(pts, dtype=float) - q, axis=1)
-    min_seg = int(np.argmin(dists))
-    r = pts[min_seg]
-    dim = points.shape[1]
-    return Point(float(r[0]), float(r[1])) if dim == 2 else Point(float(r[0]), float(r[1]), float(r[2]))
-
-
-# -- Breaking paths up into subpaths ---------------------------------------------------
 
 
 def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]) -> list[list[float]]:
