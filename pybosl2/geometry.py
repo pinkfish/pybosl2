@@ -5,13 +5,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # LibFile: pybosl2/geometry.py
-#    Pure-Python port of the pieces of BOSL2's geometry.scad (plus
-#    pointlist_bounds() from vectors.scad) that pybosl2/paths.py depends on.
-#    No osuse()/BOSL2 runtime dependency. Built on numpy: every
-#    vector/point-valued function here returns a real numpy ndarray rather
-#    than a plain list. Only handles 2D/3D points, and only the subset of
-#    behavior (e.g. segment-bounded line_closest_point) that paths.py
-#    actually needs.
+#    Pure-Python port of the pieces of BOSL2's geometry.scad that
+#    pybosl2/paths.py depends on.  No osuse()/BOSL2 runtime dependency.
+#    Handles 2-D and 3-D point collinearity, line normals, segment
+#    projection, line intersections, and circle tangents.
 #
 # FileSummary: Points, lines and polygon geometry helpers (BOSL2 geometry.scad).
 # DocCategory: Math & geometry
