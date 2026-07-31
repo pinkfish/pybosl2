@@ -34,7 +34,7 @@ import numpy as np
 
 from pybosl2._helpers import is_num
 from pybosl2.caps import CapType
-from pybosl2.comparisons import approx
+from pybosl2.math import EPSILON
 
 # Late imports to avoid circular dependencies
 from pybosl2.vectors import unit
@@ -119,7 +119,7 @@ def _circlecorner(points, parm, fn=None, fa=None, fs=None):
     prev = unit(np.asarray(points[0], dtype=float) - p1)
     nxt = unit(np.asarray(points[2], dtype=float) - p1)
     start, end = p1 + prev * d, p1 + nxt * d
-    if approx(angle, 90):
+    if math.isclose(angle, 90, rel_tol=0, abs_tol=EPSILON):
         return [list(start), list(end)]
     center = radius / math.sin(math.radians(angle)) * unit(prev + nxt) + p1
     sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, fn, fa, fs)))
@@ -226,9 +226,13 @@ def _round_corners(
         if (not closed and (i == 0 or i == sides - 1)) or parm[i] == 0:
             dk.append([0.0])
             continue
-        assert not (approx(p0, p1) or approx(p1, p2)), f"Repeated point in path at index {i} with nonzero rounding."
+        assert not (np.allclose(p0, p1, rtol=0, atol=EPSILON) or np.allclose(p1, p2, rtol=0, atol=EPSILON)), (
+            f"Repeated point in path at index {i} with nonzero rounding."
+        )
         angle = _vector_angle3(p0, p1, p2) / 2
-        assert not approx(angle, 0), f"Path2D turns back on itself at index {i} with nonzero rounding."
+        assert not math.isclose(angle, 0, rel_tol=0, abs_tol=EPSILON), (
+            f"Path2D turns back on itself at index {i} with nonzero rounding."
+        )
         ar = math.radians(angle)
         if method == "chamfer":
             dk.append(
@@ -249,7 +253,7 @@ def _round_corners(
         elif measure == "joint":
             dk.append([parm[i], parm[i] * math.tan(ar)])
         else:  # circle + cut
-            if approx(angle, 90):
+            if math.isclose(angle, 90, rel_tol=0, abs_tol=EPSILON):
                 dk.append([math.inf])
             else:
                 cr = parm[i] / (1 / math.sin(ar) - 1)
@@ -290,9 +294,9 @@ def _round_corners(
 def _dedup(pts, eps=1e-9):
     out = []
     for p in pts:
-        if not out or not approx(out[-1], p, eps):
+        if not out or not np.allclose(out[-1], p, rtol=0, atol=eps):
             out.append([float(c) for c in p])
-    if len(out) > 1 and approx(out[0], out[-1], eps):
+    if len(out) > 1 and np.allclose(out[0], out[-1], rtol=0, atol=eps):
         out.pop()
     return out
 
@@ -342,7 +346,7 @@ def _smooth_path(
         uniform=uniform,
     )
     smoothed = [[float(c) for c in p] for p in bez.path_curve(splinesteps=splinesteps)]
-    if closed and len(smoothed) > 1 and approx(smoothed[0], smoothed[-1]):
+    if closed and len(smoothed) > 1 and np.allclose(smoothed[0], smoothed[-1], rtol=0, atol=EPSILON):
         smoothed = smoothed[:-1]
     dim = len(smoothed[0])
     return (Path3D if dim == 3 else Path2D)(smoothed, closed=closed)

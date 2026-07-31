@@ -28,7 +28,6 @@ if TYPE_CHECKING:
 
 from pybosl2.bounds import Bounds3D
 from pybosl2.caps import CapSpec, CapType
-from pybosl2.comparisons import approx
 from pybosl2.distributors import Distributable, _apply4
 from pybosl2.geometry import is_collinear, line_closest_point
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
@@ -1250,7 +1249,7 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]
     cuts = len(cutlist)
     result = []
     seg0 = list(points[: cutlist[0].next_index])
-    if not approx(cutlist[0].point, points[cutlist[0].next_index - 1]):
+    if not np.allclose(cutlist[0].point, points[cutlist[0].next_index - 1], rtol=0, atol=EPSILON):
         seg0.append(cutlist[0].point)
     result.append(seg0)
     for i in range(cuts - 1):
@@ -1261,14 +1260,24 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]
             result.append([])
             continue
         seg = []
-        if not approx(cutlist[i].point, points[(cutlist[i].next_index) % len(points)]):
+        if not np.allclose(cutlist[i].point, points[(cutlist[i].next_index) % len(points)], rtol=0, atol=EPSILON):
             seg.append(cutlist[i].point)
         seg.extend(points[cutlist[i].next_index : cutlist[i + 1].next_index])
-        if not approx(cutlist[i + 1].point, points[(cutlist[i + 1].next_index - 1) % len(points)]):
+        if not np.allclose(
+            cutlist[i + 1].point,
+            points[(cutlist[i + 1].next_index - 1) % len(points)],
+            rtol=0,
+            atol=EPSILON,
+        ):
             seg.append(cutlist[i + 1].point)
         result.append(seg)
     last_seg = []
-    if not approx(cutlist[cuts - 1].point, points[(cutlist[cuts - 1].next_index) % len(points)]):
+    if not np.allclose(
+        cutlist[cuts - 1].point,
+        points[(cutlist[cuts - 1].next_index) % len(points)],
+        rtol=0,
+        atol=EPSILON,
+    ):
         last_seg.append(cutlist[cuts - 1].point)
     n = len(points)
     a = cutlist[cuts - 1].next_index % n
@@ -1485,11 +1494,13 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
         )
         if nextind == len(points) and not closed:
             nextdir = lastpath
-        elif (nextind <= len(points) - 2 or closed) and approx(
-            cuts[ci].point, points[(nextind) % len(points)], eps=eps
+        elif (nextind <= len(points) - 2 or closed) and np.allclose(
+            cuts[ci].point, points[(nextind) % len(points)], rtol=0, atol=eps
         ):
             nextdir = unit([a + b for a, b in zip(nextpath, thispath, strict=False)])
-        elif (nextind > 1 or closed) and approx(cuts[ci].point, points[(nextind - 1) % len(points)], eps=eps):
+        elif (nextind > 1 or closed) and np.allclose(
+            cuts[ci].point, points[(nextind - 1) % len(points)], rtol=0, atol=eps
+        ):
             nextdir = unit([a + b for a, b in zip(thispath, lastpath, strict=False)])
         else:
             nextdir = thispath

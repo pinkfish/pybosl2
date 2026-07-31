@@ -38,7 +38,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "CapType": ("pybosl2.caps", "CapType"),
     "UnsupportedByBackendError": ("pybosl2.exceptions", "UnsupportedByBackendError"),
     # comparisons & constants
-    "approx": ("pybosl2.comparisons", "approx"),
     "EPSILON": ("pybosl2.comparisons", "EPSILON"),
     # colour
     "rainbow": ("pybosl2.color", "rainbow"),
