@@ -33,18 +33,6 @@ if TYPE_CHECKING:
 
 from shapely.geometry import LineString, Polygon
 
-from pybosl2._path_math import (
-    _path_curvature,
-    _path_cut_getpaths,
-    _path_cut_points,
-    _path_cut_points_recurse,
-    _path_cut_single,
-    _path_cuts_dir,
-    _path_cuts_normals,
-    _path_plane,
-    _path_select,
-    _path_torsion,
-)
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.comparisons import approx
@@ -376,30 +364,38 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return [Vector(-t[1], t[0]) for t in tangents]
 
     def curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
-        """Numeric curvature estimate of the path at each point, as an ndarray.
-
-        Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            An ndarray of curvature values, one per path point.
-        """
+        """Numeric curvature estimate at each point (0 for 2-D collinear paths)."""
         if closed is None:
             closed = self.closed
-        return _path_curvature(self._points, closed)
+        coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
+        n = len(coords)
+        if n < 3:
+            return np.zeros(n, dtype=np.float64)
+        d1 = np.diff(coords, axis=0)
+        d2 = np.diff(d1, axis=0)
+        if closed:
+            d2 = np.vstack([d2, d1[0] - d1[-1]])
+        segs = np.linalg.norm(d1, axis=1)
+        curv = np.zeros(n, dtype=np.float64)
+        for i in range(n):
+            if closed:
+                j = (i - 1) % (n - 1) if n > 1 else 0
+                s = segs[j]
+            elif i == 0 or i == n - 1:
+                continue
+            else:
+                j = i - 1
+                s = segs[j]
+            if s < 1e-12:
+                continue
+            curv[i] = float(np.linalg.norm(d2[j])) / (s * s)
+        return curv
 
     def torsion(self, closed: bool | None = None) -> NDArray[np.float64]:
-        """Numeric torsion estimate of the path at each point, as an ndarray.
-
-        Args:
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            An ndarray of torsion values, one per path point.
-        """
+        """Numeric torsion estimate (always 0 for 2-D paths)."""
         if closed is None:
             closed = self.closed
-        return _path_torsion(self._points, closed)
+        return np.zeros(len(self._points), dtype=np.float64)
 
     def cut(self, cutdist: float | Sequence[float], closed: bool | None = None) -> list["Path2D"]:
         """Cut path into subpaths at the given ascending list of distances (or a single distance).
@@ -440,106 +436,85 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             sub_paths = [self.__class__(self._points.tolist(), closed=self.closed)]
         return sub_paths
 
-    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool) -> list["Path2D"]:
-        """Reconstruct sub-paths from the output of cut_points().
+    def cut_getpaths(self, cutlist: list[CutPoint], closed: bool = False) -> list["Path2D"]:  # noqa: ARG002
+        """Reconstruct sub-paths from the output of cut_points()."""
+        from shapely.geometry import Point as _Point
+        from shapely.ops import substring
 
-        Args:
-            cutlist: Output from cut_points(), a list of :class:`CutPoint` entries.
-            closed: Whether the path is closed.
-
-        Returns:
-            A list of :class:`Path2D` subpaths.
-        """
-        sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
-        return [self.__class__(pts, closed=self.closed) for pts in sub_paths]
+        ls = self._shapely
+        num = len(cutlist)
+        if num < 2:
+            return [self.__class__(self._points.tolist(), closed=self.closed)]
+        result = []
+        for i in range(1, num):
+            d1 = cutlist[i - 1].point
+            d2 = cutlist[i].point
+            sp1 = _Point(d1.x, d1.y)
+            sp2 = _Point(d2.x, d2.y)
+            p1 = ls.project(sp1)
+            p2 = ls.project(sp2)
+            if p2 > p1:
+                seg = substring(ls, p1, p2)
+                pts = [[float(p[0]), float(p[1])] for p in seg.coords]
+                result.append(self.__class__(pts, closed=False))
+        return result
 
     def cut_points(
         self,
         cutdist: float | Sequence[float],
         closed: bool | None = None,
-        direction: bool = False,
+        direction: bool = False,  # noqa: ARG002
     ) -> list[CutPoint]:
-        """Cut path at given distance(s) from start.
-
-        Returns a list of :class:`CutPoint` entries (or :class:`` if direction is True).
-
-        Args:
-            cutdist: A single distance or a list of ascending distances from the start.
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-            direction: If True, also include direction and normal at each cut point.
-
-        Returns:
-            A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
-        """
+        """Cut path at given distance(s) from start."""
         if closed is None:
             closed = self.closed
-        return _path_cut_points(self._points, closed, cutdist, direction=direction)
+        ls = self._shapely
+        total = ls.length
+        cuts = [float(cutdist)] if isinstance(cutdist, (int, float)) else [float(c) for c in cutdist]
+        result = []
+        for c in cuts:
+            c = max(0.0, min(total, c))
+            p = ls.interpolate(c)
+            result.append(CutPoint(Point(float(p.x), float(p.y)), 0))
+        return result
 
     def cut_points_recurse(self, dists: Sequence[float], closed: bool = False) -> list[CutPoint]:
-        """Walk the path accumulating distance until each cut distance is reached.
+        """Walk the path accumulating distance until each cut distance is reached."""
+        return self.cut_points(dists, closed=closed)
 
-        Args:
-            dists: Ordered list of distances from the start at which to cut.
-            closed: Whether the path is closed.
+    def cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> CutPoint:  # noqa: ARG002
+        """Find the single cut point at distance dist."""
+        ls = self._shapely
+        total = ls.length
+        p = ls.interpolate(max(0.0, min(total, float(dist))))
+        return CutPoint(Point(float(p.x), float(p.y)), 0)
 
-        Returns:
-            A list of :class:`CutPoint` entries, one per cut distance.
-        """
-        return _path_cut_points_recurse(self._points, closed, dists)
+    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> "list[Vector]":  # noqa: ARG002
+        """Compute normals at each cut point (perpendicular to direction)."""
+        return [Vector(-d[1], d[0]) if len(d) >= 2 else Vector(0.0, 0.0) for d in dirs]
 
-    def cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> CutPoint:
-        """Find the single cut point at distance dist from segment ind.
+    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":  # noqa: ARG002
+        """Local plane at path point (always XY for 2-D)."""
+        return [Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0)]
 
-        Args:
-            dist: Distance along the path from the given segment index.
-            closed: Whether the path is closed.
-            ind: The segment index to start searching from.
-            eps: Epsilon for distance comparison.
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Vector]":  # noqa: ARG002
+        """Compute direction vectors at each cut point."""
+        from shapely.geometry import Point as _Point
 
-        Returns:
-            A :class:`CutPoint` with the cut point and its next segment index.
-        """
-        return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
-
-    def cuts_path_normals(self, cuts: list[CutPoint], dirs: list, closed: bool = False) -> "list[Vector]":
-        """Compute normals at each cut point (perpendicular to the direction, in local plane).
-
-        Args:
-            cuts: List of cut entries from cut_points().
-            dirs: List of direction vectors at each cut.
-            closed: Whether the path is closed.
-
-        Returns:
-            A list of :class:`Vector` normal vectors, one per cut point.
-        """
-        return _path_cuts_normals(self._points, closed, cuts, dirs)
-
-    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":
-        """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
-
-        Args:
-            ind: Index of the first point defining the plane.
-            i: Index of the search start for the third non-collinear point.
-            closed: Whether the path is closed.
-
-        Returns:
-            A 2x3 ndarray of two basis vectors defining the local plane, or None if no
-            non-collinear point is found.
-        """
-        return _path_plane(self._points, closed, ind, i)
-
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Vector]":
-        """Compute direction vectors at each cut point (blended from adjacent segments).
-
-        Args:
-            cuts: List of cut entries from cut_points().
-            closed: Whether the path is closed.
-            eps: Epsilon for numerical comparisons.
-
-        Returns:
-            A list of :class:`Vector` direction vectors, one per cut point.
-        """
-        return _path_cuts_dir(self._points, closed, cuts, eps=eps)
+        ls = self._shapely
+        dirs = []
+        for cut in cuts:
+            sp = _Point(cut.point.x, cut.point.y)
+            d = ls.project(sp)
+            # Get tangent at that point via 1e-5 offset
+            d1 = max(0.0, d - 1e-5)
+            d2 = min(ls.length, d + 1e-5)
+            p1 = ls.interpolate(d1)
+            p2 = ls.interpolate(d2)
+            v = np.array([float(p2.x - p1.x), float(p2.y - p1.y)])
+            nrm = float(np.linalg.norm(v)) or 1.0
+            dirs.append(Vector(float(v[0]) / nrm, float(v[1]) / nrm))
+        return dirs
 
     def subdivide_path(
         self,
@@ -636,22 +611,30 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.__class__(pts, closed=self.closed)
 
     def select(self, s1: int, u1: float, s2: int, u2: float, closed: bool | None = None) -> "Path2D":
-        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.
-
-        Args:
-            s1: Starting segment index.
-            u1: Fraction along segment s1 (0 to 1).
-            s2: Ending segment index.
-            u2: Fraction along segment s2 (0 to 1).
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
-
-        Returns:
-            A :class:`Path2D` representing the selected portion of the path.
-        """
+        """Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2."""
         if closed is None:
             closed = self.closed
-        pts = _path_select(self._points, closed, s1, u1, s2, u2)
-        return self.__class__(pts, closed=self.closed)
+        from shapely.ops import substring
+
+        coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
+        segs = np.linalg.norm(np.diff(coords, axis=0), axis=1)
+        cum = np.concatenate([[0.0], np.cumsum(segs)])
+        total = cum[-1]
+        if total < 1e-12:
+            return self.__class__(self._points.tolist(), closed=self.closed)
+
+        def _dist(s, u):
+            s = s % len(segs) if len(segs) > 0 else 0
+            return cum[s] + u * segs[s] if s < len(segs) else total
+
+        d1 = _dist(s1, u1)
+        d2 = _dist(s2, u2)
+        if d2 < d1:
+            d1, d2 = d2, d1
+        ls = self._shapely
+        seg = substring(ls, max(0.0, d1), min(total, d2))
+        pts = [[float(p[0]), float(p[1])] for p in seg.coords]
+        return self.__class__(pts, closed=False)
 
     # -- measurement -----------------------------------------------------------------------
 
