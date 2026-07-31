@@ -32,11 +32,12 @@ from typing import TYPE_CHECKING, Sequence
 if TYPE_CHECKING:
     from pybosl2.paths import Path
 
+import math
+
 import numpy as np
 
 from pybosl2._helpers import is_num
-from pybosl2.comparisons import approx
-from pybosl2.math import lerpn
+from pybosl2.math import EPSILON, lerpn
 
 __all__ = [
     "nurbs_curve",
@@ -64,7 +65,7 @@ def _calc_mult(knots):
     """Run-length multiplicities of the distinct values in *knots* (BOSL2 _calc_mult())."""
     ind = [0]
     for i in range(1, len(knots)):
-        if not approx(knots[i], knots[i - 1]):
+        if not math.isclose(knots[i], knots[i - 1], rel_tol=0, abs_tol=EPSILON):
             ind.append(i)
     ind.append(len(knots))
     return [ind[i + 1] - ind[i] for i in range(len(ind) - 1)]
@@ -224,7 +225,7 @@ def _nurbs_curve_pts(
         assert isinstance(splinesteps, int) and splinesteps > 0, "splinesteps must be a positive integer."
         adjusted_u = []
         for i in range(degree, sides):
-            if not approx(knot[i], knot[i + 1]):
+            if not math.isclose(knot[i], knot[i + 1], rel_tol=0, abs_tol=EPSILON):
                 adjusted_u += [float(x) for x in lerpn(knot[i], knot[i + 1], splinesteps, endpoint=False)]
         if type != "closed":
             adjusted_u.append(knot[sides])
@@ -556,7 +557,7 @@ def _increment_knot_mults(knot_vector):
     i = 0
     while i < len(knot_vector):
         j = i
-        while j < len(knot_vector) and approx(knot_vector[j], knot_vector[i]):
+        while j < len(knot_vector) and math.isclose(knot_vector[j], knot_vector[i], rel_tol=0, abs_tol=EPSILON):
             j += 1
         out += [knot_vector[i]] * (j - i + 1)
         i = j

@@ -37,7 +37,6 @@ from shapely.geometry import LineString, Polygon
 
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
-from pybosl2.comparisons import approx
 from pybosl2.distributors import Distributable, _apply4
 from pybosl2.geometry import (
     _is_point_on_segment,
@@ -1828,7 +1827,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             v1 = self._points[i + 1] - self._points[i]
             v2 = self._points[(i + 2) % sides] - self._points[i + 1]
             n1, n2 = float(np.hypot(*v1)), float(np.hypot(*v2))
-            if n1 > 0 and n2 > 0 and approx(float(v1 @ v2) / (n1 * n2), -1):
+            if n1 > 0 and n2 > 0 and math.isclose(float(v1 @ v2) / (n1 * n2), -1, rel_tol=0, abs_tol=EPSILON):
                 return False
         return len(self.self_intersections(closed=closed, eps=eps)) == 0
 
@@ -2084,7 +2083,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 out.append(lst[i])
                 continue
             nxt = lst[(i + 1) % length]
-            differs = (not np.array_equal(lst[i], nxt)) if eps == 0 else (not approx(lst[i], nxt, eps))
+            differs = not np.array_equal(lst[i], nxt) if eps == 0 else not np.allclose(lst[i], nxt, rtol=0, atol=eps)
             if differs:
                 out.append(lst[i])
         return out
@@ -2180,7 +2179,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             path: A path to check for closure.
             eps: Epsilon for numerical comparison.
         """
-        return approx(path[0], path[-1], eps=eps)
+        return np.allclose(path[0], path[-1], rtol=0, atol=eps)
 
     @staticmethod
     def _close_path(
@@ -2291,8 +2290,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         segang = math.degrees(math.atan2(delta[1], delta[0]))
         frags = []
         for fragment in fragments:
-            fwdmatch = approx(seg[1], fragment[0], eps=eps)
-            bakmatch = approx(seg[1], fragment[-1], eps=eps)
+            fwdmatch = np.allclose(seg[1], fragment[0], rtol=0, atol=eps)
+            bakmatch = np.allclose(seg[1], fragment[-1], rtol=0, atol=eps)
             frags.append([fwdmatch, bakmatch, list(reversed(fragment)) if bakmatch else fragment])
         angs = []
         for frag_tuple in frags:
@@ -2342,7 +2341,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             if Path2D._is_closed_path(foundfrag, eps=eps):
                 return [foundfrag, [path] + remainder2]
             fragend = foundfrag[-1]
-            hits = [i for i in range(len(path) - 1) if approx(path[i], fragend, eps=eps)]
+            hits = [i for i in range(len(path) - 1) if np.allclose(path[i], fragend, rtol=0, atol=eps)]
             if hits:
                 hitidx = hits[-1]
                 newpath = Path2D._list_head(path, hitidx)
@@ -2427,7 +2426,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         angle = math.degrees(math.acos(cosang)) / 2
         start = [p1[i] + prev[i] * diameter for i in range(dim)]
         end = [p1[i] + nxt[i] * diameter for i in range(dim)]
-        if approx(angle, 90):
+        if math.isclose(angle, 90, rel_tol=0, abs_tol=EPSILON):
             return [start, end]
         bis = [prev[i] + nxt[i] for i in range(dim)]
         bislen = math.hypot(*bis)
@@ -2476,7 +2475,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 continue
             p0, p1, p2 = path[(i - 1) % sides], path[i], path[(i + 1) % sides]
             angle = Path2D._vector_angle3(p0, p1, p2) / 2
-            assert not approx(angle, 0), f"Path2D turns back on itself at index {i} with nonzero rounding"
+            assert not math.isclose(angle, 0, rel_tol=0, abs_tol=EPSILON), (
+                f"Path2D turns back on itself at index {i} with nonzero rounding"
+            )
             dk.append([parm[i] / math.tan(math.radians(angle)), parm[i]])
 
         out = []

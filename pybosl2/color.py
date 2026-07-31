@@ -5,18 +5,15 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # LibFile: pybosl2/color.py
-#    Pure-Python port of BOSL2's color.scad: the HSL/HSV -> RGB colourspace
-#    conversions and the rainbow() helper for colouring a list of objects.
-#    Python's standard library ``colorsys`` module provides ``hls_to_rgb``
-#    and ``hsv_to_rgb``, but BOSL2's ``hsl()`` uses a different formula
-#    than the HLS model — the custom implementations here match OpenSCAD's
-#    output exactly rather than the generic colour-science approximations.
-#    The colour operators (``color``/``recolor``/``color_this``/``hsl``/
-#    ``hsv``/``highlight``/``ghost``) are provided by the
-#    :class:`Colorable` mixin defined here and consumed by
-#    :class:`~pybosl2.shapes3d.Bosl2Solid`.
+#    Colour conversions and operators for the fluent object API.
+#    Uses Python's standard-library ``colorsys`` for HLS and HSV → RGB
+#    conversions.  The :class:`Colorable` mixin provides the fluent colour
+#    operators consumed by :class:`~pybosl2.shapes3d.Bosl2Solid`.
+#    Opacity is applied by chaining :meth:`~Colorable.ghost` after the
+#    colour method rather than through an alpha parameter — matching how
+#    OpenSCAD's ``%`` (ghost/background) modifier works.
 #
-# FileSummary: HSL/HSV colour conversion, rainbow(), and the Colorable colour operators.
+# FileSummary: Colour operators (Colorable mixin) via Python's colorsys module.
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
@@ -31,43 +28,14 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Self
 
-    from shapes3d import Bosl2Solid
+    from pybosl2._shape import Bosl2Shape
 
-__all__ = ["hsl", "rainbow", "rainbow_colors", "Colorable"]
-
-
-def _to_3d_drop_alpha() -> Any:
-    """OpenSCAD ``color([r, g, b])`` discards alpha, so BOSL2 does too."""
+__all__ = ["rainbow", "rainbow_colors", "Colorable"]
 
 
 # ---------------------------------------------------------------------------
-# Section: colourspace conversion
+# rainbow
 # ---------------------------------------------------------------------------
-
-
-def hsl(height: float, s: float = 1.0, length: float = 0.5, a: float | None = None) -> list[float]:
-    """Convert HSL to an ``[R, G, B]`` colour (or ``[R, G, B, A]`` if *a* is given).
-
-    Uses the exact HSL formula from BOSL2/OpenSCAD, which differs from Python's
-    ``colorsys.hls_to_rgb`` (HLS uses a double-hexcone model; HSL uses a hexagonal
-    cone).  For generic colour processing prefer ``colorsys``; use this function
-    only when BOSL2 parity is required.
-
-    Args:
-        height: Hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta).
-        s: Saturation 0..1 (0 = grey, 1 = vivid).
-        length: Lightness 0..1 (0 = black, 0.5 = bright, 1 = white).
-        a: Optional alpha 0..1; when given the result is ``[R, G, B, A]``.
-
-    Returns:
-        ``[R, G, B]`` (each 0..1), or ``[R, G, B, A]`` when *a* is given.
-    """
-    hm = height % 360
-    rgb: list[float] = []
-    for n in (0, 8, 4):
-        k = (n + hm / 30) % 12
-        rgb.append(length - s * min(length, 1 - length) * max(min(k - 3, 9 - k, 1), -1))
-    return rgb + ([a] if a is not None else [])
 
 
 def rainbow_colors(
@@ -80,7 +48,7 @@ def rainbow_colors(
     """Generate *sides* ``[R, G, B]`` colours stepped around the hue wheel.
 
     Equivalent to BOSL2's ``rainbow()`` colour generation without applying the
-    colours to objects.
+    colours to objects.  Uses :func:`colorsys.hsv_to_rgb` internally.
 
     Args:
         sides: How many colours to generate.
@@ -91,6 +59,15 @@ def rainbow_colors(
 
     Returns:
         A list of ``[R, G, B]`` lists, each with values 0..1.
+
+    Examples:
+        .. pythonscad-example::
+
+            cols = rainbow_colors(3)
+            a = cuboid([5, 5, 10]).color(cols[0])
+            b = cuboid([5, 5, 10]).color(cols[1]).right(8)
+            c = cuboid([5, 5, 10]).color(cols[2]).right(16)
+            (a | b | c).show()
     """
     if sides <= 0:
         return []
@@ -103,17 +80,18 @@ def rainbow_colors(
 
 
 def rainbow(
-    items: Sequence[Bosl2Solid],
+    items: Sequence[Bosl2Shape],
     stride: int = 1,
     maxhues: int | None = None,
     shuffle: bool = False,
     seed: int | None = None,
-) -> list[Any]:
+) -> list[Bosl2Shape]:
     """Colour each object in *items* a different hue.
 
-    Each item must support ``.color([r, g, b])`` (a :class:`~pybosl2.shapes3d.Bosl2Solid`
-    or native solid).  Useful for telling apart the parts of a multi-piece model
-    or debugging a list of paths.
+    Each item must be a :class:`~pybosl2._shape.Bosl2Shape` (a
+    :class:`~pybosl2.shapes2d.Bosl2Shape2D` or
+    :class:`~pybosl2.shapes3d.Bosl2Solid`).  Useful for telling apart the
+    parts of a multi-piece model or debugging a list of paths.
 
     Args:
         items: The objects to colour.
@@ -123,7 +101,8 @@ def rainbow(
         seed: Seed for the shuffle operation.
 
     Returns:
-        A list of coloured objects, one per element of *items*.
+        A list of coloured objects, one per element of *items*, each
+        preserving its original 2-D or 3-D type.
     """
     items = list(items)
     colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
@@ -131,7 +110,7 @@ def rainbow(
 
 
 # ---------------------------------------------------------------------------
-# Section: Colorable mixin
+# Colorable mixin
 # ---------------------------------------------------------------------------
 
 
@@ -143,10 +122,10 @@ class Colorable(ABC):
     ``_color_native`` (PythonSCAD ``color()``), ``_highlight_native`` (the ``#``
     modifier) and ``_ghost_native`` (the ``%`` modifier).
 
-    Because the toolkit builds native geometry rather than a BOSL2 ``$color``
-    attachment tree, :meth:`recolor` and :meth:`color_this` both apply the
-    colour directly — an object's already-coloured children keep their colour,
-    matching OpenSCAD's ``color()`` semantics.
+    **Opacity** is applied by chaining :meth:`ghost` rather than through an
+    ``alpha`` parameter — this matches how OpenSCAD's ``%`` background modifier
+    works.  For example ``box.hsl(0, 1, 0.5).ghost()`` produces a transparent
+    red box.
     """
 
     @abstractmethod
@@ -213,36 +192,39 @@ class Colorable(ABC):
             return self
         return self._color_native(c, alpha)
 
-    def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None) -> Self:
+    def hsl(self, height: float, s: float = 1.0, length: float = 0.5) -> Self:
         """Colour this object from an HSL hue/saturation/lightness.
 
+        Uses :func:`colorsys.hls_to_rgb` for the conversion.  For opacity, chain
+        :meth:`ghost` after this call.
+
         Args:
-            height: Hue in degrees.
-            s: Saturation 0..1.
-            length: Lightness 0..1.
-            a: Optional alpha 0..1.
+            height: Hue in degrees (0=red, 120=green, 240=blue).
+            s: Saturation 0..1 (0 = grey, 1 = vivid).
+            length: Lightness 0..1 (0 = black, 0.5 = bright, 1 = white).
 
         Returns:
             This object coloured with the computed ``[R, G, B]`` value.
         """
-        return self._color_native(hsl(height, s, length), a)
+        rgb = list(colorsys.hls_to_rgb(height / 360, length, s))
+        return self._color_native(rgb, None)
 
-    def hsv(self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None) -> Self:
+    def hsv(self, height: float, s: float = 1.0, v: float = 1.0) -> Self:
         """Colour this object from an HSV hue/saturation/value.
 
-        Uses Python's :func:`colorsys.hsv_to_rgb` for the conversion.
+        Uses :func:`colorsys.hsv_to_rgb` for the conversion.  For opacity, chain
+        :meth:`ghost` after this call.
 
         Args:
-            height: Hue in degrees.
-            s: Saturation 0..1.
-            v: Value 0..1.
-            a: Optional alpha 0..1.
+            height: Hue in degrees (0=red, 120=green, 240=blue).
+            s: Saturation 0..1 (0 = grey, 1 = vivid).
+            v: Value 0..1 (0 = black, 1 = bright).
 
         Returns:
             This object coloured with the computed ``[R, G, B]`` value.
         """
         rgb = list(colorsys.hsv_to_rgb(height / 360, s, v))
-        return self._color_native(rgb, a)
+        return self._color_native(rgb, None)
 
     def highlight(self, highlight: bool = True) -> Self:
         """Apply the ``#`` debug modifier (BOSL2 highlight()).
