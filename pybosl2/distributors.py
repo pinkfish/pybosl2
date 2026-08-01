@@ -91,22 +91,6 @@ def _vec3(v: Any, fill: float = 0.0) -> np.ndarray:
     return out
 
 
-def _frame_map4(x=None, z=None) -> np.ndarray:
-    """A rotation whose local X and Z axes point along *x* and *z* (BOSL2 frame_map(x=, z=))."""
-    xv = np.asarray(x, dtype=float)
-    xv_norm = float(np.linalg.norm(xv))
-    xv = xv / xv_norm if xv_norm else xv
-    zv = np.asarray(z, dtype=float)
-    zv_norm = float(np.linalg.norm(zv))
-    zv = zv / zv_norm if zv_norm else zv
-    yv = np.cross(zv, xv)
-    yv_norm = float(np.linalg.norm(yv))
-    yv = yv / yv_norm if yv_norm else yv
-    m = np.eye(4)
-    m[:3, 0], m[:3, 1], m[:3, 2] = xv, yv, zv
-    return m
-
-
 # ---------------------------------------------------------------------------
 # Section: copier matrix generators (BOSL2 function form, returning matrices)
 # ---------------------------------------------------------------------------
@@ -508,7 +492,17 @@ def path_copies(
         elif planar:
             rotm = rot_from_to4([0, 1, 0], _vec3(cp.normal, 0.0))
         else:
-            rotm = _frame_map4(x=cp.direction, z=cp.normal)
+            xv = np.asarray(cp.direction, dtype=float)
+            n = float(np.linalg.norm(xv))
+            xv = xv / n if n else xv
+            zv = np.asarray(cp.normal, dtype=float)
+            n = float(np.linalg.norm(zv))
+            zv = zv / n if n else zv
+            yv = np.cross(zv, xv)
+            n = float(np.linalg.norm(yv))
+            yv = yv / n if n else yv
+            rotm = np.eye(4)
+            rotm[:3, 0], rotm[:3, 1], rotm[:3, 2] = xv, yv, zv
         mats.append(base @ rotm)
     return mats
 

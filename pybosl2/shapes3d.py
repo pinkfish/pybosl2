@@ -477,6 +477,75 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
             out = out | self.shape.multmatrix(np.asarray(m).tolist())
         return self._wrap_moved(out)
 
+    def distribute_on_path(
+        self,
+        path: Any,
+        num_copies: int | None = None,
+        spacing: float | None = None,
+        sp: float | None = None,
+        dist: Any = None,
+        rotate_children: bool = True,
+    ) -> "Bosl2Solid":
+        """Distribute copies of this solid along *path*, oriented to the 3-D path direction.
+
+        Args:
+            path: A :class:`~pybosl2.path3d.Path3D`.
+            num_copies: Number of copies.
+            spacing: Distance between copies.
+            sp: Starting position along the path.
+            dist: Explicit list of distances from path start.
+            rotate_children: If True, rotate each copy to align with the path.
+
+        Returns:
+            A :class:`Bosl2Solid` union of all positioned copies.
+        """
+        import math
+
+        import numpy as np
+
+        length = path.perimeter()
+        is_closed = getattr(path, "closed", False)
+        if dist is not None:
+            distances = sorted(float(x) for x in dist)
+        elif sp is not None:
+            if num_copies is not None and spacing is not None:
+                distances = [sp + i * spacing for i in range(num_copies)]
+            elif num_copies is not None:
+                distances = list(np.linspace(sp, length, num_copies))
+            else:
+                distances = list(np.arange(sp, length, spacing))
+        elif num_copies is not None and spacing is None:
+            distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
+        else:
+            assert spacing is not None, "distribute_on_path(): provide num_copies, spacing, or dist."
+            cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
+            ptlist = [i * spacing for i in range(cnt)]
+            center = sum(ptlist) / len(ptlist)
+            if is_closed:
+                distances = sorted((e - center) % length for e in ptlist)
+            else:
+                distances = [e + length / 2 - center for e in ptlist]
+        distances = [min(max(dst, 0.0), length) for dst in distances]
+        cutlist = path.cut_points(distances, closed=is_closed, direction=True)
+        results: list[Bosl2Solid] = []
+        for cp in cutlist:
+            copied: Bosl2Solid = self.translate([float(v) for v in cp.point])
+            if rotate_children:
+                d = np.asarray(cp.direction, dtype=float)
+                n = np.asarray(cp.normal, dtype=float)
+                xv = d / (float(np.linalg.norm(d)) or 1)
+                zv = n / (float(np.linalg.norm(n)) or 1)
+                yv = np.cross(zv, xv)
+                yv = yv / (float(np.linalg.norm(yv)) or 1)
+                rotm = np.eye(4)
+                rotm[:3, 0], rotm[:3, 1], rotm[:3, 2] = xv, yv, zv
+                copied = copied.multmatrix(rotm.tolist())
+            results.append(copied)
+        out = results[0]
+        for r in results[1:]:
+            out = out | r
+        return out
+
     # ---- bounding-box anchoring (works on ANY object, via PythonSCAD's native bbox) ----
     #
     # PythonSCAD exposes obj.position (min corner) / obj.size (extent) / obj.bbox (a solid),
