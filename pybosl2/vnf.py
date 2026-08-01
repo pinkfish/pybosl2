@@ -376,7 +376,11 @@ class VNF:
                 def field(p):
                     x, y, z = p[:, 0], p[:, 1], p[:, 2]
                     return 20 / np.sqrt(x*x + y*y + z*z) + 3 * np.sin(x / 3)
-                VNF.from_field(field, 1, bounding_box=60, voxel_size=2).polyhedron().show()
+                VNF.from_field(
+                    field, 1,
+                    Bounds3D(-30, -30, -30, 30, 30, 30, 60, 60, 60),
+                    voxel_size=2,
+                ).polyhedron().show()
         """
         from pybosl2.isosurface import isosurface as _mesh_field
 
@@ -410,7 +414,11 @@ class VNF:
             .. pythonscad-example::
 
                 spec = [([-14, 0, 0], Metaball.sphere(12)), ([14, 0, 0], Metaball.sphere(12))]
-                VNF.from_metaballs(spec, bounding_box=[[-40, -20, -20], [40, 20, 20]], voxel_size=2).polyhedron().show()
+                VNF.from_metaballs(
+                    spec,
+                    Bounds3D(-40, -20, -20, 40, 20, 20, 80, 40, 40),
+                    voxel_size=2,
+                ).polyhedron().show()
         """
         from pybosl2.isosurface import metaballs as _mesh_metaballs
 

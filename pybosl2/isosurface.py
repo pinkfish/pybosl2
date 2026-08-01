@@ -49,39 +49,6 @@ INF = math.inf
 # -- private helpers (numpy for the marching-cubes hot path) --------------------
 
 
-def _to_bounds3d(bb: Bounds3D | float | list[list[float]] | np.ndarray) -> Bounds3D:
-    """Normalise a bounding-box input to a :class:`Bounds3D`."""
-    if isinstance(bb, Bounds3D):
-        return bb
-    if isinstance(bb, (int, float)):
-        hb = 0.5 * bb
-        return Bounds3D(
-            min_x=-hb,
-            min_y=-hb,
-            min_z=-hb,
-            max_x=hb,
-            max_y=hb,
-            max_z=hb,
-            width=bb,
-            length=bb,
-            height=bb,
-        )
-    arr = np.asarray(bb, dtype=float)
-    x0, y0, z0 = float(arr[0][0]), float(arr[0][1]), float(arr[0][2])
-    x1, y1, z1 = float(arr[1][0]), float(arr[1][1]), float(arr[1][2])
-    return Bounds3D(
-        min_x=x0,
-        min_y=y0,
-        min_z=z0,
-        max_x=x1,
-        max_y=y1,
-        max_z=z1,
-        width=x1 - x0,
-        length=y1 - y0,
-        height=z1 - z0,
-    )
-
-
 def _resolve_grid(
     bb: Bounds3D,
     voxel_size: float | None,
@@ -153,7 +120,7 @@ def _sample_field(
 def isosurface(
     f: np.ndarray | Callable[[np.ndarray], np.ndarray],
     isovalue: float | tuple[float, float],
-    bounding_box: Bounds3D | float | None = None,
+    bounding_box: Bounds3D | None = None,
     voxel_size: float | None = None,
     voxel_count: int | None = None,
     closed: bool = True,
@@ -218,12 +185,12 @@ def isosurface(
                 height=2 * half[2],
             )
         else:
-            bb = _to_bounds3d(bounding_box)
+            bb = bounding_box
             vs = (bb.max_x - bb.min_x) / (field.shape[0] - 1)
         xs, ys, zs = _grid_axes(bb, vs)
     else:
         assert bounding_box is not None, "isosurface(): a callable field needs a bounding_box."
-        bb, vs = _resolve_grid(_to_bounds3d(bounding_box), voxel_size, voxel_count, exact_bounds)
+        bb, vs = _resolve_grid(bounding_box, voxel_size, voxel_count, exact_bounds)
         xs, ys, zs = _grid_axes(bb, vs)
         field = _sample_field(f, xs, ys, zs)
 
@@ -665,7 +632,7 @@ def _parse_spec(spec: list) -> list[tuple[np.ndarray, Metaball]]:
 
 def metaballs(
     spec: list,
-    bounding_box: Bounds3D | float,
+    bounding_box: Bounds3D,
     voxel_size: float | None = None,
     voxel_count: int | None = None,
     isovalue: float = 1,
@@ -697,7 +664,7 @@ def metaballs(
     """
     pairs = _parse_spec(spec)
     assert pairs, "metaballs(): the spec is empty."
-    bb, vs = _resolve_grid(_to_bounds3d(bounding_box), voxel_size, voxel_count, exact_bounds)
+    bb, vs = _resolve_grid(bounding_box, voxel_size, voxel_count, exact_bounds)
     invs: list[np.ndarray] = [np.linalg.inv(t) for t, _ in pairs]
 
     def field(pts: np.ndarray) -> np.ndarray:
