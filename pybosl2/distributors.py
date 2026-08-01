@@ -584,6 +584,95 @@ class Distributable(ABC):
     def _distribute(self, mats: list[np.ndarray]) -> list[Any]:  # pragma: no cover
         raise NotImplementedError("Distributable subclasses must implement _distribute().")
 
+    # -- _mats generators (matching the former module-level signatures) ---------
+
+    @staticmethod
+    def line_copy_mats(spacing=None, num_copies=None, length=None, p1=None, p2=None):
+        return line_copies(spacing, num_copies, length, p1, p2)
+
+    @staticmethod
+    def xcopy_mats(spacing=None, num_copies=None, length=None, start_pos=None):
+        return _axis_copies(RIGHT, spacing, num_copies, length, start_pos)
+
+    @staticmethod
+    def ycopy_mats(spacing=None, num_copies=None, length=None, start_pos=None):
+        return _axis_copies(BACK, spacing, num_copies, length, start_pos)
+
+    @staticmethod
+    def zcopy_mats(spacing=None, num_copies=None, length=None, start_pos=None):
+        return _axis_copies(UP, spacing, num_copies, length, start_pos)
+
+    @staticmethod
+    def grid_copy_mats(spacing=None, num_copies=None, size=None, stagger=False, inside=None, nonzero=None, axes="xy"):
+        return grid_copies(spacing, num_copies, size, stagger, inside, nonzero, axes)
+
+    @staticmethod
+    def rot_copy_mats(
+        rots=None, v=None, center=(0, 0, 0), num_copies=None, sa=0, offset=0, delta=(0, 0, 0), subrot=True
+    ):
+        return rot_copies(rots, v, center, num_copies, sa, offset, delta, subrot)
+
+    @staticmethod
+    def xrot_copy_mats(rots=None, center=(0, 0, 0), num_copies=None, sa=0, radius=None, diameter=None, subrot=True):
+        return xrot_copies(rots, center, num_copies, sa, radius, diameter, subrot)
+
+    @staticmethod
+    def yrot_copy_mats(rots=None, center=(0, 0, 0), num_copies=None, sa=0, radius=None, diameter=None, subrot=True):
+        return yrot_copies(rots, center, num_copies, sa, radius, diameter, subrot)
+
+    @staticmethod
+    def zrot_copy_mats(rots=None, center=(0, 0, 0), num_copies=None, sa=0, radius=None, diameter=None, subrot=True):
+        return zrot_copies(rots, center, num_copies, sa, radius, diameter, subrot)
+
+    @staticmethod
+    def arc_copy_mats(
+        num_copies=6,
+        radius=None,
+        radius_x=None,
+        radius_y=None,
+        diameter=None,
+        diameter_x=None,
+        diameter_y=None,
+        sa=0,
+        ea=360,
+        rot=True,
+    ):
+        return arc_copies(num_copies, radius, radius_x, radius_y, diameter, diameter_x, diameter_y, sa, ea, rot)
+
+    @staticmethod
+    def sphere_copy_mats(num_copies=100, radius=None, diameter=None, cone_ang=90, scale=(1, 1, 1), perp=True):
+        return sphere_copies(num_copies, radius, diameter, cone_ang, scale, perp)
+
+    @staticmethod
+    def path_copy_mats(
+        path,
+        num_copies=None,
+        spacing=None,
+        start_pos=None,
+        dist=None,
+        rotate_children=True,
+        closed=None,
+    ):
+        return path_copies(path, num_copies, spacing, start_pos, dist, rotate_children, closed)
+
+    @staticmethod
+    def mirror_copy_mats(v=(0, 0, 1), offset=0, center=None):
+        return mirror_copy(v, offset, center)
+
+    @staticmethod
+    def xflip_copy_mats(offset=0, x=0):
+        return xflip_copy(offset, x)
+
+    @staticmethod
+    def yflip_copy_mats(offset=0, y=0):
+        return yflip_copy(offset, y)
+
+    @staticmethod
+    def zflip_copy_mats(offset=0, z=0):
+        return zflip_copy(offset, z)
+
+    # -- instance methods ------------------------------------------------------
+
     def move_and_copy(self, vectors: list[Vector] | None = None) -> list[Any]:
         """Copy to each offset in *vectors* (BOSL2 move_copies).
 

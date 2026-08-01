@@ -29,7 +29,7 @@ from typing import TYPE_CHECKING, Any
 
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, CENTER
-from pybosl2.distributors import mirror_copy, xcopies, xflip_copy, ycopies, zcopies
+from pybosl2.distributors import Distributable
 from pybosl2.masking import chamfer_edge_mask
 from pybosl2.shapes3d import Bosl2Solid, cuboid, prismoid, regular_prism
 
@@ -62,7 +62,7 @@ def _cmask(length: float, chamfer: float, orient: str | None = None) -> Bosl2Sol
 
 
 def _yflip_copy(offset: float) -> Any:
-    return mirror_copy(v=[0, 1, 0], offset=offset)
+    return Distributable.mirror_copy_mats(v=[0, 1, 0], offset=offset)
 
 
 def _clip_placement(vec: Sequence[float], extents: Sequence[float]) -> tuple[int, tuple[float, float, float]]:
@@ -285,16 +285,19 @@ class CubeTruss:
             )  # central cube
 
         pieces = []
-        for mx in xcopies(step, num_copies=ex):
+        for mx in Distributable.xcopy_mats(step, num_copies=ex):
             base = cuboid([size, length, height], fn=fn, fa=fa, fs=fs).half_of(v=v, s=smax)
             cells = [
                 hollow_cell().multmatrix((my @ mz).tolist())
-                for my in ycopies(step, num_copies=ey)
-                for mz in zcopies(step, num_copies=ez)
+                for my in Distributable.ycopy_mats(step, num_copies=ey)
+                for mz in Distributable.zcopy_mats(step, num_copies=ez)
             ]
             holes = _union(cells).half_of(v=v, center=strut, s=smax)
             ytun = _union(
-                [octprism(ey * size + 1, [90, 0, 0]).multmatrix(mz.tolist()) for mz in zcopies(step, num_copies=ez)]
+                [
+                    octprism(ey * size + 1, [90, 0, 0]).multmatrix(mz.tolist())
+                    for mz in Distributable.zcopy_mats(step, num_copies=ez)
+                ]
             )
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
         return Bosl2Solid(_union(pieces).shape, size=[w, length, height])
@@ -403,14 +406,17 @@ class CubeTruss:
             clip = clip - _cmask(size + 1, clipsize + clipthick / 3).scale([1, 1.5, 1]).left(clipsize).forward(
                 strut * 1.6
             )
-            for mz in zcopies(clipheight - strut, num_copies=2):
+            for mz in Distributable.zcopy_mats(clipheight - strut, num_copies=2):
                 clip = clip - cuboid([clipthick * 3, cliplen * 2, strut], fn=fn, fa=fa, fs=fs).multmatrix(mz.tolist())
-            for mz in zcopies(clipheight - 2 * strut, num_copies=2):
+            for mz in Distributable.zcopy_mats(clipheight - 2 * strut, num_copies=2):
                 clip = clip - _cmask(cliplen * 2, clipthick, orient="BACK").right(clipthick).multmatrix(mz.tolist())
             return clip
 
         pair = _union(
-            [one_clip().multmatrix(m.tolist()) for m in xflip_copy(offset=(extents * (size - strut) + strut) / 2)]
+            [
+                one_clip().multmatrix(m.tolist())
+                for m in Distributable.xflip_copy_mats(offset=(extents * (size - strut) + strut) / 2)
+            ]
         )
         s = [
             extents * (size - strut) + strut + 2 * clipthick,
@@ -448,7 +454,7 @@ class CubeTruss:
             fs=fs,
         ).up(clipthick / 2)
         parts.append(base)
-        for mx in xcopies(span + clipthick, num_copies=2):
+        for mx in Distributable.xcopy_mats(span + clipthick, num_copies=2):
             parts.append(
                 prismoid(
                     [clipthick, size - 4 * strut],
@@ -462,7 +468,7 @@ class CubeTruss:
                 .up(clipthick - 0.01)
                 .multmatrix(mx.tolist())
             )
-        for mx in xcopies(span, num_copies=2):
+        for mx in Distributable.xcopy_mats(span, num_copies=2):
             parts.append(
                 prismoid(
                     [clipsize * 2, size / 3.5],
@@ -491,7 +497,7 @@ class CubeTruss:
                 .rotate([0, 0, 180 / 8])
                 .up(clipthick - 0.01)
             )
-            for my in ycopies(size - 2 * strut - 4 * slop, num_copies=2):
+            for my in Distributable.ycopy_mats(size - 2 * strut - 4 * slop, num_copies=2):
                 plug = plug - _cmask(size - strut, strut * 2 / 3, orient="RIGHT").up(clipthick + strut).multmatrix(
                     my.tolist()
                 )
@@ -539,7 +545,10 @@ class CubeTruss:
             .rotate([0, -90, 0])
         )
         clips = _union(
-            [prism.multmatrix(m.tolist()) for m in xflip_copy(offset=(1 if dual else 0.5) * strut + slop / 2)]
+            [
+                prism.multmatrix(m.tolist())
+                for m in Distributable.xflip_copy_mats(offset=(1 if dual else 0.5) * strut + slop / 2)
+            ]
         ).back((strut + slop) / 2)
         return Bosl2Solid((body | clips).shape, size=s)
 
@@ -562,13 +571,13 @@ class CubeTruss:
         clipsize = 0.5
         span = w * (size - strut) + strut
         parts = [cuboid([span + 2 * clipthick, size, clipthick], fn=fn, fa=fa, fs=fs).up(clipthick / 2)]
-        for mx in xcopies(span + clipthick, num_copies=2):
+        for mx in Distributable.xcopy_mats(span + clipthick, num_copies=2):
             parts.append(
                 cuboid([clipthick, size, clipthick + strut * 3 / 4], fn=fn, fa=fa, fs=fs)
                 .up((clipthick + strut * 3 / 4) / 2)
                 .multmatrix(mx.tolist())
             )
-        for my in ycopies(size, num_copies=2):
+        for my in Distributable.ycopy_mats(size, num_copies=2):
             parts.append(
                 CubeTruss.cubetruss_foot(
                     w=w, size=size, strut=strut, clipthick=clipthick, slop=slop, fn=fn, fa=fa, fs=fs
@@ -577,7 +586,7 @@ class CubeTruss:
                 .multmatrix(my.tolist())
             )
         if vert:
-            for mx in xcopies(span + clipthick, num_copies=2):
+            for mx in Distributable.xcopy_mats(span + clipthick, num_copies=2):
                 parts.append(
                     prismoid(
                         [clipthick, size],
@@ -604,7 +613,7 @@ class CubeTruss:
                 .back_half()
                 .rotate([0, -90, 0])
             )
-            for mx in xflip_copy(offset=(span + 0.02) / 2):
+            for mx in Distributable.xflip_copy_mats(offset=(span + 0.02) / 2):
                 for my in _yflip_copy(offset=strut + slop / 2):
                     parts.append(wallclip.multmatrix((mx @ my).tolist()).up(size / 2))
         result = _union(parts).down(clipthick)
