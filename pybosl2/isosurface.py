@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING, Any, Callable
 import numpy as np
 
 from pybosl2._mctable import CORNER_OFFSETS, EDGE_CORNERS, TRI_TABLE
+from pybosl2.bounds import Bounds3D
 
 if TYPE_CHECKING:
     from pybosl2.vnf import VNF
@@ -56,7 +57,15 @@ INF = math.inf
 # ---------------------------------------------------------------------------
 
 
-def _to_bbox(bounding_box: Any) -> np.ndarray:
+def _to_bbox(bounding_box: float | np.ndarray | Bounds3D) -> np.ndarray:
+    if isinstance(bounding_box, Bounds3D):
+        return np.array(
+            [
+                [bounding_box.min_x, bounding_box.min_y, bounding_box.min_z],
+                [bounding_box.max_x, bounding_box.max_y, bounding_box.max_z],
+            ],
+            dtype=float,
+        )
     if isinstance(bounding_box, (int, float)):
         hb = 0.5 * bounding_box
         return np.array([[-hb, -hb, -hb], [hb, hb, hb]], dtype=float)
@@ -636,14 +645,6 @@ def _to_matrix(t: Any) -> np.ndarray:
 
 
 def _parse_spec(spec: list[Any]) -> list[tuple[np.ndarray, Metaball]]:
-    def _mat(t):
-        a = np.asarray(t, dtype=float)
-        if a.shape == (4, 4):
-            return a
-        m = np.eye(4)
-        m[:3, 3] = a[:3]
-        return m
-
     """Normalise a metaball spec into a list of ``(4x4 transform, Metaball)`` pairs.
 
     Accepts a list of ``(transform, metaball)`` tuples or the BOSL2 flat form
@@ -657,9 +658,9 @@ def _parse_spec(spec: list[Any]) -> list[tuple[np.ndarray, Metaball]]:
     if items and isinstance(items[0], Metaball):
         raise AssertionError("metaballs(): spec must be (transform, metaball) pairs.")
     if items and isinstance(items[0], (tuple, list)) and len(items[0]) == 2 and isinstance(items[0][1], Metaball):
-        return [(_mat(t), mb) for t, mb in items]
+        return [(_to_matrix(t), mb) for t, mb in items]
     assert len(items) % 2 == 0, "metaballs(): flat spec must alternate transform and metaball."
-    return [(_mat(items[i]), items[i + 1]) for i in range(0, len(items), 2)]
+    return [(_to_matrix(items[i]), items[i + 1]) for i in range(0, len(items), 2)]
 
 
 def metaballs(
@@ -719,20 +720,9 @@ def metaballs(
     )
 
 
-# -- IsoSurface -----------------------------------------------------------------
-
-
-class IsoSurface:
-    """Marching-cubes mesher for scalar fields and metaball blobs."""
-
-    mesh = staticmethod(isosurface)
-    metaballs = staticmethod(metaballs)
-
-
 # -- backwards-compatible module-level aliases ---------------------------------
 
 __all__ = [
-    "IsoSurface",
     "Metaball",
     "isosurface",
     "metaballs",

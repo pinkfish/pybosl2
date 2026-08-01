@@ -378,9 +378,9 @@ class VNF:
                     return 20 / np.sqrt(x*x + y*y + z*z) + 3 * np.sin(x / 3)
                 VNF.from_field(field, 1, bounding_box=60, voxel_size=2).polyhedron().show()
         """
-        from pybosl2.isosurface import IsoSurface  # back compat
+        from pybosl2.isosurface import isosurface as _mesh_field
 
-        return IsoSurface.mesh(f, isovalue, bounding_box, voxel_size, voxel_count, closed, reverse, exact_bounds)
+        return _mesh_field(f, isovalue, bounding_box, voxel_size, voxel_count, closed, reverse, exact_bounds)
 
     @staticmethod
     def from_metaballs(
@@ -412,9 +412,9 @@ class VNF:
                 spec = [([-14, 0, 0], Metaball.sphere(12)), ([14, 0, 0], Metaball.sphere(12))]
                 VNF.from_metaballs(spec, bounding_box=[[-40, -20, -20], [40, 20, 20]], voxel_size=2).polyhedron().show()
         """
-        from pybosl2.isosurface import IsoSurface
+        from pybosl2.isosurface import metaballs as _mesh_metaballs
 
-        return IsoSurface.metaballs(spec, bounding_box, voxel_size, voxel_count, isovalue, closed, exact_bounds)
+        return _mesh_metaballs(spec, bounding_box, voxel_size, voxel_count, isovalue, closed, exact_bounds)
 
 
 def vnf_polyhedron(vnf: VNF):
