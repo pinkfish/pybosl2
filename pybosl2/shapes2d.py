@@ -822,7 +822,7 @@ class Bosl2Shape2D(Bosl2Shape):
 
     # ---- distributors (pybosl2/distributors.py) ----
 
-    def _distribute(self, mats: Sequence[Sequence[Sequence[float]]]) -> "Bosl2Shape2D":
+    def _distribute(self, mats: list[np.ndarray]) -> "Bosl2Shape2D":
         """Union a multmatrix copy of this shape for each transform matrix (BOSL2's module form).
 
         The copiers that lift out of the XY plane (``zcopies``, ``xrot_copies``, ...) have no

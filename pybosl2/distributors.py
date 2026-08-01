@@ -582,7 +582,7 @@ class Distributable(ABC):
     """
 
     @abstractmethod
-    def _distribute(self, mats):  # pragma: no cover - overridden by every host class
+    def _distribute(self, mats: list[np.ndarray]) -> Any:  # pragma: no cover
         raise NotImplementedError("Distributable subclasses must implement _distribute().")
 
     def move_and_copy(self, vectors: list[Vector] | None = None):
