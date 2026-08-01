@@ -88,8 +88,9 @@ class VNF:
     """A VNF surface: ``vertices`` (3-D points) plus ``faces`` (index polygons into vertices).
 
     Renders to PythonSCAD's native ``polyhedron`` via :meth:`polyhedron`. Build one from a
-    rectangular grid of sample points with :meth:`vertex_array`, and merge several with
-    :meth:`join`.
+    rectangular grid of sample points with :meth:`vertex_array`, merge several with
+    :meth:`join`, or mesh a scalar field with :meth:`from_field` and combine metaball
+    primitives with :meth:`from_metaballs`.
 
     Args:
         vertices: list of [x, y, z] points
@@ -339,6 +340,81 @@ class VNF:
     def geometry(self):
         """Alias of :meth:`polyhedron`, matching Path2D/Region's geometry() surface."""
         return self.polyhedron()
+
+    @staticmethod
+    def from_field(
+        f,
+        isovalue,
+        bounding_box=None,
+        voxel_size=None,
+        voxel_count=None,
+        closed=True,
+        reverse=False,
+        exact_bounds=False,
+    ) -> "VNF":
+        """Mesh a scalar field into a :class:`VNF` via marching cubes.
+
+        The solid is the region where ``f >= isovalue`` (a single number) or,
+        for a range ``[lo, hi]``, where ``lo <= f <= hi``.
+
+        Args:
+            f: ``(N,3) → (N,)`` callable, ``point → value`` callable, or 3-D numpy array.
+            isovalue: Threshold or ``[min, max]`` range.
+            bounding_box: Cube edge (scalar), ``[[min],[max]]`` box, or ``None``.
+            voxel_size: Isotropic scalar or ``[dx, dy, dz]``.
+            voxel_count: Approximate total voxel count.
+            closed: Close mesh at bounding-box faces.
+            reverse: Reverse the inside/outside sense.
+            exact_bounds: Use *bounding_box* exactly.
+
+        Returns:
+            A :class:`VNF`.
+
+        Examples:
+            .. pythonscad-example::
+
+                def field(p):
+                    x, y, z = p[:, 0], p[:, 1], p[:, 2]
+                    return 20 / np.sqrt(x*x + y*y + z*z) + 3 * np.sin(x / 3)
+                VNF.from_field(field, 1, bounding_box=60, voxel_size=2).polyhedron().show()
+        """
+        from pybosl2.isosurface import IsoSurface  # back compat
+
+        return IsoSurface.mesh(f, isovalue, bounding_box, voxel_size, voxel_count, closed, reverse, exact_bounds)
+
+    @staticmethod
+    def from_metaballs(
+        spec,
+        bounding_box,
+        voxel_size=None,
+        voxel_count=None,
+        isovalue=1,
+        closed=True,
+        exact_bounds=False,
+    ) -> "VNF":
+        """Mesh transformed metaball primitives into a blobby :class:`VNF`.
+
+        Args:
+            spec: ``(transform, Metaball)`` pairs (or flat ``[t, mb, ...]``).
+            bounding_box: Cube edge or ``[[min],[max]]`` box.
+            voxel_size: Scalar or ``[dx, dy, dz]``.
+            voxel_count: Approximate total voxel count.
+            isovalue: Field threshold.
+            closed: Close mesh at bounding-box faces.
+            exact_bounds: Use *bounding_box* exactly.
+
+        Returns:
+            A :class:`VNF`.
+
+        Examples:
+            .. pythonscad-example::
+
+                spec = [([-14, 0, 0], Metaball.sphere(12)), ([14, 0, 0], Metaball.sphere(12))]
+                VNF.from_metaballs(spec, bounding_box=[[-40, -20, -20], [40, 20, 20]], voxel_size=2).polyhedron().show()
+        """
+        from pybosl2.isosurface import IsoSurface
+
+        return IsoSurface.metaballs(spec, bounding_box, voxel_size, voxel_count, isovalue, closed, exact_bounds)
 
 
 def vnf_polyhedron(vnf: VNF):

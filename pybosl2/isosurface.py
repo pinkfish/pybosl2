@@ -338,10 +338,6 @@ class Metaball:
         return float(self.field(np.atleast_2d(np.asarray(pt, dtype=float)))[0])
 
 
-def _radius(radius: float | None = None, diameter: float | None = None) -> float | None:
-    return radius if radius is not None else (diameter / 2 if diameter is not None else None)
-
-
 def mb_sphere(
     radius: float | None = None,
     cutoff: float = INF,
@@ -361,7 +357,7 @@ def mb_sphere(
     Returns:
         A :class:`Metaball` primitive.
     """
-    rr = _radius(radius, diameter)
+    rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     assert rr and rr > 0, "mb_sphere(): need a positive radius or diameter."
     neg = -1 if negative else 1
 
@@ -434,8 +430,8 @@ def mb_torus(
         AssertionError: If either radius is missing or non-positive.
     """
     rmaj, rmin = (
-        _radius(major_radius, major_diameter),
-        _radius(minor_radius, minor_diameter),
+        (major_radius if major_radius is not None else (major_diameter / 2 if major_diameter is not None else None)),
+        (minor_radius if minor_radius is not None else (minor_diameter / 2 if minor_diameter is not None else None)),
     )
     assert rmaj and rmin and rmaj > 0 and rmin > 0, "mb_torus(): need positive major_radius and minor_radius."
     neg = -1 if negative else 1
@@ -472,7 +468,7 @@ def mb_capsule(
     Raises:
         AssertionError: If *height* or *radius* is missing, non-positive, or the shaft is too short.
     """
-    rr = _radius(radius, diameter)
+    rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     assert height and rr and height > 0 and rr > 0, "mb_capsule(): need positive height and radius."
     hl = (height - 2 * rr) / 2
     assert hl > 0, "mb_capsule(): total length must exceed the two rounded ends."
@@ -513,7 +509,7 @@ def mb_disk(
     Raises:
         AssertionError: If *height* or *radius* is missing, non-positive, or too thin.
     """
-    rr = _radius(radius, diameter)
+    rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     assert height and rr and height > 0 and rr > 0, "mb_disk(): need positive height and radius."
     hl = height / 2
     ri = rr - hl
@@ -603,7 +599,7 @@ def mb_connector(
     """
     from pybosl2.transforms import axis_angle_matrix, rot_from_to
 
-    rr = _radius(radius, diameter)
+    rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     a, b = np.asarray(p1, dtype=float), np.asarray(p2, dtype=float)
     assert rr and rr > 0 and not np.array_equal(a, b), "mb_connector(): need distinct points and positive radius."
     neg = -1 if negative else 1
@@ -640,6 +636,14 @@ def _to_matrix(t: Any) -> np.ndarray:
 
 
 def _parse_spec(spec: list[Any]) -> list[tuple[np.ndarray, Metaball]]:
+    def _mat(t):
+        a = np.asarray(t, dtype=float)
+        if a.shape == (4, 4):
+            return a
+        m = np.eye(4)
+        m[:3, 3] = a[:3]
+        return m
+
     """Normalise a metaball spec into a list of ``(4x4 transform, Metaball)`` pairs.
 
     Accepts a list of ``(transform, metaball)`` tuples or the BOSL2 flat form
@@ -653,9 +657,9 @@ def _parse_spec(spec: list[Any]) -> list[tuple[np.ndarray, Metaball]]:
     if items and isinstance(items[0], Metaball):
         raise AssertionError("metaballs(): spec must be (transform, metaball) pairs.")
     if items and isinstance(items[0], (tuple, list)) and len(items[0]) == 2 and isinstance(items[0][1], Metaball):
-        return [(_to_matrix(t), mb) for t, mb in items]
+        return [(_mat(t), mb) for t, mb in items]
     assert len(items) % 2 == 0, "metaballs(): flat spec must alternate transform and metaball."
-    return [(_to_matrix(items[i]), items[i + 1]) for i in range(0, len(items), 2)]
+    return [(_mat(items[i]), items[i + 1]) for i in range(0, len(items), 2)]
 
 
 def metaballs(
@@ -713,3 +717,30 @@ def metaballs(
         closed=closed,
         exact_bounds=True,
     )
+
+
+# -- IsoSurface -----------------------------------------------------------------
+
+
+class IsoSurface:
+    """Marching-cubes mesher for scalar fields and metaball blobs."""
+
+    mesh = staticmethod(isosurface)
+    metaballs = staticmethod(metaballs)
+
+
+# -- backwards-compatible module-level aliases ---------------------------------
+
+__all__ = [
+    "IsoSurface",
+    "Metaball",
+    "isosurface",
+    "metaballs",
+    "mb_sphere",
+    "mb_cuboid",
+    "mb_torus",
+    "mb_capsule",
+    "mb_disk",
+    "mb_octahedron",
+    "mb_connector",
+]
