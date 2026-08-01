@@ -1698,7 +1698,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit, mindash=mindash
         )
 
-    def _distribute(self, mats: list[np.ndarray]) -> list[Path2D]:
+    def _distribute(self, mats: list[np.ndarray]) -> list[Path2D]:  # type: ignore[override]
         # Apply each copier matrix, returning the list of 2-D copies (BOSL2's function form).
         # Raises if a copier lifts the 2-D path out of the XY plane; use Path3D for those.
         if not len(self):
@@ -2491,6 +2491,65 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             p0, p1, p2 = path[(i - 1) % sides], path[i], path[(i + 1) % sides]
             out.extend(Path2D._circlecorner([p0, p1, p2], dk[i][0], dk[i][1], fn, fa, fs))
         return Path2D._deduplicate(out, closed=closed)
+
+    def to_bezcornerpath(
+        self,
+        parm: float | list[float] | None = None,
+        closed: bool | None = None,
+        fn: int = 0,
+        fs: float = 2.0,
+    ) -> "Path2D":
+        """Replace straight corners with continuous-curvature beziers (BOSL2 path_to_bezcornerpath).
+
+        Args:
+            parm: Distance from corner to control point (scalar for all corners,
+                ``[d, k]`` for asymmetrical, or per-corner list).  ``None`` or ``False``
+                leaves a corner sharp.
+            closed: Override the path's closed flag.
+            fn: Number of facets per bezier corner (0 = auto from *fs*).
+            fs: Maximum facet size.
+
+        Returns:
+            A new :class:`Path2D` with bezier-rounded corners.
+        """
+        from pybosl2.rounding import _bezcorner
+
+        is_closed = closed if closed is not None else self.closed
+        pts = self._points.tolist()
+        sides = len(pts)
+        if sides < 3:
+            return self.__class__(pts, closed=is_closed)
+
+        dk: list[list[float]] = []
+        if parm is None or parm is False:
+            return self.__class__(pts, closed=is_closed)
+        if isinstance(parm, (int, float)):
+            dk = [[float(parm), 1.0]] * sides
+        elif isinstance(parm[0], (int, float)):
+            d, k = float(parm[0]), float(parm[1]) if len(parm) > 1 else 1.0
+            dk = [[d, k]] * sides
+        else:
+            dk = [[float(p[0]), float(p[1]) if len(p) > 1 else 1.0] for p in parm]
+
+        out: list[list[float]] = []
+        rng = range(sides) if is_closed else range(1, sides - 1)
+        last_end = 0
+        for i in range(sides):
+            if i in rng and dk[i][0] > 0:
+                p0 = pts[(i - 1) % sides]
+                p1 = pts[i]
+                p2 = pts[(i + 1) % sides]
+                if last_end < i:
+                    out.extend(pts[last_end : i + 1])
+                else:
+                    out.append(pts[i])
+                bez_pts = _bezcorner([p0, p1, p2], dk[i], fn=fn, fs=fs)
+                out.extend(bez_pts[1:])
+                last_end = i + 1
+            elif i == sides - 1 and last_end < sides:
+                out.extend(pts[last_end:])
+
+        return self.__class__(out, closed=is_closed)
 
 
 # ---------------------------------------------------------------------------

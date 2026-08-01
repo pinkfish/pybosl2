@@ -13,7 +13,7 @@ mesh geometry (that is covered in test_stl_render.py)."""
 import numpy as np
 import pytest
 
-from pybosl2 import distributors as d
+from pybosl2.distributors import DistributableMatrix, xdistribute, ydistribute, zdistribute
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.points import Vector
@@ -31,27 +31,27 @@ def test_move_and_copy_matrices():
 
 
 def test_xcopies_centered_by_default():
-    mats = d.xcopies(20, num_copies=3)
+    mats = DistributableMatrix.xcopies(20, num_copies=3)
     xs = sorted(m[0, 3] for m in mats)
     np.testing.assert_allclose(xs, [-20, 0, 20], atol=1e-9)  # centered on origin
 
 
 def test_xcopies_explicit_positions():
-    mats = d.xcopies([1, 2, 3, 5, 7])
+    mats = DistributableMatrix.xcopies([1, 2, 3, 5, 7])
     xs = [m[0, 3] for m in mats]
     np.testing.assert_allclose(xs, [1, 2, 3, 5, 7], atol=1e-9)
 
 
 def test_grid_copies_count_and_stagger():
-    assert len(d.grid_copies(num_copies=[3, 4], spacing=10)) == 12
+    assert len(DistributableMatrix.grid_copies(num_copies=[3, 4], spacing=10)) == 12
     # a staggered grid drops/offsets alternate columns per row
-    assert len(d.grid_copies(spacing=8, num_copies=[4, 3], stagger=True)) == 6
+    assert len(DistributableMatrix.grid_copies(spacing=8, num_copies=[4, 3], stagger=True)) == 6
 
 
 def test_grid_copies_inside_polygon_filters():
     # only centers inside the small square survive
     poly = [[-6, -6], [6, -6], [6, 6], [-6, 6]]
-    mats = d.grid_copies(spacing=5, num_copies=[9, 9], inside=poly)
+    mats = DistributableMatrix.grid_copies(spacing=5, num_copies=[9, 9], inside=poly)
     assert 0 < len(mats) < 81
     for m in mats:
         assert -6 <= m[0, 3] <= 6
@@ -59,13 +59,13 @@ def test_grid_copies_inside_polygon_filters():
 
 
 def test_arc_copies_positions_on_circle():
-    mats = d.arc_copies(num_copies=4, radius=10, sa=0, ea=360)
+    mats = DistributableMatrix.arc_copies(num_copies=4, radius=10, sa=0, ea=360)
     # first copy sits on +X at radius 10
     np.testing.assert_allclose(mats[0][:3, 3], [10, 0, 0], atol=1e-9)
 
 
 def test_mirror_copy_is_original_plus_reflection():
-    mats = d.mirror_copy([1, 0, 0])
+    mats = DistributableMatrix.mirror_copy([1, 0, 0])
     assert len(mats) == 2
     np.testing.assert_allclose(mats[0], np.eye(4), atol=1e-9)  # the original
     np.testing.assert_allclose(mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9)  # X reflection
@@ -117,7 +117,7 @@ def test_path_mirror_copy_2d():
 SEG3 = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 5]], closed=False)
 
 
-def test_path3d_zcopies():
+def test_path3d__zcopies():
     copies = SEG3.zcopies(15, num_copies=3)
     assert len(copies) == 3
     assert all(isinstance(c, Path3D) for c in copies)
@@ -141,20 +141,30 @@ def test_path3d_sphere_copies():
 
 
 def test_solid_grid_copies_returns_solid():
-    assert isinstance(cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=20), Bosl2Solid)
+    result = cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=20)
+    assert isinstance(result, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result)
 
 
 def test_solid_ring_and_flip_return_solid():
     box = cuboid([10, 10, 10])
-    assert isinstance(box.zrot_copies(num_copies=6, radius=30), Bosl2Solid)
-    assert isinstance(box.right(20).xflip_copy(), Bosl2Solid)
-    assert isinstance(box.move_and_copy([Vector(0, 0, 0), Vector(20, 0, 0), Vector(0, 20, 0)]), Bosl2Solid)
+    result = box.zrot_copies(num_copies=6, radius=30)
+    assert isinstance(result, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result)
+    result2 = box.right(20).xflip_copy()
+    assert isinstance(result2, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result2)
+    result3 = box.move_and_copy([Vector(0, 0, 0), Vector(20, 0, 0), Vector(0, 20, 0)])
+    assert isinstance(result3, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result3)
 
 
 def test_solid_path_copies_returns_solid():
     box = cuboid([4, 4, 4])
     path = Path2D([[0, 0], [30, 0], [30, 30]])
-    assert isinstance(box.path_copies(path, num_copies=6), Bosl2Solid)
+    result = box.path_copies(path, num_copies=6)
+    assert isinstance(result, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result)
 
 
 # -- distribute (list of distinct children) -----------------------------------------------
@@ -162,6 +172,6 @@ def test_solid_path_copies_returns_solid():
 
 def test_distribute_returns_solid():
     a, b, c = cuboid([10, 10, 10]), cuboid([20, 20, 20]), cuboid([5, 5, 5])
-    assert isinstance(d.xdistribute([a, b, c], spacing=5), Bosl2Solid)
-    assert isinstance(d.ydistribute([a, b], sizes=[10, 20]), Bosl2Solid)
-    assert isinstance(d.zdistribute([a, b, c], length=100), Bosl2Solid)
+    assert isinstance(xdistribute([a, b, c], spacing=5), Bosl2Solid)
+    assert isinstance(ydistribute([a, b], sizes=[10, 20]), Bosl2Solid)
+    assert isinstance(zdistribute([a, b, c], length=100), Bosl2Solid)

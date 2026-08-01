@@ -413,13 +413,9 @@ class PyShape(Distributable):
         new_mx = [max(c[i] for c in transformed) for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
 
-    def _distribute(self, mats) -> PyShape:
-        """Union a multmatrix copy of this solid for each transform matrix."""
-        assert len(mats), "distributor produced no copies."
-        out = self.multmatrix(mats[0])
-        for m in mats[1:]:
-            out = out | self.multmatrix(m)
-        return out
+    def _distribute(self, mats: list[np.ndarray]) -> list:
+        """Return a list of multmatrix copies of this shape, one per matrix."""
+        return [self.multmatrix(m) for m in mats]
 
     def to_sdf(self) -> PyShape:
         """This solid is already on the SDF backend -- returns self (the converter no-op)."""

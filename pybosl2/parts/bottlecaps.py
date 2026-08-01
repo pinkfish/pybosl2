@@ -35,7 +35,7 @@ from typing import TYPE_CHECKING
 from pybosl2._helpers import union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, RIGHT
-from pybosl2.distributors import zrot_copies
+from pybosl2.distributors import DistributableMatrix
 from pybosl2.parts.threading import Threading
 from pybosl2.shapes3d import Bosl2Solid, cyl, prismoid
 from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
@@ -262,8 +262,8 @@ def _neck_thread(diameter: "BottleThreadSpec", fn: int | None = None, fa: float 
     thread = thread.down(turns * diameter.thread_pitch / 2)  # BOSL2 anchor=TOP: top at z=0
     top = 1.82 + 2 * math.sin(math.radians(29)) * thread_h
     cuts = []
-    for m_out in zrot_copies(rots=[90, 270]):
-        for m_in in zrot_copies(rots=[-28, 28], radius=diameter.threadbase_d / 2):
+    for m_out in DistributableMatrix.zrot_copies(rots=[90, 270]):
+        for m_in in DistributableMatrix.zrot_copies(rots=[-28, 28], radius=diameter.threadbase_d / 2):
             block = prismoid(
                 [20, 1.82],
                 [20, top],

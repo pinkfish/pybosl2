@@ -750,17 +750,22 @@ class TestSdfDistributors:
             # Distribute two copies of the sphere at x=-10 and x=10
             distributed = s.xcopies(spacing=20, num_copies=2)
 
-            # The result must be a PyShape (on the SDF backend)
-            assert distributed.backend == "sdf"
+            # The result must be a list of PyShapes
+            assert isinstance(distributed, list)
+            assert len(distributed) == 2
+            assert distributed[0].backend == "sdf"
+
+            # Union the copies for combined bounding box checks
+            combined = distributed[0] | distributed[1]
 
             # Check the bounding box: two spheres at [-10, 0, 0] and [10, 0, 0]
             # Each has radius 5, so combined x should span from -15 to 15,
             # y from -5 to 5, z from -5 to 5.
-            assert math.isclose(float(distributed.mn[0]), float(-15.0), abs_tol=1e-7)
-            assert math.isclose(float(distributed.mx[0]), float(15.0), abs_tol=1e-7)
+            assert math.isclose(float(combined.mn[0]), float(-15.0), abs_tol=1e-7)
+            assert math.isclose(float(combined.mx[0]), float(15.0), abs_tol=1e-7)
 
             # Verify the shape is correctly Union-ed by sampling the points
-            mesh = distributed.mesh()
+            mesh = combined.mesh()
             assert mesh.sample(-10, 0, 0) < 0
             assert mesh.sample(10, 0, 0) < 0
             assert mesh.sample(0, 0, 0) > 0
