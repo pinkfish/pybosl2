@@ -822,7 +822,7 @@ class Bosl2Shape2D(Bosl2Shape):
 
     # ---- distributors (pybosl2/distributors.py) ----
 
-    def _distribute(self, mats: list[np.ndarray]) -> list["Bosl2Shape2D"]:
+    def _distribute(self, mats: list[np.ndarray]) -> list["Bosl2Shape2D"]:  # type: ignore[override]
         """Return a list of multmatrix copies of this 2-D shape, one per matrix."""
         result = []
         for m in mats:

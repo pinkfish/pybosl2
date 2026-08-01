@@ -469,7 +469,7 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
     # (the norm here); an SDF-backed shape must instead be distributed via a factory to
     # avoid the frep handle-reuse segfault.
 
-    def _distribute(self, mats: list[np.ndarray]) -> list["Bosl2Solid"]:
+    def _distribute(self, mats: list[np.ndarray]) -> list["Bosl2Solid"]:  # type: ignore[override]
         """Return a list of multmatrix copies of this solid, one per matrix."""
         return [self._wrap_moved(self.shape.multmatrix(np.asarray(m).tolist())) for m in mats]
 

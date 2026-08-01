@@ -1698,7 +1698,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit, mindash=mindash
         )
 
-    def _distribute(self, mats: list[np.ndarray]) -> list[Path2D]:
+    def _distribute(self, mats: list[np.ndarray]) -> list[Path2D]:  # type: ignore[override]
         # Apply each copier matrix, returning the list of 2-D copies (BOSL2's function form).
         # Raises if a copier lifts the 2-D path out of the XY plane; use Path3D for those.
         if not len(self):

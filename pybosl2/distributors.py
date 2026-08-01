@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import math
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import numpy as np
 
@@ -44,6 +44,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from pybosl2._shape import Bosl2Shape
+
+_CopyType = TypeVar("_CopyType", bound="Distributable")
 
 
 __all__ = [
@@ -587,12 +589,12 @@ class Distributable(ABC):
     """
 
     @abstractmethod
-    def _distribute(self, mats: list[np.ndarray]) -> list[Any]:  # pragma: no cover
+    def _distribute(self, mats: list[np.ndarray]) -> list[_CopyType]:  # pragma: no cover
         raise NotImplementedError("Distributable subclasses must implement _distribute().")
 
     # -- instance methods ------------------------------------------------------
 
-    def move_and_copy(self, vectors: list[Vector] | None = None) -> list[Any]:
+    def move_and_copy(self, vectors: list[Vector] | None = None) -> list[_CopyType]:
         """Copy to each offset in *vectors* (BOSL2 move_copies).
 
         Args:
@@ -612,7 +614,7 @@ class Distributable(ABC):
         length: float | None = None,
         p1: Point | None = None,
         p2: Point | None = None,
-    ) -> list[Any]:
+    ) -> list[_CopyType]:
         """Copies spread along a line (BOSL2 line_copies)."""
         return self._distribute(DistributableMatrix.line_copies(spacing, num_copies, length, p1, p2))
 
@@ -622,7 +624,7 @@ class Distributable(ABC):
         num_copies=None,
         length: float | None = None,
         start_pos: float | None = None,
-    ) -> list[Any]:
+    ) -> list[_CopyType]:
         """Copies spread along the X axis (BOSL2 xcopies)."""
         return self._distribute(_axis_copies(RIGHT, spacing, num_copies, length, start_pos))
 
@@ -632,7 +634,7 @@ class Distributable(ABC):
         num_copies=None,
         length: float | None = None,
         start_pos: float | None = None,
-    ) -> list[Any]:
+    ) -> list[_CopyType]:
         """Copies spread along the Y axis (BOSL2 ycopies)."""
         return self._distribute(_axis_copies(BACK, spacing, num_copies, length, start_pos))
 
@@ -642,7 +644,7 @@ class Distributable(ABC):
         num_copies=None,
         length: float | None = None,
         start_pos: float | None = None,
-    ) -> list[Any]:
+    ) -> list[_CopyType]:
         """Copies spread along the Z axis (BOSL2 zcopies)."""
         return self._distribute(_axis_copies(UP, spacing, num_copies, length, start_pos))
 
@@ -770,19 +772,19 @@ class Distributable(ABC):
             DistributableMatrix.path_copies(path, num_copies, spacing, start_pos, dist, rotate_children, closed)
         )
 
-    def mirror_copy(self, v=(0, 0, 1), offset=0, center: bool | None = None) -> list[Any]:
+    def mirror_copy(self, v=(0, 0, 1), offset=0, center: bool | None = None) -> list[_CopyType]:
         """This object plus a copy mirrored across the plane with normal *v*."""
         return self._distribute(DistributableMatrix.mirror_copy(v, offset, center))
 
-    def xflip_copy(self, offset=0, x=0) -> list[Any]:
+    def xflip_copy(self, offset=0, x=0) -> list[_CopyType]:
         """This object plus a copy mirrored across the X=*x* plane."""
         return self._distribute(DistributableMatrix.xflip_copy(offset, x))
 
-    def yflip_copy(self, offset=0, y=0) -> list[Any]:
+    def yflip_copy(self, offset=0, y=0) -> list[_CopyType]:
         """This object plus a copy mirrored across the Y=*y* plane."""
         return self._distribute(DistributableMatrix.yflip_copy(offset, y))
 
-    def zflip_copy(self, offset=0, z=0) -> list[Any]:
+    def zflip_copy(self, offset=0, z=0) -> list[_CopyType]:
         """This object plus a copy mirrored across the Z=*z* plane."""
         return self._distribute(DistributableMatrix.zflip_copy(offset, z))
 

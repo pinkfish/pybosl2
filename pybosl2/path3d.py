@@ -1219,7 +1219,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit, mindash=mindash
         )
 
-    def _distribute(self, mats: list[np.ndarray]) -> list["Path3D"]:
+    def _distribute(self, mats: list[np.ndarray]) -> list["Path3D"]:  # type: ignore[override]
         # Apply each copier matrix, returning the list of 3-D copies (BOSL2's function form).
         if not len(self):
             return [self.__class__([], closed=self.closed) for _ in mats]
