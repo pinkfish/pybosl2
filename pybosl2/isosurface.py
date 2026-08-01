@@ -49,7 +49,7 @@ INF = math.inf
 # -- private helpers (numpy for the marching-cubes hot path) --------------------
 
 
-def _to_bounds3d(bb: Bounds3D | float | list | np.ndarray) -> Bounds3D:
+def _to_bounds3d(bb: Bounds3D | float | list[list[float]] | np.ndarray) -> Bounds3D:
     """Normalise a bounding-box input to a :class:`Bounds3D`."""
     if isinstance(bb, Bounds3D):
         return bb
