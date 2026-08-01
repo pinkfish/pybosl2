@@ -31,9 +31,8 @@ VNF port (pybosl2/vnf.py) and a sweep port (pybosl2/skin.py):
     and debug (debug_bezier_patches)
   * sweeping a shape along a bezier/bezier-path: Bezier.sweep (bezier_sweep)
     and Bezier.sweep, plus Bezier.debug (debug_bezier)
-
-The only piece still skipped is path_to_bezcornerpath() -- an internal,
-undocumented helper needing circle_2tangents/vector_angle.
+  * path_to_bezcornerpath() is ported as :meth:`~pybosl2.path2d.Path2D.to_bezcornerpath`
+    via the ``_bezcorner`` helper in pybosl2/rounding.py.
 
 ``points()`` -- the hot path -- uses numpy: it builds the bezier-to-power-basis
 matrix (the same "matrix representation" BOSL2 uses, generalized to any degree
