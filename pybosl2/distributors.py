@@ -576,16 +576,15 @@ class Distributable(ABC):
     """Mixin adding the distributors.scad copiers as methods.
 
     Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`, and
-    :class:`~pybosl2.paths.Path3D`. Each copier builds a list of transformation matrices and hands
-    them to ``_distribute``, which every host class implements: a Bosl2Solid unions the geometry
-    copies into a new solid; a Path2D / Path3D returns a plain ``list`` of the copied paths.
+    :class:`~pybosl2.paths.Path3D`. Each copier returns a ``list`` of positioned copies;
+    callers union, hull, or combine them as needed.
     """
 
     @abstractmethod
-    def _distribute(self, mats: list[np.ndarray]) -> Any:  # pragma: no cover
+    def _distribute(self, mats: list[np.ndarray]) -> list[Any]:  # pragma: no cover
         raise NotImplementedError("Distributable subclasses must implement _distribute().")
 
-    def move_and_copy(self, vectors: list[Vector] | None = None):
+    def move_and_copy(self, vectors: list[Vector] | None = None) -> list[Any]:
         """Copy to each offset in *vectors* (BOSL2 move_copies).
 
         Args:
@@ -605,7 +604,7 @@ class Distributable(ABC):
         length: float | None = None,
         p1: Point | None = None,
         p2: Point | None = None,
-    ) -> Any:
+    ) -> list[Any]:
         """Copies spread along a line (BOSL2 line_copies)."""
         return self._distribute(line_copies(spacing, num_copies, length, p1, p2))
 
@@ -615,7 +614,7 @@ class Distributable(ABC):
         num_copies=None,
         length: float | None = None,
         start_pos: float | None = None,
-    ) -> Any:
+    ) -> list[Any]:
         """Copies spread along the X axis (BOSL2 xcopies)."""
         return self._distribute(_axis_copies(RIGHT, spacing, num_copies, length, start_pos))
 
@@ -625,7 +624,7 @@ class Distributable(ABC):
         num_copies=None,
         length: float | None = None,
         start_pos: float | None = None,
-    ) -> Any:
+    ) -> list[Any]:
         """Copies spread along the Y axis (BOSL2 ycopies)."""
         return self._distribute(_axis_copies(BACK, spacing, num_copies, length, start_pos))
 
@@ -635,7 +634,7 @@ class Distributable(ABC):
         num_copies=None,
         length: float | None = None,
         start_pos: float | None = None,
-    ) -> Any:
+    ) -> list[Any]:
         """Copies spread along the Z axis (BOSL2 zcopies)."""
         return self._distribute(_axis_copies(UP, spacing, num_copies, length, start_pos))
 

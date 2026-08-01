@@ -141,20 +141,30 @@ def test_path3d_sphere_copies():
 
 
 def test_solid_grid_copies_returns_solid():
-    assert isinstance(cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=20), Bosl2Solid)
+    result = cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=20)
+    assert isinstance(result, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result)
 
 
 def test_solid_ring_and_flip_return_solid():
     box = cuboid([10, 10, 10])
-    assert isinstance(box.zrot_copies(num_copies=6, radius=30), Bosl2Solid)
-    assert isinstance(box.right(20).xflip_copy(), Bosl2Solid)
-    assert isinstance(box.move_and_copy([Vector(0, 0, 0), Vector(20, 0, 0), Vector(0, 20, 0)]), Bosl2Solid)
+    result = box.zrot_copies(num_copies=6, radius=30)
+    assert isinstance(result, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result)
+    result2 = box.right(20).xflip_copy()
+    assert isinstance(result2, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result2)
+    result3 = box.move_and_copy([Vector(0, 0, 0), Vector(20, 0, 0), Vector(0, 20, 0)])
+    assert isinstance(result3, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result3)
 
 
 def test_solid_path_copies_returns_solid():
     box = cuboid([4, 4, 4])
     path = Path2D([[0, 0], [30, 0], [30, 30]])
-    assert isinstance(box.path_copies(path, num_copies=6), Bosl2Solid)
+    result = box.path_copies(path, num_copies=6)
+    assert isinstance(result, list)
+    assert all(isinstance(c, Bosl2Solid) for c in result)
 
 
 # -- distribute (list of distinct children) -----------------------------------------------

@@ -822,22 +822,17 @@ class Bosl2Shape2D(Bosl2Shape):
 
     # ---- distributors (pybosl2/distributors.py) ----
 
-    def _distribute(self, mats: list[np.ndarray]) -> "Bosl2Shape2D":
-        """Union a multmatrix copy of this shape for each transform matrix (BOSL2's module form).
-
-        The copiers that lift out of the XY plane (``zcopies``, ``xrot_copies``, ...) have no
-        meaning for 2-D geometry and are rejected rather than silently flattened.
-        """
-        assert len(mats), "distributor produced no copies."
-        out = None
+    def _distribute(self, mats: list[np.ndarray]) -> list["Bosl2Shape2D"]:
+        """Return a list of multmatrix copies of this 2-D shape, one per matrix."""
+        result = []
         for m in mats:
             m4 = np.asarray(m, dtype=float)
             assert abs(float(m4[2, 3])) < 1e-9 and abs(float(m4[2, 2]) - 1.0) < 1e-9, (
                 "this copier moves the 2-D shape out of the XY plane; extrude it to 3-D first"
             )
             copy = self.shape.multmatrix(m4.tolist())
-            out = copy if out is None else out | copy
-        return self._wrap_moved(out)
+            result.append(self._wrap_moved(copy))
+        return result
 
     def distribute_on_path(
         self,
