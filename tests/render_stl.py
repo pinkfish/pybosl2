@@ -66,21 +66,19 @@ _PREAMBLE = (
     "import numpy as np\n"
     "import pybosl2.shapes3d as s3\n"
     "import pybosl2.shapes2d as s2\n"
-    "from pybosl2.paths import Path2D, Path3D\n"
-    "from pybosl2.beziers import Bezier, BezierPatch\n"
-    "from pybosl2.skin import sweep, skin, rot_resample\n"
-    "from pybosl2.path2d import Path2D\n"
-    "from pybosl2.path3d import Path3D\n"
-    "from pybosl2.distributors import xdistribute, ydistribute, zdistribute\n"
-    "from pybosl2.color import rainbow, rainbow_colors\n"
-    "from pybosl2.partitions import partition_path, partition_mask, partition_cut_mask\n"
-    "from pybosl2.miscellaneous import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
-    "from pybosl2.nurbs import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
-    "from pybosl2.isosurface import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, "
+    "from pybosl2 import Path, Path2D, Path3D\n"
+    "from pybosl2 import Bezier, BezierPatch\n"
+    "from pybosl2 import sweep, skin, rot_resample\n"
+    "from pybosl2 import xdistribute, ydistribute, zdistribute\n"
+    "from pybosl2 import rainbow, rainbow_colors\n"
+    "from pybosl2 import partition_path, partition_mask, partition_cut_mask\n"
+    "from pybosl2 import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
+    "from pybosl2 import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
+    "from pybosl2 import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, "
     "mb_octahedron, mb_connector\n"
+    # parts library classes, so examples can be terse (Gears.spur_gear(...).show())
     "from pybosl2.parts.threading import Threading\n"
     "from pybosl2.parts.screws import Screws\n"
-    # parts library classes, so examples can be terse (Gears.spur_gear(...).show())
     "from pybosl2.parts.gears import Gears\n"
     "from pybosl2.parts.walls import Walls\n"
     "from pybosl2.parts.hooks import Hooks\n"
@@ -97,10 +95,9 @@ _PREAMBLE = (
     "from pybosl2.parts.bottlecaps import BottleCaps\n"
     "from pybosl2.parts.screw_drive import ScrewDrive\n"
     "from functools import reduce\n"
-    "from pybosl2.paths import Path2D, Path3D\n"
-    "from pybosl2.rounding import _round_corners as round_corners, _smooth_path as smooth_path\n"
-    "from pybosl2.regions import Region\n"
-    "from pybosl2.constants import *\n"
+    "from pybosl2 import round_corners, smooth_path\n"
+    "from pybosl2 import Region\n"
+    "from pybosl2 import *\n"
 )
 
 
@@ -180,11 +177,21 @@ def render_stl_script(
             len(lines),
         )
         last = next((ln for ln in reversed(lines[:cutoff]) if ln.strip()), "unknown error")
-        return StlResult(False, None, f"script raised: {last[:200]}", stderr)
+        return StlResult(False, None, f"script raised: {last[:300]}", stderr)
     if proc.returncode != 0:
-        return StlResult(False, None, f"PythonSCAD exited {proc.returncode}", stderr)
+        return StlResult(
+            False,
+            None,
+            f"PythonSCAD exited {proc.returncode}: {stderr[:200] if stderr else 'no output'}",
+            stderr,
+        )
     if not out_stl.is_file() or out_stl.stat().st_size == 0:
-        return StlResult(False, None, "no STL file was produced", stderr)
+        return StlResult(
+            False,
+            None,
+            f"no STL produced (stderr: {stderr[:200] if stderr else 'none'})",
+            stderr,
+        )
     return StlResult(True, out_stl, None, stderr)
 
 
