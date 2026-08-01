@@ -31,7 +31,7 @@ from __future__ import annotations
 
 import math
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -78,22 +78,17 @@ __all__ = [
 # (imported from pybosl2._helpers as rot_from_to4)
 
 
-def _vec3(v, fill=0.0):
+def _vec3(v: Any, fill: float = 0.0) -> np.ndarray:
     if is_num(v):
         return np.array([float(v), float(fill), float(fill)])
-    lst = list(v)
-    return np.array([float(lst[i]) if i < len(lst) else float(fill) for i in range(3)])
-
-
-def _s3(v, fill=0.0):
-    if is_num(v):
-        return np.array([float(v), float(fill), float(fill)])
-    a = np.asarray(v, dtype=float)
-    if a.shape[0] == 1:
-        return np.array([float(a[0]), float(fill), float(fill)])
+    arr = np.asarray(v, dtype=float)
+    if arr.shape[0] == 1:
+        return np.array([float(arr[0]), float(fill), float(fill)])
     out = np.zeros(3)
-    out[: min(a.shape[0], 3)] = a[: min(a.shape[0], 3)]
-    return out + np.array([0, float(fill), float(fill)]) * (np.array([0, 1, 1]) if fill else np.zeros(3))
+    n = min(arr.shape[0], 3)
+    out[:n] = arr[:n]
+    out[n:] = float(fill)
+    return out
 
 
 def _frame_map4(x=None, z=None) -> np.ndarray:
@@ -288,7 +283,8 @@ def rot_copies(
         angs = [float(a) for a in rots]
     else:
         angs = []
-    cen, deltav = _vec3(center, 0.0), _vec3(delta, 0.0)
+    cen = _vec3(center, 0.0)
+    deltav = _vec3(delta, 0.0)
     mats = []
     for angle in angs:
         rot_m = np.eye(4)
