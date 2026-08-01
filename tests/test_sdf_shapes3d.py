@@ -748,7 +748,7 @@ class TestSdfDistributors:
         with use_backend("sdf"):
             s = sphere(radius=5)
             # Distribute two copies of the sphere at x=-10 and x=10
-            distributed = s.xcopies(spacing=20, sides=2)
+            distributed = s.xcopies(spacing=20, num_copies=2)
 
             # The result must be a PyShape (on the SDF backend)
             assert distributed.backend == "sdf"
