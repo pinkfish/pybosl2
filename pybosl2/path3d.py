@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 from pybosl2.bounds import Bounds3D
 from pybosl2.caps import CapSpec, CapType
-from pybosl2.distributors import Distributable, _apply4
+from pybosl2.distributors import Distributable
 from pybosl2.geometry import is_collinear, line_closest_point
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 from pybosl2.miscellaneous import Extrudable
@@ -1223,7 +1223,14 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         # Apply each copier matrix, returning the list of 3-D copies (BOSL2's function form).
         if not len(self):
             return [self.__class__([], closed=self.closed) for _ in mats]
-        return [self.__class__(_apply4(m, self._points), closed=self.closed) for m in mats]
+        results = []
+        for m in mats:
+            homo = np.hstack([self._points, np.ones((len(self._points), 1))])
+            tr = (m @ homo.T).T
+            w = tr[:, 3:4]
+            pts = tr[:, :3] / np.where(w == 0, 1.0, w)
+            results.append(self.__class__(pts, closed=self.closed))
+        return results
 
     def __repr__(self) -> str:
         return f"Path3D({len(self)} pts, closed={self.closed})"

@@ -285,16 +285,16 @@ class CubeTruss:
             )  # central cube
 
         pieces = []
-        for mx in xcopies(step, sides=ex):
+        for mx in xcopies(step, num_copies=ex):
             base = cuboid([size, length, height], fn=fn, fa=fa, fs=fs).half_of(v=v, s=smax)
             cells = [
                 hollow_cell().multmatrix((my @ mz).tolist())
-                for my in ycopies(step, sides=ey)
-                for mz in zcopies(step, sides=ez)
+                for my in ycopies(step, num_copies=ey)
+                for mz in zcopies(step, num_copies=ez)
             ]
             holes = _union(cells).half_of(v=v, center=strut, s=smax)
             ytun = _union(
-                [octprism(ey * size + 1, [90, 0, 0]).multmatrix(mz.tolist()) for mz in zcopies(step, sides=ez)]
+                [octprism(ey * size + 1, [90, 0, 0]).multmatrix(mz.tolist()) for mz in zcopies(step, num_copies=ez)]
             )
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
         return Bosl2Solid(_union(pieces).shape, size=[w, length, height])
@@ -403,9 +403,9 @@ class CubeTruss:
             clip = clip - _cmask(size + 1, clipsize + clipthick / 3).scale([1, 1.5, 1]).left(clipsize).forward(
                 strut * 1.6
             )
-            for mz in zcopies(clipheight - strut, sides=2):
+            for mz in zcopies(clipheight - strut, num_copies=2):
                 clip = clip - cuboid([clipthick * 3, cliplen * 2, strut], fn=fn, fa=fa, fs=fs).multmatrix(mz.tolist())
-            for mz in zcopies(clipheight - 2 * strut, sides=2):
+            for mz in zcopies(clipheight - 2 * strut, num_copies=2):
                 clip = clip - _cmask(cliplen * 2, clipthick, orient="BACK").right(clipthick).multmatrix(mz.tolist())
             return clip
 
@@ -448,7 +448,7 @@ class CubeTruss:
             fs=fs,
         ).up(clipthick / 2)
         parts.append(base)
-        for mx in xcopies(span + clipthick, sides=2):
+        for mx in xcopies(span + clipthick, num_copies=2):
             parts.append(
                 prismoid(
                     [clipthick, size - 4 * strut],
@@ -462,7 +462,7 @@ class CubeTruss:
                 .up(clipthick - 0.01)
                 .multmatrix(mx.tolist())
             )
-        for mx in xcopies(span, sides=2):
+        for mx in xcopies(span, num_copies=2):
             parts.append(
                 prismoid(
                     [clipsize * 2, size / 3.5],
@@ -491,7 +491,7 @@ class CubeTruss:
                 .rotate([0, 0, 180 / 8])
                 .up(clipthick - 0.01)
             )
-            for my in ycopies(size - 2 * strut - 4 * slop, sides=2):
+            for my in ycopies(size - 2 * strut - 4 * slop, num_copies=2):
                 plug = plug - _cmask(size - strut, strut * 2 / 3, orient="RIGHT").up(clipthick + strut).multmatrix(
                     my.tolist()
                 )
@@ -562,13 +562,13 @@ class CubeTruss:
         clipsize = 0.5
         span = w * (size - strut) + strut
         parts = [cuboid([span + 2 * clipthick, size, clipthick], fn=fn, fa=fa, fs=fs).up(clipthick / 2)]
-        for mx in xcopies(span + clipthick, sides=2):
+        for mx in xcopies(span + clipthick, num_copies=2):
             parts.append(
                 cuboid([clipthick, size, clipthick + strut * 3 / 4], fn=fn, fa=fa, fs=fs)
                 .up((clipthick + strut * 3 / 4) / 2)
                 .multmatrix(mx.tolist())
             )
-        for my in ycopies(size, sides=2):
+        for my in ycopies(size, num_copies=2):
             parts.append(
                 CubeTruss.cubetruss_foot(
                     w=w, size=size, strut=strut, clipthick=clipthick, slop=slop, fn=fn, fa=fa, fs=fs
@@ -577,7 +577,7 @@ class CubeTruss:
                 .multmatrix(my.tolist())
             )
         if vert:
-            for mx in xcopies(span + clipthick, sides=2):
+            for mx in xcopies(span + clipthick, num_copies=2):
                 parts.append(
                     prismoid(
                         [clipthick, size],

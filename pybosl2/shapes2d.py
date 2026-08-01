@@ -487,7 +487,7 @@ class Bosl2Shape2D(Bosl2Shape):
         out._moved = self._moved
         return out
 
-    def _wrap_moved(self, new_shape: PyOpenSCAD) -> "Bosl2Shape2D":
+    def _wrap_moved(self, new_shape: PyOpenSCAD) -> Bosl2Shape2D:
         """Wrap a native result of a positional transform, flagging the tracked metadata stale."""
         out = Bosl2Shape2D(new_shape, self.size, self.anchor)
         out._moved = True
@@ -838,6 +838,69 @@ class Bosl2Shape2D(Bosl2Shape):
             copy = self.shape.multmatrix(m4.tolist())
             out = copy if out is None else out | copy
         return self._wrap_moved(out)
+
+    def distribute_on_path(
+        self,
+        path: Path2D,
+        num_copies: int | None = None,
+        spacing: float | None = None,
+        start_pos: float | None = None,
+        dist: list[float] | None = None,
+        rotate_children: bool = True,
+    ) -> "Bosl2Shape2D":
+        """Distribute copies of this 2-D shape along *path*, oriented to the path normal.
+
+        Args:
+            path: A :class:`~pybosl2.path2d.Path2D`.
+            num_copies: Number of copies.
+            spacing: Distance between copies.
+            start_pos: Starting position along the path.
+            dist: Explicit list of distances from path start.
+            rotate_children: If True, rotate each copy to align with the path normal.
+
+        Returns:
+            A :class:`Bosl2Shape2D` union of all positioned copies.
+        """
+        import math
+
+        import numpy as np
+
+        length = path.perimeter()
+        is_closed = getattr(path, "closed", False)
+        if dist is not None:
+            distances = sorted(float(x) for x in dist)
+        elif start_pos is not None:
+            if num_copies is not None and spacing is not None:
+                distances = [start_pos + i * spacing for i in range(num_copies)]
+            elif num_copies is not None:
+                distances = list(np.linspace(start_pos, length, num_copies))
+            else:
+                distances = list(np.arange(start_pos, length, spacing))
+        elif num_copies is not None and spacing is None:
+            distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
+        else:
+            assert spacing is not None, "distribute_on_path(): provide num_copies, spacing, or dist."
+            cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
+            ptlist = [i * spacing for i in range(cnt)]
+            center = sum(ptlist) / len(ptlist)
+            if is_closed:
+                distances = sorted((e - center) % length for e in ptlist)
+            else:
+                distances = [e + length / 2 - center for e in ptlist]
+        distances = [min(max(dst, 0.0), length) for dst in distances]
+        cutlist = path.cut_points(distances, closed=is_closed, direction=True)
+        results: list[Bosl2Shape2D] = []
+        for cp in cutlist:
+            copied: Bosl2Shape2D = self.translate([float(cp.point[0]), float(cp.point[1])])
+            if rotate_children:
+                nv = getattr(cp, "normal", [0, 1])
+                ang = math.degrees(math.atan2(float(nv[1]), float(nv[0]))) - 90
+                copied = copied.rotate(ang)
+            results.append(copied)
+        out = results[0]
+        for r in results[1:]:
+            out = out | r
+        return out
 
     # ---- bounding box ----
 

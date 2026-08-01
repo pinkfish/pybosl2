@@ -237,7 +237,7 @@ class ScrewDrive:
         # One cutout wing: extruded profile, dropped 1mm, tilted by beta, raised to h3.
         wing = _opolygon(cut_path).linear_extrude(height=length + 2)
         wing = wing.translate([0, 0, -1]).rotate([0, beta, 0]).translate([0, 0, h3])
-        cutter = _union(wing.multmatrix(m.tolist()) for m in zrot_copies(sides=4, radius=b / 2))
+        cutter = _union(wing.multmatrix(m.tolist()) for m in zrot_copies(num_copies=4, radius=b / 2))
         cutter = cutter.rotate([0, 0, 45])
 
         body = _orotate_extrude(
@@ -331,10 +331,11 @@ class ScrewDrive:
 
         # Six outward lobes: two rotated copies of a hull of three tip circles, plus the base circle.
         tip_circles = [
-            circle(radius=tip, fn=fn // 2).translate([base / 2, 0]).multmatrix(m.tolist()) for m in zrot_copies(sides=3)
+            circle(radius=tip, fn=fn // 2).translate([base / 2, 0]).multmatrix(m.tolist())
+            for m in zrot_copies(num_copies=3)
         ]
         tri = _hull2d(tip_circles)
-        lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(sides=2))
+        lobes = _union(tri.multmatrix(m.tolist()) for m in zrot_copies(num_copies=2))
         solid = circle(diameter=base, fn=fn) | lobes
 
         # Six inner rounding cutouts.
@@ -343,7 +344,7 @@ class ScrewDrive:
             .translate([id_ / 2 + rounding, 0])
             .rotate([0, 0, 180 / 6])
             .multmatrix(m.tolist())
-            for m in zrot_copies(sides=6)
+            for m in zrot_copies(num_copies=6)
         )
         return solid - cut
 

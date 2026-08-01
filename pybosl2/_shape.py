@@ -35,14 +35,17 @@ class Bosl2Shape(Colorable, Distributable):
     # -- transforms -----------------------------------------------------------
 
     @abstractmethod
+    def bounds(self) -> Any: ...
+
+    @abstractmethod
     def translate(self, v: Any) -> Bosl2Shape: ...
 
-    move = translate  # type: ignore[assignment]
+    move = translate
 
     @abstractmethod
     def rotate(self, *a: Any, **k: Any) -> Bosl2Shape: ...
 
-    rot = rotate  # type: ignore[assignment]
+    rot = rotate
 
     @abstractmethod
     def mirror(self, v: Any) -> Bosl2Shape: ...
@@ -65,7 +68,7 @@ class Bosl2Shape(Colorable, Distributable):
     @abstractmethod
     def forward(self, y: float) -> Bosl2Shape: ...
 
-    fwd = forward  # type: ignore[assignment]
+    fwd = forward
 
     # -- CSG operators --------------------------------------------------------
 
@@ -98,3 +101,18 @@ class Bosl2Shape(Colorable, Distributable):
 
     @abstractmethod
     def __rmul__(self, other: Any) -> Bosl2Shape: ...
+
+    # -- distribute along a path -------------------------------------------------
+
+    @abstractmethod
+    def distribute_on_path(
+        self,
+        path: Any,
+        num_copies: int | None = None,
+        spacing: float | None = None,
+        start_pos: float | None = None,
+        dist: list[float] | None = None,
+        rotate_children: bool = True,
+    ) -> Bosl2Shape:
+        """Distribute copies of this shape along *path*, oriented to the path direction."""
+        ...

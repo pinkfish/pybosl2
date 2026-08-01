@@ -37,7 +37,7 @@ from shapely.geometry import LineString, Polygon
 
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
-from pybosl2.distributors import Distributable, _apply4
+from pybosl2.distributors import Distributable
 from pybosl2.geometry import (
     _is_point_on_segment,
     general_line_intersection,
@@ -1706,7 +1706,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         pts3 = np.hstack([self._points, np.zeros((len(self), 1))])
         out = []
         for m in mats:
-            res = _apply4(m, pts3)
+            homo = np.hstack([pts3, np.ones((len(pts3), 1))])
+            tr = (m @ homo.T).T
+            w = tr[:, 3:4]
+            res = tr[:, :3] / np.where(w == 0, 1.0, w)
             assert float(np.max(np.abs(res[:, 2]))) < 1e-7, (
                 "this copier moves the 2-D path out of the XY plane; convert to Path3D first"
             )

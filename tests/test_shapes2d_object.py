@@ -392,14 +392,14 @@ def test_bounds_raises_without_a_box_or_a_native_bbox():
 
 
 def test_in_plane_distributors_return_one_combined_2d_shape():
-    assert isinstance(s2.circle(radius=2).xcopies(spacing=10, sides=3), Bosl2Shape2D)
-    assert isinstance(s2.circle(radius=2).ycopies(spacing=10, sides=3), Bosl2Shape2D)
-    assert isinstance(s2.circle(radius=2).grid_copies(spacing=10, sides=2), Bosl2Shape2D)
+    assert isinstance(s2.circle(radius=2).xcopies(spacing=10, num_copies=3), Bosl2Shape2D)
+    assert isinstance(s2.circle(radius=2).ycopies(spacing=10, num_copies=3), Bosl2Shape2D)
+    assert isinstance(s2.circle(radius=2).grid_copies(spacing=10, num_copies=2), Bosl2Shape2D)
 
 
 def test_out_of_plane_distributors_are_rejected():
     with pytest.raises(AssertionError):
-        s2.circle(radius=2).zcopies(spacing=10, sides=3)
+        s2.circle(radius=2).zcopies(spacing=10, num_copies=3)
 
 
 # ---------------------------------------------------------------------------
