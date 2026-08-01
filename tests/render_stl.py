@@ -61,8 +61,12 @@ class StlResult:
 
 
 _PREAMBLE = (
-    "import sys, math\n"
+    "import sys, math, site\n"
     f"sys.path.insert(0, {str(REPO_ROOT)!r})\n"
+    # AppImage Python may not see system site-packages; add them explicitly
+    "for p in site.getsitepackages():\n"
+    "    if p not in sys.path:\n"
+    "        sys.path.append(p)\n"
     "import numpy as np\n"
     "import pybosl2.shapes3d as s3\n"
     "import pybosl2.shapes2d as s2\n"

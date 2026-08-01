@@ -55,8 +55,12 @@ _logger = logging.getLogger(__name__)
 # examples can be terse (`s3.cuboid(...)`, `Path2D(...)`, `Bezier(...)`) and mirror how the toolkit
 # is actually used.
 _PREAMBLE = (
-    "import sys, math\n"
+    "import sys, math, site\n"
     f"sys.path.insert(0, {str(_REPO_ROOT)!r})\n"
+    # AppImage Python may not see system site-packages; add them explicitly
+    "for p in site.getsitepackages():\n"
+    "    if p not in sys.path:\n"
+    "        sys.path.append(p)\n"
     "import numpy as np\n"
     "import pybosl2\n"
     "import pybosl2.shapes3d\n"
@@ -71,7 +75,8 @@ _PREAMBLE = (
     "from pybosl2.path3d import helix\n"
     "from pybosl2.shapes2d import arc\n"
     "from pybosl2.path2d import catenary\n"
-    "from pybosl2.turtle.turtle2d import turtle\n"
+    "from pybosl2.turtle.turtle2d import turtle2d\n"
+    "from pybosl2.turtle.turtle3d import turtle3d\n"
     "from pybosl2 import xdistribute, ydistribute, zdistribute\n"
     "from pybosl2 import rainbow, rainbow_colors\n"
     "from pybosl2 import partition_path, partition_mask, partition_cut_mask\n"
