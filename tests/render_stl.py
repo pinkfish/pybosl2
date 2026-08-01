@@ -176,8 +176,10 @@ def render_stl_script(
             (i for i, ln in enumerate(lines) if ln.startswith("Geometries in cache")),
             len(lines),
         )
-        last = next((ln for ln in reversed(lines[:cutoff]) if ln.strip()), "unknown error")
-        return StlResult(False, None, f"script raised: {last[:300]}", stderr)
+        # Capture the actual exception type and message, plus the last traceback entry
+        exc_lines = [ln.strip() for ln in lines[:cutoff] if ln.strip() and not ln.startswith("  File ")]
+        last_exc = exc_lines[-1] if exc_lines else "unknown error"
+        return StlResult(False, None, f"script raised: {last_exc[:400]}", stderr)
     if proc.returncode != 0:
         return StlResult(
             False,
