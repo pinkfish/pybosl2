@@ -68,10 +68,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Install Python deps needed by render scripts
+        run: pip install numpy shapely
+
       - name: Verify PythonSCAD renders
         run: |
           BIN=$(find /opt/pythonscad -name AppRun -type f | head -1)
-          echo "from pythonscad import cube; cube([1,1,1]).show()" > /tmp/test_render.py
+          echo "import numpy; from pythonscad import cube; cube([1,1,1]).show()" > /tmp/test_render.py
           "$BIN" --trust-python --enable python-engine -o /tmp/test.stl --backend Manifold /tmp/test_render.py
           ls -la /tmp/test.stl
 
