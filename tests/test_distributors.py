@@ -16,12 +16,13 @@ import pytest
 from pybosl2 import distributors as d
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
+from pybosl2.points import Vector
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 # -- matrix generators --------------------------------------------------------------------
 
 
-def test_move_copies_matrices():
+def test_move_and_copy_matrices():
     from pybosl2._helpers import translate4
 
     mats = [translate4(pos) for pos in [[0, 0, 0], [10, 0, 0], [0, 5, 0]]]
@@ -147,7 +148,7 @@ def test_solid_ring_and_flip_return_solid():
     box = cuboid([10, 10, 10])
     assert isinstance(box.zrot_copies(num_copies=6, radius=30), Bosl2Solid)
     assert isinstance(box.right(20).xflip_copy(), Bosl2Solid)
-    assert isinstance(box.move_copies([[0, 0, 0], [20, 0, 0], [0, 20, 0]]), Bosl2Solid)
+    assert isinstance(box.move_and_copy([Vector(0, 0, 0), Vector(20, 0, 0), Vector(0, 20, 0)]), Bosl2Solid)
 
 
 def test_solid_path_copies_returns_solid():
