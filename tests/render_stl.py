@@ -177,11 +177,21 @@ def render_stl_script(
             len(lines),
         )
         last = next((ln for ln in reversed(lines[:cutoff]) if ln.strip()), "unknown error")
-        return StlResult(False, None, f"script raised: {last[:200]}", stderr)
+        return StlResult(False, None, f"script raised: {last[:300]}", stderr)
     if proc.returncode != 0:
-        return StlResult(False, None, f"PythonSCAD exited {proc.returncode}", stderr)
+        return StlResult(
+            False,
+            None,
+            f"PythonSCAD exited {proc.returncode}: {stderr[:200] if stderr else 'no output'}",
+            stderr,
+        )
     if not out_stl.is_file() or out_stl.stat().st_size == 0:
-        return StlResult(False, None, "no STL file was produced", stderr)
+        return StlResult(
+            False,
+            None,
+            f"no STL produced (stderr: {stderr[:200] if stderr else 'none'})",
+            stderr,
+        )
     return StlResult(True, out_stl, None, stderr)
 
 

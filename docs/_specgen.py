@@ -1431,7 +1431,9 @@ def build_variant_stls(force: bool = False) -> dict:
 
             res = render_object(expr, stl, setup=SETUP[mod], timeout=240, export_format="binstl")
             if not res.ok:
-                print(f"  ! render FAILED {mod}-{vid}: {(res.error or '')[:120]}")
+                print(f"  ! render FAILED {mod}-{vid}: {res.error}")
+                if res.stderr:
+                    print(f"    stderr: {(res.stderr or '')[:200]}")
                 continue
             mm = stl_metrics(stl)
             size = "×".join(str(round(float(v))) for v in mm.size)
