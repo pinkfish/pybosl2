@@ -841,11 +841,11 @@ class Bosl2Shape2D(Bosl2Shape):
 
     def distribute_on_path(
         self,
-        path: Any,
+        path: Path2D,
         num_copies: int | None = None,
         spacing: float | None = None,
-        sp: float | None = None,
-        dist: Any = None,
+        start_pos: float | None = None,
+        dist: list[float] | None = None,
         rotate_children: bool = True,
     ) -> "Bosl2Shape2D":
         """Distribute copies of this 2-D shape along *path*, oriented to the path normal.
@@ -854,7 +854,7 @@ class Bosl2Shape2D(Bosl2Shape):
             path: A :class:`~pybosl2.path2d.Path2D`.
             num_copies: Number of copies.
             spacing: Distance between copies.
-            sp: Starting position along the path.
+            start_pos: Starting position along the path.
             dist: Explicit list of distances from path start.
             rotate_children: If True, rotate each copy to align with the path normal.
 
@@ -869,13 +869,13 @@ class Bosl2Shape2D(Bosl2Shape):
         is_closed = getattr(path, "closed", False)
         if dist is not None:
             distances = sorted(float(x) for x in dist)
-        elif sp is not None:
+        elif start_pos is not None:
             if num_copies is not None and spacing is not None:
-                distances = [sp + i * spacing for i in range(num_copies)]
+                distances = [start_pos + i * spacing for i in range(num_copies)]
             elif num_copies is not None:
-                distances = list(np.linspace(sp, length, num_copies))
+                distances = list(np.linspace(start_pos, length, num_copies))
             else:
-                distances = list(np.arange(sp, length, spacing))
+                distances = list(np.arange(start_pos, length, spacing))
         elif num_copies is not None and spacing is None:
             distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
         else:
