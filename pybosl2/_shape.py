@@ -35,6 +35,9 @@ class Bosl2Shape(Colorable, Distributable):
     # -- transforms -----------------------------------------------------------
 
     @abstractmethod
+    def bounds(self) -> Any: ...
+
+    @abstractmethod
     def translate(self, v: Any) -> Bosl2Shape: ...
 
     move = translate  # type: ignore[assignment]

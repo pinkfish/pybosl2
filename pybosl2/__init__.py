@@ -90,7 +90,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "path_text": ("pybosl2.shapes3d", "path_text"),
     "text3d": ("pybosl2.shapes3d", "text3d"),
     # distributors
-    "distribute": ("pybosl2.distributors", "distribute"),
     "xdistribute": ("pybosl2.distributors", "xdistribute"),
     "ydistribute": ("pybosl2.distributors", "ydistribute"),
     "zdistribute": ("pybosl2.distributors", "zdistribute"),

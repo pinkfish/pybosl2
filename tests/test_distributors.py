@@ -22,7 +22,9 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 
 def test_move_copies_matrices():
-    mats = d.move_copies([[0, 0, 0], [10, 0, 0], [0, 5, 0]])
+    from pybosl2._helpers import translate4
+
+    mats = [translate4(pos) for pos in [[0, 0, 0], [10, 0, 0], [0, 5, 0]]]
     assert len(mats) == 3
     np.testing.assert_allclose(mats[1][:3, 3], [10, 0, 0], atol=1e-9)  # translation column
 
