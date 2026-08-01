@@ -112,6 +112,26 @@ def _frame_map4(x=None, z=None) -> np.ndarray:
     return m
 
 
+def _spherical_to_xyz(radius: float, theta: float, phi: float) -> np.ndarray:
+    th, ph = math.radians(theta), math.radians(phi)
+    return np.array(
+        [
+            radius * math.sin(ph) * math.cos(th),
+            radius * math.sin(ph) * math.sin(th),
+            radius * math.cos(ph),
+        ]
+    )
+
+
+def _apply4(m: np.ndarray, pts3: np.ndarray) -> np.ndarray:
+    """Apply a 4x4 matrix to an (N, 3) point array, returning an (N, 3) array."""
+    pts = np.asarray(pts3, dtype=float)
+    homo = np.hstack([pts, np.ones((len(pts), 1))])
+    out = (m @ homo.T).T
+    w = out[:, 3:4]
+    return out[:, :3] / np.where(w == 0, 1.0, w)
+
+
 # ---------------------------------------------------------------------------
 # Section: copier matrix generators (BOSL2 function form, returning matrices)
 # ---------------------------------------------------------------------------
@@ -451,13 +471,11 @@ def sphere_copies(
         theta = (180 * (1 + math.sqrt(5)) * (x + 0.5)) % 360
         phi = math.degrees(math.acos(1 - 2 * (x + 0.5) / cnt))
         th, ph = math.radians(theta), math.radians(phi)
-        xyz = np.array(
-            [
-                rr * math.sin(ph) * math.cos(th),
-                rr * math.sin(ph) * math.sin(th),
-                rr * math.cos(ph),
-            ]
-        )
+        xyz = np.array([
+            rr * math.sin(ph) * math.cos(th),
+            rr * math.sin(ph) * math.sin(th),
+            rr * math.cos(ph),
+        ])
         pos = xyz * scalev
         m = translate4(pos) @ (rot_from_to4(UP, xyz) if perp else np.eye(4))
         mats.append(m)
