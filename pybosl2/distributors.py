@@ -560,22 +560,22 @@ def zflip_copy(offset=0, z=0) -> list[np.ndarray]:
 class DistributableMatrix:
     """Matrix-generating copiers — each returns ``list[np.ndarray]`` (4×4 matrices)."""
 
-    line_copies = staticmethod(line_copies)
-    xcopies = staticmethod(xcopies)
-    ycopies = staticmethod(ycopies)
-    zcopies = staticmethod(zcopies)
-    grid_copies = staticmethod(grid_copies)
-    rot_copies = staticmethod(rot_copies)
-    xrot_copies = staticmethod(xrot_copies)
-    yrot_copies = staticmethod(yrot_copies)
-    zrot_copies = staticmethod(zrot_copies)
-    arc_copies = staticmethod(arc_copies)
-    sphere_copies = staticmethod(sphere_copies)
-    path_copies = staticmethod(path_copies)
-    mirror_copy = staticmethod(mirror_copy)
-    xflip_copy = staticmethod(xflip_copy)
-    yflip_copy = staticmethod(yflip_copy)
-    zflip_copy = staticmethod(zflip_copy)
+    line_copies = staticmethod(line_copies)  # -> list[np.ndarray]
+    xcopies = staticmethod(xcopies)  # -> list[np.ndarray]
+    ycopies = staticmethod(ycopies)  # -> list[np.ndarray]
+    zcopies = staticmethod(zcopies)  # -> list[np.ndarray]
+    grid_copies = staticmethod(grid_copies)  # -> list[np.ndarray]
+    rot_copies = staticmethod(rot_copies)  # -> list[np.ndarray]
+    xrot_copies = staticmethod(xrot_copies)  # -> list[np.ndarray]
+    yrot_copies = staticmethod(yrot_copies)  # -> list[np.ndarray]
+    zrot_copies = staticmethod(zrot_copies)  # -> list[np.ndarray]
+    arc_copies = staticmethod(arc_copies)  # -> list[np.ndarray]
+    sphere_copies = staticmethod(sphere_copies)  # -> list[np.ndarray]
+    path_copies = staticmethod(path_copies)  # -> list[np.ndarray]
+    mirror_copy = staticmethod(mirror_copy)  # -> list[np.ndarray]
+    xflip_copy = staticmethod(xflip_copy)  # -> list[np.ndarray]
+    yflip_copy = staticmethod(yflip_copy)  # -> list[np.ndarray]
+    zflip_copy = staticmethod(zflip_copy)  # -> list[np.ndarray]
 
 
 class Distributable(ABC):
@@ -589,93 +589,6 @@ class Distributable(ABC):
     @abstractmethod
     def _distribute(self, mats: list[np.ndarray]) -> list[Any]:  # pragma: no cover
         raise NotImplementedError("Distributable subclasses must implement _distribute().")
-
-    # -- _mats generators (matching the former module-level signatures) ---------
-
-    @staticmethod
-    def line_copy_mats(spacing=None, num_copies=None, length=None, p1=None, p2=None):
-        return line_copies(spacing, num_copies, length, p1, p2)
-
-    @staticmethod
-    def xcopy_mats(spacing=None, num_copies=None, length=None, start_pos=None):
-        return _axis_copies(RIGHT, spacing, num_copies, length, start_pos)
-
-    @staticmethod
-    def ycopy_mats(spacing=None, num_copies=None, length=None, start_pos=None):
-        return _axis_copies(BACK, spacing, num_copies, length, start_pos)
-
-    @staticmethod
-    def zcopy_mats(spacing=None, num_copies=None, length=None, start_pos=None):
-        return _axis_copies(UP, spacing, num_copies, length, start_pos)
-
-    @staticmethod
-    def grid_copy_mats(spacing=None, num_copies=None, size=None, stagger=False, inside=None, nonzero=None, axes="xy"):
-        return grid_copies(spacing, num_copies, size, stagger, inside, nonzero, axes)
-
-    @staticmethod
-    def rot_copy_mats(
-        rots=None, v=None, center=(0, 0, 0), num_copies=None, sa=0, offset=0, delta=(0, 0, 0), subrot=True
-    ):
-        return rot_copies(rots, v, center, num_copies, sa, offset, delta, subrot)
-
-    @staticmethod
-    def xrot_copy_mats(rots=None, center=(0, 0, 0), num_copies=None, sa=0, radius=None, diameter=None, subrot=True):
-        return xrot_copies(rots, center, num_copies, sa, radius, diameter, subrot)
-
-    @staticmethod
-    def yrot_copy_mats(rots=None, center=(0, 0, 0), num_copies=None, sa=0, radius=None, diameter=None, subrot=True):
-        return yrot_copies(rots, center, num_copies, sa, radius, diameter, subrot)
-
-    @staticmethod
-    def zrot_copy_mats(rots=None, center=(0, 0, 0), num_copies=None, sa=0, radius=None, diameter=None, subrot=True):
-        return zrot_copies(rots, center, num_copies, sa, radius, diameter, subrot)
-
-    @staticmethod
-    def arc_copy_mats(
-        num_copies=6,
-        radius=None,
-        radius_x=None,
-        radius_y=None,
-        diameter=None,
-        diameter_x=None,
-        diameter_y=None,
-        sa=0,
-        ea=360,
-        rot=True,
-    ):
-        return arc_copies(num_copies, radius, radius_x, radius_y, diameter, diameter_x, diameter_y, sa, ea, rot)
-
-    @staticmethod
-    def sphere_copy_mats(num_copies=100, radius=None, diameter=None, cone_ang=90, scale=(1, 1, 1), perp=True):
-        return sphere_copies(num_copies, radius, diameter, cone_ang, scale, perp)
-
-    @staticmethod
-    def path_copy_mats(
-        path,
-        num_copies=None,
-        spacing=None,
-        start_pos=None,
-        dist=None,
-        rotate_children=True,
-        closed=None,
-    ):
-        return path_copies(path, num_copies, spacing, start_pos, dist, rotate_children, closed)
-
-    @staticmethod
-    def mirror_copy_mats(v=(0, 0, 1), offset=0, center=None):
-        return mirror_copy(v, offset, center)
-
-    @staticmethod
-    def xflip_copy_mats(offset=0, x=0):
-        return xflip_copy(offset, x)
-
-    @staticmethod
-    def yflip_copy_mats(offset=0, y=0):
-        return yflip_copy(offset, y)
-
-    @staticmethod
-    def zflip_copy_mats(offset=0, z=0):
-        return zflip_copy(offset, z)
 
     # -- instance methods ------------------------------------------------------
 
@@ -742,7 +655,7 @@ class Distributable(ABC):
         inside=None,
         nonzero: bool | None = None,
         axes="xy",
-    ):
+    ) -> list[np.ndarray]:
         """Copies in a square or staggered (hex) grid."""
         return self._distribute(
             DistributableMatrix.grid_copies(spacing, num_copies, size, stagger, inside, nonzero, axes)
@@ -813,7 +726,7 @@ class Distributable(ABC):
         sa: float = 0,
         ea: float = 360,
         rot=True,
-    ):
+    ) -> list[np.ndarray]:
         """Copies spread along an (elliptical) arc in the XY plane."""
         return self._distribute(
             arc_copies(
@@ -851,25 +764,25 @@ class Distributable(ABC):
         dist: "Sequence[float] | None" = None,
         rotate_children: bool = True,
         closed: bool | None = None,
-    ):
+    ) -> list[np.ndarray]:
         """Copies placed along *path*, oriented to it."""
         return self._distribute(
             DistributableMatrix.path_copies(path, num_copies, spacing, start_pos, dist, rotate_children, closed)
         )
 
-    def mirror_copy(self, v=(0, 0, 1), offset=0, center: bool | None = None):
+    def mirror_copy(self, v=(0, 0, 1), offset=0, center: bool | None = None) -> list[Any]:
         """This object plus a copy mirrored across the plane with normal *v*."""
         return self._distribute(DistributableMatrix.mirror_copy(v, offset, center))
 
-    def xflip_copy(self, offset=0, x=0):
+    def xflip_copy(self, offset=0, x=0) -> list[Any]:
         """This object plus a copy mirrored across the X=*x* plane."""
         return self._distribute(DistributableMatrix.xflip_copy(offset, x))
 
-    def yflip_copy(self, offset=0, y=0):
+    def yflip_copy(self, offset=0, y=0) -> list[Any]:
         """This object plus a copy mirrored across the Y=*y* plane."""
         return self._distribute(DistributableMatrix.yflip_copy(offset, y))
 
-    def zflip_copy(self, offset=0, z=0):
+    def zflip_copy(self, offset=0, z=0) -> list[Any]:
         """This object plus a copy mirrored across the Z=*z* plane."""
         return self._distribute(DistributableMatrix.zflip_copy(offset, z))
 
