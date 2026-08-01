@@ -13,7 +13,7 @@ mesh geometry (that is covered in test_stl_render.py)."""
 import numpy as np
 import pytest
 
-from pybosl2.distributors import Distributable, xdistribute, ydistribute, zdistribute
+from pybosl2.distributors import DistributableMatrix, xdistribute, ydistribute, zdistribute
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.points import Vector
@@ -31,27 +31,27 @@ def test_move_and_copy_matrices():
 
 
 def test_xcopies_centered_by_default():
-    mats = Distributable.xcopy_mats(20, num_copies=3)
+    mats = DistributableMatrix.xcopies(20, num_copies=3)
     xs = sorted(m[0, 3] for m in mats)
     np.testing.assert_allclose(xs, [-20, 0, 20], atol=1e-9)  # centered on origin
 
 
 def test_xcopies_explicit_positions():
-    mats = Distributable.xcopy_mats([1, 2, 3, 5, 7])
+    mats = DistributableMatrix.xcopies([1, 2, 3, 5, 7])
     xs = [m[0, 3] for m in mats]
     np.testing.assert_allclose(xs, [1, 2, 3, 5, 7], atol=1e-9)
 
 
 def test_grid_copies_count_and_stagger():
-    assert len(Distributable.grid_copy_mats(num_copies=[3, 4], spacing=10)) == 12
+    assert len(DistributableMatrix.grid_copies(num_copies=[3, 4], spacing=10)) == 12
     # a staggered grid drops/offsets alternate columns per row
-    assert len(Distributable.grid_copy_mats(spacing=8, num_copies=[4, 3], stagger=True)) == 6
+    assert len(DistributableMatrix.grid_copies(spacing=8, num_copies=[4, 3], stagger=True)) == 6
 
 
 def test_grid_copies_inside_polygon_filters():
     # only centers inside the small square survive
     poly = [[-6, -6], [6, -6], [6, 6], [-6, 6]]
-    mats = Distributable.grid_copy_mats(spacing=5, num_copies=[9, 9], inside=poly)
+    mats = DistributableMatrix.grid_copies(spacing=5, num_copies=[9, 9], inside=poly)
     assert 0 < len(mats) < 81
     for m in mats:
         assert -6 <= m[0, 3] <= 6
@@ -59,13 +59,13 @@ def test_grid_copies_inside_polygon_filters():
 
 
 def test_arc_copies_positions_on_circle():
-    mats = Distributable.arc_copy_mats(num_copies=4, radius=10, sa=0, ea=360)
+    mats = DistributableMatrix.arc_copies(num_copies=4, radius=10, sa=0, ea=360)
     # first copy sits on +X at radius 10
     np.testing.assert_allclose(mats[0][:3, 3], [10, 0, 0], atol=1e-9)
 
 
 def test_mirror_copy_is_original_plus_reflection():
-    mats = Distributable.mirror_copy_mats([1, 0, 0])
+    mats = DistributableMatrix.mirror_copy([1, 0, 0])
     assert len(mats) == 2
     np.testing.assert_allclose(mats[0], np.eye(4), atol=1e-9)  # the original
     np.testing.assert_allclose(mats[1][:3, :3], np.diag([-1, 1, 1]), atol=1e-9)  # X reflection
@@ -117,7 +117,7 @@ def test_path_mirror_copy_2d():
 SEG3 = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 5]], closed=False)
 
 
-def test_path3d_zcopies():
+def test_path3d__zcopies():
     copies = SEG3.zcopies(15, num_copies=3)
     assert len(copies) == 3
     assert all(isinstance(c, Path3D) for c in copies)

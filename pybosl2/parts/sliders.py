@@ -19,7 +19,7 @@ import math
 
 from pybosl2._helpers import union
 from pybosl2.constants import BACK, BOTTOM, FRONT, LEFT, RIGHT
-from pybosl2.distributors import Distributable
+from pybosl2.distributors import DistributableMatrix
 from pybosl2.shapes3d import Bosl2Solid, cuboid, prismoid
 from pybosl2.vnf import VNF
 
@@ -70,7 +70,7 @@ class Sliders:
                 fs=fs,
             )
         ]
-        for m in Distributable.xflip_copy_mats(offset=w / 2 + slop):
+        for m in DistributableMatrix.xflip_copy(offset=w / 2 + slop):
             wallcube = cuboid(
                 [wall, length, full_height],
                 chamfer=2,
@@ -83,7 +83,7 @@ class Sliders:
             )
             parts.append(wallcube.multmatrix(m.tolist()))
         bev_h = height / 2 * math.tan(math.radians(angle))
-        for m in Distributable.xflip_copy_mats(offset=w / 2 + slop + 0.02):
+        for m in DistributableMatrix.xflip_copy(offset=w / 2 + slop + 0.02):
             slid = prismoid(
                 [height, length],
                 [0, length - w],

@@ -391,6 +391,50 @@ class _AabbSolid:
             return lambda *_a, **_k: self
         raise AttributeError(name)
 
+    # -- copier methods (match Distributable interface, used by parts/* code) ---
+
+    def _distribute(self, mats):
+        return [self.__class__(self.bounds.mn, self.bounds.mx - self.bounds.mn) for _ in mats]
+
+    def zrot_copies(self, **kw):
+        from pybosl2.distributors import _rotate_around_z
+
+        mats = _rotate_around_z(**kw)
+        return [
+            self.__class__.from_multmatrix(self, m) if hasattr(self.__class__, "from_multmatrix") else self
+            for m in mats
+        ]
+
+    def xcopies(self, **kw):
+        from pybosl2.constants import RIGHT
+        from pybosl2.distributors import _axis_copies
+
+        return self._distribute(_axis_copies(RIGHT, **kw))
+
+    def ycopies(self, **kw):
+        from pybosl2.constants import BACK
+        from pybosl2.distributors import _axis_copies
+
+        return self._distribute(_axis_copies(BACK, **kw))
+
+    def zcopies(self, **kw):
+        from pybosl2.constants import UP
+        from pybosl2.distributors import _axis_copies
+
+        return self._distribute(_axis_copies(UP, **kw))
+
+    def mirror_copy(self, **kw):
+        from pybosl2.distributors import _mirror_mat
+
+        mats = _mirror_mat(**kw)
+        return self._distribute(mats)
+
+    def xflip_copy(self, **kw):
+        from pybosl2.distributors import _mirror_mat
+
+        mats = _mirror_mat(v=[1, 0, 0], center=[kw.get("x", 0), kw.get("offset", 0), 0])
+        return self._distribute(mats)
+
 
 def _rot_matrix(a, v=None):
     if v is None and isinstance(a, (list, tuple)):
