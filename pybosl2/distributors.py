@@ -148,7 +148,7 @@ def xcopies(
     spacing: float | None = None,
     num_copies=None,
     length: float | None = None,
-    start_pos=None,
+    start_pos: float | None = None,
 ) -> list[np.ndarray]:
     """Copies spread along the X axis (BOSL2 xcopies())."""
     return _axis_copies(RIGHT, spacing, num_copies, length, start_pos)
@@ -158,7 +158,7 @@ def ycopies(
     spacing: float | None = None,
     num_copies=None,
     length: float | None = None,
-    start_pos=None,
+    start_pos: float | None = None,
 ) -> list[np.ndarray]:
     """Copies spread along the Y axis (BOSL2 ycopies())."""
     return _axis_copies(BACK, spacing, num_copies, length, start_pos)
@@ -168,7 +168,7 @@ def zcopies(
     spacing: float | None = None,
     num_copies=None,
     length: float | None = None,
-    start_pos=None,
+    start_pos: float | None = None,
 ) -> list[np.ndarray]:
     """Copies spread along the Z axis (BOSL2 zcopies())."""
     return _axis_copies(UP, spacing, num_copies, length, start_pos)
@@ -474,7 +474,7 @@ def path_copies(
     path,
     num_copies=None,
     spacing=None,
-    start_pos=None,
+    start_pos: float | None = None,
     dist: "Sequence[float] | None" = None,
     rotate_children: bool = True,
     closed: bool | None = None,
@@ -609,15 +609,33 @@ class Distributable(ABC):
         """Copies spread along a line (BOSL2 line_copies)."""
         return self._distribute(line_copies(spacing, num_copies, length, p1, p2))
 
-    def xcopies(self, spacing: float | None = None, num_copies=None, length: float | None = None, start_pos=None):
+    def xcopies(
+        self,
+        spacing: float | None = None,
+        num_copies=None,
+        length: float | None = None,
+        start_pos: float | None = None,
+    ) -> Any:
         """Copies spread along the X axis (BOSL2 xcopies)."""
         return self._distribute(_axis_copies(RIGHT, spacing, num_copies, length, start_pos))
 
-    def ycopies(self, spacing: float | None = None, num_copies=None, length: float | None = None, start_pos=None):
+    def ycopies(
+        self,
+        spacing: float | None = None,
+        num_copies=None,
+        length: float | None = None,
+        start_pos: float | None = None,
+    ) -> Any:
         """Copies spread along the Y axis (BOSL2 ycopies)."""
         return self._distribute(_axis_copies(BACK, spacing, num_copies, length, start_pos))
 
-    def zcopies(self, spacing: float | None = None, num_copies=None, length: float | None = None, start_pos=None):
+    def zcopies(
+        self,
+        spacing: float | None = None,
+        num_copies=None,
+        length: float | None = None,
+        start_pos: float | None = None,
+    ) -> Any:
         """Copies spread along the Z axis (BOSL2 zcopies)."""
         return self._distribute(_axis_copies(UP, spacing, num_copies, length, start_pos))
 
@@ -733,7 +751,7 @@ class Distributable(ABC):
         path,
         num_copies=None,
         spacing=None,
-        start_pos=None,
+        start_pos: float | None = None,
         dist: "Sequence[float] | None" = None,
         rotate_children: bool = True,
         closed: bool | None = None,
