@@ -96,7 +96,13 @@ def _vec3(v: Any, fill: float = 0.0) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 
-def line_copies(spacing=None, num_copies=None, length: float | None = None, p1=None, p2=None) -> list[np.ndarray]:
+def line_copies(
+    spacing: float | None = None,
+    num_copies=None,
+    length: float | None = None,
+    p1=None,
+    p2=None,
+) -> list[np.ndarray]:
     """Translation matrices evenly spread along a line (BOSL2 line_copies())."""
     if length is not None:
         ll = _vec3(length, 0.0)
@@ -133,17 +139,17 @@ def _axis_copies(direction, spacing, num_copies, length, sp) -> list[np.ndarray]
     return line_copies(spacing=spv, num_copies=num_copies, length=lv, p1=sp_pt)
 
 
-def xcopies(spacing=None, num_copies=None, length: float | None = None, sp=None) -> list[np.ndarray]:
+def xcopies(spacing: float | None = None, num_copies=None, length: float | None = None, sp=None) -> list[np.ndarray]:
     """Copies spread along the X axis (BOSL2 xcopies())."""
     return _axis_copies(RIGHT, spacing, num_copies, length, sp)
 
 
-def ycopies(spacing=None, num_copies=None, length: float | None = None, sp=None) -> list[np.ndarray]:
+def ycopies(spacing: float | None = None, num_copies=None, length: float | None = None, sp=None) -> list[np.ndarray]:
     """Copies spread along the Y axis (BOSL2 ycopies())."""
     return _axis_copies(BACK, spacing, num_copies, length, sp)
 
 
-def zcopies(spacing=None, num_copies=None, length: float | None = None, sp=None) -> list[np.ndarray]:
+def zcopies(spacing: float | None = None, num_copies=None, length: float | None = None, sp=None) -> list[np.ndarray]:
     """Copies spread along the Z axis (BOSL2 zcopies())."""
     return _axis_copies(UP, spacing, num_copies, length, sp)
 
@@ -563,19 +569,19 @@ class Distributable(ABC):
         """Copy to each offset in *a* (BOSL2 move_copies)."""
         return self._distribute([translate4(pos) for pos in a])
 
-    def line_copies(self, spacing=None, num_copies=None, length: float | None = None, p1=None, p2=None):
+    def line_copies(self, spacing: float | None = None, num_copies=None, length: float | None = None, p1=None, p2=None):
         """Copies spread along a line (BOSL2 line_copies)."""
         return self._distribute(line_copies(spacing, num_copies, length, p1, p2))
 
-    def xcopies(self, spacing=None, num_copies=None, length: float | None = None, sp=None):
+    def xcopies(self, spacing: float | None = None, num_copies=None, length: float | None = None, sp=None):
         """Copies spread along the X axis (BOSL2 xcopies)."""
         return self._distribute(_axis_copies(RIGHT, spacing, num_copies, length, sp))
 
-    def ycopies(self, spacing=None, num_copies=None, length: float | None = None, sp=None):
+    def ycopies(self, spacing: float | None = None, num_copies=None, length: float | None = None, sp=None):
         """Copies spread along the Y axis (BOSL2 ycopies)."""
         return self._distribute(_axis_copies(BACK, spacing, num_copies, length, sp))
 
-    def zcopies(self, spacing=None, num_copies=None, length: float | None = None, sp=None):
+    def zcopies(self, spacing: float | None = None, num_copies=None, length: float | None = None, sp=None):
         """Copies spread along the Z axis (BOSL2 zcopies)."""
         return self._distribute(_axis_copies(UP, spacing, num_copies, length, sp))
 
