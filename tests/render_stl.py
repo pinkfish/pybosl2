@@ -78,7 +78,8 @@ _PREAMBLE = (
     "from pybosl2 import partition_path, partition_mask, partition_cut_mask\n"
     "from pybosl2 import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
     "from pybosl2 import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
-    "from pybosl2 import isosurface, metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, "
+    "from pybosl2 import VNF\n"
+    "from pybosl2 import mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, "
     "mb_octahedron, mb_connector\n"
     # parts library classes, so examples can be terse (Gears.spur_gear(...).show())
     "from pybosl2.parts.threading import Threading\n"

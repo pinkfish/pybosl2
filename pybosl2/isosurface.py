@@ -378,20 +378,3 @@ def mb_connector(
         return _mb_field(dist, rr, influence, cutoff, neg)
 
     return Metaball(field, neg)
-
-
-# -- backwards-compatible aliases (delegate to VNF) ---------------------------
-
-
-def isosurface(*args, **kwargs):
-    """Backwards-compatible alias for :meth:`VNF.from_field`."""
-    from pybosl2.vnf import VNF
-
-    return VNF.from_field(*args, **kwargs)
-
-
-def metaballs(*args, **kwargs):
-    """Backwards-compatible alias for :meth:`VNF.from_metaballs`."""
-    from pybosl2.vnf import VNF
-
-    return VNF.from_metaballs(*args, **kwargs)
