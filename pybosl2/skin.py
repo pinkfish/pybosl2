@@ -278,6 +278,11 @@ def sweep(
         closed:     the sweep loops back on itself (no caps)
         caps:       cap the open ends (default: True/True open, none closed); bool or [bool, bool]
         style:      vnf_vertex_array quad-subdivision style
+
+    Note:
+        *caps* support is limited to on/off flat endcaps. Decorative cap types
+        (ROUND, CIRCLE, ARROW, etc.) produce the same flat caps as BUTT in sweep
+        contexts. For decorative endcaps, use :meth:`Path3D.stroke` instead.
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     assert len(shape3) >= 3, "shape must be a path of at least 3 points."
@@ -520,6 +525,11 @@ def skin(
         closed:   the stack loops back to the first profile (default False)
         style:    vnf_vertex_array quad-subdivision style
         z:        per-profile Z heights, required when the profiles are 2-D
+
+    Note:
+        *caps* support is limited to on/off flat endcaps. Decorative cap types
+        (ROUND, CIRCLE, ARROW, etc.) produce the same flat caps as BUTT in sweep
+        contexts. For decorative endcaps, use :meth:`Path3D.stroke` instead.
 
     Examples:
         Skinning a round profile up to a square one (a lofted transition):

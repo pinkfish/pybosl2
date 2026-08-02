@@ -13,7 +13,7 @@ controlling cap appearance, and the normaliser shared by :mod:`pybosl2.skin`,
 
 Cap types
     ``NONE`` -- no cap (open end)
-    ``BUTT`` / ``FLAT`` -- default flat end cap
+    ``BUTT`` -- default flat end cap (``FLAT`` is a module-level backward-compatible alias)
     ``ROUND`` / ``SPHERE`` -- spherical end cap (planned)
     ``CIRCLE`` -- round-over end cap (planned)
     ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles
@@ -41,7 +41,7 @@ class CapType(Enum):
 
     Sweep/skin cap types:
         ``NONE`` -- no cap (open end)
-        ``BUTT`` / ``FLAT`` -- flat end cap
+        ``BUTT`` -- flat end cap
         ``ROUND`` / ``SPHERE`` -- spherical (planned)
         ``CIRCLE`` -- round-over (planned)
         ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape
@@ -59,7 +59,6 @@ class CapType(Enum):
     NONE = "none"
     # Sweep cap types
     BUTT = "butt"
-    FLAT = "flat"
     ROUND = "round"
     SPHERE = "sphere"
     CIRCLE = "circle"
@@ -80,6 +79,10 @@ class CapType(Enum):
     X = "x"
 
 
+FLAT = CapType.BUTT
+"""Backward-compatible alias for :attr:`CapType.BUTT`."""
+
+
 #: A cap specification used by sweep/skin entry points. Can be:
 #:
 #: * a single :class:`CapType` enum member (same cap on both ends)
@@ -98,7 +101,7 @@ class CapSpec:
     """Customisable end-cap specification.
 
     Used wherever a cap type is accepted. The *cap_type* field selects the
-    shape; *length*, *width*, and *extent* control the dimensions; *angle*
+    shape; *length*, *width*, and *height* control the dimensions; *angle*
     rotates the cap; *color* overrides the path colour when set.
 
     When *cap_type* is :attr:`CapType.CUSTOM`, the *path* field must hold
@@ -108,6 +111,7 @@ class CapSpec:
         cap_type: The :class:`CapType` style.
         length: Cap length multiplier (along the path direction).
         width: Cap width multiplier (perpendicular scale).
+        height: Cap height multiplier (0 means use the computed default from width/length).
         extent: Extent multiplier for the cap shape.
         angle: Rotation angle of the cap in degrees.
         color: Override colour for the cap, or ``None`` for the path colour.
@@ -117,6 +121,7 @@ class CapSpec:
     cap_type: CapType = DEFAULT_CAP
     length: float = 0.0
     width: float = 0.0
+    height: float = 0.0
     extent: float = 0.0
     angle: float = 0.0
     color: str | None = None
@@ -149,7 +154,6 @@ _DEFAULTS: dict[CapType, CapSpec] = {
     CapType.TAIL: CapSpec(cap_type=CapType.TAIL, length=3.5, width=0.47, extent=0.5),
     CapType.TAIL2: CapSpec(cap_type=CapType.TAIL2, length=3.5, width=0.28, extent=0.5),
     CapType.CUSTOM: CapSpec(cap_type=CapType.CUSTOM, length=1.0, width=0.0, extent=0.0),
-    CapType.FLAT: CapSpec(cap_type=CapType.FLAT, length=1.0, width=0.0, extent=0.0),
     CapType.SPHERE: CapSpec(cap_type=CapType.SPHERE, length=1.0, width=1.0, extent=0.0),
     CapType.CIRCLE: CapSpec(cap_type=CapType.CIRCLE, length=1.0, width=1.0, extent=0.0),
 }
@@ -201,7 +205,21 @@ def _caps_as_bools(cap_specs: list[CapSpec]) -> list[bool]:
 
     ``CapType.NONE`` entries mean no cap; any other :class:`CapType` resolves
     to ``True`` (flat end cap). Always returns exactly two elements.
+
+    Note:
+        Decorative cap types (ROUND, CIRCLE, ARROW, etc.) are not available
+        in sweep contexts. They produce the same flat caps as BUTT. For
+        decorative endcaps, use :meth:`Path3D.stroke` instead.
     """
+    import warnings
+
+    for spec in cap_specs:
+        if spec.cap_type not in (CapType.NONE, CapType.BUTT):
+            warnings.warn(
+                f"Decorative cap {spec.cap_type!r} is not supported in sweep contexts; "
+                f"producing flat cap. Use Path3D.stroke() for decorative endcaps.",
+                stacklevel=2,
+            )
     if not cap_specs:
         return [False, False]
     if len(cap_specs) == 1:
@@ -236,6 +254,9 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
     if spec.cap_type == CapType.CUSTOM:
         assert spec.path is not None, "CapType.CUSTOM requires path= on the CapSpec"
         return [[[float(c) for c in pt] for pt in spec.path]]
+
+    if spec.cap_type == CapType.CIRCLE:
+        raise NotImplementedError("CapType.CIRCLE is not yet implemented")
 
     w = spec.width
     length = spec.length * spec.width

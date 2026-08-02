@@ -801,7 +801,7 @@ def _offset_stroke(
         return Region([])
 
     # Map endcap/join style to shapely integer constants
-    cap_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.BUTT: 2, CapType.SQUARE: 3, CapType.FLAT: 2}
+    cap_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.BUTT: 2, CapType.SQUARE: 3}
     join_map: dict[CapType, int] = {CapType.ROUND: 1, CapType.SQUARE: 3}
 
     c_style = cap_map.get(endcap, 1)

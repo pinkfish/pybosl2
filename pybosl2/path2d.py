@@ -1664,20 +1664,28 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         self,
         width: float = 1,
         closed: bool | None = None,
-        endcaps: CapType | CapSpec = CapType.ROUND,  # noqa: ARG002
-        endcap1: CapType | CapSpec = CapType.ROUND,
-        endcap2: CapType | CapSpec = CapType.ROUND,
+        endcaps: CapType | CapSpec | None = None,
+        endcap1: CapType | CapSpec | None = None,
+        endcap2: CapType | CapSpec | None = None,
         joints: CapType | CapSpec = CapType.ROUND,
     ) -> "Path2D":
         """Render this 2-D path as a stroked polygon outline."""
         from pybosl2._stroke2d import stroke_2d
+        from pybosl2.caps import CapSpec, _normalize_one
+
+        if endcaps is None:
+            endcaps = CapType.ROUND
+        ec1_raw = endcap1 if endcap1 is not None else endcaps
+        ec2_raw = endcap2 if endcap2 is not None else endcaps
+        ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else _normalize_one(ec1_raw)
+        ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else _normalize_one(ec2_raw)
 
         return stroke_2d(
             self,
             width=width,
             closed=self.closed if closed is None else closed,
-            endcap1=endcap1,
-            endcap2=endcap2,
+            endcap1=ec1,
+            endcap2=ec2,
             joints=joints,
         )
 

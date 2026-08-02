@@ -31,8 +31,9 @@ if TYPE_CHECKING:
 
 
 def _endcap_geometry_3d(spec: CapSpec, at: Sequence[float], outdir: Sequence[float], width: float) -> Any:
+    import warnings
+
     from pybosl2._backend import current_backend
-    from pybosl2.exceptions import UnsupportedByBackendError
 
     if spec.cap_type in (CapType.NONE, CapType.BUTT):
         return None
@@ -44,11 +45,11 @@ def _endcap_geometry_3d(spec: CapSpec, at: Sequence[float], outdir: Sequence[flo
     if not polys:
         return None
     if current_backend() != "csg":
-        raise UnsupportedByBackendError(
-            f"stroke(endcap={spec.cap_type!r})",
-            current_backend(),
-            hint="the revolved endcaps need rotate_extrude().",
+        warnings.warn(
+            f"Decorative endcap {spec.cap_type!r} not supported on SDF backend; falling back to ROUND sphere",
+            stacklevel=2,
         )
+        return _sphere(radius=width / 2).translate([float(c) for c in at])
     from pythonscad import polygon as _opolygon
     from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import square as _osquare

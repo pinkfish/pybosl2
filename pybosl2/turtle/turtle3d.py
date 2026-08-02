@@ -31,7 +31,9 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
 
+    from pybosl2.caps import CapSpec, CapType
     from pybosl2.points import Point
+    from pybosl2.shapes3d import Bosl2Solid
 
 from pybosl2._helpers import rot_from_to4
 from pybosl2.constants import BACK, FRONT, RIGHT, UP
@@ -202,6 +204,29 @@ class Turtle3D:
     def points(self) -> list[list[float]]:
         """The de-duplicated list of 3-D points the turtle has visited."""
         return Turtle3D._dedup([Turtle3D._apply(T, [0, 0, 0]) for T in self._state.transforms])
+
+    def stroke(
+        self,
+        width: float = 1,
+        cap: CapType | CapSpec | None = None,
+        closed: bool | None = None,
+    ) -> "Bosl2Solid":
+        """Render the turtle's current path as a 3-D stroked tube.
+
+        Args:
+            width: Stroke line width.
+            cap: Optional endcap style applied to both ends.
+            closed: Override whether the path is treated as closed.
+
+        Returns:
+            A :class:`Bosl2Solid` representing the tubular stroke.
+        """
+        from pybosl2.path3d import Path3D
+
+        path = Path3D(self.points(), closed=False)
+        if cap is not None:
+            return path.stroke(width=width, closed=closed, endcap1=cap, endcap2=cap)
+        return path.stroke(width=width, closed=closed)
 
     def transforms(self) -> list[np.ndarray]:
         """The list of 4x4 transforms (position + orientation) for sweeping a profile along the path."""
