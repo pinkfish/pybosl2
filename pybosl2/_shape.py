@@ -60,6 +60,8 @@ _NATIVE_PASSTHROUGH = frozenset(
         "intersection",
         "difference",
         "rotate_extrude",
+        "show",
+        "roof",
     }
 )
 

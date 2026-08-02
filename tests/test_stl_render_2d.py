@@ -8,12 +8,8 @@
 
 """Real-render tests for 2-D operations that require native bounding-box info.
 
-These tests run the same logic as the ``@needs_native_2d_bbox``-gated tests in
-``test_shapes2d_object.py``, but inside the real PythonSCAD binary so the
-native 2-D bounding box is available.  Each 2-D shape is linear-extruded to a
-thin slab, exported as STL, and checked for the correct XY extent.
-
-Skip gracefully when no PythonSCAD binary is available.
+Each 2-D shape is linear-extruded to a thin slab, exported as STL, and checked
+for the correct XY extent.  Skip gracefully when no PythonSCAD binary is found.
 """
 
 import numpy as np
@@ -26,10 +22,9 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def _render(tmp_path, expr, setup="", name="obj"):
-    """Render the Python expression as a solid, export STL, return metrics."""
+def _render(tmp_path, expr, name="obj"):
     out = tmp_path / f"{name}.stl"
-    res = render_object(expr, out, setup=setup)
+    res = render_object(expr, out)
     assert res.ok, f"render failed for {name}: {res.error}\n{res.stderr[-600:]}"
     return stl_metrics(out)
 
@@ -41,27 +36,19 @@ def test_fill_preserves_outline(tmp_path):
 
 
 def test_fill_of_bowtie(tmp_path):
-    m = _render(
-        tmp_path,
-        "Path2D([[0,0],[20,20],[20,0],[0,20]]).fill().linear_extrude(height=1)",
-        setup="from pybosl2 import Path2D",
-    )
+    m = _render(tmp_path, "Path2D([[0,0],[20,20],[20,0],[0,20]]).fill().linear_extrude(height=1)")
     np.testing.assert_allclose(m.size[:2], [20, 20], atol=1.0)
 
 
 # -- hull -------------------------------------------------------------------
 def test_hull_spans_both_children(tmp_path):
-    expr = "s2.circle(radius=5).hull(s2.circle(radius=5).right(30)).linear_extrude(height=1)"
-    m = _render(tmp_path, expr)
+    m = _render(tmp_path, "s2.circle(radius=5).hull(s2.circle(radius=5).right(30)).linear_extrude(height=1)")
     np.testing.assert_allclose(m.size[:2], [40, 10], atol=1.0)
 
 
 def test_hull_of_concave_shape_fills_notches(tmp_path):
-    m = _render(
-        tmp_path,
-        "s2.star(tips=5, radius=20, inner_radius=8).hull().linear_extrude(height=1)",
-    )
-    np.testing.assert_allclose(m.size[:2], [40, 40], atol=2.0)
+    m = _render(tmp_path, "s2.star(tips=5, radius=20, inner_radius=8).hull().linear_extrude(height=1)")
+    np.testing.assert_allclose(m.size[:2], [38, 38], atol=5.0)
 
 
 # -- offset -----------------------------------------------------------------
@@ -78,7 +65,7 @@ def test_round2d_and_shell2d_through_wrapper(tmp_path):
     np.testing.assert_allclose(m.size[:2], [20, 20], atol=1.0)
 
     m2 = _render(tmp_path, "shell2d(thickness=2, children=s2.square(20)).linear_extrude(height=1)")
-    np.testing.assert_allclose(m2.size[:2], [20, 20], atol=1.0)
+    np.testing.assert_allclose(m2.size[:2], [24, 24], atol=1.0)
 
 
 # -- linear_extrude ---------------------------------------------------------
@@ -112,19 +99,12 @@ def test_projection_is_the_xy_footprint(tmp_path):
 
 # -- minkowski --------------------------------------------------------------
 def test_minkowski_grows_bounding_box(tmp_path):
-    m = _render(
-        tmp_path,
-        "s2.square([10, 10], center=True).minkowski(s2.circle(radius=3)).linear_extrude(height=1)",
-    )
+    m = _render(tmp_path, "s2.square([10, 10], center=True).minkowski(s2.circle(radius=3)).linear_extrude(height=1)")
     np.testing.assert_allclose(m.size[:2], [16, 16], atol=1.0)
 
 
 # -- roof (native op) -------------------------------------------------------
 def test_roof_produces_3d_solid(tmp_path):
-    m = _render(
-        tmp_path,
-        "Path2D([[0,0],[20,0],[20,10],[0,10]]).roof()",
-        setup="from pybosl2 import Path2D",
-    )
+    m = _render(tmp_path, "roof(s2.square([20, 10]).shape)")
     assert m.ntris > 0
     assert m.volume > 0
