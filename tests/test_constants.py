@@ -91,3 +91,19 @@ def test_vector_arithmetic() -> None:
     assert list(3 * RIGHT.vector) == [3, 0, 0]
     assert TOP.vector == Point(0, 0, 1)
     assert TOP.vector != Point(1, 0, 0)
+
+
+def test_inch_constant() -> None:
+    """INCH equals 25.4."""
+    from pybosl2.constants import INCH
+
+    assert INCH == 25.4
+
+
+def test_ident_is_4x4_identity() -> None:
+    """IDENT is a 4x4 identity matrix."""
+    from pybosl2.constants import IDENT
+
+    assert len(IDENT) == 4
+    for i in range(4):
+        assert IDENT[i][i] == 1

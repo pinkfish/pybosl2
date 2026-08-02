@@ -130,3 +130,137 @@ def test_vnf_polyhedron_helper() -> None:
     assert solid_helper is not None
     # Check that both return mock solids with same bounds or attributes
     assert str(solid_method.position) == str(solid_helper.position)
+
+
+# -- vertex_array style tests ---------------------------------------------------------------
+
+
+def test_vertex_array_min_edge_style() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style="min_edge")
+    assert len(v.vertices) == 9
+    assert len(v.faces) == 8
+    assert _valid(v)
+
+
+def test_vertex_array_min_area_style() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style="min_area")
+    assert len(v.vertices) == 9
+    assert len(v.faces) == 8
+    assert _valid(v)
+
+
+def test_vertex_array_convex_style() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style="convex")
+    assert len(v.vertices) == 9
+    assert len(v.faces) == 8
+    assert _valid(v)
+
+
+def test_vertex_array_concave_style() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style="concave")
+    assert len(v.vertices) == 9
+    assert len(v.faces) == 8
+    assert _valid(v)
+
+
+def test_vertex_array_flip1_style() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style="flip1")
+    assert len(v.vertices) == 9
+    assert len(v.faces) == 8
+    assert _valid(v)
+
+
+def test_vertex_array_flip2_style() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style="flip2")
+    assert len(v.vertices) == 9
+    assert len(v.faces) == 8
+    assert _valid(v)
+
+
+def test_vertex_array_row_wrap() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), row_wrap=True)
+    assert len(v.vertices) == 9
+    assert len(v.faces) == 12
+    assert _valid(v)
+
+
+# -- cap tests ------------------------------------------------------------------------------
+
+
+def test_vertex_array_flat_caps() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, cap1=CapType.BUTT, cap2=CapType.BUTT)
+    assert len(v.vertices) == 9
+    assert len(v.faces) == 14
+    assert _valid(v)
+
+
+def test_vertex_array_round_dome_caps() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, cap1=CapType.ROUND, cap2=CapType.ROUND)
+    assert len(v.vertices) == 11
+    assert len(v.faces) == 18
+    assert _valid(v)
+
+
+def test_vertex_array_mixed_caps() -> None:
+    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, cap1=CapType.BUTT, cap2=CapType.ROUND)
+    assert len(v.vertices) == 10
+    assert len(v.faces) == 16
+    assert _valid(v)
+
+
+# -- VNF class method tests -----------------------------------------------------------------
+
+
+def test_vnf_from_polyhedron_empty() -> None:
+    v = VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]])
+    result = v.polyhedron()
+    assert result is not None
+
+
+def test_vnf_volume_positive() -> None:
+    import math
+
+    verts: list[list[float]] = [
+        [0, 0, 0],
+        [1, 0, 0],
+        [1, 1, 0],
+        [0, 1, 0],
+        [0, 0, 1],
+        [1, 0, 1],
+        [1, 1, 1],
+        [0, 1, 1],
+    ]
+    faces: list[list[int]] = [
+        [0, 2, 1],
+        [0, 3, 2],
+        [4, 5, 6],
+        [4, 6, 7],
+        [0, 1, 5],
+        [0, 5, 4],
+        [1, 2, 6],
+        [1, 6, 5],
+        [2, 3, 7],
+        [2, 7, 6],
+        [3, 0, 4],
+        [3, 4, 7],
+    ]
+    v = VNF(verts, faces)
+    assert math.isclose(v.volume(), 1.0, rel_tol=1e-9)
+
+
+def test_vnf_volume_zero_for_flat() -> None:
+    import math
+
+    verts: list[list[float]] = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]
+    faces: list[list[int]] = [[0, 1, 2], [0, 2, 3]]
+    v = VNF(verts, faces)
+    assert math.isclose(v.volume(), 0.0, abs_tol=1e-12)
+
+
+def test_vnf_union_two_grids() -> None:
+    a = VNF.vertex_array(_grid(3, 3, warp=True))
+    b = VNF.vertex_array(_grid(3, 3, warp=True))
+    j = VNF.union([a, b])
+    assert len(j.vertices) == 18
+    assert len(j.faces) == 16
+    assert _valid(j)

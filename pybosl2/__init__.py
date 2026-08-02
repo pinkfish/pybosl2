@@ -43,7 +43,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "CornerPlane": ("pybosl2._edges_lang", "CornerPlane"),
     # constants
     "EPSILON": ("pybosl2.math", "EPSILON"),
-    "CENTRE": ("pybosl2.constants", ""),  # aliases
+    "CENTRE": ("pybosl2.constants", "CENTER"),  # British spelling alias
     # colour
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),
@@ -91,7 +91,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "roof": ("pybosl2.shapes3d", "roof"),
     "wedge": ("pybosl2.shapes3d", "wedge"),
     "tube": ("pybosl2.shapes3d", "tube"),
-    "cross": ("pybosl2.shapes3d", "cross"),
+    # cross shape is not yet ported
     "path_text": ("pybosl2.shapes3d", "path_text"),
     "text3d": ("pybosl2.shapes3d", "text3d"),
     # distributors
@@ -150,10 +150,15 @@ def __getattr__(name: str) -> object:
         import importlib
 
         mod = importlib.import_module(parts[0])
-        obj = getattr(getattr(mod, parts[1]), parts[2]) if len(parts) == 3 else getattr(mod, parts[1])
+        if len(parts) == 3 and parts[1]:
+            obj = getattr(getattr(mod, parts[1]), parts[2])
+        elif parts[1]:
+            obj = getattr(mod, parts[1])
+        else:
+            obj = mod  # side-effect import only (empty attr name)
         globals()[name] = obj
         return obj
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-__all__ = ["Version", "__version__", "version"] + sorted(_LAZY_EXPORTS.keys())
+__all__ = ["Version", "__version__", "version"] + sorted(k for k in _LAZY_EXPORTS if k)
