@@ -70,12 +70,19 @@ def _bezcorner(
 
     if isinstance(parm, (list, tuple, np.ndarray)):
         d, k = float(parm[0]), float(parm[1])
-        p1 = np.asarray(points[1], dtype=float)
-        prev = unit(np.asarray(points[0], dtype=float) - p1)
-        nxt = unit(np.asarray(points[2], dtype=float) - p1)
-        ctrl = [p1 + d * prev, p1 + k * d * prev, p1, p1 + k * d * nxt, p1 + d * nxt]
+        p1 = [float(points[1][i]) for i in range(len(points[1]))]
+        dim = len(p1)
+        prev = unit([float(points[0][i]) - p1[i] for i in range(dim)])
+        nxt = unit([float(points[2][i]) - p1[i] for i in range(dim)])
+        ctrl = [
+            [p1[i] + d * prev[i] for i in range(dim)],
+            [p1[i] + k * d * prev[i] for i in range(dim)],
+            p1,
+            [p1[i] + k * d * nxt[i] for i in range(dim)],
+            [p1[i] + d * nxt[i] for i in range(dim)],
+        ]
     else:
-        ctrl = _smooth_bez_fill(points, float(parm))  # type: ignore[assignment,arg-type]
+        ctrl = _smooth_bez_fill(points, float(parm))  # type: ignore[arg-type]
     bez = Bezier([[float(c) for c in p] for p in ctrl])
     sides = max(3, fn if fn and fn > 0 else math.ceil(bez.arc_length() / fs))
     return [[float(c) for c in p] for p in bez.curve(sides, endpoint=True)]
@@ -84,10 +91,14 @@ def _bezcorner(
 def _chamfcorner(points: Sequence[Sequence[float]], parm: Sequence[float]) -> list[list[float]]:
     """A straight chamfer across a corner (BOSL2 _chamfcorner())."""
     diameter = float(parm[0])
-    p1 = np.asarray(points[1], dtype=float)
-    prev = unit(np.asarray(points[0], dtype=float) - p1)
-    nxt = unit(np.asarray(points[2], dtype=float) - p1)
-    return [list(p1 + prev * diameter), list(p1 + nxt * diameter)]
+    p1 = [float(points[1][i]) for i in range(len(points[1]))]
+    dim = len(p1)
+    prev = unit([float(points[0][i]) - p1[i] for i in range(dim)])
+    nxt = unit([float(points[2][i]) - p1[i] for i in range(dim)])
+    return [
+        [p1[i] + prev[i] * diameter for i in range(dim)],
+        [p1[i] + nxt[i] * diameter for i in range(dim)],
+    ]
 
 
 def _arc3d(center: Sequence[float], start: Sequence[float], end: Sequence[float], n: int) -> list[list[float]]:
@@ -121,13 +132,18 @@ def _circlecorner(
 
     angle = _vector_angle3(points[0], points[1], points[2]) / 2
     d, radius = float(parm[0]), float(parm[1])
-    p1 = np.asarray(points[1], dtype=float)
-    prev = unit(np.asarray(points[0], dtype=float) - p1)
-    nxt = unit(np.asarray(points[2], dtype=float) - p1)
-    start, end = p1 + prev * d, p1 + nxt * d
+    p1 = [float(points[1][i]) for i in range(len(points[1]))]
+    dim = len(p1)
+    prev = unit([float(points[0][i]) - p1[i] for i in range(dim)])
+    nxt = unit([float(points[2][i]) - p1[i] for i in range(dim)])
+    start = [p1[i] + prev[i] * d for i in range(dim)]
+    end = [p1[i] + nxt[i] * d for i in range(dim)]
     if math.isclose(angle, 90, rel_tol=0, abs_tol=EPSILON):
-        return [list(start), list(end)]
-    center = radius / math.sin(math.radians(angle)) * unit(prev + nxt) + p1
+        return [start, end]
+    sum_vec = [prev[i] + nxt[i] for i in range(dim)]
+    u = unit(sum_vec)
+    scale = radius / math.sin(math.radians(angle))
+    center = [scale * u[i] + p1[i] for i in range(dim)]
     sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, fn, fa, fs)))
     if len(points[1]) == 2:
         return [
@@ -141,7 +157,7 @@ def _circlecorner(
                 ],
             )
         ]
-    return _arc3d(center, start, end, sides)  # type: ignore[arg-type]
+    return _arc3d(center, start, end, sides)
 
 
 # ---------------------------------------------------------------------------

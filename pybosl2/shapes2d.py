@@ -357,7 +357,7 @@ def _v_theta(vec: Sequence[float]) -> float:
     return math.degrees(math.atan2(vec[1], vec[0]))
 
 
-def _det2(vec_a: Sequence[float] | np.ndarray, vec_b: Sequence[float] | np.ndarray) -> float:
+def _det2(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
     """The 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross)."""
     return float(vec_a[0] * vec_b[1] - vec_a[1] * vec_b[0])
 
@@ -369,9 +369,11 @@ def _sign(value: float) -> int:
 
 def _vector_angle(point_a: Sequence[float], point_b: Sequence[float], point_c: Sequence[float]) -> float:
     """The angle in degrees at vertex *b* of the corner a-b-c."""
-    va = np.asarray(point_a, dtype=float) - np.asarray(point_b, dtype=float)
-    vc = np.asarray(point_c, dtype=float) - np.asarray(point_b, dtype=float)
-    cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
+    vax = float(point_a[0]) - float(point_b[0])
+    vay = float(point_a[1]) - float(point_b[1])
+    vcx = float(point_c[0]) - float(point_b[0])
+    vcy = float(point_c[1]) - float(point_b[1])
+    cosv: float = (vax * vcx + vay * vcy) / (math.hypot(vax, vay) * math.hypot(vcx, vcy))
     return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
@@ -711,8 +713,6 @@ class Bosl2Shape2D(_BaseShape):
         """
         import math
 
-        import numpy as np
-
         length = path.perimeter()
         is_closed = getattr(path, "closed", False)
         if dist is not None:
@@ -721,11 +721,19 @@ class Bosl2Shape2D(_BaseShape):
             if num_copies is not None and spacing is not None:
                 distances = [start_pos + i * spacing for i in range(num_copies)]
             elif num_copies is not None:
-                distances = list(np.linspace(start_pos, length, num_copies))
+                step = (length - start_pos) / (num_copies - 1) if num_copies > 1 else 0.0
+                distances = [start_pos + i * step for i in range(num_copies)]
             else:
-                distances = list(np.arange(start_pos, length, spacing))
+                assert spacing is not None, "distribute_on_path(): provide num_copies or spacing."
+                cnt = int((length - start_pos) / spacing) + 1
+                distances = [start_pos + i * spacing for i in range(cnt)]
         elif num_copies is not None and spacing is None:
-            distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
+            if not is_closed:
+                step = length / (num_copies - 1) if num_copies > 1 else 0.0
+                distances = [i * step for i in range(num_copies)]
+            else:
+                step = length / num_copies if num_copies > 0 else 0.0
+                distances = [i * step for i in range(num_copies)]
         else:
             assert spacing is not None, "distribute_on_path(): provide num_copies, spacing, or dist."
             cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
@@ -788,7 +796,7 @@ def _as_native_2d(obj: "Shape2DLike") -> "PyOpenSCAD":
     geom = getattr(obj, "geometry", None)  # Path2D / Region
     if callable(geom):
         return unwrap(geom())
-    if isinstance(obj, (list, tuple, np.ndarray)):  # a bare [[x, y], ...] point list
+    if isinstance(obj, (list, tuple)):  # a bare [[x, y], ...] point list
         return _opolygon([[float(p[0]), float(p[1])] for p in obj])
     return obj
 
@@ -801,7 +809,7 @@ def _is_child_2d(obj: "Shape2DLike | Sequence[Shape2DLike]") -> bool:
         return True  # a wrapper or a native handle
     if callable(getattr(obj, "geometry", None)):
         return True  # Path2D / Region
-    return bool(len(obj)) and isinstance(obj[0], (list, tuple, np.ndarray)) and len(obj[0]) == 2
+    return bool(len(obj)) and isinstance(obj[0], (list, tuple)) and len(obj[0]) == 2
 
 
 def fill(children: "Shape2DLike") -> Bosl2Shape2D:
@@ -1064,13 +1072,21 @@ def arc(
         ), "Collinear corner does not define an arc"
         rad = _pick_radius(radius=radius, diameter=diameter)
         assert rad is not None and rad > 0, "arc(corner=) needs radius= or diameter="
-        p0, p1, p2 = (np.asarray(p, dtype=float) for p in corner)
-        v1, v2 = unit(p0 - p1), unit(p2 - p1)
-        half = math.acos(max(-1.0, min(1.0, float(np.dot(v1, v2))))) / 2
+        p0, p1, p2 = corner
+        v1 = unit([float(p0[0]) - float(p1[0]), float(p0[1]) - float(p1[1])])
+        v2 = unit([float(p2[0]) - float(p1[0]), float(p2[1]) - float(p1[1])])
+        half = math.acos(max(-1.0, min(1.0, v1[0] * v2[0] + v1[1] * v2[1]))) / 2
         d_tan = rad / math.tan(half)
         cp2 = _circle_from_corner(corner, rad)
-        tp1, tp2 = p1 + v1 * d_tan, p1 + v2 * d_tan
-        forward = _det2(p1 - p0, p2 - p1) > 0
+        tp1 = [float(p1[0]) + v1[0] * d_tan, float(p1[1]) + v1[1] * d_tan]
+        tp2 = [float(p1[0]) + v2[0] * d_tan, float(p1[1]) + v2[1] * d_tan]
+        forward = (
+            _det2(
+                [float(p1[0]) - float(p0[0]), float(p1[1]) - float(p0[1])],
+                [float(p2[0]) - float(p1[0]), float(p2[1]) - float(p1[1])],
+            )
+            > 0
+        )
         c0, c1 = (tp1, tp2) if forward else (tp2, tp1)
         ts = math.degrees(math.atan2(c0[1] - cp2[1], c0[0] - cp2[0]))
         te = math.degrees(math.atan2(c1[1] - cp2[1], c1[0] - cp2[0]))
@@ -1096,21 +1112,21 @@ def arc(
             assert center is not None, "center= is required when points has length 2"
             assert pts[0] != pts[1], "arc endpoints are equal"
             centre = [float(center[0]), float(center[1])]
-            v1 = np.asarray(pts[0]) - np.asarray(centre)
-            v2 = np.asarray(pts[1]) - np.asarray(centre)
+            dv1 = [float(pts[0][0]) - centre[0], float(pts[0][1]) - centre[1]]
+            dv2 = [float(pts[1][0]) - centre[0], float(pts[1][1]) - centre[1]]
             angle_val = _vector_angle(pts[0], centre, pts[1])
-            prelim = _sign(_det2(v1, v2))
+            prelim = _sign(_det2(dv1, dv2))
             if prelim != 0:
                 direction = prelim
             else:
                 assert clockwise or counterclockwise, "Collinear inputs don't define a unique arc"
                 direction = 1
-            rad = float(np.hypot(v1[0], v1[1]))
+            rad = math.hypot(dv1[0], dv1[1])
             if long or (counterclockwise and direction < 0) or (clockwise and direction > 0):
                 final_angle = -direction * (360 - angle_val)
             else:
                 final_angle = direction * angle_val
-            sa = math.degrees(math.atan2(v1[1], v1[0]))
+            sa = math.degrees(math.atan2(dv1[1], dv1[0]))
             return arc(
                 count=count,
                 center=centre,
@@ -1145,7 +1161,7 @@ def arc(
     # -- radius + angle (with optional [start, end] range) -----------------------------------
     arc_r: float | None = _pick_radius(radius=radius, diameter=diameter)
     assert arc_r is not None, "arc() needs radius=/diameter=, points=, corner=, or width=/thickness="
-    if isinstance(angle, (list, tuple, np.ndarray)):
+    if isinstance(angle, (list, tuple)):
         assert start is None, "start= is not allowed with angle=[start, end]"
         calc_start = float(angle[0])
         calc_angle = float(angle[1]) - float(angle[0])

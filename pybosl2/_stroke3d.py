@@ -20,8 +20,6 @@ import operator
 from functools import reduce
 from typing import TYPE_CHECKING, Any
 
-import numpy as np
-
 from pybosl2.caps import CapSpec, CapType, _endcap_polys, _oriented_to
 from pybosl2.shapes3d import cyl as _cyl
 from pybosl2.shapes3d import sphere as _sphere
@@ -59,7 +57,7 @@ def _endcap_geometry_3d(spec: CapSpec, at: Sequence[float], outdir: Sequence[flo
 
     big = max(abs(v) for poly in polys for p in poly for v in p) * 4 + width
     right = _osquare([big, big], center=True).translate([big / 2, 0])
-    solids = [_orotate_extrude((_opolygon(poly.tolist()) & right)) for poly in polys]
+    solids = [_orotate_extrude((_opolygon(poly) & right)) for poly in polys]
     return _oriented_to(Bosl2Solid(reduce(operator.or_, solids)), outdir, at)
 
 
@@ -83,16 +81,16 @@ def stroke_3d(
     shapes = []
     sides = len(pts)
     for i in range(sides) if is_closed else range(sides - 1):
-        a = np.asarray(pts[i], dtype=float)
-        b = np.asarray(pts[(i + 1) % sides], dtype=float)
-        d = b - a
-        length = float(np.linalg.norm(d))
+        ax, ay, az = float(pts[i][0]), float(pts[i][1]), float(pts[i][2])
+        bx, by, bz = float(pts[(i + 1) % sides][0]), float(pts[(i + 1) % sides][1]), float(pts[(i + 1) % sides][2])
+        dx, dy, dz = bx - ax, by - ay, bz - az
+        length = math.hypot(math.hypot(dx, dy), dz)
         if length < 1e-9:
             continue
         seg = _oriented_to(
             _cyl(height=length, radius=radius).translate([0, 0, length / 2]),
-            [float(c) for c in d],
-            [float(c) for c in a],
+            [dx, dy, dz],
+            [ax, ay, az],
         )
         shapes.append(seg)
     for i in range(sides) if is_closed else range(1, sides - 1):
@@ -134,7 +132,11 @@ def dashed_stroke_3d(
     dlen = sum(dpat)
     if dlen < 1e-12:
         return Bosl2Solid(None)
-    doff = list(np.cumsum(np.array(dpat, dtype=float)))
+    doff: list[float] = []
+    s = 0.0
+    for x in dpat:
+        s += float(x)
+        doff.append(s)
     freps = plen / dlen
     reps = max(1, round(freps) if fit else math.floor(freps))
     tlen = plen if not fit else reps * dlen + (0 if is_closed else dpat[0])
@@ -154,15 +156,15 @@ def dashed_stroke_3d(
     shapes = []
     for seg in segments:
         if len(seg) >= 2:
-            s = stroke_3d(
+            seg_solid = stroke_3d(
                 seg,
                 width=1,
                 closed=False,
                 endcap1=CapSpec(cap_type=CapType.BUTT),
                 endcap2=CapSpec(cap_type=CapType.BUTT),
             )
-            if s is not None:
-                shapes.append(s)
+            if seg_solid is not None:
+                shapes.append(seg_solid)
 
     if not shapes:
         return Bosl2Solid(None)
@@ -172,7 +174,10 @@ def dashed_stroke_3d(
 def _path_length_3d(pts: list[list[float]]) -> float:
     total = 0.0
     for i in range(len(pts) - 1):
-        total += float(np.linalg.norm(np.asarray(pts[i + 1]) - np.asarray(pts[i])))
+        dx = pts[i + 1][0] - pts[i][0]
+        dy = pts[i + 1][1] - pts[i][1]
+        dz = pts[i + 1][2] - pts[i][2]
+        total += math.hypot(math.hypot(dx, dy), dz)
     return total
 
 
@@ -184,7 +189,10 @@ def _cut_path_3d(
     """Split a 3-D path at cut distances, returning dash segments."""
     seg_lengths = []
     for i in range(len(pts) - 1):
-        seg_lengths.append(float(np.linalg.norm(np.asarray(pts[i + 1]) - np.asarray(pts[i]))))
+        dx = pts[i + 1][0] - pts[i][0]
+        dy = pts[i + 1][1] - pts[i][1]
+        dz = pts[i + 1][2] - pts[i][2]
+        seg_lengths.append(math.hypot(math.hypot(dx, dy), dz))
 
     total = 0.0
     cut_starts = [0.0]
@@ -215,7 +223,7 @@ def _point_at_3d(
         seg_end = cut_starts[i + 1]
         if seg_start <= dist <= seg_end:
             t = (dist - seg_start) / seg_len if seg_len > 0 else 0
-            a = np.asarray(pts[i], dtype=float)
-            b = np.asarray(pts[i + 1], dtype=float)
-            return list(map(float, (a + (b - a) * t).tolist()))
+            ax, ay, az = float(pts[i][0]), float(pts[i][1]), float(pts[i][2])
+            bx, by, bz = float(pts[i + 1][0]), float(pts[i + 1][1]), float(pts[i + 1][2])
+            return [ax + (bx - ax) * t, ay + (by - ay) * t, az + (bz - az) * t]
     return list(pts[-1])
