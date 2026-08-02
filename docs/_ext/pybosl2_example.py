@@ -55,12 +55,16 @@ _logger = logging.getLogger(__name__)
 # examples can be terse (`s3.cuboid(...)`, `Path2D(...)`, `Bezier(...)`) and mirror how the toolkit
 # is actually used.
 _PREAMBLE = (
-    "import sys, math, site\n"
+    "import sys, math, site, os\n"
     f"sys.path.insert(0, {str(_REPO_ROOT)!r})\n"
     # AppImage Python may not see system site-packages; add them explicitly
     "for p in site.getsitepackages():\n"
     "    if p not in sys.path:\n"
     "        sys.path.append(p)\n"
+    # Also add user site-packages (where pip install --user puts numpy/shapely in CI)
+    "usp = site.getusersitepackages()\n"
+    "if os.path.isdir(usp) and usp not in sys.path:\n"
+    "    sys.path.insert(0, usp)\n"
     "import numpy as np\n"
     "import pybosl2\n"
     "import pybosl2.shapes3d\n"

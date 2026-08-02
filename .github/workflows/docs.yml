@@ -69,16 +69,32 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Install numpy/shapely for PythonSCAD's bundled Python
+        run: |
+          # Find the AppImage's bundled Python and install numpy/shapely into its user site-packages
+          PYBASE=$(find /opt/pythonscad -path '*/bin/python3' -not -path '*/__pycache__/*' | head -1)
+          if [ -z "$PYBASE" ]; then
+            PYBASE=$(find /opt/pythonscad -path '*/bin/python3.*' -not -path '*/__pycache__/*' | head -1)
+          fi
+          echo "AppImage Python: $PYBASE"
+          $PYBASE --version
+          $PYBASE -m pip install --user numpy shapely
+
       - name: Verify PythonSCAD renders (with library path setup)
         run: |
           BIN=$(find /opt/pythonscad -name AppRun -type f | head -1)
           REPO_ROOT=$(pwd)
+          # Add host lib path AND AppImage user site-packages to ensure numpy/shapely are found
           cat > /tmp/test_render.py << PYEOF
           import sys, site, os
           sys.path.insert(0, "$REPO_ROOT")
           for p in site.getsitepackages():
               if p not in sys.path:
-                  sys.path.append(p)
+                  sys.path.insert(0, p)
+          # Also add user site-packages (where pip install --user puts things)
+          usp = site.getusersitepackages()
+          if os.path.isdir(usp) and usp not in sys.path:
+              sys.path.insert(0, usp)
           import numpy as np
           import shapely
           print(f"numpy {np.__version__}  shapely {shapely.__version__}", file=sys.stderr, flush=True)
