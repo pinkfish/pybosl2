@@ -120,9 +120,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # rounding
     "round_corners": ("pybosl2.rounding", "_round_corners"),
     "smooth_path": ("pybosl2.rounding", "_smooth_path"),
-    # isosurface / metaballs
-    "isosurface": ("pybosl2.isosurface", "isosurface"),
-    "metaballs": ("pybosl2.isosurface", "metaballs"),
+    # isosurface / metaballs (accessed via VNF class methods)
     "mb_sphere": ("pybosl2.isosurface", "mb_sphere"),
     "mb_cuboid": ("pybosl2.isosurface", "mb_cuboid"),
     "mb_torus": ("pybosl2.isosurface", "mb_torus"),
@@ -141,12 +139,11 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
 
 def __getattr__(name: str):
     if name in _LAZY_EXPORTS:
-        module_name, attr_name = _LAZY_EXPORTS[name]
+        parts = _LAZY_EXPORTS[name]
         import importlib
 
-        mod = importlib.import_module(module_name)
-        obj = getattr(mod, attr_name)
-        # Cache in the module's own globals so it's fast the second time
+        mod = importlib.import_module(parts[0])
+        obj = getattr(getattr(mod, parts[1]), parts[2]) if len(parts) == 3 else getattr(mod, parts[1])
         globals()[name] = obj
         return obj
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

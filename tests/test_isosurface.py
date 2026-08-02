@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 """Tests for pybosl2/isosurface.py: the marching-cubes mesher, the metaball field primitives, and
-metaballs(). The mb_* formulas are pinned to real BOSL2 in tests/test_bosl2_reorient.py; here we
+VNF.from_metaballs(). The mb_* formulas are pinned to real BOSL2 in tests/test_bosl2_reorient.py; here we
 check the field values against their closed forms and the meshes GEOMETRICALLY (a lone metaball is
 a sphere; overlapping ones merge; a torus has a hole). Native VNF is mocked, so mesh volume/vertex
 checks run on the pure-Python VNF, and real geometry is verified in test_stl_render.py."""
@@ -16,15 +16,15 @@ import numpy as np
 
 from pybosl2.bounds import Bounds3D
 from pybosl2.isosurface import (
-    isosurface,
+    MetaballSpec,
     mb_capsule,
     mb_connector,
     mb_cuboid,
     mb_octahedron,
     mb_sphere,
     mb_torus,
-    metaballs,
 )
+from pybosl2.vnf import VNF
 
 # -- field primitives ---------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ def test_isosurface_sphere_volume():
     def sf(pts):
         return 8.0 / np.linalg.norm(pts, axis=1)
 
-    vnf = isosurface(sf, 1, Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24), voxel_size=1.5)
+    vnf = VNF.from_field(sf, 1, Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24), voxel_size=1.5)
     ideal = 4 / 3 * math.pi * 8**3
     assert 0.9 * ideal < abs(vnf.volume()) < 1.05 * ideal
     assert len(vnf.faces) > 0
@@ -95,7 +95,7 @@ def test_isosurface_from_array():
     xs = np.linspace(-6, 6, sides)
     gx, gy, gz = np.meshgrid(xs, xs, xs, indexing="ij")
     field = 4.0 / np.sqrt(gx**2 + gy**2 + gz**2 + 1e-9)
-    vnf = isosurface(field, 1, Bounds3D(-6, -6, -6, 6, 6, 6, 12, 12, 12))
+    vnf = VNF.from_field(field, 1, Bounds3D(-6, -6, -6, 6, 6, 6, 12, 12, 12))
     assert len(vnf.faces) > 0
 
 
@@ -103,8 +103,8 @@ def test_isosurface_reverse_flips_winding():
     def sf(pts):
         return 8.0 / np.linalg.norm(pts, axis=1)
 
-    a = isosurface(sf, 1, Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24), voxel_size=2)
-    b = isosurface(sf, 1, Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24), voxel_size=2, reverse=True)
+    a = VNF.from_field(sf, 1, Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24), voxel_size=2)
+    b = VNF.from_field(sf, 1, Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24), voxel_size=2, reverse=True)
     assert np.sign(a.volume()) == -np.sign(b.volume())
 
 
@@ -112,8 +112,8 @@ def test_isosurface_reverse_flips_winding():
 
 
 def test_metaballs_single_sphere_volume():
-    vnf = metaballs(
-        [([0, 0, 0], mb_sphere(8))],
+    vnf = VNF.from_metaballs(
+        [MetaballSpec([0, 0, 0], mb_sphere(8))],
         Bounds3D(-14, -14, -14, 14, 14, 14, 28, 28, 28),
         voxel_size=1.5,
     )
@@ -122,13 +122,13 @@ def test_metaballs_single_sphere_volume():
 
 
 def test_metaballs_merge_is_bigger_than_parts():
-    close = metaballs(
-        [([-6, 0, 0], mb_sphere(8)), ([6, 0, 0], mb_sphere(8))],
+    close = VNF.from_metaballs(
+        [MetaballSpec([-6, 0, 0], mb_sphere(8)), MetaballSpec([6, 0, 0], mb_sphere(8))],
         Bounds3D(-24, -16, -16, 24, 16, 16, 48, 32, 32),
         voxel_size=2,
     )
-    one = metaballs(
-        [([0, 0, 0], mb_sphere(8))],
+    one = VNF.from_metaballs(
+        [MetaballSpec([0, 0, 0], mb_sphere(8))],
         Bounds3D(-16, -16, -16, 16, 16, 16, 32, 32, 32),
         voxel_size=2,
     )
@@ -136,12 +136,12 @@ def test_metaballs_merge_is_bigger_than_parts():
 
 
 def test_metaballs_flat_spec_form():
-    paired = metaballs(
-        [([0, 0, 0], mb_sphere(8))],
+    paired = VNF.from_metaballs(
+        [MetaballSpec([0, 0, 0], mb_sphere(8))],
         Bounds3D(-14, -14, -14, 14, 14, 14, 28, 28, 28),
         voxel_size=2,
     )
-    flat = metaballs(
+    flat = VNF.from_metaballs(
         [[0, 0, 0], mb_sphere(8)],
         Bounds3D(-14, -14, -14, 14, 14, 14, 28, 28, 28),
         voxel_size=2,
@@ -150,8 +150,8 @@ def test_metaballs_flat_spec_form():
 
 
 def test_metaballs_voxel_count():
-    vnf = metaballs(
-        [([0, 0, 0], mb_sphere(8))],
+    vnf = VNF.from_metaballs(
+        [MetaballSpec([0, 0, 0], mb_sphere(8))],
         Bounds3D(-14, -14, -14, 14, 14, 14, 28, 28, 28),
         voxel_count=8000,
     )
@@ -159,5 +159,9 @@ def test_metaballs_voxel_count():
 
 
 def test_metaballs_scalar_bounding_box():
-    vnf = metaballs([([0, 0, 0], mb_sphere(6))], Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24), voxel_size=2)
+    vnf = VNF.from_metaballs(
+        [MetaballSpec([0, 0, 0], mb_sphere(6))],
+        Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24),
+        voxel_size=2,
+    )
     assert len(vnf.faces) > 0

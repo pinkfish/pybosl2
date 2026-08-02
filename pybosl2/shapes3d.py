@@ -45,6 +45,8 @@ from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._shape import Bosl2Shape
 from pybosl2.miscellaneous import Miscellaneous
 from pybosl2.partitions import Partitionable
+from pybosl2.path2d import Path2D
+from pybosl2.points import Point
 from pybosl2.vectors import is_vector, unit
 
 from .constants import BOTTOM, CENTER, DOWN, FRONT, LEFT, UP
@@ -817,7 +819,16 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
         from . import masking
 
         center, size = self._resolve_bounds(bbox)
-        return self._wrap(masking.edge_mask(self.shape, edges, except_edges, children, size=size, center=center))
+        return self._wrap(
+            masking.edge_mask(
+                self.shape,
+                edges,
+                except_edges,
+                children,
+                size=(size[0], size[1], size[2]),
+                center=Point(center[0], center[1], center[2]),
+            )
+        )
 
     def edge_profile(
         self,
@@ -855,10 +866,12 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
                 self.shape,
                 edges,
                 except_edges,
-                children,
-                size=size,
+                children=None
+                if children is None
+                else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children),
+                size=(size[0], size[1], size[2]),
                 convexity=convexity,
-                center=center,
+                center=Point(center[0], center[1], center[2]) if center is not None else None,
             )
         )
 
@@ -894,10 +907,14 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
                 except_corners,
                 radius,
                 diameter,
-                size=size,
-                children=children,
+                size=(size[0], size[1], size[2]),
+                children=(
+                    None
+                    if children is None
+                    else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children)
+                ),
                 convexity=convexity,
-                center=center,
+                center=Point(center[0], center[1], center[2]) if center is not None else None,
                 fn=fn,
                 fa=fa,
                 fs=fs,
@@ -925,10 +942,14 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
                 faces,
                 radius,
                 diameter,
-                size=size,
-                children=children,
+                size=(size[0], size[1], size[2]),
+                children=(
+                    None
+                    if children is None
+                    else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children)
+                ),
                 convexity=convexity,
-                center=center,
+                center=Point(center[0], center[1], center[2]) if center is not None else None,
                 fn=fn,
                 fa=fa,
                 fs=fs,

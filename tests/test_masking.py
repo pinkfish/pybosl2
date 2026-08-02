@@ -29,7 +29,9 @@ def test_chamfer_edge_mask_builds():
 
 def test_returns_a_point_path():
     path = mask2d_roundover(radius=3)
-    assert isinstance(path, list)
+    from pybosl2.path2d import Path2D
+
+    assert isinstance(path, Path2D)
     assert len(path) > 3
     assert all(len(p) == 2 for p in path)
 

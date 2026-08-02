@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "Metaball",
+    "MetaballSpec",
     "mb_sphere",
     "mb_cuboid",
     "mb_torus",
@@ -87,6 +88,19 @@ class Metaball:
 
     def __call__(self, pt: np.ndarray) -> float:
         return float(self.field(np.atleast_2d(np.asarray(pt, dtype=float)))[0])
+
+
+class MetaballSpec:
+    """A positioned metaball: a transform (4×4 matrix or Point translation) and a :class:`Metaball`.
+
+    Args:
+        transform: A 4×4 matrix or a 3-element position (translation).
+        metaball: The field primitive to place at that transform.
+    """
+
+    def __init__(self, transform: np.ndarray | Point, metaball: Metaball):
+        self.transform = transform
+        self.metaball = metaball
 
 
 # -- shape constructors --------------------------------------------------------
@@ -378,20 +392,3 @@ def mb_connector(
         return _mb_field(dist, rr, influence, cutoff, neg)
 
     return Metaball(field, neg)
-
-
-# -- backwards-compatible aliases (delegate to VNF) ---------------------------
-
-
-def isosurface(*args, **kwargs):
-    """Backwards-compatible alias for :meth:`VNF.from_field`."""
-    from pybosl2.vnf import VNF
-
-    return VNF.from_field(*args, **kwargs)
-
-
-def metaballs(*args, **kwargs):
-    """Backwards-compatible alias for :meth:`VNF.from_metaballs`."""
-    from pybosl2.vnf import VNF
-
-    return VNF.from_metaballs(*args, **kwargs)

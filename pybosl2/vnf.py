@@ -21,15 +21,34 @@
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
-from collections.abc import Callable
-from typing import Any
+from __future__ import annotations
+
+from enum import Enum
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from pybosl2._mctable import CORNER_OFFSETS, EDGE_CORNERS, TRI_TABLE
 from pybosl2.bounds import Bounds3D
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from pybosl2.isosurface import MetaballSpec
+    from pybosl2.path3d import Path3D
+
 _EPS = 1e-9
+
+
+def _to_grid(points: Any) -> np.ndarray:
+    """Convert points (Path3D, list of Path3D, arrays) to a 3-D numpy grid."""
+    from pybosl2.path3d import Path3D
+
+    if isinstance(points, Path3D):
+        return np.array([list(p) for p in points], dtype=float)
+    if isinstance(points, list) and points and isinstance(points[0], Path3D):
+        return np.array([[list(p) for p in row] for row in points], dtype=float)
+    return np.asarray(points, dtype=float)
 
 
 # -- marching-cubes helpers ----------------------------------------------------
@@ -167,12 +186,21 @@ def _marching_cubes(
     return verts, faces
 
 
-def _count(sides: int, s: int = 0, reverse: bool = False) -> list:
+def _count(sides: int, s: int = 0, reverse: bool = False) -> list[int]:
     radius = list(range(s, s + sides))
     return radius[::-1] if reverse else radius
 
 
-def _lofttri(p1, p2, i1off: int, i2off: int, n1: int, n2: int, reverse: bool, trimax) -> list:
+def _lofttri(
+    p1: np.ndarray,
+    p2: np.ndarray,
+    i1off: int,
+    i2off: int,
+    n1: int,
+    n2: int,
+    reverse: bool,
+    trimax: float,
+) -> list[list[int]]:
     """
     Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2
     _lofttri).
@@ -223,12 +251,27 @@ def _lofttri(p1, p2, i1off: int, i2off: int, n1: int, n2: int, reverse: bool, tr
     return tris
 
 
+class VnfStyle(str, Enum):
+    """Triangulation style for :meth:`VNF.vertex_array`."""
+
+    DEFAULT = "default"
+    ALT = "alt"
+    MIN_EDGE = "min_edge"
+    MIN_AREA = "min_area"
+    CONVEX = "convex"
+    CONCAVE = "concave"
+    QUINCUNX = "quincunx"
+    QUAD = "quad"
+    FLIP1 = "flip1"
+    FLIP2 = "flip2"
+
+
 class VNF:
     """A VNF surface: ``vertices`` (3-D points) plus ``faces`` (index polygons into vertices).
 
     Renders to PythonSCAD's native ``polyhedron`` via :meth:`polyhedron`. Build one from a
     rectangular grid of sample points with :meth:`vertex_array`, merge several with
-    :meth:`join`, or mesh a scalar field with :meth:`from_field` and combine metaball
+    :meth:`union`, or mesh a scalar field with :meth:`from_field` and combine metaball
     primitives with :meth:`from_metaballs`.
 
     Args:
@@ -245,9 +288,9 @@ class VNF:
             VNF.vertex_array(grid).polyhedron().show()
     """
 
-    def __init__(self, vertices=(), faces=()) -> None:
-        self.vertices = [[float(x) for x in v] for v in vertices]
-        self.faces = [[int(i) for i in f] for f in faces]
+    def __init__(self, vertices: list[list[float]] | None = None, faces: list[list[int]] | None = None) -> None:
+        self.vertices = [[float(x) for x in v] for v in (vertices or [])]
+        self.faces = [[int(i) for i in f] for f in (faces or [])]
 
     def __repr__(self) -> str:
         return f"VNF({len(self.vertices)} verts, {len(self.faces)} faces)"
@@ -255,10 +298,21 @@ class VNF:
     def __bool__(self) -> bool:
         return len(self.faces) > 0
 
-    def bounds(self) -> np.ndarray:
-        """[[min_x, min_y, min_z], [max_x, max_y, max_z]]."""
+    def bounds(self) -> Bounds3D:
+        """Axis-aligned :class:`~pybosl2.bounds.Bounds3D` of the VNF."""
         arr = np.asarray(self.vertices, dtype=float)
-        return np.array([arr.min(axis=0), arr.max(axis=0)])
+        mn, mx = arr.min(axis=0), arr.max(axis=0)
+        return Bounds3D(
+            min_x=float(mn[0]),
+            min_y=float(mn[1]),
+            min_z=float(mn[2]),
+            max_x=float(mx[0]),
+            max_y=float(mx[1]),
+            max_z=float(mx[2]),
+            width=float(mx[0] - mn[0]),
+            length=float(mx[1] - mn[1]),
+            height=float(mx[2] - mn[2]),
+        )
 
     def reverse(self) -> "VNF":
         """A copy with every face wound the other way (flips the surface normals)."""
@@ -280,7 +334,7 @@ class VNF:
         return total / 6.0
 
     @staticmethod
-    def join(vnfs) -> "VNF":
+    def union(vnfs: list["VNF"]) -> "VNF":
         """Merge a list of VNFs into one, offsetting each VNF's face indices (BOSL2 vnf_join())."""
         vnfs = list(vnfs)
         if len(vnfs) == 1:
@@ -299,14 +353,14 @@ class VNF:
     @classmethod
     def vertex_array(
         cls,
-        points,
-        caps=None,
-        cap1=None,
-        cap2=None,
+        points: Path3D | list[Path3D] | list[list[list[float]]] | list[np.ndarray] | np.ndarray,
+        caps: bool = False,
+        cap1: bool | None = None,
+        cap2: bool | None = None,
         col_wrap: bool = False,
         row_wrap: bool = False,
         reverse: bool = False,
-        style: str = "default",
+        style: str | VnfStyle = "default",
     ) -> "VNF":
         """Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).
 
@@ -326,8 +380,8 @@ class VNF:
             "quad",
             "flip1",
             "flip2",
-        ), f"unknown style {style!r}"
-        grid = [[[float(x) for x in p] for p in row] for row in points]
+        ), f"unknown vertex_array style: {style!r}"
+        grid = _to_grid(points)
         rows = len(grid)
         if rows == 0:
             return cls([], [])
@@ -348,7 +402,7 @@ class VNF:
         colcnt = cols - (0 if col_wrap else 1)
         rowcnt = rows - (0 if row_wrap else 1)
 
-        def idx(r, c):
+        def idx(r: int, c: int) -> int:
             return (r % rows) * cols + (c % cols)
 
         verts = [list(p) for p in pts]
@@ -409,10 +463,10 @@ class VNF:
     @classmethod
     def tri_array(
         cls,
-        points,
-        caps=None,
-        cap1=None,
-        cap2=None,
+        points: list[list[list[float]]],
+        caps: bool = False,
+        cap1: bool | None = None,
+        cap2: bool | None = None,
         col_wrap: bool = False,
         row_wrap: bool = False,
         reverse: bool = False,
@@ -449,8 +503,8 @@ class VNF:
             trimax = max(1, abs(len(st[i]) - len(st[j]))) if limit_bunching else float("inf")
             faces.extend(
                 _lofttri(
-                    st[i],
-                    st[j],
+                    st[i],  # type: ignore[arg-type]
+                    st[j],  # type: ignore[arg-type]
                     pcumlen[i],
                     pcumlen[j],
                     rowstarts[i],
@@ -468,7 +522,7 @@ class VNF:
         verts = [p for row in st for p in row]
         return cls(verts, faces)
 
-    def polyhedron(self):
+    def polyhedron(self) -> Any:
         """Native geometry for this VNF via PythonSCAD's ``polyhedron(points=, faces=)``."""
         from pythonscad import polyhedron as _polyhedron
 
@@ -476,13 +530,13 @@ class VNF:
         faces = [[int(i) for i in f] for f in self.faces]
         return _polyhedron(points=pts, faces=faces, convexity=10)
 
-    def geometry(self):
+    def geometry(self) -> Any:
         """Alias of :meth:`polyhedron`, matching Path2D/Region's geometry() surface."""
         return self.polyhedron()
 
     @staticmethod
     def from_field(
-        f: np.ndarray | Callable[[np.ndarray], np.ndarray],
+        f: np.ndarray | Path3D | Callable[[np.ndarray], np.ndarray] | Callable[[Path3D], np.ndarray],
         isovalue: float | tuple[float, float],
         bounding_box: Bounds3D | None = None,
         voxel_size: float | None = None,
@@ -497,8 +551,9 @@ class VNF:
         for a range ``(lo, hi)``, where ``lo <= f <= hi``.
 
         Args:
-            f: ``(N, 3) → (N,)`` vectorised callable, ``point → value``
-                scalar callable, or a precomputed 3-D numpy array.
+            f: A :class:`~pybosl2.path3d.Path3D`, a 3-D numpy array,
+                a ``(N,3) → (N,)`` callable, or a
+                ``(:class:`~pybosl2.path3d.Path3D`) → (N,)`` callable.
             isovalue: Threshold or ``(min, max)`` range.
             bounding_box: A :class:`~pybosl2.bounds.Bounds3D` or ``None``
                 (auto-computed from array shape when *f* is an array).
@@ -524,6 +579,21 @@ class VNF:
                 ).polyhedron().show()
         """
         import math
+
+        from pybosl2.path3d import Path3D
+
+        if isinstance(f, Path3D):
+            f = np.asarray(f, dtype=float)
+        elif callable(f) and not isinstance(f, np.ndarray):
+            _original = f
+
+            def _wrapped(pts: np.ndarray) -> np.ndarray:
+                try:
+                    return np.asarray(_original(pts), dtype=float)  # type: ignore[arg-type]
+                except (TypeError, ValueError):
+                    return np.asarray(_original(Path3D(pts)), dtype=float)  # type: ignore[arg-type]
+
+            f = _wrapped
 
         if isinstance(isovalue, tuple):
             lo, hi = float(isovalue[0]), float(isovalue[1])
@@ -572,7 +642,7 @@ class VNF:
 
     @staticmethod
     def from_metaballs(
-        spec: list,
+        spec: list["MetaballSpec"],
         bounding_box: Bounds3D,
         voxel_size: float | None = None,
         voxel_count: int | None = None,
@@ -583,7 +653,8 @@ class VNF:
         """Mesh transformed metaball primitives into a blobby :class:`VNF`.
 
         Args:
-            spec: ``(transform, Metaball)`` pairs (or flat ``[t, mb, ...]``).
+            spec: A list of :class:`~pybosl2.isosurface.MetaballSpec` entries,
+                each holding a transform (4×4 matrix or Point position) and a Metaball.
             bounding_box: A :class:`~pybosl2.bounds.Bounds3D`.
             voxel_size: Isotropic voxel size.
             voxel_count: Approximate total voxel count.
@@ -597,14 +668,17 @@ class VNF:
         Examples:
             .. pythonscad-example::
 
-                spec = [([-14, 0, 0], Metaball.sphere(12)), ([14, 0, 0], Metaball.sphere(12))]
+                spec = [
+                    MetaballSpec([-14, 0, 0], Metaball.sphere(12)),
+                    MetaballSpec([14, 0, 0], Metaball.sphere(12)),
+                ]
                 VNF.from_metaballs(
                     spec,
                     Bounds3D(-40, -20, -20, 40, 20, 20, 80, 40, 40),
                     voxel_size=2,
                 ).polyhedron().show()
         """
-        from pybosl2.isosurface import Metaball
+        from pybosl2.isosurface import Metaball, MetaballSpec
 
         def _to_matrix(t):
             a = np.asarray(t, dtype=float)
@@ -614,14 +688,18 @@ class VNF:
             m[:3, 3] = a[:3]
             return m
 
-        items = list(spec)
-        if items and isinstance(items[0], Metaball):
-            raise AssertionError("from_metaballs(): spec must be (transform, Metaball) pairs.")
-        if items and isinstance(items[0], (tuple, list)) and len(items[0]) == 2 and isinstance(items[0][1], Metaball):
-            pairs = [(_to_matrix(t), mb) for t, mb in items]
-        else:
-            assert len(items) % 2 == 0, "from_metaballs(): flat spec must alternate transform and metaball."
-            pairs = [(_to_matrix(items[i]), items[i + 1]) for i in range(0, len(items), 2)]
+        # Support both MetaballSpec list and legacy flat/tuple forms
+        raw = list(spec)
+        pairs: list[tuple[np.ndarray, Metaball]] = []
+        if raw and isinstance(raw[0], Metaball):
+            raise AssertionError("from_metaballs(): spec must be MetaballSpec entries.")
+        if raw and isinstance(raw[0], MetaballSpec):
+            pairs = [(_to_matrix(s.transform), s.metaball) for s in raw]
+        elif raw and isinstance(raw[0], (tuple, list)) and len(raw[0]) == 2 and isinstance(raw[0][1], Metaball):
+            pairs = [(_to_matrix(t), mb) for t, mb in raw]  # type: ignore[misc,has-type]
+        elif raw:
+            assert len(raw) % 2 == 0, "from_metaballs(): flat spec must alternate transform and metaball."
+            pairs = [(_to_matrix(raw[i]), raw[i + 1]) for i in range(0, len(raw), 2)]  # type: ignore[misc,has-type]
         assert pairs, "from_metaballs(): the spec is empty."
 
         bb, vs = _resolve_grid(bounding_box, voxel_size, voxel_count, exact_bounds)
@@ -638,7 +716,7 @@ class VNF:
         return VNF.from_field(field, isovalue, bounding_box=bb, voxel_size=vs, closed=closed, exact_bounds=True)
 
 
-def vnf_polyhedron(vnf: VNF):
+def vnf_polyhedron(vnf: VNF) -> Any:
     """Render a :class:`VNF` to a PythonSCAD ``polyhedron`` (BOSL2 ``vnf_polyhedron()``).
 
     A module-level convenience wrapper around :meth:`VNF.polyhedron` so existing
@@ -663,4 +741,4 @@ def vnf_polyhedron(vnf: VNF):
     return vnf.polyhedron()
 
 
-__all__ = ["VNF", "vnf_polyhedron"]
+__all__ = ["VNF", "VnfStyle", "vnf_polyhedron"]

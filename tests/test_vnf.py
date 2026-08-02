@@ -6,7 +6,6 @@
 
 """Tests for pybosl2/vnf.py: VNF construction, grid/tri meshing, join and rendering."""
 
-import numpy as np
 import pytest
 
 from pybosl2.vnf import VNF, vnf_polyhedron
@@ -35,8 +34,14 @@ def test_empty_is_falsey():
 
 
 def test_bounds():
-    v = VNF([[0, 0, 0], [2, 3, 4], [-1, 0, 1]], [[0, 1, 2]])
-    np.testing.assert_allclose(v.bounds(), [[-1, 0, 0], [2, 3, 4]])
+    v = VNF([[-1, 0, 0], [2, 3, 4]], [[0, 1, 2]])
+    b = v.bounds()
+    assert b.min_x == -1
+    assert b.max_x == 2
+    assert b.min_y == 0
+    assert b.max_y == 3
+    assert b.min_z == 0
+    assert b.max_z == 4
 
 
 def test_vertex_array_default_counts():
@@ -91,17 +96,17 @@ def test_tri_array_triangular_rows():
     assert _valid(v)
 
 
-def test_join_offsets_indices():
+def test_union_offsets_indices():
     a = VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]])
     b = VNF([[0, 0, 5], [1, 0, 5], [0, 1, 5]], [[0, 1, 2]])
-    j = VNF.join([a, b])
+    j = VNF.union([a, b])
     assert len(j.vertices) == 6
     assert j.faces == [[0, 1, 2], [3, 4, 5]]
 
 
-def test_join_single_is_identity():
+def test_union_single_is_identity():
     a = VNF([[0, 0, 0]], [])
-    assert VNF.join([a]) is a
+    assert VNF.union([a]) is a
 
 
 def test_reverse():
