@@ -357,6 +357,7 @@ class VNF:
         caps: bool = False,
         cap1: bool | None = None,
         cap2: bool | None = None,
+        cap_style: str = "flat",
         col_wrap: bool = False,
         row_wrap: bool = False,
         reverse: bool = False,
@@ -367,7 +368,8 @@ class VNF:
         Each grid cell becomes triangles (or a quad) chosen by *style*: "default", "alt",
         "min_edge", "min_area", "convex", "concave", "quincunx", "quad", "flip1", "flip2".
         *col_wrap*/*row_wrap* close the grid into a tube/torus; *caps*/*cap1*/*cap2* close the
-        column-wrapped ends; *reverse* flips face winding. Degenerate (zero-area) faces are dropped.
+        column-wrapped ends; *cap_style* selects "flat" or "round" dome end caps;
+        *reverse* flips face winding. Degenerate (zero-area) faces are dropped.
         """
         assert style in (
             "default",
@@ -415,9 +417,37 @@ class VNF:
         vertsarr = np.asarray(verts, dtype=float)
         faces: list[Any] = []
         if cap1:
-            faces.append(_count(cols, 0, reverse=not reverse))
+            if cap_style == "round":
+                row0 = parr[:cols]
+                center: list[float] = list(row0.mean(axis=0))
+                dome_radius: float = float(max(np.linalg.norm(p[:-1] - center[:-1]) for p in row0))
+                apex: list[float] = center.copy()
+                apex[2] -= dome_radius
+                apex_idx = len(verts)
+                verts.append(apex)
+                for i in range(cols):
+                    j = (i + 1) % cols
+                    faces.append([apex_idx, idx(0, i), idx(0, j)] if reverse else [idx(0, i), apex_idx, idx(0, j)])
+            else:
+                faces.append(_count(cols, 0, reverse=not reverse))
         if cap2:
-            faces.append(_count(cols, (rows - 1) * cols, reverse=reverse))
+            if cap_style == "round":
+                row_last = parr[(rows - 1) * cols : rows * cols]
+                center = list(row_last.mean(axis=0))
+                dome_radius = float(max(np.linalg.norm(p[:-1] - center[:-1]) for p in row_last))
+                apex = center.copy()
+                apex[2] += dome_radius
+                apex_idx = len(verts)
+                verts.append(apex)
+                for i in range(cols):
+                    j = (i + 1) % cols
+                    faces.append(
+                        [apex_idx, idx(rows - 1, i), idx(rows - 1, j)]
+                        if not reverse
+                        else [idx(rows - 1, i), apex_idx, idx(rows - 1, j)]
+                    )
+            else:
+                faces.append(_count(cols, (rows - 1) * cols, reverse=reverse))
 
         for r in range(rowcnt):
             for c in range(colcnt):
