@@ -33,7 +33,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Sequence, Union
 
-__all__ = ["CapType", "CapSpec", "CapsSpec", "_caps_as_bools", "_endcap_polys", "_endcap_trim", "_norm_caps"]
+__all__ = ["CapType", "CapSpec", "CapsSpec", "_endcap_polys", "_endcap_trim", "_norm_caps"]
 
 
 class CapType(Enum):
@@ -77,10 +77,6 @@ class CapType(Enum):
     TAIL = "tail"
     TAIL2 = "tail2"
     X = "x"
-
-
-FLAT = CapType.BUTT
-"""Backward-compatible alias for :attr:`CapType.BUTT`."""
 
 
 #: A cap specification used by sweep/skin entry points. Can be:
@@ -198,51 +194,6 @@ def _normalize_one(cap: CapType | CapSpec) -> CapSpec:
     if isinstance(cap, CapType):
         return _DEFAULTS.get(cap, _DEFAULTS[CapType.NONE])
     return _DEFAULTS[CapType.BUTT]
-
-
-def _caps_as_bools(cap_specs: list[CapSpec]) -> tuple[list[bool], list[str]]:
-    """Convert a :class:`CapSpec` pair to (flags, styles) for :func:`VNF.vertex_array`.
-
-    ``CapType.NONE`` entries mean no cap; ``CapType.BUTT`` resolves to flat.
-    ``CapType.ROUND`` and ``CapType.SPHERE`` resolve to a round (domed) cap.
-    Other decorative types produce a flat cap with a warning.
-
-    Always returns exactly two elements for each output list.
-
-    Note:
-        Decorative cap types (CIRCLE, ARROW, etc.) are not available
-        in sweep contexts. They produce the same flat caps as BUTT. For
-        decorative endcaps, use :meth:`Path3D.stroke` instead.
-    """
-    import warnings
-
-    if not cap_specs:
-        return [False, False], ["flat", "flat"]
-
-    flags: list[bool] = []
-    styles: list[str] = []
-    for spec in cap_specs:
-        if spec.cap_type == CapType.NONE:
-            flags.append(False)
-            styles.append("flat")
-        elif spec.cap_type in (CapType.ROUND, CapType.SPHERE):
-            flags.append(True)
-            styles.append("round")
-        else:
-            if spec.cap_type not in (CapType.NONE, CapType.BUTT):
-                warnings.warn(
-                    f"Decorative cap {spec.cap_type!r} is not supported in sweep contexts; "
-                    f"producing flat cap. Use Path3D.stroke() for decorative endcaps.",
-                    stacklevel=2,
-                )
-            flags.append(True)
-            styles.append("flat")
-
-    if len(cap_specs) == 1:
-        flags = [flags[0], flags[0]]
-        styles = [styles[0], styles[0]]
-
-    return flags[:2], styles[:2]
 
 
 # ---------------------------------------------------------------------------

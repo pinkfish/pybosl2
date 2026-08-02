@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any, Callable
 import numpy as np
 
 from pybosl2._native import native
+from pybosl2.caps import CapType
 from pybosl2.constants import BACK, CENTER, FRONT, INCH, LEFT, TOP, UP
 from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import _frag_count, _pick_radius
@@ -578,7 +579,7 @@ def plot3d(
         bottom = (zspan[0] - base) if zspan is not None else (min(allz) - base)
         skirted = [[[p[0], p[1], bottom] for p in data[0]]] + data + [[[p[0], p[1], bottom] for p in data[-1]]]
         tdata = [[skirted[i][j] for i in range(len(skirted))] for j in range(len(skirted[0]))]
-        vnf = VNF.vertex_array(tdata, col_wrap=True, caps=True, style=style, reverse=True)
+        vnf = VNF.vertex_array(tdata, col_wrap=True, cap1=CapType.BUTT, cap2=CapType.BUTT, style=style, reverse=True)
         if vnf.volume() < 0:  # ensure outward winding for a valid manifold solid
             vnf = vnf.reverse()
     return Bosl2Solid(vnf.polyhedron())
@@ -678,7 +679,7 @@ def plot_revolution(
             zz = pt[1] + rdata[i][j] * normals[i][1]
             row.append([rr * math.cos(math.radians(t)), rr * math.sin(math.radians(t)), zz])
         grid.append(row)
-    vnf = VNF.vertex_array(grid, col_wrap=True, caps=True, style=style)
+    vnf = VNF.vertex_array(grid, col_wrap=True, cap1=CapType.BUTT, cap2=CapType.BUTT, style=style)
     if vnf.volume() < 0:
         vnf = vnf.reverse()
     return Bosl2Solid(vnf.polyhedron())

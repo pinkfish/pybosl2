@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
-from pybosl2.caps import CapsSpec, CapType, _caps_as_bools, _norm_caps
+from pybosl2.caps import CapsSpec, CapType, _norm_caps
 from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -286,13 +286,17 @@ def sweep(
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     assert len(shape3) >= 3, "shape must be a path of at least 3 points."
-    flatcaps, cap_styles = _caps_as_bools(_norm_caps(caps, closed=closed))
+    cap_specs = _norm_caps(caps, closed=closed)
     ntrans = len(transforms)
     assert ntrans >= 2, "transforms must be length 2 or more."
     hi = ntrans - (0 if closed else 1)
     points = [np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float) for i in range(hi + 1)]
     return VNF.vertex_array(
-        points, cap1=flatcaps[0], cap2=flatcaps[1], cap_style=cap_styles[0], col_wrap=True, style=style
+        points,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
     )
 
 
@@ -545,7 +549,7 @@ def skin(
     sides = len(profiles)
     assert sides > 1, "skin() needs at least two profiles."
     profcount = sides - (0 if closed else 1)
-    fullcaps, cap_styles = _caps_as_bools(_norm_caps(caps, closed=closed))
+    cap_specs = _norm_caps(caps, closed=closed)
     refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
@@ -573,7 +577,11 @@ def skin(
     sliced = slice_profiles(fixedprof, slices, closed)  # type: ignore[arg-type]
     grid = sliced if not closed else sliced + [sliced[0]]
     vnf = VNF.vertex_array(
-        grid, cap1=fullcaps[0], cap2=fullcaps[1], cap_style=cap_styles[0], col_wrap=True, style=style
+        grid,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
@@ -624,7 +632,7 @@ def _linear_sweep(
         slices = max(1, math.ceil(abs(twist) / 5))
     sc = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]
     sh = [float(shift[0]), float(shift[1])]
-    fullcaps, cap_styles = _caps_as_bools(_norm_caps(caps))
+    cap_specs = _norm_caps(caps)
     z0 = -hh / 2 if center else 0.0
     base = np.asarray(path3d(path), dtype=float)
     verts = []
@@ -637,7 +645,11 @@ def _linear_sweep(
         )
         verts.append(np.asarray(_apply(m, base), dtype=float))
     vnf = VNF.vertex_array(
-        verts, cap1=fullcaps[0], cap2=fullcaps[1], cap_style=cap_styles[0], col_wrap=True, style=style
+        verts,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
@@ -672,11 +684,10 @@ def _rotate_sweep(
             Path2D(profile).rotate_sweep(angle=360).polyhedron().show()
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
-    # Default: cap a partial revolution / an explicitly-open profile, but never a full one.
-    capv, _ = _caps_as_bools(_norm_caps(caps))
+    cap_specs = _norm_caps(caps)
     prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
-    if any(capv) and not full:
+    if any(s.cap_type != CapType.NONE for s in cap_specs) and not full:
         prof = [[0.0, prof[0][1]]] + prof + [[0.0, prof[-1][1]]]
     xmax = max(p[0] for p in prof)
     steps = math.ceil(_segs(xmax) * angle / 360) + (0 if full else 1)
@@ -691,8 +702,8 @@ def _rotate_sweep(
         transforms,
         closed=full,
         caps=[
-            CapType.BUTT if (not full) and capv[0] else CapType.NONE,
-            CapType.BUTT if (not full) and capv[1] else CapType.NONE,
+            CapType.BUTT if (not full) and cap_specs[0].cap_type != CapType.NONE else CapType.NONE,
+            CapType.BUTT if (not full) and cap_specs[1].cap_type != CapType.NONE else CapType.NONE,
         ],
         style=style,
     )
@@ -1053,7 +1064,7 @@ def _offset_sweep(
     from pybosl2.path2d import Path2D as _Path
 
     assert height > 0, "offset_sweep(): height must be positive."
-    fullcaps, cap_styles = _caps_as_bools(_norm_caps(caps))
+    cap_specs = _norm_caps(caps)
 
     base = [[float(p[0]), float(p[1])] for p in path]
 
@@ -1209,7 +1220,11 @@ def _offset_sweep(
     norm = [_Path3D(row).subdivide_path(points=maxn, closed=True) for row in profiles_3d]
 
     vnf = VNF.vertex_array(
-        norm, cap1=fullcaps[0], cap2=fullcaps[1], cap_style=cap_styles[0], col_wrap=True, style=style
+        norm,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
@@ -1447,10 +1462,14 @@ def _rounded_prism(
     from pybosl2.path3d import Path3D as _Path3D
 
     norm = [_Path3D(row).subdivide_path(points=maxn, closed=True) for row in profiles_3d]
-    fullcaps, cap_styles = _caps_as_bools(_norm_caps(caps))
+    cap_specs = _norm_caps(caps)
 
     vnf = VNF.vertex_array(
-        norm, cap1=fullcaps[0], cap2=fullcaps[1], cap_style=cap_styles[0], col_wrap=True, style=style
+        norm,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
@@ -1550,7 +1569,7 @@ def _bent_cutout_mask(
         inner_ring.append([r_in * c, r_in * s, y])
         outer_ring.append([r_out * c, r_out * s, y])
 
-    vnf = VNF.vertex_array([inner_ring, outer_ring], cap1=True, cap2=True, col_wrap=True, style=style)
+    vnf = VNF.vertex_array([inner_ring, outer_ring], cap1=CapType.BUTT, cap2=CapType.BUTT, col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -1597,7 +1616,7 @@ def _path_sweep2d(
     _ = quality
     shp: Path2D = shape if isinstance(shape, Path2D) else Path2D(shape)
     p: Path2D = path if isinstance(path, Path2D) else Path2D(path)
-    fullcaps, cap_styles = _caps_as_bools(_norm_caps(caps, closed=closed))
+    cap_specs = _norm_caps(caps, closed=closed)
     profile = shp if not shp.is_clockwise() else shp.reverse()  # ccw_polygon
     flip = -1.0 if (closed and p.is_clockwise()) else 1.0
     pth = p if flip > 0 else p.reverse()
@@ -1616,7 +1635,11 @@ def _path_sweep2d(
     if closed:
         grid = grid + [grid[0]]
     vnf = VNF.vertex_array(
-        grid, cap1=fullcaps[0], cap2=fullcaps[1], cap_style=cap_styles[0], col_wrap=True, style=style
+        grid,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 

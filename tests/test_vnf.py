@@ -8,6 +8,7 @@
 
 import pytest
 
+from pybosl2.caps import CapType
 from pybosl2.vnf import VNF, vnf_polyhedron
 
 
@@ -81,7 +82,7 @@ def test_vertex_array_too_small_is_empty() -> None:
 
 def test_vertex_array_caps_need_col_wrap() -> None:
     with pytest.raises(AssertionError):
-        VNF.vertex_array(_grid(3, 3, warp=True), caps=True, col_wrap=False)
+        VNF.vertex_array(_grid(3, 3, warp=True), cap1=CapType.BUTT, cap2=CapType.BUTT, col_wrap=False)
 
 
 def test_vertex_array_bad_style() -> None:
