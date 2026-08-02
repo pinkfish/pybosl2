@@ -1256,7 +1256,7 @@ class BezierPatch:
 
         Accepts either a single patch (2-D control-point array) or a list
         of patches and returns their combined :class:`~pybosl2.vnf.VNF`
-        mesh, joined via :meth:`~pybosl2.vnf.VNF.join`.
+        mesh, joined via :meth:`~pybosl2.vnf.VNF.union`.
 
         Args:
             patches: A single patch control-point array or a sequence of patches to mesh.
@@ -1275,7 +1275,7 @@ class BezierPatch:
         """
         if BezierPatch.is_patch(patches):
             return BezierPatch(patches).vnf(splinesteps, style)  # type: ignore[arg-type]
-        return VNF.join([BezierPatch(p).vnf(splinesteps, style) for p in patches])
+        return VNF.union([BezierPatch(p).vnf(splinesteps, style) for p in patches])
 
     @staticmethod
     def flat(size, n_degree: int = 1, spin: float = 0.0, orient=UP, trans=(0.0, 0.0, 0.0)) -> "BezierPatch":

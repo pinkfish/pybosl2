@@ -16,6 +16,7 @@ import numpy as np
 
 from pybosl2.bounds import Bounds3D
 from pybosl2.isosurface import (
+    MetaballSpec,
     mb_capsule,
     mb_connector,
     mb_cuboid,
@@ -112,7 +113,7 @@ def test_isosurface_reverse_flips_winding():
 
 def test_metaballs_single_sphere_volume():
     vnf = VNF.from_metaballs(
-        [([0, 0, 0], mb_sphere(8))],
+        [MetaballSpec([0, 0, 0], mb_sphere(8))],
         Bounds3D(-14, -14, -14, 14, 14, 14, 28, 28, 28),
         voxel_size=1.5,
     )
@@ -122,12 +123,12 @@ def test_metaballs_single_sphere_volume():
 
 def test_metaballs_merge_is_bigger_than_parts():
     close = VNF.from_metaballs(
-        [([-6, 0, 0], mb_sphere(8)), ([6, 0, 0], mb_sphere(8))],
+        [MetaballSpec([-6, 0, 0], mb_sphere(8)), MetaballSpec([6, 0, 0], mb_sphere(8))],
         Bounds3D(-24, -16, -16, 24, 16, 16, 48, 32, 32),
         voxel_size=2,
     )
     one = VNF.from_metaballs(
-        [([0, 0, 0], mb_sphere(8))],
+        [MetaballSpec([0, 0, 0], mb_sphere(8))],
         Bounds3D(-16, -16, -16, 16, 16, 16, 32, 32, 32),
         voxel_size=2,
     )
@@ -136,7 +137,7 @@ def test_metaballs_merge_is_bigger_than_parts():
 
 def test_metaballs_flat_spec_form():
     paired = VNF.from_metaballs(
-        [([0, 0, 0], mb_sphere(8))],
+        [MetaballSpec([0, 0, 0], mb_sphere(8))],
         Bounds3D(-14, -14, -14, 14, 14, 14, 28, 28, 28),
         voxel_size=2,
     )
@@ -150,7 +151,7 @@ def test_metaballs_flat_spec_form():
 
 def test_metaballs_voxel_count():
     vnf = VNF.from_metaballs(
-        [([0, 0, 0], mb_sphere(8))],
+        [MetaballSpec([0, 0, 0], mb_sphere(8))],
         Bounds3D(-14, -14, -14, 14, 14, 14, 28, 28, 28),
         voxel_count=8000,
     )
@@ -158,5 +159,9 @@ def test_metaballs_voxel_count():
 
 
 def test_metaballs_scalar_bounding_box():
-    vnf = VNF.from_metaballs([([0, 0, 0], mb_sphere(6))], Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24), voxel_size=2)
+    vnf = VNF.from_metaballs(
+        [MetaballSpec([0, 0, 0], mb_sphere(6))],
+        Bounds3D(-12, -12, -12, 12, 12, 12, 24, 24, 24),
+        voxel_size=2,
+    )
     assert len(vnf.faces) > 0
