@@ -54,8 +54,6 @@ geo = [
 # modules import it at load time, before autodoc can read their docstrings.
 docs = [
     "sphinx>=7",
-    "numpy",
-    "pythonscad",
     "shapely",
 ]
 
