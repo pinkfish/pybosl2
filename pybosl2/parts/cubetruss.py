@@ -162,7 +162,7 @@ class CubeTruss:
     @staticmethod
     def cubetruss(
         extents: int | Sequence[int] = 6,
-        clips: Sequence | None = None,
+        clips: Sequence[Sequence[float]] | None = None,
         bracing: bool | None = None,
         size: float | None = None,
         strut: float | None = None,
@@ -210,9 +210,9 @@ class CubeTruss:
                     segs.append(seg)
 
         if clips is not None and clipthick > 0:
-            vecs = clips if (clips and isinstance(clips[0], (list, tuple))) else [clips]
+            vecs = clips if isinstance(clips, list) and isinstance(clips[0], (list, tuple)) else [clips]
             for vec in vecs:
-                zang, (exx, exy, exz) = _clip_placement(vec, (w, length, hh))
+                zang, (exx, exy, exz) = _clip_placement(vec, (w, length, hh))  # type: ignore[arg-type]
                 for zrow in range(int(exz)):
                     clip = CubeTruss.cubetruss_clip(
                         extents=int(exx),
@@ -270,14 +270,14 @@ class CubeTruss:
         smax = size * (max(ex, ey, ez) + 1)
         octid = size - 2 * strut
 
-        def octprism(length: float, rot):
+        def octprism(length: float, rot: list[float] | None) -> Bosl2Solid:
             # cyl(diameter=octid, circum=true, realign=true, $fn=8): an octagon across-flats octid, +half facet.
             p = regular_prism(8, inner_diameter=octid, height=length, anchor=CENTER, fn=fn, fa=fa, fs=fs).rotate(
                 [0, 0, 180 / 8]
             )
             return p.rotate(rot) if rot else p
 
-        def hollow_cell():
+        def hollow_cell() -> Bosl2Solid:
             return (
                 octprism(size + 1, [0, 90, 0])  # X-axis tunnel
                 | octprism(size + 1, None)  # Z-axis tunnel
@@ -336,7 +336,7 @@ class CubeTruss:
             exts = [int(x) for x in (list(extents) + [0] * 5)[:5]]
         step = size - strut
 
-        def seg():
+        def seg() -> Bosl2Solid:
             return CubeTruss.cubetruss_segment(size=size, strut=strut, bracing=bracing, fn=fn, fa=fa, fs=fs)
 
         segs = [seg().up(step * zcol) for zcol in range(height)]  # central column
@@ -376,7 +376,7 @@ class CubeTruss:
         clipheight = min(size + strut, size / 3 + 2 * strut * 2.6)
         clipsize = 0.5
 
-        def one_clip():
+        def one_clip() -> Bosl2Solid:
             hook = prismoid(
                 [clipthick, clipheight],
                 [clipthick, clipheight - cliplen * 2],

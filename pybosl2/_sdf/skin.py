@@ -35,7 +35,7 @@ def path3d(path: list[list[float]]) -> list[list[float]]:
     return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
 
 
-def clockwise_polygon(poly: list[list[float]]) -> list:
+def clockwise_polygon(poly: list[list[float]]) -> list:  # type: ignore[type-arg]
     """*poly* wound clockwise (reversed if CCW)."""
     area = 0.0
     pts = list(poly)
@@ -102,7 +102,7 @@ def _apply_transform(m: np.ndarray, pt: Sequence[float]) -> list[float]:
 
 def _clamp(v: float, lo: float, hi: float) -> float:
     """Clamp *v* between *lo* and *hi* using libfive min/max (no native clamp op)."""
-    return lv.max(lo, lv.min(hi, v))
+    return lv.max(lo, lv.min(hi, v))  # type: ignore[no-any-return]
 
 
 def _revolve_sdf(
@@ -130,7 +130,7 @@ def _revolve_sdf(
     full_rev = abs(angle - 360.0) < 1e-9
     half_angle = math.radians(angle) / 2
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x, y, z):  # type: ignore[no-untyped-def]
         r = _lv_hypot(x, y)
         d2d = sf(r, z)
 
@@ -200,7 +200,7 @@ def _linear_sweep_sdf(
     mx_r = max(abs(shape2d.mn[0]), abs(shape2d.mx[0]))
     my_r = max(abs(shape2d.mn[1]), abs(shape2d.mx[1]))
 
-    def sdf_fn(x, y, z):
+    def sdf_fn(x, y, z):  # type: ignore[no-untyped-def]
         z_local = z - z0
         u = _clamp(z_local / height, 0, 1)
 
@@ -256,7 +256,7 @@ def skin_sdf(
     for s in shapes:
         max_r = max(max_r, abs(s.mn[0]), abs(s.mx[0]), abs(s.mn[1]), abs(s.mx[1]))
 
-    def sdf_fn(x, y, z_val):
+    def sdf_fn(x, y, z_val):  # type: ignore[no-untyped-def]
         # Clamp z between bottom and top
         z_clamped = lv.max(zs[0], lv.min(zs[-1], z_val))
 

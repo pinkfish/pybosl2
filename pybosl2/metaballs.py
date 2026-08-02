@@ -4,19 +4,22 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/isosurface.py
-#    Metaball field primitives — each returns a :class:`Metaball` that a
-#    user combines with :meth:`VNF.from_metaballs` into a blobby surface.
-#    The marching-cubes mesher lives in :mod:`pybosl2.vnf` as
-#    :meth:`VNF.from_field`.
+# LibFile: pybosl2/metaballs.py
+#    Metaball field primitives that produce scalar distance fields for isosurface
+#    meshing via :meth:`VNF.from_metaballs`.  Each ``mb_*`` function returns a
+#    :class:`_Metaball` — a callable that maps ``(N,3)`` points to ``(N,)`` field
+#    values.  Position a metaball in space by wrapping it in a
+#    :class:`_MetaballSpec` (transform + metaball) and pass a list of them to
+#    :meth:`VNF.from_metaballs`.
 #
-# FileSummary: Metaball field primitives (sphere, cuboid, torus, capsule, disk, octahedron, connector).
+# FileSummary: Metaball field primitives for VNF isosurface meshing (BOSL2 metaballs3d.scad).
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -26,22 +29,7 @@ if TYPE_CHECKING:
 
     from pybosl2.points import Point
 
-__all__ = [
-    "Metaball",
-    "MetaballSpec",
-    "mb_sphere",
-    "mb_cuboid",
-    "mb_torus",
-    "mb_capsule",
-    "mb_disk",
-    "mb_octahedron",
-    "mb_connector",
-]
-
 INF = math.inf
-
-
-# -- helpers -------------------------------------------------------------------
 
 
 def _mb_cutoff(dist: np.ndarray, cutoff: float) -> np.ndarray:
@@ -69,10 +57,7 @@ def _squircle_se_exponent(squareness: float) -> float:
     return math.log(0.5) / math.log(x)
 
 
-# -- Metaball ------------------------------------------------------------------
-
-
-class Metaball:
+class _Metaball:
     """A metaball field primitive: ``field(pts)`` over ``(N, 3)`` points.
 
     Combine several with :meth:`VNF.from_metaballs`.
@@ -90,40 +75,50 @@ class Metaball:
         return float(self.field(np.atleast_2d(np.asarray(pt, dtype=float)))[0])
 
 
-class MetaballSpec:
-    """A positioned metaball: a transform (4×4 matrix or Point translation) and a :class:`Metaball`.
+@dataclass
+class _MetaballSpec:
+    """A positioned metaball: a transform (always stored as a 4×4 matrix) and a :class:`_Metaball`.
 
     Args:
-        transform: A 4×4 matrix or a 3-element position (translation).
+        transform: A 4×4 matrix or a 3-element position (translation), normalized to 4×4.
         metaball: The field primitive to place at that transform.
     """
 
-    def __init__(self, transform: np.ndarray | Point, metaball: Metaball):
-        self.transform = transform
+    transform: np.ndarray = field(init=False)
+    metaball: _Metaball = field(init=False)
+
+    def __init__(self, transform: np.ndarray | Point, metaball: _Metaball) -> None:
+        a = np.asarray(transform, dtype=float)
+        if a.shape != (4, 4):
+            m = np.eye(4)
+            m[:3, 3] = a[:3]
+            a = m
+        self.transform = a
         self.metaball = metaball
 
 
-# -- shape constructors --------------------------------------------------------
+Metaball = _Metaball
+MetaballSpec = _MetaballSpec
 
 
 def mb_sphere(
     radius: float | None = None,
-    cutoff: float = INF,
+    cutoff: float = math.inf,
     influence: float = 1,
     negative: bool = False,
     diameter: float | None = None,
-) -> Metaball:
+) -> _Metaball:
     """A spherical metaball field.
 
     Args:
         radius: Sphere radius (mutually exclusive with *diameter*).
-        cutoff: Distance beyond which the field is clamped to 0. ``INF`` = no cutoff.
+        cutoff: Distance beyond which the field is clamped to 0. ``inf`` = no cutoff.
         influence: Blending strength (smaller = sharper).
         negative: If True, produce a subtractive metaball.
         diameter: Sphere diameter.
 
     Returns:
-        A :class:`Metaball` primitive.
+        A :class:`_Metaball` primitive.
 
     Raises:
         AssertionError: If no positive radius or diameter is given.
@@ -136,16 +131,16 @@ def mb_sphere(
         dist: np.ndarray = np.linalg.norm(pts, axis=1)
         return _mb_field(dist, rr, influence, cutoff, neg)
 
-    return Metaball(field, neg)
+    return _Metaball(field, neg)
 
 
 def mb_cuboid(
     size: tuple[float, float, float] | float,
     squareness: float = 0.5,
-    cutoff: float = INF,
+    cutoff: float = math.inf,
     influence: float = 1,
     negative: bool = False,
-) -> Metaball:
+) -> _Metaball:
     """A rounded-cuboid metaball field.
 
     Args:
@@ -156,7 +151,7 @@ def mb_cuboid(
         negative: If True, produce a subtractive metaball.
 
     Returns:
-        A :class:`Metaball` primitive.
+        A :class:`_Metaball` primitive.
 
     Raises:
         AssertionError: If *squareness* is not in ``[0, 1]``.
@@ -171,18 +166,18 @@ def mb_cuboid(
         dist: np.ndarray = np.max(p, axis=1) if xp >= 1100 else np.sum(p**xp, axis=1) ** (1 / xp)
         return _mb_field(dist, 1.0, influence, cutoff, neg)
 
-    return Metaball(field, neg)
+    return _Metaball(field, neg)
 
 
 def mb_torus(
     major_radius: float | None = None,
     minor_radius: float | None = None,
-    cutoff: float = INF,
+    cutoff: float = math.inf,
     influence: float = 1,
     negative: bool = False,
     major_diameter: float | None = None,
     minor_diameter: float | None = None,
-) -> Metaball:
+) -> _Metaball:
     """A torus metaball field.
 
     Args:
@@ -195,7 +190,7 @@ def mb_torus(
         minor_diameter: Overrides *minor_radius*.
 
     Returns:
-        A :class:`Metaball` primitive.
+        A :class:`_Metaball` primitive.
 
     Raises:
         AssertionError: If either radius is missing or non-positive.
@@ -212,17 +207,17 @@ def mb_torus(
         dist: np.ndarray = np.hypot(rad, pts[:, 2])
         return _mb_field(dist, rmin, influence, cutoff, neg)
 
-    return Metaball(field, neg)
+    return _Metaball(field, neg)
 
 
 def mb_capsule(
     height: float | None = None,
     radius: float | None = None,
-    cutoff: float = INF,
+    cutoff: float = math.inf,
     influence: float = 1,
     negative: bool = False,
     diameter: float | None = None,
-) -> Metaball:
+) -> _Metaball:
     """A capsule (round-ended cylinder) metaball field.
 
     Args:
@@ -234,7 +229,7 @@ def mb_capsule(
         diameter: Shaft diameter.
 
     Returns:
-        A :class:`Metaball` primitive.
+        A :class:`_Metaball` primitive.
 
     Raises:
         AssertionError: If *height* or *radius* is missing, non-positive, or shaft too short.
@@ -253,17 +248,17 @@ def mb_capsule(
         dist: np.ndarray = np.where(below, np.hypot(rxy, z + hl), np.where(above, np.hypot(rxy, z - hl), rxy))
         return _mb_field(dist, rr, influence, cutoff, neg)
 
-    return Metaball(field, neg)
+    return _Metaball(field, neg)
 
 
 def mb_disk(
     height: float | None = None,
     radius: float | None = None,
-    cutoff: float = INF,
+    cutoff: float = math.inf,
     influence: float = 1,
     negative: bool = False,
     diameter: float | None = None,
-) -> Metaball:
+) -> _Metaball:
     """A rounded-edge disk metaball field.
 
     Args:
@@ -275,7 +270,7 @@ def mb_disk(
         diameter: Outer diameter.
 
     Returns:
-        A :class:`Metaball` primitive.
+        A :class:`_Metaball` primitive.
 
     Raises:
         AssertionError: If *height* or *radius* is missing, non-positive, or too thin.
@@ -293,16 +288,16 @@ def mb_disk(
         dist: np.ndarray = np.where(rxy < ri, np.abs(z), np.hypot(rxy - ri, z))
         return _mb_field(dist, hl, influence, cutoff, neg)
 
-    return Metaball(field, neg)
+    return _Metaball(field, neg)
 
 
 def mb_octahedron(
     size: tuple[float, float, float] | float,
     squareness: float = 0.5,
-    cutoff: float = INF,
+    cutoff: float = math.inf,
     influence: float = 1,
     negative: bool = False,
-) -> Metaball:
+) -> _Metaball:
     """A rounded-octahedron metaball field.
 
     Args:
@@ -313,7 +308,7 @@ def mb_octahedron(
         negative: If True, produce a subtractive metaball.
 
     Returns:
-        A :class:`Metaball` primitive.
+        A :class:`_Metaball` primitive.
 
     Raises:
         AssertionError: If *squareness* is not in ``[0, 1]``.
@@ -328,7 +323,7 @@ def mb_octahedron(
         b = np.abs(-p[:, 0] - p[:, 1] + p[:, 2]) ** xp
         c = np.abs(-p[:, 0] + p[:, 1] - p[:, 2]) ** xp
         e = np.abs(p[:, 0] - p[:, 1] - p[:, 2]) ** xp
-        return (a + b + c + e) ** (1 / xp)
+        return (a + b + c + e) ** (1 / xp)  # type: ignore[no-any-return]
 
     corr = 1.0 / _octdist(np.array([[1 / 3, 1 / 3, 1 / 3]]))[0]
     inv = (
@@ -342,18 +337,18 @@ def mb_octahedron(
         dist: np.ndarray = _octdist(pts * inv)
         return _mb_field(dist, 1.0, influence, cutoff, neg)
 
-    return Metaball(field, neg)
+    return _Metaball(field, neg)
 
 
 def mb_connector(
     p1: Point,
     p2: Point,
     radius: float | None = None,
-    cutoff: float = INF,
+    cutoff: float = math.inf,
     influence: float = 1,
     negative: bool = False,
     diameter: float | None = None,
-) -> Metaball:
+) -> _Metaball:
     """A capsule metaball field spanning from *p1* to *p2*.
 
     Args:
@@ -366,7 +361,7 @@ def mb_connector(
         diameter: Shaft diameter.
 
     Returns:
-        A :class:`Metaball` primitive.
+        A :class:`_Metaball` primitive.
 
     Raises:
         AssertionError: If *radius* is missing, non-positive, or *p1* equals *p2*.
@@ -391,4 +386,20 @@ def mb_connector(
         dist: np.ndarray = np.where(below, np.hypot(rxy, z + height), np.where(above, np.hypot(rxy, z - height), rxy))
         return _mb_field(dist, rr, influence, cutoff, neg)
 
-    return Metaball(field, neg)
+    return _Metaball(field, neg)
+
+
+__all__ = [
+    "_Metaball",
+    "_MetaballSpec",
+    "Metaball",
+    "MetaballSpec",
+    "INF",
+    "mb_sphere",
+    "mb_cuboid",
+    "mb_torus",
+    "mb_capsule",
+    "mb_disk",
+    "mb_octahedron",
+    "mb_connector",
+]

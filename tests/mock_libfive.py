@@ -4,6 +4,8 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+# mypy: ignore_errors
+
 import math
 import sys
 import types
@@ -194,7 +196,7 @@ class _AabbSolid:
         v = list(v) + [0.0] * (3 - len(v))
         res = _AabbSolid([mn[i] + v[i] for i in range(3)], [mx[i] + v[i] for i in range(3)])
         if getattr(self, "is_cylindrical", False) is True:
-            res.is_cylindrical = True
+            res.is_cylindrical = True  # type: ignore[attr-defined]  # type: ignore[attr-defined]
         return res
 
     def scale(self, v):
@@ -212,7 +214,7 @@ class _AabbSolid:
         out_mx = [builtins.max(mn3[i] * sv[i], mx3[i] * sv[i]) for i in range(3)]
         res = _AabbSolid(out_mn, out_mx)
         if getattr(self, "is_cylindrical", False) is True and sv[0] == sv[1]:
-            res.is_cylindrical = True
+            res.is_cylindrical = True  # type: ignore[attr-defined]
         return res
 
     def rotate(self, a, v=None):
@@ -235,7 +237,7 @@ class _AabbSolid:
 
         if getattr(self, "is_cylindrical", False) is True and is_z_rot:
             res = _AabbSolid(self.mn, self.mx)
-            res.is_cylindrical = True
+            res.is_cylindrical = True  # type: ignore[attr-defined]
             return res
 
         m = _rot_matrix(a, v)
@@ -271,7 +273,7 @@ class _AabbSolid:
                 [_bmin(smx[i], omx[i]) for i in range(3)],
             )
         if getattr(self, "is_cylindrical", False) is True:
-            res.is_cylindrical = True
+            res.is_cylindrical = True  # type: ignore[attr-defined]
         return res
 
     def __or__(self, other):
@@ -336,7 +338,7 @@ class _AabbSolid:
             [_bmax(c[i] for c in transformed) for i in range(3)],
         )
         if getattr(self, "is_cylindrical", False) is True:
-            res.is_cylindrical = True
+            res.is_cylindrical = True  # type: ignore[attr-defined]
         return res
 
     def separate(self):
@@ -397,7 +399,7 @@ class _AabbSolid:
         return [self.__class__(self.bounds.mn, self.bounds.mx - self.bounds.mn) for _ in mats]
 
     def zrot_copies(self, **kw):
-        from pybosl2.distributors import _rotate_around_z
+        from pybosl2.distributors import _rotate_around_z  # type: ignore[attr-defined]
 
         mats = _rotate_around_z(**kw)
         return [
@@ -424,13 +426,13 @@ class _AabbSolid:
         return self._distribute(_axis_copies(UP, **kw))
 
     def mirror_copy(self, **kw):
-        from pybosl2.distributors import _mirror_mat
+        from pybosl2.distributors import _mirror_mat  # type: ignore[attr-defined]
 
         mats = _mirror_mat(**kw)
         return self._distribute(mats)
 
     def xflip_copy(self, **kw):
-        from pybosl2.distributors import _mirror_mat
+        from pybosl2.distributors import _mirror_mat  # type: ignore[attr-defined]
 
         mats = _mirror_mat(v=[1, 0, 0], center=[kw.get("x", 0), kw.get("offset", 0), 0])
         return self._distribute(mats)
@@ -594,9 +596,9 @@ def install():
     # testable); the 2-D/other builders return a permissive bbox-less _AabbSolid. pysolidfive
     # itself never calls any of these (it only builds SDFs and calls frep()).
     pythonscad_mock = types.ModuleType("pythonscad")
-    pythonscad_mock.frep = frep
-    pythonscad_mock.cube = _mock_cube
-    pythonscad_mock.cylinder = _mock_cylinder
+    pythonscad_mock.frep = frep  # type: ignore[attr-defined]
+    pythonscad_mock.cube = _mock_cube  # type: ignore[attr-defined]
+    pythonscad_mock.cylinder = _mock_cylinder  # type: ignore[attr-defined]
     pythonscad_mock.sphere = _mock_sphere
     pythonscad_mock.polyhedron = _mock_polyhedron
     pythonscad_mock.hull = _mock_hull

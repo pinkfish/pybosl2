@@ -21,38 +21,38 @@ from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 
 
-def test_cross_2d_is_scalar_z():
+def test_cross_2d_is_scalar_z() -> None:
     assert np.cross([1, 0, 0], [0, 1, 0])[2] == 1
     assert np.cross([0, 1, 0], [1, 0, 0])[2] == -1
 
 
-def test_cross_3d_is_vector():
+def test_cross_3d_is_vector() -> None:
     np.testing.assert_allclose(np.cross([1, 0, 0], [0, 1, 0]), [0, 0, 1])
 
 
-def test_is_collinear_true():
+def test_is_collinear_true() -> None:
     assert is_collinear(Point(0, 0), Point(1, 1), Point(2, 2))
     assert is_collinear(Point(0, 0), Point(3, 0), Point(10, 0))
 
 
-def test_is_collinear_false():
+def test_is_collinear_false() -> None:
     assert not is_collinear(Point(0, 0), Point(1, 0), Point(0, 1))
 
 
-def test_line_normal_is_unit_and_perpendicular():
+def test_line_normal_is_unit_and_perpendicular() -> None:
     sides = line_normal(Point(0, 0), Point(10, 0))
     assert math.isclose(float(np.linalg.norm(sides)), 1.0)
     assert abs(float(np.dot(sides, [1, 0]))) < 1e-9
 
 
-def test_line_closest_point_clamps_to_segment():
+def test_line_closest_point_clamps_to_segment() -> None:
     seg = (Point(0, 0), Point(10, 0))
     np.testing.assert_allclose(line_closest_point(seg, Point(5, 5)), [5, 0], atol=1e-9)
     np.testing.assert_allclose(line_closest_point(seg, Point(-3, 2)), [0, 0], atol=1e-9)
     np.testing.assert_allclose(line_closest_point(seg, Point(15, 3)), [10, 0], atol=1e-9)
 
 
-def test_pointlist_bounds():
+def test_pointlist_bounds() -> None:
     b = Path2D([[0, 0], [3, 4], [-1, 2]], closed=False).bounds()
     assert b.min_x == -1
     assert b.min_y == 0
@@ -62,7 +62,7 @@ def test_pointlist_bounds():
     assert b.length == 4
 
 
-def test_general_line_intersection_crossing():
+def test_general_line_intersection_crossing() -> None:
     res = general_line_intersection(
         (Point(0, 0), Point(10, 0)),
         (Point(5, -5), Point(5, 5)),
@@ -74,7 +74,7 @@ def test_general_line_intersection_crossing():
     assert math.isclose(u, 0.5)
 
 
-def test_general_line_intersection_parallel_is_none():
+def test_general_line_intersection_parallel_is_none() -> None:
     assert (
         general_line_intersection(
             (Point(0, 0), Point(10, 0)),
@@ -84,8 +84,8 @@ def test_general_line_intersection_parallel_is_none():
     )
 
 
-def test_is_point_on_segment():
+def test_is_point_on_segment() -> None:
     seg = [np.array([0.0, 0.0]), np.array([10.0, 0.0])]
-    assert _is_point_on_segment(Point(5.0, 0.0), seg)
-    assert not _is_point_on_segment(Point(5.0, 1.0), seg)
-    assert not _is_point_on_segment(Point(15.0, 0.0), seg)
+    assert _is_point_on_segment(Point(5.0, 0.0), seg)  # type: ignore[arg-type]
+    assert not _is_point_on_segment(Point(5.0, 1.0), seg)  # type: ignore[arg-type]
+    assert not _is_point_on_segment(Point(15.0, 0.0), seg)  # type: ignore[arg-type]

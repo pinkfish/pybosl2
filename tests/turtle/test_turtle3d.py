@@ -18,7 +18,7 @@ from pybosl2.turtle import TurtleCommandType as Tct
 M = TurtleCommand
 
 
-def test_square_path_closes():
+def test_square_path_closes() -> None:
     pts = (
         Turtle3D()
         .run(
@@ -38,7 +38,7 @@ def test_square_path_closes():
     np.testing.assert_allclose(pts, corners, atol=1e-9)
 
 
-def test_right_and_left_are_opposite():
+def test_right_and_left_are_opposite() -> None:
     right_cmds = [M(Tct.MOVE, size=5), M(Tct.RIGHT, angle=90), M(Tct.MOVE, size=5)]
     left_cmds = [M(Tct.MOVE, size=5), M(Tct.LEFT, angle=90), M(Tct.MOVE, size=5)]
     radius = Turtle3D().run(right_cmds).points()[-1]
@@ -47,19 +47,19 @@ def test_right_and_left_are_opposite():
     assert radius[0] == pytest.approx(left[0])
 
 
-def test_up_climbs_in_z():
+def test_up_climbs_in_z() -> None:
     pts = Turtle3D().run([M(Tct.MOVE, size=5), M(Tct.UP, angle=90), M(Tct.MOVE, size=5)]).points()
     assert pts[-1][2] == pytest.approx(5)
 
 
-def test_length_and_scale_commands():
+def test_length_and_scale_commands() -> None:
     a = Turtle3D().run([M(Tct.LENGTH, size=4), M(Tct.MOVE, size=1)]).points()[-1]
     assert a[0] == pytest.approx(4)
     b = Turtle3D().run([M(Tct.LENGTH, size=4), M(Tct.SCALE, size=2), M(Tct.MOVE, size=1)]).points()[-1]
     assert b[0] == pytest.approx(8)
 
 
-def test_arcleft_point_count_and_curvature():
+def test_arcleft_point_count_and_curvature() -> None:
     pts = (
         Turtle3D()
         .run([M(Tct.ARCSTEPS, size=8), M(Tct.MOVE, size=5), M(Tct.ARCLEFT, radius=5), M(Tct.MOVE, size=5)])
@@ -69,24 +69,24 @@ def test_arcleft_point_count_and_curvature():
     assert pts[-1][1] > 0
 
 
-def test_repeat_command():
+def test_repeat_command() -> None:
     once = Turtle3D().run([M(Tct.MOVE, size=3), M(Tct.LEFT, angle=20)]).points()
     sub = [M(Tct.MOVE, size=3), M(Tct.LEFT, angle=20)]
     thrice = Turtle3D().run([M(Tct.REPEAT, size=3, sub_commands=sub)]).points()
     assert len(thrice) == 1 + 3 * (len(once) - 1)
 
 
-def test_transforms_are_4x4():
+def test_transforms_are_4x4() -> None:
     xform = Turtle3D().run([M(Tct.MOVE, size=10), M(Tct.ARCLEFT, radius=5)]).transforms()
     assert all(np.asarray(t).shape == (4, 4) for t in xform)
 
 
-def test_turtle3d_function_matches_instance():
+def test_turtle3d_function_matches_instance() -> None:
     cmds = [M(Tct.MOVE, size=10), M(Tct.LEFT, angle=90), M(Tct.MOVE, size=10)]
     np.testing.assert_allclose(turtle3d(cmds).points(), Turtle3D().run(cmds).points())
 
 
-def test_compound_move_matches_simple_move():
+def test_compound_move_matches_simple_move() -> None:
     np.testing.assert_allclose(
         Turtle3D().run([M(Tct.MOVE, size=10, is_compound=True)]).points(),
         Turtle3D().run([M(Tct.MOVE, size=10)]).points(),
@@ -94,7 +94,7 @@ def test_compound_move_matches_simple_move():
     )
 
 
-def test_compound_arc_matches_simple_arc():
+def test_compound_arc_matches_simple_arc() -> None:
     simple = Turtle3D().run([M(Tct.ARCSTEPS, size=8), M(Tct.ARCLEFT, radius=5)]).points()
     compound = (
         Turtle3D()
@@ -104,17 +104,17 @@ def test_compound_arc_matches_simple_arc():
     np.testing.assert_allclose(simple[-1], compound[-1], atol=1e-6)
 
 
-def test_compound_reverse_flips_direction():
+def test_compound_reverse_flips_direction() -> None:
     assert Turtle3D().run([M(Tct.MOVE, size=5, reverse=True, is_compound=True)]).points()[-1][0] == pytest.approx(-5)
 
 
-def test_compound_grow_twist_builds_transforms():
+def test_compound_grow_twist_builds_transforms() -> None:
     xform = Turtle3D().run([M(Tct.MOVE, size=10, grow=2, twist=90, steps=6, is_compound=True)]).transforms()
     assert len(xform) == 7
     assert all(np.asarray(t).shape == (4, 4) for t in xform)
 
 
-def test_compound_arc_absolute_rotation():
+def test_compound_arc_absolute_rotation() -> None:
     rel = (
         Turtle3D()
         .run([M(Tct.ARC, radius=5, angle=90, steps=8, rotation_type=TurtleCommand.RotationType.LEFT, is_compound=True)])
@@ -128,31 +128,31 @@ def test_compound_arc_absolute_rotation():
     np.testing.assert_allclose(rel, ab, atol=1e-6)
 
 
-def test_compound_rollto_builds():
-    xform = Turtle3D().run([M(Tct.MOVE, size=10, rollto=[0, 0, 1], steps=3, is_compound=True)]).transforms()
+def test_compound_rollto_builds() -> None:
+    xform = Turtle3D().run([M(Tct.MOVE, size=10, rollto=[0, 0, 1], steps=3, is_compound=True)]).transforms()  # type: ignore[arg-type]
     assert len(xform) == 4
 
 
-def test_debug_polygon_builds_with_labels():
+def test_debug_polygon_builds_with_labels() -> None:
     p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]])
     assert isinstance(p.debug_polygon(size=3), Bosl2Solid)
     assert isinstance(p.debug_polygon(vertices=False), Bosl2Solid)
 
 
-def test_debug_region_builds():
-    r = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]])
+def test_debug_region_builds() -> None:
+    r = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]])  # type: ignore[arg-type]
     assert isinstance(r.debug_region(size=3), Bosl2Solid)
 
 
-def test_debug_region_single_path_defers_to_polygon():
+def test_debug_region_single_path_defers_to_polygon() -> None:
     assert isinstance(Region([[[0, 0], [20, 0], [10, 20]]]).debug_region(), Bosl2Solid)
 
 
-def test_turtle3d_is_instance():
+def test_turtle3d_is_instance() -> None:
     assert isinstance(Turtle3D(), Turtle3D)
 
 
-def test_turtle_command_class_and_enum_simple():
+def test_turtle_command_class_and_enum_simple() -> None:
     cmds = [
         TurtleCommand(Tct.MOVE, size=10),
         TurtleCommand(Tct.LEFT, angle=90),
@@ -167,7 +167,7 @@ def test_turtle_command_class_and_enum_simple():
     np.testing.assert_allclose(pts, corners, atol=1e-9)
 
 
-def test_turtle_command_compound():
+def test_turtle_command_compound() -> None:
     cmd = TurtleCommand(
         Tct.MOVE,
         size=10,
@@ -181,7 +181,7 @@ def test_turtle_command_compound():
     assert all(np.asarray(t).shape == (4, 4) for t in xform)
 
 
-def test_turtle_command_repeat():
+def test_turtle_command_repeat() -> None:
     sub_cmds = [
         TurtleCommand(Tct.MOVE, size=3),
         TurtleCommand(Tct.LEFT, angle=20),
@@ -192,6 +192,6 @@ def test_turtle_command_repeat():
     assert len(thrice) == 1 + 3 * (len(legacy_once) - 1)
 
 
-def test_turtle_command_compound_with_enums():
+def test_turtle_command_compound_with_enums() -> None:
     pts = Turtle3D().run([TurtleCommand(Tct.MOVE, size=10, grow=2, steps=4, is_compound=True)]).points()
     assert len(pts) == 5

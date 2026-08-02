@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from pybosl2._sdf.shapes3d import PyShape
 
 
-def _attach(
+def _attach(  # type: ignore[no-untyped-def]
     shape: PyShape,
     size: list[float],
     center_off: list[float],
@@ -50,7 +50,7 @@ def _attach(
     o = [float(v) for v in orient]
     olen = math.sqrt(sum(v * v for v in o))
     o = [v / olen for v in o]
-    if o != UP:
+    if o != UP.vector:
         if o == [0.0, 0.0, -1.0]:
             shape = shape.rotate(180, [1, 0, 0])
         else:
@@ -64,7 +64,7 @@ def _attach(
     return shape
 
 
-def knuckle_hinge(
+def knuckle_hinge(  # type: ignore[no-untyped-def]
     length: float,
     segs: int,
     offset: float,
@@ -133,7 +133,7 @@ def knuckle_hinge(
     return _attach(shape, size, center_off, anchor, spin, orient)
 
 
-def rabbit_clip(
+def rabbit_clip(  # type: ignore[no-untyped-def]
     type: str,  # noqa: A002
     length: float,
     width: float,

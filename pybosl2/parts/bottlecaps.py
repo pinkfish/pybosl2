@@ -30,7 +30,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._helpers import union
 from pybosl2._native import native
@@ -163,12 +163,12 @@ _PCO1881 = BottleThreadSpec(
 )
 
 
-def _turtle_start(x, y=0.0):
+def _turtle_start(x: float, y: float = 0.0) -> Turtle2DState:
     """Turtle state starting at (x, y) heading +X."""
     return Turtle2DState(path=[[float(x), float(y)]])
 
 
-def _pco1810_profile(diameter: "BottleThreadSpec"):
+def _pco1810_profile(diameter: BottleThreadSpec) -> Any:
     height = diameter.support_h + diameter.neck_h
     return turtle2d(
         [
@@ -206,7 +206,7 @@ def _pco1810_profile(diameter: "BottleThreadSpec"):
     ).points()
 
 
-def _pco1881_profile(diameter: "BottleThreadSpec"):
+def _pco1881_profile(diameter: BottleThreadSpec) -> Any:
     height = diameter.support_h + diameter.neck_h
     return turtle2d(
         [
@@ -245,7 +245,9 @@ def _pco1881_profile(diameter: "BottleThreadSpec"):
     ).points()
 
 
-def _neck_thread(diameter: "BottleThreadSpec", fn: int | None = None, fa: float | None = None, fs: float | None = None):
+def _neck_thread(
+    diameter: BottleThreadSpec, fn: int | None = None, fa: float | None = None, fs: float | None = None
+) -> Bosl2Solid:
     """The neck's external thread ridge with its two thread breaks (BOSL2 thread_helix + prismoids).
 
     The lead-in ``taper`` BOSL2 applies is not reproduced (this port's thread_helix has no taper).
@@ -275,17 +277,17 @@ def _neck_thread(diameter: "BottleThreadSpec", fn: int | None = None, fa: float 
                 fs=fs,
             )
             cuts.append(block.multmatrix((m_out @ m_in).tolist()))
-    return thread - union(cuts)
+    return thread - union(cuts)  # type: ignore[no-any-return]
 
 
 def _build_neck(
-    diameter: "BottleThreadSpec",
-    profile,
+    diameter: BottleThreadSpec,
+    profile: Any,
     bottom_half: bool,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-):
+) -> Bosl2Solid:
     height = diameter.support_h + diameter.neck_h
     body = Bosl2Solid(
         _orotate_extrude(_opolygon([[float(x), float(y)] for x, y in profile]), fn=fn),
@@ -305,13 +307,13 @@ class BottleCapTexture(Enum):
 
 
 def _build_cap(
-    diameter: "BottleThreadSpec",
+    diameter: BottleThreadSpec,
     wall: float,
     texture: str | BottleCapTexture,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-):
+) -> Bosl2Solid:
     _ = texture.value if isinstance(texture, BottleCapTexture) else texture
     w = diameter.cap_id + 2 * wall
     height = diameter.cap_tamper_ring_h + wall

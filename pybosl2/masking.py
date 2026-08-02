@@ -17,27 +17,30 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
+from pybosl2._edges_lang import CORNER_OFFSETS, Anchor
 from pybosl2._native import native
-from pybosl2.points import Point, Vector
+from pybosl2.points import Point
+
+if TYPE_CHECKING:
+    from pybosl2._edges_lang import CornerPlane, EdgePlane
 
 if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
+from ._edges_lang import EDGE_OFFSETS, _edges
 from .constants import CENTER
 from .shapes2d import _frag_count, _polar_to_xy
-from .shapes3d import EDGE_OFFSETS, _anchor_offset_box3, _edges, _quantup
+from .shapes3d import _anchor_offset_box3, _quantup
 
 _ocube = native("cube")
 _opolygon = native("polygon")
 _osphere = native("sphere")
-
-CORNER_OFFSETS = [[float(xa), float(ya), float(za)] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)]
 
 
 def mask2d_roundover(
@@ -153,7 +156,7 @@ def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float =
     return _opolygon(diamond).linear_extrude(height=length + excess, center=True)  # type: ignore[no-any-return]
 
 
-def _pick_axes(vec: Vector) -> tuple[int, int, int, float, float]:
+def _pick_axes(vec: Point) -> tuple[int, int, int, float, float]:
     """For an edge vector (one axis 0, two axes ±1), return ``(run_axis, a1, a2, s1, s2)``."""
     run_axis = next(i for i in range(3) if vec[i] == 0)
     nz = [i for i in range(3) if vec[i] != 0]
@@ -164,7 +167,7 @@ def _pick_axes(vec: Vector) -> tuple[int, int, int, float, float]:
 def _orient_mask_along_edge(
     shape: "Bosl2Solid | Bosl2Shape2D",
     size: tuple[float, float, float],
-    vec: Vector,
+    vec: Point,
 ) -> "Bosl2Solid":
     """Reorient an already-built edge cutter onto the cuboid edge given by *vec*."""
     run_axis, a1, a2, s1, s2 = _pick_axes(vec)
@@ -190,7 +193,7 @@ def _extrude_mask_along_edge(
     mask_path: "Path2D",
     length: float,
     size: tuple[float, float, float],
-    vec: Vector,
+    vec: Point,
 ) -> "Bosl2Solid":
     shape = _opolygon(mask_path).linear_extrude(height=length, center=True)
     return _orient_mask_along_edge(shape, size, vec)
@@ -198,18 +201,18 @@ def _extrude_mask_along_edge(
 
 def edge_mask(
     body: "Bosl2Solid",
-    edges: str | list[Any] = "ALL",
-    except_edges: list[Any] | None = None,
+    edges: EdgePlane | str | list[int | str] = "ALL",
+    except_edges: list[int | str] | None = None,
     children: "Bosl2Solid | None" = None,
     size: tuple[float, float, float] | None = None,
-    anchor: Vector | Point = CENTER,
+    anchor: Anchor | Point = CENTER,
     center: Point | None = None,
 ) -> "Bosl2Solid":
     """Cut a 3-D edge cutter along each selected edge of the box-shaped *body*.
 
     Args:
         body: The box solid to cut.
-        edges: Edges to mask (default ``"ALL"``).
+        edges: Edges to mask — an :class:`EdgePlane`, a string, a vector, or a list thereof (default ``"ALL"``).
         except_edges: Edges to explicitly not mask.
         children: The pre-built 3-D edge cutter.
         size: The box's ``(x, y, z)`` size.
@@ -223,22 +226,22 @@ def edge_mask(
     for axis in range(3):
         for i in range(4):
             if edge_set[axis][i] > 0:
-                piece = _orient_mask_along_edge(children, size, Vector(EDGE_OFFSETS[axis][i]))
+                piece = _orient_mask_along_edge(children, size, Point(EDGE_OFFSETS[axis][i]))
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))  # type: ignore[arg-type]
+    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
     return body - cutter
 
 
 def edge_profile(
     body: "Bosl2Solid",
-    edges: str | list[Any] = "ALL",
-    except_edges: list[Any] | None = None,
+    edges: EdgePlane | str | list[int | str] = "ALL",
+    except_edges: list[int | str] | None = None,
     children: "Path2D | None" = None,
     size: tuple[float, float, float] | None = None,
     convexity: int = 10,
-    anchor: Vector | Point = CENTER,
+    anchor: Anchor | Point = CENTER,
     center: Point | None = None,
 ) -> "Bosl2Solid":
     """Cut a 2-D mask profile extruded along each selected edge of the box-shaped *body*.
@@ -263,19 +266,15 @@ def edge_profile(
             if edge_set[axis][i] > 0:
                 vec = EDGE_OFFSETS[axis][i]
                 length = size[axis] + 0.1
-                piece = _extrude_mask_along_edge(children, length, size, Vector(vec))
+                piece = _extrude_mask_along_edge(children, length, size, Point(vec))
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))  # type: ignore[arg-type]
+    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
     return body - cutter
 
 
-# edge_profile_asym() with corner_type="none" degrades to edge_profile() per edge.
-edge_profile_asym = edge_profile
-
-
-def _corner_set(v: Any) -> list[int]:
+def _corner_set(v: str | list[int]) -> list[int]:
     if isinstance(v, str):
         if v == "ALL":
             return [1] * 8
@@ -289,18 +288,21 @@ def _corner_set(v: Any) -> list[int]:
     ]
 
 
-def _corners(v: Any, except_: Any = None) -> list[int]:
+def _corners(
+    v: str | list[int] | list[str] | list[list[int]] | list[list[str]],
+    except_: list | None = None,  # type: ignore[type-arg]
+) -> list[int]:
     if except_ is None:
         except_ = []
     if isinstance(v, str) or (isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)):
-        v = [v]
+        v = [v]  # type: ignore[assignment]
     if isinstance(except_, str) or (
         isinstance(except_, list) and len(except_) > 0 and not isinstance(except_[0], list)
     ):
         except_ = [except_]
     summed = [0] * 8
     for x in v:
-        cs = _corner_set(x)
+        cs = _corner_set(x)  # type: ignore[arg-type]
         summed = [summed[i] + cs[i] for i in range(8)]
     normed = [1 if s > 0 else 0 for s in summed]
     if not except_:
@@ -329,14 +331,14 @@ def _corner_cutter(
 
 def corner_profile(
     body: "Bosl2Solid",
-    corners: str | list[Any] = "ALL",
-    except_corners: list[Any] | None = None,
+    corners: CornerPlane | str | list[int | str] = "ALL",
+    except_corners: list[int | str] | None = None,
     radius: float | None = None,
     diameter: float | None = None,
     size: tuple[float, float, float] | None = None,
     children: "Path2D | None" = None,
     convexity: int = 10,
-    anchor: Vector | Point = CENTER,
+    anchor: Anchor | Point = CENTER,
     center: Point | None = None,
     fn: int | None = None,
     fa: float | None = None,
@@ -363,7 +365,7 @@ def corner_profile(
         radius = diameter / 2
     rad = float(radius)
     assert size is not None, "size= (the box's size) must be given"
-    corner_set = _corners(corners, except_corners or [])
+    corner_set = _corners(corners, except_corners or [])  # type: ignore[arg-type]
     cutter: "Bosl2Solid | None" = None
     for idx, sel in enumerate(corner_set):
         if sel:
@@ -371,19 +373,19 @@ def corner_profile(
             cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))  # type: ignore[arg-type]
+    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
     return body - cutter
 
 
 def face_profile(
     body: "Bosl2Solid",
-    faces: str | list[Any] = "ALL",
+    faces: str | list[str] = "ALL",
     radius: float | None = None,
     diameter: float | None = None,
     size: tuple[float, float, float] | None = None,
     children: "Path2D | None" = None,
     convexity: int = 10,
-    anchor: Vector | Point = CENTER,
+    anchor: Anchor | Point = CENTER,
     center: Point | None = None,
     fn: int | None = None,
     fa: float | None = None,
@@ -409,10 +411,10 @@ def face_profile(
         radius = diameter / 2
     rad = float(radius)
     mask = children if children is not None else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)
-    body = edge_profile(body, faces, children=mask, size=size, convexity=convexity, anchor=anchor, center=center)
+    body = edge_profile(body, faces, children=mask, size=size, convexity=convexity, anchor=anchor, center=center)  # type: ignore[arg-type]
     return corner_profile(
         body,
-        faces,
+        faces,  # type: ignore[arg-type]
         radius=rad,
         size=size,
         convexity=convexity,

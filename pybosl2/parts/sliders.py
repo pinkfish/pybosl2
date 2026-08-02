@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 from pybosl2._helpers import union
 from pybosl2.constants import BACK, BOTTOM, FRONT, LEFT, RIGHT
@@ -26,7 +27,7 @@ from pybosl2.vnf import VNF
 __all__ = ["Sliders"]
 
 
-def _union(shapes):
+def _union(shapes: list[Any]) -> Any:
     return union(shapes)
 
 
@@ -76,7 +77,7 @@ class Sliders:
                 chamfer=2,
                 edges=[RIGHT],
                 except_edges=[BOTTOM],
-                anchor=[b + le for b, le in zip(BOTTOM, LEFT, strict=False)],
+                anchor=[b + le for b, le in zip(BOTTOM, LEFT, strict=False)],  # type: ignore[arg-type]
                 fn=fn,
                 fa=fa,
                 fs=fs,

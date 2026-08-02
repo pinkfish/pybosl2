@@ -41,13 +41,16 @@ class PlatonicSolid(Enum):
 _PHI = (1 + math.sqrt(5)) / 2
 
 
-def _normalize(verts):
+def _normalize(verts: list[tuple[float, float, float]]) -> list[list[float]]:
     """Scale a vertex list so its circumradius (max |v|) is 1."""
     arr = np.asarray(verts, dtype=float)
-    return (arr / np.linalg.norm(arr, axis=1).max()).tolist()
+    return (arr / np.linalg.norm(arr, axis=1).max()).tolist()  # type: ignore[no-any-return]
 
 
-def _dual(verts, faces):
+def _dual(
+    verts: list[list[float]],
+    faces: list[list[int]],
+) -> tuple[list[list[float]], list[list[int]]]:
     """The dual polyhedron: new vertices are the (normalized) face centroids, new faces are the
     rings of faces around each original vertex. Used to derive the dodecahedron from the icosahedron."""
     verts_arr = np.asarray(verts, dtype=float)
@@ -63,7 +66,7 @@ def _dual(verts, faces):
         t = t / np.linalg.norm(t)
         b = np.cross(sides, t)
 
-        def angle(fi, sides=sides, b=b, t=t):
+        def angle(fi: int, sides: "np.ndarray" = sides, b: "np.ndarray" = b, t: "np.ndarray" = t) -> float:
             diameter = centroids[fi] - sides * float(np.dot(centroids[fi], sides))
             return math.atan2(float(np.dot(diameter, b)), float(np.dot(diameter, t)))
 
@@ -168,7 +171,7 @@ _ALIASES = {
 }
 
 
-def _inradius_ratio(name):
+def _inradius_ratio(name: str) -> float:
     """Inradius / circumradius for the unit solid (min face-plane distance)."""
     verts, faces, _ = _SOLIDS[name]
     verts_arr = np.asarray(verts)
@@ -187,7 +190,7 @@ class Polyhedra:
         return key
 
     @staticmethod
-    def regular_polyhedron_info(name: PlatonicSolid | str) -> dict:
+    def regular_polyhedron_info(name: PlatonicSolid | str) -> dict[str, object]:
         """The named solid's vertex/face data and counts (BOSL2 regular_polyhedron_info())."""
         key = Polyhedra._resolve(name)
         verts, faces, _ratio = _SOLIDS[key]

@@ -39,7 +39,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
@@ -49,13 +49,13 @@ import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
 from pybosl2.caps import CapsSpec, CapType, _caps_as_bools, _norm_caps
-from pybosl2.points import Vector
+from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
 from pybosl2.vnf import VNF
 
-UP = Vector([0.0, 0.0, 1.0])
-BACK = Vector([0.0, 1.0, 0.0])
+UP = Point([0.0, 0.0, 1.0])
+BACK = Point([0.0, 1.0, 0.0])
 
 
 class Sweepable:
@@ -207,7 +207,7 @@ def clockwise_polygon(poly: Sequence[Sequence[float]] | Path2D) -> list[Sequence
     """*poly* wound clockwise (reversed if its signed area is positive/CCW)."""
     from pybosl2.path2d import Path2D
 
-    return list(poly) if Path2D._polygon_area(poly, signed=True) <= 0 else list(reversed(list(poly)))
+    return list(poly) if Path2D._polygon_area(poly, signed=True) <= 0 else list(reversed(list(poly)))  # type: ignore[arg-type]
 
 
 # (imported from pybosl2._helpers as translate4, zrot4)
@@ -307,7 +307,7 @@ def _path_sweep(
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
     transforms: bool = False,
-):
+) -> VNF | list[list[list[float]]]:
     """Sweep the 2-D *shape* along the 2-D/3-D *path*, returning a VNF (or the transform list).
 
     *method* orients the cross section: "incremental" (rotation-minimizing frame), "manual"
@@ -465,7 +465,8 @@ def _reindex_polygon(reference: Sequence[Sequence[float]], poly: Sequence[Sequen
         val = float(np.sum(np.linalg.norm(ref - np.roll(p, -k, axis=0), axis=1)))
         if best_val is None or val < best_val:
             best_val, best_k = val, k
-    return np.roll(p, -best_k, axis=0).tolist()
+    result: list[list[float]] = np.roll(p, -best_k, axis=0).tolist()
+    return result
 
 
 def slice_profiles(
@@ -573,8 +574,8 @@ def _linear_sweep(
     region: Sequence[Sequence[float]] | Path2D,
     height: float | None = None,
     twist: float = 0.0,
-    scale=1,
-    shift=(0.0, 0.0),
+    scale: float = 1,
+    shift: Sequence[float] = (0.0, 0.0),
     slices: int | None = None,
     caps: CapsSpec = CapType.BUTT,
     style: str = "default",
@@ -759,7 +760,7 @@ def _spiral_sweep(
 def subdivide_and_slice(
     profiles: Sequence[Sequence[Sequence[float]]],
     slices: int,
-    numpoints=None,
+    numpoints: int | str | None = None,
     method: str = "length",  # noqa: ARG001
     closed: bool = False,
 ) -> list[list[list[float]]]:
@@ -770,7 +771,7 @@ def subdivide_and_slice(
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
 
-    def _wrap(prof):
+    def _wrap(prof: Sequence[Sequence[float]]) -> Path2D | Path3D:
         return Path3D(prof) if prof and len(prof[0]) == 3 else Path2D(prof)
 
     maxsize = max(len(p) for p in profiles)
@@ -780,10 +781,11 @@ def subdivide_and_slice(
         from functools import reduce
 
         numpoints = reduce(lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles])
+    assert isinstance(numpoints, int), "numpoints must be int after resolution"
     numpoints = round(numpoints)
     assert numpoints >= maxsize, "subdivide_and_slice(): numpoints is smaller than the largest profile."
     fixed = [_wrap(p).subdivide_path(points=numpoints, closed=True) for p in profiles]
-    return slice_profiles(fixed, slices, closed)
+    return slice_profiles(fixed, slices, closed)  # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -814,7 +816,7 @@ class OSProfile:
     width: float = 0.0
     points: list[list[float]] = field(default_factory=list)
 
-    def get(self, key, default=None):
+    def get(self, key: str, default: object = None) -> object:
         if key == "type":
             return self.type.value
         mapping = {
@@ -828,7 +830,7 @@ class OSProfile:
             return getattr(self, attr)
         return default
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> object:
         if key == "type":
             return self.type.value
         mapping = {
@@ -842,7 +844,7 @@ class OSProfile:
             return getattr(self, attr)
         raise KeyError(key)
 
-    def __contains__(self, key):
+    def __contains__(self, key: str) -> bool:
         mapping = {
             "r": "radius",
             "h": "height",
@@ -853,7 +855,9 @@ class OSProfile:
         return hasattr(self, attr)
 
 
-def os_circle(radius: float | None = None, height: float | None = None, extra: float = 0.0, **kwargs) -> OSProfile:
+def os_circle(
+    radius: float | None = None, height: float | None = None, extra: float = 0.0, **kwargs: object
+) -> OSProfile:
     """Circular roundover/flare profile for :func:`offset_sweep` (BOSL2 ``os_circle()``).
 
     Describes the treatment applied to one rim of the extruded shape:
@@ -875,8 +879,8 @@ def os_circle(radius: float | None = None, height: float | None = None, extra: f
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    r_val = radius if radius is not None else kwargs.get("r")
-    h_val = height if height is not None else kwargs.get("h")
+    r_val = radius if radius is not None else cast("float | None", kwargs.get("r"))
+    h_val = height if height is not None else cast("float | None", kwargs.get("h"))
     assert r_val is not None, "os_circle(): radius is required."
     h_res = float(h_val) if h_val is not None else abs(float(r_val))
     return OSProfile(type=OSType.CIRCLE, radius=float(r_val), height=h_res, extra=float(extra))
@@ -887,7 +891,7 @@ def os_smooth(
     radius: float | None = None,
     curvature: float | None = None,
     extra: float = 0.0,
-    **kwargs,
+    **kwargs: object,
 ) -> OSProfile:
     """Continuous curvature (Bézier) profile for :func:`offset_sweep` (BOSL2 ``os_smooth()``).
 
@@ -903,8 +907,8 @@ def os_smooth(
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    r_val = radius if radius is not None else kwargs.get("r")
-    k_val = curvature if curvature is not None else kwargs.get("k", 0.5)
+    r_val = radius if radius is not None else cast("float | None", kwargs.get("r"))
+    k_val = curvature if curvature is not None else cast("float", kwargs.get("k", 0.5))
     val = float(cut) if cut is not None else (float(r_val) if r_val is not None else 1.0)
     sign = 1.0 if val >= 0 else -1.0
     return OSProfile(type=OSType.SMOOTH, cut=abs(val), curvature=float(k_val), radius_sign=sign, extra=float(extra))
@@ -916,7 +920,7 @@ def os_teardrop(
     cut: float | None = None,
     max_angle: float = 45.0,
     extra: float = 0.0,
-    **kwargs,
+    **kwargs: object,
 ) -> OSProfile:
     """Teardrop profile for :func:`offset_sweep` to avoid overhangs in 3D printing (BOSL2 ``os_teardrop()``).
 
@@ -933,8 +937,8 @@ def os_teardrop(
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
     """
-    r_arg = radius if radius is not None else kwargs.get("r")
-    h_arg = height if height is not None else kwargs.get("h")
+    r_arg = radius if radius is not None else cast("float | None", kwargs.get("r"))
+    h_arg = height if height is not None else cast("float | None", kwargs.get("h"))
     r_val = float(r_arg) if r_arg is not None else (float(cut) if cut is not None else 1.0)
     h_val = float(h_arg) if h_arg is not None else abs(r_val)
     return OSProfile(type=OSType.TEARDROP, radius=r_val, height=h_val, max_angle=float(max_angle), extra=float(extra))
@@ -999,8 +1003,8 @@ def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProf
 def _offset_sweep(
     path: Sequence[Sequence[float]],
     height: float,
-    bottom=None,
-    top=None,
+    bottom: object = None,
+    top: object = None,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
@@ -1038,12 +1042,12 @@ def _offset_sweep(
 
     base = [[float(p[0]), float(p[1])] for p in path]
 
-    def _to_desc(j):
+    def _to_desc(j: object) -> "OSProfile | dict[str, object] | None":
         if j is None:
             return None
         if isinstance(j, (dict, OSProfile)):
             return j
-        return os_circle(float(j))
+        return os_circle(cast("float", j))
 
     bottom_desc = _to_desc(bottom)
     top_desc = _to_desc(top)
@@ -1052,7 +1056,7 @@ def _offset_sweep(
     # Build (delta, z) pairs for each level of the stack.
     # ---------------------------------------------------------------------------
 
-    def _arc_column(desc, n: int):
+    def _arc_column(desc: Any, n: int) -> tuple[list[float], list[float]]:
         """Return (deltas, zs) for one rim, length n+1."""
         if desc is None:
             return ([0.0], [0.0])
@@ -1196,8 +1200,8 @@ def _offset_sweep(
 def _convex_offset_extrude(
     path: Sequence[Sequence[float]],
     height: float,
-    bottom=None,
-    top=None,
+    bottom: object = None,
+    top: object = None,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
@@ -1213,14 +1217,14 @@ def _rounded_prism(
     bottom: Sequence[Sequence[float]],
     top: Sequence[Sequence[float]] | None = None,
     height: float | None = None,
-    joint_top: float | dict | None = None,
-    joint_bottom: float | dict | None = None,
+    joint_top: float | dict[str, object] | None = None,
+    joint_bottom: float | dict[str, object] | None = None,
     joint_sides: float | list[float] | None = None,
     curvature_sides: float | list[float] | None = None,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
-    **kwargs,
+    **kwargs: object,
 ) -> VNF:
     """Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).
 
@@ -1275,18 +1279,18 @@ def _rounded_prism(
         t_rounded = t_2d
 
     # Convert rim treatments to dict descriptors
-    def _to_desc(j):
+    def _to_desc(j: object) -> "OSProfile | dict[str, object] | None":
         if j is None:
             return None
         if isinstance(j, (dict, OSProfile)):
             return j
-        return os_circle(float(j))
+        return os_circle(cast("float", j))
 
     desc_top = _to_desc(joint_top)
     desc_bot = _to_desc(joint_bot)
 
     # Re-use the (delta, z) levels calculation from offset_sweep
-    def _arc_column(desc, n: int):
+    def _arc_column(desc: Any, n: int) -> tuple[list[float], list[float]]:
         if desc is None:
             return ([0.0], [0.0])
         t = desc.get("type", "circle")
@@ -1296,7 +1300,7 @@ def _rounded_prism(
         if t == "circle":
             r = desc["r"]
             h = abs(desc["h"])
-            ar = abs(r)
+            ar: float = abs(r)
             sign = -1.0 if r > 0 else 1.0
             angles = [math.pi / 2 * i / n for i in range(n + 1)]
             deltas = [sign * ar * (1.0 - math.cos(a)) for a in angles]
@@ -1615,7 +1619,7 @@ def _closest_angle(alpha: float, beta: float) -> float:
     return beta
 
 
-def _smooth(data: Sequence[float], length: int, closed: bool = False, angle: bool = False) -> list:
+def _smooth(data: Sequence[float], length: int, closed: bool = False, angle: bool = False) -> list[float]:
     """Moving-average smooth of *data* over a window of *length* (BOSL2 _smooth()).
 
     With *angle*, values are unwrapped to the nearest congruent angle before averaging so the mean
@@ -1642,14 +1646,14 @@ def _smooth(data: Sequence[float], length: int, closed: bool = False, angle: boo
 def rot_resample(
     rotlist: Sequence[Sequence[float]],
     sides: int,
-    twist=None,
-    scale=None,
+    twist: float | Sequence[float] | None = None,
+    scale: float | Sequence[float] | None = None,
     smoothlen: int = 1,
-    long=False,
+    long: bool = False,
     turns: float = 0,
     closed: bool = False,
     method: str = "length",
-) -> list:
+) -> list[list[list[float]]]:
     """Resample a list of 4x4 transforms to uniform screw-motion spacing (BOSL2 rot_resample()).
 
     Interpolates between successive transforms along their screw motion (via :func:`rot_decode`),

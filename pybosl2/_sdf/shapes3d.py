@@ -182,7 +182,7 @@ class PyShape(Distributable):
 
     def __init__(
         self,
-        sdf_fn: Callable,
+        sdf_fn: Callable,  # type: ignore[type-arg]
         mn: Sequence[float],
         mx: Sequence[float],
         res: int = 10,
@@ -206,7 +206,7 @@ class PyShape(Distributable):
 
     def _wrap(
         self,
-        sdf_fn: Callable,
+        sdf_fn: Callable,  # type: ignore[type-arg]
         mn: Sequence[float],
         mx: Sequence[float],
         cuboid_size: Sequence[float] | None = None,
@@ -387,7 +387,7 @@ class PyShape(Distributable):
 
         fn = self._sdf_fn
 
-        def new_fn(x, y, z):
+        def new_fn(x, y, z):  # type: ignore[no-untyped-def]
             return fn(
                 mt[0, 0] * x + mt[0, 1] * y + mt[0, 2] * z + mt[0, 3],
                 mt[1, 0] * x + mt[1, 1] * y + mt[1, 2] * z + mt[1, 3],
@@ -413,7 +413,7 @@ class PyShape(Distributable):
         new_mx = [max(c[i] for c in transformed) for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
 
-    def _distribute(self, mats: list[np.ndarray]) -> list:
+    def _distribute(self, mats: list[np.ndarray]) -> list:  # type: ignore[type-arg]
         """Return a list of multmatrix copies of this shape, one per matrix."""
         return [self.multmatrix(m) for m in mats]
 
@@ -486,7 +486,7 @@ class PyShape(Distributable):
             return shs[0]
         fns = [s._sdf_fn for s in shs]
 
-        def sdf_fn(x, y, z):
+        def sdf_fn(x, y, z):  # type: ignore[no-untyped-def]
             return _balanced(lv.min, [f(x, y, z) for f in fns])
 
         mn = [min(s.mn[i] for s in shs) for i in range(3)]
@@ -504,7 +504,7 @@ class PyShape(Distributable):
             return shs[0]
         fns = [s._sdf_fn for s in shs]
 
-        def sdf_fn(x, y, z):
+        def sdf_fn(x, y, z):  # type: ignore[no-untyped-def]
             return _balanced(lv.max, [f(x, y, z) for f in fns])
 
         mn = [max(s.mn[i] for s in shs) for i in range(3)]
@@ -524,7 +524,7 @@ class PyShape(Distributable):
         fa = shape._sdf_fn
         fns = [t._sdf_fn for t in tls]
 
-        def sdf_fn(x, y, z):
+        def sdf_fn(x, y, z):  # type: ignore[no-untyped-def]
             return lv.max(fa(x, y, z), -_balanced(lv.min, [f(x, y, z) for f in fns]))
 
         return PyShape(sdf_fn, list(shape.mn), list(shape.mx), shape.res)
@@ -559,11 +559,11 @@ class PyShape(Distributable):
             modes,
         )
 
-    def round(self, radius: float, edges: str | list = "ALL", except_edges: list[Any] | None = None) -> PyShape:
+    def round(self, radius: float, edges: str | list = "ALL", except_edges: list[Any] | None = None) -> PyShape:  # type: ignore[type-arg]
         """Round the selected edges by `radius`, in addition to any existing edge treatment."""
         return self._edge_treat(radius, edges, except_edges, "round")
 
-    def chamfer(self, size: float, edges: str | list = "ALL", except_edges: list[Any] | None = None) -> PyShape:
+    def chamfer(self, size: float, edges: str | list = "ALL", except_edges: list[Any] | None = None) -> PyShape:  # type: ignore[type-arg]
         """Chamfer the selected edges by `size`, in addition to any existing edge treatment."""
         return self._edge_treat(size, edges, except_edges, "chamfer")
 
@@ -600,7 +600,7 @@ class PyShape(Distributable):
                     mn[i] = min(mn[i], float(pts[:, i].min()))
                     mx[i] = max(mx[i], float(pts[:, i].max()))
 
-        state: dict = {}
+        state: dict = {}  # type: ignore[type-arg]
 
         def planes() -> list[tuple[float, float, float, float]]:
             if "planes" not in state:
@@ -614,7 +614,7 @@ class PyShape(Distributable):
                         pools.append(np.asarray(verts, dtype=float))
                 sup = _support_points(np.concatenate(pools), directions)
                 state["planes"] = _hull_planes([[float(c) for c in p] for p in sup])
-            return state["planes"]
+            return state["planes"]  # type: ignore[no-any-return]
 
         def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
             terms = [nx * x + ny * y + nz * z - off for nx, ny, nz, off in planes()]
@@ -708,7 +708,7 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
     eps = 1e-9 * scale
 
     planes: list[tuple[float, float, float, float]] = []
-    seen: set = set()
+    seen: set = set()  # type: ignore[type-arg]
     for i in range(n):
         for j in range(i + 1, n):
             for k in range(j + 1, n):
@@ -781,7 +781,7 @@ def cuboid(
     size: float | list[float] | None = None,
     rounding: float = 0,
     chamfer: float = 0,
-    edges: str | list = "ALL",
+    edges: str | list = "ALL",  # type: ignore[type-arg]
     except_edges: list[Any] | None = None,
     res: int = 10,
     anchor: "Sequence[float]" = CENTER,

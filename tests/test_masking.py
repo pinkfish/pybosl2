@@ -15,7 +15,7 @@ from pybosl2.masking import chamfer_edge_mask, mask2d_roundover
 from pybosl2.shapes3d import Bosl2Solid
 
 
-def test_chamfer_edge_mask_builds():
+def test_chamfer_edge_mask_builds() -> None:
     m = chamfer_edge_mask(length=10, chamfer=2)
     # a diamond bar: spans +-chamfer on X and Y, length l (+excess) on Z
     assert m is not None
@@ -27,7 +27,7 @@ def test_chamfer_edge_mask_builds():
     assert size[2] == pytest.approx(10.1, abs=0.01)  # l + excess
 
 
-def test_returns_a_point_path():
+def test_returns_a_point_path() -> None:
     path = mask2d_roundover(radius=3)
     from pybosl2.path2d import Path2D
 
@@ -36,11 +36,11 @@ def test_returns_a_point_path():
     assert all(len(p) == 2 for p in path)
 
 
-def test_diameter_matches_radius():
+def test_diameter_matches_radius() -> None:
     np.testing.assert_allclose(mask2d_roundover(radius=3), mask2d_roundover(diameter=6))
 
 
-def test_corner_and_skirt_geometry():
+def test_corner_and_skirt_geometry() -> None:
     # the L-shape starts along +X and +Y with the given excess skirt past the origin
     path = mask2d_roundover(radius=4, excess=0.1)
     arr = np.asarray(path)
@@ -48,7 +48,7 @@ def test_corner_and_skirt_geometry():
     assert arr[:, 1].min() == pytest.approx(-0.1)  # y skirt
 
 
-def test_quarter_circle_bite_radius():
+def test_quarter_circle_bite_radius() -> None:
     # the rounded far corner points all sit radius r from the rounding center [r, r]
     radius = 5.0
     path = mask2d_roundover(radius=radius, excess=0.01)
@@ -57,12 +57,12 @@ def test_quarter_circle_bite_radius():
         assert math.isclose(math.hypot(p[0] - radius, p[1] - radius), radius, abs_tol=1e-9)
 
 
-def test_requires_r_or_d():
+def test_requires_r_or_d() -> None:
     with pytest.raises(AssertionError):
         mask2d_roundover()
 
 
-def test_finer_fn_gives_more_points():
+def test_finer_fn_gives_more_points() -> None:
     coarse = mask2d_roundover(radius=5, fn=8)
     fine = mask2d_roundover(radius=5, fn=64)
     assert len(fine) > len(coarse)

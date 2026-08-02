@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._helpers import union
 from pybosl2._native import native
@@ -54,9 +54,9 @@ def _adj_ang_to_opp(adj: float, angle: float) -> float:
     return adj * math.tan(math.radians(angle))
 
 
-def _union(shapes):
+def _union(shapes: list[Any] | Any) -> Any:
     """Boolean union of a non-empty iterable of shapes."""
-    return union(shapes)
+    return union(list(shapes) if not isinstance(shapes, list) else shapes)
 
 
 # ---------------------------------------------------------------------------
@@ -174,7 +174,7 @@ _ROBERTSON = {
 }
 
 
-def _phillips_num(size) -> int:
+def _phillips_num(size: str | int) -> int:
     """Parse a Phillips size (int 0..4 or a string like ``"#2"``) into its integer number."""
     count = int(size.lstrip("#")) if isinstance(size, str) else int(size)
     if count < 0 or count > 4:
@@ -194,7 +194,7 @@ class ScrewDrive:
 
     @staticmethod
     def phillips_mask(
-        size="#2",
+        size: str | int = "#2",
         center: bool = False,
         fn: int | None = None,
         fa: float | None = None,
@@ -252,7 +252,7 @@ class ScrewDrive:
         return mask.down(length / 2) if center else mask
 
     @staticmethod
-    def phillips_depth(size, diameter: float):
+    def phillips_depth(size: str | int, diameter: float) -> float | None:
         """
         Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``
         (BOSL2 phillips_depth()).
@@ -265,7 +265,7 @@ class ScrewDrive:
         return (diameter - g) / 2 / math.tan(math.radians(_PH_SIDE_ANGLE)) + h1
 
     @staticmethod
-    def phillips_diam(size, depth: float):
+    def phillips_diam(size: str | int, depth: float) -> float | None:
         """
         Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2
         phillips_diam()).
@@ -320,7 +320,7 @@ class ScrewDrive:
         return Bosl2Solid(ScrewDrive._torx_profile(size))
 
     @staticmethod
-    def _torx_profile(size: int):
+    def _torx_profile(size: int) -> Any:
         spec = ScrewDrive.torx_info(size)
         outer_diameter, id_, tip, rounding = (
             spec.outer_diameter,

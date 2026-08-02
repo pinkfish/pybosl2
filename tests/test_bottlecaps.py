@@ -14,13 +14,13 @@ from pybosl2.parts.bottlecaps import BottleCaps
 from pybosl2.shapes3d import Bosl2Solid
 
 
-def _size(solid):
+def _size(solid: Bosl2Solid) -> list[float]:
     """Overall (width_x, width_y, height_z) of a solid's real mesh."""
-    _min, size = solid._native_bounds()
+    _min, size = solid._native_bounds()  # type: ignore[misc]
     return size
 
 
-def test_pco1810_neck_envelope():
+def test_pco1810_neck_envelope() -> None:
     neck = BottleCaps.pco1810_neck(fn=None, fa=None, fs=None)
     assert isinstance(neck, Bosl2Solid)
     w, _wy, hgt = _size(neck)
@@ -28,7 +28,7 @@ def test_pco1810_neck_envelope():
     assert hgt == pytest.approx(21.0 + 5.0, abs=0.2)  # support_h + neck_h
 
 
-def test_pco1881_neck_envelope():
+def test_pco1881_neck_envelope() -> None:
     neck = BottleCaps.pco1881_neck(fn=None, fa=None, fs=None)
     assert isinstance(neck, Bosl2Solid)
     w, _wy, hgt = _size(neck)
@@ -36,7 +36,7 @@ def test_pco1881_neck_envelope():
     assert hgt == pytest.approx(17.0 + 5.0, abs=0.2)
 
 
-def test_pco1810_cap_envelope():
+def test_pco1810_cap_envelope() -> None:
     cap = BottleCaps.pco1810_cap(wall=2, fn=None, fa=None, fs=None)
     assert isinstance(cap, Bosl2Solid)
     w, _wy, hgt = _size(cap)
@@ -44,7 +44,7 @@ def test_pco1810_cap_envelope():
     assert hgt == pytest.approx(14.10 + 2, abs=0.3)  # tamper_ring_h + wall
 
 
-def test_pco1881_cap_envelope():
+def test_pco1881_cap_envelope() -> None:
     cap = BottleCaps.pco1881_cap(wall=2, fn=None, fa=None, fs=None)
     assert isinstance(cap, Bosl2Solid)
     w, _wy, hgt = _size(cap)
@@ -52,20 +52,20 @@ def test_pco1881_cap_envelope():
     assert hgt == pytest.approx(11.20 + 2, abs=0.3)
 
 
-def test_wall_thickness_changes_cap_size():
+def test_wall_thickness_changes_cap_size() -> None:
     thin = BottleCaps.pco1881_cap(wall=1, fn=None, fa=None, fs=None)
     thick = BottleCaps.pco1881_cap(wall=3, fn=None, fa=None, fs=None)
     assert _size(thick)[0] > _size(thin)[0]
     assert _size(thick)[2] > _size(thin)[2]
 
 
-def test_texture_falls_back_to_plain():
+def test_texture_falls_back_to_plain() -> None:
     # Textures aren't supported by this port; the builder still succeeds (plain wall).
     for tex in ("none", "knurled", "ribbed"):
         assert isinstance(BottleCaps.pco1881_cap(texture=tex, fn=None, fa=None, fs=None), Bosl2Solid)
 
 
-def test_neck_and_cap_are_distinct_pieces():
+def test_neck_and_cap_are_distinct_pieces() -> None:
     # Sanity: a cap is wider than tall here, a neck taller than the cap.
     neck_h = _size(BottleCaps.pco1810_neck(fn=None, fa=None, fs=None))[2]
     cap_h = _size(BottleCaps.pco1810_cap(fn=None, fa=None, fs=None))[2]

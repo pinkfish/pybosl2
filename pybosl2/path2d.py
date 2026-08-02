@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator, Sequence
 
     from numpy.typing import NDArray
 
@@ -51,7 +51,7 @@ from pybosl2.paths import (
     Path,
     SubdivideMethod,
 )
-from pybosl2.points import Point, Vector
+from pybosl2.points import Point
 from pybosl2.rounding import Roundable
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import unit
@@ -98,7 +98,7 @@ def catenary(
     if droop_a is None:  # solve for the scale that gives the requested endpoint slope
         assert angle_a is not None
 
-        def slope_fn(x):
+        def slope_fn(x: float) -> float:
             p1 = math.cosh(x - 0.001) - 1
             p2 = math.cosh(x + 0.001) - 1
             return math.degrees(math.atan2(p2 - p1, 0.002))
@@ -106,7 +106,7 @@ def catenary(
         target, f = angle_a, slope_fn
     else:  # solve for the scale that gives the requested droop
 
-        def droop_fn(x):
+        def droop_fn(x: float) -> float:
             return (math.cosh(x) - 1) / x if x != 0 else 0.0
 
         target, f = droop_a / (width / 2), droop_fn
@@ -233,7 +233,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         self._geom = LineString(coords)
 
     @property
-    def _shapely(self):
+    def _shapely(self) -> LineString:
         """The Shapely LineString."""
         return self._geom
 
@@ -246,7 +246,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             return Point.from_seq(result)
         return result
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[np.ndarray]:
         return iter(self._points)
 
     def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
@@ -268,10 +268,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of ``[x, y]`` pairs."""
-        return self._points.tolist()
+        return self._points.tolist()  # type: ignore[no-any-return]
 
     @property
-    def _shapely_polygon(self):
+    def _shapely_polygon(self) -> Polygon:
         """Shapely Polygon from the path (requires closed)."""
         if not self.closed:
             return Polygon()
@@ -343,7 +343,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         proj = self._shapely.interpolate(self._shapely.project(q))
         return Point(float(proj.x), float(proj.y))
 
-    def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Vector]":
+    def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Point]":
         """Normalized tangent vector at each point of the path.
 
         Args:
@@ -356,7 +356,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
         n = len(coords)
         if n < 2:
-            return [Vector(1.0, 0.0)] * n
+            return [Point(1.0, 0.0)] * n
         diffs = np.diff(coords, axis=0)
         if closed:
             diffs = np.vstack([diffs, coords[-1] - coords[0]])
@@ -365,10 +365,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         dirs = diffs / lengths
 
         if uniform:
-            return [Vector(float(v[0]), float(v[1])) for v in dirs]
+            return [Point(float(v[0]), float(v[1])) for v in dirs]
 
         seg_lens = lengths.flatten()
-        result: list[Vector] = []
+        result: list[Point] = []
         m = len(dirs)
         for i in range(n):
             if closed:
@@ -377,10 +377,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 w_prev = seg_lens[prev_i]
                 w_curr = seg_lens[curr_i]
             elif i == 0:
-                result.append(Vector(float(dirs[0][0]), float(dirs[0][1])))
+                result.append(Point(float(dirs[0][0]), float(dirs[0][1])))
                 continue
             elif i == n - 1:
-                result.append(Vector(float(dirs[-1][0]), float(dirs[-1][1])))
+                result.append(Point(float(dirs[-1][0]), float(dirs[-1][1])))
                 continue
             else:
                 w_prev = seg_lens[i - 1]
@@ -391,16 +391,16 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             weighted = d_prev * w_prev + d_curr * w_curr
             w_norm = float(np.linalg.norm(weighted))
             if w_norm < 1e-12:
-                result.append(Vector(float(d_curr[0]), float(d_curr[1])))
+                result.append(Point(float(d_curr[0]), float(d_curr[1])))
             else:
-                result.append(Vector(float(weighted[0]) / w_norm, float(weighted[1]) / w_norm))
+                result.append(Point(float(weighted[0]) / w_norm, float(weighted[1]) / w_norm))
         return result
 
-    def normals(self, tangents: "list[Vector] | None" = None, closed: bool | None = None) -> "list[Vector]":
+    def normals(self, tangents: "list[Point] | None" = None, closed: bool | None = None) -> "list[Point]":
         """Perpendicular unit normal at each point (90° rotation of tangent)."""
         if tangents is None:
             tangents = self.tangents(closed=closed)
-        return [Vector(-t[1], t[0]) for t in tangents]
+        return [Point(-t[1], t[0]) for t in tangents]
 
     def curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Numeric curvature estimate at each point (0 for 2-D collinear paths).
@@ -586,7 +586,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         p = ls.interpolate(max(0.0, min(total, float(dist))))
         return CutPoint(Point(float(p.x), float(p.y)), 0)
 
-    def cuts_path_normals(self, cuts: list[CutPoint], closed: bool = False) -> "list[Vector]":
+    def cuts_path_normals(self, cuts: list[CutPoint], closed: bool = False) -> "list[Point]":
         """Compute normals at each cut point from the path geometry.
 
         Uses the Shapely line to find the local tangent at each cut location,
@@ -598,7 +598,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         coords = self._closed_coords() if closed else np.asarray(self._shapely.coords)
         ls = LineString(coords)
         total = ls.length
-        result: list[Vector] = []
+        result: list[Point] = []
         for cut in cuts:
             sp = _Point(cut.point.x, cut.point.y)
             d = ls.project(sp)
@@ -610,10 +610,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             dy = float(p1.y - p0.y)
             n = float(np.linalg.norm([dx, dy])) or 1.0
             tx, ty = dx / n, dy / n
-            result.append(Vector(-ty, tx))
+            result.append(Point(-ty, tx))
         return result
 
-    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Vector]":  # noqa: ARG002
+    def plane(self, ind: int, i: int, closed: bool = False) -> "list[Point]":  # noqa: ARG002
         """Local plane at path point (always XY for 2-D).
 
         Args:
@@ -623,9 +623,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             Two basis vectors defining the XY plane."""
-        return [Vector(1.0, 0.0, 0.0), Vector(0.0, 1.0, 0.0)]
+        return [Point(1.0, 0.0, 0.0), Point(0.0, 1.0, 0.0)]
 
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Vector]":  # noqa: ARG002
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Point]":  # noqa: ARG002
         """Compute direction vectors at each cut point.
 
         Args:
@@ -649,7 +649,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             p2 = ls.interpolate(d2)
             v = np.array([float(p2.x - p1.x), float(p2.y - p1.y)])
             nrm = float(np.linalg.norm(v)) or 1.0
-            dirs.append(Vector(float(v[0]) / nrm, float(v[1]) / nrm))
+            dirs.append(Point(float(v[0]) / nrm, float(v[1]) / nrm))
         return dirs
 
     def subdivide_path(
@@ -759,9 +759,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if total < 1e-12:
             return self.__class__(self._points.tolist(), closed=self.closed)
 
-        def _dist(s, u):
+        def _dist(s: int, u: float) -> float:
             s = s % len(segs) if len(segs) > 0 else 0
-            return cum[s] + u * segs[s] if s < len(segs) else total
+            return cum[s] + u * segs[s] if s < len(segs) else total  # type: ignore[no-any-return]
 
         d1 = _dist(s1, u1)
         d2 = _dist(s2, u2)
@@ -1558,7 +1558,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.symmetric_difference(other)
 
     @staticmethod
-    def _polygon_to_path(result) -> "Path2D":
+    def _polygon_to_path(result: Any) -> "Path2D":
         """Convert a shapely polygon result to a closed :class:`Path2D`.
 
         Raises:
@@ -1706,8 +1706,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         pts3 = np.hstack([self._points, np.zeros((len(self), 1))])
         out = []
         for m in mats:
+            mat = np.asarray(m, dtype=float)
             homo = np.hstack([pts3, np.ones((len(pts3), 1))])
-            tr = (m @ homo.T).T
+            tr = (mat @ homo.T).T
             w = tr[:, 3:4]
             res = tr[:, :3] / np.where(w == 0, 1.0, w)
             assert float(np.max(np.abs(res[:, 2]))) < 1e-7, (
@@ -1977,7 +1978,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         mitre = pt_in + u_in * step[:, None]
 
         if not opens_gap.any():
-            return mitre.tolist()
+            return mitre.tolist()  # type: ignore[no-any-return]
 
         out: list[list[float]] = []
         for i in range(len(pts)):
@@ -2029,7 +2030,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if end is None:
             if isinstance(start, (list, tuple)):
                 return [lst[i % sides] for i in start]
-            return lst[start % sides]
+            return lst[start % sides]  # type: ignore[no-any-return]
         assert isinstance(start, int), "_path_select(): slice form needs integer start"
         s = start % sides
         e = end % sides

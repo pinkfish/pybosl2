@@ -37,8 +37,13 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "CapSpec": ("pybosl2.caps", "CapSpec"),
     "CapType": ("pybosl2.caps", "CapType"),
     "UnsupportedByBackendError": ("pybosl2.exceptions", "UnsupportedByBackendError"),
+    # anchor system
+    "Anchor": ("pybosl2._edges_lang", "Anchor"),
+    "EdgePlane": ("pybosl2._edges_lang", "EdgePlane"),
+    "CornerPlane": ("pybosl2._edges_lang", "CornerPlane"),
     # constants
     "EPSILON": ("pybosl2.math", "EPSILON"),
+    "CENTRE": ("pybosl2.constants", ""),  # aliases
     # colour
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),
@@ -120,14 +125,16 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # rounding
     "round_corners": ("pybosl2.rounding", "_round_corners"),
     "smooth_path": ("pybosl2.rounding", "_smooth_path"),
-    # isosurface / metaballs (accessed via VNF class methods)
-    "mb_sphere": ("pybosl2.isosurface", "mb_sphere"),
-    "mb_cuboid": ("pybosl2.isosurface", "mb_cuboid"),
-    "mb_torus": ("pybosl2.isosurface", "mb_torus"),
-    "mb_capsule": ("pybosl2.isosurface", "mb_capsule"),
-    "mb_disk": ("pybosl2.isosurface", "mb_disk"),
-    "mb_octahedron": ("pybosl2.isosurface", "mb_octahedron"),
-    "mb_connector": ("pybosl2.isosurface", "mb_connector"),
+    # isosurface / metaballs
+    "mb_sphere": ("pybosl2.metaballs", "mb_sphere"),
+    "mb_cuboid": ("pybosl2.metaballs", "mb_cuboid"),
+    "mb_torus": ("pybosl2.metaballs", "mb_torus"),
+    "mb_capsule": ("pybosl2.metaballs", "mb_capsule"),
+    "mb_disk": ("pybosl2.metaballs", "mb_disk"),
+    "mb_octahedron": ("pybosl2.metaballs", "mb_octahedron"),
+    "mb_connector": ("pybosl2.metaballs", "mb_connector"),
+    "Metaball": ("pybosl2.metaballs", "Metaball"),
+    "MetaballSpec": ("pybosl2.metaballs", "MetaballSpec"),
     # VNF
     "VNF": ("pybosl2.vnf", "VNF"),
     "vnf_polyhedron": ("pybosl2.vnf", "vnf_polyhedron"),
@@ -137,7 +144,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> object:
     if name in _LAZY_EXPORTS:
         parts = _LAZY_EXPORTS[name]
         import importlib

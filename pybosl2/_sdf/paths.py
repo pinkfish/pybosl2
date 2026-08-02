@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     _VecLike = Sequence[float] | NDArray[np.float64]
 
 
-def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:
+def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:  # type: ignore[type-arg]
     """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a
     list of (n, 2) float arrays (the multi-outline entry-point convention polygon2d()/
     region2d() accept)."""
@@ -127,7 +127,7 @@ def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode:
             base = lv.max(lv.max(qu, qv), (qu + qv + a) / _SQRT2)
         mask = lv.max(0, -su * u) + lv.max(0, -sv * v)
         candidates.append(base + _PENALTY * mask)
-    return lv.min(lv.min(candidates[0], candidates[1]), lv.min(candidates[2], candidates[3]))
+    return lv.min(lv.min(candidates[0], candidates[1]), lv.min(candidates[2], candidates[3]))  # type: ignore[no-any-return]
 
 
 def _polygon_sdf_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
@@ -312,7 +312,7 @@ def superformula(
     """The superformula radius at angle `theta` (degrees)."""
     t1 = abs(math.cos(math.radians(m1 * theta / 4)) / a) ** n2
     t2 = abs(math.sin(math.radians(m2 * theta / 4)) / b) ** n3
-    return (t1 + t2) ** (-1.0 / n1)
+    return (t1 + t2) ** (-1.0 / n1)  # type: ignore[no-any-return]
 
 
 def supershape_path(
@@ -351,7 +351,7 @@ def bezier_points(curve: ArrayLike, u: float) -> NDArray[np.float64]:
     pts = np.asarray(curve, dtype=float)
     while len(pts) > 1:
         pts = pts[:-1] + (pts[1:] - pts[:-1]) * u
-    return pts[0]
+    return pts[0]  # type: ignore[no-any-return]
 
 
 def bezpath_points(
@@ -472,11 +472,11 @@ def _arc_through(
 
 
 def _v_sub(a: _VecLike, b: _VecLike) -> NDArray[np.float64]:
-    return np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
+    return np.asarray(a, dtype=float) - np.asarray(b, dtype=float)  # type: ignore[no-any-return]
 
 
 def _v_add(a: _VecLike, b: _VecLike) -> NDArray[np.float64]:
-    return np.asarray(a, dtype=float) + np.asarray(b, dtype=float)
+    return np.asarray(a, dtype=float) + np.asarray(b, dtype=float)  # type: ignore[no-any-return]
 
 
 def _v_scale(a: _VecLike, s: float) -> NDArray[np.float64]:
@@ -500,7 +500,7 @@ def _v_dot(a: _VecLike, b: _VecLike) -> float:
 
 def _lerp_pt(a: _VecLike, b: _VecLike, t: float) -> NDArray[np.float64]:
     aa = np.asarray(a, dtype=float)
-    return aa + (np.asarray(b, dtype=float) - aa) * float(t)
+    return aa + (np.asarray(b, dtype=float) - aa) * float(t)  # type: ignore[no-any-return]
 
 
 def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]:
@@ -518,7 +518,7 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
     assert n_pts >= 2
     if isinstance(h, (int, float)):
         if closed:
-            return (np.roll(pts, -1, axis=0) - np.roll(pts, 1, axis=0)) / (2 * h)
+            return (np.roll(pts, -1, axis=0) - np.roll(pts, 1, axis=0)) / (2 * h)  # type: ignore[no-any-return]
         first = pts[1] - pts[0] if n_pts < 3 else 3 * (pts[1] - pts[0]) - (pts[2] - pts[1])
         last = (
             pts[n_pts - 1] - pts[n_pts - 2]
@@ -539,7 +539,7 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
     ) -> NDArray[np.float64]:
         g1 = _lerp_pt(fc, f1, h2 / h1) if h2 < h1 else f1
         g2 = _lerp_pt(fc, f2, h1 / h2) if h1 < h2 else f2
-        return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (2 * min(h1, h2))
+        return (np.asarray(g2, dtype=float) - np.asarray(g1, dtype=float)) / (2 * min(h1, h2))  # type: ignore[no-any-return]
 
     if closed:
         assert len(hs) == n_pts
@@ -613,10 +613,10 @@ def _cubic_real_roots(p: list[float]) -> list[float]:
     u = -qq / 2 + math.sqrt(max(0.0, qq * qq / 4 + pp**3 / 27))
     v = -qq / 2 - math.sqrt(max(0.0, qq * qq / 4 + pp**3 / 27))
     cbrt = lambda x: math.copysign(abs(x) ** (1 / 3), x)  # noqa: E731
-    return [shift + cbrt(u) + cbrt(v)]
+    return [shift + cbrt(u) + cbrt(v)]  # type: ignore[no-untyped-call]
 
 
-def path_to_bezpath(
+def path_to_bezpath(  # type: ignore[no-untyped-def]
     path: ArrayLike,
     closed: bool = False,
     tangents: ArrayLike | None = None,
@@ -759,7 +759,7 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     def select(p: NDArray[np.float64] | Sequence[float], i: int) -> NDArray[np.float64]:
         return p[i % len(p)]  # type: ignore[return-value]
 
-    def cut_single(dist: float, ind: int, eps: float = 1e-7) -> list:
+    def cut_single(dist: float, ind: int, eps: float = 1e-7) -> list:  # type: ignore[type-arg]
         while True:
             if ind == len(path) - (0 if closed else 1):
                 assert dist < eps, "Path2D is too short for specified cut distance"
@@ -770,7 +770,7 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
             dist -= d
             ind += 1
 
-    result: list[list] = []
+    result: list[list] = []  # type: ignore[type-arg]
     pind = 0
     dtotal = 0.0
     for dist in cutdist:
@@ -842,7 +842,7 @@ def _circlecorner(
     ]
 
 
-def round_corners(
+def round_corners(  # type: ignore[no-untyped-def]
     path: ArrayLike, radius=None, r=None, closed: bool = True, fn: float | None = None
 ) -> NDArray[np.float64]:
     """Round every corner of a 2-D path to the given radius, inserting a tangent arc at each

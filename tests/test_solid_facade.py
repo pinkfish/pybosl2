@@ -13,34 +13,34 @@ from pybosl2 import solid
 from pybosl2._backend import Solid, current_backend, use_backend
 
 
-def test_facade_defaults_to_csg():
-    s = solid.sphere(radius=10)
+def test_facade_defaults_to_csg() -> None:
+    s = solid.sphere(radius=10)  # type: ignore[attr-defined]
     assert s.backend == "csg"
     assert type(s).__name__ == "Bosl2Solid"
     assert isinstance(s, Solid)
 
 
-def test_facade_obeys_use_backend_context():
+def test_facade_obeys_use_backend_context() -> None:
     assert current_backend() == "csg"
     with use_backend("sdf"):
-        s = solid.sphere(radius=10)
+        s = solid.sphere(radius=10)  # type: ignore[attr-defined]
         assert s.backend == "sdf"
         assert type(s).__name__ == "PyShape"
-    assert solid.cube(5).backend == "csg"  # restored to the default outside the block
+    assert solid.cube(5).backend == "csg"  # type: ignore[attr-defined]  # restored to the default outside the block
 
 
 # The full shared-shape × both-backends bounds matrix lives in tests/test_backend_matrix.py (M7).
 
 
-def test_facade_union_dispatches_on_active_backend():
-    u = solid.union(solid.cube(10), solid.sphere(radius=6))
+def test_facade_union_dispatches_on_active_backend() -> None:
+    u = solid.union(solid.cube(10), solid.sphere(radius=6))  # type: ignore[attr-defined]
     assert u.backend == "csg"
     with use_backend("sdf"):
-        u2 = solid.union(solid.cube(10), solid.sphere(radius=6))
+        u2 = solid.union(solid.cube(10), solid.sphere(radius=6))  # type: ignore[attr-defined]
         assert u2.backend == "sdf"
 
 
-def test_facade_polyhedron_dispatches_on_active_backend():
+def test_facade_polyhedron_dispatches_on_active_backend() -> None:
     pts = [[0, 0, 0], [10, 0, 0], [5, 10, 0], [5, 5, 10]]  # tetrahedron
     faces = [[0, 1, 2], [0, 1, 3], [1, 2, 3], [0, 2, 3]]
     c = solid.polyhedron(pts, faces)  # csg: needs faces
@@ -52,7 +52,7 @@ def test_facade_polyhedron_dispatches_on_active_backend():
         assert abs(cv - sv) < 0.7  # both agree on the tetrahedron's bounding box
 
 
-def test_facade_construct_rejects_unknown_shape():
+def test_facade_construct_rejects_unknown_shape() -> None:
     from pybosl2._backend import get_backend
 
     with pytest.raises(ValueError, match="no shape constructor"):

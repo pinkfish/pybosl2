@@ -24,8 +24,12 @@ import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # pybosl2/tests/render_stl.py -> pybosl2/tests -> pybosl2 -> repo root.
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -127,8 +131,9 @@ def render_object(
 def render_stl_script(
     script_source: str,
     out_stl: Path,
+    render_cmd: Sequence[str] | None = None,  # noqa: ARG001
     timeout: float = 180.0,
-    cwd=None,
+    cwd: str | None = None,
     export_format: str | None = None,
 ) -> StlResult:
     """Run a full python-mode *script_source* (ending in ``.show()``) in the real app, exporting STL.
@@ -245,7 +250,7 @@ def stl_metrics(path: Path) -> StlMetrics:
     volume = abs(float(np.sum(np.einsum("ij,ij->i", v0, np.cross(v1, v2))) / 6.0))
     area = float(np.sum(0.5 * np.linalg.norm(np.cross(v1 - v0, v2 - v0), axis=1)))
     # watertight: every undirected edge shared by exactly two triangles (rounded to fuse vertices)
-    edges: dict = {}
+    edges: dict[object, int] = {}
     keys = np.round(tris, 4)
     for tri in keys:
         vs = [tuple(v) for v in tri]

@@ -26,7 +26,7 @@ import contextlib
 import contextvars
 from typing import TYPE_CHECKING, Any, Iterator, Protocol, runtime_checkable
 
-from pybosl2.exceptions import Bosl2Error
+from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
 
 if TYPE_CHECKING:
     from pybosl2.caps import CapSpec
@@ -88,7 +88,7 @@ def supports(backend: str, feature: str) -> bool:
     return True
 
 
-def unsupported_feature(backend: str, name: str):
+def unsupported_feature(backend: str, name: str) -> "UnsupportedByBackendError | None":
     """The :class:`~pybosl2.exceptions.UnsupportedByBackendError` to raise if *name* is exclusive to the
     OTHER backend, else ``None`` (so the caller can fall through to normal attribute handling)."""
     from pybosl2.exceptions import UnsupportedByBackendError

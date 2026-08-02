@@ -21,34 +21,35 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 import numpy as np
 
-from pybosl2.shapes2d import _opolygon
+from pybosl2.shapes2d import _opolygon  # type: ignore[attr-defined]
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 from pybosl2.vnf import VNF
 
 __all__ = ["Walls"]
 
 
-def _rect(x0, x1, y0, y1):
+def _rect(x0: float, x1: float, y0: float, y1: float) -> Any:
     """A native 2D axis-aligned rectangle from two opposite corners."""
     return _opolygon([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])
 
 
-def _circle_2tangents(r, p1, p2, p3):
+def _circle_2tangents(r: float, p1: list[float], p2: list[float], p3: list[float]) -> list[float]:
     """Centre of the circle of radius *r* tangent to segments p2->p1 and p2->p3 (BOSL2
     circle_2tangents()[0]); the corner is at *p2*. Points are 3-vectors (the y component is 0 here)."""
-    p1, p2, p3 = (np.asarray(p, dtype=float) for p in (p1, p2, p3))
-    v1 = (p1 - p2) / np.linalg.norm(p1 - p2)
-    v2 = (p3 - p2) / np.linalg.norm(p3 - p2)
+    p1a, p2a, p3a = (np.asarray(p, dtype=float) for p in (p1, p2, p3))
+    v1 = (p1a - p2a) / np.linalg.norm(p1a - p2a)
+    v2 = (p3a - p2a) / np.linalg.norm(p3a - p2a)
     bis = v1 + v2
     bis = bis / np.linalg.norm(bis)
     half = math.acos(float(np.clip(np.dot(v1, v2), -1.0, 1.0))) / 2
-    return (p2 + bis * (r / math.sin(half))).tolist()
+    return (p2a + bis * (r / math.sin(half))).tolist()  # type: ignore[no-any-return]
 
 
-def _segs(r):
+def _segs(r: float) -> int:
     """OpenSCAD segs(r) with the default $fa=12, $fs=2."""
     return max(5, math.ceil(min(360 / 12, 2 * math.pi * r / 2)))
 
@@ -102,7 +103,7 @@ class Walls:
         return Bosl2Solid(shape, size=[thick, length, height])
 
     @staticmethod
-    def _sparse_wall2d(h, length, maxang, strut, max_bridge):
+    def _sparse_wall2d(h: float, length: float, maxang: float, strut: float, max_bridge: float) -> Any:
         """The 2D cross-braced pattern, in the (X=h, Y=length) plane (BOSL2 sparse_wall2d())."""
         zoff = h / 2 - strut / 2
         yoff = length / 2 - strut / 2
@@ -146,7 +147,7 @@ class Walls:
 
     @staticmethod
     def sparse_cuboid(
-        size,
+        size: float | list[float],
         dir: str = "Y",  # noqa: A002
         strut: float = 5,
         maxang: float = 30,

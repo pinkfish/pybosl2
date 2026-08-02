@@ -26,10 +26,10 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
 import numpy as np
 
@@ -54,7 +54,7 @@ def _quantup(x: float, m: int) -> int:
     return math.ceil(x / m - 1e-9) * m
 
 
-def _sel(lst, i: int):
+def _sel(lst: list[float], i: int) -> float:
     """BOSL2 select(): index with wraparound."""
     return lst[i % len(lst)]
 
@@ -67,36 +67,36 @@ def _rands(lo: float, hi: float, sides: int, seed: int) -> list[float]:
 # --- height-field textures (return a rows x cols array of heights in [0,1]) ---
 
 
-def _tex_ribs(sides: int | None = None, **_) -> list[list[float]]:
+def _tex_ribs(sides: int | None = None, **_: object) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 2, 2)
     return [_lerpn(1, 0, sides // 2, False) + _lerpn(0, 1, sides // 2, False)]
 
 
-def _tex_trunc_ribs(sides: int | None = None, **_) -> list[list[float]]:
+def _tex_trunc_ribs(sides: int | None = None, **_: object) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 4, 4)
     q = sides // 4
     return [[0.0] * q + _lerpn(0, 1, q, False) + [1.0] * q + _lerpn(1, 0, q, False)]
 
 
-def _tex_wave_ribs(sides: int | None = None, **_) -> list[list[float]]:
+def _tex_wave_ribs(sides: int | None = None, **_: object) -> list[list[float]]:
     sides = max(6, (sides if sides is not None else 8))
     return [[(math.cos(math.radians(a)) + 1) / 2 for a in np.arange(0, 360 - 1e-9, 360 / sides)]]
 
 
-def _tex_diamonds(sides: int | None = None, **_) -> list[list[float]]:
+def _tex_diamonds(sides: int | None = None, **_: object) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 2, 2)
     path = _lerpn(0, 1, sides // 2, False) + _lerpn(1, 0, sides // 2, False)
     return [[min(_sel(path, i + j), _sel(path, i - j)) for j in range(sides)] for i in range(sides)]
 
 
-def _tex_pyramids(sides: int | None = None, **_) -> list[list[float]]:
+def _tex_pyramids(sides: int | None = None, **_: object) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 2, 2)
     return [
         [1 - (max(abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2)) for j in range(sides)] for i in range(sides)
     ]
 
 
-def _tex_trunc_pyramids(sides: int | None = None, **_) -> list[list[float]]:
+def _tex_trunc_pyramids(sides: int | None = None, **_: object) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 6, 3)
     return [
         [(1 - (max(sides / 6, abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2))) * 1.5 for j in range(sides)]
@@ -104,13 +104,13 @@ def _tex_trunc_pyramids(sides: int | None = None, **_) -> list[list[float]]:
     ]
 
 
-def _tex_hills(sides: int | None = None, **_) -> list[list[float]]:
+def _tex_hills(sides: int | None = None, **_: object) -> list[list[float]]:
     sides = sides if sides is not None else 12
     angs = list(np.arange(0, 359.999, 360 / sides))
     return [[(math.cos(math.radians(a)) * math.cos(math.radians(b)) + 1) / 2 for b in angs] for a in angs]
 
 
-def _tex_bricks(sides: int | None = None, roughness: float | None = None, **_) -> list[list[float]]:
+def _tex_bricks(sides: int | None = None, roughness: float | None = None, **_: object) -> list[list[float]]:
     sides = _quantup(sides if sides is not None else 24, 2)
     rough = roughness if roughness is not None else 0.1
     thin = max(1, sides / 16)
@@ -128,7 +128,7 @@ def _tex_bricks(sides: int | None = None, roughness: float | None = None, **_) -
     return out
 
 
-def _tex_rough(sides: int | None = None, **_) -> list[list[float]]:
+def _tex_rough(sides: int | None = None, **_: object) -> list[list[float]]:
     sides = sides if sides is not None else 32
     return [_rands(0, 1, sides, 123456 + 29 * y) for y in range(sides)]
 
@@ -170,8 +170,8 @@ def _zrot2(pts: list[list[float]], deg: float) -> list[list[float]]:
     return [[c * p[0] - s * p[1], s * p[0] + c * p[1], (p[2] if len(p) > 2 else 0.0)] for p in pts]
 
 
-def _tex_diamonds_vnf(**_):
-    verts = [
+def _tex_diamonds_vnf(**_: object) -> tuple[list[list[float]], list[list[int]]]:
+    verts: list[list[float]] = [
         [0, 1, 1],
         [0.5, 1, 0],
         [1, 1, 1],
@@ -195,13 +195,13 @@ def _tex_diamonds_vnf(**_):
     return verts, faces
 
 
-def _tex_pyramids_vnf(**_):
-    verts = [[0, 1, 0], [1, 1, 0], [0.5, 0.5, 1], [0, 0, 0], [1, 0, 0]]
+def _tex_pyramids_vnf(**_: object) -> tuple[list[list[float]], list[list[int]]]:
+    verts: list[list[float]] = [[0, 1, 0], [1, 1, 0], [0.5, 0.5, 1], [0, 0, 0], [1, 0, 0]]
     faces = [[2, 0, 1], [2, 1, 4], [2, 4, 3], [2, 3, 0]]
     return verts, faces
 
 
-def _tex_trunc_pyramids_vnf(border: float | None = None, **_):
+def _tex_trunc_pyramids_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.1
     assert 0 < b < 0.5, "trunc_pyramids_vnf texture requires border in (0, 0.5)."
     verts = _sq(1) + _mv([0.5, 0.5, 1], _rect(1 - 2 * b, 1 - 2 * b))
@@ -209,7 +209,7 @@ def _tex_trunc_pyramids_vnf(border: float | None = None, **_):
     return verts, faces
 
 
-def _tex_cubes_vnf(**_):
+def _tex_cubes_vnf(**_: object) -> tuple[list[list[float]], list[list[int]]]:
     verts = [
         [0, 1, 0.5],
         [1, 1, 0.5],
@@ -240,7 +240,9 @@ def _tex_cubes_vnf(**_):
     return verts, faces
 
 
-def _tex_trunc_ribs_vnf(border: float | None = None, gap: float | None = None, **_):
+def _tex_trunc_ribs_vnf(
+    border: float | None = None, gap: float | None = None, **_: object
+) -> tuple[list[list[float]], list[list[int]]]:
     b = (border if border is not None else 0.25) * 2
     g = gap if gap is not None else 0.25
     assert b >= 0 and g >= 0, "trunc_ribs_vnf requires gap>=0 and border>=0."
@@ -254,7 +256,9 @@ def _tex_trunc_ribs_vnf(border: float | None = None, gap: float | None = None, *
     return verts, faces
 
 
-def _tex_bricks_vnf(border: float | None = None, gap: float | None = None, **_):
+def _tex_bricks_vnf(
+    border: float | None = None, gap: float | None = None, **_: object
+) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.05
     g = gap if gap is not None else 0.05
     assert b >= 0 and g > 0 and g + b < 0.5, "bricks_vnf requires border>=0, gap>0, gap+border<0.5."
@@ -294,7 +298,7 @@ def _tex_bricks_vnf(border: float | None = None, gap: float | None = None, **_):
     return verts, faces
 
 
-def _tex_checkers_vnf(border: float | None = None, **_):
+def _tex_checkers_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.05
     assert 0 < b < 0.5, "checkers texture requires border in (0, 0.5)."
     verts = (
@@ -335,7 +339,7 @@ def _tex_checkers_vnf(border: float | None = None, **_):
     return verts, faces
 
 
-def _tex_trunc_diamonds_vnf(border: float | None = None, **_):
+def _tex_trunc_diamonds_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = (border if border is not None else 0.1) / math.sqrt(2) * 2
     assert 0 < b < 0.5, "trunc_diamonds texture requires border in (0, 0.5/sqrt(2))."
     diameter1 = [[p[0], p[1], 0.0] for p in _circle_xy(1, 4)]
@@ -355,13 +359,13 @@ def _tex_trunc_diamonds_vnf(border: float | None = None, **_):
     return verts, faces
 
 
-def _tex_tri_grid_vnf(border: float | None = None, **_):
+def _tex_tri_grid_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = (border if border is not None else 0.05) * math.sqrt(3)
     assert 0 < b < math.sqrt(3) / 6, "tri_grid texture requires border in (0, 1/6)."
     adj = b / math.tan(math.radians(30))  # opp_ang_to_adj(border, 30)
     y1 = b / math.tan(math.radians(60))  # border / adj_ang_to_opp(1, 60)
     y2, y3, y4, y5, y6 = 2 * y1, 0.5 - y1, 0.5 + y1, 1 - 2 * y1, 1 - y1
-    verts = [
+    verts: list[list[float]] = [
         [0, 0, 0],
         [1, 0, 0],
         [adj, y1, 1],
@@ -467,7 +471,9 @@ def _base_faces(n: int, base0: int, border: float) -> list[list[int]]:
     return out
 
 
-def _tex_cones_vnf(fn: int | None = None, border: float | None = None, **_):
+def _tex_cones_vnf(
+    fn: int | None = None, border: float | None = None, **_: object
+) -> tuple[list[list[float]], list[list[int]]]:
     # BOSL2 defaults border=0, but a zero border leaves the tile's rim on the cell edge, which this
     # port's weld-and-close tiler can't seam watertight -- so default to a small positive border.
     b = border if border is not None else 0.05
@@ -479,7 +485,9 @@ def _tex_cones_vnf(fn: int | None = None, border: float | None = None, **_):
     return verts, faces
 
 
-def _tex_dots_vnf(fn: int | None = None, border: float | None = None, **_):
+def _tex_dots_vnf(
+    fn: int | None = None, border: float | None = None, **_: object
+) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.05
     sides = _quantup(fn, 4) if fn else _TEX_FN_DEFAULT
     assert 0 <= b < 0.5, "dots texture requires border in [0, 0.5)."
@@ -513,7 +521,7 @@ def _tex_dots_vnf(fn: int | None = None, border: float | None = None, **_):
     return verts, faces
 
 
-def _tex_hex_grid_vnf(border: float | None = None, **_):
+def _tex_hex_grid_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.1
     assert 0 < b < 0.5, "hex_grid texture requires border in (0, 0.5)."
     diag = b / math.sin(math.radians(60))  # opp_ang_to_hyp(border, 60)
@@ -537,7 +545,7 @@ def _tex_hex_grid_vnf(border: float | None = None, **_):
         for i in range(6)
     ]
 
-    def cyl(rad: float, angle: float):  # yscale(sc, cylindrical_to_xyz(rad, angle, 1))
+    def cyl(rad: float, angle: float) -> list[float]:  # yscale(sc, cylindrical_to_xyz(rad, angle, 1))
         return [
             rad * math.cos(math.radians(angle)),
             rad * math.sin(math.radians(angle)) * sc,
@@ -591,7 +599,7 @@ def _tex_hex_grid_vnf(border: float | None = None, **_):
 
 
 # name -> (builder, kind) where kind is "heightfield" or "vnf"
-TEXTURES: dict[str, tuple[Callable[..., list[list[float]]], str]] = {
+TEXTURES: dict[str, tuple[Callable[..., list[list[float]] | tuple[list[list[float]], list[list[int]]]], str]] = {
     "ribs": (_tex_ribs, "heightfield"),
     "trunc_ribs": (_tex_trunc_ribs, "heightfield"),
     "wave_ribs": (_tex_wave_ribs, "heightfield"),
@@ -648,7 +656,7 @@ def texture(
     roughness: float | None = None,
     inset: float | None = None,
     fn: int | None = None,
-) -> list[list[float]]:
+) -> list[list[float]] | tuple[list[list[float]], list[list[int]]]:
     """The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
     *sides* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile
@@ -679,11 +687,15 @@ def texture(
     return builder(sides=sides, border=border, gap=gap, roughness=roughness, fn=fn)
 
 
-def _weld(verts, faces, tol=1e-6):
+def _weld(
+    verts: list[list[float]], faces: list[list[int]], tol: float = 1e-6
+) -> tuple[list[list[float]], list[list[int]]]:
     """
     Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces.
     """
-    idx, new_verts, remap = {}, [], []
+    idx: dict[tuple[int, int, int], int] = {}
+    new_verts: list[list[float]] = []
+    remap: list[int] = []
     for p in verts:
         k = (round(p[0] / tol), round(p[1] / tol), round(p[2] / tol))
         if k not in idx:
@@ -695,7 +707,9 @@ def _weld(verts, faces, tol=1e-6):
     return new_verts, new_faces
 
 
-def _close_to_base(verts, faces, bottom):
+def _close_to_base(
+    verts: list[list[float]], faces: list[list[int]], bottom: float
+) -> tuple[list[list[float]], list[list[int]]]:
     """Close an open (top-only) surface into a solid by dropping its boundary loops to z=*bottom*
     with side walls and a flat bottom cap."""
     verts = [list(p) for p in verts]
@@ -730,21 +744,21 @@ def _close_to_base(verts, faces, bottom):
     return verts, faces
 
 
-def is_watertight_topology(verts, faces) -> bool:
+def is_watertight_topology(verts: list[list[float]], faces: list[list[int]]) -> bool:
     """
     True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold).
     """
     _ = verts
     from collections import Counter
 
-    e: Counter = Counter()
+    e: Counter[frozenset[int]] = Counter()
     for f in faces:
         for i in range(len(f)):
             e[frozenset((f[i], f[(i + 1) % len(f)]))] += 1
     return bool(e) and all(c == 2 for c in e.values())
 
 
-def rasterize_vnf_texture(verts, faces, sides=24):
+def rasterize_vnf_texture(verts: list[list[float]], faces: list[list[int]], sides: int = 24) -> list[list[float]]:
     """Sample a VNF texture tile's top surface to an *sides* x *sides* height-field over ``[0,1]x[0,1]``.
 
     A robust fallback for VNF tiles whose exact geometry can't be tiled watertight (pinch points,
@@ -774,12 +788,20 @@ def rasterize_vnf_texture(verts, faces, sides=24):
     return heightmap
 
 
-def vnf_tile_to_solid(verts, faces, size, reps, tex_depth=1.0, inset=0.0):
+def vnf_tile_to_solid(
+    verts: list[list[float]],
+    faces: list[list[int]],
+    size: Sequence[float],
+    reps: Sequence[int],
+    tex_depth: float = 1.0,
+    inset: float = 0.0,
+) -> tuple[list[list[float]], list[list[int]]]:
     """Tile a VNF texture cell over a *size* ``[x, y]`` rectangle *reps* ``[nx, ny]`` times and close
     it into a watertight solid. Returns ``(verts, faces)`` for a polyhedron."""
     sx, sy = float(size[0]), float(size[1])
     nx, ny = int(reps[0]), int(reps[1])
-    v, f = [], []
+    v: list[list[float]] = []
+    f: list[list[int]] = []
     for i in range(nx):
         for j in range(ny):
             off = len(v)
@@ -792,7 +814,7 @@ def vnf_tile_to_solid(verts, faces, size, reps, tex_depth=1.0, inset=0.0):
     return _close_to_base(v, f, bottom)
 
 
-def is_heightfield_texture(tex) -> bool:
+def is_heightfield_texture(tex: list[list[float]] | tuple[list[list[float]], list[list[int]]]) -> bool:
     """True if *tex* is a height-field: a 2-D array whose entries are plain numbers."""
     try:
         row = tex[0]
@@ -801,10 +823,12 @@ def is_heightfield_texture(tex) -> bool:
         return False
 
 
-def is_vnf_texture(tex) -> bool:
+def is_vnf_texture(tex: object) -> bool:
     """True if *tex* is a VNF tile: ``(verts, faces)`` with verts a list of 3-vectors."""
     try:
-        verts, faces = tex
+        verts: Any
+        faces: Any
+        verts, faces = tex  # type: ignore[misc]
         return len(verts[0]) == 3 and hasattr(faces[0], "__len__")
     except (TypeError, ValueError, IndexError):
         return False

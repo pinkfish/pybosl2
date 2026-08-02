@@ -13,12 +13,12 @@ from pybosl2.parts.ball_bearings import BallBearings, BearingSpec
 from pybosl2.shapes3d import Bosl2Solid
 
 
-def _size(solid):
-    _min, size = solid._native_bounds()
+def _size(solid: Bosl2Solid) -> list[float]:
+    _min, size = solid._native_bounds()  # type: ignore[misc]
     return size
 
 
-def test_info_returns_dataclass():
+def test_info_returns_dataclass() -> None:
     spec = BallBearings.ball_bearing_info("608")
     assert isinstance(spec, BearingSpec)
     assert (spec.inner_diameter, spec.outer_diameter, spec.width, spec.shielded) == (
@@ -29,7 +29,7 @@ def test_info_returns_dataclass():
     )
 
 
-def test_zz_variant_is_shielded_same_dims():
+def test_zz_variant_is_shielded_same_dims() -> None:
     open_ = BallBearings.ball_bearing_info("6902")
     zz = BallBearings.ball_bearing_info("6902ZZ")
     assert not open_.shielded
@@ -41,13 +41,13 @@ def test_zz_variant_is_shielded_same_dims():
     )
 
 
-def test_imperial_size_uses_inches():
+def test_imperial_size_uses_inches() -> None:
     r8 = BallBearings.ball_bearing_info("R8")
     assert r8.inner_diameter == pytest.approx(0.5 * 25.4)
     assert r8.outer_diameter == pytest.approx(9 / 8 * 25.4)
 
 
-def test_unknown_size_raises():
+def test_unknown_size_raises() -> None:
     with pytest.raises(ValueError, match="Unsupported ball bearing trade size"):
         BallBearings.ball_bearing_info("nope")
 
@@ -61,17 +61,17 @@ def test_unknown_size_raises():
         {"inner_diameter": 12, "outer_diameter": 32, "width": 10, "shield": False},
     ],
 )
-def test_ball_bearing_builds(kw):
-    assert isinstance(BallBearings.ball_bearing(**kw), Bosl2Solid)
+def test_ball_bearing_builds(kw: dict[str, object]) -> None:
+    assert isinstance(BallBearings.ball_bearing(**kw), Bosl2Solid)  # type: ignore[arg-type]
 
 
-def test_envelope_matches_od_and_width():
+def test_envelope_matches_od_and_width() -> None:
     b = BallBearings.ball_bearing("6205")  # inner_diameter 25, outer_diameter 52, width 15
     w, _wy, hgt = _size(b)
     assert w == pytest.approx(52, abs=0.5)
     assert hgt == pytest.approx(15, abs=0.01)
 
 
-def test_requires_size_or_dims():
+def test_requires_size_or_dims() -> None:
     with pytest.raises(ValueError, match="must give inner_diameter"):
         BallBearings.ball_bearing()

@@ -14,14 +14,19 @@ meshing the sweep through real PythonSCAD+libfive is covered by tests/test_stl_r
 """
 
 import math
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import numpy as np
 import pytest
 
 import pybosl2._sdf.shapes3d as sdf
+from pybosl2._sdf.shapes3d import PyShape
 from pybosl2.beziers import Bezier
 
-CIRCLE = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 48, endpoint=False)]
+CIRCLE: list[list[float]] = [
+    [2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 48, endpoint=False)
+]
 
 
 class _LVNumeric:
@@ -34,7 +39,7 @@ class _LVNumeric:
 
 
 @pytest.fixture
-def numeric_lv(monkeypatch):
+def numeric_lv(monkeypatch: Any) -> None:
     # both modules: the sweep closure lives in shapes3d, the concave polygon SDF in paths
     import pybosl2._sdf.paths as paths
 
@@ -43,12 +48,12 @@ def numeric_lv(monkeypatch):
     monkeypatch.setattr(paths, "lv", shim)
 
 
-def _field(shape):
+def _field(shape: PyShape) -> Callable[[float, float, float], float]:
     fn = shape._sdf_fn
     return lambda x, y, z: float(fn(np.array([x]), np.array([y]), np.array([z]))[0])
 
 
-def _frame_probe(shape, path):
+def _frame_probe(shape: PyShape, path: Sequence[Sequence[float]]) -> Callable[[float, float], float]:
     """A helper to probe the field in the mid-station's (u, v) profile frame (for a straight path)."""
     _, nrm, binorm = sdf._rmf_frames(np.asarray(path, dtype=float))
     mid = len(nrm) // 2
@@ -57,7 +62,7 @@ def _frame_probe(shape, path):
     return lambda u, v: f(*(center + u * nrm[mid] + v * binorm[mid]))
 
 
-def test_sweep_builds_ffi_free():
+def test_sweep_builds_ffi_free() -> None:
     tube = sdf.bezier_sweep(CIRCLE, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
     assert type(tube).__name__ == "PyShape"
     assert tube.backend == "sdf"
@@ -67,7 +72,7 @@ def test_sweep_builds_ffi_free():
 
 
 @pytest.mark.usefixtures("numeric_lv")
-def test_straight_tube_geometry():
+def test_straight_tube_geometry() -> None:
     tube = sdf.path_sweep(CIRCLE, [[0, 0, z] for z in np.linspace(0, 30, 40)])
     # a radius-2 circle swept 0..30 along z: bounds exactly [4, 4, 30], no overshoot past the ends
     sx, sy, sz = tube.bounds()[1]
@@ -84,7 +89,7 @@ def test_straight_tube_geometry():
 
 
 @pytest.mark.usefixtures("numeric_lv")
-def test_bezier_tube_watertight_along_path():
+def test_bezier_tube_watertight_along_path() -> None:
     cp = [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]]
     tube = sdf.bezier_sweep(CIRCLE, cp, splinesteps=48)
     f = _field(tube)
@@ -95,7 +100,7 @@ def test_bezier_tube_watertight_along_path():
 
 
 @pytest.mark.usefixtures("numeric_lv")
-def test_twist_keeps_it_a_solid():
+def test_twist_keeps_it_a_solid() -> None:
     square = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
     tube = sdf.path_sweep(square, [[0, 0, z] for z in np.linspace(0, 20, 30)], twist=90)
     f = _field(tube)
@@ -110,7 +115,7 @@ def test_twist_keeps_it_a_solid():
 
 
 @pytest.mark.usefixtures("numeric_lv")
-def test_concave_profile_notch_is_carved():
+def test_concave_profile_notch_is_carved() -> None:
     # An L-shaped (concave) profile: the removed top-right quadrant must read OUTSIDE, while both
     # arms read inside -- i.e. the sweep honours the concavity (via _polygon_sdf_xy), not just a hull.
     profile = [[0, 0], [4, 0], [4, 2], [2, 2], [2, 4], [0, 4]]

@@ -21,7 +21,7 @@ P3 = [[0, 0, 0], [40, 0, 0], [40, 40, 20], [0, 40, 20]]
 # -- round_corners ------------------------------------------------------------------------
 
 
-def test_circle_inserts_points_and_returns_path():
+def test_circle_inserts_points_and_returns_path() -> None:
     out = Path2D(SQ).round_corners(radius=5)
     assert isinstance(out, Path2D)
     assert not isinstance(out, Path3D)
@@ -43,60 +43,60 @@ def test_circle_inserts_points_and_returns_path():
         ("chamfer", {"width": 5}),
     ],
 )
-def test_every_method_measure_builds(method, kw):
+def test_every_method_measure_builds(method, kw) -> None:  # type: ignore[no-untyped-def]
     out = Path2D(SQ).round_corners(method=method, **kw)
     assert isinstance(out, Path2D)
     assert len(out) >= len(SQ)
 
 
-def test_chamfer_replaces_each_corner_with_two_points():
+def test_chamfer_replaces_each_corner_with_two_points() -> None:
     out = Path2D(SQ).round_corners(method="chamfer", joint=6)
-    assert len(out) == 8  # each of 4 corners -> 2 chamfer points
+    assert len(out) == 8  # type: ignore[arg-type]  # each of 4 corners -> 2 chamfer points
 
 
-def test_3d_paths_return_path3d():
+def test_3d_paths_return_path3d() -> None:
     assert isinstance(Path3D(P3).round_corners(method="smooth", joint=6), Path3D)
     assert isinstance(Path3D(P3).round_corners(method="chamfer", joint=6), Path3D)
     assert isinstance(Path3D(P3).round_corners(method="circle", radius=5), Path3D)
 
 
-def test_open_path_leaves_endpoints():
+def test_open_path_leaves_endpoints() -> None:
     out = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]], closed=False).round_corners(radius=5)
-    assert out.closed is False
-    np.testing.assert_allclose(out[0], [0, 0], atol=1e-9)  # first point unchanged
-    np.testing.assert_allclose(out[-1], [0, 30], atol=1e-9)  # last point unchanged
+    assert out.closed is False  # type: ignore[attr-defined]
+    np.testing.assert_allclose(out[0], [0, 0], atol=1e-9)  # type: ignore  # first point unchanged
+    np.testing.assert_allclose(out[-1], [0, 30], atol=1e-9)  # type: ignore  # last point unchanged
 
 
-def test_radius_requires_circle_method():
+def test_radius_requires_circle_method() -> None:
     with pytest.raises(AssertionError):
         Path2D(SQ).round_corners(method="smooth", radius=5)
 
 
-def test_width_requires_chamfer_method():
+def test_width_requires_chamfer_method() -> None:
     with pytest.raises(AssertionError):
         Path2D(SQ).round_corners(method="circle", width=5)
 
 
-def test_k_requires_smooth_method():
+def test_k_requires_smooth_method() -> None:
     with pytest.raises(AssertionError):
         Path2D(SQ).round_corners(method="circle", cut=3, curvature=0.5)
     with pytest.raises(AssertionError):
         Path2D(SQ).round_corners(method="circle", cut=3, k=0.5)
 
 
-def test_exactly_one_size_measure():
+def test_exactly_one_size_measure() -> None:
     with pytest.raises(AssertionError):
         Path2D(SQ).round_corners(radius=5, cut=3)
     with pytest.raises(AssertionError):
         Path2D(SQ).round_corners()
 
 
-def test_too_short_path_raises():
+def test_too_short_path_raises() -> None:
     with pytest.raises(AssertionError):
         Path2D([[0, 0], [10, 0]]).round_corners(radius=1)
 
 
-def test_oversized_roundover_raises():
+def test_oversized_roundover_raises() -> None:
     # a radius bigger than the sides can't fit
     with pytest.raises(AssertionError):
         Path2D(SQ).round_corners(method="smooth", cut=10)
@@ -105,20 +105,20 @@ def test_oversized_roundover_raises():
 # -- Path2D / Path3D method form ------------------------------------------------------------
 
 
-def test_path_round_corners_method_uses_own_closed():
+def test_path_round_corners_method_uses_own_closed() -> None:
     open_sq = Path2D(SQ, closed=False)
     out = open_sq.round_corners(radius=5)
-    assert out.closed is False
+    assert out.closed is False  # type: ignore[attr-defined]
 
 
-def test_path3d_round_corners_method():
+def test_path3d_round_corners_method() -> None:
     assert isinstance(Path3D(P3).round_corners(method="smooth", joint=6), Path3D)
 
 
 # -- smooth_path --------------------------------------------------------------------------
 
 
-def test_smooth_path_returns_denser_path():
+def test_smooth_path_returns_denser_path() -> None:
     wig = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]
     out = Path2D(wig, closed=False).smooth_path(relsize=0.4)
     assert isinstance(out, Path2D)
@@ -128,18 +128,18 @@ def test_smooth_path_returns_denser_path():
     np.testing.assert_allclose(out[-1], wig[-1], atol=1e-9)
 
 
-def test_smooth_path_closed_drops_duplicate_end():
+def test_smooth_path_closed_drops_duplicate_end() -> None:
     out = Path2D(SQ, closed=True).smooth_path(relsize=0.3, closed=True)
-    assert out.closed is True
-    assert not np.allclose(out[0], out[-1])  # closing duplicate removed
+    assert out.closed is True  # type: ignore[attr-defined]
+    assert not np.allclose(out[0], out[-1])  # type: ignore  # closing duplicate removed
 
 
-def test_smooth_path_3d():
+def test_smooth_path_3d() -> None:
     out = Path3D([[0, 0, 0], [10, 30, 5], [30, -10, 10], [50, 20, 0]], closed=False).smooth_path(relsize=0.4)
     assert isinstance(out, Path3D)
 
 
-def test_smooth_path_method_on_path():
+def test_smooth_path_method_on_path() -> None:
     p = Path2D([[0, 0], [10, 30], [30, -10]], closed=False)
     assert isinstance(p.smooth_path(relsize=0.4), Path2D)
 
@@ -147,47 +147,47 @@ def test_smooth_path_method_on_path():
 # -- path_join ----------------------------------------------------------------------------
 
 
-def test_path_join_plain_concatenation():
+def test_path_join_plain_concatenation() -> None:
     p1 = [[0, 0], [10, 0]]
     p2 = [[10, 0], [20, 10]]
-    res = Path2D(p1, closed=False).path_join([Path2D(p2, closed=False)], relocate=True)
+    res = Path2D(p1, closed=False).path_join([Path2D(p2, closed=False)], relocate=True)  # type: ignore[list-item]
     assert isinstance(res, Path2D)
     # The common point is merged, so 10,0 is not repeated twice.
     assert len(res) == 3
     np.testing.assert_allclose(res, [[0, 0], [10, 0], [20, 10]])
 
 
-def test_path_join_relocate_false():
+def test_path_join_relocate_false() -> None:
     p1 = [[0, 0], [10, 0]]
     p2 = [[10, 0], [20, 10]]
-    res = Path2D(p1, closed=False).path_join([Path2D(p2, closed=False)], relocate=False)
+    res = Path2D(p1, closed=False).path_join([Path2D(p2, closed=False)], relocate=False)  # type: ignore[list-item]
     # Relocate=False preserves duplicate endpoints
-    assert len(res) == 4
-    np.testing.assert_allclose(res, [[0, 0], [10, 0], [10, 0], [20, 10]])
+    assert len(res) == 4  # type: ignore[arg-type]
+    np.testing.assert_allclose(res, [[0, 0], [10, 0], [10, 0], [20, 10]])  # type: ignore[call-overload]
 
 
-def test_path_join_with_rounding():
+def test_path_join_with_rounding() -> None:
     # Corner at [10,0] is rounded
     p1 = [[0, 0], [10, 0]]
     p2 = [[10, 0], [10, 10]]
-    res = Path2D(p1, closed=False).path_join([Path2D(p2, closed=False)], radius=2)
-    assert len(res) > 3
+    res = Path2D(p1, closed=False).path_join([Path2D(p2, closed=False)], radius=2)  # type: ignore[list-item]
+    assert len(res) > 3  # type: ignore[arg-type]
     # Endpoints must remain same as originals
-    np.testing.assert_allclose(res[0], [0, 0], atol=1e-9)
-    np.testing.assert_allclose(res[-1], [10, 10], atol=1e-9)
+    np.testing.assert_allclose(res[0], [0, 0], atol=1e-9)  # type: ignore[index]
+    np.testing.assert_allclose(res[-1], [10, 10], atol=1e-9)  # type: ignore[index]
 
 
-def test_path_join_3d():
+def test_path_join_3d() -> None:
     p1 = [[0, 0, 0], [10, 0, 0]]
     p2 = [[10, 0, 0], [20, 10, 10]]
-    res = Path3D(p1, closed=False).path_join([Path3D(p2, closed=False)], radius=1)
+    res = Path3D(p1, closed=False).path_join([Path3D(p2, closed=False)], radius=1)  # type: ignore[list-item]
     assert isinstance(res, Path3D)
 
 
 # -- offset_stroke ------------------------------------------------------------------------
 
 
-def test_offset_stroke_returns_region_or_solid():
+def test_offset_stroke_returns_region_or_solid() -> None:
     p = [[0, 0], [10, 0], [10, 10]]
     res = Path2D(p).offset_stroke(width=2)
     assert res is not None
@@ -201,7 +201,7 @@ def test_offset_stroke_returns_region_or_solid():
 # -- Path2D instances method tests -----------------------------------------------------------
 
 
-def test_path_methods_on_path_object():
+def test_path_methods_on_path_object() -> None:
     p = Path2D([[0, 0], [10, 0], [10, 10]], closed=False)
 
     # 1. offset_stroke
@@ -211,7 +211,7 @@ def test_path_methods_on_path_object():
     # 2. offset_sweep
     res_sweep = p.offset_sweep(height=10)
     assert res_sweep is not None
-    assert res_sweep.volume() > 0
+    assert res_sweep.volume() > 0  # type: ignore[attr-defined]
 
     # 3. convex_offset_extrude
     res_extrude = p.convex_offset_extrude(height=10)
@@ -239,6 +239,6 @@ def test_path_methods_on_path_object():
 
     # 9. path_join method
     other = Path2D([[10, 10], [20, 20]], closed=False)
-    res_pj = p.path_join([other], relocate=True)
-    assert len(res_pj) == 4
-    np.testing.assert_allclose(res_pj, [[0, 0], [10, 0], [10, 10], [20, 20]])
+    res_pj = p.path_join([other], relocate=True)  # type: ignore[list-item]
+    assert len(res_pj) == 4  # type: ignore[arg-type]
+    np.testing.assert_allclose(res_pj, [[0, 0], [10, 0], [10, 10], [20, 20]])  # type: ignore[call-overload]

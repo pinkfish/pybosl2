@@ -12,8 +12,8 @@ from pybosl2.parts.sliders import Sliders
 from pybosl2.shapes3d import Bosl2Solid
 
 
-def _size(solid):
-    _min, size = solid._native_bounds()
+def _size(solid: Bosl2Solid) -> list[float]:
+    _min, size = solid._native_bounds()  # type: ignore[misc]
     return size
 
 
@@ -24,11 +24,11 @@ def _size(solid):
         {"length": 40, "w": 14, "height": 12, "base": 8, "wall": 5},
     ],
 )
-def test_slider_builds(kw):
-    assert isinstance(Sliders.slider(**kw, fn=None, fa=None, fs=None), Bosl2Solid)
+def test_slider_builds(kw: dict[str, object]) -> None:
+    assert isinstance(Sliders.slider(**kw, fn=None, fa=None, fs=None), Bosl2Solid)  # type: ignore[arg-type]
 
 
-def test_rail_envelope():
+def test_rail_envelope() -> None:
     radius = Sliders.rail(length=100, w=10, height=10)
     assert isinstance(radius, Bosl2Solid)
     w, length, height = _size(radius)
@@ -37,11 +37,11 @@ def test_rail_envelope():
     assert height == pytest.approx(10, abs=0.2)
 
 
-def test_rail_length_scales():
+def test_rail_length_scales() -> None:
     assert _size(Sliders.rail(length=100, w=10, height=10))[1] > _size(Sliders.rail(length=40, w=10, height=10))[1]
 
 
-def test_slider_slop_widens_fit():
+def test_slider_slop_widens_fit() -> None:
     # more slop -> a slightly larger slider footprint
     tight = _size(Sliders.slider(length=30, slop=0.0, fn=None, fa=None, fs=None))
     loose = _size(Sliders.slider(length=30, slop=0.4, fn=None, fa=None, fs=None))

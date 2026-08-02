@@ -12,12 +12,12 @@ from pybosl2.parts.joiners import Joiners
 from pybosl2.shapes3d import Bosl2Solid
 
 
-def _size(s):
-    _min, size = s._native_bounds()
+def _size(s: Bosl2Solid) -> list[float]:
+    _min, size = s._native_bounds()  # type: ignore[misc]
     return size
 
 
-def test_dovetail_flares_to_top_width():
+def test_dovetail_flares_to_top_width() -> None:
     # top width = base width + 2*height/slope; the dovetail is wider than its base
     dt = Joiners.dovetail("male", width=15, height=8, slide=30, slope=6)
     w, sl, height = _size(dt)
@@ -26,30 +26,30 @@ def test_dovetail_flares_to_top_width():
     assert height == pytest.approx(8, abs=0.05)
 
 
-def test_steeper_angle_flares_more():
+def test_steeper_angle_flares_more() -> None:
     # slope = 1/tan(angle): a bigger dovetail angle -> smaller slope -> more flare
     shallow = _size(Joiners.dovetail("male", width=15, height=8, slide=30, angle=15))[0]
     steep = _size(Joiners.dovetail("male", width=15, height=8, slide=30, angle=45))[0]
     assert steep > shallow
 
 
-def test_female_is_enlarged_by_slop():
+def test_female_is_enlarged_by_slop() -> None:
     male = _size(Joiners.dovetail("male", width=15, height=8, slide=30))
     female = _size(Joiners.dovetail("female", width=15, height=8, slide=30, slop=0.2))
     assert female[2] > male[2]  # female taller by the slop
 
 
 @pytest.mark.parametrize("kw", [{}, {"taper": 4}, {"back_width": 12}])
-def test_dovetail_taper_builds(kw):
-    assert isinstance(Joiners.dovetail("male", width=18, height=6, slide=40, **kw), Bosl2Solid)
+def test_dovetail_taper_builds(kw: dict[str, object]) -> None:
+    assert isinstance(Joiners.dovetail("male", width=18, height=6, slide=40, **kw), Bosl2Solid)  # type: ignore[arg-type]
 
 
-def test_snap_pin_and_socket_build():
+def test_snap_pin_and_socket_build() -> None:
     assert isinstance(Joiners.snap_pin(), Bosl2Solid)
     assert isinstance(Joiners.snap_pin_socket(), Bosl2Solid)
 
 
-def test_socket_bore_clears_the_pin():
+def test_socket_bore_clears_the_pin() -> None:
     # the socket relief is at least as wide as the pin's barb so the pin fits
     pin_w = _size(Joiners.snap_pin(diameter=5, nub_depth=0.6))[0]
     sock_w = _size(Joiners.snap_pin_socket(diameter=5, nub_depth=0.6))[0]

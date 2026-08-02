@@ -26,6 +26,10 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
@@ -65,13 +69,13 @@ class ThreadProfile:
         """The profile as a plain list of ``[x, y]`` float pairs."""
         return [[float(x), float(y)] for x, y in self.points]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[list[float]]:
         return (list(p) for p in self.points)
 
     def __len__(self) -> int:
         return len(self.points)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> list[float]:
         return list(self.points[i])
 
 
@@ -89,7 +93,7 @@ def _iso_profile() -> ThreadProfile:
     )
 
 
-def _trapezoidal_profile(pitch, thread_angle: float = 30, thread_depth=None) -> ThreadProfile:
+def _trapezoidal_profile(pitch: float, thread_angle: float = 30, thread_depth: float | None = None) -> ThreadProfile:
     depth = thread_depth if thread_depth is not None else pitch / 2
     pa_delta = 0.5 * depth * math.tan(math.radians(thread_angle / 2)) / pitch
     assert pa_delta <= 0.25, "trapezoidal thread geometry is impossible (angle/depth too large)."
@@ -117,11 +121,19 @@ def _buttress_profile() -> ThreadProfile:
 # ---------------------------------------------------------------------------
 
 
-def _quantup(x, n):
+def _quantup(x: float, n: int) -> int:
     return int(math.ceil(x / n) * n)
 
 
-def _thread_grid(profile, pitch, r, length, starts, left_handed, sides):
+def _thread_grid(
+    profile: list[list[float]] | ThreadProfile,
+    pitch: float,
+    r: float,
+    length: float,
+    starts: int,
+    left_handed: bool,
+    sides: int,
+) -> list[list[list[float]]]:
     """One angular sector (360/starts) of the thread surface as a column grid for vnf_vertex_array.
 
     Each column is a vertical stack of vertices for one angle: bottom axis point, the thread profile
@@ -150,13 +162,23 @@ def _thread_grid(profile, pitch, r, length, starts, left_handed, sides):
     return grid
 
 
-def _rot_z(pts, deg):
+def _rot_z(pts: list[list[float]], deg: float) -> list[list[float]]:
     a = math.radians(deg)
     c, s = math.cos(a), math.sin(a)
     return [[x * c - y * s, x * s + y * c, z] for x, y, z in pts]
 
 
-def _rod_solid(d, length, pitch, profile, starts=1, left_handed=False, fn=None, fa=None, fs=None):
+def _rod_solid(
+    d: float,
+    length: float,
+    pitch: float,
+    profile: list[list[float]] | ThreadProfile,
+    starts: int = 1,
+    left_handed: bool = False,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Bosl2Solid:
     """The external threaded-rod solid, built as a direct manifold polyhedron, trimmed to length.
 
     Each of the *starts* thread starts is one angular sector's vertex-array surface; the sectors are
@@ -167,7 +189,8 @@ def _rod_solid(d, length, pitch, profile, starts=1, left_handed=False, fn=None, 
 
     radius = d / 2
     sides = _quantup(_frag_count(radius, fn, fa, fs), starts)
-    verts, faces = [], []
+    verts: list[list[float]] = []
+    faces: list[list[int]] = []
     for k in range(starts):
         grid = _thread_grid(profile, pitch, radius, length, starts, left_handed, sides)
         vnf = VNF.vertex_array(grid, col_wrap=False, style="convex")
@@ -179,7 +202,7 @@ def _rod_solid(d, length, pitch, profile, starts=1, left_handed=False, fn=None, 
     return thread & cyl(height=length, radius=radius + 1, fn=fn, fa=fa, fs=fs)
 
 
-def _profile_depth_abs(profile, pitch):
+def _profile_depth_abs(profile: list[list[float]] | ThreadProfile, pitch: float) -> float:
     if isinstance(profile, ThreadProfile):
         return profile.depth_abs(pitch)
     ys = [float(p[1]) for p in profile]
@@ -187,19 +210,19 @@ def _profile_depth_abs(profile, pitch):
 
 
 def _nut_solid(
-    nutwidth,
-    idia,
-    h,
-    pitch,
-    profile,
-    shape="hex",
-    starts=1,
-    left_handed=False,
-    slop=0.0,
-    fn=None,
-    fa=None,
-    fs=None,
-):
+    nutwidth: float,
+    idia: float,
+    h: float,
+    pitch: float,
+    profile: list[list[float]] | ThreadProfile,
+    shape: str = "hex",
+    starts: int = 1,
+    left_handed: bool = False,
+    slop: float = 0.0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Bosl2Solid:
     """A nut: a hex/square body with a threaded hole cut by a matching thread 'tap'."""
 
     if shape == "hex":
@@ -246,7 +269,7 @@ class Threading:
         d: float,
         length: float,
         pitch: float,
-        profile,
+        profile: list[list[float]] | ThreadProfile,
         starts: int = 1,
         left_handed: bool = False,
         fn: int | None = None,
@@ -264,8 +287,8 @@ class Threading:
         inner_diameter: float,
         h: float,
         pitch: float,
-        profile,
-        shape="hex",
+        profile: list[list[float]] | ThreadProfile,
+        shape: str = "hex",
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -321,7 +344,7 @@ class Threading:
         inner_diameter: float,
         h: float,
         pitch: float,
-        shape="hex",
+        shape: str = "hex",
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -390,7 +413,7 @@ class Threading:
         pitch: float,
         thread_angle: float = 30,
         thread_depth: float | None = None,
-        shape="hex",
+        shape: str = "hex",
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -448,7 +471,7 @@ class Threading:
         h: float,
         pitch: float,
         thread_depth: float | None = None,
-        shape="hex",
+        shape: str = "hex",
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -496,7 +519,7 @@ class Threading:
         inner_diameter: float,
         h: float,
         pitch: float,
-        shape="hex",
+        shape: str = "hex",
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -543,7 +566,7 @@ class Threading:
         inner_diameter: float,
         h: float,
         pitch: float,
-        shape="hex",
+        shape: str = "hex",
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -578,7 +601,7 @@ class Threading:
         turns: float = 1,
         starts: int = 1,
         left_handed: bool = False,
-        profile=None,
+        profile: list[list[float]] | ThreadProfile | None = None,
     ) -> Bosl2Solid:
         """A single helical thread ridge (no core), for adding threads onto your own cylinder
         (BOSL2 thread_helix()). The thread crest is at diameter *d*; give *thread_depth* and

@@ -33,8 +33,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Sequence, Union
 
-import numpy as np
-
 __all__ = ["CapType", "CapSpec", "CapsSpec", "_caps_as_bools", "_endcap_polys", "_endcap_trim", "_norm_caps"]
 
 
@@ -178,7 +176,7 @@ def _norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
     if closed:
         return []
 
-    if isinstance(caps, (list, tuple, np.ndarray)):
+    if isinstance(caps, (list, tuple)):
         return [_normalize_one(c) for c in caps[:2]]
     result = _normalize_one(caps)  # type: ignore[arg-type]
     return [result, result]
@@ -217,7 +215,7 @@ def _caps_as_bools(cap_specs: list[CapSpec]) -> list[bool]:
 # ---------------------------------------------------------------------------
 
 
-def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
+def _endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
     """The local-frame polygon(s) for an endcap (BOSL2 ``_shape_path()``).
 
     Dimensions are taken directly from the :class:`CapSpec` which has
@@ -229,7 +227,7 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
         lw: The line width (stroke width) to scale the polygons.
 
     Returns:
-        A list of (N,2) ndarray polygons in the endcap's local frame
+        A list of (N,2) polygon point lists in the endcap's local frame
         (X is the line direction, Y is perpendicular).
     """
     if spec.cap_type in (CapType.NONE, CapType.BUTT):
@@ -237,7 +235,7 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
 
     if spec.cap_type == CapType.CUSTOM:
         assert spec.path is not None, "CapType.CUSTOM requires path= on the CapSpec"
-        return [np.asarray(spec.path, dtype=float)]
+        return [[[float(c) for c in pt] for pt in spec.path]]
 
     w = spec.width
     length = spec.length * spec.width
@@ -247,58 +245,57 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[np.ndarray]:
     ss = s * w2
 
     style = spec.cap_type
-    poly: list[np.ndarray] = []
+    poly: list[list[list[float]]] = []
     if style == CapType.ROUND:
-        th = np.linspace(0, np.pi, 16)
-        poly.append(np.column_stack([-np.cos(th) * s, np.sin(th) * s]))
+        th = [i * math.pi / 16 for i in range(16)]
+        poly.append([[-math.cos(t) * s, math.sin(t) * s] for t in th])
     elif style == CapType.CHISEL:
-        poly.append(np.array([[0, -s], [s * length, 0], [0, s]]))
+        poly.append([[0, -s], [s * length, 0], [0, s]])
     elif style == CapType.SQUARE:
-        poly.append(np.array([[0, -s], [s * length, -s], [s * length, s], [0, s]]))
+        poly.append([[0, -s], [s * length, -s], [s * length, s], [0, s]])
     elif style == CapType.BLOCK:
         p = s * length
-        poly.append(np.array([[0, -s], [p, -s], [p, s], [0, s]]))
+        poly.append([[0, -s], [p, -s], [p, s], [0, s]])
     elif style == CapType.DIAMOND:
         p = s * length
-        poly.append(np.array([[0, 0], [p / 2, -s], [p, 0], [p / 2, s]]))
+        poly.append([[0, 0], [p / 2, -s], [p, 0], [p / 2, s]])
     elif style == CapType.DOT:
-        th = np.linspace(0, 2 * np.pi, 16)
-        poly.append(np.column_stack([np.cos(th) * s, np.sin(th) * s]))
+        th = [i * 2 * math.pi / 16 for i in range(16)]
+        poly.append([[math.cos(t) * s, math.sin(t) * s] for t in th])
     elif style == CapType.X:
         p = s * length
-        poly.append(np.array([[0, -ss], [p, -s]]))
-        poly.append(np.array([[p, -s], [0, ss]]))
+        poly.append([[0, -ss], [p, -s]])
+        poly.append([[p, -s], [0, ss]])
     elif style == CapType.CROSS:
         p = s * length
-        poly.append(np.array([[0, -ss], [p, 0], [0, ss]]))
+        poly.append([[0, -ss], [p, 0], [0, ss]])
     elif style == CapType.LINE:
-        poly.append(np.array([[0, 0], [s * length, 0]]))
+        poly.append([[0, 0], [s * length, 0]])
     elif style == CapType.ARROW:
         p = s * length
         pp = s * (length - 0.5)
-        poly.append(np.array([[0, -s], [pp, -s], [p, 0], [pp, s], [0, s]]))
+        poly.append([[0, -s], [pp, -s], [p, 0], [pp, s], [0, s]])
     elif style == CapType.ARROW2:
         p = s * length
         pp = s * 0.75
-        poly.append(np.array([[0, -ss], [p - pp, -ss], [p - pp, -s], [p, 0], [p - pp, s], [p - pp, ss], [0, ss]]))
+        poly.append([[0, -ss], [p - pp, -ss], [p - pp, -s], [p, 0], [p - pp, s], [p - pp, ss], [0, ss]])
     elif style == CapType.ARROW3:
         p = s * length
         pp = s * 0.5
-        poly.append(np.array([[0, -ss], [p - pp, -ss], [p - pp, -s], [p, 0], [p - pp, s], [p - pp, ss], [0, ss]]))
+        poly.append([[0, -ss], [p - pp, -ss], [p - pp, -s], [p, 0], [p - pp, s], [p - pp, ss], [0, ss]])
     elif style == CapType.TAIL:
         p = s * length
         pp = s * (length - 0.5)
-        poly.append(np.array([[0, -s], [p - pp, -s], [p, 0], [p - pp, s], [0, s]]))
+        poly.append([[0, -s], [p - pp, -s], [p, 0], [p - pp, s], [0, s]])
     elif style == CapType.TAIL2:
         p = s * length
         pp = s * (length - 0.17)
-        poly.append(np.array([[0, -ss], [p - pp, -ss], [p - pp, -s], [p, 0], [p - pp, s], [p - pp, ss], [0, ss]]))
+        poly.append([[0, -ss], [p - pp, -ss], [p - pp, -s], [p, 0], [p - pp, s], [p - pp, ss], [0, ss]])
 
     if spec.angle != 0.0:
         cos_a = math.cos(math.radians(spec.angle))
         sin_a = math.sin(math.radians(spec.angle))
-        rot = np.array([[cos_a, -sin_a], [sin_a, cos_a]])
-        poly = [(p @ rot.T).astype(float) for p in poly]
+        poly = [[[pt[0] * cos_a - pt[1] * sin_a, pt[0] * sin_a + pt[1] * cos_a] for pt in p] for p in poly]
     return poly
 
 
@@ -328,17 +325,21 @@ def _place(poly: Sequence[Sequence[float]], theta_deg: float, at: Sequence[float
 
 def _trim_ends(body: list[list[float]], trim1: float, trim2: float) -> list[list[float]]:
     """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment)."""
-    import numpy as np
-
     body = [list(map(float, p)) for p in body]
     if len(body) >= 2 and trim1 > 0:
-        a, b = np.asarray(body[0]), np.asarray(body[1])
-        seglen = float(np.linalg.norm(b - a)) or 1.0
-        body[0] = list(a + (b - a) / seglen * min(trim1, 0.99 * seglen))
+        a0, a1 = float(body[0][0]), float(body[0][1])
+        b0, b1 = float(body[1][0]), float(body[1][1])
+        dx, dy = b0 - a0, b1 - a1
+        seglen = math.hypot(dx, dy) or 1.0
+        t = min(trim1, 0.99 * seglen) / seglen
+        body[0] = [a0 + dx * t, a1 + dy * t]
     if len(body) >= 2 and trim2 > 0:
-        a, b = np.asarray(body[-1]), np.asarray(body[-2])
-        seglen = float(np.linalg.norm(b - a)) or 1.0
-        body[-1] = list(a + (b - a) / seglen * min(trim2, 0.99 * seglen))
+        a0, a1 = float(body[-1][0]), float(body[-1][1])
+        b0, b1 = float(body[-2][0]), float(body[-2][1])
+        dx, dy = b0 - a0, b1 - a1
+        seglen = math.hypot(dx, dy) or 1.0
+        t = min(trim2, 0.99 * seglen) / seglen
+        body[-1] = [a0 + dx * t, a1 + dy * t]
     return body
 
 

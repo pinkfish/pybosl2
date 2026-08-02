@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pybosl2.math import EPSILON
-from pybosl2.points import Point, Vector
+from pybosl2.points import Point
 from pybosl2.vectors import unit
 
 if TYPE_CHECKING:
@@ -86,10 +86,10 @@ def is_collinear(
 def line_normal(
     point1: Point,
     point2: Point,
-) -> Vector:
+) -> Point:
     """Unit 2-D normal vector perpendicular to the line direction, pointing left.
 
-    Returns a :class:`~pybosl2.points.Vector` of length 2, perpendicular to
+    Returns a :class:`~pybosl2.points.Point` of length 2, perpendicular to
     the line from *point1* to *point2*.
 
     Args:
@@ -97,9 +97,9 @@ def line_normal(
         point2: Second endpoint.
 
     Returns:
-        A unit-length :class:`~pybosl2.points.Vector` normal to the line.
+        A unit-length :class:`~pybosl2.points.Point` normal to the line.
     """
-    return Vector(unit([point1.y - point2.y, point2.x - point1.x]))
+    return Point(unit([point1.y - point2.y, point2.x - point1.x]))
 
 
 def line_closest_point(

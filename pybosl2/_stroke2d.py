@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from pybosl2.regions import Region
 
 
-def _ensure_closed(pts, closed: bool | None, path_closed: bool) -> bool:
+def _ensure_closed(pts: Sequence[Sequence[float]], closed: bool | None, path_closed: bool) -> bool:
     if closed is not None:
         return closed
     if len(pts) < 2:
@@ -210,5 +210,5 @@ def _point_at(
             t = (dist - seg_start) / seg_len if seg_len > 0 else 0
             a = np.asarray(pts[i], dtype=float)
             b = np.asarray(pts[i + 1], dtype=float)
-            return (a + (b - a) * t).tolist()
+            return (a + (b - a) * t).tolist()  # type: ignore[no-any-return]
     return list(pts[-1])

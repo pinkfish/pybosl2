@@ -17,13 +17,19 @@
 # FileGroup: BOSL2
 
 import math
+from collections.abc import Sequence
 
 import numpy as np
 
 from pybosl2.math import EPSILON
 
 
-def is_vector(v, length: int | None = None, zero: bool | None = None, eps: float = EPSILON) -> bool:
+def is_vector(
+    v: list[float] | tuple[float, ...] | np.ndarray,
+    length: int | None = None,
+    zero: bool | None = None,
+    eps: float = EPSILON,
+) -> bool:
     """
     True if *v* is a list/tuple/ndarray of finite numbers (optionally of a given length and/or
     zero-ness).
@@ -50,12 +56,12 @@ def is_vector(v, length: int | None = None, zero: bool | None = None, eps: float
     return True
 
 
-def add_scalar(v, s: float) -> np.ndarray:
+def add_scalar(v: Sequence[float] | np.ndarray, s: float) -> np.ndarray:
     """Return *v* with scalar *s* added to every entry."""
     return np.asarray(v, dtype=float) + s
 
 
-def unit(v, error=None) -> np.ndarray:
+def unit(v: Sequence[float] | np.ndarray, error: Sequence[float] | np.ndarray | None = None) -> np.ndarray:
     """Normalize *v* to unit length.
 
     If *v* has (near) zero length, returns *error* if given, else raises

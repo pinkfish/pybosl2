@@ -14,43 +14,43 @@ import pytest
 from pybosl2.vectors import add_scalar, is_vector, unit
 
 
-def test_is_vector_basic():
+def test_is_vector_basic() -> None:
     assert is_vector([1, 2, 3])
-    assert not is_vector(5)
-    assert not is_vector("abc")
+    assert not is_vector(5)  # type: ignore[arg-type]
+    assert not is_vector("abc")  # type: ignore[arg-type]
 
 
-def test_is_vector_length():
+def test_is_vector_length() -> None:
     assert is_vector([1, 2, 3], length=3)
     assert not is_vector([1, 2, 3], length=2)
 
 
-def test_is_vector_zero_flag():
+def test_is_vector_zero_flag() -> None:
     assert is_vector([0, 0, 0], zero=True)
     assert not is_vector([0, 0, 1], zero=True)
     assert is_vector([0, 0, 1], zero=False)
     assert not is_vector([0, 0, 0], zero=False)
 
 
-def test_add_scalar():
+def test_add_scalar() -> None:
     np.testing.assert_allclose(add_scalar([1, 2, 3], 10), [11, 12, 13])
 
 
-def test_unit_normalizes():
+def test_unit_normalizes() -> None:
     np.testing.assert_allclose(unit([3, 0, 0]), [1, 0, 0])
     np.testing.assert_allclose(unit([0, 5]), [0, 1])
 
 
-def test_unit_length_is_one():
+def test_unit_length_is_one() -> None:
     v = unit([1, 2, 2])
     assert math.isclose(float(np.linalg.norm(v)), 1.0)
 
 
-def test_unit_zero_with_default_error_value():
+def test_unit_zero_with_default_error_value() -> None:
     # a supplied `error` value is returned for a zero-length vector instead of dividing by zero
     np.testing.assert_allclose(unit([0, 0], [9, 9]), [9, 9])
 
 
-def test_unit_zero_without_error_raises():
+def test_unit_zero_without_error_raises() -> None:
     with pytest.raises(ValueError, match="Cannot normalize a zero vector"):
         unit([0, 0, 0])

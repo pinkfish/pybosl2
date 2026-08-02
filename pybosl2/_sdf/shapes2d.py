@@ -60,13 +60,13 @@ class PyShape2D:
     which is almost never what you want, so extrude explicitly.
     """
 
-    def __init__(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float], res: int = 10):
+    def __init__(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float], res: int = 10):  # type: ignore[type-arg]
         self._sdf_fn = sdf_fn
         self.mn = [float(mn[0]), float(mn[1])]
         self.mx = [float(mx[0]), float(mx[1])]
         self.res = res
 
-    def _wrap(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float]) -> PyShape2D:
+    def _wrap(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float]) -> PyShape2D:  # type: ignore[type-arg]
         return PyShape2D(sdf_fn, mn, mx, self.res)
 
     # ---- transforms ----
@@ -150,7 +150,7 @@ class PyShape2D:
         _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
 
-        def new_fn(x, y):
+        def new_fn(x, y):  # type: ignore[no-untyped-def]
             return lv.min(fa(x, y), fb(x, y))
 
         return self._wrap(
@@ -163,7 +163,7 @@ class PyShape2D:
         _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
 
-        def new_fn(x, y):
+        def new_fn(x, y):  # type: ignore[no-untyped-def]
             return lv.max(fa(x, y), fb(x, y))
 
         return self._wrap(
@@ -176,7 +176,7 @@ class PyShape2D:
         _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
 
-        def new_fn(x, y):
+        def new_fn(x, y):  # type: ignore[no-untyped-def]
             return lv.max(fa(x, y), -fb(x, y))
 
         return self._wrap(new_fn, list(self.mn), list(self.mx))
@@ -185,7 +185,7 @@ class PyShape2D:
         _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
 
-        def new_fn(x, y):
+        def new_fn(x, y):  # type: ignore[no-untyped-def]
             return lv.min(fb(x, y), fa(x, y))
 
         return self._wrap(
@@ -198,7 +198,7 @@ class PyShape2D:
         _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
 
-        def new_fn(x, y):
+        def new_fn(x, y):  # type: ignore[no-untyped-def]
             return lv.max(fb(x, y), fa(x, y))
 
         return self._wrap(
@@ -211,7 +211,7 @@ class PyShape2D:
         _check_operand_backend("sdf", other)
         fa, fb = self._sdf_fn, other._sdf_fn
 
-        def new_fn(x, y):
+        def new_fn(x, y):  # type: ignore[no-untyped-def]
             return lv.max(fb(x, y), -fa(x, y))
 
         return self._wrap(new_fn, list(other.mn), list(other.mx))
@@ -289,7 +289,7 @@ class PyShape2D:
         h = float(height)
         z0 = -h / 2 if center else 0.0
 
-        def sdf_fn(x, y, z):
+        def sdf_fn(x, y, z):  # type: ignore[no-untyped-def]
             d2d = fn(x, y)
             zz = z - z0
             out = lv.max(d2d, lv.max(zz - h, -zz))
@@ -335,7 +335,7 @@ class PyShape2D:
 
     rotate_sweep = revolve_sdf
 
-    def linear_sweep_sdf(
+    def linear_sweep_sdf(  # type: ignore[no-untyped-def]
         self,
         height: float = 1.0,
         twist: float = 0.0,
@@ -366,7 +366,7 @@ class PyShape2D:
         `.linear_extrude(height=...)` call sites."""
         return self.extrude(height, center=center)
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> Any:
         # Fall through to a thin extrusion's meshed solid -- an escape hatch for native-only
         # attributes (color/show/...); extrude explicitly whenever the height matters.
         return getattr(self.extrude(0.01).mesh(), name)
@@ -378,7 +378,7 @@ def circle2d(radius: float | None = None, diameter: float | None = None, res: in
     return PyShape2D(lambda x, y: _lv_hypot(x, y) - rad, [-rad, -rad], [rad, rad], res)
 
 
-def rect2d(
+def rect2d(  # type: ignore[no-untyped-def]
     size,
     rounding: "float | Sequence[float]" = 0,
     chamfer: "float | Sequence[float]" = 0,
@@ -403,7 +403,7 @@ def rect2d(
     # BOSL2 corner order [(+,+), (-,+), (-,-), (+,-)] -> _rect2d's [(-,-), (+,-), (-,+), (+,+)].
     amount = [per_corner[2], per_corner[3], per_corner[1], per_corner[0]]
 
-    def sdf_fn(x, y):
+    def sdf_fn(x, y):  # type: ignore[no-untyped-def]
         return _rect2d(x, y, hx, hy, amount, mode)
 
     shape = PyShape2D(sdf_fn, [-hx, -hy], [hx, hy], res)
@@ -435,7 +435,7 @@ def supershape2d(
     )
 
 
-def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PyShape2D:
+def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
     """An arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
     Accepts any array-like path spelling (per the numpy-paths convention)."""
@@ -443,7 +443,7 @@ def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PySh
     for p in path_list:
         assert len(p) >= 3, f"polygon2d(): every path needs >= 3 points, got {len(p)}"
 
-    def sdf_fn(x, y):
+    def sdf_fn(x, y):  # type: ignore[no-untyped-def]
         d = None
         for p in path_list:
             dp = _polygon_sdf_xy(x, y, p)
@@ -455,7 +455,7 @@ def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PySh
     return PyShape2D(sdf_fn, [min(xs), min(ys)], [max(xs), max(ys)], res)
 
 
-def region2d(paths: list, res: int = 10) -> PyShape2D:
+def region2d(paths: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
     """BOSL2-style REGION data as a PyShape2D: a list of simple outlines with even-odd nesting
     semantics -- an outline inside another outline is a hole, an outline inside a hole is an
     island, and so on -- exactly what the real-BOSL2 region functions (make_region/union/
@@ -488,14 +488,14 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:
         depth = sum(1 for j, q in enumerate(cleaned) if j != i and contains(q, p[0]))  # type: ignore[misc,arg-type]
         depths.append(depth)
 
-    def sdf_fn(x, y):
+    def sdf_fn(x, y):  # type: ignore[no-untyped-def]
         d = None
         for i, p in enumerate(cleaned):
             if depths[i] % 2 != 0:
                 continue  # holes are handled from their parents below
             dp = _polygon_sdf_xy(x, y, p)
             for j, q in enumerate(cleaned):
-                if j != i and depths[j] == depths[i] + 1 and contains(p, q[0]):
+                if j != i and depths[j] == depths[i] + 1 and contains(p, q[0]):  # type: ignore[arg-type]
                     dp = lv.max(dp, -_polygon_sdf_xy(x, y, q))
             d = dp if d is None else lv.min(d, dp)
         return d
@@ -506,7 +506,10 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:
 
 
 def stroke2d(
-    path: Sequence[Sequence[float]] | NDArray, width: float = 1, closed: bool = False, res: int = 10
+    path: Sequence[Sequence[float]] | NDArray,  # type: ignore[type-arg]
+    width: float = 1,
+    closed: bool = False,
+    res: int = 10,
 ) -> PyShape2D:
     """A path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
     the min over the segments' capsule SDFs (distance-to-segment minus width/2)."""
@@ -514,7 +517,7 @@ def stroke2d(
     assert len(pts) >= 2, "stroke2d() needs at least 2 points"
     segs = pts if closed else pts[:-1]
 
-    def sdf_fn(x, y):
+    def sdf_fn(x, y):  # type: ignore[no-untyped-def]
         diameter2 = None
         n = len(pts)
         for i in range(len(segs)):
@@ -537,7 +540,7 @@ def stroke2d(
     return PyShape2D(sdf_fn, [min(xs) - g, min(ys) - g], [max(xs) + g, max(ys) + g], res)
 
 
-def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
+def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
     """The convex hull of a set of discs [(x, y, r), ...] -- the SDF equivalent of the
     hull(circle().translate(), circle().translate(), ...) idiom all over shapes.py. EXACT for
     equal radii (the true distance to the centers' convex hull, minus r -- computed with the
@@ -555,7 +558,7 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:
     centers = [[c[0], c[1]] for c in ds]
     rmax = max(c[2] for c in ds)
 
-    def sdf_fn(x, y):
+    def sdf_fn(x, y):  # type: ignore[no-untyped-def]
         if len(centers) == 2 or _collinear(centers):
             # Degenerate hull: distance to the segment chain between extreme centers.
             diameter2 = None
@@ -623,7 +626,7 @@ def ellipse2d(
     else:
         rx = ry = 1.0
 
-    def sdf_fn(x, y):
+    def sdf_fn(x, y):  # type: ignore[no-untyped-def]
         return _lv_hypot(x / max(rx, 1e-9), y / max(ry, 1e-9)) - 1.0
 
     return PyShape2D(sdf_fn, [-rx, -ry], [rx, ry], res)

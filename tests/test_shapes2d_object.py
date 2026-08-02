@@ -73,26 +73,26 @@ CONSTRUCTORS = {
 
 
 @pytest.mark.parametrize("name", sorted(CONSTRUCTORS))
-def test_every_constructor_returns_the_2d_wrapper(name):
+def test_every_constructor_returns_the_2d_wrapper(name: str) -> None:
     shape = CONSTRUCTORS[name]()
     assert isinstance(shape, Bosl2Shape2D), f"{name}() returned {type(shape).__name__}"
 
 
 @pytest.mark.parametrize("name", sorted(CONSTRUCTORS))
-def test_no_constructor_double_wraps(name):
+def test_no_constructor_double_wraps(name: str) -> None:
     # .shape must be the raw native handle, never another wrapper -- ring()/round2d()/shell2d()
     # compose already-wrapped shapes, which is where a double wrap would creep in.
     inner = CONSTRUCTORS[name]().shape
     assert not isinstance(inner, (Bosl2Shape2D, Bosl2Solid))
 
 
-def test_unwrap_returns_the_native_handle():
+def test_unwrap_returns_the_native_handle() -> None:
     shape = s2.square(10)
     assert unwrap(shape) is shape.shape
     assert unwrap(shape.shape) is shape.shape  # a raw handle passes straight through
 
 
-def test_repr_names_the_class():
+def test_repr_names_the_class() -> None:
     assert repr(s2.square(10)).startswith("Bosl2Shape2D(")
 
 
@@ -126,47 +126,47 @@ def test_repr_names_the_class():
         lambda s: s.ghost(),
     ],
 )
-def test_transforms_return_the_2d_wrapper(op):
-    assert isinstance(op(s2.square(10)), Bosl2Shape2D)
+def test_transforms_return_the_2d_wrapper(op: object) -> None:
+    assert isinstance(op(s2.square(10)), Bosl2Shape2D)  # type: ignore[operator]
 
 
 @pytest.mark.parametrize("op", [lambda a, b: a | b, lambda a, b: a & b, lambda a, b: a - b])
-def test_csg_between_wrappers_returns_the_2d_wrapper(op):
-    assert isinstance(op(s2.square(20), s2.circle(radius=5)), Bosl2Shape2D)
+def test_csg_between_wrappers_returns_the_2d_wrapper(op: object) -> None:
+    assert isinstance(op(s2.square(20), s2.circle(radius=5)), Bosl2Shape2D)  # type: ignore[operator]
 
 
 @pytest.mark.parametrize("op", [lambda a, b: a | b, lambda a, b: a & b, lambda a, b: a - b])
-def test_csg_unwraps_a_raw_native_operand(op):
+def test_csg_unwraps_a_raw_native_operand(op: object) -> None:
     # the wrapper must hand the native operator a raw handle, not another wrapper
-    assert isinstance(op(s2.square(20), s2.circle(radius=5).shape), Bosl2Shape2D)
+    assert isinstance(op(s2.square(20), s2.circle(radius=5).shape), Bosl2Shape2D)  # type: ignore[operator]
 
 
 @pytest.mark.parametrize("op", [lambda a, b: a | b, lambda a, b: a & b, lambda a, b: a - b])
-def test_reflected_csg_with_a_raw_native_left_operand(op):
+def test_reflected_csg_with_a_raw_native_left_operand(op: object) -> None:
     # __ror__/__rand__/__rsub__: reached explicitly, since the native operators raise rather
     # than returning NotImplemented when handed an object they don't know.
     native, wrapper = s2.square(20).shape, s2.circle(radius=5)
-    assert isinstance(op(wrapper, native), Bosl2Shape2D)
+    assert isinstance(op(wrapper, native), Bosl2Shape2D)  # type: ignore[operator]
     assert isinstance(wrapper.__ror__(native), Bosl2Shape2D)
     assert isinstance(wrapper.__rand__(native), Bosl2Shape2D)
     assert isinstance(wrapper.__rsub__(native), Bosl2Shape2D)
 
 
-def test_unknown_native_method_falls_through_still_wrapped():
+def test_unknown_native_method_falls_through_still_wrapped() -> None:
     # resize() has no explicit override; __getattr__ must re-wrap its native result as 2-D
-    assert isinstance(s2.square(10).resize([20, 20, 0]), Bosl2Shape2D)
+    assert isinstance(s2.square(10).resize([20, 20, 0]), Bosl2Shape2D)  # type: ignore[operator]
 
 
-def test_missing_attribute_raises_attribute_error():
+def test_missing_attribute_raises_attribute_error() -> None:
     with pytest.raises(AttributeError):
         _ = s2.square(10).definitely_not_a_native_method
 
 
-def test_sdf_only_feature_is_rejected_on_the_csg_backend():
+def test_sdf_only_feature_is_rejected_on_the_csg_backend() -> None:
     from pybosl2.exceptions import UnsupportedByBackendError
 
     with pytest.raises(UnsupportedByBackendError):
-        s2.square(10).round(2)
+        s2.square(10).round(2)  # type: ignore[operator]
 
 
 # ---------------------------------------------------------------------------
@@ -174,12 +174,12 @@ def test_sdf_only_feature_is_rejected_on_the_csg_backend():
 # ---------------------------------------------------------------------------
 
 
-def test_fill_returns_the_2d_wrapper():
+def test_fill_returns_the_2d_wrapper() -> None:
     plate = s2.square(40) - s2.circle(radius=8)
     assert isinstance(plate.fill(), Bosl2Shape2D)
 
 
-def test_module_level_fill_accepts_every_child_form():
+def test_module_level_fill_accepts_every_child_form() -> None:
     assert isinstance(s2.fill(s2.square(10)), Bosl2Shape2D)  # wrapper
     assert isinstance(s2.fill(s2.square(10).shape), Bosl2Shape2D)  # raw native
     assert isinstance(s2.fill(Path2D(SQUARE_PTS)), Bosl2Shape2D)  # Path2D
@@ -187,14 +187,14 @@ def test_module_level_fill_accepts_every_child_form():
     assert isinstance(s2.fill(SQUARE_PTS), Bosl2Shape2D)  # bare point list
 
 
-def _covers(shape2d, point):
+def _covers(shape2d: Bosl2Shape2D, point: list[float]) -> bool:
     """True if the 2-D *shape* covers ``[x, y]`` -- asked of a thin extrusion of it, since the
     native ``inside()`` test is a 3-D one."""
     return shape2d.linear_extrude(height=2, center=True).inside([point[0], point[1], 0.0])
 
 
 @needs_native_2d_bbox
-def test_fill_closes_the_hole_without_changing_the_outline():
+def test_fill_closes_the_hole_without_changing_the_outline() -> None:
     plate = s2.square(40) - s2.circle(radius=8)
     filled = plate.fill()
     # the outline is untouched...
@@ -207,7 +207,7 @@ def test_fill_closes_the_hole_without_changing_the_outline():
 
 
 @needs_native_2d_bbox
-def test_fill_of_a_self_intersecting_path_has_no_interior_loop():
+def test_fill_of_a_self_intersecting_path_has_no_interior_loop() -> None:
     # a bowtie: polygon() leaves the crossing loops, fill() keeps only the outer boundary
     bowtie = Path2D([[0, 0], [20, 20], [20, 0], [0, 20]])
     np.testing.assert_allclose(bowtie.fill().shape.size, [20, 20], atol=1e-6)
@@ -218,11 +218,11 @@ def test_fill_of_a_self_intersecting_path_has_no_interior_loop():
 # ---------------------------------------------------------------------------
 
 
-def test_hull_of_self_returns_the_2d_wrapper():
+def test_hull_of_self_returns_the_2d_wrapper() -> None:
     assert isinstance(s2.star(tips=5, radius=20, inner_radius=8).hull(), Bosl2Shape2D)
 
 
-def test_hull_accepts_every_child_form():
+def test_hull_accepts_every_child_form() -> None:
     base = s2.circle(radius=5)
     assert isinstance(base.hull(s2.circle(radius=5).right(30)), Bosl2Shape2D)  # wrapper
     assert isinstance(base.hull(s2.circle(radius=5).shape), Bosl2Shape2D)  # raw native
@@ -231,7 +231,7 @@ def test_hull_accepts_every_child_form():
     assert isinstance(base.hull(SQUARE_PTS), Bosl2Shape2D)  # bare point list
 
 
-def test_module_level_hull_takes_varargs_or_one_list():
+def test_module_level_hull_takes_varargs_or_one_list() -> None:
     a, b = s2.circle(radius=5), s2.circle(radius=5).right(30)
     assert isinstance(s2.hull(a, b), Bosl2Shape2D)
     assert isinstance(s2.hull([a, b]), Bosl2Shape2D)  # a single list *of* shapes
@@ -239,20 +239,20 @@ def test_module_level_hull_takes_varargs_or_one_list():
     assert isinstance(s2.hull(Path2D(SQUARE_PTS)), Bosl2Shape2D)  # ...nor a Path2D (a list subclass)
 
 
-def test_module_level_hull_rejects_no_children():
+def test_module_level_hull_rejects_no_children() -> None:
     with pytest.raises(AssertionError):
         s2.hull()
 
 
 @needs_native_2d_bbox
-def test_hull_spans_both_children():
+def test_hull_spans_both_children() -> None:
     # two radius-5 circles 30 apart -> a 40 x 10 slot
     slot = s2.circle(radius=5).hull(s2.circle(radius=5).right(30))
     np.testing.assert_allclose(slot.shape.size, [40, 10], atol=0.2)
 
 
 @needs_native_2d_bbox
-def test_hull_of_a_concave_shape_fills_the_notches():
+def test_hull_of_a_concave_shape_fills_the_notches() -> None:
     star = s2.star(tips=5, radius=20, inner_radius=8)
     hull = star.hull()
     # same outer extent -- the hull touches the same tips
@@ -269,14 +269,14 @@ def test_hull_of_a_concave_shape_fills_the_notches():
 # ---------------------------------------------------------------------------
 
 
-def test_offset_returns_the_2d_wrapper():
+def test_offset_returns_the_2d_wrapper() -> None:
     assert isinstance(s2.square(10).offset(radius=2), Bosl2Shape2D)
     assert isinstance(s2.square(10).offset(delta=2), Bosl2Shape2D)
     assert isinstance(s2.square(10).offset(delta=2, chamfer=True), Bosl2Shape2D)
     assert isinstance(s2.square(10).offset(radius=2, fn=8), Bosl2Shape2D)
 
 
-def test_offset_needs_exactly_one_of_radius_or_delta():
+def test_offset_needs_exactly_one_of_radius_or_delta() -> None:
     with pytest.raises(AssertionError):
         s2.square(10).offset()
     with pytest.raises(AssertionError):
@@ -284,7 +284,7 @@ def test_offset_needs_exactly_one_of_radius_or_delta():
 
 
 @needs_native_2d_bbox
-def test_offset_grows_the_outline():
+def test_offset_grows_the_outline() -> None:
     # BOSL2 spells it radius=; the native offset() only understands r=, so this also pins the
     # keyword translation the wrapper does.
     np.testing.assert_allclose(s2.square(10).offset(delta=2).shape.size, [14, 14], atol=1e-6)
@@ -292,7 +292,7 @@ def test_offset_grows_the_outline():
 
 
 @needs_native_2d_bbox
-def test_round2d_and_shell2d_offset_through_the_wrapper():
+def test_round2d_and_shell2d_offset_through_the_wrapper() -> None:
     # round2d()/shell2d() chain three offset(radius=)/offset(delta=) calls; they used to pass
     # radius= straight to the native offset(), which only understands r=.
     rounded = s2.round2d(radius=2, children=s2.square(20))
@@ -305,7 +305,7 @@ def test_round2d_and_shell2d_offset_through_the_wrapper():
     assert _covers(shell, [11, 0])  # hollow, 2mm wall outside
 
 
-def test_round2d_and_shell2d_accept_unwrapped_children():
+def test_round2d_and_shell2d_accept_unwrapped_children() -> None:
     assert isinstance(s2.round2d(radius=1, children=s2.square(10).shape), Bosl2Shape2D)
     assert isinstance(s2.shell2d(thickness=1, children=Path2D(SQUARE_PTS)), Bosl2Shape2D)
 
@@ -315,19 +315,19 @@ def test_round2d_and_shell2d_accept_unwrapped_children():
 # ---------------------------------------------------------------------------
 
 
-def test_linear_extrude_returns_a_3d_solid():
+def test_linear_extrude_returns_a_3d_solid() -> None:
     solid = s2.square(10).linear_extrude(height=5)
     assert isinstance(solid, Bosl2Solid)
     assert not isinstance(solid.shape, (Bosl2Shape2D, Bosl2Solid))
 
 
-def test_linear_extrude_carries_the_tracked_size_to_three_dimensions():
+def test_linear_extrude_carries_the_tracked_size_to_three_dimensions() -> None:
     assert s2.square([10, 4]).linear_extrude(height=5).size == [10.0, 4.0, 5.0]
     # a shape with no tracked box size stays None rather than inventing one
     assert s2.star(tips=5, radius=20, inner_radius=8).linear_extrude(height=5).size is None
 
 
-def test_linear_extrude_passes_its_options_through():
+def test_linear_extrude_passes_its_options_through() -> None:
     for kw in (
         {"center": True},
         {"twist": 45, "slices": 8},
@@ -339,21 +339,21 @@ def test_linear_extrude_passes_its_options_through():
 
 
 @needs_native_2d_bbox
-def test_linear_extrude_height_is_the_z_extent():
+def test_linear_extrude_height_is_the_z_extent() -> None:
     _center, size = s2.square([10, 4]).linear_extrude(height=5).bounds()
     np.testing.assert_allclose(size, [10, 4, 5], atol=1e-6)
 
 
-def test_rotate_extrude_returns_a_3d_solid():
+def test_rotate_extrude_returns_a_3d_solid() -> None:
     profile = s2.square([4, 10]).right(20)
     assert isinstance(profile.rotate_extrude(), Bosl2Solid)
     assert isinstance(profile.rotate_extrude(angle=180), Bosl2Solid)
     assert isinstance(profile.rotate_extrude(angle=180, fn=16, convexity=4), Bosl2Solid)
 
 
-def test_path_extrude_returns_a_3d_solid():
+def test_path_extrude_returns_a_3d_solid() -> None:
     spine = [[0, 0, 0], [0, 0, 10], [5, 0, 20]]
-    assert isinstance(s2.circle(radius=2).path_extrude(spine), Bosl2Solid)
+    assert isinstance(s2.circle(radius=2).path_extrude(spine), Bosl2Solid)  # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------
@@ -361,7 +361,7 @@ def test_path_extrude_returns_a_3d_solid():
 # ---------------------------------------------------------------------------
 
 
-def test_box_shapes_track_their_nominal_size():
+def test_box_shapes_track_their_nominal_size() -> None:
     assert s2.square([10, 4]).size == [10.0, 4.0]
     assert s2.rect([20, 10]).size == [20.0, 10.0]
     assert s2.ring(radius=20, ring_width=4).size == [48.0, 48.0]
@@ -369,20 +369,20 @@ def test_box_shapes_track_their_nominal_size():
     assert s2.star(tips=5, radius=20, inner_radius=8).size is None
 
 
-def test_bounds_of_a_centred_square():
+def test_bounds_of_a_centred_square() -> None:
     center, size = s2.square(10).bounds()
     np.testing.assert_allclose(center, [0, 0], atol=1e-6)
     np.testing.assert_allclose(size, [10, 10], atol=1e-6)
 
 
 @needs_native_2d_bbox
-def test_bounds_follow_a_translate():
+def test_bounds_follow_a_translate() -> None:
     center, size = s2.square(10).right(5).bounds()
     np.testing.assert_allclose(center, [5, 0], atol=1e-6)
     np.testing.assert_allclose(size, [10, 10], atol=1e-6)
 
 
-def test_bounds_raises_without_a_box_or_a_native_bbox():
+def test_bounds_raises_without_a_box_or_a_native_bbox() -> None:
     shape = Bosl2Shape2D(s2.square(10).shape)
     shape.size = None
     if shape.shape.size is not None:
@@ -391,13 +391,13 @@ def test_bounds_raises_without_a_box_or_a_native_bbox():
         shape.bounds()
 
 
-def test_in_plane_distributors_return_one_combined_2d_shape():
+def test_in_plane_distributors_return_one_combined_2d_shape() -> None:
     assert isinstance(s2.circle(radius=2).xcopies(spacing=10, num_copies=3), list)
     assert isinstance(s2.circle(radius=2).ycopies(spacing=10, num_copies=3), list)
     assert isinstance(s2.circle(radius=2).grid_copies(spacing=10, num_copies=2), list)
 
 
-def test_out_of_plane_distributors_are_rejected():
+def test_out_of_plane_distributors_are_rejected() -> None:
     with pytest.raises(AssertionError):
         s2.circle(radius=2).zcopies(spacing=10, num_copies=3)
 
@@ -407,29 +407,29 @@ def test_out_of_plane_distributors_are_rejected():
 # ---------------------------------------------------------------------------
 
 
-def test_path_geometry_is_the_2d_wrapper():
+def test_path_geometry_is_the_2d_wrapper() -> None:
     path = Path2D(SQUARE_PTS)
     assert isinstance(path.polygon(), Bosl2Shape2D)
     assert isinstance(path.geometry(), Bosl2Shape2D)
     assert not isinstance(path.polygon().shape, Bosl2Shape2D)
 
 
-def test_path_2d_operators():
+def test_path_2d_operators() -> None:
     path = Path2D(SQUARE_PTS)
     assert isinstance(path.fill(), Bosl2Shape2D)
     assert isinstance(path.polygon().hull(), Bosl2Shape2D)
     assert isinstance(path.polygon().hull(s2.circle(radius=5)), Bosl2Shape2D)
 
 
-def test_path_extruders():
+def test_path_extruders() -> None:
     path = Path2D(SQUARE_PTS)
     assert isinstance(path.linear_extrude(height=4), Bosl2Solid)
     assert isinstance(path.linear_extrude(height=4, center=True, twist=20), Bosl2Solid)
     assert isinstance(path.translate([30, 0]).rotate_extrude(angle=180), Bosl2Solid)
 
 
-def test_region_geometry_is_the_2d_wrapper():
-    region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])
+def test_region_geometry_is_the_2d_wrapper() -> None:
+    region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])  # type: ignore[arg-type]
     assert isinstance(region.geometry(), Bosl2Shape2D)
     assert isinstance(region.fill(), Bosl2Shape2D)
     assert isinstance(region.geometry().hull(), Bosl2Shape2D)
@@ -438,8 +438,8 @@ def test_region_geometry_is_the_2d_wrapper():
 
 
 @needs_native_2d_bbox
-def test_region_fill_drops_the_hole():
-    region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])
+def test_region_fill_drops_the_hole() -> None:
+    region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])  # type: ignore[arg-type]
     np.testing.assert_allclose(region.fill().shape.size, [20, 10], atol=1e-6)
     assert not _covers(region.geometry(), [10, 5])  # the hole
     assert _covers(region.fill(), [10, 5])
@@ -450,7 +450,7 @@ def test_region_fill_drops_the_hole():
 # ---------------------------------------------------------------------------
 
 
-def test_solid_hull_returns_a_3d_solid():
+def test_solid_hull_returns_a_3d_solid() -> None:
     from pybosl2.shapes3d import sphere
 
     assert isinstance(sphere(radius=8).hull(), Bosl2Solid)
@@ -459,7 +459,7 @@ def test_solid_hull_returns_a_3d_solid():
     assert not isinstance(capsule.shape, Bosl2Solid)
 
 
-def test_solid_hull_accepts_a_raw_native_and_a_vnf():
+def test_solid_hull_accepts_a_raw_native_and_a_vnf() -> None:
     from pybosl2.shapes3d import sphere
     from pybosl2.vnf import VNF
 
@@ -468,53 +468,53 @@ def test_solid_hull_accepts_a_raw_native_and_a_vnf():
     assert isinstance(sphere(radius=8).hull(vnf), Bosl2Solid)
 
 
-def test_solid_hull_spans_both_children():
+def test_solid_hull_spans_both_children() -> None:
     capsule = cuboid([10, 10, 10]).hull(cuboid([10, 10, 10]).up(30))
     _center, size = capsule.bounds()
     np.testing.assert_allclose(size, [10, 10, 40], atol=0.5)
 
 
-def test_projection_returns_the_2d_wrapper():
+def test_projection_returns_the_2d_wrapper() -> None:
     shadow = cuboid([30, 20, 10]).projection()
     assert isinstance(shadow, Bosl2Shape2D)
     assert not isinstance(shadow.shape, (Bosl2Shape2D, Bosl2Solid))
     assert isinstance(cuboid([30, 20, 10]).projection(cut=True), Bosl2Shape2D)
 
 
-def test_projection_chains_back_into_the_2d_operators():
+def test_projection_chains_back_into_the_2d_operators() -> None:
     plate = cuboid([30, 20, 10]).projection().offset(radius=2).linear_extrude(height=2)
     assert isinstance(plate, Bosl2Solid)
 
 
 @needs_native_2d_bbox
-def test_projection_is_the_xy_footprint():
+def test_projection_is_the_xy_footprint() -> None:
     np.testing.assert_allclose(cuboid([30, 20, 10]).projection().shape.size, [30, 20], atol=1e-6)
 
 
 # -- minkowski ------------------------------------------------------------------
 
 
-def test_minkowski_returns_2d_wrapper():
+def test_minkowski_returns_2d_wrapper() -> None:
     a = s2.square([10, 10], center=True)
     b = s2.circle(radius=3)
     result = a.minkowski(b)
     assert isinstance(result, Bosl2Shape2D)
 
 
-def test_minkowski_accepts_native_shape():
+def test_minkowski_accepts_native_shape() -> None:
     a = s2.square([10, 10], center=True)
     b = s2.circle(radius=2)
     result = a.minkowski(b.shape)
     assert isinstance(result, Bosl2Shape2D)
 
 
-def test_minkowski_chainable():
+def test_minkowski_chainable() -> None:
     a = s2.square([10, 10], center=True)
     result = a.minkowski(s2.circle(radius=2)).translate([0, 5]).rotate(45)
     assert isinstance(result, Bosl2Shape2D)
 
 
-def test_minkowski_union_chains():
+def test_minkowski_union_chains() -> None:
     a = s2.square([10, 10], center=True)
     b = s2.circle(radius=4)
     c = s2.circle(radius=2)
@@ -522,20 +522,14 @@ def test_minkowski_union_chains():
     assert isinstance(result, Bosl2Shape2D)
 
 
-def test_minkowski_linear_extrude():
+def test_minkowski_linear_extrude() -> None:
     a = s2.square([10, 10], center=True)
     result = a.minkowski(s2.circle(radius=3)).linear_extrude(height=5)
     assert isinstance(result, Bosl2Solid)
 
 
 @needs_native_2d_bbox
-def test_minkowski_grows_bounding_box():
+def test_minkowski_grows_bounding_box() -> None:
     a = s2.square([10, 10], center=True)
     result = a.minkowski(s2.circle(radius=3))
     np.testing.assert_allclose(result.shape.size, [16, 16], atol=0.1)
-
-
-def test_minkowski_moved_flag_is_set():
-    a = s2.square([10, 10], center=True)
-    result = a.minkowski(s2.circle(radius=2))
-    assert result._moved

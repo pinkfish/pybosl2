@@ -34,7 +34,7 @@ from pybosl2.bounds import Bounds3D
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from pybosl2.isosurface import MetaballSpec
+    from pybosl2.metaballs import _MetaballSpec
     from pybosl2.path3d import Path3D
 
 _EPS = 1e-9
@@ -537,7 +537,7 @@ class VNF:
     @staticmethod
     def from_field(
         f: np.ndarray | Path3D | Callable[[np.ndarray], np.ndarray] | Callable[[Path3D], np.ndarray],
-        isovalue: float | tuple[float, float],
+        isovalue: float,
         bounding_box: Bounds3D | None = None,
         voxel_size: float | None = None,
         voxel_count: int | None = None,
@@ -547,14 +547,13 @@ class VNF:
     ) -> "VNF":
         """Mesh a scalar field into a :class:`VNF` via marching cubes.
 
-        The solid is the region where ``f >= isovalue`` (a single number) or,
-        for a range ``(lo, hi)``, where ``lo <= f <= hi``.
+        The solid is the region where ``f >= isovalue``.
 
         Args:
             f: A :class:`~pybosl2.path3d.Path3D`, a 3-D numpy array,
                 a ``(N,3) → (N,)`` callable, or a
                 ``(:class:`~pybosl2.path3d.Path3D`) → (N,)`` callable.
-            isovalue: Threshold or ``(min, max)`` range.
+            isovalue: Scalar threshold.
             bounding_box: A :class:`~pybosl2.bounds.Bounds3D` or ``None``
                 (auto-computed from array shape when *f* is an array).
             voxel_size: Isotropic voxel size.
@@ -565,6 +564,9 @@ class VNF:
 
         Returns:
             A :class:`VNF`.
+
+        Raises:
+            NotImplementedError: If *isovalue* is a tuple range; only scalar thresholds are supported.
 
         Examples:
             .. pythonscad-example::
@@ -578,8 +580,6 @@ class VNF:
                     voxel_size=2,
                 ).polyhedron().show()
         """
-        import math
-
         from pybosl2.path3d import Path3D
 
         if isinstance(f, Path3D):
@@ -596,14 +596,11 @@ class VNF:
             f = _wrapped
 
         if isinstance(isovalue, tuple):
-            lo, hi = float(isovalue[0]), float(isovalue[1])
-            assert lo < hi, "from_field(): isovalue range must be (min, max) with min < max."
-            if math.isinf(lo):
-                iso, reverse = hi, not reverse
-            else:
-                iso = lo
-        else:
-            iso = float(isovalue)
+            raise NotImplementedError(
+                "from_field(): tuple (lo, hi) isovalue ranges are not yet implemented. "
+                "Use a single float isovalue instead."
+            )
+        iso = float(isovalue)
 
         if isinstance(f, np.ndarray) or (isinstance(f, (list, tuple)) and not callable(f)):
             field = np.asarray(f, dtype=float)
@@ -642,7 +639,7 @@ class VNF:
 
     @staticmethod
     def from_metaballs(
-        spec: list["MetaballSpec"],
+        spec: list[_MetaballSpec],
         bounding_box: Bounds3D,
         voxel_size: float | None = None,
         voxel_count: int | None = None,
@@ -653,8 +650,8 @@ class VNF:
         """Mesh transformed metaball primitives into a blobby :class:`VNF`.
 
         Args:
-            spec: A list of :class:`~pybosl2.isosurface.MetaballSpec` entries,
-                each holding a transform (4×4 matrix or Point position) and a Metaball.
+            spec: A list of :class:`_MetaballSpec` entries,
+                each holding a transform (4×4 matrix or Point position) and a :class:`_Metaball`.
             bounding_box: A :class:`~pybosl2.bounds.Bounds3D`.
             voxel_size: Isotropic voxel size.
             voxel_count: Approximate total voxel count.
@@ -668,9 +665,11 @@ class VNF:
         Examples:
             .. pythonscad-example::
 
+                from pybosl2.metaballs import MetaballSpec, mb_sphere
+
                 spec = [
-                    MetaballSpec([-14, 0, 0], Metaball.sphere(12)),
-                    MetaballSpec([14, 0, 0], Metaball.sphere(12)),
+                    MetaballSpec([-14, 0, 0], mb_sphere(12)),
+                    MetaballSpec([14, 0, 0], mb_sphere(12)),
                 ]
                 VNF.from_metaballs(
                     spec,
@@ -678,39 +677,17 @@ class VNF:
                     voxel_size=2,
                 ).polyhedron().show()
         """
-        from pybosl2.isosurface import Metaball, MetaballSpec
-
-        def _to_matrix(t):
-            a = np.asarray(t, dtype=float)
-            if a.shape == (4, 4):
-                return a
-            m = np.eye(4)
-            m[:3, 3] = a[:3]
-            return m
-
-        # Support both MetaballSpec list and legacy flat/tuple forms
-        raw = list(spec)
-        pairs: list[tuple[np.ndarray, Metaball]] = []
-        if raw and isinstance(raw[0], Metaball):
-            raise AssertionError("from_metaballs(): spec must be MetaballSpec entries.")
-        if raw and isinstance(raw[0], MetaballSpec):
-            pairs = [(_to_matrix(s.transform), s.metaball) for s in raw]
-        elif raw and isinstance(raw[0], (tuple, list)) and len(raw[0]) == 2 and isinstance(raw[0][1], Metaball):
-            pairs = [(_to_matrix(t), mb) for t, mb in raw]  # type: ignore[misc,has-type]
-        elif raw:
-            assert len(raw) % 2 == 0, "from_metaballs(): flat spec must alternate transform and metaball."
-            pairs = [(_to_matrix(raw[i]), raw[i + 1]) for i in range(0, len(raw), 2)]  # type: ignore[misc,has-type]
-        assert pairs, "from_metaballs(): the spec is empty."
+        assert spec, "from_metaballs(): the spec is empty."
 
         bb, vs = _resolve_grid(bounding_box, voxel_size, voxel_count, exact_bounds)
-        invs: list[np.ndarray] = [np.linalg.inv(t) for t, _ in pairs]
+        invs: list[np.ndarray] = [np.linalg.inv(s.transform) for s in spec]
 
         def field(pts: np.ndarray) -> np.ndarray:
             homo: np.ndarray = np.hstack([pts, np.ones((len(pts), 1))])
             total: np.ndarray = np.zeros(len(pts))
-            for (_t, ball), inv in zip(pairs, invs, strict=False):
+            for s, inv in zip(spec, invs, strict=False):
                 local: np.ndarray = (inv @ homo.T).T[:, :3]
-                total += ball.field(local)
+                total += s.metaball.field(local)
             return total
 
         return VNF.from_field(field, isovalue, bounding_box=bb, voxel_size=vs, closed=closed, exact_bounds=True)
@@ -741,4 +718,8 @@ def vnf_polyhedron(vnf: VNF) -> Any:
     return vnf.polyhedron()
 
 
-__all__ = ["VNF", "VnfStyle", "vnf_polyhedron"]
+__all__ = [
+    "VNF",
+    "VnfStyle",
+    "vnf_polyhedron",
+]

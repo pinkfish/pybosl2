@@ -21,29 +21,29 @@ UNIT = [[0, 0], [10, 0], [10, 10], [0, 10]]
 # -- construction / drop-in list behaviour ------------------------------------------------
 
 
-def test_is_a_list_of_plain_floats():
+def test_is_a_list_of_plain_floats() -> None:
     p = Path2D(np.asarray(SQUARE, dtype=float))
     assert isinstance(p, Path2D)
     assert p.to_list == [[float(x), float(y)] for x, y in SQUARE]
 
 
-def test_rejects_non_xy_points():
+def test_rejects_non_xy_points() -> None:
     with pytest.raises(AssertionError):
         Path2D([[0, 0, 0], [1, 1, 1]])
 
 
-def test_empty_path():
+def test_empty_path() -> None:
     assert len(Path2D()) == 0
 
 
-def test_array_property():
+def test_array_property() -> None:
     assert Path2D(SQUARE).array.shape == (4, 2)
 
 
 # -- measurement --------------------------------------------------------------------------
 
 
-def test_bounds_width_length():
+def test_bounds_width_length() -> None:
     p = Path2D(SQUARE)
     bounds = p.bounds()
     assert bounds.min_x == 0
@@ -54,23 +54,23 @@ def test_bounds_width_length():
     assert bounds.length == 60
 
 
-def test_area():
+def test_area() -> None:
     assert Path2D(SQUARE).area() == 4800
     assert Path2D(SQUARE).area(signed=True) == 4800  # CCW is positive
     assert Path2D(list(reversed(SQUARE))).area(signed=True) == -4800
 
 
-def test_is_clockwise():
+def test_is_clockwise() -> None:
     assert not Path2D(SQUARE).is_clockwise()
     assert Path2D(list(reversed(SQUARE))).is_clockwise()
 
 
-def test_perimeter_closed_vs_open():
+def test_perimeter_closed_vs_open() -> None:
     assert Path2D(SQUARE).perimeter() == 220  # open path length from _shapely
     assert Path2D(SQUARE, closed=False).perimeter() == 220  # three segments, no closing edge
 
 
-def test_segment_lengths_and_fractions():
+def test_segment_lengths_and_fractions() -> None:
     p = Path2D(SQUARE)
     np.testing.assert_allclose(p.segment_lengths(), [80, 60, 80, 60])
     fr = p.length_fractions()
@@ -78,25 +78,25 @@ def test_segment_lengths_and_fractions():
     assert math.isclose(fr[-1], 1.0)
 
 
-def test_is_closed_property():
+def test_is_closed_property() -> None:
     assert Path2D([[0, 0], [10, 0], [10, 10], [0, 0]]).is_closed is True
     assert Path2D(SQUARE).is_closed is False  # endpoints differ
 
 
-def test_contains_only_when_closed():
+def test_contains_only_when_closed() -> None:
     p = Path2D(SQUARE)
     assert p.contains([40, 30]) is True
     assert p.contains([100, 100]) is False
     assert Path2D(SQUARE, closed=False).contains([40, 30]) is False
 
 
-def test_is_simple():
+def test_is_simple() -> None:
     assert Path2D(SQUARE).is_simple()
     figure8 = [[0, 0], [2, 2], [0, 2], [2, 0]]
     assert not Path2D(figure8).is_simple()
 
 
-def test_closest_point():
+def test_closest_point() -> None:
     from pybosl2.points import Point
 
     pt = Path2D(SQUARE).closest_point([40, -5])
@@ -109,20 +109,20 @@ def test_closest_point():
 # -- tangents / normals / curvature -------------------------------------------------------
 
 
-def test_tangents_are_unit():
+def test_tangents_are_unit() -> None:
     t = Path2D(SQUARE).tangents()
     norms = np.linalg.norm(t, axis=1)
     assert np.all((norms > 0.999) | (norms < 0.001))  # zero for degenerate segments
 
 
-def test_normals_perpendicular_to_tangents():
+def test_normals_perpendicular_to_tangents() -> None:
     p = Path2D(SQUARE)
     t, sides = p.tangents(), p.normals()
     for i in range(len(p)):
         assert abs(float(np.dot(t[i], sides[i]))) < 1e-9
 
 
-def test_curvature_of_straightish_polygon():
+def test_curvature_of_straightish_polygon() -> None:
     c = Path2D(SQUARE).curvature()
     assert c.shape == (len(c),)
     assert not np.any(np.isnan(c))
@@ -131,44 +131,44 @@ def test_curvature_of_straightish_polygon():
 # -- derived paths ------------------------------------------------------------------------
 
 
-def test_offset_shrinks_area():
+def test_offset_shrinks_area() -> None:
     assert math.isclose(Path2D(UNIT).offset(radius=-1).area(), 64.0, abs_tol=1e-6)
     assert math.isclose(Path2D(UNIT).offset(delta=-1).area(), 64.0, abs_tol=1e-6)
 
 
-def test_offset_returns_path():
+def test_offset_returns_path() -> None:
     assert isinstance(Path2D(UNIT).offset(radius=-1), Path2D)
 
 
-def test_offset_needs_exactly_one_of_r_delta():
+def test_offset_needs_exactly_one_of_r_delta() -> None:
     with pytest.raises(AssertionError):
         Path2D(UNIT).offset()
     with pytest.raises(AssertionError):
         Path2D(UNIT).offset(radius=1, delta=1)
 
 
-def test_round_corners_inserts_points():
+def test_round_corners_inserts_points() -> None:
     out = Path2D(UNIT).round_corners(radius=2)
     assert isinstance(out, Path2D)
     assert len(out) > len(UNIT)
 
 
-def test_merge_collinear_drops_midpoints():
+def test_merge_collinear_drops_midpoints() -> None:
     p = Path2D([[0, 0], [5, 0], [10, 0], [10, 10], [0, 10]])
     assert len(p.merge_collinear()) == 4
 
 
-def test_deduplicated():
+def test_deduplicated() -> None:
     p = Path2D([[0, 0], [0, 0], [1, 0], [1, 1]])
     assert len(p.deduplicated()) == 3
 
 
-def test_reverse():
+def test_reverse() -> None:
     p = Path2D(SQUARE).reverse()
     np.testing.assert_allclose(p[0], SQUARE[-1])
 
 
-def test_close_and_cleanup():
+def test_close_and_cleanup() -> None:
     open_sq = Path2D(SQUARE)
     closed = open_sq.close()
     np.testing.assert_allclose(closed[-1], closed[0])
@@ -176,23 +176,23 @@ def test_close_and_cleanup():
     np.testing.assert_allclose(closed.cleanup(), open_sq)
 
 
-def test_subdivide_adds_points():
+def test_subdivide_adds_points() -> None:
     out = Path2D(SQUARE).subdivide(sides=8)
     assert len(out) == 8
 
 
-def test_resample_to_n_points():
+def test_resample_to_n_points() -> None:
     out = Path2D(SQUARE).resample(sides=12)
     assert len(out) == 12
 
 
-def test_cut_splits_into_subpaths():
+def test_cut_splits_into_subpaths() -> None:
     parts = Path2D(SQUARE).cut([100, 200])
     assert len(parts) == 3
     assert all(isinstance(p, Path2D) for p in parts)
 
 
-def test_cut_points_along_open_path():
+def test_cut_points_along_open_path() -> None:
     pts = Path2D([[0, 0], [10, 0]], closed=False).cut_points([5])
     np.testing.assert_allclose(pts[0].point, [5, 0], atol=1e-9)
 
@@ -200,12 +200,12 @@ def test_cut_points_along_open_path():
 # -- transforms ---------------------------------------------------------------------------
 
 
-def test_translate_and_move_alias():
+def test_translate_and_move_alias() -> None:
     np.testing.assert_allclose(Path2D(UNIT).translate([1, 2])[0], [1, 2])
     np.testing.assert_allclose(Path2D(UNIT).move([1, 2])[0], [1, 2])
 
 
-def test_directional_moves():
+def test_directional_moves() -> None:
     p = Path2D([[1, 1], [2, 1]], closed=False)
     np.testing.assert_allclose(p.right(5)[0], [6, 1])
     np.testing.assert_allclose(p.left(5)[0], [-4, 1])
@@ -214,23 +214,23 @@ def test_directional_moves():
     np.testing.assert_allclose(p.fwd(5)[0], [1, -4])
 
 
-def test_rot_and_rotate_alias():
+def test_rot_and_rotate_alias() -> None:
     np.testing.assert_allclose(Path2D([[1, 0], [2, 0]], closed=False).rot(90)[0], [0, 1], atol=1e-9)
     np.testing.assert_allclose(Path2D([[1, 0], [2, 0]], closed=False).rotate(90)[0], [0, 1], atol=1e-9)
 
 
-def test_mirror_across_y_axis():
+def test_mirror_across_y_axis() -> None:
     np.testing.assert_allclose(Path2D([[3, 2], [4, 2]], closed=False).mirror([1, 0])[0], [-3, 2], atol=1e-9)
 
 
-def test_yflip():
+def test_yflip() -> None:
     np.testing.assert_allclose(Path2D([[3, 2], [4, 2]], closed=False).yflip()[0], [3, -2], atol=1e-9)
 
 
 # -- conversion ---------------------------------------------------------------------------
 
 
-def test_to_region():
+def test_to_region() -> None:
     from pybosl2.regions import Region
 
     radius = Path2D(SQUARE).to_region()
@@ -238,7 +238,7 @@ def test_to_region():
     assert len(radius) == 1
 
 
-def test_polygon_and_geometry_use_mock():
+def test_polygon_and_geometry_use_mock() -> None:
     assert Path2D(SQUARE).polygon() is not None
     assert Path2D(SQUARE).geometry() is not None
 
@@ -246,13 +246,13 @@ def test_polygon_and_geometry_use_mock():
 # -- splitting ----------------------------------------------------------------------------
 
 
-def test_polygon_parts_of_simple_square():
+def test_polygon_parts_of_simple_square() -> None:
     parts = Path2D(SQUARE).polygon_parts()
     assert len(parts) == 1
     assert all(isinstance(p, Path2D) for p in parts)
 
 
-def test_split_at_self_crossings():
+def test_split_at_self_crossings() -> None:
     figure8 = [[0, 0], [2, 2], [0, 2], [2, 0]]
     subs = Path2D(figure8).split_at_self_crossings()
     assert len(subs) >= 2
@@ -261,59 +261,59 @@ def test_split_at_self_crossings():
 # -- private static kernels ---------------------------------------------------------------
 
 
-def test_select_circular_index():
-    assert Path2D._select([10, 20, 30], 4) == 20  # 4 % 3
-    assert Path2D._select([10, 20, 30], -1) == 30
-    assert Path2D._select([10, 20, 30], [0, 3, -1]) == [10, 10, 30]
+def test_select_circular_index() -> None:
+    assert Path2D._select([10, 20, 30], 4) == 20  # type: ignore  # 4 % 3
+    assert Path2D._select([10, 20, 30], -1) == 30  # type: ignore[comparison-overlap]
+    assert Path2D._select([10, 20, 30], [0, 3, -1]) == [10, 10, 30]  # type: ignore[arg-type]
 
 
-def test_select_circular_slice_wraps():
+def test_select_circular_slice_wraps() -> None:
     assert Path2D._select([0, 1, 2, 3], 2, 0) == [2, 3, 0]
     assert Path2D._select([0, 1, 2, 3], 1, 2) == [1, 2]
 
 
-def test_slice_inclusive_clamped():
+def test_slice_inclusive_clamped() -> None:
     assert Path2D._slice([0, 1, 2, 3, 4], 1, 3) == [1, 2, 3]
     assert Path2D._slice([0, 1, 2, 3, 4], 0, -1) == [0, 1, 2, 3, 4]
     assert Path2D._slice([0, 1, 2], 2, 0) == []
 
 
-def test_pair():
+def test_pair() -> None:
     assert list(zip([1, 2, 3], [2, 3], strict=False)) == [(1, 2), (2, 3)]
     assert list(zip([1, 2, 3], [2, 3, 1], strict=False)) == [(1, 2), (2, 3), (3, 1)]
 
 
-def test_list_head_and_tail():
+def test_list_head_and_tail() -> None:
     assert Path2D._list_head([0, 1, 2, 3], 1) == [0, 1]
     assert Path2D._list_tail([0, 1, 2, 3], 2) == [2, 3]
 
 
-def test_repeat():
+def test_repeat() -> None:
     assert Path2D._repeat(5, 3) == [5, 5, 5]
 
 
-def test_deduplicate_static():
+def test_deduplicate_static() -> None:
     assert Path2D._deduplicate([[0, 0], [0, 0], [1, 1]]) == [[0, 0], [1, 1]]
 
 
-def test_polygon_area_static():
+def test_polygon_area_static() -> None:
     assert Path2D._polygon_area(SQUARE) == 4800
     assert Path2D._polygon_area([[0, 0], [1, 0]]) == 0  # too few points
 
 
-def test_point_in_polygon_static():
+def test_point_in_polygon_static() -> None:
     assert Path2D._point_in_polygon(Point(40, 30), Path2D(SQUARE, closed=True)) == 1
     assert Path2D._point_in_polygon(Point(100, 100), Path2D(SQUARE, closed=True)) == -1
     assert Path2D._point_in_polygon(Point(0, 30), Path2D(SQUARE, closed=True)) == 0  # on the boundary
 
 
-def test_path_length_accepts_3d():
+def test_path_length_accepts_3d() -> None:
     from pybosl2.path3d import Path3D
 
     assert math.isclose(Path3D([[0, 0, 0], [0, 0, 3], [0, 4, 3]], closed=False).perimeter(), 7.0)
 
 
-def test_shapely_backed_path_methods():
+def test_shapely_backed_path_methods() -> None:
     # contains
     p = Path2D(SQUARE)
     assert p.contains([40, 30]) is True
@@ -337,7 +337,7 @@ def test_shapely_backed_path_methods():
 # -- Minkowski sum -----------------------------------------------------------------------------
 
 
-def test_minkowski_square_and_square():
+def test_minkowski_square_and_square() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     b = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
     result = a.minkowski_sum(b)
@@ -345,7 +345,7 @@ def test_minkowski_square_and_square():
     assert len(result) >= 3
 
 
-def test_minkowski_square_and_circle():
+def test_minkowski_square_and_circle() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]])
     b = Path2D.circle2d(radius=5, fn=32)
     result = a.minkowski_sum(b)
@@ -353,13 +353,13 @@ def test_minkowski_square_and_circle():
     assert len(result) >= 3
 
 
-def test_circle2d_default():
+def test_circle2d_default() -> None:
     c = Path2D.circle2d()
     assert c.closed
     assert len(c) == 64
 
 
-def test_circle2d_radius_and_fn():
+def test_circle2d_radius_and_fn() -> None:
     c = Path2D.circle2d(radius=20, fn=8)
     assert c.closed
     assert len(c) == 8
@@ -367,34 +367,34 @@ def test_circle2d_radius_and_fn():
     np.testing.assert_allclose(areas, [20.0] * 8, atol=1e-9)
 
 
-def test_ellipse2d():
+def test_ellipse2d() -> None:
     e = Path2D.ellipse2d(rx=20, ry=10, fn=32)
     assert e.closed
     assert len(e) == 32
 
 
-def test_ellipse2d_aspect():
+def test_ellipse2d_aspect() -> None:
     e = Path2D.ellipse2d(rx=30, ry=10, fn=4)
     pts = np.asarray(e._points)
     assert abs(pts[0, 0]) == pytest.approx(30.0)  # first point at (30, 0)
     assert abs(pts[1, 1]) == pytest.approx(10.0)  # second point at (0, 10)
 
 
-def test_minkowski_requires_closed():
+def test_minkowski_requires_closed() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 10]], closed=False)
     b = Path2D([[0, 0], [5, 0], [5, 5], [0, 5]])
     with pytest.raises(ValueError, match="closed"):
         a.minkowski_sum(b)
 
 
-def test_minkowski_requires_closed_other():
+def test_minkowski_requires_closed_other() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]])
     b = Path2D([[0, 0], [5, 0], [5, 5]], closed=False)
     with pytest.raises(ValueError, match="closed"):
         a.minkowski_sum(b)
 
 
-def test_minkowski_sum_circle_dilates():
+def test_minkowski_sum_circle_dilates() -> None:
     square = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]])
     result = square.minkowski_sum_circle(radius=5)
     assert result.closed
@@ -402,14 +402,14 @@ def test_minkowski_sum_circle_dilates():
     assert result.area() > square.area()
 
 
-def test_minkowski_sum_circle_erodes():
+def test_minkowski_sum_circle_erodes() -> None:
     square = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]])
     result = square.minkowski_sum_circle(radius=-2)
     assert result.closed
     assert result.area() < square.area()
 
 
-def test_minkowski_sum_circle_requires_closed():
+def test_minkowski_sum_circle_requires_closed() -> None:
     open_path = Path2D([[0, 0], [20, 0], [20, 10]], closed=False)
     with pytest.raises(ValueError, match="closed"):
         open_path.minkowski_sum_circle(radius=5)
@@ -418,7 +418,7 @@ def test_minkowski_sum_circle_requires_closed():
 # -- Boolean operations on Path2D ----------------------------------------------------------------
 
 
-def test_union_two_squares():
+def test_union_two_squares() -> None:
     a = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path2D([[20, 0], [50, 0], [50, 30], [20, 30]])
     result = a.union(b)
@@ -427,7 +427,7 @@ def test_union_two_squares():
     assert result.area() > 900  # larger than either square alone
 
 
-def test_intersection_two_squares():
+def test_intersection_two_squares() -> None:
     a = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path2D([[20, 0], [50, 0], [50, 30], [20, 30]])
     result = a.intersection(b)
@@ -436,7 +436,7 @@ def test_intersection_two_squares():
     assert result.area() == pytest.approx(300.0)  # 10×30 strip
 
 
-def test_difference_square_minus_square():
+def test_difference_square_minus_square() -> None:
     a = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]])
     b = Path2D([[10, 10], [30, 10], [30, 20], [10, 20]])
     result = a.difference(b)
@@ -445,14 +445,14 @@ def test_difference_square_minus_square():
     assert result.area() == pytest.approx(1200.0)
 
 
-def test_symmetric_difference_two_squares():
+def test_symmetric_difference_two_squares() -> None:
     a = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path2D([[20, 0], [50, 0], [50, 30], [20, 30]])
     result = a.symmetric_difference(b)
     assert result.closed
 
 
-def test_union_operator():
+def test_union_operator() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     b = Path2D([[10, 0], [30, 0], [30, 20], [10, 20]])
     result = a | b
@@ -460,42 +460,42 @@ def test_union_operator():
     assert len(result) >= 4
 
 
-def test_intersection_operator():
+def test_intersection_operator() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     b = Path2D([[10, 0], [30, 0], [30, 20], [10, 20]])
     result = a & b
     assert result.closed
 
 
-def test_difference_operator():
+def test_difference_operator() -> None:
     a = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path2D([[10, 10], [20, 10], [20, 20], [10, 20]])
     result = a - b
     assert result.closed
 
 
-def test_xor_operator():
+def test_xor_operator() -> None:
     a = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path2D([[20, 0], [50, 0], [50, 30], [20, 30]])
     result = a ^ b
     assert result.closed
 
 
-def test_union_requires_closed():
+def test_union_requires_closed() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]])
     b = Path2D([[10, 0], [30, 0], [30, 10]], closed=False)
     with pytest.raises(ValueError, match="closed"):
         a.union(b)
 
 
-def test_difference_requires_closed():
+def test_difference_requires_closed() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 10]], closed=False)
     b = Path2D([[5, 0], [15, 0], [15, 10], [5, 10]])
     with pytest.raises(ValueError, match="closed"):
         a.difference(b)
 
 
-def test_intersection_empty_returns_empty():
+def test_intersection_empty_returns_empty() -> None:
     a = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
     b = Path2D([[50, 0], [60, 0], [60, 10], [50, 10]])
     result = a.intersection(b)

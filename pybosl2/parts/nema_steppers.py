@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from pybosl2._helpers import union
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl
@@ -25,7 +26,7 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl
 __all__ = ["NemaSteppers", "NemaSpec"]
 
 
-def _union(shapes):
+def _union(shapes: list[Any]) -> Any:
     return union(shapes)
 
 
@@ -152,7 +153,7 @@ class NemaSteppers:
         sz = s.screw_size + slop
         ss = s.screw_spacing
 
-        def slotted(d: float, cx: float = 0.0, cy: float = 0.0):
+        def slotted(d: float, cx: float = 0.0, cy: float = 0.0) -> list[Bosl2Solid]:
             if length > 0:
                 return [
                     cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).back(length / 2).right(cx).back(cy),

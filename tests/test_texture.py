@@ -25,7 +25,7 @@ _VNF = [n for n, (_b, k) in TEXTURES.items() if k == "vnf"]
 
 
 @pytest.mark.parametrize("name", _HF)
-def test_heightfield_textures_are_2d_arrays_in_range(name):
+def test_heightfield_textures_are_2d_arrays_in_range(name: str) -> None:
     a = np.array(texture(name))
     assert a.ndim == 2
     assert a.size > 0
@@ -35,55 +35,55 @@ def test_heightfield_textures_are_2d_arrays_in_range(name):
 
 
 @pytest.mark.parametrize("name", _VNF)
-def test_vnf_textures_are_valid_meshes(name):
+def test_vnf_textures_are_valid_meshes(name: str) -> None:
     verts, faces = texture(name)
-    assert all(len(v) == 3 for v in verts)
-    assert max(i for f in faces for i in f) < len(verts)  # face indices in range
+    assert all(len(v) == 3 for v in verts)  # type: ignore[arg-type]
+    assert max(i for f in faces for i in f) < len(verts)  # type: ignore[union-attr]  # face indices in range
     assert is_vnf_texture(texture(name))
     assert not is_heightfield_texture(texture(name))
 
 
-def test_unknown_texture_raises():
+def test_unknown_texture_raises() -> None:
     with pytest.raises(ValueError, match="Unrecognized"):
         texture("not_a_texture")
 
 
-def test_resolution_parameter():
+def test_resolution_parameter() -> None:
     assert len(texture("ribs", sides=8)[0]) == 8
     assert np.array(texture("pyramids", sides=6)).shape == (6, 6)
 
 
 @pytest.mark.parametrize("name", _VNF)
-def test_vnf_texture_tiles_watertight_or_rasterizes(name):
+def test_vnf_texture_tiles_watertight_or_rasterizes(name: str) -> None:
     # every VNF texture must either tile to a closed manifold via the sharp path, or have a valid
     # height-field rasterization that textured_tile falls back to.
     verts, faces = texture(name)
-    v, f = vnf_tile_to_solid(verts, faces, size=[30, 30], reps=[4, 4], tex_depth=3)
+    v, f = vnf_tile_to_solid(verts, faces, size=[30, 30], reps=[4, 4], tex_depth=3)  # type: ignore[arg-type]
     if is_watertight_topology(v, f):
         return
-    a = np.array(rasterize_vnf_texture(verts, faces))
+    a: np.ndarray = np.array(rasterize_vnf_texture(verts, faces))  # type: ignore[arg-type]
     assert a.ndim == 2
     assert a.min() >= -1e-6
     assert a.max() <= 1.6 + 1e-6
 
 
 @pytest.mark.parametrize("name", _HF + _VNF)
-def test_textured_tile_by_name_builds(name):
+def test_textured_tile_by_name_builds(name: str) -> None:
     # tex_reps=[2, 2] keeps a tile-to-tile seam while building a far smaller mesh than [4, 4]:
     # this test only checks that each named texture builds a valid solid of the right outer size
     # (the dense [4, 4] render path is exercised by tests/test_stl_render.py::test_textured_tile_heightfield).
-    s = textured_tile(name, size=[40, 40], tex_reps=[2, 2], tex_depth=3)
+    s = textured_tile(name, size=[40, 40], tex_reps=[2, 2], tex_depth=3)  # type: ignore[operator]
     assert isinstance(s, Bosl2Solid)
     _, sz = s.bounds()
     assert round(sz[0]) == 40
     assert round(sz[1]) == 40
 
 
-def test_textured_tile_raw_array_still_works():
-    s = textured_tile([[0, 0, 0], [0, 1, 0], [0, 0, 0]], size=[40, 40], tex_reps=[4, 4], tex_depth=3)
+def test_textured_tile_raw_array_still_works() -> None:
+    s = textured_tile([[0, 0, 0], [0, 1, 0], [0, 0, 0]], size=[40, 40], tex_reps=[4, 4], tex_depth=3)  # type: ignore[operator]
     assert isinstance(s, Bosl2Solid)
 
 
-def test_textured_tile_tex_size_picks_reps():
-    s = textured_tile("pyramids", size=[40, 40], tex_size=10, tex_depth=2)
+def test_textured_tile_tex_size_picks_reps() -> None:
+    s = textured_tile("pyramids", size=[40, 40], tex_size=10, tex_depth=2)  # type: ignore[operator]
     assert isinstance(s, Bosl2Solid)

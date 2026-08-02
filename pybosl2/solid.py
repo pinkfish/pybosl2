@@ -72,7 +72,7 @@ __all__ = [
 ]
 
 
-def _make(shape: str):
+def _make(shape: str) -> Any:
     def _ctor(*args: Any, **kwargs: Any) -> Solid:
         return get_backend().construct(shape, *args, **kwargs)
 
