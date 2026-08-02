@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING
 # no numpy/native) keeps the SDF backend from depending on the large pybosl2.shapes3d CSG module.
 # ---------------------------------------------------------------------------
 from pybosl2._edges_lang import (  # noqa: F401
-    _MAJOR_AXIS_VALID,
     EDGE_OFFSETS,
     EDGES_ALL,
     EDGES_NONE,

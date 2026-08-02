@@ -1065,7 +1065,6 @@ def _anchor_offset_sphere(radius: float, anchor: Sequence[float]) -> list[float]
 # pybosl2._sdf) share one implementation without depending on each other's shape module. Re-exported
 # here for the many internal users below and for backward-compatible imports.
 from pybosl2._edges_lang import (  # noqa: E402, F401
-    _MAJOR_AXIS_VALID,
     EDGE_OFFSETS,
     EDGES_ALL,
     EDGES_NONE,
