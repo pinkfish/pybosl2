@@ -1363,7 +1363,7 @@ class BezierPatch:
         offset0 = pts - diameter[0] * normals
         offset1 = pts - diameter[1] * normals
         allpoints = [np.concatenate([offset0[i], offset1[i][::-1]]) for i in range(len(offset0))]
-        vnf = VNF.vertex_array(allpoints, col_wrap=True, caps=True, style=style)
+        vnf = VNF.vertex_array(allpoints, col_wrap=True, cap1=CapType.BUTT, cap2=CapType.BUTT, style=style)
         return vnf.reverse() if diameter[0] < diameter[1] else vnf
 
     def vnf_degenerate(
@@ -1539,7 +1539,7 @@ def _debug_tube(points: np.ndarray, radius: float, sides: int = 8) -> Any:
     dedup = [pts[0]] + [
         p for i, p in enumerate(pts[1:], 1) if np.linalg.norm(np.asarray(p) - np.asarray(pts[i - 1])) > 1e-9
     ]
-    return Path3D(dedup).path_sweep(circ).polyhedron()  # type: ignore[union-attr, arg-type]
+    return Path3D(dedup).path_sweep(circ).polyhedron()  # type: ignore[union-attr, arg-type, operator]
 
 
 def _sphere_at(p: np.ndarray, diameter: float) -> Any:

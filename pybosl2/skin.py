@@ -44,11 +44,12 @@ from typing import TYPE_CHECKING, Any, Sequence, cast
 if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
+    from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
-from pybosl2.caps import CapsSpec, CapType, _caps_as_bools, _norm_caps
+from pybosl2.caps import CapsSpec, CapType, _has_decorative_caps, _norm_caps, _vnf_with_decorative_caps
 from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -79,7 +80,7 @@ class Sweepable:
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
-    ) -> VNF | list[list[list[float]]]:
+    ) -> VNF | Bosl2Solid | list[list[list[float]]]:
         """Sweep *shape* along this path (BOSL2 path_sweep())."""
         return _path_sweep(
             shape,
@@ -107,7 +108,7 @@ class Sweepable:
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
-    ) -> VNF:
+    ) -> VNF | Bosl2Solid:
         """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d())."""
         return _path_sweep2d(shape, self, closed=closed, caps=caps, style=style)
 
@@ -121,7 +122,7 @@ class Sweepable:
         center: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
-    ) -> VNF:
+    ) -> VNF | Bosl2Solid:
         """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep())."""
         return _linear_sweep(
             self,
@@ -142,7 +143,7 @@ class Sweepable:
         _closed: bool | None = None,
         style: str = "min_edge",
         start: float = 0.0,
-    ) -> VNF:
+    ) -> VNF | Bosl2Solid:
         """Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep())."""
         return _rotate_sweep(
             self,
@@ -164,7 +165,7 @@ class Sweepable:
         diameter2: float | None = None,
         center: bool = True,
         style: str = "min_edge",
-    ) -> VNF:
+    ) -> VNF | Bosl2Solid:
         """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep())."""
         return _spiral_sweep(
             self,
@@ -269,24 +270,45 @@ def sweep(
     closed: bool = False,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
-) -> VNF:
-    """Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF.
+) -> VNF | Bosl2Solid:
+    """Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF or Bosl2Solid.
+
+    Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a :class:`~pybosl2.shapes3d.Bosl2Solid`
+    with the endcap geometry unioned to the swept body. Basic caps (NONE, BUTT, ROUND, SPHERE)
+    are handled inline by :class:`VNF.vertex_array`.
 
     Args:
         shape:      a 2-D polygon (list of [x, y] points)
         transforms: list of 4x4 matrices, one per cross section along the path
         closed:     the sweep loops back on itself (no caps)
-        caps:       cap the open ends (default: True/True open, none closed); bool or [bool, bool]
+        caps:       cap the open ends (default: BUTT); supports decorative cap types
         style:      vnf_vertex_array quad-subdivision style
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     assert len(shape3) >= 3, "shape must be a path of at least 3 points."
-    flatcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
+    cap_specs = _norm_caps(caps, closed=closed)
     ntrans = len(transforms)
     assert ntrans >= 2, "transforms must be length 2 or more."
     hi = ntrans - (0 if closed else 1)
     points = [np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float) for i in range(hi + 1)]
-    return VNF.vertex_array(points, cap1=flatcaps[0], cap2=flatcaps[1], col_wrap=True, style=style)
+
+    if _has_decorative_caps(cap_specs):
+        vnf = VNF.vertex_array(points, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
+        center1 = list(np.mean(points[0], axis=0))
+        center2 = list(np.mean(points[-1], axis=0))
+        radius = float(max(np.linalg.norm(np.asarray(p[:2]) - np.asarray(center1[:2])) for p in points[0]))
+        outdir1 = [center1[i] - center2[i] for i in range(3)]
+        outdir2 = [center2[i] - center1[i] for i in range(3)]
+        return _vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
+
+    return VNF.vertex_array(
+        points,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
+    )
 
 
 def _path_sweep(
@@ -307,8 +329,8 @@ def _path_sweep(
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
     transforms: bool = False,
-) -> VNF | list[list[list[float]]]:
-    """Sweep the 2-D *shape* along the 2-D/3-D *path*, returning a VNF (or the transform list).
+) -> VNF | Bosl2Solid | list[list[list[float]]]:
+    """Sweep the 2-D *shape* along the 2-D/3-D *path*, returning a VNF, Bosl2Solid, or transform list.
 
     *method* orients the cross section: "incremental" (rotation-minimizing frame), "manual"
     (using *normal* as a per-point normal list), or "natural" (the path's own normal). *twist*
@@ -326,7 +348,6 @@ def _path_sweep(
     """
     from pybosl2.path3d import Path3D
 
-    _flatcaps = _caps_as_bools(_norm_caps(caps, closed=closed))  # a closed loop has no ends to cap
     patharr = np.asarray(path3d(path), dtype=float)
     npts = len(patharr)
     assert npts >= 2, "path must have at least 2 points."
@@ -501,12 +522,15 @@ def skin(
     closed: bool = False,
     style: str = "min_edge",
     z: Sequence[float] | None = None,
-) -> VNF:
-    """Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF (BOSL2 skin()).
+) -> VNF | Bosl2Solid:
+    """Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.
 
     Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are
     inserted between each pair to smooth the transition. Profiles of differing point counts are
     resampled up to the largest (via :meth:`Path2D.subdivide_path`).
+
+    Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a :class:`~pybosl2.shapes3d.Bosl2Solid`
+    with the endcap geometry unioned to the body.
 
     Args:
         profiles: list of >= 2 closed profiles (each a list of points). If 2-D, give matching *z*.
@@ -516,7 +540,7 @@ def skin(
                   best-align with the previous). The "distance"/"tangent" vertex-matching methods
                   are not ported.
         sampling: "length" or "segment" resampling (default "length")
-        caps:     cap the ends (default: True for open, False for closed); bool or [bool, bool]
+        caps:     cap the ends; supports decorative cap types
         closed:   the stack loops back to the first profile (default False)
         style:    vnf_vertex_array quad-subdivision style
         z:        per-profile Z heights, required when the profiles are 2-D
@@ -534,7 +558,7 @@ def skin(
     sides = len(profiles)
     assert sides > 1, "skin() needs at least two profiles."
     profcount = sides - (0 if closed else 1)
-    fullcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
+    cap_specs = _norm_caps(caps, closed=closed)
     refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
@@ -561,7 +585,25 @@ def skin(
             fixedprof.append(_reindex_polygon(fixedprof[i - 1], resampled[i]))  # type: ignore[arg-type]
     sliced = slice_profiles(fixedprof, slices, closed)  # type: ignore[arg-type]
     grid = sliced if not closed else sliced + [sliced[0]]
-    vnf = VNF.vertex_array(grid, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+
+    if _has_decorative_caps(cap_specs):
+        vnf = VNF.vertex_array(grid, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
+        grid_arr = np.asarray(grid, dtype=float)
+        center1 = list(grid_arr[0].mean(axis=0))
+        center2 = list(grid_arr[-1].mean(axis=0))
+        radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in grid_arr[0]))
+        outdir1 = [center1[i] - center2[i] for i in range(3)]
+        outdir2 = [center2[i] - center1[i] for i in range(3)]
+        return _vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
+
+    vnf = VNF.vertex_array(
+        grid,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
+    )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -580,7 +622,7 @@ def _linear_sweep(
     caps: CapsSpec = CapType.BUTT,
     style: str = "default",
     center: bool | None = None,
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Extrude a 2-D outline to *height* with optional twist / scale / shift (BOSL2 linear_sweep()).
 
     A single closed outline (a Path2D or point list) is supported -- for a region with holes use a
@@ -611,7 +653,7 @@ def _linear_sweep(
         slices = max(1, math.ceil(abs(twist) / 5))
     sc = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]
     sh = [float(shift[0]), float(shift[1])]
-    fullcaps = _caps_as_bools(_norm_caps(caps))
+    cap_specs = _norm_caps(caps)
     z0 = -hh / 2 if center else 0.0
     base = np.asarray(path3d(path), dtype=float)
     verts = []
@@ -623,7 +665,24 @@ def _linear_sweep(
             @ zrot4(-twist * u)
         )
         verts.append(np.asarray(_apply(m, base), dtype=float))
-    vnf = VNF.vertex_array(verts, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+
+    if _has_decorative_caps(cap_specs):
+        vnf = VNF.vertex_array(verts, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
+        center1 = list(verts[0].mean(axis=0).tolist())
+        center2 = list(verts[-1].mean(axis=0).tolist())
+        radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in verts[0]))
+        outdir1 = [0.0, 0.0, -1.0]
+        outdir2 = [0.0, 0.0, 1.0]
+        return _vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
+
+    vnf = VNF.vertex_array(
+        verts,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
+    )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -634,7 +693,7 @@ def _rotate_sweep(
     _closed: bool | None = None,
     style: str = "min_edge",
     start: float = 0.0,
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Revolve a 2-D *shape* (in the X+ half-plane, x=radius, y=height) around the Z axis (BOSL2 rotate_sweep()).
 
     A closed *shape* profile makes a solid of revolution; an open path with *caps* is first closed
@@ -657,11 +716,10 @@ def _rotate_sweep(
             Path2D(profile).rotate_sweep(angle=360).polyhedron().show()
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
-    # Default: cap a partial revolution / an explicitly-open profile, but never a full one.
-    capv = _caps_as_bools(_norm_caps(caps))
+    cap_specs = _norm_caps(caps)
     prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
-    if any(capv) and not full:
+    if any(s.cap_type != CapType.NONE for s in cap_specs) and not full:
         prof = [[0.0, prof[0][1]]] + prof + [[0.0, prof[-1][1]]]
     xmax = max(p[0] for p in prof)
     steps = math.ceil(_segs(xmax) * angle / 360) + (0 if full else 1)
@@ -671,17 +729,17 @@ def _rotate_sweep(
     else:
         angs = [start + angle * i / (steps - 1) for i in range(steps)]
     transforms = [zrot4(a) @ _xrot4(90) for a in angs]
-    vnf = sweep(
+    cap_list: CapsSpec = [CapType.NONE, CapType.NONE] if full else cap_specs
+    result = sweep(
         prof,
         transforms,
         closed=full,
-        caps=[
-            CapType.BUTT if (not full) and capv[0] else CapType.NONE,
-            CapType.BUTT if (not full) and capv[1] else CapType.NONE,
-        ],
+        caps=cap_list,
         style=style,
     )
-    return vnf if vnf.volume() >= 0 else vnf.reverse()
+    if isinstance(result, VNF):
+        return result if result.volume() >= 0 else result.reverse()
+    return result
 
 
 def _spiral_sweep(
@@ -696,7 +754,7 @@ def _spiral_sweep(
     diameter2: float | None = None,
     center: bool = True,
     style: str = "min_edge",
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Sweep a 2-D cross-section *poly* along a helix (BOSL2 spiral_sweep(), without lead-in tapers).
 
     *poly*'s X is the radial offset from the helix radius and its Y is the vertical offset, so a
@@ -753,8 +811,10 @@ def _spiral_sweep(
         transforms.append(
             translate4([0, 0, z]) @ zrot4(a * math.copysign(1, turns)) @ translate4([rad, 0, 0]) @ _xrot4(90)
         )
-    vnf = sweep(poly, transforms, closed=False, caps=[CapType.BUTT, CapType.BUTT], style=style)
-    return vnf if vnf.volume() >= 0 else vnf.reverse()
+    result = sweep(poly, transforms, closed=False, caps=[CapType.BUTT, CapType.BUTT], style=style)
+    if isinstance(result, VNF):
+        return result if result.volume() >= 0 else result.reverse()
+    return result
 
 
 def subdivide_and_slice(
@@ -1008,7 +1068,7 @@ def _offset_sweep(
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
 
     Stacks a sequence of radially-offset outlines along the Z axis. The transition
@@ -1038,7 +1098,7 @@ def _offset_sweep(
     from pybosl2.path2d import Path2D as _Path
 
     assert height > 0, "offset_sweep(): height must be positive."
-    fullcaps = _caps_as_bools(_norm_caps(caps))
+    cap_specs = _norm_caps(caps)
 
     base = [[float(p[0]), float(p[1])] for p in path]
 
@@ -1193,7 +1253,24 @@ def _offset_sweep(
 
     norm = [_Path3D(row).subdivide_path(points=maxn, closed=True) for row in profiles_3d]
 
-    vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+    if _has_decorative_caps(cap_specs):
+        vnf = VNF.vertex_array(norm, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
+        norm_arr = np.asarray(norm, dtype=float)
+        center1 = list(norm_arr[0].mean(axis=0))
+        center2 = list(norm_arr[-1].mean(axis=0))
+        radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in norm_arr[0]))
+        outdir1 = [center1[i] - center2[i] for i in range(3)]
+        outdir2 = [center2[i] - center1[i] for i in range(3)]
+        return _vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
+
+    vnf = VNF.vertex_array(
+        norm,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
+    )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -1205,7 +1282,7 @@ def _convex_offset_extrude(
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).
 
     An alias for :func:`_offset_sweep` to match BOSL2's geometry-oriented name.
@@ -1225,7 +1302,7 @@ def _rounded_prism(
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
     **kwargs: object,
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).
 
     Args:
@@ -1430,9 +1507,26 @@ def _rounded_prism(
     from pybosl2.path3d import Path3D as _Path3D
 
     norm = [_Path3D(row).subdivide_path(points=maxn, closed=True) for row in profiles_3d]
-    fullcaps = _caps_as_bools(_norm_caps(caps))
+    cap_specs = _norm_caps(caps)
 
-    vnf = VNF.vertex_array(norm, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+    if _has_decorative_caps(cap_specs):
+        vnf = VNF.vertex_array(norm, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
+        norm_arr = np.asarray(norm, dtype=float)
+        center1 = list(norm_arr[0].mean(axis=0))
+        center2 = list(norm_arr[-1].mean(axis=0))
+        radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in norm_arr[0]))
+        outdir1 = [center1[i] - center2[i] for i in range(3)]
+        outdir2 = [center2[i] - center1[i] for i in range(3)]
+        return _vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
+
+    vnf = VNF.vertex_array(
+        norm,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
+    )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -1443,7 +1537,7 @@ def _join_prism(
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).
 
     Uses :func:`_offset_sweep` with an outward bottom flare (os_circle(radius=-fillet))
@@ -1462,7 +1556,7 @@ def _prism_connector(
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
 
     Uses :func:`_offset_sweep` with outward flares at both ends (os_circle(radius=-fillet))
@@ -1483,7 +1577,7 @@ def _attach_prism(
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
 
     Uses :func:`_offset_sweep` with a bottom flare (os_circle(radius=-fillet)) and top
@@ -1531,7 +1625,7 @@ def _bent_cutout_mask(
         inner_ring.append([r_in * c, r_in * s, y])
         outer_ring.append([r_out * c, r_out * s, y])
 
-    vnf = VNF.vertex_array([inner_ring, outer_ring], cap1=True, cap2=True, col_wrap=True, style=style)
+    vnf = VNF.vertex_array([inner_ring, outer_ring], cap1=CapType.BUTT, cap2=CapType.BUTT, col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -1547,7 +1641,7 @@ def _path_sweep2d(
     caps: CapsSpec = CapType.BUTT,
     quality: int = 1,
     style: str = "min_edge",
-) -> VNF:
+) -> VNF | Bosl2Solid:
     """Sweep a 2-D *shape* along a 2-D *path*, mapping the shape's Y to Z (BOSL2 path_sweep2d()).
 
     Both *shape* and *path* are 2-D :class:`~pybosl2.paths.Path2D` objects (coerced from point lists).
@@ -1578,7 +1672,7 @@ def _path_sweep2d(
     _ = quality
     shp: Path2D = shape if isinstance(shape, Path2D) else Path2D(shape)
     p: Path2D = path if isinstance(path, Path2D) else Path2D(path)
-    fullcaps = _caps_as_bools(_norm_caps(caps, closed=closed))
+    cap_specs = _norm_caps(caps, closed=closed)
     profile = shp if not shp.is_clockwise() else shp.reverse()  # ccw_polygon
     flip = -1.0 if (closed and p.is_clockwise()) else 1.0
     pth = p if flip > 0 else p.reverse()
@@ -1596,7 +1690,25 @@ def _path_sweep2d(
     grid = [[per_point[j][i] for j in range(len(profile))] for i in range(len(pth))]
     if closed:
         grid = grid + [grid[0]]
-    vnf = VNF.vertex_array(grid, cap1=fullcaps[0], cap2=fullcaps[1], col_wrap=True, style=style)
+
+    if _has_decorative_caps(cap_specs):
+        vnf = VNF.vertex_array(grid, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
+        grid_arr = np.asarray(grid, dtype=float)
+        center1 = list(grid_arr[0].mean(axis=0))
+        center2 = list(grid_arr[-1].mean(axis=0))
+        radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in grid_arr[0]))
+        outdir1 = [center1[i] - center2[i] for i in range(3)]
+        outdir2 = [center2[i] - center1[i] for i in range(3)]
+        return _vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
+
+    vnf = VNF.vertex_array(
+        grid,
+        cap1=cap_specs[0] if cap_specs else None,
+        cap2=cap_specs[1] if cap_specs else None,
+        col_wrap=True,
+        style=style,
+    )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 

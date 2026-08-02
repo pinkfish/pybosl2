@@ -30,6 +30,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
+    from pybosl2.caps import CapSpec, CapType
     from pybosl2.paths import Path
 
 import math
@@ -437,9 +438,9 @@ def nurbs_vnf(
     knots: Any = None,
     style: str = "default",
     reverse: bool = False,
-    caps: Any = None,
-    cap1: Any = None,
-    cap2: Any = None,
+    caps: CapType | CapSpec | None = None,
+    cap1: CapType | CapSpec | None = None,
+    cap2: CapType | CapSpec | None = None,
 ) -> Any:
     """Mesh a NURBS surface *patch* into a :class:`~pybosl2.vnf.VNF` (BOSL2 nurbs_vnf()).
 
@@ -505,15 +506,16 @@ def nurbs_vnf(
     )
     if flip:
         pts = [list(row) for row in zip(*pts, strict=False)]
+    c1 = cap1 if cap1 is not None else caps
+    c2 = cap2 if cap2 is not None else caps
     return VNF.vertex_array(
         pts,
         style=style,
         row_wrap=type[1 if flip else 0] == "closed",
         col_wrap=type[0 if flip else 1] == "closed",
         reverse=reverse,
-        caps=caps,
-        cap1=cap1,
-        cap2=cap2,
+        cap1=c1,
+        cap2=c2,
     )
 
 

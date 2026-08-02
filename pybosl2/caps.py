@@ -13,7 +13,7 @@ controlling cap appearance, and the normaliser shared by :mod:`pybosl2.skin`,
 
 Cap types
     ``NONE`` -- no cap (open end)
-    ``BUTT`` / ``FLAT`` -- default flat end cap
+    ``BUTT`` -- default flat end cap (``FLAT`` is a module-level backward-compatible alias)
     ``ROUND`` / ``SPHERE`` -- spherical end cap (planned)
     ``CIRCLE`` -- round-over end cap (planned)
     ``ARROW`` / ``DIAMOND`` / ``DOT`` ... -- stroke endcap styles
@@ -31,9 +31,22 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Sequence, Union
+from typing import TYPE_CHECKING, Any, Sequence, Union
 
-__all__ = ["CapType", "CapSpec", "CapsSpec", "_caps_as_bools", "_endcap_polys", "_endcap_trim", "_norm_caps"]
+if TYPE_CHECKING:
+    from pybosl2.shapes3d import Bosl2Solid
+    from pybosl2.vnf import VNF
+
+__all__ = [
+    "CapType",
+    "CapSpec",
+    "CapsSpec",
+    "_endcap_polys",
+    "_endcap_trim",
+    "_has_decorative_caps",
+    "_norm_caps",
+    "_vnf_with_decorative_caps",
+]
 
 
 class CapType(Enum):
@@ -41,7 +54,7 @@ class CapType(Enum):
 
     Sweep/skin cap types:
         ``NONE`` -- no cap (open end)
-        ``BUTT`` / ``FLAT`` -- flat end cap
+        ``BUTT`` -- flat end cap
         ``ROUND`` / ``SPHERE`` -- spherical (planned)
         ``CIRCLE`` -- round-over (planned)
         ``CUSTOM`` -- user-supplied :attr:`CapSpec.path` shape
@@ -59,7 +72,6 @@ class CapType(Enum):
     NONE = "none"
     # Sweep cap types
     BUTT = "butt"
-    FLAT = "flat"
     ROUND = "round"
     SPHERE = "sphere"
     CIRCLE = "circle"
@@ -98,7 +110,7 @@ class CapSpec:
     """Customisable end-cap specification.
 
     Used wherever a cap type is accepted. The *cap_type* field selects the
-    shape; *length*, *width*, and *extent* control the dimensions; *angle*
+    shape; *length*, *width*, and *height* control the dimensions; *angle*
     rotates the cap; *color* overrides the path colour when set.
 
     When *cap_type* is :attr:`CapType.CUSTOM`, the *path* field must hold
@@ -108,6 +120,7 @@ class CapSpec:
         cap_type: The :class:`CapType` style.
         length: Cap length multiplier (along the path direction).
         width: Cap width multiplier (perpendicular scale).
+        height: Cap height multiplier (0 means use the computed default from width/length).
         extent: Extent multiplier for the cap shape.
         angle: Rotation angle of the cap in degrees.
         color: Override colour for the cap, or ``None`` for the path colour.
@@ -117,6 +130,7 @@ class CapSpec:
     cap_type: CapType = DEFAULT_CAP
     length: float = 0.0
     width: float = 0.0
+    height: float = 0.0
     extent: float = 0.0
     angle: float = 0.0
     color: str | None = None
@@ -149,7 +163,6 @@ _DEFAULTS: dict[CapType, CapSpec] = {
     CapType.TAIL: CapSpec(cap_type=CapType.TAIL, length=3.5, width=0.47, extent=0.5),
     CapType.TAIL2: CapSpec(cap_type=CapType.TAIL2, length=3.5, width=0.28, extent=0.5),
     CapType.CUSTOM: CapSpec(cap_type=CapType.CUSTOM, length=1.0, width=0.0, extent=0.0),
-    CapType.FLAT: CapSpec(cap_type=CapType.FLAT, length=1.0, width=0.0, extent=0.0),
     CapType.SPHERE: CapSpec(cap_type=CapType.SPHERE, length=1.0, width=1.0, extent=0.0),
     CapType.CIRCLE: CapSpec(cap_type=CapType.CIRCLE, length=1.0, width=1.0, extent=0.0),
 }
@@ -196,18 +209,51 @@ def _normalize_one(cap: CapType | CapSpec) -> CapSpec:
     return _DEFAULTS[CapType.BUTT]
 
 
-def _caps_as_bools(cap_specs: list[CapSpec]) -> list[bool]:
-    """Convert a :class:`CapSpec` pair to the bool pair for :func:`VNF.vertex_array`.
+def _has_decorative_caps(cap_specs: list[CapSpec]) -> bool:
+    """True if any endcap is a decorative (non-flat/non-dome/non-none) type."""
+    _basic = frozenset({CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SPHERE})
+    return any(cs.cap_type not in _basic for cs in cap_specs)
 
-    ``CapType.NONE`` entries mean no cap; any other :class:`CapType` resolves
-    to ``True`` (flat end cap). Always returns exactly two elements.
+
+def _vnf_with_decorative_caps(
+    vnf: VNF,
+    cap_specs: list[CapSpec],
+    closed: bool,
+    profile_centers: list[Sequence[float]],
+    profile_outdirs: list[Sequence[float]],
+    profile_radius: float,
+) -> Bosl2Solid:
+    """Convert VNF to CSG polyhedron, add decorative endcaps, return Bosl2Solid.
+
+    Args:
+        vnf: The body VNF (already volume-checked and corrected).
+        cap_specs: Normalised cap pair.
+        closed: Whether the sweep is closed (no caps expected).
+        profile_centers: Centroids of the first and last profiles.
+        profile_outdirs: Outward directions for the first and last caps.
+        profile_radius: Bounding radius of the profile (half the *width* passed to endcap geometry).
+
+    Returns:
+        A Bosl2Solid with the body polyhedron and any decorative endcaps unioned.
     """
-    if not cap_specs:
-        return [False, False]
-    if len(cap_specs) == 1:
-        ct = cap_specs[0].cap_type
-        return [ct != CapType.NONE, ct != CapType.NONE]
-    return [s.cap_type != CapType.NONE for s in cap_specs[:2]]
+    from pybosl2._stroke3d import _endcap_geometry_3d
+    from pybosl2.shapes3d import Bosl2Solid
+
+    if closed or not cap_specs:
+        return Bosl2Solid(vnf.polyhedron())
+
+    body = Bosl2Solid(vnf.polyhedron())
+    width = profile_radius * 2
+
+    for spec, center, outdir in [
+        (cap_specs[0], profile_centers[0], profile_outdirs[0]),
+        (cap_specs[1], profile_centers[1], profile_outdirs[1]),
+    ]:
+        if spec.cap_type not in (CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SPHERE):
+            ec = _endcap_geometry_3d(spec, list(center), list(outdir), width)
+            if ec is not None:
+                body = body | ec
+    return body
 
 
 # ---------------------------------------------------------------------------
@@ -236,6 +282,9 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
     if spec.cap_type == CapType.CUSTOM:
         assert spec.path is not None, "CapType.CUSTOM requires path= on the CapSpec"
         return [[[float(c) for c in pt] for pt in spec.path]]
+
+    if spec.cap_type == CapType.CIRCLE:
+        raise NotImplementedError("CapType.CIRCLE is not yet implemented")
 
     w = spec.width
     length = spec.length * spec.width

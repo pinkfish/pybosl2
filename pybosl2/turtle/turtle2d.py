@@ -38,6 +38,8 @@ from .turtle3d import TurtleCommand, TurtleCommandType
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pybosl2.caps import CapSpec, CapType
+
 __all__ = ["turtle2d", "Turtle2D", "Turtle2DState", "TurtleCommand", "TurtleCommandType"]
 
 # -- commands that involve the z-axis and are therefore illegal in 2-D -------
@@ -163,6 +165,27 @@ class Turtle2D:
     def points(self) -> Path2D:
         """Return the path the turtle has traversed as a :class:`Path2D`."""
         return Path2D(self._state.path, closed=False)
+
+    def stroke(
+        self,
+        width: float = 1,
+        cap: CapType | CapSpec | None = None,
+        closed: bool | None = None,
+    ) -> Path2D:
+        """Render the turtle's current path as a 2-D stroked outline.
+
+        Args:
+            width: Stroke line width.
+            cap: Optional endcap style applied to both ends.
+            closed: Override whether the path is treated as closed.
+
+        Returns:
+            A :class:`Path2D` of the stroked polygon outline.
+        """
+        path = self.points()
+        if cap is not None:
+            return path.stroke(width=width, closed=closed, endcap1=cap, endcap2=cap)
+        return path.stroke(width=width, closed=closed)
 
     def full_state(self) -> Turtle2DState:
         """Return the turtle's internal :class:`Turtle2DState`."""

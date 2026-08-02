@@ -2244,7 +2244,6 @@ def stroke_3d(
 
     from pybosl2._helpers import rot_from_to4
     from pybosl2.caps import CapSpec, CapType
-    from pybosl2.exceptions import UnsupportedByBackendError
 
     pts = [list(map(float, p)) for p in path]
     assert len(pts) >= 2, "stroke_3d: need at least 2 points."
@@ -2283,11 +2282,13 @@ def stroke_3d(
             if cap.cap_type == CapType.DOT:
                 shapes.append(sphere(radius=width).translate(end))
                 continue
-            raise UnsupportedByBackendError(
-                f"stroke(endcap={cap.cap_type!r})",
-                "sdf",
-                hint="fancy endcaps need rotate_extrude; use the csg backend for those.",
+            import warnings
+
+            warnings.warn(
+                f"Decorative endcap {cap.cap_type!r} not supported on SDF backend; falling back to ROUND sphere",
+                stacklevel=2,
             )
+            shapes.append(sphere(radius=radius).translate(end))
 
     assert shapes, "stroke_3d: path has no drawable segments."
     return PyShape.union(*shapes)

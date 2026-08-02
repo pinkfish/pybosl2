@@ -245,14 +245,14 @@ def test_stroke_of_a_2d_path_is_csg_only() -> None:
 
 def test_sdf_stroke_rejects_a_revolved_endcap() -> None:
     from pybosl2.caps import CapType
-    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.path3d import Path3D
 
     spine = Path3D([[0, 0, 0], [0, 0, 20]], closed=False)
     with use_backend("sdf"):
-        assert spine.stroke(width=3, endcaps=CapType.ROUND).backend == "sdf"  # sphere caps are shared
-        with pytest.raises(UnsupportedByBackendError):
-            spine.stroke(width=3, endcaps=CapType.ARROW)
+        assert spine.stroke(width=3, endcaps=CapType.ROUND).backend == "sdf"
+        with pytest.warns(UserWarning, match="Decorative endcap"):
+            result = spine.stroke(width=3, endcaps=CapType.ARROW)
+        assert result.backend == "sdf"
 
 
 # -- SDF stroke native tests --------------------------------------------------
@@ -316,22 +316,22 @@ def test_sdf_stroke_dot_endcaps() -> None:
 
 def test_sdf_stroke_diamond_cap_raises() -> None:
     from pybosl2.caps import CapType
-    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.path3d import Path3D
 
     spine = Path3D([[0, 0, 0], [20, 0, 0]], closed=False)
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-        spine.stroke(width=2, endcaps=CapType.DIAMOND)
+    with use_backend("sdf"), pytest.warns(UserWarning, match="Decorative endcap"):
+        result = spine.stroke(width=2, endcaps=CapType.DIAMOND)
+    assert result.backend == "sdf"
 
 
 def test_sdf_stroke_chisel_cap_raises() -> None:
     from pybosl2.caps import CapType
-    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.path3d import Path3D
 
     spine = Path3D([[0, 0, 0], [20, 0, 0]], closed=False)
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-        spine.stroke(width=2, endcaps=CapType.CHISEL)
+    with use_backend("sdf"), pytest.warns(UserWarning, match="Decorative endcap"):
+        result = spine.stroke(width=2, endcaps=CapType.CHISEL)
+    assert result.backend == "sdf"
 
 
 def test_sdf_stroke_none_cap_skipped() -> None:

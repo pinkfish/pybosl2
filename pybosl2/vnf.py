@@ -34,6 +34,7 @@ from pybosl2.bounds import Bounds3D
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from pybosl2.caps import CapSpec, CapType
     from pybosl2.metaballs import _MetaballSpec
     from pybosl2.path3d import Path3D
 
@@ -354,9 +355,8 @@ class VNF:
     def vertex_array(
         cls,
         points: Path3D | list[Path3D] | list[list[list[float]]] | list[np.ndarray] | np.ndarray,
-        caps: bool = False,
-        cap1: bool | None = None,
-        cap2: bool | None = None,
+        cap1: "CapType | CapSpec | None" = None,
+        cap2: "CapType | CapSpec | None" = None,
         col_wrap: bool = False,
         row_wrap: bool = False,
         reverse: bool = False,
@@ -366,8 +366,9 @@ class VNF:
 
         Each grid cell becomes triangles (or a quad) chosen by *style*: "default", "alt",
         "min_edge", "min_area", "convex", "concave", "quincunx", "quad", "flip1", "flip2".
-        *col_wrap*/*row_wrap* close the grid into a tube/torus; *caps*/*cap1*/*cap2* close the
-        column-wrapped ends; *reverse* flips face winding. Degenerate (zero-area) faces are dropped.
+        *col_wrap*/*row_wrap* close the grid into a tube/torus; *cap1*/*cap2* close the
+        column-wrapped ends with :class:`~pybosl2.caps.CapType` styles;
+        *reverse* flips face winding. Degenerate (zero-area) faces are dropped.
         """
         assert style in (
             "default",
@@ -381,6 +382,18 @@ class VNF:
             "flip1",
             "flip2",
         ), f"unknown vertex_array style: {style!r}"
+        from pybosl2.caps import CapType
+
+        def _resolve_cap(cap: CapType | CapSpec | None) -> tuple[bool, bool]:
+            if cap is None:
+                return False, False
+            cap_type = cap if isinstance(cap, CapType) else cap.cap_type
+            if cap_type == CapType.NONE:
+                return False, False
+            if cap_type in (CapType.ROUND, CapType.SPHERE):
+                return True, True
+            return True, False
+
         grid = _to_grid(points)
         rows = len(grid)
         if rows == 0:
@@ -389,11 +402,11 @@ class VNF:
         if rows <= 1 or cols <= 1:
             return cls([], [])
 
-        cap1 = cap1 if cap1 is not None else (caps if caps is not None else False)
-        cap2 = cap2 if cap2 is not None else (caps if caps is not None else False)
-        if (cap1 or cap2) and not col_wrap:
+        make_cap1, cap1_round = _resolve_cap(cap1)
+        make_cap2, cap2_round = _resolve_cap(cap2)
+        if (make_cap1 or make_cap2) and not col_wrap:
             raise AssertionError("col_wrap must be true if caps are requested")
-        if (cap1 or cap2) and row_wrap:
+        if (make_cap1 or make_cap2) and row_wrap:
             raise AssertionError("cannot combine caps with row_wrap")
 
         pts = [p for row in grid for p in row]  # flattened, row-major
@@ -414,10 +427,38 @@ class VNF:
 
         vertsarr = np.asarray(verts, dtype=float)
         faces: list[Any] = []
-        if cap1:
-            faces.append(_count(cols, 0, reverse=not reverse))
-        if cap2:
-            faces.append(_count(cols, (rows - 1) * cols, reverse=reverse))
+        if make_cap1:
+            if cap1_round:
+                row0 = parr[:cols]
+                center: list[float] = list(row0.mean(axis=0))
+                dome_radius: float = float(max(np.linalg.norm(p[:-1] - center[:-1]) for p in row0))
+                apex: list[float] = center.copy()
+                apex[2] -= dome_radius
+                apex_idx = len(verts)
+                verts.append(apex)
+                for i in range(cols):
+                    j = (i + 1) % cols
+                    faces.append([apex_idx, idx(0, i), idx(0, j)] if reverse else [idx(0, i), apex_idx, idx(0, j)])
+            else:
+                faces.append(_count(cols, 0, reverse=not reverse))
+        if make_cap2:
+            if cap2_round:
+                row_last = parr[(rows - 1) * cols : rows * cols]
+                center = list(row_last.mean(axis=0))
+                dome_radius = float(max(np.linalg.norm(p[:-1] - center[:-1]) for p in row_last))
+                apex = center.copy()
+                apex[2] += dome_radius
+                apex_idx = len(verts)
+                verts.append(apex)
+                for i in range(cols):
+                    j = (i + 1) % cols
+                    faces.append(
+                        [apex_idx, idx(rows - 1, i), idx(rows - 1, j)]
+                        if not reverse
+                        else [idx(rows - 1, i), apex_idx, idx(rows - 1, j)]
+                    )
+            else:
+                faces.append(_count(cols, (rows - 1) * cols, reverse=reverse))
 
         for r in range(rowcnt):
             for c in range(colcnt):

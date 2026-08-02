@@ -21,7 +21,7 @@ import numpy as np
 import shapely as _shapely
 from shapely.geometry import LineString
 
-from pybosl2.caps import CapSpec, CapType, _normalize_one
+from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one, _place, _trim_ends
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -38,6 +38,12 @@ def _ensure_closed(pts: Sequence[Sequence[float]], closed: bool | None, path_clo
     return path_closed
 
 
+def _needs_decorative_cap(cap: CapSpec) -> bool:
+    """True if this cap type produces a decorative polygon rather than a simple buffer end style."""
+    ct = cap.cap_type
+    return ct not in (CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SQUARE, CapType.CIRCLE, CapType.SPHERE)
+
+
 def _cap_style(cap: CapSpec) -> str:
     if cap.cap_type == CapType.ROUND:
         return "round"
@@ -46,15 +52,74 @@ def _cap_style(cap: CapSpec) -> str:
     return "flat"  # BUTT, NONE, etc → flat
 
 
+def _place_and_union(
+    body: _shapely.Polygon | _shapely.MultiPolygon,
+    cap_spec: CapSpec,
+    width: float,
+    at: Sequence[float],
+    tangent: Sequence[float],
+) -> _shapely.Polygon | _shapely.MultiPolygon:
+    """Place endcap polygon(s) at a point and union them with the body geometry.
+
+    Args:
+        body: The buffered stroke body geometry.
+        cap_spec: The resolved cap specification.
+        width: The stroke line width.
+        at: The endpoint position ``[x, y]``.
+        tangent: The outward tangent direction ``[dx, dy]`` at the endpoint.
+
+    Returns:
+        The unioned shapely geometry.
+    """
+    angle = math.degrees(math.atan2(tangent[1], tangent[0]))
+    half = width / 2
+
+    for ep_poly in _endcap_polys(cap_spec, width):
+        placed = _place(ep_poly, angle, at)
+        if len(placed) < 2:
+            continue
+        coords: list[tuple[float, float]] = [(float(p[0]), float(p[1])) for p in placed]
+        if len(placed) < 3:
+            geom: _shapely.Polygon | _shapely.GeometryCollection = LineString(coords).buffer(half, cap_style="flat")
+        else:
+            geom = _shapely.Polygon(coords)
+            if not geom.is_valid:
+                from shapely import make_valid
+
+                geom = make_valid(geom)
+        if geom.is_empty:
+            continue
+        body = body.union(geom)
+    return body
+
+
+def _shapely_to_path2d(geom: _shapely.Polygon | _shapely.MultiPolygon, fallback_pts: list[list[float]]) -> Path2D:
+    """Convert a shapely geometry back to :class:`Path2D`.
+
+    For MultiPolygon results, the largest polygon by area is used.
+    """
+    from pybosl2.path2d import Path2D
+
+    if isinstance(geom, _shapely.Polygon) and not geom.is_empty:
+        return Path2D([list(c) for c in geom.exterior.coords], closed=True)
+    if isinstance(geom, _shapely.MultiPolygon) and not geom.is_empty:
+        largest = max(geom.geoms, key=lambda g: g.area)
+        return Path2D([list(c) for c in largest.exterior.coords], closed=True)
+    return Path2D(fallback_pts, closed=False)
+
+
 def stroke_2d(
     path: Any,
     width: float = 1,
     closed: bool | None = None,
     endcap1: CapType | CapSpec = CapType.ROUND,
-    endcap2: CapType | CapSpec = CapType.ROUND,  # noqa: ARG001
+    endcap2: CapType | CapSpec = CapType.ROUND,
     joints: CapType | CapSpec = CapType.ROUND,  # noqa: ARG001
 ) -> Path2D:
     """2-D stroke: buffer the polyline into a polygon outline.
+
+    For decorative endcaps (arrows, diamonds, dots, etc.), the cap polygons are
+    generated, placed at the endpoints, and unioned with the buffered body.
 
     Returns:
         A :class:`Path2D` of the stroked polygon outline.
@@ -65,6 +130,7 @@ def stroke_2d(
     assert len(pts) >= 2, "stroke(): need at least 2 points."
     is_closed = _ensure_closed(pts, closed, getattr(path, "closed", False))
     ec1 = endcap1 if isinstance(endcap1, CapSpec) else _normalize_one(endcap1)
+    ec2 = endcap2 if isinstance(endcap2, CapSpec) else _normalize_one(endcap2)
     half = width / 2
 
     coords = [(float(p[0]), float(p[1])) for p in pts]
@@ -75,12 +141,29 @@ def stroke_2d(
             return Path2D([list(c) for c in poly.exterior.coords], closed=True)
         return Path2D(pts, closed=True)
 
-    line = LineString(coords)
-    cs = _cap_style(ec1)
-    poly = line.buffer(half, cap_style=cs, join_style="round", single_sided=False)
-    if isinstance(poly, _shapely.Polygon) and not poly.is_empty:
-        return Path2D([list(c) for c in poly.exterior.coords], closed=True)
-    return Path2D(pts, closed=False)
+    has_dec1 = _needs_decorative_cap(ec1)
+    has_dec2 = _needs_decorative_cap(ec2)
+
+    trim1 = _endcap_trim(ec1, width) if has_dec1 else 0.0
+    trim2 = _endcap_trim(ec2, width) if has_dec2 else 0.0
+    work_pts = _trim_ends(pts, trim1, trim2) if (trim1 or trim2) else pts
+
+    cs = "flat" if (has_dec1 or has_dec2) else _cap_style(ec1)
+    work_coords = [(float(p[0]), float(p[1])) for p in work_pts]
+    line = LineString(work_coords)
+    body: _shapely.Polygon | _shapely.MultiPolygon = line.buffer(
+        half, cap_style=cs, join_style="round", single_sided=False
+    )
+
+    if has_dec1 and len(work_pts) >= 2:
+        tangent = [work_pts[0][0] - work_pts[1][0], work_pts[0][1] - work_pts[1][1]]
+        body = _place_and_union(body, ec1, width, work_pts[0], tangent)
+
+    if has_dec2 and len(work_pts) >= 2:
+        tangent = [work_pts[-1][0] - work_pts[-2][0], work_pts[-1][1] - work_pts[-2][1]]
+        body = _place_and_union(body, ec2, width, work_pts[-1], tangent)
+
+    return _shapely_to_path2d(body, work_pts)
 
 
 def dashed_stroke_2d(
