@@ -337,8 +337,10 @@ def _resolve_anchor(anchor: Anchor | str | list[int | float] | list[list[int]]) 
     if isinstance(anchor, Anchor):
         return anchor
     if isinstance(anchor, str):
-        candidate = _STR_EDGE_MAP.get(anchor) or _LEGACY_CORNER_MAP.get(anchor.lower())
-        if candidate:
+        candidate = _STR_EDGE_MAP.get(anchor)
+        if candidate is None:
+            candidate = _LEGACY_CORNER_MAP.get(anchor.lower())
+        if candidate is not None:
             return candidate
         raise ValueError(f"Unknown anchor string: {anchor!r}")
     if _is_edge_matrix(anchor):

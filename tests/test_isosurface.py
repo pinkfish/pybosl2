@@ -13,6 +13,7 @@ checks run on the pure-Python VNF, and real geometry is verified in test_stl_ren
 import math
 
 import numpy as np
+import pytest
 
 from pybosl2.bounds import Bounds3D
 from pybosl2.metaballs import (
@@ -161,3 +162,63 @@ def test_metaballs_scalar_bounding_box() -> None:
         voxel_size=2,
     )
     assert len(vnf.faces) > 0
+
+
+def test_mb_disk_produces_field() -> None:
+    """mb_disk() creates a metaball field."""
+    from pybosl2.metaballs import mb_disk
+
+    mb = mb_disk(height=2, radius=10)
+    assert mb.field(np.array([[0, 0, 0]]).reshape(1, 3)) is not None
+
+
+def test_isovalue_float_works() -> None:
+    """from_field with float isovalue."""
+    vnf = VNF.from_field(
+        lambda pts: np.sqrt(np.sum(pts**2, axis=1)) - 5,
+        isovalue=0,
+        bounding_box=Bounds3D(-6, -6, -6, 6, 6, 6, 12, 12, 12),
+        voxel_size=1.0,
+    )
+    assert len(vnf.vertices) > 0
+
+
+def test_isovalue_tuple_raises() -> None:
+    """from_field with tuple isovalue raises NotImplementedError."""
+    with pytest.raises(NotImplementedError):
+        VNF.from_field(
+            lambda pts: np.zeros(len(pts)),
+            isovalue=(0.0, 1.0),  # type: ignore[arg-type]
+            bounding_box=Bounds3D(-1, -1, -1, 1, 1, 1, 2, 2, 2),
+        )
+
+
+def test_marching_cubes_closed() -> None:
+    """from_field with closed=True produces watertight? mesh."""
+    vnf = VNF.from_field(
+        lambda pts: np.sqrt(np.sum(pts**2, axis=1)) - 5,
+        isovalue=0,
+        bounding_box=Bounds3D(-8, -8, -8, 8, 8, 8, 16, 16, 16),
+        voxel_size=2.0,
+        closed=True,
+    )
+    assert len(vnf.vertices) > 0
+
+
+def test_mb_sphere_diameter() -> None:
+    """mb_sphere with diameter kwarg."""
+    from pybosl2.metaballs import mb_sphere
+
+    mb = mb_sphere(diameter=10)
+    assert mb.field(np.array([[0, 0, 0]]).reshape(1, 3)) is not None
+
+
+def test_mb_negative_sphere() -> None:
+    """mb_sphere with negative=True subtracts."""
+    from pybosl2.metaballs import mb_sphere
+
+    mb_pos = mb_sphere(radius=5, negative=False)
+    mb_neg = mb_sphere(radius=5, negative=True)
+    pt = np.array([[0, 0, 0]])
+    assert mb_pos.field(pt) > 0
+    assert mb_neg.field(pt) < 0

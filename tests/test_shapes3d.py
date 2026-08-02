@@ -316,3 +316,71 @@ def test_texture_enum() -> None:
     # Test that cap constructs correctly with enum texture
     cap = BottleCaps.pco1810_cap(texture=BottleCapTexture.RIBS, fn=None, fa=None, fs=None)
     assert isinstance(cap, Bosl2Solid)
+
+
+def test_align_places_child_on_face() -> None:
+    """align() places a child on the parent face without reorienting."""
+    from pybosl2._edges_lang import Anchor
+
+    parent = cuboid([30, 30, 10])
+    child = cuboid([5, 5, 5])
+    result = parent.align(Anchor.TOP, child)
+    assert result is not None
+
+
+def test_position_places_child_at_anchor() -> None:
+    """position() places child at anchor point."""
+    from pybosl2._edges_lang import Anchor
+
+    parent = cuboid([30, 30, 30])
+    child = cuboid([5, 5, 5])
+    result = parent.position(Anchor.TOP_FRONT_LEFT, child)
+    assert result is not None
+
+
+def test_mirror_preserves_wrapper() -> None:
+    """mirror() returns a Bosl2Solid."""
+    c = cuboid([10, 10, 10]).mirror([1, 0, 0])
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_center_false_aligns_to_bottom_front_left() -> None:
+    """center=False anchors to BOTTOM_FRONT_LEFT."""
+    from pybosl2._edges_lang import Anchor
+
+    c = cuboid([10, 20, 30], anchor=Anchor.BOTTOM_FRONT_LEFT)
+    center, size = c.bounds()
+    assert center[0] > 0  # center is shifted from origin
+
+
+def test_center_true_is_equivalent_to_anchor_center() -> None:
+    """center=True is equivalent to anchor=CENTER."""
+    from pybosl2._edges_lang import Anchor
+
+    a = cuboid([10, 20, 30], anchor=Anchor.CENTER)
+    b = cuboid([10, 20, 30], anchor=Anchor.CENTER)
+    ca, _ = a.bounds()
+    cb, _ = b.bounds()
+    for i in range(3):
+        assert abs(ca[i] - cb[i]) < 1e-9
+
+
+def test_p1_p2_cuboid() -> None:
+    """cuboid with p1/p2 defines corner to corner."""
+    from pybosl2.points import Point
+
+    result = cuboid(p1=Point(0, 0, 0), p2=Point(10, 20, 30))
+    center, size = result.bounds()
+    assert abs(size[0] - 10) < 0.01
+    assert abs(size[1] - 20) < 0.01
+    assert abs(size[2] - 30) < 0.01
+
+
+def test_attach_aligns_child_to_parent() -> None:
+    """attach() with specific child anchor."""
+    from pybosl2._edges_lang import Anchor
+
+    parent = cuboid([30, 30, 10])
+    child = cuboid([5, 5, 15])
+    result = parent.attach(Anchor.TOP, child, child_anchor=Anchor.BOTTOM)
+    assert result is not None

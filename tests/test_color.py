@@ -120,3 +120,17 @@ def test_highlight_and_ghost() -> None:
 def test_color_chains_with_transforms() -> None:
     result = cuboid([10, 10, 10]).hsv(30).right(5).up(2)
     assert isinstance(result, Bosl2Solid)
+
+
+def test_color_by_name() -> None:
+    """color() accepts colour name strings."""
+    assert isinstance(cuboid([10, 10, 10]).color("red"), Bosl2Solid)
+    assert isinstance(cuboid([10, 10, 10]).color("blue"), Bosl2Solid)
+    assert isinstance(cuboid([10, 10, 10]).color("green"), Bosl2Solid)
+
+
+def test_hsl_edge_cases() -> None:
+    """HSL at extremes."""
+    assert cuboid([10, 10, 10]).hsl(0, 0, 0) is not None  # black
+    assert cuboid([10, 10, 10]).hsl(0, 0, 1) is not None  # white
+    assert cuboid([10, 10, 10]).hsl(360, 1, 0.5) is not None  # wrap-around
