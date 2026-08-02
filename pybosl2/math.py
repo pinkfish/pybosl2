@@ -16,6 +16,7 @@
 # FileGroup: BOSL2
 
 
+import math as _math
 from collections.abc import Sequence
 
 import numpy as np
@@ -201,3 +202,165 @@ def deriv3(
     out.append(prelast / h3)
     out.append(last / h3)
     return np.asarray(out)
+
+
+# -- convenience helpers -------------------------------------------------------
+
+
+def slerp(a: Sequence[float], b: Sequence[float], t: float) -> list[float]:
+    """Spherical linear interpolation between two 3-D vectors.
+
+    Interpolates between vectors *a* and *b* along the great-circle arc
+    on a unit sphere and returns a unit-length vector. Input vectors need
+    not be unit length.
+
+    Args:
+        a: First 3-D vector.
+        b: Second 3-D vector.
+        t: Interpolation fraction (0 returns *a*, 1 returns *b*).
+
+    Returns:
+        A unit-length interpolated vector as a list of 3 floats.
+
+    Raises:
+        ValueError: If either vector has zero length or the vectors are 180° apart.
+    """
+    na: float = _math.sqrt(sum(x * x for x in a))
+    nb: float = _math.sqrt(sum(x * x for x in b))
+    if na < EPSILON or nb < EPSILON:
+        raise ValueError("Cannot slerp with zero-length vector")
+    u: list[float] = [x / na for x in a]
+    v: list[float] = [x / nb for x in b]
+    dot: float = max(-1.0, min(1.0, sum(u[i] * v[i] for i in range(3))))
+    theta: float = _math.acos(dot)
+    if abs(theta - _math.pi) < EPSILON:
+        raise ValueError("No solution when vectors are 180° apart")
+    sin_theta: float = _math.sin(theta)
+    if sin_theta < EPSILON:
+        mid: list[float] = [u[i] + v[i] for i in range(3)]
+        nm: float = _math.sqrt(sum(x * x for x in mid))
+        return [x / nm for x in mid]
+    w1: float = _math.sin((1.0 - t) * theta) / sin_theta
+    w2: float = _math.sin(t * theta) / sin_theta
+    return [u[i] * w1 + v[i] * w2 for i in range(3)]
+
+
+def slerpn(
+    a: Sequence[float],
+    b: Sequence[float],
+    n: int,
+    endpoint: bool = True,
+) -> list[list[float]]:
+    """Return *n* evenly-spaced unit vectors on the great-circle arc between *a* and *b*.
+
+    Args:
+        a: First 3-D vector (need not be unit length).
+        b: Second 3-D vector (need not be unit length).
+        n: Number of points to return.
+        endpoint: If True the last point equals unit(*b*); otherwise it is one step short.
+
+    Returns:
+        A list of *n* unit-length vectors as lists of 3 floats.
+
+    Raises:
+        ValueError: If either vector has zero length or the vectors are 180° apart.
+    """
+    na: float = _math.sqrt(sum(x * x for x in a))
+    nb: float = _math.sqrt(sum(x * x for x in b))
+    if na < EPSILON or nb < EPSILON:
+        raise ValueError("Cannot slerpn with zero-length vector")
+    u: list[float] = [x / na for x in a]
+    v: list[float] = [x / nb for x in b]
+    dot: float = max(-1.0, min(1.0, sum(u[i] * v[i] for i in range(3))))
+    theta: float = _math.acos(dot)
+    if abs(theta - _math.pi) < EPSILON:
+        raise ValueError("No solution when vectors are 180° apart")
+    sin_theta: float = _math.sin(theta)
+    d: int = n - 1 if endpoint else n
+    result: list[list[float]] = []
+    for i in range(n):
+        t_val: float = i / d if d > 0 else 0.0
+        if sin_theta < EPSILON:
+            mid: list[float] = [u[i] + v[i] for i in range(3)]
+            nm: float = _math.sqrt(sum(x * x for x in mid))
+            result.append([x / nm for x in mid])
+        else:
+            w1 = _math.sin((1.0 - t_val) * theta) / sin_theta
+            w2 = _math.sin(t_val * theta) / sin_theta
+            result.append([u[i] * w1 + v[i] * w2 for i in range(3)])
+    return result
+
+
+def modang(x: float) -> float:
+    """Normalize an angle in degrees to the range [-180, 180).
+
+    Args:
+        x: An angle in degrees.
+
+    Returns:
+        The equivalent angle in [-180, 180).
+    """
+    ang: float = x % 360.0
+    if ang >= 180.0:
+        ang -= 360.0
+    return ang
+
+
+def constrain(
+    v: float,
+    minval: float | None = None,
+    maxval: float | None = None,
+) -> float:
+    """Clamp *v* to the range [*minval*, *maxval*].
+
+    If either bound is ``None``, that side is unconstrained.
+
+    Args:
+        v: The value to constrain.
+        minval: Lower bound, or ``None`` for no lower constraint.
+        maxval: Upper bound, or ``None`` for no upper constraint.
+
+    Returns:
+        The constrained value.
+    """
+    result: float = v
+    if minval is not None and result < minval:
+        result = minval
+    if maxval is not None and result > maxval:
+        result = maxval
+    return result
+
+
+def quant(v: float, unit: float) -> float:
+    """Quantize *v* to the nearest integer multiple of *unit*.
+
+    Args:
+        v: The value to quantize.
+        unit: The positive quantum to quantize to.
+
+    Returns:
+        The quantized value.
+
+    Raises:
+        ValueError: If *unit* is not positive.
+    """
+    if unit <= 0.0:
+        raise ValueError(f"Quantum must be positive, got {unit}")
+    return round(v / unit) * unit
+
+
+def mean(v: Sequence[float]) -> float:
+    """Arithmetic mean of the elements in *v*.
+
+    Args:
+        v: A non-empty sequence of numeric values.
+
+    Returns:
+        The mean value.
+
+    Raises:
+        ValueError: If *v* is empty.
+    """
+    if len(v) == 0:
+        raise ValueError("Cannot compute mean of an empty sequence")
+    return sum(v) / len(v)

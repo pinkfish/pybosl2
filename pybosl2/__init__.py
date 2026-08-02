@@ -44,6 +44,20 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # constants
     "EPSILON": ("pybosl2.math", "EPSILON"),
     "CENTRE": ("pybosl2.constants", "CENTER"),  # British spelling alias
+    # math
+    "slerp": ("pybosl2.math", "slerp"),
+    "slerpn": ("pybosl2.math", "slerpn"),
+    "modang": ("pybosl2.math", "modang"),
+    "quant": ("pybosl2.math", "quant"),
+    "constrain": ("pybosl2.math", "constrain"),
+    "mean": ("pybosl2.math", "mean"),
+    # vectors
+    "vector_angle": ("pybosl2.vectors", "vector_angle"),
+    "vector_axis": ("pybosl2.vectors", "vector_axis"),
+    "vector_bisect": ("pybosl2.vectors", "vector_bisect"),
+    "pointlist_bounds": ("pybosl2.vectors", "pointlist_bounds"),
+    "closest_point": ("pybosl2.vectors", "closest_point"),
+    "furthest_point": ("pybosl2.vectors", "furthest_point"),
     # colour
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),

@@ -1495,6 +1495,11 @@ def roof(shape: object, method: str = "straight") -> Bosl2Solid:
     extrusion. *shape* is any 2-D object -- a native ``square``/``circle``/``polygon``, a
     :meth:`Path2D.polygon`, or a :class:`Bosl2Solid` wrapping one. *method* selects the skeleton
     algorithm. PythonSCAD-only (no BOSL2 counterpart); covered by the STL render tests.
+
+    Examples:
+        .. pythonscad-example::
+
+            roof(s2.square([20, 10]).shape).show()
     """
     return Bosl2Solid(Bosl2Solid._unwrap(shape).roof(method=method))
 
@@ -1519,6 +1524,11 @@ def cube(
         anchor: anchor point (default Anchor.CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default Anchor.TOP)
+
+    Examples:
+        .. pythonscad-example::
+
+            s3.cube(size=20).show()
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = _resolve_center_anchor(center, anchor, Anchor.BOTTOM_FRONT_LEFT)
@@ -1738,6 +1748,11 @@ def octahedron(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
+
+    Examples:
+        .. pythonscad-example::
+
+            s3.octahedron(size=20).show()
     """
     s = size / 2
     pts = [[s, 0, 0], [-s, 0, 0], [0, s, 0], [0, -s, 0], [0, 0, s], [0, 0, -s]]
@@ -1771,6 +1786,11 @@ def wedge(
         anchor: anchor point (default FRONT+LEFT+BOTTOM)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
+
+    Examples:
+        .. pythonscad-example::
+
+            s3.wedge([30, 20, 15]).show()
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = _resolve_center_anchor(center, anchor, [-1, -1, -1])
@@ -1854,6 +1874,11 @@ def rect_tube(
         anchor:     anchor point (default BOTTOM)
         spin:       Z-axis rotation in degrees after anchor (default 0)
         orient:     direction to rotate the top towards, after spin (default UP)
+
+    Examples:
+        .. pythonscad-example::
+
+            s3.rect_tube(size=30, wall=3, height=20).show()
     """
     from .shapes2d import _rect_path
 
@@ -2003,6 +2028,11 @@ def cylinder(
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s3.cylinder(height=30, radius=10, anchor=Anchor.BOTTOM).show()
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -2881,6 +2911,11 @@ def pie_slice(
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s3.pie_slice(radius=20, angle=120, height=5).show()
     """
     from .shapes2d import _arc_points, _opolygon  # type: ignore[attr-defined]
 
@@ -2982,6 +3017,11 @@ def spheroid(
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s3.spheroid(radius=15).show()
     """
     return sphere(
         radius=radius,
@@ -3255,6 +3295,11 @@ def onion(
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s3.onion(radius=15).show()
     """
     from .shapes2d import _arc_points, _opolygon  # type: ignore[attr-defined]
 
