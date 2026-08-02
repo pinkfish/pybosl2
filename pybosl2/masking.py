@@ -202,7 +202,7 @@ def edge_mask(
     except_edges: list[Any] | None = None,
     children: "Bosl2Solid | None" = None,
     size: tuple[float, float, float] | None = None,
-    anchor: Vector | Point = CENTER,
+    anchor: Vector = CENTER,
     center: Point | None = None,
 ) -> "Bosl2Solid":
     """Cut a 3-D edge cutter along each selected edge of the box-shaped *body*.
@@ -238,7 +238,7 @@ def edge_profile(
     children: "Path2D | None" = None,
     size: tuple[float, float, float] | None = None,
     convexity: int = 10,
-    anchor: Vector | Point = CENTER,
+    anchor: Vector = CENTER,
     center: Point | None = None,
 ) -> "Bosl2Solid":
     """Cut a 2-D mask profile extruded along each selected edge of the box-shaped *body*.
@@ -336,7 +336,7 @@ def corner_profile(
     size: tuple[float, float, float] | None = None,
     children: "Path2D | None" = None,
     convexity: int = 10,
-    anchor: Vector | Point = CENTER,
+    anchor: Vector = CENTER,
     center: Point | None = None,
     fn: int | None = None,
     fa: float | None = None,
@@ -377,13 +377,13 @@ def corner_profile(
 
 def face_profile(
     body: "Bosl2Solid",
-    faces: str | list[Any] = "ALL",
+    faces: str | list[str] = "ALL",
     radius: float | None = None,
     diameter: float | None = None,
     size: tuple[float, float, float] | None = None,
     children: "Path2D | None" = None,
     convexity: int = 10,
-    anchor: Vector | Point = CENTER,
+    anchor: Vector = CENTER,
     center: Point | None = None,
     fn: int | None = None,
     fa: float | None = None,
