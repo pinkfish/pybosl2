@@ -19,9 +19,9 @@ from typing import Any
 
 import numpy as np
 import pytest
-from pybosl2._sdf._shape import PyShape
 
 import pybosl2._sdf.shapes3d as sdf
+from pybosl2._sdf.shapes3d import PyShape
 from pybosl2.beziers import Bezier
 
 CIRCLE: list[list[float]] = [
