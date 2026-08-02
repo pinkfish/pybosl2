@@ -1069,6 +1069,8 @@ from pybosl2._edges_lang import (  # noqa: E402, F401
     EDGE_OFFSETS,
     EDGES_ALL,
     EDGES_NONE,
+    CornerPlane,
+    EdgePlane,
     _edge_set,
     _edges,
     _is_edge_array,

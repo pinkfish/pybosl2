@@ -21,8 +21,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from pybosl2._edges_lang import CORNER_OFFSETS
 from pybosl2._native import native
 from pybosl2.points import Point, Vector
+
+if TYPE_CHECKING:
+    from pybosl2._edges_lang import CornerPlane, EdgePlane
 
 if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
@@ -36,8 +40,6 @@ from .shapes3d import EDGE_OFFSETS, _anchor_offset_box3, _edges, _quantup
 _ocube = native("cube")
 _opolygon = native("polygon")
 _osphere = native("sphere")
-
-CORNER_OFFSETS = [[float(xa), float(ya), float(za)] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)]
 
 
 def mask2d_roundover(
@@ -198,18 +200,18 @@ def _extrude_mask_along_edge(
 
 def edge_mask(
     body: "Bosl2Solid",
-    edges: str | list[int | str] = "ALL",
+    edges: EdgePlane | str | list[int | str] = "ALL",
     except_edges: list[int | str] | None = None,
     children: "Bosl2Solid | None" = None,
     size: tuple[float, float, float] | None = None,
-    anchor: Vector = CENTER,
+    anchor: Vector | Point = CENTER,
     center: Point | None = None,
 ) -> "Bosl2Solid":
     """Cut a 3-D edge cutter along each selected edge of the box-shaped *body*.
 
     Args:
         body: The box solid to cut.
-        edges: Edges to mask (default ``"ALL"``).
+        edges: Edges to mask — an :class:`EdgePlane`, a string, a vector, or a list thereof (default ``"ALL"``).
         except_edges: Edges to explicitly not mask.
         children: The pre-built 3-D edge cutter.
         size: The box's ``(x, y, z)`` size.
@@ -233,7 +235,7 @@ def edge_mask(
 
 def edge_profile(
     body: "Bosl2Solid",
-    edges: str | list[int | str] = "ALL",
+    edges: EdgePlane | str | list[int | str] = "ALL",
     except_edges: list[int | str] | None = None,
     children: "Path2D | None" = None,
     size: tuple[float, float, float] | None = None,
@@ -328,7 +330,7 @@ def _corner_cutter(
 
 def corner_profile(
     body: "Bosl2Solid",
-    corners: str | list[int | str] = "ALL",
+    corners: CornerPlane | str | list[int | str] = "ALL",
     except_corners: list[int | str] | None = None,
     radius: float | None = None,
     diameter: float | None = None,
