@@ -2425,3 +2425,55 @@ def shell2d(
         fs=fs,
     )
     return outer_shape - inner_shape
+
+
+# -- cross / plus shape --------------------------------------------------------
+
+
+def cross(
+    size: float | Sequence[float] = [10, 10],
+    arm_width: float | Sequence[float] | None = None,
+    center: bool | None = None,
+    anchor: Anchor | Sequence[float] = CENTER,
+    spin: float = 0,
+) -> Bosl2Shape2D:
+    """A 2-D cross (plus) shape: two perpendicular centred rectangles.
+
+    Args:
+        size:      overall size, a scalar square or ``[width, length]`` (default ``[10, 10]``).
+        arm_width: width of each arm; a scalar or ``[horizontal, vertical]`` pair.
+                   When *None* (default) the arms are one-third of the overall size.
+        center:    centre alignment (default True).
+        anchor:    anchor point (default CENTER).
+        spin:      Z-axis rotation in degrees after anchor (default 0).
+
+    Returns:
+        A :class:`Bosl2Shape2D` wrapping the cross polygon.
+
+    Examples:
+        .. pythonscad-example::
+
+            cross(size=30).linear_extrude(height=5).show()
+    """
+    sz = [float(size)] * 2 if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
+    if arm_width is None:
+        aw: list[float] = [sz[0] / 3, sz[1] / 3]
+    elif isinstance(arm_width, (int, float)):
+        aw = [float(arm_width), float(arm_width)]
+    else:
+        aw = [float(arm_width[0]), float(arm_width[1])]
+
+    hw_x, hw_y = sz[0] / 2, sz[1] / 2
+    htx, hty = aw[0] / 2, aw[1] / 2
+
+    use_anchor = anchor
+    if center is not None:
+        use_anchor = CENTER if center else Anchor.LEFT + Anchor.FRONT
+
+    ha_pts = [[-hw_x, -hty], [hw_x, -hty], [hw_x, hty], [-hw_x, hty]]
+    va_pts = [[-htx, -hw_y], [htx, -hw_y], [htx, hw_y], [-htx, hw_y]]
+    ha_shape = Bosl2Shape2D(_opolygon(ha_pts))
+    va_shape = Bosl2Shape2D(_opolygon(va_pts))
+    shape = ha_shape | va_shape
+    offset = _anchor_offset_box(sz, use_anchor)
+    return _finish(shape, offset, spin, size=sz, anchor=use_anchor)
