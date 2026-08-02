@@ -31,9 +31,22 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Sequence, Union
+from typing import TYPE_CHECKING, Any, Sequence, Union
 
-__all__ = ["CapType", "CapSpec", "CapsSpec", "_endcap_polys", "_endcap_trim", "_norm_caps"]
+if TYPE_CHECKING:
+    from pybosl2.shapes3d import Bosl2Solid
+    from pybosl2.vnf import VNF
+
+__all__ = [
+    "CapType",
+    "CapSpec",
+    "CapsSpec",
+    "_endcap_polys",
+    "_endcap_trim",
+    "_has_decorative_caps",
+    "_norm_caps",
+    "_vnf_with_decorative_caps",
+]
 
 
 class CapType(Enum):
@@ -194,6 +207,53 @@ def _normalize_one(cap: CapType | CapSpec) -> CapSpec:
     if isinstance(cap, CapType):
         return _DEFAULTS.get(cap, _DEFAULTS[CapType.NONE])
     return _DEFAULTS[CapType.BUTT]
+
+
+def _has_decorative_caps(cap_specs: list[CapSpec]) -> bool:
+    """True if any endcap is a decorative (non-flat/non-dome/non-none) type."""
+    _basic = frozenset({CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SPHERE})
+    return any(cs.cap_type not in _basic for cs in cap_specs)
+
+
+def _vnf_with_decorative_caps(
+    vnf: VNF,
+    cap_specs: list[CapSpec],
+    closed: bool,
+    profile_centers: list[Sequence[float]],
+    profile_outdirs: list[Sequence[float]],
+    profile_radius: float,
+) -> Bosl2Solid:
+    """Convert VNF to CSG polyhedron, add decorative endcaps, return Bosl2Solid.
+
+    Args:
+        vnf: The body VNF (already volume-checked and corrected).
+        cap_specs: Normalised cap pair.
+        closed: Whether the sweep is closed (no caps expected).
+        profile_centers: Centroids of the first and last profiles.
+        profile_outdirs: Outward directions for the first and last caps.
+        profile_radius: Bounding radius of the profile (half the *width* passed to endcap geometry).
+
+    Returns:
+        A Bosl2Solid with the body polyhedron and any decorative endcaps unioned.
+    """
+    from pybosl2._stroke3d import _endcap_geometry_3d
+    from pybosl2.shapes3d import Bosl2Solid
+
+    if closed or not cap_specs:
+        return Bosl2Solid(vnf.polyhedron())
+
+    body = Bosl2Solid(vnf.polyhedron())
+    width = profile_radius * 2
+
+    for spec, center, outdir in [
+        (cap_specs[0], profile_centers[0], profile_outdirs[0]),
+        (cap_specs[1], profile_centers[1], profile_outdirs[1]),
+    ]:
+        if spec.cap_type not in (CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SPHERE):
+            ec = _endcap_geometry_3d(spec, list(center), list(outdir), width)
+            if ec is not None:
+                body = body | ec
+    return body
 
 
 # ---------------------------------------------------------------------------

@@ -636,7 +636,7 @@ class Threading:
                     turns=turns * (-1 if left_handed else 1),
                     center=True,
                 )
-                .polyhedron()
+                .polyhedron()  # type: ignore[operator]
             )
             if starts > 1:
                 piece = piece.rotate([0, 0, k * 360 / starts])
