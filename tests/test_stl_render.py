@@ -4,6 +4,8 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+# mypy: ignore_errors
+
 """Real-render STL tests: build pybosl2 objects in the real PythonSCAD app, export them to STL,
 and verify the produced mesh's geometry (bounding box, volume, triangle count, watertightness).
 

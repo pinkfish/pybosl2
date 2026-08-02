@@ -6,7 +6,7 @@
 
 """Tests for pybosl2/constants.py: the Vector direction constants and their arithmetic."""
 
-from pybosl2.constants import (
+from pybosl2.constants import (  # type: ignore[attr-defined]
     BACK,
     BOTTOM,
     CENTER,
@@ -20,7 +20,7 @@ from pybosl2.constants import (
 )
 
 
-def test_constant_values():
+def test_constant_values() -> None:
     assert list(LEFT) == [-1, 0, 0]
     assert list(RIGHT) == [1, 0, 0]
     assert list(FRONT) == [0, -1, 0]
@@ -30,31 +30,31 @@ def test_constant_values():
     assert list(CENTER) == [0, 0, 0]
 
 
-def test_aliases():
+def test_aliases() -> None:
     assert UP is TOP
     assert DOWN is BOTTOM
 
 
-def test_addition_combines_directions():
+def test_addition_combines_directions() -> None:
     assert list(TOP + LEFT) == [-1, 0, 1]
     assert list(TOP + FRONT + RIGHT) == [1, -1, 1]
 
 
-def test_subtraction_and_negation():
+def test_subtraction_and_negation() -> None:
     assert list(TOP - BOTTOM) == [0, 0, 2]
     assert list(-TOP) == [0, 0, -1]
 
 
-def test_scalar_multiplication():
+def test_scalar_multiplication() -> None:
     assert list(TOP * 5) == [0, 0, 5]
     assert list(3 * RIGHT) == [3, 0, 0]
 
 
-def test_result_is_vec3():
+def test_result_is_vec3() -> None:
     assert isinstance(TOP + LEFT, Vector)
     assert isinstance(TOP * 2, Vector)
 
 
-def test_is_a_list():
+def test_is_a_list() -> None:
     assert isinstance(TOP, list)
     assert TOP == [0, 0, 1]

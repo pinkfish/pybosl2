@@ -18,46 +18,46 @@ from pybosl2.shapes3d import Bosl2Solid
 _PATH = [[50, 0, -50], [50, 50, -50], [0, 50, -50], [0, 0, -50], [0, 0, 0]]
 
 
-def test_hex_ring_counts():
+def test_hex_ring_counts() -> None:
     assert _hex_offset_ring(2, 0) == [[0.0, 0.0]]
     assert len(_hex_offset_ring(2, 1)) == 6
     assert len(_hex_offset_ring(2, 2)) == 12  # 6 * lev
 
 
-def test_hex_ring_spacing():
+def test_hex_ring_spacing() -> None:
     ring = _hex_offset_ring(2.0, 1)
     for x, y in ring:
         assert math.hypot(x, y) == pytest.approx(2.0)  # ring 1 sits at radius d
 
 
-def test_hex_offsets_fills_ring():
+def test_hex_offsets_fills_ring() -> None:
     off = _hex_offsets(13, 2.0)
     assert len(off) == 19  # 1 + 6 + 12, filled out
     assert _hex_offsets(1, 2.0) == [[0.0, 0.0]]
 
 
-def test_hex_offsets_min_spacing_is_d():
+def test_hex_offsets_min_spacing_is_d() -> None:
     pts = np.array(_hex_offsets(19, 2.0))
     dmin = min(np.linalg.norm(a - b) for a, b in itertools.combinations(pts, 2))
     assert dmin == pytest.approx(2.0, abs=1e-6)  # nearest neighbours are exactly d apart
 
 
-def test_public_hex_offsets_matches_private():
+def test_public_hex_offsets_matches_private() -> None:
     assert Wiring.hex_offsets(7, 3.0) == _hex_offsets(7, 3.0)
 
 
 @pytest.mark.parametrize("wires", [1, 7, 13, 30])
-def test_wire_bundle_builds(wires):
-    assert isinstance(Wiring.wire_bundle(_PATH, wires=wires, rounding=10), Bosl2Solid)
+def test_wire_bundle_builds(wires: int) -> None:
+    assert isinstance(Wiring.wire_bundle(_PATH, wires=wires, rounding=10), Bosl2Solid)  # type: ignore[arg-type]
 
 
-def test_wire_bundle_grows_with_wire_count():
-    def w(n):
-        return Wiring.wire_bundle(_PATH, wires=n, rounding=10)._native_bounds()[1][0]
+def test_wire_bundle_grows_with_wire_count() -> None:
+    def w(n: int) -> float:
+        return Wiring.wire_bundle(_PATH, wires=n, rounding=10)._native_bounds()[1][0]  # type: ignore[arg-type, index]
 
     assert w(1) < w(7) < w(13)  # bundle cross-section widens
 
 
-def test_wire_bundle_requires_a_wire():
+def test_wire_bundle_requires_a_wire() -> None:
     with pytest.raises(ValueError, match="needs at least one wire"):
-        Wiring.wire_bundle(_PATH, wires=0)
+        Wiring.wire_bundle(_PATH, wires=0)  # type: ignore[arg-type]

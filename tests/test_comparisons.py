@@ -11,31 +11,31 @@ import math
 import numpy as np
 
 
-def test_scalar_equal_and_close():
+def test_scalar_equal_and_close() -> None:
     assert math.isclose(1.0, 1.0, rel_tol=0, abs_tol=1e-9)
     assert math.isclose(1.0, 1.0 + 1e-12, rel_tol=0, abs_tol=1e-9)
     assert not math.isclose(1.0, 1.001, rel_tol=0, abs_tol=1e-9)
 
 
-def test_scalar_eps_override():
+def test_scalar_eps_override() -> None:
     assert math.isclose(1.0, 1.01, rel_tol=0, abs_tol=0.1)
     assert not math.isclose(1.0, 1.01, rel_tol=0, abs_tol=1e-6)
 
 
-def test_vector_component_wise():
+def test_vector_component_wise() -> None:
     assert np.allclose([1, 2, 3], [1, 2, 3 + 1e-12], rtol=0, atol=1e-9)
     assert not np.allclose([1, 2, 3], [1, 2, 3.5], rtol=0, atol=1e-9)
 
 
-def test_vectors_of_different_length_are_not_equal():
+def test_vectors_of_different_length_are_not_equal() -> None:
     assert len([1, 2]) != len([1, 2, 3])
 
 
-def test_accepts_ndarrays():
+def test_accepts_ndarrays() -> None:
     assert np.allclose(np.array([0.0, 0.0]), np.array([0.0, 1e-13]), rtol=0, atol=1e-9)
     assert not np.allclose(np.array([0.0, 0.0]), np.array([0.0, 1.0]), rtol=0, atol=1e-9)
 
 
-def test_returns_plain_bool():
+def test_returns_plain_bool() -> None:
     assert isinstance(math.isclose(1, 2, rel_tol=0, abs_tol=1e-9), bool)
     assert isinstance(bool(np.allclose([1, 2], [1, 2], rtol=0, atol=1e-9)), bool)

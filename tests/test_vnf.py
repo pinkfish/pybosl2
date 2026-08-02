@@ -11,17 +11,17 @@ import pytest
 from pybosl2.vnf import VNF, vnf_polyhedron
 
 
-def _grid(rows, cols, warp=False):
+def _grid(rows: int, cols: int, warp: bool = False) -> list[list[list[float]]]:
     return [[[float(i), float(j), (float(i * j) if warp else 0.0)] for j in range(cols)] for i in range(rows)]
 
 
-def _valid(vnf):
-    if not vnf.faces:
+def _valid(vnf: object) -> bool:
+    if not vnf.faces:  # type: ignore[attr-defined]
         return True
-    return max(i for f in vnf.faces for i in f) < len(vnf.vertices)
+    return max(i for f in vnf.faces for i in f) < len(vnf.vertices)  # type: ignore[attr-defined, no-any-return]
 
 
-def test_construction_and_repr():
+def test_construction_and_repr() -> None:
     v = VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]])
     assert len(v.vertices) == 3
     assert len(v.faces) == 1
@@ -29,11 +29,11 @@ def test_construction_and_repr():
     assert "VNF" in repr(v)
 
 
-def test_empty_is_falsey():
+def test_empty_is_falsey() -> None:
     assert not VNF([], [])
 
 
-def test_bounds():
+def test_bounds() -> None:
     v = VNF([[-1, 0, 0], [2, 3, 4]], [[0, 1, 2]])
     b = v.bounds()
     assert b.min_x == -1
@@ -44,59 +44,59 @@ def test_bounds():
     assert b.max_z == 4
 
 
-def test_vertex_array_default_counts():
+def test_vertex_array_default_counts() -> None:
     v = VNF.vertex_array(_grid(3, 3, warp=True))
     assert len(v.vertices) == 9
     assert len(v.faces) == 8  # 2x2 cells, 2 tris each
     assert _valid(v)
 
 
-def test_vertex_array_quad_style():
+def test_vertex_array_quad_style() -> None:
     v = VNF.vertex_array(_grid(3, 3, warp=True), style="quad")
     assert len(v.faces) == 4
     assert all(len(f) == 4 for f in v.faces)
 
 
-def test_vertex_array_quincunx_adds_center_verts():
+def test_vertex_array_quincunx_adds_center_verts() -> None:
     v = VNF.vertex_array(_grid(3, 3, warp=True), style="quincunx")
     assert len(v.vertices) == 9 + 4  # one center per cell
     assert len(v.faces) == 16  # 4 tris per cell
 
 
-def test_vertex_array_reverse_flips_winding():
+def test_vertex_array_reverse_flips_winding() -> None:
     a = VNF.vertex_array(_grid(2, 2, warp=True))
     b = VNF.vertex_array(_grid(2, 2, warp=True), reverse=True)
     assert a.faces[0] == b.faces[0][::-1]
 
 
-def test_vertex_array_col_wrap_adds_cells():
+def test_vertex_array_col_wrap_adds_cells() -> None:
     plain = VNF.vertex_array(_grid(3, 3, warp=True))
     wrapped = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True)
     assert len(wrapped.faces) > len(plain.faces)
 
 
-def test_vertex_array_too_small_is_empty():
-    assert not VNF.vertex_array([[[0, 0, 0], [1, 0, 0]]])  # single row
+def test_vertex_array_too_small_is_empty() -> None:
+    assert not VNF.vertex_array([[[0, 0, 0], [1, 0, 0]]])  # type: ignore  # single row
 
 
-def test_vertex_array_caps_need_col_wrap():
+def test_vertex_array_caps_need_col_wrap() -> None:
     with pytest.raises(AssertionError):
         VNF.vertex_array(_grid(3, 3, warp=True), caps=True, col_wrap=False)
 
 
-def test_vertex_array_bad_style():
+def test_vertex_array_bad_style() -> None:
     with pytest.raises(AssertionError):
         VNF.vertex_array(_grid(2, 2), style="nope")
 
 
-def test_tri_array_triangular_rows():
+def test_tri_array_triangular_rows() -> None:
     pts = [[[0, 0, 0]], [[-1, 1, 0], [1, 1, 0]], [[-2, 2, 0], [0, 2, 0], [2, 2, 0]]]
-    v = VNF.tri_array(pts)
+    v = VNF.tri_array(pts)  # type: ignore[arg-type]
     assert len(v.vertices) == 6
     assert _valid(v)
 
 
-def test_union_offsets_indices():
+def test_union_offsets_indices() -> None:
     a = VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]])
     b = VNF([[0, 0, 5], [1, 0, 5], [0, 1, 5]], [[0, 1, 2]])
     j = VNF.union([a, b])
@@ -104,24 +104,24 @@ def test_union_offsets_indices():
     assert j.faces == [[0, 1, 2], [3, 4, 5]]
 
 
-def test_union_single_is_identity():
+def test_union_single_is_identity() -> None:
     a = VNF([[0, 0, 0]], [])
     assert VNF.union([a]) is a
 
 
-def test_reverse():
+def test_reverse() -> None:
     v = VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]])
     assert v.reverse().faces == [[2, 1, 0]]
 
 
-def test_polyhedron_renders_via_mock():
+def test_polyhedron_renders_via_mock() -> None:
     v = VNF.vertex_array(_grid(3, 3, warp=True))
     solid = v.polyhedron()  # mock polyhedron tracks a bounding box
     assert solid is not None
     assert solid.position is not None
 
 
-def test_vnf_polyhedron_helper():
+def test_vnf_polyhedron_helper() -> None:
     v = VNF.vertex_array(_grid(3, 3, warp=True))
     solid_method = v.polyhedron()
     solid_helper = vnf_polyhedron(v)

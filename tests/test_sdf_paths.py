@@ -26,7 +26,7 @@ def chamfer_offset(c: float) -> float:
 
 
 class TestPathToBezpath:
-    def test_bezpath_hits_input_points(self):
+    def test_bezpath_hits_input_points(self) -> None:
         path = [[0, 0], [10, 0], [10, 10]]
         bez = sdf_paths.path_to_bezpath(path, relsize=0.1)
         assert len(bez) == 7, "two cubic segments"
@@ -36,7 +36,7 @@ class TestPathToBezpath:
         pts = sdf_paths.bezpath_points(bez, splinesteps=8)
         assert len(pts) == 17
 
-    def test_tangents_respected(self):
+    def test_tangents_respected(self) -> None:
         path = [[0, 0], [10, 0]]
         bez = sdf_paths.path_to_bezpath(path, tangents=[[1, 0], [1, 0]], relsize=0.1)
         # Straight segment with parallel tangents: control points stay on the line y=0.
@@ -44,7 +44,7 @@ class TestPathToBezpath:
 
 
 class TestPathSamplers:
-    def test_bezier_points_endpoints_and_midpoint(self):
+    def test_bezier_points_endpoints_and_midpoint(self) -> None:
         curve = [[0, 0], [0, 10], [10, 10], [10, 0]]  # symmetric cubic
         assert list(sdf_paths.bezier_points(curve, 0)) == [0, 0]
         assert list(sdf_paths.bezier_points(curve, 1)) == [10, 0]
@@ -52,7 +52,7 @@ class TestPathSamplers:
         assert mid[0] == pytest.approx(5, abs=1e-9)
         assert mid[1] == pytest.approx(7.5, abs=1e-9)
 
-    def test_bezpath_points_chains_segments(self):
+    def test_bezpath_points_chains_segments(self) -> None:
         bez = [[0, 0], [0, 5], [5, 5], [5, 0], [5, -5], [10, -5], [10, 0]]  # two cubics
         pts = sdf_paths.bezpath_points(bez, splinesteps=8)
         assert len(pts) == 17
@@ -60,7 +60,7 @@ class TestPathSamplers:
         assert list(pts[-1]) == [10, 0]
         assert list(pts[8]) == [5, 0], "segment joint hit exactly"
 
-    def test_egg_path_extents(self):
+    def test_egg_path_extents(self) -> None:
         # Each arc omits its endpoint (the next arc supplies it), so the +-length/2
         # apexes are only approached to within the arc sampling step -- assert against that
         # tolerance.
@@ -76,25 +76,25 @@ class TestPolygonPathUtils:
     """path_length/path_cut_points/path_normals/round_corners: pure-python ports of the
     bosl2 helpers the cap-box polygon machinery uses."""
 
-    def test_path_length_and_cut_points(self):
+    def test_path_length_and_cut_points(self) -> None:
         path = [[0, 0], [10, 0], [10, 10]]
         assert sdf_paths.total_length(path) == pytest.approx(20.0)
         cuts = sdf_paths.path_cut_points(path, [5.0, 15.0])
-        assert cuts[0][0][0] == pytest.approx(5.0)
-        assert cuts[0][0][1] == pytest.approx(0.0)
-        assert cuts[1][0][0] == pytest.approx(10.0)
-        assert cuts[1][0][1] == pytest.approx(5.0)
+        assert cuts[0][0][0] == pytest.approx(5.0)  # type: ignore[index]
+        assert cuts[0][0][1] == pytest.approx(0.0)  # type: ignore[index]
+        assert cuts[1][0][0] == pytest.approx(10.0)  # type: ignore[index]
+        assert cuts[1][0][1] == pytest.approx(5.0)  # type: ignore[index]
         single = sdf_paths.path_cut_points(path, 5.0)
-        assert single[0][0][0] == pytest.approx(5.0)
+        assert single[0][0][0] == pytest.approx(5.0)  # type: ignore[index]
 
-    def test_path_normals_two_point_segment(self):
+    def test_path_normals_two_point_segment(self) -> None:
         # A segment heading +x: the bosl2 port's normal points to the RIGHT of travel
         # (-y).
         n = sdf_paths.path_normals([[0, 0], [10, 0]])
         assert n[0][0] == pytest.approx(0.0)
         assert n[0][1] == pytest.approx(-1.0)
 
-    def test_round_corners_inserts_tangent_arcs(self):
+    def test_round_corners_inserts_tangent_arcs(self) -> None:
         sq = [[0, 0], [20, 0], [20, 20], [0, 20]]
         rounded = sdf_paths.round_corners(sq, radius=2, fn=16)
         assert len(rounded) > 8, "arcs inserted"
@@ -102,7 +102,7 @@ class TestPolygonPathUtils:
             if p[0] < 2 and p[1] < 2:
                 assert math.dist(p, [2, 2]) >= 2 - 1e-9
 
-    def test_round_corners_right_angle_tangent_points(self):
+    def test_round_corners_right_angle_tangent_points(self) -> None:
         sq = [[0, 0], [20, 0], [20, 20], [0, 20]]
         rounded = sdf_paths.round_corners(sq, radius=2, fn=16)
         assert any(abs(p[0] - 2) < 1e-9 and abs(p[1]) < 1e-9 for p in rounded), "tangent point [2,0] present"

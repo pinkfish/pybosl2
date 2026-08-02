@@ -20,21 +20,21 @@ from pybosl2.shapes3d import Bosl2Solid
 _HAS_ROOF = hasattr(Bosl2Solid._unwrap(s3.cuboid([10, 10, 10])), "roof")
 
 
-def _cube():
+def _cube() -> Bosl2Solid:
     return s3.cuboid([20, 20, 10])
 
 
-def test_repair_returns_solid():
+def test_repair_returns_solid() -> None:
     assert isinstance(_cube().repair(), Bosl2Solid)
 
 
-def test_wrap_returns_solid_with_and_without_fn():
+def test_wrap_returns_solid_with_and_without_fn() -> None:
     assert isinstance(_cube().wrap(20), Bosl2Solid)
     assert isinstance(_cube().wrap(20, fn=32), Bosl2Solid)
 
 
 @pytest.mark.skipif(not _HAS_ROOF, reason="native roof() not provided by the pythonscad pip wheel")
-def test_roof_is_2d_to_3d_constructor():
+def test_roof_is_2d_to_3d_constructor() -> None:
     # roof() is a 2-D -> 3-D constructor (a hip roof over a 2-D outline), not a solid method.
     import pybosl2.shapes2d as s2
 
@@ -43,22 +43,22 @@ def test_roof_is_2d_to_3d_constructor():
     assert isinstance(s3.roof(Bosl2Solid(s2.square([20, 20], center=True))), Bosl2Solid)
 
 
-def test_pull_returns_solid():
+def test_pull_returns_solid() -> None:
     assert isinstance(_cube().pull([0, 0, 1], 5), Bosl2Solid)
 
 
-def test_oversample_returns_solid():
+def test_oversample_returns_solid() -> None:
     assert isinstance(_cube().oversample(2), Bosl2Solid)
 
 
-def test_separate_returns_list_of_solids():
+def test_separate_returns_list_of_solids() -> None:
     parts = _cube().separate()
     assert isinstance(parts, list)
     assert parts
     assert all(isinstance(p, Bosl2Solid) for p in parts)
 
 
-def test_inside_returns_bool():
+def test_inside_returns_bool() -> None:
     c = _cube()  # centered cuboid: origin is inside, a far point is not
     r_in = c.inside([0, 0, 0])
     r_out = c.inside([100, 0, 0])
@@ -68,13 +68,13 @@ def test_inside_returns_bool():
     assert r_out is False
 
 
-def test_methods_are_chainable():
+def test_methods_are_chainable() -> None:
     # each returns a Bosl2Solid, so they compose fluently with the rest of the API
     out = _cube().oversample(2).repair().up(5)
     assert isinstance(out, Bosl2Solid)
 
 
-def test_pull_coerces_numpy_inputs():
+def test_pull_coerces_numpy_inputs() -> None:
     # numpy vectors must be coerced to plain floats at the native boundary (see CLAUDE.md)
     import numpy as np
 

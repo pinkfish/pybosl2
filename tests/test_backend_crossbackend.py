@@ -14,7 +14,7 @@ import importlib.util
 import pytest
 
 from pybosl2 import solid
-from pybosl2._backend import use_backend
+from pybosl2._backend import Solid, use_backend
 from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
 
 
@@ -25,23 +25,23 @@ def _libfive_available() -> bool:
         return False
 
 
-def _csg_sphere():
-    return solid.sphere(radius=10)
+def _csg_sphere() -> Solid:
+    return solid.sphere(radius=10)  # type: ignore[attr-defined, no-any-return]
 
 
-def _sdf_sphere():
+def _sdf_sphere() -> Solid:
     with use_backend("sdf"):
-        return solid.sphere(radius=10)
+        return solid.sphere(radius=10)  # type: ignore[attr-defined, no-any-return]
 
 
-def test_same_backend_booleans_work():
-    assert (_csg_sphere() | solid.cube(5)).backend == "csg"
+def test_same_backend_booleans_work() -> None:
+    assert (_csg_sphere() | solid.cube(5)).backend == "csg"  # type: ignore[attr-defined]
     with use_backend("sdf"):
-        assert (solid.sphere(radius=10) | solid.cube(5)).backend == "sdf"  # FFI-free SDF compose
+        assert (solid.sphere(radius=10) | solid.cube(5)).backend == "sdf"  # type: ignore[attr-defined]  # FFI-free SDF compose
 
 
 @pytest.mark.parametrize("op", ["__or__", "__and__", "__sub__"])
-def test_cross_backend_boolean_raises_both_directions(op):
+def test_cross_backend_boolean_raises_both_directions(op: str) -> None:
     csg, sdf = _csg_sphere(), _sdf_sphere()
     with pytest.raises(CrossBackendError):
         getattr(csg, op)(sdf)  # csg <op> sdf
@@ -49,21 +49,21 @@ def test_cross_backend_boolean_raises_both_directions(op):
         getattr(sdf, op)(csg)  # sdf <op> csg
 
 
-def test_cross_backend_error_points_at_to_csg():
+def test_cross_backend_error_points_at_to_csg() -> None:
     with pytest.raises(CrossBackendError) as ei:
         _ = _csg_sphere() | _sdf_sphere()
     assert "to_csg" in str(ei.value)
 
 
-def test_converter_identities_are_noops():
+def test_converter_identities_are_noops() -> None:
     csg, sdf = _csg_sphere(), _sdf_sphere()
-    assert csg.to_csg() is csg
-    assert sdf.to_sdf() is sdf
+    assert csg.to_csg() is csg  # type: ignore[attr-defined]
+    assert sdf.to_sdf() is sdf  # type: ignore[attr-defined]
 
 
-def test_csg_to_sdf_is_unsupported():
+def test_csg_to_sdf_is_unsupported() -> None:
     with pytest.raises(UnsupportedByBackendError) as ei:
-        _csg_sphere().to_sdf()
+        _csg_sphere().to_sdf()  # type: ignore[attr-defined]
     assert ei.value.backend == "csg"
     assert ei.value.feature == "to_sdf"
 
@@ -72,8 +72,8 @@ def test_csg_to_sdf_is_unsupported():
     not _libfive_available(),
     reason="SDF->CSG conversion meshes via libfive (not installed here)",
 )
-def test_sdf_to_csg_meshes_into_a_csg_solid():
-    csg = _sdf_sphere().to_csg()
+def test_sdf_to_csg_meshes_into_a_csg_solid() -> None:
+    csg = _sdf_sphere().to_csg()  # type: ignore[attr-defined]
     assert csg.backend == "csg"
     # and it can now be combined with other CSG solids without error
-    assert (csg | solid.cube(5)).backend == "csg"
+    assert (csg | solid.cube(5)).backend == "csg"  # type: ignore[attr-defined]

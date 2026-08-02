@@ -20,7 +20,7 @@ from pybosl2.path3d import Path3D
 SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 
 
-def test_construction_requires_3d_points():
+def test_construction_requires_3d_points() -> None:
     p = Path3D(SQUARE_LOOP)
     assert isinstance(p, Path3D)
     assert len(p) == 4
@@ -29,13 +29,13 @@ def test_construction_requires_3d_points():
         Path3D([[0, 0], [1, 1]])  # 2-D points rejected
 
 
-def test_closed_flag_and_repr():
+def test_closed_flag_and_repr() -> None:
     assert Path3D(SQUARE_LOOP).closed is True
     assert Path3D(SQUARE_LOOP, closed=False).closed is False
     assert "Path3D" in repr(Path3D(SQUARE_LOOP))
 
 
-def test_array_and_bounds():
+def test_array_and_bounds() -> None:
     p = Path3D(SQUARE_LOOP)
     assert p.array.shape == (4, 3)
     bounds = p.bounds()
@@ -50,20 +50,20 @@ def test_array_and_bounds():
     assert bounds.height == 5
 
 
-def test_perimeter_open_vs_closed():
+def test_perimeter_open_vs_closed() -> None:
     line = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 30]], closed=False)
     assert math.isclose(line.perimeter(), 30.0, abs_tol=1e-9)
     tri = Path3D([[0, 0, 0], [3, 0, 0], [3, 4, 0]], closed=True)
     assert math.isclose(tri.perimeter(), 3 + 4 + 5, abs_tol=1e-9)  # closed adds the 5 hypotenuse
 
 
-def test_segment_lengths_and_fractions():
+def test_segment_lengths_and_fractions() -> None:
     line = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 40]], closed=False)
     np.testing.assert_allclose(line.segment_lengths(), [10, 30], atol=1e-9)
     np.testing.assert_allclose(line.length_fractions(), [0, 0.25, 1.0], atol=1e-9)
 
 
-def test_translate_and_directional_moves():
+def test_translate_and_directional_moves() -> None:
     p = Path3D([[0, 0, 0]], closed=False)
     np.testing.assert_allclose(p.translate([1, 2, 3])[0], [1, 2, 3], atol=1e-9)
     np.testing.assert_allclose(p.move([1, 2, 3])[0], [1, 2, 3], atol=1e-9)
@@ -75,13 +75,13 @@ def test_translate_and_directional_moves():
     np.testing.assert_allclose(p.down(5)[0], [0, 0, -5], atol=1e-9)
 
 
-def test_scale_scalar_and_vector():
+def test_scale_scalar_and_vector() -> None:
     p = Path3D([[1, 2, 3]], closed=False)
     np.testing.assert_allclose(p.scale(2)[0], [2, 4, 6], atol=1e-9)
     np.testing.assert_allclose(p.scale([1, 0, 3])[0], [1, 0, 9], atol=1e-9)
 
 
-def test_rotate_about_z_axis_and_euler():
+def test_rotate_about_z_axis_and_euler() -> None:
     p = Path3D([[1, 0, 0]], closed=False)
     np.testing.assert_allclose(p.rotate(90)[0], [0, 1, 0], atol=1e-9)  # scalar -> Z
     np.testing.assert_allclose(p.rotate(90, [1, 0, 0])[0], [1, 0, 0], atol=1e-9)  # about its own axis
@@ -90,13 +90,13 @@ def test_rotate_about_z_axis_and_euler():
     np.testing.assert_allclose(z_up.rotate([90, 0, 0])[0], [0, -1, 0], atol=1e-9)  # euler X: +Z -> -Y
 
 
-def test_mirror_across_plane():
+def test_mirror_across_plane() -> None:
     p = Path3D([[1, 2, 3]], closed=False)
     np.testing.assert_allclose(p.mirror([0, 0, 1])[0], [1, 2, -3], atol=1e-9)
     np.testing.assert_allclose(p.mirror([1, 0, 0])[0], [-1, 2, 3], atol=1e-9)
 
 
-def test_reverse_close_cleanup_dedup():
+def test_reverse_close_cleanup_dedup() -> None:
     p = Path3D([[0, 0, 0], [1, 0, 0], [1, 1, 1]], closed=False)
     np.testing.assert_allclose(p.reverse()[0], [1, 1, 1], atol=1e-9)
     closed = p.close()
@@ -106,7 +106,7 @@ def test_reverse_close_cleanup_dedup():
     assert len(dd) == 2
 
 
-def test_resample_and_subdivide_keep_3d():
+def test_resample_and_subdivide_keep_3d() -> None:
     p = Path3D([[0, 0, 0], [0, 0, 30]], closed=False)
     radius = p.resample(sides=7)
     assert isinstance(radius, Path3D)
@@ -117,14 +117,14 @@ def test_resample_and_subdivide_keep_3d():
     assert s.array.shape[1] == 3
 
 
-def test_cut_returns_path3d_subpaths():
+def test_cut_returns_path3d_subpaths() -> None:
     line = Path3D([[0, 0, 0], [0, 0, 40]], closed=False)
     parts = line.cut([10.0])
     assert len(parts) == 2
     assert all(isinstance(pt, Path3D) for pt in parts)
 
 
-def test_tangents_normals_curvature_torsion_shapes():
+def test_tangents_normals_curvature_torsion_shapes() -> None:
     p = Path3D(
         [[math.cos(t), math.sin(t), t / 3] for t in np.linspace(0, 2 * math.pi, 24)],
         closed=False,
@@ -135,7 +135,7 @@ def test_tangents_normals_curvature_torsion_shapes():
     assert p.torsion().shape == (24,)
 
 
-def test_closest_point():
+def test_closest_point() -> None:
     from pybosl2.points import Point
 
     line = Path3D([[0, 0, 0], [0, 0, 10]], closed=False)
@@ -146,7 +146,7 @@ def test_closest_point():
     np.testing.assert_allclose([pt.x, pt.y, pt.z], [0, 0, 5], atol=1e-9)
 
 
-def test_path2d_drops_z():
+def test_path2d_drops_z() -> None:
     p = Path3D([[1, 2, 9], [3, 4, 8]], closed=False)
     flat = p.path2d()
     assert isinstance(flat, Path2D)
@@ -154,7 +154,7 @@ def test_path2d_drops_z():
     assert flat.closed is False
 
 
-def test_stroke_and_dashed_build():
+def test_stroke_and_dashed_build() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     p = Path3D([[0, 0, 0], [20, 0, 0], [20, 20, 10]], closed=False)

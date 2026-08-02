@@ -14,7 +14,7 @@ from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as Tct
 
 
-def test_turtle_square():
+def test_turtle_square() -> None:
     t = turtle2d(
         [
             TurtleCommand(Tct.MOVE, size=10),
@@ -29,14 +29,14 @@ def test_turtle_square():
     np.testing.assert_allclose(p, [[0, 0], [10, 0], [10, 10], [0, 10]], atol=1e-9)
 
 
-def test_turtle_repeat_closes_square():
+def test_turtle_repeat_closes_square() -> None:
     sub = [TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.LEFT, angle=90)]
     p = turtle2d([TurtleCommand(Tct.REPEAT, size=4, sub_commands=sub)]).points()
     np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
     np.testing.assert_allclose(p[-1], [0, 0], atol=1e-9)
 
 
-def test_turtle_full_state():
+def test_turtle_full_state() -> None:
     st = turtle2d([TurtleCommand(Tct.MOVE, size=5)]).full_state()
     assert isinstance(st, Turtle2DState)
     assert len(st.path) == 2
@@ -45,6 +45,6 @@ def test_turtle_full_state():
     assert st.arcsteps == 0
 
 
-def test_turtle_unknown_command_raises():
+def test_turtle_unknown_command_raises() -> None:
     with pytest.raises(ValueError, match="z-axis"):
         turtle2d([TurtleCommand(Tct.ZMOVE, size=5)])

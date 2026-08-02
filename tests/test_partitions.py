@@ -28,20 +28,20 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid, sphere
 # -- cut-path generators ------------------------------------------------------------------
 
 
-def test_partition_path_returns_path():
+def test_partition_path_returns_path() -> None:
     p = partition_path(["flat", "jigsaw", "flat"], fn=24)
     assert isinstance(p, Path2D)
     assert p.closed is False
 
 
-def test_partition_path_closed_when_y_given():
+def test_partition_path_closed_when_y_given() -> None:
     p = partition_path([30, "hammerhead", 30], y=150)
     assert p.closed is True
     # the closing edge sits at y=150
     assert any(math.isclose(pt[1], 150, abs_tol=1e-9) for pt in p)
 
 
-def test_named_subpaths_have_expected_shape():
+def test_named_subpaths_have_expected_shape() -> None:
     assert _partition_subpath("flat").to_list == [[0, 0], [1, 0]]
     assert _partition_subpath("sawtooth").to_list == [[0, 0], [0.5, 1], [1, 0]]
     assert len(_partition_subpath("dovetail")) == 6
@@ -49,23 +49,23 @@ def test_named_subpaths_have_expected_shape():
     assert len(_partition_subpath("jigsaw", fn=24)) > 10  # arc-based
 
 
-def test_ptn_sect_numeric_is_flat_segment():
+def test_ptn_sect_numeric_is_flat_segment() -> None:
     assert _ptn_sect(30).to_list == [[0, 0], [30.0, 0]]
 
 
-def test_ptn_sect_yflip_negates_y():
+def test_ptn_sect_yflip_negates_y() -> None:
     base = _ptn_sect("sawtooth")
     flipped = _ptn_sect("sawtooth yflip")
     np.testing.assert_allclose([p[1] for p in flipped], [-p[1] for p in base], atol=1e-9)
 
 
-def test_ptn_sect_repeat_triples_width():
+def test_ptn_sect_repeat_triples_width() -> None:
     one = _ptn_sect("sawtooth")
     three = _ptn_sect("sawtooth 3x")
     assert math.isclose(max(p[0] for p in three), 3 * max(p[0] for p in one), rel_tol=1e-9)
 
 
-def test_ptn_sect_resize():
+def test_ptn_sect_resize() -> None:
     sect = _ptn_sect("jigsaw 40x20", fn=24)
     xs = [p[0] for p in sect]
     ys = [p[1] for p in sect]
@@ -73,19 +73,19 @@ def test_ptn_sect_resize():
     assert max(abs(y) for y in ys) <= 20 + 1e-6
 
 
-def test_ptn_sect_skew_shifts_top():
+def test_ptn_sect_skew_shifts_top() -> None:
     sect = _ptn_sect("square skew:15")
     # the top edge (y=25) is shifted right relative to the bottom by height*tan(15)
     assert isinstance(sect, Path2D)
     assert len(sect) == 4
 
 
-def test_ptn_sect_bad_option_raises():
+def test_ptn_sect_bad_option_raises() -> None:
     with pytest.raises(AssertionError):
         _ptn_sect("sawtooth bogus")
 
 
-def test_partition_cutpath_repeats_to_length():
+def test_partition_cutpath_repeats_to_length() -> None:
     path = _partition_cutpath(100, 20, [20, 10], "dovetail", 0, True)
     xs = [p[0] for p in path]
     assert math.isclose(min(xs), -50, abs_tol=1e-9)  # spans -l/2 .. l/2
@@ -95,7 +95,7 @@ def test_partition_cutpath_repeats_to_length():
 # -- mask builders ------------------------------------------------------------------------
 
 
-def test_partition_mask_builds():
+def test_partition_mask_builds() -> None:
     assert isinstance(partition_mask(length=60, w=30, height=20, cutpath="dovetail"), Bosl2Solid)
     assert isinstance(
         partition_mask(length=60, w=30, height=20, cutpath="jigsaw", inverse=True, fn=12),
@@ -103,7 +103,7 @@ def test_partition_mask_builds():
     )
 
 
-def test_partition_cut_mask_builds():
+def test_partition_cut_mask_builds() -> None:
     assert isinstance(
         partition_cut_mask(length=60, height=20, cutpath="dovetail", slop=0.2),
         Bosl2Solid,
@@ -115,7 +115,7 @@ def test_partition_cut_mask_builds():
 BOX = cuboid([40, 30, 20])
 
 
-def test_axis_half_methods_return_solid():
+def test_axis_half_methods_return_solid() -> None:
     assert isinstance(BOX.left_half(), Bosl2Solid)
     assert isinstance(BOX.right_half(x=5), Bosl2Solid)
     assert isinstance(BOX.front_half(), Bosl2Solid)
@@ -124,23 +124,23 @@ def test_axis_half_methods_return_solid():
     assert isinstance(BOX.bottom_half(z=5), Bosl2Solid)
 
 
-def test_half_of_general_normal():
+def test_half_of_general_normal() -> None:
     assert isinstance(BOX.half_of([0, 1, 1]), Bosl2Solid)
-    assert isinstance(sphere(radius=20).half_of([1, 0, 0], center=5), Bosl2Solid)
+    assert isinstance(sphere(radius=20).half_of([1, 0, 0], center=5), Bosl2Solid)  # type: ignore[arg-type]
 
 
-def test_half_of_with_cut_path():
+def test_half_of_with_cut_path() -> None:
     center = partition_path([40, "jigsaw", 40], fn=12)
     assert isinstance(BOX.back_half(cut_path=center), Bosl2Solid)
 
 
-def test_partition_returns_two_pieces():
+def test_partition_returns_two_pieces() -> None:
     pieces = BOX.partition(spread=12, cutpath="dovetail")
     assert isinstance(pieces, list)
     assert len(pieces) == 2
     assert all(isinstance(p, Bosl2Solid) for p in pieces)
 
 
-def test_partition_accepts_cutsize_vector_and_spin():
+def test_partition_accepts_cutsize_vector_and_spin() -> None:
     pieces = cuboid([60, 40, 20]).partition(spread=8, cutsize=[20, 15], cutpath="hammerhead", spin=90)
     assert len(pieces) == 2

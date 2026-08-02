@@ -16,7 +16,7 @@ import pytest
 from pybosl2._backend import Solid, current_backend, get_backend, use_backend
 
 
-def test_sdf_backend_registers_and_builds_primitives():
+def test_sdf_backend_registers_and_builds_primitives() -> None:
     b = get_backend("sdf")
     assert b.name == "sdf"
     built = (b.construct("sphere", radius=10), b.construct("cube", 10), b.construct("cylinder", height=20, radius=5))
@@ -25,13 +25,13 @@ def test_sdf_backend_registers_and_builds_primitives():
         assert isinstance(shape, Solid)
 
 
-def test_sdf_sphere_bounds_match_the_requested_size():
+def test_sdf_sphere_bounds_match_the_requested_size() -> None:
     with use_backend("sdf"):
         _center, size = get_backend().construct("sphere", radius=10).bounds()
     assert [round(s) for s in size] == [20, 20, 20]  # exact, cheap -- no meshing needed
 
 
-def test_default_is_csg_and_context_selects_sdf():
+def test_default_is_csg_and_context_selects_sdf() -> None:
     assert current_backend() == "csg"
     csg = get_backend().construct("sphere", radius=10)
     with use_backend("sdf"):
@@ -55,15 +55,15 @@ def _libfive_available() -> bool:
     not _libfive_available(),
     reason="SDF meshing needs the real libfive C extension (like CSG render tests need the app)",
 )
-def test_sdf_mesh_pipeline_runs():
+def test_sdf_mesh_pipeline_runs() -> None:
     # Build -> symbolic SDF field -> frep() mesh, end to end (mock frep returns a marker result).
     with use_backend("sdf"):
         s = get_backend().construct("sphere", radius=10)
-        assert s.sdf() is not None  # libfive field
-        assert s.mesh() is not None  # frep() realized it
+        assert s.sdf() is not None  # type: ignore[attr-defined]  # libfive field
+        assert s.mesh() is not None  # type: ignore[attr-defined]  # frep() realized it
 
 
-def test_sdf_backend_does_not_import_the_csg_god_module():
+def test_sdf_backend_does_not_import_the_csg_god_module() -> None:
     # Importing the SDF backend must not drag in the large pybosl2.shapes3d CSG module: the shared
     # edge-selector language lives in pybosl2._edges_lang. Checked in a fresh interpreter since the
     # test session has already imported everything.

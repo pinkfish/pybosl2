@@ -506,10 +506,10 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
 
 
 def stroke2d(
-    path: Sequence[Sequence[float]] | NDArray,
+    path: Sequence[Sequence[float]] | NDArray,  # type: ignore[type-arg]
     width: float = 1,
     closed: bool = False,
-    res: int = 10,  # type: ignore[type-arg]
+    res: int = 10,
 ) -> PyShape2D:
     """A path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
     the min over the segments' capsule SDFs (distance-to-segment minus width/2)."""

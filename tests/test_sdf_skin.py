@@ -12,17 +12,17 @@ from pybosl2._sdf import skin as sdf_skin
 class TestRevolveSDF:
     """revolve_sdf — revolve a 2-D SDF around the Z axis."""
 
-    def test_full_revolution_builds(self):
+    def test_full_revolution_builds(self) -> None:
         rect = sdf_s2d.rect2d([4, 10])
         shape = sdf_skin._revolve_sdf(rect).mesh()
         assert shape is not None
 
-    def test_partial_revolution_builds(self):
+    def test_partial_revolution_builds(self) -> None:
         rect = sdf_s2d.rect2d([4, 10])
         shape = sdf_skin._revolve_sdf(rect, angle=90).mesh()
         assert shape is not None
 
-    def test_circle_revolved_builds(self):
+    def test_circle_revolved_builds(self) -> None:
         circ = sdf_s2d.circle2d(radius=5).translate([8, 0])
         shape = sdf_skin._revolve_sdf(circ).mesh()
         assert shape is not None
@@ -31,7 +31,7 @@ class TestRevolveSDF:
 class TestLinearSweepSDF:
     """linear_sweep_sdf — extrude with twist/scale/shift."""
 
-    def test_plain_builds(self):
+    def test_plain_builds(self) -> None:
         shape = sdf_skin._linear_sweep_sdf(sdf_s2d.circle2d(radius=5), height=4).mesh()
         assert shape is not None
 
@@ -39,13 +39,13 @@ class TestLinearSweepSDF:
 class TestSkinSDF:
     """skin_sdf — loft between stacked 2-D profiles."""
 
-    def test_two_profile_loft(self):
+    def test_two_profile_loft(self) -> None:
         bottom = sdf_s2d.circle2d(radius=6)
         top = sdf_s2d.circle2d(radius=3)
         shape = sdf_skin.skin_sdf([bottom, top], z=[0, 10]).mesh()
         assert shape is not None
 
-    def test_three_profile_stack(self):
+    def test_three_profile_stack(self) -> None:
         bot = sdf_s2d.square2d(12)
         mid = sdf_s2d.circle2d(radius=8)
         top = sdf_s2d.square2d(6)
@@ -56,7 +56,7 @@ class TestSkinSDF:
 class TestMeshToVNF:
     """mesh_to_vnf — extract VNF data from a meshed PyShape."""
 
-    def test_cube_vnf_runs(self):
+    def test_cube_vnf_runs(self) -> None:
         shape = sdf_s3d.cuboid([4, 4, 4]).mesh()
         verts, faces = sdf_skin.mesh_to_vnf(shape)
         assert verts is not None

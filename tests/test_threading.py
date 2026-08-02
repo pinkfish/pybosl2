@@ -10,6 +10,7 @@ that every builder returns a Bosl2Solid; the real geometry (watertight rods/nuts
 major/minor diameter and length) is verified in test_stl_render.py."""
 
 import math
+from collections.abc import Callable
 
 import numpy as np
 import pytest
@@ -25,7 +26,7 @@ from pybosl2.shapes3d import Bosl2Solid
 # -- thread profiles (in pitch units) -----------------------------------------------------
 
 
-def test_iso_profile():
+def test_iso_profile() -> None:
     depth = math.cos(math.radians(30)) * 5 / 8
     exp = [
         [-depth / math.sqrt(3) - 1 / 16, -depth],
@@ -33,24 +34,24 @@ def test_iso_profile():
         [1 / 16, 0],
         [depth / math.sqrt(3) + 1 / 16, -depth],
     ]
-    np.testing.assert_allclose(_iso_profile(), exp, atol=1e-12)
+    np.testing.assert_allclose(_iso_profile(), exp, atol=1e-12)  # type: ignore[call-overload]
 
 
-def test_trapezoidal_profile_30deg():
+def test_trapezoidal_profile_30deg() -> None:
     # thread_angle 30, depth = pitch/2 -> pa_delta = 0.5*(p/2)*tan(15)/p = tan(15)/4
     p = 2.0
     pa = math.tan(math.radians(15)) / 4
     exp = [[-(0.25 + pa), -0.5], [-(0.25 - pa), 0], [0.25 - pa, 0], [0.25 + pa, -0.5]]
-    np.testing.assert_allclose(_trapezoidal_profile(p, 30), exp, atol=1e-12)
+    np.testing.assert_allclose(_trapezoidal_profile(p, 30), exp, atol=1e-12)  # type: ignore[call-overload]
 
 
-def test_trapezoidal_depth_scales_with_pitch():
+def test_trapezoidal_depth_scales_with_pitch() -> None:
     # y (the depth fraction) is thread_depth/pitch; default depth = pitch/2 -> -0.5
     prof = _trapezoidal_profile(4, 30)
     assert math.isclose(min(p[1] for p in prof), -0.5, abs_tol=1e-12)
 
 
-def test_buttress_profile_is_asymmetric():
+def test_buttress_profile_is_asymmetric() -> None:
     prof = _buttress_profile()
     assert prof[0] == [-1 / 2, -0.77]
     # asymmetric: the crest [5/16, 7/16] is offset from center, not centred on 0
@@ -59,12 +60,12 @@ def test_buttress_profile_is_asymmetric():
     assert not math.isclose(crest_mid, 0.0, abs_tol=1e-6)
 
 
-def test_impossible_trapezoid_raises():
+def test_impossible_trapezoid_raises() -> None:
     with pytest.raises(AssertionError):
         _trapezoidal_profile(1, 170)  # flanks would cross
 
 
-def test_thread_profile_is_structured_dataclass():
+def test_thread_profile_is_structured_dataclass() -> None:
     from pybosl2.parts.threading import ThreadProfile
 
     iso = _iso_profile()
@@ -94,7 +95,7 @@ def test_thread_profile_is_structured_dataclass():
         lambda: Threading.threaded_rod(12, 24, 1.75, left_handed=True),
     ],
 )
-def test_rod_builders(call):
+def test_rod_builders(call: Callable[[], Bosl2Solid]) -> None:
     assert isinstance(call(), Bosl2Solid)
 
 
@@ -113,16 +114,16 @@ def test_rod_builders(call):
         lambda: Threading.generic_threaded_nut(18, 12, 10, 1.75, _iso_profile(), slop=0.1),
     ],
 )
-def test_nut_builders(call):
+def test_nut_builders(call: Callable[[], Bosl2Solid]) -> None:
     assert isinstance(call(), Bosl2Solid)
 
 
-def test_nut_with_zero_pitch_is_plain_hole():
+def test_nut_with_zero_pitch_is_plain_hole() -> None:
     # pitch 0 -> unthreaded bore
     assert isinstance(Threading.threaded_nut(18, 12, 10, 0), Bosl2Solid)
 
 
-def test_thread_helix_builds():
+def test_thread_helix_builds() -> None:
     assert isinstance(Threading.thread_helix(20, 4, turns=3), Bosl2Solid)
     assert isinstance(
         Threading.thread_helix(20, 4, thread_depth=1.5, flank_angle=20, turns=2),
@@ -130,13 +131,13 @@ def test_thread_helix_builds():
     )
 
 
-def test_invalid_rod_dims_raise():
+def test_invalid_rod_dims_raise() -> None:
     with pytest.raises(AssertionError):
         Threading.generic_threaded_rod(12, 24, 0, _iso_profile())  # pitch 0
     with pytest.raises(AssertionError):
         Threading.generic_threaded_rod(0, 24, 1.5, _iso_profile())  # d 0
 
 
-def test_bad_nut_shape_raises():
+def test_bad_nut_shape_raises() -> None:
     with pytest.raises(AssertionError):
         Threading.threaded_nut(18, 12, 10, 1.75, shape="round")

@@ -22,7 +22,7 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid
 # -- matrix generators --------------------------------------------------------------------
 
 
-def test_move_and_copy_matrices():
+def test_move_and_copy_matrices() -> None:
     from pybosl2._helpers import translate4
 
     mats = [translate4(pos) for pos in [[0, 0, 0], [10, 0, 0], [0, 5, 0]]]
@@ -30,25 +30,25 @@ def test_move_and_copy_matrices():
     np.testing.assert_allclose(mats[1][:3, 3], [10, 0, 0], atol=1e-9)  # translation column
 
 
-def test_xcopies_centered_by_default():
+def test_xcopies_centered_by_default() -> None:
     mats = DistributableMatrix.xcopies(20, num_copies=3)
     xs = sorted(m[0, 3] for m in mats)
     np.testing.assert_allclose(xs, [-20, 0, 20], atol=1e-9)  # centered on origin
 
 
-def test_xcopies_explicit_positions():
-    mats = DistributableMatrix.xcopies([1, 2, 3, 5, 7])
+def test_xcopies_explicit_positions() -> None:
+    mats = DistributableMatrix.xcopies([1, 2, 3, 5, 7])  # type: ignore[arg-type]
     xs = [m[0, 3] for m in mats]
     np.testing.assert_allclose(xs, [1, 2, 3, 5, 7], atol=1e-9)
 
 
-def test_grid_copies_count_and_stagger():
+def test_grid_copies_count_and_stagger() -> None:
     assert len(DistributableMatrix.grid_copies(num_copies=[3, 4], spacing=10)) == 12
     # a staggered grid drops/offsets alternate columns per row
     assert len(DistributableMatrix.grid_copies(spacing=8, num_copies=[4, 3], stagger=True)) == 6
 
 
-def test_grid_copies_inside_polygon_filters():
+def test_grid_copies_inside_polygon_filters() -> None:
     # only centers inside the small square survive
     poly = [[-6, -6], [6, -6], [6, 6], [-6, 6]]
     mats = DistributableMatrix.grid_copies(spacing=5, num_copies=[9, 9], inside=poly)
@@ -58,13 +58,13 @@ def test_grid_copies_inside_polygon_filters():
         assert -6 <= m[1, 3] <= 6
 
 
-def test_arc_copies_positions_on_circle():
+def test_arc_copies_positions_on_circle() -> None:
     mats = DistributableMatrix.arc_copies(num_copies=4, radius=10, sa=0, ea=360)
     # first copy sits on +X at radius 10
     np.testing.assert_allclose(mats[0][:3, 3], [10, 0, 0], atol=1e-9)
 
 
-def test_mirror_copy_is_original_plus_reflection():
+def test_mirror_copy_is_original_plus_reflection() -> None:
     mats = DistributableMatrix.mirror_copy([1, 0, 0])
     assert len(mats) == 2
     np.testing.assert_allclose(mats[0], np.eye(4), atol=1e-9)  # the original
@@ -76,8 +76,8 @@ def test_mirror_copy_is_original_plus_reflection():
 SQUARE = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
 
 
-def test_path_xcopies_returns_paths():
-    copies = SQUARE.xcopies(20, num_copies=3)
+def test_path_xcopies_returns_paths() -> None:
+    copies = SQUARE.xcopies(20, num_copies=3)  # type: ignore[var-annotated]
     assert isinstance(copies, list)
     assert len(copies) == 3
     assert all(isinstance(c, Path2D) for c in copies)
@@ -85,19 +85,19 @@ def test_path_xcopies_returns_paths():
     np.testing.assert_allclose(copies[2][0], [20, 0], atol=1e-9)
 
 
-def test_path_grid_and_arc_stay_2d():
+def test_path_grid_and_arc_stay_2d() -> None:
     assert len(SQUARE.grid_copies(num_copies=[2, 3], spacing=25)) == 6
-    assert all(isinstance(c, Path2D) for c in SQUARE.arc_copies(num_copies=5, radius=40))
+    assert all(isinstance(c, Path2D) for c in SQUARE.arc_copies(num_copies=5, radius=40))  # type: ignore[var-annotated]
 
 
-def test_path_zrot_copies_in_plane():
-    copies = SQUARE.zrot_copies(num_copies=4)
+def test_path_zrot_copies_in_plane() -> None:
+    copies = SQUARE.zrot_copies(num_copies=4)  # type: ignore[var-annotated]
     assert len(copies) == 4
     assert all(isinstance(c, Path2D) for c in copies)
 
 
-def test_path_out_of_plane_copier_raises():
-    for call in (
+def test_path_out_of_plane_copier_raises() -> None:
+    for call in (  # type: ignore[var-annotated]
         lambda: SQUARE.zcopies(10, num_copies=3),
         lambda: SQUARE.xrot_copies(num_copies=4, radius=10),
         lambda: SQUARE.sphere_copies(num_copies=8, radius=20),
@@ -106,8 +106,8 @@ def test_path_out_of_plane_copier_raises():
             call()
 
 
-def test_path_mirror_copy_2d():
-    copies = SQUARE.xflip_copy(x=20)
+def test_path_mirror_copy_2d() -> None:
+    copies = SQUARE.xflip_copy(x=20)  # type: ignore[var-annotated]
     assert len(copies) == 2
     assert all(isinstance(c, Path2D) for c in copies)
 
@@ -117,22 +117,22 @@ def test_path_mirror_copy_2d():
 SEG3 = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 5]], closed=False)
 
 
-def test_path3d__zcopies():
-    copies = SEG3.zcopies(15, num_copies=3)
+def test_path3d__zcopies() -> None:
+    copies = SEG3.zcopies(15, num_copies=3)  # type: ignore[var-annotated]
     assert len(copies) == 3
     assert all(isinstance(c, Path3D) for c in copies)
     zs = sorted(c[0][2] for c in copies)
     np.testing.assert_allclose(zs, [-15, 0, 15], atol=1e-9)  # centered along Z
 
 
-def test_path3d_xrot_copies_ring():
-    copies = SEG3.xrot_copies(num_copies=6, radius=20)
+def test_path3d_xrot_copies_ring() -> None:
+    copies = SEG3.xrot_copies(num_copies=6, radius=20)  # type: ignore[var-annotated]
     assert len(copies) == 6
     assert all(isinstance(c, Path3D) for c in copies)
 
 
-def test_path3d_sphere_copies():
-    copies = SEG3.sphere_copies(num_copies=10, radius=30)
+def test_path3d_sphere_copies() -> None:
+    copies = SEG3.sphere_copies(num_copies=10, radius=30)  # type: ignore[var-annotated]
     assert len(copies) == 10
     assert all(isinstance(c, Path3D) for c in copies)
 
@@ -140,29 +140,29 @@ def test_path3d_sphere_copies():
 # -- Bosl2Solid returns a unioned solid ---------------------------------------------------
 
 
-def test_solid_grid_copies_returns_solid():
-    result = cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=20)
+def test_solid_grid_copies_returns_solid() -> None:
+    result = cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=20)  # type: ignore[var-annotated]
     assert isinstance(result, list)
     assert all(isinstance(c, Bosl2Solid) for c in result)
 
 
-def test_solid_ring_and_flip_return_solid():
+def test_solid_ring_and_flip_return_solid() -> None:
     box = cuboid([10, 10, 10])
-    result = box.zrot_copies(num_copies=6, radius=30)
+    result = box.zrot_copies(num_copies=6, radius=30)  # type: ignore[var-annotated]
     assert isinstance(result, list)
     assert all(isinstance(c, Bosl2Solid) for c in result)
-    result2 = box.right(20).xflip_copy()
+    result2 = box.right(20).xflip_copy()  # type: ignore[var-annotated]
     assert isinstance(result2, list)
     assert all(isinstance(c, Bosl2Solid) for c in result2)
-    result3 = box.move_and_copy([Vector(0, 0, 0), Vector(20, 0, 0), Vector(0, 20, 0)])
+    result3 = box.move_and_copy([Vector(0, 0, 0), Vector(20, 0, 0), Vector(0, 20, 0)])  # type: ignore[var-annotated]
     assert isinstance(result3, list)
     assert all(isinstance(c, Bosl2Solid) for c in result3)
 
 
-def test_solid_path_copies_returns_solid():
+def test_solid_path_copies_returns_solid() -> None:
     box = cuboid([4, 4, 4])
     path = Path2D([[0, 0], [30, 0], [30, 30]])
-    result = box.path_copies(path, num_copies=6)
+    result = box.path_copies(path, num_copies=6)  # type: ignore[arg-type, var-annotated]
     assert isinstance(result, list)
     assert all(isinstance(c, Bosl2Solid) for c in result)
 
@@ -170,7 +170,7 @@ def test_solid_path_copies_returns_solid():
 # -- distribute (list of distinct children) -----------------------------------------------
 
 
-def test_distribute_returns_solid():
+def test_distribute_returns_solid() -> None:
     a, b, c = cuboid([10, 10, 10]), cuboid([20, 20, 20]), cuboid([5, 5, 5])
     assert isinstance(xdistribute([a, b, c], spacing=5), Bosl2Solid)
     assert isinstance(ydistribute([a, b], sizes=[10, 20]), Bosl2Solid)

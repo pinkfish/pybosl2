@@ -13,11 +13,11 @@ from pybosl2 import _backend
 from pybosl2.exceptions import Bosl2Error, CrossBackendError, UnsupportedByBackendError
 
 
-def test_default_backend_is_csg():
+def test_default_backend_is_csg() -> None:
     assert _backend.current_backend() == "csg"
 
 
-def test_use_backend_switches_and_restores():
+def test_use_backend_switches_and_restores() -> None:
     assert _backend.current_backend() == "csg"
     with _backend.use_backend("sdf"):
         assert _backend.current_backend() == "sdf"
@@ -27,7 +27,7 @@ def test_use_backend_switches_and_restores():
     assert _backend.current_backend() == "csg"  # restored even after nesting
 
 
-def test_set_default_backend_roundtrip():
+def test_set_default_backend_roundtrip() -> None:
     try:
         _backend.set_default_backend("sdf")
         assert _backend.current_backend() == "sdf"
@@ -38,14 +38,14 @@ def test_set_default_backend_roundtrip():
     assert _backend.current_backend() == "csg"
 
 
-def test_unknown_backend_raises():
+def test_unknown_backend_raises() -> None:
     with pytest.raises(Bosl2Error):
         _backend.use_backend("nope").__enter__()
     with pytest.raises(Bosl2Error):
         _backend.set_default_backend("nope")
 
 
-def test_bosl2solid_is_csg_backend_and_conforms_to_solid_protocol():
+def test_bosl2solid_is_csg_backend_and_conforms_to_solid_protocol() -> None:
     from pybosl2.shapes3d import cuboid
 
     box = cuboid([10, 10, 10])
@@ -53,7 +53,7 @@ def test_bosl2solid_is_csg_backend_and_conforms_to_solid_protocol():
     assert isinstance(box, _backend.Solid)  # runtime-checkable Protocol conformance
 
 
-def test_unsupported_by_backend_message_and_fields():
+def test_unsupported_by_backend_message_and_fields() -> None:
     err = UnsupportedByBackendError("attach", "sdf", hint="use the csg backend for attachment")
     assert err.feature == "attach"
     assert err.backend == "sdf"
@@ -62,7 +62,7 @@ def test_unsupported_by_backend_message_and_fields():
     assert "csg backend for attachment" in str(err)
 
 
-def test_cross_backend_error_gives_conversion_guidance():
+def test_cross_backend_error_gives_conversion_guidance() -> None:
     err = CrossBackendError("csg", "sdf")
     assert err.left == "csg"
     assert err.right == "sdf"

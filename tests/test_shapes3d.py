@@ -34,55 +34,55 @@ from pybosl2.shapes3d import (
 _UNIT_CUBE = [[x, y, z] for x in (-0.5, 0.5) for y in (-0.5, 0.5) for z in (-0.5, 0.5)]
 
 
-def test_anchor_offset_hull3_face_is_face_centre():
+def test_anchor_offset_hull3_face_is_face_centre() -> None:
     # BOTTOM ties all four bottom corners; the anchor is the face centre, so the offset lifts z by 0.5
     np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, BOTTOM), [0, 0, 0.5], atol=1e-9)
     np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, TOP), [0, 0, -0.5], atol=1e-9)
     np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, RIGHT), [-0.5, 0, 0], atol=1e-9)
 
 
-def test_anchor_offset_hull3_edge_is_edge_midpoint():
+def test_anchor_offset_hull3_edge_is_edge_midpoint() -> None:
     # RIGHT+TOP ties two vertices; the anchor is their midpoint
     np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, [1, 0, 1]), [-0.5, 0, -0.5], atol=1e-9)
 
 
-def test_anchor_offset_hull3_corner_is_the_corner():
+def test_anchor_offset_hull3_corner_is_the_corner() -> None:
     np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, [1, 1, 1]), [-0.5, -0.5, -0.5], atol=1e-9)
 
 
-def test_anchor_offset_hull3_center_is_zero():
+def test_anchor_offset_hull3_center_is_zero() -> None:
     np.testing.assert_allclose(_anchor_offset_hull3(_UNIT_CUBE, CENTER), [0, 0, 0], atol=1e-9)
 
 
-def test_prismoid_bottom_anchor_is_centred_on_xy():
+def test_prismoid_bottom_anchor_is_centred_on_xy() -> None:
     # regression: BOTTOM (the default) must centre X/Y and rest the base on z=0, not anchor to a corner
-    lo, size = prismoid([50, 10], [50, 10], height=25)._native_bounds()
+    lo, size = prismoid([50, 10], [50, 10], height=25)._native_bounds()  # type: ignore[misc]
     np.testing.assert_allclose(lo, [-25, -5, 0], atol=1e-6)
     np.testing.assert_allclose(size, [50, 10, 25], atol=1e-6)
 
 
-def test_cuboid_is_bosl2solid_with_size():
+def test_cuboid_is_bosl2solid_with_size() -> None:
     c = cuboid([40, 30, 20])
     assert isinstance(c, Bosl2Solid)
-    assert list(c.size) == [40, 30, 20]
+    assert list(c.size) == [40, 30, 20]  # type: ignore[arg-type]
 
 
-def test_bounds_center_and_size():
+def test_bounds_center_and_size() -> None:
     center, size = cuboid([40, 30, 20]).bounds()
     np.testing.assert_allclose(center, [0, 0, 0], atol=1e-9)
     np.testing.assert_allclose(size, [40, 30, 20], atol=1e-9)
 
 
-def test_anchor_points_on_faces():
+def test_anchor_points_on_faces() -> None:
     c = cuboid([40, 30, 20])
     np.testing.assert_allclose(c.anchor_point(TOP), [0, 0, 10], atol=1e-9)
     np.testing.assert_allclose(c.anchor_point(BOTTOM), [0, 0, -10], atol=1e-9)
     np.testing.assert_allclose(c.anchor_point(RIGHT), [20, 0, 0], atol=1e-9)
     np.testing.assert_allclose(c.anchor_point(FRONT), [0, -15, 0], atol=1e-9)
-    np.testing.assert_allclose(c.anchor_point([1, 1, 1]), [20, 15, 10], atol=1e-9)
+    np.testing.assert_allclose(c.anchor_point([1, 1, 1]), [20, 15, 10], atol=1e-9)  # type: ignore[arg-type]
 
 
-def test_directional_moves_shift_center():
+def test_directional_moves_shift_center() -> None:
     c = cuboid([10, 10, 10])
     np.testing.assert_allclose(c.right(5).anchor_point(CENTER), [5, 0, 0], atol=1e-9)
     np.testing.assert_allclose(c.left(5).anchor_point(CENTER), [-5, 0, 0], atol=1e-9)
@@ -92,90 +92,90 @@ def test_directional_moves_shift_center():
     np.testing.assert_allclose(c.down(5).anchor_point(CENTER), [0, 0, -5], atol=1e-9)
 
 
-def test_move_and_translate_agree():
+def test_move_and_translate_agree() -> None:
     c = cuboid([10, 10, 10])
     np.testing.assert_allclose(c.move([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
     np.testing.assert_allclose(c.translate([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
 
 
-def test_rot_is_rotate_alias():
+def test_rot_is_rotate_alias() -> None:
     assert Bosl2Solid.rot is Bosl2Solid.rotate
     assert isinstance(cuboid([10, 10, 10]).rot(90), Bosl2Solid)
 
 
-def test_reanchor_moves_anchor_to_origin():
-    rb = cuboid([40, 30, 20]).reanchor(BOTTOM)
+def test_reanchor_moves_anchor_to_origin() -> None:
+    rb = cuboid([40, 30, 20]).reanchor(BOTTOM)  # type: ignore[arg-type]
     center, size = rb.bounds()
     np.testing.assert_allclose(center, [0, 0, 10], atol=1e-9)  # box now sits on z=0
     np.testing.assert_allclose(size, [40, 30, 20], atol=1e-9)
 
 
-def test_wrap_unwrap():
+def test_wrap_unwrap() -> None:
     c = cuboid([10, 10, 10])
     assert c.shape is not None
     assert Bosl2Solid._unwrap(c) is c.shape
     assert Bosl2Solid._unwrap(c.shape) is c.shape
 
 
-def test_csg_operators_return_bosl2solid():
+def test_csg_operators_return_bosl2solid() -> None:
     a, b = cuboid([10, 10, 10]), cuboid([5, 5, 5])
     assert isinstance(a | b, Bosl2Solid)
     assert isinstance(a - b, Bosl2Solid)
     assert isinstance(a & b, Bosl2Solid)
 
 
-def test_color_and_scale_preserve_wrapper():
+def test_color_and_scale_preserve_wrapper() -> None:
     c = cuboid([10, 10, 10])
     assert isinstance(c.color("red"), Bosl2Solid)
     assert isinstance(c.scale([2, 2, 2]), Bosl2Solid)
 
 
-def test_other_primitives_build():
+def test_other_primitives_build() -> None:
     assert isinstance(sphere(radius=5), Bosl2Solid)
     assert isinstance(cyl(height=10, radius=3), Bosl2Solid)
 
 
-def test_getattr_falls_through_to_native():
+def test_getattr_falls_through_to_native() -> None:
     # a method not defined on Bosl2Solid resolves on the wrapped native shape
     c = cuboid([10, 10, 10])
     assert c.position is not None  # native accessor via __getattr__
 
 
-def test_plot3d_surface_and_solid():
+def test_plot3d_surface_and_solid() -> None:
     import math
 
     xs = list(range(-9, 10, 3))
     ys = list(range(-9, 10, 3))
-    assert isinstance(plot3d(lambda x, _y: math.cos(x / 6), xs, ys), Bosl2Solid)
-    assert isinstance(plot3d(lambda x, _y: math.cos(x / 6), xs, ys, base=0), Bosl2Solid)
+    assert isinstance(plot3d(lambda x, _y: math.cos(x / 6), xs, ys), Bosl2Solid)  # type: ignore[operator]
+    assert isinstance(plot3d(lambda x, _y: math.cos(x / 6), xs, ys, base=0), Bosl2Solid)  # type: ignore[operator]
 
 
-def test_orient_reorient_return_bosl2solid():
+def test_orient_reorient_return_bosl2solid() -> None:
     from pybosl2.constants import RIGHT, TOP
 
     c = cuboid([40, 30, 20])
-    assert isinstance(c.orient(RIGHT), Bosl2Solid)
+    assert isinstance(c.orient(RIGHT), Bosl2Solid)  # type: ignore[arg-type]
     assert isinstance(c.reorient(anchor=TOP, spin=30, orient=RIGHT), Bosl2Solid)
     # (the numeric mock does not transform the bbox through multmatrix; the geometric result is
     # verified in test_stl_render.py against the real app)
 
 
-def test_anchor_bbox_override():
+def test_anchor_bbox_override() -> None:
     # a passed-in bbox overrides the object's own bounds (min/max corners)
     c = cuboid([10, 10, 10])
     np.testing.assert_allclose(c.anchor_point(TOP, bbox=[[-20, -20, -20], [20, 20, 20]]), [0, 0, 20], atol=1e-9)
     np.testing.assert_allclose(c.anchor_point(RIGHT, bbox=[[0, 0, 0], [40, 40, 40]]), [40, 20, 20], atol=1e-9)
 
 
-def test_reanchor_bbox_override_moves_center():
+def test_reanchor_bbox_override_moves_center() -> None:
     c = cuboid([10, 10, 10])
     # with an overriding bbox sitting above the origin, reanchor(BOTTOM) drops it onto z=0
-    center, _ = c.reanchor(BOTTOM, bbox=[[-5, -5, 10], [5, 5, 30]]).bounds()
+    center, _ = c.reanchor(BOTTOM, bbox=[[-5, -5, 10], [5, 5, 30]]).bounds()  # type: ignore[arg-type]
     # the overriding bbox's BOTTOM anchor is at z=10, so reanchor translates by -10
     np.testing.assert_allclose(center, [0, 0, -10], atol=1e-9)
 
 
-def test_resolve_bounds_rejects_bad_bbox():
+def test_resolve_bounds_rejects_bad_bbox() -> None:
     import pytest
 
     c = cuboid([10, 10, 10])
@@ -185,26 +185,26 @@ def test_resolve_bounds_rejects_bad_bbox():
         c.anchor_point(TOP, bbox=[[10, 0, 0], [0, 5, 5]])  # max < min on x
 
 
-def test_fillet_builds():
-    assert isinstance(fillet(length=20, radius=6), Bosl2Solid)
-    assert isinstance(fillet(length=20, radius1=4, radius2=8), Bosl2Solid)
+def test_fillet_builds() -> None:
+    assert isinstance(fillet(length=20, radius=6), Bosl2Solid)  # type: ignore[operator]
+    assert isinstance(fillet(length=20, radius1=4, radius2=8), Bosl2Solid)  # type: ignore[operator]
 
 
-def test_fillet_rejects_non_right_angle():
+def test_fillet_rejects_non_right_angle() -> None:
     import pytest
 
     with pytest.raises(AssertionError):
-        fillet(length=20, radius=6, angle=120)
+        fillet(length=20, radius=6, angle=120)  # type: ignore[operator]
 
 
-def test_plot_revolution_taper_and_path():
+def test_plot_revolution_taper_and_path() -> None:
     import math
 
-    def _f(a, _z):
+    def _f(a, _z):  # type: ignore[no-untyped-def]
         return 2 * math.sin(math.radians(a))
 
     assert isinstance(
-        plot_revolution(
+        plot_revolution(  # type: ignore[operator]
             _f,
             angle=list(range(0, 361, 20)),
             z=list(range(0, 21, 5)),
@@ -214,49 +214,49 @@ def test_plot_revolution_taper_and_path():
         Bosl2Solid,
     )
     prof = [[10, 0], [8, 10], [10, 20]]
-    assert isinstance(plot_revolution(_f, angle=list(range(0, 361, 20)), path=prof), Bosl2Solid)
+    assert isinstance(plot_revolution(_f, angle=list(range(0, 361, 20)), path=prof), Bosl2Solid)  # type: ignore[operator]
 
 
-def test_textured_tile_reps_and_size():
+def test_textured_tile_reps_and_size() -> None:
     bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
-    assert isinstance(textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3), Bosl2Solid)
-    assert isinstance(textured_tile(bump, size=[40, 40], tex_size=10), Bosl2Solid)
+    assert isinstance(textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3), Bosl2Solid)  # type: ignore[operator]
+    assert isinstance(textured_tile(bump, size=[40, 40], tex_size=10), Bosl2Solid)  # type: ignore[operator]
 
 
 # --- regressions for the Bosl2Solid wrapper review fixes ---
 
 
-def test_getattr_no_recursion_when_shape_unset():
+def test_getattr_no_recursion_when_shape_unset() -> None:
     # a half-built object (via __new__, or during unpickling) must not blow the stack
     obj = Bosl2Solid.__new__(Bosl2Solid)
     with pytest.raises(AttributeError):
         _ = obj.anything
 
 
-def test_native_passthrough_op_keeps_wrapper_and_chains():
+def test_native_passthrough_op_keeps_wrapper_and_chains() -> None:
     # resize() has no explicit override; __getattr__ must re-wrap so the fluent API survives
-    chained = cuboid([10, 10, 10]).resize([5, 5, 5]).up(3)
+    chained = cuboid([10, 10, 10]).resize([5, 5, 5]).up(3)  # type: ignore[operator]
     assert isinstance(chained, Bosl2Solid)
 
 
-def test_rotate_accepts_numpy_int_scalar():
+def test_rotate_accepts_numpy_int_scalar() -> None:
     # np.int64 is not a Python int; the scalar->Z-rotation normalization must still apply
     assert isinstance(cuboid([10, 10, 10]).rotate(np.int64(90)), Bosl2Solid)
     assert isinstance(cuboid([10, 10, 10]).rotate(np.float64(45)), Bosl2Solid)
 
 
-def test_bounds_metadata_fallback_fails_loud_after_move():
+def test_bounds_metadata_fallback_fails_loud_after_move() -> None:
     # under the numeric mock (no native bbox), tracked metadata is only valid before a transform
     c = cuboid([10, 10, 10])
-    c._native_bounds = lambda: None
+    c._native_bounds = lambda: None  # type: ignore[method-assign]
     assert c.bounds()[0] == [0.0, 0.0, 0.0]  # unmoved: metadata is correct
     m = cuboid([10, 10, 10]).up(50)
-    m._native_bounds = lambda: None
+    m._native_bounds = lambda: None  # type: ignore[method-assign]
     with pytest.raises(ValueError, match="transformed since construction"):
         m.bounds()  # moved: refuse to return a stale centre
 
 
-def test_cyl_missing_args():
+def test_cyl_missing_args() -> None:
     # Test that cyl and xcyl/ycyl/zcyl accept all the new parameters
     # and construct without errors.
     c = cyl(length=40, radius=10, extra=5, chamfer_angle=30, from_end=True)
@@ -307,7 +307,7 @@ def test_cyl_missing_args():
     assert isinstance(c_td_float, Bosl2Solid)
 
 
-def test_texture_enum():
+def test_texture_enum() -> None:
     from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
     from pybosl2.texture import TextureType, texture
 
