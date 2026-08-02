@@ -962,9 +962,12 @@ class Gears:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """
-        An internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2
-        ring_gear()).
+        """An internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2 ring_gear()).
+
+        Examples:
+            .. pythonscad-example::
+
+                Gears.ring_gear(teeth=30, thickness=8, pressure_angle=14.5, helical=20).show()
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)

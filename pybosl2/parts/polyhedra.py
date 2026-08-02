@@ -311,7 +311,13 @@ class Polyhedra:
         inner_radius: float | None = None,
         side: float | None = None,
     ) -> Bosl2Solid:
-        """A regular icosahedron (20 triangular faces)."""
+        """A regular icosahedron (20 triangular faces).
+
+        Examples:
+            .. pythonscad-example::
+
+                Polyhedra.icosahedron(side=20).show()
+        """
         return Polyhedra.regular_polyhedron(
             "icosahedron",
             radius=radius,

@@ -122,6 +122,14 @@ def mb_sphere(
 
     Raises:
         AssertionError: If no positive radius or diameter is given.
+
+    Examples:
+        .. pythonscad-example::
+
+            spec = [MetaballSpec([0, 0, 0], mb_sphere(radius=15))]
+            VNF.from_metaballs(
+                spec, Bounds3D(-20, -20, -20, 20, 20, 20, 40, 40, 40), voxel_size=2
+            ).polyhedron().show()
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     assert rr and rr > 0, "mb_sphere(): need a positive radius or diameter."
@@ -155,6 +163,15 @@ def mb_cuboid(
 
     Raises:
         AssertionError: If *squareness* is not in ``[0, 1]``.
+
+    Examples:
+        .. pythonscad-example::
+
+            spec = [MetaballSpec([-12, 0, 0], mb_cuboid(size=10, squareness=0.3)),
+                    MetaballSpec([12, 0, 0], mb_cuboid(size=10, squareness=0.3))]
+            VNF.from_metaballs(
+                spec, Bounds3D(-25, -15, -15, 25, 15, 15, 50, 30, 30), voxel_size=2
+            ).polyhedron().show()
     """
     assert 0 <= squareness <= 1, "mb_cuboid(): squareness must be in [0, 1]."
     xp = _squircle_se_exponent(squareness)
@@ -194,6 +211,14 @@ def mb_torus(
 
     Raises:
         AssertionError: If either radius is missing or non-positive.
+
+    Examples:
+        .. pythonscad-example::
+
+            spec = [MetaballSpec([0, 0, 0], mb_torus(major_radius=15, minor_radius=5))]
+            VNF.from_metaballs(
+                spec, Bounds3D(-20, -20, -10, 20, 20, 10, 40, 40, 20), voxel_size=2
+            ).polyhedron().show()
     """
     rmaj, rmin = (
         (major_radius if major_radius is not None else (major_diameter / 2 if major_diameter is not None else None)),

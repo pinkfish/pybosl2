@@ -197,6 +197,13 @@ def _round_corners(
 
             sq = [[0, 0], [40, 0], [40, 40], [0, 40]]
             round_corners(sq, method="smooth", joint=10).polygon().linear_extrude(height=4).show()
+
+        A 2-D path with circle-rounded corners:
+
+        .. pythonscad-example::
+
+            path = Path2D([[0, 0], [20, 0], [20, 10], [10, 15], [0, 10]])
+            round_corners(path, method="circle", radius=3).polygon().linear_extrude(height=5).show()
     """
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
@@ -354,6 +361,13 @@ def _smooth_path(
 
             pts = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]
             smooth_path(pts, relsize=0.4).stroke(width=2).linear_extrude(height=3).show()
+
+        A sawtooth path smoothed with explicit size and relsize:
+
+        .. pythonscad-example::
+
+            path = Path2D([[0, 0], [10, 5], [20, 0], [30, 10]])
+            smooth_path(path, size=0.3, relsize=0.1).stroke(width=1).linear_extrude(height=3).show()
     """
     from pybosl2.beziers import create_bezier
     from pybosl2.path2d import Path2D

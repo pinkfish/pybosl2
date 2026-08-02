@@ -67,6 +67,12 @@ class CapType(Enum):
         ``CHISEL`` -- chisel edge
         ``TAIL`` / ``TAIL2`` -- tail shapes
         ``CROSS`` / ``X`` / ``LINE`` -- line markers
+
+    Examples:
+        .. pythonscad-example::
+
+            spine = Path3D([[0,0,0],[0,0,30],[30,0,30]], closed=False)
+            spine.stroke(width=4, endcaps=CapType.ARROW).show()
     """
 
     NONE = "none"
@@ -125,6 +131,13 @@ class CapSpec:
         angle: Rotation angle of the cap in degrees.
         color: Override colour for the cap, or ``None`` for the path colour.
         path: Custom polygon path for :attr:`CapType.CUSTOM`; ignored otherwise.
+
+    Examples:
+        .. pythonscad-example::
+
+            spine = Path3D([[0,0,0],[0,0,40]], closed=False)
+            cap = CapSpec(CapType.ARROW, length=2, width=3)
+            spine.stroke(width=4, endcaps=cap).show()
     """
 
     cap_type: CapType = DEFAULT_CAP

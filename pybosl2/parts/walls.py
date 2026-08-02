@@ -157,6 +157,11 @@ class Walls:
 
         A drop-in for :func:`~pybosl2.shapes3d.cuboid` when the part would benefit from the sparse
         lattice; *dir* is the axis the diagonal braces (and the through-gaps) run along.
+
+        Examples:
+            .. pythonscad-example::
+
+                Walls.sparse_cuboid(size=[50, 40, 10], dir="Y", strut=3).show()
         """
         sx, sy, sz = (float(v) for v in (size if not isinstance(size, (int, float)) else (size, size, size)))
         diameter = str(dir).upper()

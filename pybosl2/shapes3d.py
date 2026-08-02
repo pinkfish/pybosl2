@@ -507,7 +507,13 @@ class Bosl2Solid(_BaseShape):
     def reanchor(self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
         """Return this object translated so its bounding-box `anchor` point sits at the origin.
         Re-anchors any object by its bbox after the fact (cube()/cuboid() only do this at
-        construction, and only for cuboids). Pass *bbox* to use a supplied box."""
+        construction, and only for cuboids). Pass *bbox* to use a supplied box.
+
+        Examples:
+            .. pythonscad-example::
+
+                s3.cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
+        """
         p = self.anchor_point(anchor, bbox=bbox)
         moved = self.translate([-p[0], -p[1], -p[2]])
         if moved.size is not None and isinstance(anchor, Anchor):
@@ -517,7 +523,15 @@ class Bosl2Solid(_BaseShape):
     def position(self, anchor: Anchor, child: object, bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
         """BOSL2 position(): place `child` so its local origin lands on this object's
         bounding-box `anchor` point, keeping the child's own orientation, and return self
-        unioned with the placed child. `child` may be a Bosl2Solid or a raw native solid."""
+        unioned with the placed child. `child` may be a Bosl2Solid or a raw native solid.
+
+        Examples:
+            .. pythonscad-example::
+
+                cube = s3.cuboid([30, 30, 10])
+                knob = s3.sphere(r=5)
+                cube.position(Anchor.TOP_FRONT_LEFT, knob).show()
+        """
         p = self.anchor_point(anchor, bbox=bbox)
         placed = Bosl2Solid._unwrap(child).translate(p)
         # Untracked result: bounds() on it queries the true combined bbox rather than the
@@ -549,6 +563,13 @@ class Bosl2Solid(_BaseShape):
             align:   edge/corner within the face to sit flush against (default: centered)
             inside:  place the child inside the parent instead of outside (default False)
             overlap: pull the child toward the parent along the face normal by this much
+
+        Examples:
+            .. pythonscad-example::
+
+                cube = s3.cuboid([30, 30, 10])
+                label = s3.cuboid([10, 5, 5])
+                cube.align(Anchor.FRONT, label, align=Anchor.LEFT).show()
         """
         face = anchor.vector
         edge = Anchor.CENTER.vector if align is None else align.vector
@@ -683,6 +704,10 @@ class Bosl2Solid(_BaseShape):
                 box = s3.cuboid([20, 30, 10])
                 cutter = chamfer_edge_mask(length=35, chamfer=3)
                 box.edge_mask("Z", children=cutter).show()
+
+            .. pythonscad-example::
+
+                s3.cuboid([30, 20, 10], edges=Anchor.Z, rounding=3).show()
         """
         from . import masking
 
@@ -725,6 +750,11 @@ class Bosl2Solid(_BaseShape):
                 box = s3.cuboid([30, 20, 10])
                 profile = mask2d_roundover(radius=3)
                 box.edge_profile(children=profile).show()
+
+            .. pythonscad-example::
+
+                from pybosl2.shapes3d import cuboid
+                cuboid([30, 20, 10]).edge_profile(r=3, edges=Anchor.Z).show()
         """
         from . import masking
 
@@ -765,6 +795,24 @@ class Bosl2Solid(_BaseShape):
         fs: float | None = None,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "Bosl2Solid":
+        """Cut a 2-D mask profile, extruded along the corner, at each selected corner of this
+        box-shaped solid.
+
+        Args:
+            corners:        corners to mask (default ``"ALL"``)
+            except_corners: corners to explicitly not mask
+            radius:         rounding radius
+            diameter:       rounding diameter
+            children:       the 2-D mask cross-section path
+            convexity:      accepted for compatibility; unused
+            fn/fa/fs:       arc smoothness overrides
+            bbox:           override bounding box (see :meth:`_resolve_bounds`)
+
+        Examples:
+            .. pythonscad-example::
+
+                s3.cuboid([20, 20, 20]).corner_profile(r=3, corners=Anchor.TOP).show()
+        """
         from . import masking
 
         center, size = self._resolve_bounds(bbox)
@@ -3362,6 +3410,11 @@ def text3d(
         anchor:    anchor point (default "baseline")
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
+
+    Examples:
+        .. pythonscad-example::
+
+            text3d("BOSL2", size=10, height=3).show()
     """
     av = _text3d_anchor_vec(anchor)
     ha = halign if halign is not None else ("left" if av[0] < 0 else "right" if av[0] > 0 else "center")

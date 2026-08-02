@@ -125,6 +125,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # rounding
     "round_corners": ("pybosl2.rounding", "_round_corners"),
     "smooth_path": ("pybosl2.rounding", "_smooth_path"),
+    "MinkowskiJoin": ("pybosl2.path2d", "MinkowskiJoin"),
     # isosurface / metaballs
     "mb_sphere": ("pybosl2.metaballs", "mb_sphere"),
     "mb_cuboid": ("pybosl2.metaballs", "mb_cuboid"),
