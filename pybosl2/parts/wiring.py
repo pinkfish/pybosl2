@@ -45,12 +45,12 @@ _WIRE_COLORS = [
 ]
 
 
-def _segs(r):
+def _segs(r: float) -> int:
     """OpenSCAD segs(r) with the default $fa=12, $fs=2."""
     return max(5, math.ceil(min(360 / 12, 2 * math.pi * r / 2)))
 
 
-def _hex_offset_ring(d, lev):
+def _hex_offset_ring(d: float, lev: int) -> list[list[float]]:
     """A hexagonal ring of packing centres spaced *d* apart (BOSL2 _hex_offset_ring()).
 
     ``lev=0`` is the single centre point; ``lev>=1`` is a hexagon of ``6*lev`` points."""
@@ -58,7 +58,7 @@ def _hex_offset_ring(d, lev):
         return [[0.0, 0.0]]
     r = lev * d  # hexagon circumradius; side length == r
     corners = [(r * math.cos(math.radians(60 * k)), r * math.sin(math.radians(60 * k))) for k in range(6)]
-    pts = []
+    pts: list[list[float]] = []
     for k in range(6):  # subdivide each edge into lev segments
         x0, y0 = corners[k]
         x1, y1 = corners[(k + 1) % 6]
@@ -69,11 +69,12 @@ def _hex_offset_ring(d, lev):
     return pts
 
 
-def _hex_offsets(n, d):
+def _hex_offsets(n: int, d: float) -> list[list[float]]:
     """Centres for the optimal hex packing of at least *n* circles of spacing *d* (BOSL2 _hex_offsets()).
 
     Fills out the final ring, so the result may hold more than *n* points."""
-    arr, lev = [], 0
+    arr: list[list[float]] = []
+    lev = 0
     while len(arr) < n:
         arr += _hex_offset_ring(d, lev)
         lev += 1
@@ -84,7 +85,7 @@ class Wiring:
     """Routed bundles of wires (BOSL2 wiring.scad)."""
 
     @staticmethod
-    def hex_offsets(sides: int, diameter: float) -> list:
+    def hex_offsets(sides: int, diameter: float) -> list[list[float]]:
         """
         The centre points for the optimal hexagonal packing of at least *sides* circles spaced
         *diameter* apart.
@@ -93,7 +94,7 @@ class Wiring:
 
     @staticmethod
     def wire_bundle(
-        path,
+        path: list[list[float]],
         wires: int,
         wirediam: float = 2,
         rounding: float = 10,
@@ -133,7 +134,7 @@ class Wiring:
         for i in range(wires):
             ox, oy = offsets[i]
             prof = [[x + ox, y + oy] for x, y in profile]
-            wire = Bosl2Solid(rounded_path.path_sweep(prof).polyhedron())
+            wire = Bosl2Solid(rounded_path.path_sweep(prof).polyhedron())  # type: ignore[attr-defined]
             wire = wire.color(_WIRE_COLORS[(i + wirenum) % len(_WIRE_COLORS)])
             bundle = wire if bundle is None else (bundle | wire)
         assert bundle is not None

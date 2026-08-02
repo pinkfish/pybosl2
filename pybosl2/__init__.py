@@ -37,8 +37,13 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "CapSpec": ("pybosl2.caps", "CapSpec"),
     "CapType": ("pybosl2.caps", "CapType"),
     "UnsupportedByBackendError": ("pybosl2.exceptions", "UnsupportedByBackendError"),
+    # anchor system
+    "Anchor": ("pybosl2._edges_lang", "Anchor"),
+    "EdgePlane": ("pybosl2._edges_lang", "EdgePlane"),
+    "CornerPlane": ("pybosl2._edges_lang", "CornerPlane"),
     # constants
     "EPSILON": ("pybosl2.math", "EPSILON"),
+    "CENTRE": ("pybosl2.constants", ""),  # aliases
     # colour
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),
@@ -137,7 +142,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> object:
     if name in _LAZY_EXPORTS:
         parts = _LAZY_EXPORTS[name]
         import importlib

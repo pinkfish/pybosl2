@@ -107,11 +107,11 @@ def helix(
     count = max(3, math.ceil(abs(maxtheta) * nseg / 360))
     out: list[list[float]] = []
     for theta in lerpn(0, maxtheta, count):
-        radius = lerp(r1v, r2v, theta / maxtheta) if maxtheta != 0 else r1v
+        radius = lerp(r1v, r2v, theta / maxtheta) if maxtheta != 0 else r1v  # type: ignore[assignment]
         out.append(
             [
-                radius * math.cos(math.radians(theta)),
-                radius * math.sin(math.radians(theta)),
+                radius * math.cos(math.radians(theta)),  # type: ignore[operator]
+                radius * math.sin(math.radians(theta)),  # type: ignore[operator]
                 abs(theta) / 360.0 * dz,
             ]
         )
@@ -710,7 +710,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         out.extend(points[i] for i in range(s1c + 1, s2c + 1))
         if s2c < limit and u2c > 0:
             out.append(lerp(points[s2c], points[(s2c + 1) % lp], u2c))
-        return self.__class__(out, closed=self.closed)
+        return self.__class__(out, closed=self.closed)  # type: ignore[arg-type]
 
     # -- measurement -----------------------------------------------------------------------
 
@@ -1374,7 +1374,7 @@ def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[f
         dpartial = 0.0 if len(result) == 0 else math.dist(lastpt, points[(pind) % len(points)])
         if dists[dind] < dpartial + dtotal:
             t = (dists[dind] - dtotal) / dpartial
-            a_arr = np.asarray(lerp(lastpt, points[pind % len(points)], t), dtype=float)
+            a_arr = np.asarray(lerp(lastpt, points[pind % len(points)], t), dtype=float)  # type: ignore[arg-type]
             nextpoint = CutPoint(point=Point(float(a_arr[0]), float(a_arr[1]), float(a_arr[2])), next_index=pind)
         else:
             nextpoint = _path_cut_single(points, closed, dists[dind] - dtotal - dpartial, pind)

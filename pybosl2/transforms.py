@@ -105,9 +105,7 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,
     *center* and the axial translation are returned as :class:`~pybosl2.constants.Vector`. With *long*, the
     complementary (>180 degree) rotation about the reversed axis is chosen."""
-    from pybosl2.constants import (
-        Vector,
-    )  # local: constants is lightweight, avoid a load-order cycle
+    from pybosl2.points import Vector
 
     m = np.asarray(m, dtype=float)
     radius = m[:3, :3]
@@ -182,7 +180,7 @@ def reorient(
     move_m = np.eye(4)
     move_m[:3, 3] = [-float(anchor[i]) * float(size[i]) / 2 for i in range(3)]
 
-    return (rot_m @ zrot @ move_m).tolist()
+    return (rot_m @ zrot @ move_m).tolist()  # type: ignore[no-any-return]
 
 
 def apply(
@@ -208,4 +206,4 @@ def apply(
     out = (m @ homogeneous.T).T
     w = out[:, dim : dim + 1]
     out = out[:, :dim] / np.where(w == 0, 1.0, w)
-    return out[0].tolist() if single else out.tolist()
+    return out[0].tolist() if single else out.tolist()  # type: ignore[no-any-return]

@@ -4,6 +4,8 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+# mypy: allow-untyped-defs
+
 # LibFile: pybosl2/parts/gears.py
 #    Pure-Python port of the core of BOSL2's (current) gears.scad. Gears are sized by circular pitch
 #    (``circ_pitch``), metric ``mod``, or ``diam_pitch``; the default 20-degree pressure angle and
@@ -55,7 +57,12 @@ PI = math.pi
 # ---------------------------------------------------------------------------
 
 
-def _circular_pitch(circ_pitch=None, mod=None, pitch=None, diam_pitch=None) -> float:
+def _circular_pitch(
+    circ_pitch: float | None = None,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
     """Resolve the circular pitch from any of the accepted pitch inputs (BOSL2 circular_pitch()).
 
     When none is given, defaults to a circular pitch of 5 (like BOSL2's ``mod``-ish default gear).
@@ -71,42 +78,49 @@ def _circular_pitch(circ_pitch=None, mod=None, pitch=None, diam_pitch=None) -> f
     return 5.0
 
 
-def _module_value(circ_pitch) -> float:
+def _module_value(circ_pitch: float) -> float:
     return circ_pitch / PI
 
 
-def _pitch_radius(circ_pitch, teeth, helical=0) -> float:
+def _pitch_radius(circ_pitch: float, teeth: int, helical: float = 0) -> float:
     return circ_pitch * teeth / PI / 2 / math.cos(math.radians(helical))
 
 
-def _adendum(circ_pitch, profile_shift=0, shorten=0) -> float:
+def _adendum(circ_pitch: float, profile_shift: float = 0, shorten: float = 0) -> float:
     return _module_value(circ_pitch) * (1 + profile_shift - shorten)
 
 
-def _dedendum(circ_pitch, clearance=None, profile_shift=0) -> float:
+def _dedendum(circ_pitch: float, clearance: float | None = None, profile_shift: float = 0) -> float:
     mod = _module_value(circ_pitch)
     clear = 0.25 * mod if clearance is None else clearance
     return mod * (1 - profile_shift) + clear
 
 
-def _base_radius(circ_pitch, teeth, pressure_angle=20, helical=0) -> float:
+def _base_radius(circ_pitch: float, teeth: int, pressure_angle: float = 20, helical: float = 0) -> float:
     trans_pa = math.degrees(math.atan(math.tan(math.radians(pressure_angle)) / math.cos(math.radians(helical))))
     return _pitch_radius(circ_pitch, teeth, helical) * math.cos(math.radians(trans_pa))
 
 
-def _root_radius_basic(circ_pitch, teeth, clearance=None, internal=False, helical=0, profile_shift=0) -> float:
+def _root_radius_basic(
+    circ_pitch: float,
+    teeth: int,
+    clearance: float | None = None,
+    internal: bool = False,
+    helical: float = 0,
+    profile_shift: float = 0,
+) -> float:
     pr = _pitch_radius(circ_pitch, teeth, helical)
     return pr - (_adendum(circ_pitch, -profile_shift) if internal else _dedendum(circ_pitch, clearance, profile_shift))
 
 
 def _outer_radius_basic(
-    circ_pitch,
-    teeth,
-    clearance=None,
-    internal=False,
-    helical=0,
-    profile_shift=0,
-    shorten=0,
+    circ_pitch: float,
+    teeth: int,
+    clearance: float | None = None,
+    internal: bool = False,
+    helical: float = 0,
+    profile_shift: float = 0,
+    shorten: float = 0,
 ) -> float:
     pr = _pitch_radius(circ_pitch, teeth, helical)
     return pr + (
@@ -114,7 +128,12 @@ def _outer_radius_basic(
     )
 
 
-def _auto_profile_shift(teeth, pressure_angle=20, helical=0, profile_shift=None) -> float:
+def _auto_profile_shift(
+    teeth: int,
+    pressure_angle: float = 20,
+    helical: float = 0,
+    profile_shift: float | None = None,
+) -> float:
     """Minimum profile shift to avoid undercut, or the given value (BOSL2 auto_profile_shift())."""
     if isinstance(profile_shift, (int, float)):
         return float(profile_shift)
@@ -132,7 +151,7 @@ def _auto_profile_shift(teeth, pressure_angle=20, helical=0, profile_shift=None)
 # ---------------------------------------------------------------------------
 
 
-def _involute(base_r, a_deg):
+def _involute(base_r: float, a_deg: float) -> list[float]:
     b = a_deg * PI / 180
     ar = math.radians(a_deg)
     return [
@@ -141,16 +160,16 @@ def _involute(base_r, a_deg):
     ]
 
 
-def _xy_to_polar(xy):
+def _xy_to_polar(xy: list[float]) -> list[float]:
     return [math.hypot(xy[0], xy[1]), math.degrees(math.atan2(xy[1], xy[0]))]
 
 
-def _p2xy(r, angle):
+def _p2xy(r: float, angle: float) -> list[float]:
     a = math.radians(angle)
     return [r * math.cos(a), r * math.sin(a)]
 
 
-def _lookup(x, table):
+def _lookup(x: float, table: list[list[float]]) -> float:
     xs = [t[0] for t in table]
     ys = [t[1] for t in table]
     if xs[0] > xs[-1]:
@@ -158,17 +177,17 @@ def _lookup(x, table):
     return float(np.interp(x, xs, ys))
 
 
-def _v_theta(v):
+def _v_theta(v: list[float]) -> float:
     return math.degrees(math.atan2(v[1], v[0]))
 
 
-def _zrot_pts(pts, angle):
+def _zrot_pts(pts: list[list[float]], angle: float) -> list[list[float]]:
     a = math.radians(angle)
     c, s = math.cos(a), math.sin(a)
     return [[x * c - y * s, x * s + y * c] for x, y in pts]
 
 
-def _line_isect(l1, l2):
+def _line_isect(l1: list[list[float]], l2: list[list[float]]) -> list[float]:
     (x1, y1), (x2, y2) = l1[0], l1[1]
     (x3, y3), (x4, y4) = l2[0], l2[1]
     den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
@@ -179,14 +198,14 @@ def _line_isect(l1, l2):
     return [px, py]
 
 
-def _vector_angle(three):
+def _vector_angle(three: list[list[float]]) -> float:
     p0, p1, p2 = (np.asarray(p, float) for p in three)
     v0, v1 = p0 - p1, p2 - p1
     c = np.clip(np.dot(v0, v1) / (np.linalg.norm(v0) * np.linalg.norm(v1)), -1, 1)
     return math.degrees(math.acos(c))
 
 
-def _arc_corner(n, r, corner):
+def _arc_corner(n: int, r: float, corner: list[list[float]]) -> list[list[float]]:
     """n-point arc of radius r rounding the corner ``[p0, p1, p2]`` (BOSL2 arc(corner=))."""
     p0, p1, p2 = (np.asarray(p, float) for p in corner)
     u0 = (p0 - p1) / np.linalg.norm(p0 - p1)
@@ -208,19 +227,19 @@ def _arc_corner(n, r, corner):
     ]
 
 
-def _dedup(pts, eps=1e-9):
-    out = []
+def _dedup(pts: list[list[float]], eps: float = 1e-9) -> list[list[float]]:
+    out: list[list[float]] = []
     for p in pts:
         if not out or abs(p[0] - out[-1][0]) > eps or abs(p[1] - out[-1][1]) > eps:
             out.append([float(p[0]), float(p[1])])
     return out
 
 
-def _norm2(v):
+def _norm2(v: list[float]) -> float:
     return math.hypot(v[0], v[1])
 
 
-def _strip_left(path, undercut_max):
+def _strip_left(path: list[list[float]], undercut_max: float) -> list[list[float]]:
     """Remove the inward 'jaggies' the undercut can leave (BOSL2 strip_left)."""
     out = []
     i = 0
@@ -249,18 +268,18 @@ def _strip_left(path, undercut_max):
 
 
 def _gear_tooth_profile(
-    circ_pitch,
-    teeth,
-    pressure_angle=20,
-    clearance=None,
-    backlash=0.0,
-    helical=0,
-    internal=False,
-    profile_shift=0.0,
-    shorten=0,
-    center=False,
-    steps=16,
-):
+    circ_pitch: float,
+    teeth: int,
+    pressure_angle: float = 20,
+    clearance: float | None = None,
+    backlash: float = 0.0,
+    helical: float = 0,
+    internal: bool = False,
+    profile_shift: float = 0.0,
+    shorten: float = 0,
+    center: bool = False,
+    steps: int = 16,
+) -> list[list[float]]:
     pa = pressure_angle
     mod = _module_value(circ_pitch)
     clear = 0.25 * mod if clearance is None else clearance
@@ -274,7 +293,7 @@ def _gear_tooth_profile(
     ) + (backlash if internal else -backlash)
     tang = tthick / prad / 2 * 180 / PI
 
-    involute_lup = []
+    involute_lup: list[list[float]] = []
     i = 0.0
     end = arad / PI / brad * 360
     while i <= end:
@@ -309,7 +328,7 @@ def _gear_tooth_profile(
 
     us = [k / steps / 2 for k in range(steps * 2 + 1)]
 
-    def flank_angle(r):
+    def flank_angle(r: float) -> tuple[float, float, bool]:
         a1 = _lookup(r, involute_lup) + soff
         if internal or r < undercut_lup[0][0]:
             return a1, a1, False
@@ -351,7 +370,7 @@ def _gear_tooth_profile(
     )
     round_r = min(maxr, clear, rcircum * rpart)
 
-    rounded = []
+    rounded: list[list[float]] = []
     if not internal:
         rounded += _arc_corner(8, round_r, rcorner) if round_r > 0 else [isect_pt]
     rounded += tooth_half_raw
@@ -374,13 +393,13 @@ def _gear_tooth_profile(
         clipped = tooth_half
 
     full = _dedup([list(q) for q in clipped] + [[-x, y] for x, y in reversed(clipped)])
-    tooth = Path2D(full).merge_collinear(closed=False)
+    merged = Path2D(full).merge_collinear(closed=False)
     if center:
-        tooth = [[x, y - prad] for x, y in tooth]
-    return [[float(x), float(y)] for x, y in tooth]
+        merged = [[x, y - prad] for x, y in merged]  # type: ignore[assignment]
+    return [[float(x), float(y)] for x, y in merged]
 
 
-def _lerp(a, b, v):
+def _lerp(a: float, b: float, v: float) -> float:
     return a + (b - a) * v
 
 
@@ -389,61 +408,61 @@ def _lerp(a, b, v):
 # ---------------------------------------------------------------------------
 
 
-def _polar(r, t_deg):
+def _polar(r: float, t_deg: float) -> list[float]:
     a = math.radians(t_deg)
     return [r * math.sin(a), r * math.cos(a)]
 
 
-def _iang(radius1, radius2):
+def _iang(radius1: float, radius2: float) -> float:
     return math.degrees(math.sqrt((radius2 / radius1) ** 2 - 1) - math.acos(radius1 / radius2))
 
 
-def _q6(b, s, t, d):
+def _q6(b: float, s: float, t: float, d: float) -> list[float]:
     return _polar(d, s * (_iang(b, d) + t))
 
 
-def _q7(f, r, b, radius2, t, s):
+def _q7(f: float, r: float, b: float, radius2: float, t: float, s: float) -> list[float]:
     return _q6(b, s, t, (1 - f) * max(b, r) + f * radius2)
 
 
-def _rot2d(pts, ang_deg):
+def _rot2d(pts: list[list[float]], ang_deg: float) -> list[list[float]]:
     a = math.radians(ang_deg)
     c, s = math.cos(a), math.sin(a)
     return [[x * c - y * s, x * s + y * c] for x, y in pts]
 
 
-def _polar_xy(r, angle):
+def _polar_xy(r: float, angle: float) -> np.ndarray[tuple[int, ...], np.dtype[np.float64]]:
     a = math.radians(angle)
     return np.array([r * math.cos(a), r * math.sin(a)])
 
 
-def _law_of_cosines(a, b, c):
+def _law_of_cosines(a: float, b: float, c: float) -> float:
     return math.degrees(math.acos(max(-1.0, min(1.0, (a * a + b * b - c * c) / (2 * a * b)))))
 
 
-def _opp_ang_to_hyp(opp, angle):
+def _opp_ang_to_hyp(opp: float, angle: float) -> float:
     return opp / math.sin(math.radians(angle))
 
 
-def _m_up(z):
+def _m_up(z: float) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     m = np.eye(4)
     m[2, 3] = z
     return m
 
 
-def _m_back(y):
+def _m_back(y: float) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     m = np.eye(4)
     m[1, 3] = y
     return m
 
 
-def _m_move(v):
+def _m_move(v: list[float]) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     m = np.eye(4)
     m[0, 3], m[1, 3], m[2, 3] = v[0], v[1], v[2]
     return m
 
 
-def _m_zrot(deg):
+def _m_zrot(deg: float) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     a = math.radians(deg)
     c, s = math.cos(a), math.sin(a)
     m = np.eye(4)
@@ -454,7 +473,7 @@ def _m_zrot(deg):
     return m
 
 
-def _m_xrot(deg):
+def _m_xrot(deg: float) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     a = math.radians(deg)
     c, s = math.cos(a), math.sin(a)
     m = np.eye(4)
@@ -465,23 +484,27 @@ def _m_xrot(deg):
     return m
 
 
-def _m_scale(u):
+def _m_scale(u: float) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     return np.diag([u, u, u, 1.0])
 
 
-def _m_xflip():
+def _m_xflip() -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     m = np.eye(4)
     m[0, 0] = -1
     return m
 
 
-def _apply(m, pts):
+def _apply(
+    m: np.ndarray[tuple[int, int], np.dtype[np.float64]],
+    pts: list[list[float]],
+) -> list[list[float]]:
     arr = np.c_[np.asarray(pts, dtype=float), np.ones(len(pts))]
-    return (arr @ m.T)[:, :3].tolist()
+    return (arr @ m.T)[:, :3].tolist()  # type: ignore[no-any-return]
 
 
-def _vnf_join(vnfs):
-    verts, faces = [], []
+def _vnf_join(vnfs: list[VNF]) -> VNF:
+    verts: list[list[float]] = []
+    faces: list[list[int]] = []
     for v in vnfs:
         off = len(verts)
         verts += [list(p) for p in v.vertices]
@@ -489,19 +512,19 @@ def _vnf_join(vnfs):
     return VNF(verts, faces)
 
 
-def _vnf_xflip(vnf):
+def _vnf_xflip(vnf: VNF) -> VNF:
     return VNF([[-x, y, z] for x, y, z in vnf.vertices], [f[::-1] for f in vnf.faces])
 
 
 def _simple_tooth(
-    circ_pitch,
-    teeth,
-    pressure_angle,
-    clearance=None,
-    backlash=0.0,
-    interior=False,
-    center=False,
-):
+    circ_pitch: float,
+    teeth: int,
+    pressure_angle: float,
+    clearance: float | None = None,
+    backlash: float = 0.0,
+    interior: bool = False,
+    center: bool = False,
+) -> list[list[float]]:
     """
     A simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms.
     """
@@ -679,7 +702,7 @@ class Gears:
         pa_transv = math.atan(math.tan(pa) / math.cos(math.radians(helical)))
 
         # working pressure angle from the involute equation
-        def inv(a):
+        def inv(a: float) -> float:
             return math.tan(a) - a
 
         target = inv(pa_transv) + 2 * (ps1 + ps2) / (t1 + t2) * math.tan(pa)
@@ -746,7 +769,7 @@ class Gears:
         helical: float = 0,
         shaft_diam: float = 0,
         shorten: float = 0,
-        gear_spin=0,
+        gear_spin: float = 0,
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
@@ -812,7 +835,7 @@ class Gears:
         profile_shift: float | None = None,
         shorten: float = 0,
         slices: int | None = None,
-        gear_spin=0,
+        gear_spin: float = 0,
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
@@ -886,7 +909,7 @@ class Gears:
         internal: bool = False,
         profile_shift: float | None = None,
         shorten: float = 0,
-        gear_spin=0,
+        gear_spin: float = 0,
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
@@ -962,7 +985,14 @@ class Gears:
     # -- rack --------------------------------------------------------------
 
     @staticmethod
-    def _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance):
+    def _rack2d_path(
+        center: float,
+        teeth: int,
+        height: float,
+        pressure_angle: float,
+        backlash: float,
+        clearance: float | None,
+    ) -> list[list[float]]:
         a = _adendum(center)
         diameter = _dedendum(center, clearance)
         assert a + diameter < height, "rack(): height must exceed adendum + dedendum."
@@ -1033,7 +1063,7 @@ class Gears:
     # -- bevel / worm dimension helpers ------------------------------------
 
     @staticmethod
-    def bevel_pitch_angle(teeth: int, mate_teeth, drive_angle: float = 90) -> float:
+    def bevel_pitch_angle(teeth: int, mate_teeth: float, drive_angle: float = 90) -> float:
         """Pitch angle (deg) for a bevel gear meshing another (BOSL2 bevel_pitch_angle())."""
         return math.degrees(
             math.atan2(
@@ -1071,13 +1101,13 @@ class Gears:
         teeth: int = 20,
         face_width: float = 10,
         pitch_angle: float = 45,
-        mate_teeth=None,
+        mate_teeth: int | None = None,
         shaft_diam: float = 0,
         hide: int = 0,
         pressure_angle: float = 20,
         clearance: float | None = None,
         backlash: float = 0.0,
-        cutter_radius=30,
+        cutter_radius: float = 30,
         spiral_angle: float = 35,
         left_handed: bool = False,
         slices: int = 5,

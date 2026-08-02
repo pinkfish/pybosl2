@@ -16,25 +16,29 @@
 # FileGroup: BOSL2
 
 
-from typing import TYPE_CHECKING
+from collections.abc import Sequence
 
 import numpy as np
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 # Default tolerance used throughout BOSL2 for floating-point comparisons.
 EPSILON = 1e-9
 
 
-def lerp(a, b, t: float):
+def lerp(
+    a: float | Sequence[float] | np.ndarray, b: float | Sequence[float] | np.ndarray, t: float
+) -> float | np.ndarray:
     """Linearly interpolate between *a* and *b* by fraction *t* (scalar or vector)."""
     if isinstance(a, (list, tuple, np.ndarray)):
-        return np.asarray(a, dtype=float) + (np.asarray(b, dtype=float) - np.asarray(a, dtype=float)) * t
-    return a + (b - a) * t
+        return np.asarray(a, dtype=float) + (np.asarray(b, dtype=float) - np.asarray(a, dtype=float)) * t  # type: ignore[no-any-return]
+    return a + (b - a) * t  # type: ignore[operator]
 
 
-def lerpn(a, b, sides: int, endpoint: bool = True) -> np.ndarray:
+def lerpn(
+    a: float | Sequence[float] | np.ndarray,
+    b: float | Sequence[float] | np.ndarray,
+    sides: int,
+    endpoint: bool = True,
+) -> np.ndarray:
     """Return *sides* points linearly interpolated between *a* and *b*, as an (sides, dim) ndarray
     (or a length-sides 1-D ndarray for scalar *a*/*b*).
 
@@ -49,15 +53,25 @@ def lerpn(a, b, sides: int, endpoint: bool = True) -> np.ndarray:
     return np.asarray([lerp(a, b, i / denom) for i in range(sides)], dtype=float)
 
 
-def _dnu_calc(f1, fc, f2, h1, h2):
+def _dnu_calc(
+    f1: float | Sequence[float] | np.ndarray,
+    fc: float | Sequence[float] | np.ndarray,
+    f2: float | Sequence[float] | np.ndarray,
+    h1: float,
+    h2: float,
+) -> np.ndarray:
     if h2 < h1:
         f1 = lerp(fc, f1, h2 / h1)
     if h1 < h2:
         f2 = lerp(fc, f2, h1 / h2)
-    return (np.asarray(f2, dtype=float) - np.asarray(f1, dtype=float)) / (2 * min(h1, h2))
+    return (np.asarray(f2, dtype=float) - np.asarray(f1, dtype=float)) / (2 * min(h1, h2))  # type: ignore[no-any-return]
 
 
-def _deriv_nonuniform(data, h, closed: bool) -> np.ndarray:
+def _deriv_nonuniform(
+    data: Sequence[float] | Sequence[Sequence[float]] | np.ndarray,
+    h: Sequence[float] | np.ndarray,
+    closed: bool,
+) -> np.ndarray:
     length = len(data)
     if closed:
         return np.asarray(
@@ -80,7 +94,11 @@ def _deriv_nonuniform(data, h, closed: bool) -> np.ndarray:
     return np.asarray(out, dtype=float)
 
 
-def deriv(data, height: "float | Sequence[float] | np.ndarray" = 1, closed: bool = False) -> np.ndarray:
+def deriv(
+    data: Sequence[float] | Sequence[Sequence[float]] | np.ndarray,
+    height: float | Sequence[float] | np.ndarray = 1,
+    closed: bool = False,
+) -> np.ndarray:
     """Numeric first-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.
 
     Uses a symmetric derivative approximation for internal points and a
@@ -108,7 +126,9 @@ def deriv(data, height: "float | Sequence[float] | np.ndarray" = 1, closed: bool
     return np.asarray(out)
 
 
-def deriv2(data, height: float = 1, closed: bool = False) -> np.ndarray:
+def deriv2(
+    data: Sequence[float] | Sequence[Sequence[float]] | np.ndarray, height: float = 1, closed: bool = False
+) -> np.ndarray:
     """
     Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an
     ndarray.
@@ -144,7 +164,9 @@ def deriv2(data, height: float = 1, closed: bool = False) -> np.ndarray:
     return np.asarray(out)
 
 
-def deriv3(data, height: float = 1, closed: bool = False) -> np.ndarray:
+def deriv3(
+    data: Sequence[float] | Sequence[Sequence[float]] | np.ndarray, height: float = 1, closed: bool = False
+) -> np.ndarray:
     """Numeric third-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.
 
     Requires at least 5 points.

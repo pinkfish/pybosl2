@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import Any
 
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
@@ -300,7 +301,11 @@ _NUT = {
 _CLEARANCE = {"close": 0.2, "normal": 0.5, "loose": 1.0}
 
 
-def _parse_spec(spec, thread="coarse", pitch=None):
+def _parse_spec(
+    spec: str | dict[str, float] | float,
+    thread: str = "coarse",
+    pitch: float | None = None,
+) -> tuple[float, float]:
     """Resolve *spec* to ``(diameter, pitch)``.
 
     *spec* may be ``"M6"``, ``"M8x1"`` (explicit pitch), a bare number (treated as the metric
@@ -323,7 +328,7 @@ def _parse_spec(spec, thread="coarse", pitch=None):
     return diameter, float(pitch) if pitch is not None else _lookup_pitch(diameter, thread)
 
 
-def _lookup_pitch(diam, thread):
+def _lookup_pitch(diam: float, thread: str) -> float:
     if diam not in _ISO_THREAD:
         raise ValueError(f"Unknown metric screw size M{diam:g}")
     return float(_ISO_THREAD[diam].pitch(thread))
@@ -341,7 +346,13 @@ class Screws:
     # -- resolved dimensions ---------------------------------------------------------------
 
     @staticmethod
-    def screw_info(spec, head: str = "socket", thread: str = "coarse", drive: str = "none", pitch: float | None = None):
+    def screw_info(
+        spec: str | dict[str, float] | float,
+        head: str = "socket",
+        thread: str = "coarse",
+        drive: str = "none",
+        pitch: float | None = None,
+    ) -> dict[str, Any]:
         """Resolve a screw specification to a dict of dimensions.
 
         Keys: ``system``, ``diameter``, ``pitch``, ``head``, ``head_size``, ``head_height``,
@@ -366,27 +377,27 @@ class Screws:
                 info["drive_size"] = _closest(_SETSCREW, d)
                 info["drive_depth"] = d / 2
         elif head == "hex":
-            spec = _closest(_HEX_HEAD, d)
-            info["head_size"], info["head_height"] = spec.width, spec.height
+            spec_h: HexHead = _closest(_HEX_HEAD, d)
+            info["head_size"], info["head_height"] = spec_h.width, spec_h.height
         elif head in ("socket", "socket ribbed"):
-            spec = _closest(_SOCKET_HEAD, d)
-            info["head_size"], info["head_height"] = spec.head_d, d
+            spec_s: SocketHead = _closest(_SOCKET_HEAD, d)
+            info["head_size"], info["head_height"] = spec_s.head_d, d
             if drive == "hex":
-                info["drive_size"], info["drive_depth"] = spec.hex_drive, d / 2
+                info["drive_size"], info["drive_depth"] = spec_s.hex_drive, d / 2
         elif head == "button":
-            spec = _closest(_BUTTON_HEAD, d)
-            info["head_size"], info["head_height"] = spec.head_d, spec.height
+            spec_b: ButtonHead = _closest(_BUTTON_HEAD, d)
+            info["head_size"], info["head_height"] = spec_b.head_d, spec_b.height
             if drive == "hex":
-                info["drive_size"], info["drive_depth"] = spec.hex_drive, spec.hex_depth
+                info["drive_size"], info["drive_depth"] = spec_b.hex_drive, spec_b.hex_depth
         elif head in ("pan", "round"):
-            spec = _closest(_PAN_HEAD, d)
-            info["head_size"], info["head_height"] = spec.head_d, spec.height
+            spec_p: PanHead = _closest(_PAN_HEAD, d)
+            info["head_size"], info["head_height"] = spec_p.head_d, spec_p.height
         elif head == "flat":
-            spec = _closest(_FLAT_HEAD, d)
-            info["head_size"] = spec.actual_d
-            info["head_size_sharp"] = spec.sharp_d
+            spec_f: FlatHead = _closest(_FLAT_HEAD, d)
+            info["head_size"] = spec_f.actual_d
+            info["head_size_sharp"] = spec_f.sharp_d
             info["head_angle"] = 90.0
-            info["head_height"] = (spec.actual_d - d) / 2  # 90-degree cone: radius drop == height
+            info["head_height"] = (spec_f.actual_d - d) / 2  # 90-degree cone: radius drop == height
         else:
             raise ValueError(f'Unknown head type "{head}"')
         return info
@@ -395,7 +406,7 @@ class Screws:
 
     @staticmethod
     def screw(
-        spec,
+        spec: str | dict[str, float] | float,
         length: float,
         head: str = "socket",
         drive: str = "none",
@@ -423,10 +434,11 @@ class Screws:
             spec,
             head=head,
             drive=drive,
-            thread="coarse" if thread in (True, False) else thread,
+            thread="coarse" if isinstance(thread, bool) else thread,
             pitch=pitch,
         )
-        d, _p = info["diameter"], info["pitch"]
+        d: float = float(info["diameter"])
+        _p: float = float(info["pitch"])
         thread_kind = thread if isinstance(thread, str) else "coarse"
 
         # -- shaft: top face at z=0, tip at z=-length -----------------------------------
@@ -455,7 +467,13 @@ class Screws:
         return result
 
     @staticmethod
-    def _make_head(info, fn, fa, fs):
+    def _make_head(
+        info: dict[str, Any],
+        fn: int | None,
+        fa: float | None,
+        fs: float | None,
+    ) -> Bosl2Solid | None:
+        """Build the screw head from resolved dimensions."""
 
         head = info["head"]
         if head in (None, "none"):
@@ -484,7 +502,14 @@ class Screws:
         return None
 
     @staticmethod
-    def _make_recess(info, head_top, fn, fa, fs):
+    def _make_recess(
+        info: dict[str, Any],
+        head_top: float,
+        fn: int | None,
+        fa: float | None,
+        fs: float | None,
+    ) -> Bosl2Solid | None:
+        """Build the drive recess from resolved dimensions."""
 
         drive = info.get("drive")
         size = info.get("drive_size")
@@ -507,9 +532,9 @@ class Screws:
 
     @staticmethod
     def nut(
-        spec,
+        spec: str | dict[str, float] | float,
         thickness: float | str = "normal",
-        shape="hex",
+        shape: str = "hex",
         thread: str = "coarse",
         nutwidth: float | None = None,
         slop: float = 0.0,
@@ -540,10 +565,10 @@ class Screws:
 
     @staticmethod
     def screw_hole(
-        spec,
+        spec: str | dict[str, float] | float,
         length: float,
         head: str = "none",
-        counterbore=0.0,
+        counterbore: float = 0.0,
         fit: str = "normal",
         thread: str = "none",
         pitch: float | None = None,
@@ -566,8 +591,8 @@ class Screws:
                 (s3.cuboid([20, 20, 10]) - Screws.screw_hole("M6", length=10, head="socket", fit="normal")).show()
         """
 
-        use_thread = thread and str(thread).lower() not in ("none", "false", "no", "")
-        d, p = _parse_spec(spec, "coarse" if thread in (True, False) else (thread if use_thread else "coarse"), pitch)
+        use_thread = thread and thread.lower() not in ("none", "false", "no", "")
+        d, p = _parse_spec(spec, "coarse" if not use_thread else thread, pitch)
         if use_thread:
             from pybosl2.parts.threading import Threading
 
@@ -605,7 +630,7 @@ class Screws:
 # ---------------------------------------------------------------------------
 
 
-def _closest(table, diam):
+def _closest(table: dict[Any, Any], diam: float) -> Any:
     """Look *diam* up in *table*, falling back to the nearest tabulated size."""
     if diam in table:
         return table[diam]
@@ -613,7 +638,7 @@ def _closest(table, diam):
     return table[key]
 
 
-def _nut_dims(diam, thickness, nutwidth):
+def _nut_dims(diam: float, thickness: float | str | None, nutwidth: float | None) -> tuple[float, float]:
     """
     Resolve a nut's ``(across-flats width, thickness)`` for the given size and thickness class.
     """

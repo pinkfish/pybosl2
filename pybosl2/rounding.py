@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import is_num
-from pybosl2.caps import CapType
+from pybosl2.caps import CapsSpec, CapType
 from pybosl2.math import EPSILON
 
 # Late imports to avoid circular dependencies
@@ -49,7 +49,7 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 
-def _vector_angle3(a, b, c) -> float:
+def _vector_angle3(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
     """The angle in degrees at vertex *b* of the corner a-b-c (2-D or 3-D)."""
     va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
     vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
@@ -57,12 +57,14 @@ def _vector_angle3(a, b, c) -> float:
     return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
-def _smooth_bez_fill(points, k):
+def _smooth_bez_fill(points: Sequence[Sequence[float]], k: float) -> list[list[float]]:
     p0, p1, p2 = (np.asarray(p, dtype=float) for p in points)
     return [p0, p1 + (p0 - p1) * k, p1, p1 + (p2 - p1) * k, p2]
 
 
-def _bezcorner(points, parm, fn=0, fs=2.0):
+def _bezcorner(
+    points: Sequence[Sequence[float]], parm: float | Sequence[float], fn: int = 0, fs: float = 2.0
+) -> list[list[float]]:
     """A continuous-curvature (bezier) corner (BOSL2 _bezcorner())."""
     from pybosl2.beziers import Bezier
 
@@ -73,13 +75,13 @@ def _bezcorner(points, parm, fn=0, fs=2.0):
         nxt = unit(np.asarray(points[2], dtype=float) - p1)
         ctrl = [p1 + d * prev, p1 + k * d * prev, p1, p1 + k * d * nxt, p1 + d * nxt]
     else:
-        ctrl = _smooth_bez_fill(points, float(parm))
+        ctrl = _smooth_bez_fill(points, float(parm))  # type: ignore[assignment,arg-type]
     bez = Bezier([[float(c) for c in p] for p in ctrl])
     sides = max(3, fn if fn and fn > 0 else math.ceil(bez.arc_length() / fs))
     return [[float(c) for c in p] for p in bez.curve(sides, endpoint=True)]
 
 
-def _chamfcorner(points, parm):
+def _chamfcorner(points: Sequence[Sequence[float]], parm: Sequence[float]) -> list[list[float]]:
     """A straight chamfer across a corner (BOSL2 _chamfcorner())."""
     diameter = float(parm[0])
     p1 = np.asarray(points[1], dtype=float)
@@ -88,18 +90,16 @@ def _chamfcorner(points, parm):
     return [list(p1 + prev * diameter), list(p1 + nxt * diameter)]
 
 
-def _arc3d(center, start, end, n):
+def _arc3d(center: Sequence[float], start: Sequence[float], end: Sequence[float], n: int) -> list[list[float]]:
     """
     *n* points along the short arc from *start* to *end* about *center* (slerp, any dimension).
     """
     c = np.asarray(center, dtype=float)
     v0, v1 = np.asarray(start, dtype=float) - c, np.asarray(end, dtype=float) - c
-    angle = math.acos(
-        max(
-            -1.0,
-            min(1.0, float(np.dot(v0, v1)) / (np.linalg.norm(v0) * np.linalg.norm(v1))),
-        )
-    )
+    dot_v: float = float(np.dot(v0, v1))
+    denom: float = float(np.linalg.norm(v0) * np.linalg.norm(v1))
+    cos_angle: float = max(-1.0, min(1.0, dot_v / denom))
+    angle = math.acos(cos_angle)
     if angle < 1e-12:
         return [
             list(np.asarray(start, dtype=float)),
@@ -109,7 +109,13 @@ def _arc3d(center, start, end, n):
     return [list(c + (math.sin((1 - t) * angle) * v0 + math.sin(t * angle) * v1) / s) for t in np.linspace(0, 1, n)]
 
 
-def _circlecorner(points, parm, fn=None, fa=None, fs=None):
+def _circlecorner(
+    points: Sequence[Sequence[float]],
+    parm: Sequence[float],
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> list[list[float]]:
     """A circular-arc corner (BOSL2 _circlecorner())."""
     from pybosl2.shapes2d import _frag_count, arc
 
@@ -135,7 +141,7 @@ def _circlecorner(points, parm, fn=None, fa=None, fs=None):
                 ],
             )
         ]
-    return _arc3d(center, start, end, sides)
+    return _arc3d(center, start, end, sides)  # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------
@@ -144,19 +150,19 @@ def _circlecorner(points, parm, fn=None, fa=None, fs=None):
 
 
 def _round_corners(
-    path,
+    path: Sequence[Sequence[float]],
     method: str = "circle",
     radius: float | None = None,
-    cut=None,
-    joint=None,
+    cut: float | Sequence[float] | None = None,
+    joint: float | Sequence[float] | None = None,
     width: float | None = None,
     curvature: float | None = None,
     closed: bool = True,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-    **kwargs,
-):
+    **kwargs: object,
+) -> object:
     """Round every corner of *path* (BOSL2 round_corners()).
 
     *method* is ``"circle"`` (a constant-radius arc), ``"smooth"`` (a continuous-curvature bezier),
@@ -179,7 +185,7 @@ def _round_corners(
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
 
-    k = curvature if curvature is not None else kwargs.get("k")
+    curv_val = curvature if curvature is not None else cast("float | None", kwargs.get("k"))
 
     assert method in (
         "circle",
@@ -205,17 +211,17 @@ def _round_corners(
     assert method == "chamfer" or measure != "width", 'width is allowed only with method="chamfer".'
 
     if is_num(size):
-        parm = [float(size)] * sides
+        parm = [float(size)] * sides  # type: ignore[arg-type]
     elif isinstance(size, (list, tuple, np.ndarray)):
         parm = [0.0] + [float(v) for v in size] + [0.0] if len(size) < sides else [float(v) for v in size]
-    if k is None:
+    if curv_val is None:
         kv = [0.5] * sides
-    elif is_num(k):
+    elif curv_val is not None and is_num(curv_val):
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = [float(k)] * sides
-    elif isinstance(k, (list, tuple, np.ndarray)):
+        kv = [float(curv_val)] * sides
+    elif isinstance(curv_val, (list, tuple, np.ndarray)):
         assert method == "smooth", 'k is only allowed with method="smooth".'
-        kv = ([0.0] + [float(v) for v in k] + [0.0]) if len(k) < sides else [float(v) for v in k]
+        kv = ([0.0] + [float(v) for v in curv_val] + [0.0]) if len(curv_val) < sides else [float(v) for v in curv_val]
     assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
     assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
 
@@ -291,8 +297,8 @@ def _round_corners(
     return (Path3D if dim == 3 else Path2D)(result, closed=closed)
 
 
-def _dedup(pts, eps=1e-9):
-    out = []
+def _dedup(pts: Sequence[Sequence[float]], eps: float = 1e-9) -> list[list[float]]:
+    out: list[list[float]] = []
     for p in pts:
         if not out or not np.allclose(out[-1], p, rtol=0, atol=eps):
             out.append([float(c) for c in p])
@@ -307,14 +313,14 @@ def _dedup(pts, eps=1e-9):
 
 
 def _smooth_path(
-    path,
-    tangents=None,
-    size=None,
-    relsize=None,
+    path: Sequence[Sequence[float]],
+    tangents: Sequence[Sequence[float]] | None = None,
+    size: float | Sequence[float] | None = None,
+    relsize: float | None = None,
     splinesteps: int = 10,
     uniform: bool = False,
     closed: bool = False,
-):
+) -> object:
     """Fit a smooth continuous-curvature curve through *path* (BOSL2 smooth_path(), method="edges").
 
     Runs a cubic bezier through every point of *path*, matching the path's tangents, and samples it
@@ -338,10 +344,10 @@ def _smooth_path(
     from pybosl2.path3d import Path3D
 
     bez = create_bezier(
-        path,
+        path,  # type: ignore[arg-type]
         closed=closed,
-        tangents=tangents,
-        size=size,
+        tangents=tangents,  # type: ignore[arg-type]
+        size=size,  # type: ignore[arg-type]
         relsize=relsize,
         uniform=uniform,
     )
@@ -365,17 +371,17 @@ class Roundable:
         self: Path2D | Path3D,
         radius: float | None = None,
         method: str = "circle",
-        cut=None,
-        joint=None,
+        cut: float | Sequence[float] | None = None,
+        joint: float | Sequence[float] | None = None,
         width: float | None = None,
         curvature: float | None = None,
         closed: bool | None = None,
-        **kwargs,
-    ):
+        **kwargs: object,
+    ) -> object:
         """Round every corner of this path (see :func:`round_corners`)."""
-        curv = curvature if curvature is not None else kwargs.get("k")
+        curv = curvature if curvature is not None else cast("float | None", kwargs.get("k"))
         return _round_corners(
-            self,
+            self,  # type: ignore[arg-type]
             method=method,
             radius=radius,
             cut=cut,
@@ -383,21 +389,21 @@ class Roundable:
             width=width,
             curvature=curv,
             closed=self.closed if closed is None else closed,
-            **kwargs,
+            **kwargs,  # type: ignore[arg-type]
         )
 
     def smooth_path(  # type: ignore[misc]
         self: Path2D | Path3D,
-        tangents=None,
-        size=None,
-        relsize=None,
+        tangents: Sequence[Sequence[float]] | None = None,
+        size: float | Sequence[float] | None = None,
+        relsize: float | None = None,
         splinesteps: int = 10,
         uniform: bool = False,
         closed: bool | None = None,
-    ):
+    ) -> object:
         """Fit a smooth continuous-curvature curve through this path (see :func:`smooth_path`)."""
         return _smooth_path(
-            self,
+            self,  # type: ignore[arg-type]
             tangents=tangents,
             size=size,
             relsize=relsize,
@@ -412,10 +418,10 @@ class Roundable:
         closed: bool | None = None,
         endcap: CapType = CapType.ROUND,
         joint: CapType = CapType.ROUND,
-    ):
+    ) -> object:
         """Offset this 2-D path to create a thickened outline Region (BOSL2 offset_stroke())."""
         return _offset_stroke(
-            self,
+            self,  # type: ignore[arg-type]
             width=width,
             closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
             endcap=endcap,
@@ -425,12 +431,12 @@ class Roundable:
     def offset_sweep(
         self,
         height: float,
-        bottom=None,
-        top=None,
+        bottom: object = None,
+        top: object = None,
         steps: int = 16,
-        caps=CapType.BUTT,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
-    ):
+    ) -> object:
         """Offset sweep/extrusion of this 2-D shape (BOSL2 offset_sweep())."""
         from pybosl2.skin import _offset_sweep as _os
 
@@ -447,12 +453,12 @@ class Roundable:
     def convex_offset_extrude(
         self,
         height: float,
-        bottom=None,
-        top=None,
+        bottom: object = None,
+        top: object = None,
         steps: int = 16,
-        caps=CapType.BUTT,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
-    ):
+    ) -> object:
         """Offset sweep/extrusion of this 2-D shape (BOSL2 convex_offset_extrude())."""
         from pybosl2.skin import _convex_offset_extrude as _coe
 
@@ -468,22 +474,30 @@ class Roundable:
 
     def rounded_prism(
         self,
-        top=None,
+        top: Sequence[Sequence[float]] | None = None,
         height: float | None = None,
-        joint_top=None,
-        joint_bottom=None,
-        joint_sides=None,
-        curvature_sides=None,
+        joint_top: float | dict[str, object] | None = None,
+        joint_bottom: float | dict[str, object] | None = None,
+        joint_sides: float | list[float] | None = None,
+        curvature_sides: float | list[float] | None = None,
         steps: int = 16,
-        caps=CapType.BUTT,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
-        **kwargs,
-    ):
+        **kwargs: object,
+    ) -> object:
         """Rounded prism between this path and a top path (BOSL2 rounded_prism())."""
         from pybosl2.skin import _rounded_prism as _rp
 
-        j_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot")
-        k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides")
+        j_bot = (
+            joint_bottom
+            if joint_bottom is not None
+            else cast("float | dict[str, object] | None", kwargs.get("joint_bot"))
+        )
+        k_sides = (
+            curvature_sides
+            if curvature_sides is not None
+            else cast("float | list[float] | None", kwargs.get("k_sides"))
+        )
 
         return _rp(
             cast("Sequence[Sequence[float]]", self),
@@ -504,9 +518,9 @@ class Roundable:
         height: float,
         fillet: float = 0.0,
         steps: int = 16,
-        caps=CapType.BUTT,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
-    ):
+    ) -> object:
         """Join this prism to a base plane with a filleted transition (BOSL2 join_prism())."""
         from pybosl2.skin import _join_prism as _jp
 
@@ -523,12 +537,12 @@ class Roundable:
         self,
         length: float,
         fillet: float = 0.0,
-        fillet1=None,
-        fillet2=None,
+        fillet1: float | None = None,
+        fillet2: float | None = None,
         steps: int = 16,
-        caps=CapType.BUTT,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
-    ):
+    ) -> object:
         """Construct a filleted prism connecting two objects (BOSL2 prism_connector())."""
         from pybosl2.skin import _prism_connector as _pc
 
@@ -549,9 +563,9 @@ class Roundable:
         fillet: float = 0.0,
         rounding: float = 0.0,
         steps: int = 16,
-        caps=CapType.BUTT,
+        caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
-    ):
+    ) -> object:
         """Attach a filleted prism with optional rounded end (BOSL2 attach_prism())."""
         from pybosl2.skin import _attach_prism as _ap
 
@@ -570,7 +584,7 @@ class Roundable:
         radius: float,
         thickness: float,
         style: str = "min_edge",
-    ):
+    ) -> object:
         """Create a mask to generate a round-edged cutout in a cylindrical shell (BOSL2 bent_cutout_mask())."""
         from pybosl2.skin import _bent_cutout_mask as _bcm
 
@@ -583,19 +597,19 @@ class Roundable:
 
     def path_join(
         self,
-        other_paths,
-        radius=None,
-        cut=None,
-        joint=None,
-        curvature=None,
-        relocate=True,
+        other_paths: Sequence[Sequence[Sequence[float]]],
+        radius: float | list[float] | None = None,
+        cut: float | list[float] | None = None,
+        joint: float | list[float] | None = None,
+        curvature: float | list[float] | None = None,
+        relocate: bool = True,
         closed: bool | None = None,
-        **kwargs,
-    ):
+        **kwargs: object,
+    ) -> object:
         """Join multiple paths to this path end-to-end (see :func:`path_join`)."""
-        curv = curvature if curvature is not None else kwargs.get("k")
+        curv = curvature if curvature is not None else cast("float | None", kwargs.get("k"))
         return _path_join(
-            [self] + list(other_paths),
+            [self] + list(other_paths),  # type: ignore[arg-type]
             radius=radius,
             cut=cut,
             joint=joint,
@@ -614,7 +628,7 @@ def _path_join(
     curvature: float | list[float] | None = None,
     relocate: bool = True,
     closed: bool = False,
-    **kwargs,
+    **kwargs: object,
 ) -> Any:
     """Join multiple paths end-to-end with optional rounding at the joint connections (BOSL2 path_join()).
 
@@ -637,7 +651,7 @@ def _path_join(
     from pybosl2.path2d import Path2D as _Path
     from pybosl2.path3d import Path3D as _Path3D
 
-    k = curvature if curvature is not None else kwargs.get("k")
+    curv_val = curvature if curvature is not None else cast("float | None", kwargs.get("k"))
 
     if not paths:
         return _Path([])
@@ -695,23 +709,24 @@ def _path_join(
             size_list[idx] = float(size)
 
     # Do the same for k if given
-    k_list = None
-    if k is not None:
+    k_list: list[float] | None = None
+    curv_val = curvature if curvature is not None else cast("float | list[float] | None", kwargs.get("k"))
+    if curv_val is not None:
         k_list = [0.5] * sides
-        if isinstance(k, (list, tuple, np.ndarray)):
+        if isinstance(curv_val, (list, tuple, np.ndarray)):
             for i, idx in enumerate(joint_indices):
-                if i < len(k):
-                    k_list[idx] = float(k[i])
+                if i < len(curv_val):
+                    k_list[idx] = float(curv_val[i])
         else:
             for idx in joint_indices:
-                k_list[idx] = float(k)
+                k_list[idx] = float(curv_val)
 
     # Call round_corners with the per-corner sizes
-    kwargs = {measure: size_list, "closed": closed}
+    rc_kwargs: dict[str, object] = {measure: size_list, "closed": closed}
     if k_list is not None:
-        kwargs["k"] = k_list
+        rc_kwargs["k"] = k_list
 
-    return _round_corners(pts, **kwargs)
+    return _round_corners(pts, **rc_kwargs)  # type: ignore[arg-type]
 
 
 def _from_shapely(geom: "MultiPolygon") -> list[Path2D]:
@@ -745,7 +760,7 @@ def _from_shapely(geom: "MultiPolygon") -> list[Path2D]:
 
 
 def _offset_stroke(
-    path,
+    path: Sequence[Sequence[float]],
     width: float = 1.0,
     closed: bool = False,
     endcap: CapType = CapType.ROUND,

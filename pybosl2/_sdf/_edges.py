@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 # pybosl2._sdf.shapes3d can keep importing these names from here. Importing _edges_lang (pure Python,
 # no numpy/native) keeps the SDF backend from depending on the large pybosl2.shapes3d CSG module.
 # ---------------------------------------------------------------------------
-from pybosl2._edges_lang import (  # noqa: F401
+from pybosl2._edges_lang import (
     EDGE_OFFSETS,
     EDGES_ALL,
     EDGES_NONE,
@@ -27,9 +27,24 @@ from pybosl2._edges_lang import (  # noqa: F401
     _is_plain_vector,
 )
 
+__all__ = [
+    "EDGE_OFFSETS",
+    "EDGES_ALL",
+    "EDGES_NONE",
+    "_edge_set",
+    "_edges",
+    "_is_edge_array",
+    "_is_plain_vector",
+    "_pick_radius",
+    "_anchor_offset_box3",
+    "_anchor_offset_cyl",
+    "_anchor_offset_hull3",
+    "_anchor_offset_sphere",
+]
+
 # The shared radius-priority resolver (radius1 > d1/2 > radius2 > d2/2 > radius > d/2 > dflt).
 # Re-exported so pybosl2._sdf.paths and pybosl2._sdf.shapes3d can import it from here as before.
-from pybosl2.shapes2d import _pick_radius  # noqa: F401
+from pybosl2.shapes2d import _pick_radius
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

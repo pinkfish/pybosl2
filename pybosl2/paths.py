@@ -54,7 +54,7 @@ class CutPoint:
 
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator, Sequence
 
     from numpy.typing import NDArray
 
@@ -89,13 +89,13 @@ class Path(ABC):
     def __len__(self) -> int:
         return len(self._points)
 
-    def __getitem__(self, key: int | slice | tuple) -> np.ndarray | Point:
+    def __getitem__(self, key: int | slice | tuple[int, ...]) -> np.ndarray | Point:
         result = self._points[key]
         if isinstance(key, int):
             return Point.from_seq(result)
         return result
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[np.ndarray]:
         return iter(self._points)
 
     def __eq__(self, other: object) -> bool:

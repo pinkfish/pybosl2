@@ -20,31 +20,31 @@ import math
 
 import numpy as np
 
-from pybosl2.shapes2d import _opolygon
+from pybosl2.shapes2d import _opolygon  # type: ignore[attr-defined]
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid
 
 __all__ = ["Hooks"]
 
 
-def _circle_point_tangents(r, center, pt):
+def _circle_point_tangents(r: float, center: list[float], pt: list[float]) -> list[list[float]]:
     """The two tangent points on a circle (centre *center*, radius *r*) from external point *pt* (BOSL2
     circle_point_tangents()). Points are 2-vectors ``[x, height]``."""
-    center = np.asarray(center, dtype=float)
-    pt = np.asarray(pt, dtype=float)
-    diameter = float(np.linalg.norm(pt - center))
+    center_arr = np.asarray(center, dtype=float)
+    pt_arr = np.asarray(pt, dtype=float)
+    diameter = float(np.linalg.norm(pt_arr - center_arr))
     if diameter <= r:
         raise ValueError("point must be outside the circle for a tangent to exist")
-    u = (pt - center) / diameter
+    u = (pt_arr - center_arr) / diameter
     angle = math.acos(r / diameter)
-    out = []
+    out: list[list[float]] = []
     for s in (1, -1):
         c, si = math.cos(s * angle), math.sin(s * angle)
         rot = np.array([c * u[0] - si * u[1], si * u[0] + c * u[1]])
-        out.append((center + r * rot).tolist())
+        out.append((center_arr + r * rot).tolist())
     return out
 
 
-def _radius(r, d):
+def _radius(r: float | None, d: float | None) -> float | None:
     if r is not None:
         return float(r)
     if d is not None:
@@ -57,13 +57,13 @@ class Hooks:
 
     @staticmethod
     def ring_hook(
-        base_size,
-        hole_z,
+        base_size: list[float],
+        hole_z: float,
         outer_radius: float | None = None,
         inner_radius: float | None = None,
         outer_diameter: float | None = None,
         inner_diameter: float | None = None,
-        wall=None,
+        wall: float | None = None,
         hole: str = "circle",
         rounding: float = 0,
         hole_rounding: float = 0,
@@ -117,8 +117,8 @@ class Hooks:
                 raise ValueError(
                     "ring_hook(): define exactly two of or/outer_diameter, inner_radius/inner_diameter and wall."
                 )
-            ri = ir_t if ir_t is not None else or_t - wall
-            ro = or_t if or_t is not None else ri + wall
+            ri = ir_t if ir_t is not None else float(or_t) - float(wall)  # type: ignore[arg-type]
+            ro = or_t if or_t is not None else float(ri) + float(wall)  # type: ignore[arg-type]
             if ri > ro:
                 raise ValueError("ring_hook(): hole doesn't fit, or wall is negative.")
             if hole not in ("circle", "D"):
@@ -154,7 +154,17 @@ class Hooks:
         return Bosl2Solid(body.shape, size=[bx, w, hole_z + ro])
 
 
-def _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, fn, fa=None, fs=None):
+def _hole_cutter(
+    hole: str | list[list[float]],
+    ri: float,
+    w: float,
+    hole_z: float,
+    hole_rounding: float,
+    custom: bool,
+    fn: int | None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Bosl2Solid:
     """The solid to subtract for the through-hole, laid along Y and centred at z=hole_z."""
     length_ = w + 2
     if custom:

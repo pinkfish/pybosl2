@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator, Sequence
 
     from numpy.typing import NDArray
 
@@ -98,7 +98,7 @@ def catenary(
     if droop_a is None:  # solve for the scale that gives the requested endpoint slope
         assert angle_a is not None
 
-        def slope_fn(x):
+        def slope_fn(x: float) -> float:
             p1 = math.cosh(x - 0.001) - 1
             p2 = math.cosh(x + 0.001) - 1
             return math.degrees(math.atan2(p2 - p1, 0.002))
@@ -106,7 +106,7 @@ def catenary(
         target, f = angle_a, slope_fn
     else:  # solve for the scale that gives the requested droop
 
-        def droop_fn(x):
+        def droop_fn(x: float) -> float:
             return (math.cosh(x) - 1) / x if x != 0 else 0.0
 
         target, f = droop_a / (width / 2), droop_fn
@@ -233,7 +233,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         self._geom = LineString(coords)
 
     @property
-    def _shapely(self):
+    def _shapely(self) -> LineString:
         """The Shapely LineString."""
         return self._geom
 
@@ -246,7 +246,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             return Point.from_seq(result)
         return result
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[np.ndarray]:
         return iter(self._points)
 
     def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
@@ -268,10 +268,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of ``[x, y]`` pairs."""
-        return self._points.tolist()
+        return self._points.tolist()  # type: ignore[no-any-return]
 
     @property
-    def _shapely_polygon(self):
+    def _shapely_polygon(self) -> Polygon:
         """Shapely Polygon from the path (requires closed)."""
         if not self.closed:
             return Polygon()
@@ -759,9 +759,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if total < 1e-12:
             return self.__class__(self._points.tolist(), closed=self.closed)
 
-        def _dist(s, u):
+        def _dist(s: int, u: float) -> float:
             s = s % len(segs) if len(segs) > 0 else 0
-            return cum[s] + u * segs[s] if s < len(segs) else total
+            return cum[s] + u * segs[s] if s < len(segs) else total  # type: ignore[no-any-return]
 
         d1 = _dist(s1, u1)
         d2 = _dist(s2, u2)
@@ -1558,7 +1558,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.symmetric_difference(other)
 
     @staticmethod
-    def _polygon_to_path(result) -> "Path2D":
+    def _polygon_to_path(result: Any) -> "Path2D":
         """Convert a shapely polygon result to a closed :class:`Path2D`.
 
         Raises:
@@ -1977,7 +1977,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         mitre = pt_in + u_in * step[:, None]
 
         if not opens_gap.any():
-            return mitre.tolist()
+            return mitre.tolist()  # type: ignore[no-any-return]
 
         out: list[list[float]] = []
         for i in range(len(pts)):
@@ -2029,7 +2029,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if end is None:
             if isinstance(start, (list, tuple)):
                 return [lst[i % sides] for i in start]
-            return lst[start % sides]
+            return lst[start % sides]  # type: ignore[no-any-return]
         assert isinstance(start, int), "_path_select(): slice form needs integer start"
         s = start % sides
         e = end % sides

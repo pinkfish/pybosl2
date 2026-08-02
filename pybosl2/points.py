@@ -16,7 +16,7 @@ and path operations.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Sequence
+from typing import Iterable, Iterator, Sequence
 
 import numpy as np
 
@@ -59,8 +59,8 @@ class Point:
         """``True`` when *z* is ``None`` (a 2‑D point)."""
         return self.z is None
 
-    def __iter__(self):
-        return iter((self.x, self.y) if self.is_2d else (self.x, self.y, self.z))
+    def __iter__(self) -> Iterator[float]:
+        return iter((self.x, self.y, self.z) if not self.is_2d else (self.x, self.y))  # type: ignore[arg-type]
 
     def __len__(self) -> int:
         return 2 if self.is_2d else 3
@@ -85,16 +85,16 @@ class Point:
         return np.array(arr, dtype=dtype or float)
 
     def __add__(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        return np.asarray(self) + np.asarray(other, dtype=float)
+        return np.asarray(self) + np.asarray(other, dtype=float)  # type: ignore[no-any-return]
 
     def __radd__(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        return np.asarray(other, dtype=float) + np.asarray(self)
+        return np.asarray(other, dtype=float) + np.asarray(self)  # type: ignore[no-any-return]
 
     def __sub__(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        return np.asarray(self) - np.asarray(other, dtype=float)
+        return np.asarray(self) - np.asarray(other, dtype=float)  # type: ignore[no-any-return]
 
     def __rsub__(self, other: Sequence[float] | np.ndarray) -> np.ndarray:
-        return np.asarray(other, dtype=float) - np.asarray(self)
+        return np.asarray(other, dtype=float) - np.asarray(self)  # type: ignore[no-any-return]
 
     def __neg__(self) -> np.ndarray:
         return -np.asarray(self)

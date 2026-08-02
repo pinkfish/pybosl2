@@ -172,7 +172,7 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
         )
     if cptype == "jigsaw":
         return Path2D(
-            list(
+            list(  # type: ignore[arg-type]
                 arc(
                     radius=5 / 16,
                     center=[0, -3 / 16],
@@ -281,7 +281,7 @@ def _ptn_sect(
             b1, b2 = sect1.bounds(), sect2.bounds()
             osect1 = _scale2(0.5, 0.5, _left(b1.min_x, sect1))
             osect2 = _right(osect1[-1][0], _scale2(0.5, 0.5, _left(b2.min_x, sect2)))
-            return _merge_collinear(list(osect1) + list(osect2))
+            return _merge_collinear(list(osect1) + list(osect2))  # type: ignore[arg-type]
         if opt and opt[0].isdigit() and opt.endswith("x") and opt[:-1].isdigit():  # "3x": repeat
             reps = int(opt[:-1])
             assert reps > 0, "repetition count must be positive."
@@ -333,18 +333,14 @@ def _ptn_sect(
     elif cptype == "halfsine":
         path = [[a / 180, math.sin(math.radians(a))] for a in np.arange(0, 180.0001, 360 / steps)]
     elif cptype == "semicircle":
-        path = _yscale(
-            2,
-            list(
-                arc(
-                    count=math.ceil(steps / 2),
-                    radius=1 / 2,
-                    center=[1 / 2, 0],
-                    start=180,
-                    angle=-180,
-                )
-            ),
+        raw_arc = arc(
+            count=math.ceil(steps / 2),
+            radius=1 / 2,
+            center=[1 / 2, 0],
+            start=180,
+            angle=-180,
         )
+        path = _yscale(2, list(raw_arc))  # type: ignore[arg-type]
     elif cptype == "comb":
         dx = math.tan(math.radians(2)) * width / length
         assert dx <= 0.5, "width-to-length ratio too large for comb form."
@@ -379,7 +375,7 @@ def _ptn_sect(
         ]
     elif cptype == "jigsaw":
         path = (
-            list(
+            list(  # type: ignore[assignment]
                 arc(
                     count=math.ceil(steps / 4),
                     radius=5 / 16,
@@ -488,9 +484,9 @@ def partition_path(
     cleanpath = _merge_collinear(_dedup(fullpath))
     redirpath = cleanpath if altpath is None else _ptn_path_redirect(altpath, cleanpath)
     if y is None:
-        return Path2D(list(redirpath), closed=False)
+        return Path2D(list(redirpath), closed=False)  # type: ignore[arg-type]
     assert y < min_y or y > max_y, "partition_path(): closing y would make the path self-crossing."
-    closedpath = [[redirpath[-1][0], y], [redirpath[0][0], y]] + list(redirpath)
+    closedpath: list[Any] = [[redirpath[-1][0], y], [redirpath[0][0], y]] + list(redirpath)
     outpath = closedpath if y < 0 else closedpath[::-1]
     return Path2D(outpath, closed=True)
 
@@ -510,7 +506,7 @@ def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = Tr
     vec2 = unit(np.asarray(major2[-1]) - np.asarray(major_path[-2]), [1.0, 0.0])
     major3 = (
         [list(np.asarray(major2[0]) + vec1 * e1)]
-        + [list(p) for p in major2[1:-1]]
+        + [list(p) for p in major2[1:-1]]  # type: ignore[arg-type]
         + [list(np.asarray(major2[-1]) + vec2 * e2)]
     )
     major_len2 = Path2D(major3).perimeter()

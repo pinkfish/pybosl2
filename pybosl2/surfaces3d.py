@@ -285,7 +285,7 @@ def interior_fillet(
         spin:    Z-axis rotation in degrees after anchor (default 0)
         orient:  direction to rotate the top towards, after spin (default UP)
     """
-    from .shapes2d import _opolygon
+    from .shapes2d import _opolygon  # type: ignore[attr-defined]
 
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     sides = _frag_count(rad)
@@ -531,7 +531,15 @@ def cylindrical_heightfield(
     return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
 
 
-def plot3d(f, x, y, zclip=None, zspan=None, base: float = 1, style: str = "default") -> Bosl2Solid:
+def plot3d(
+    f: Callable[[float, float], float],
+    x: Sequence[float],
+    y: Sequence[float],
+    zclip: Sequence[float] | None = None,
+    zspan: Sequence[float] | None = None,
+    base: float = 1,
+    style: str = "default",
+) -> Bosl2Solid:
     """A surface plot of ``z = f(x, y)`` over a grid of *x*, *y* values (BOSL2 plot3d()).
 
     Args:
@@ -575,18 +583,18 @@ def plot3d(f, x, y, zclip=None, zspan=None, base: float = 1, style: str = "defau
 
 
 def plot_revolution(
-    f,
+    f: Callable[[float, float], float],
     angle: float,
-    z=None,
+    z: Sequence[float] | None = None,
     radius: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    path=None,
-    rclip=None,
-    rspan=None,
+    path: Sequence[Sequence[float]] | None = None,
+    rclip: Sequence[float] | None = None,
+    rspan: Sequence[float] | None = None,
     horiz: bool = False,
     style: str = "min_edge",
 ) -> Bosl2Solid:
@@ -642,7 +650,7 @@ def plot_revolution(
     if path is not None:
         prof = [[float(p[0]), float(p[1])] for p in path]
     else:
-        zs = list(z)
+        zs = list(z)  # type: ignore[arg-type]
         assert r1v is not None and r2v is not None and len(zs) > 1, (
             "plot_revolution(): give z with radius1 and radius2 (or a path)."
         )
@@ -731,17 +739,17 @@ def fillet(
 
 
 def textured_tile(
-    texture,
-    size,
-    tex_reps=None,
-    tex_size=None,
+    texture: Any,
+    size: Sequence[float],
+    tex_reps: Any = None,
+    tex_size: Any = None,
     tex_depth: float = 1,
-    tex_inset=False,
+    tex_inset: Any = False,
     style: str = "min_edge",
-    sides=None,
-    border=None,
+    sides: Any = None,
+    border: Any = None,
     gap: float | None = None,
-    roughness=None,
+    roughness: Any = None,
     fn: int | None = None,
 ) -> Bosl2Solid:
     """A rectangular tile carrying a repeated *texture* (BOSL2 textured_tile()).
@@ -794,7 +802,7 @@ def textured_tile(
     sz = [float(size[0]), float(size[1])]
     inset = 1.0 if tex_inset is True else float(tex_inset or 0)
 
-    def resolve_reps(cell):
+    def resolve_reps(cell: Any) -> list[int]:
         _ = cell
         if tex_reps is not None:
             return (
@@ -865,7 +873,7 @@ def ruler(
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
     """
-    from .shapes2d import _opolygon
+    from .shapes2d import _opolygon  # type: ignore[attr-defined]
 
     if colors is None:
         colors = ["black", "white"]

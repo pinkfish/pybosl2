@@ -33,9 +33,10 @@ if TYPE_CHECKING:
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
+from ._edges_lang import EDGE_OFFSETS, _edges
 from .constants import CENTER
 from .shapes2d import _frag_count, _polar_to_xy
-from .shapes3d import EDGE_OFFSETS, _anchor_offset_box3, _edges, _quantup
+from .shapes3d import _anchor_offset_box3, _quantup
 
 _ocube = native("cube")
 _opolygon = native("polygon")
@@ -289,7 +290,7 @@ def _corner_set(v: str | list[int]) -> list[int]:
 
 def _corners(
     v: str | list[int] | list[str] | list[list[int]] | list[list[str]],
-    except_: list | None = None,
+    except_: list | None = None,  # type: ignore[type-arg]
 ) -> list[int]:
     if except_ is None:
         except_ = []
@@ -298,7 +299,7 @@ def _corners(
     if isinstance(except_, str) or (
         isinstance(except_, list) and len(except_) > 0 and not isinstance(except_[0], list)
     ):
-        except_ = [except_]  # type: ignore[assignment]
+        except_ = [except_]
     summed = [0] * 8
     for x in v:
         cs = _corner_set(x)  # type: ignore[arg-type]
@@ -308,7 +309,7 @@ def _corners(
         return normed
     exc = [0] * 8
     for x in except_:
-        cs = _corner_set(x)  # type: ignore[arg-type]
+        cs = _corner_set(x)
         exc = [exc[i] + cs[i] for i in range(8)]
     return [1 if (normed[i] - (1 if exc[i] > 0 else 0)) > 0 else 0 for i in range(8)]
 

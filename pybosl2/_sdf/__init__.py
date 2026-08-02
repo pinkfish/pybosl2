@@ -35,7 +35,7 @@ class SdfBackend:
         fn = getattr(_s, shape, None)
         if not callable(fn):
             raise ValueError(f"the sdf backend has no shape constructor {shape!r}")
-        return fn(*args, **kwargs)
+        return fn(*args, **kwargs)  # type: ignore[no-any-return]
 
     def polyhedron(self, points: Any, faces: Any = None, **kwargs: Any) -> _s.PyShape:
         """The convex hull of `points` as an SDF. `faces` is accepted for signature-compatibility

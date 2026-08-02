@@ -18,6 +18,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from pybosl2.points import Point
+
 __all__ = ["Bounds2D", "Bounds3D"]
 
 
@@ -35,6 +37,16 @@ class Bounds2D:
     max_y: float
     width: float
     length: float
+
+    @property
+    def center(self) -> Point:
+        """The (x, y) centre of the bounding box as a 2‑D :class:`Point`."""
+        return Point((self.min_x + self.max_x) / 2, (self.min_y + self.max_y) / 2)
+
+    @property
+    def size(self) -> tuple[float, float]:
+        """The (width, length) of the bounding box."""
+        return (self.width, self.length)
 
 
 @dataclass(frozen=True)
@@ -55,3 +67,17 @@ class Bounds3D:
     width: float
     length: float
     height: float
+
+    @property
+    def center(self) -> Point:
+        """The (x, y, z) centre of the bounding box as a 3‑D :class:`Point`."""
+        return Point(
+            (self.min_x + self.max_x) / 2,
+            (self.min_y + self.max_y) / 2,
+            (self.min_z + self.max_z) / 2,
+        )
+
+    @property
+    def size(self) -> tuple[float, float, float]:
+        """The (width, length, height) of the bounding box."""
+        return (self.width, self.length, self.height)

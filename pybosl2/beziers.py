@@ -47,6 +47,8 @@ import math
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from pybosl2.caps import CapsSpec, CapType
     from pybosl2.paths import Path
     from pybosl2.points import Vector
@@ -121,7 +123,7 @@ class Bezier:
     def __getitem__(self, index: int | slice) -> np.ndarray:
         return self._points[index]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[np.ndarray]:
         return iter(self._points)
 
     def __repr__(self) -> str:
@@ -139,7 +141,7 @@ class Bezier:
     @property
     def to_list(self) -> list[list[float]]:
         """The underlying control-point list."""
-        return self._points.tolist()
+        return self._points.tolist()  # type: ignore[no-any-return]
 
     @property
     def array(self) -> np.ndarray:
@@ -170,7 +172,7 @@ class Bezier:
         mp = Bezier._matrix(sides) @ p
         powers = np.array([[uv**k for k in range(sides + 1)] for uv in us])  # type: ignore[operator]
         result = powers @ mp
-        return result[0] if scalar else result
+        return result[0] if scalar else result  # type: ignore[no-any-return]
 
     def curve(self, splinesteps: int = 16, endpoint: bool = True) -> np.ndarray:
         """Sample *splinesteps* segments uniformly along the curve.
@@ -336,16 +338,18 @@ class Bezier:
         if defl <= max_deflect:
             dim = path.shape[1] if len(path) > 0 else 2
             return float((Path3D(path) if dim == 3 else Path2D(path)).perimeter())
-        return float(
-            sum(
+        total: float = sum(
+            (
                 self.arc_length(
-                    lerp(start_u, end_u, i / segs),
-                    lerp(start_u, end_u, (i + 1) / segs),
+                    lerp(start_u, end_u, i / segs),  # type: ignore[arg-type]
+                    lerp(start_u, end_u, (i + 1) / segs),  # type: ignore[arg-type]
                     max_deflect,
                 )
                 for i in range(segs)
-            )
+            ),
+            start=0.0,
         )
+        return total
 
     def line_intersection(self, line: np.ndarray) -> list[float]:
         """The *u* values where this 2-D curve crosses *line* (two points).
@@ -679,7 +683,7 @@ class Bezier:
             tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
                 list(lerpn(0, 1, splinesteps + 1, endpoint))
             )
-        return _path_sweep(
+        return _path_sweep(  # type: ignore[return-value]
             shape,  # type: ignore[arg-type]
             np.asarray(path),  # type: ignore[arg-type]
             method=method,
@@ -1077,7 +1081,7 @@ class BezierPatch:
     def __getitem__(self, index: int | slice) -> np.ndarray:
         return self._rows[index]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[np.ndarray]:
         return iter(self._rows)
 
     @classmethod
@@ -1092,7 +1096,7 @@ class BezierPatch:
     @property
     def to_list(self) -> list[list[list[float]]]:
         """The underlying control-point row list."""
-        return self._rows.tolist()
+        return self._rows.tolist()  # type: ignore[no-any-return]
 
     @property
     def array(self) -> np.ndarray:
@@ -1166,7 +1170,7 @@ class BezierPatch:
             row_pts = np.array([Bezier(patch[r]).points(v) for r in range(nrows)])  # (nrows, dim)
             return Bezier(row_pts).points(u)
         if su:
-            return self.points([u], v)[0]  # type: ignore[list-item]
+            return self.points([u], v)[0]  # type: ignore[no-any-return, list-item]
         return self.points(u, [v])[:, 0, :]  # type: ignore[list-item]
 
     def normals(self, u: float | Sequence[float] | np.ndarray, v: float | Sequence[float] | np.ndarray) -> np.ndarray:
@@ -1207,7 +1211,7 @@ class BezierPatch:
             dv = Bezier(np.array([Bezier(patch[r]).derivative(v) for r in range(nrows)])).points(u)
             return np.asarray(_unit(np.cross(du, dv)), dtype=float)
         if su:
-            return self.normals([u], v)[0]  # type: ignore[list-item]
+            return self.normals([u], v)[0]  # type: ignore[no-any-return, list-item]
         return self.normals(u, [v])[:, 0, :]  # type: ignore[list-item]
 
     def reverse(self) -> "BezierPatch":
@@ -1278,7 +1282,13 @@ class BezierPatch:
         return VNF.union([BezierPatch(p).vnf(splinesteps, style) for p in patches])
 
     @staticmethod
-    def flat(size, n_degree: int = 1, spin: float = 0.0, orient=UP, trans=(0.0, 0.0, 0.0)) -> "BezierPatch":
+    def flat(
+        size: float | Sequence[float],
+        n_degree: int = 1,
+        spin: float = 0.0,
+        orient: Sequence[float] = UP,
+        trans: Sequence[float] = (0.0, 0.0, 0.0),
+    ) -> "BezierPatch":
         """Create a flat rectangular degree-*n_degree* patch.
 
         Generates a patch of the given *size* centered on the XY plane,
@@ -1397,7 +1407,7 @@ class BezierPatch:
         samplepts = list(lerpn(0, 1, splinesteps + 1))
         empty = VNF([], [])
 
-        def _tolist(pts):  # list of point rows -> list of lists
+        def _tolist(pts: np.ndarray) -> list[list[float]]:  # list of point rows -> list of lists
             return [list(p) for p in pts]
 
         if all(row_degen) and all(col_degen):
@@ -1575,7 +1585,7 @@ def debug_bezier_patches(
         return b if a is None else (a | b)
 
     for patch in plist:
-        bp = BezierPatch(patch)  # type: ignore[arg-type]
+        bp = BezierPatch(patch)
         arr = bp.array
         sz: float = (
             size

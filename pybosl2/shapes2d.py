@@ -210,9 +210,9 @@ def _arc_between_points(
     point_end: Sequence[float],
     radius: float,
     endpoint: bool = True,
-    fn=None,
-    fa=None,
-    fs=None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> list[list[float]]:
     """Arc around *center* from *point_start* to *point_end*, sweeping the shorter way around."""
     a0 = math.degrees(math.atan2(point_start[1] - center[1], point_start[0] - center[0]))
@@ -229,9 +229,9 @@ def _arc_through_3(
     point_mid: Sequence[float],
     point_end: Sequence[float],
     endpoint: bool = True,
-    fn=None,
-    fa=None,
-    fs=None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> list[list[float]]:
     """
     Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be
@@ -279,7 +279,7 @@ def _pick_radius(
     *,
     dflt: float | None = None,
 ) -> float | None: ...
-def _pick_radius(
+def _pick_radius(  # type: ignore[no-untyped-def]
     radius1=None,
     diameter1=None,
     radius2=None,
@@ -800,24 +800,24 @@ class Bosl2Shape2D(Bosl2Shape):
         _check_operand_backend("csg", other)
         return self._wrap(Bosl2Shape2D._unwrap(other) - self.shape)
 
-    def __add__(self, other) -> "Bosl2Shape2D":
+    def __add__(self, other: Sequence[float]) -> "Bosl2Shape2D":
         try:
             len(other)
             return self.translate(other)
         except (TypeError, ValueError):
             return NotImplemented
 
-    def __radd__(self, other) -> "Bosl2Shape2D":
+    def __radd__(self, other: Sequence[float]) -> "Bosl2Shape2D":
         try:
             len(other)
             return self.translate(other)
         except (TypeError, ValueError):
             return NotImplemented
 
-    def __mul__(self, other) -> "Bosl2Shape2D":
+    def __mul__(self, other: float | Sequence[float]) -> "Bosl2Shape2D":
         return self.scale(other)
 
-    def __rmul__(self, other) -> "Bosl2Shape2D":
+    def __rmul__(self, other: float | Sequence[float]) -> "Bosl2Shape2D":
         return self.scale(other)
 
     # ---- distributors (pybosl2/distributors.py) ----
@@ -1433,9 +1433,9 @@ def _regular_ngon_path(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
-    fn=None,
-    fa=None,
-    fs=None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> list[list[float]]:
     if not rounding:
         path = _circle_pts(radius, sides)
@@ -1687,16 +1687,16 @@ def _trapezoid_path(
     width1: float,
     width2: float,
     shift: float,
-    chamfer,
-    rounding,
+    chamfer: float | Sequence[float],
+    rounding: float | Sequence[float],
     flip: bool,
-    fn=None,
-    fa=None,
-    fs=None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> list[list[float]]:
-    chamfs = list(chamfer) if isinstance(chamfer, (list, tuple)) else [chamfer] * 4
-    rounds = list(rounding) if isinstance(rounding, (list, tuple)) else [rounding] * 4
-    srads = [rounds[i] if rounds[i] else chamfs[i] for i in range(4)]
+    chamfs: list[float] = list(chamfer) if isinstance(chamfer, (list, tuple)) else [chamfer] * 4  # type: ignore[list-item]
+    rounds: list[float] = list(rounding) if isinstance(rounding, (list, tuple)) else [rounding] * 4  # type: ignore[list-item]
+    srads: list[float] = [rounds[i] if rounds[i] else chamfs[i] for i in range(4)]
     rads = [abs(s) for s in srads]
     base = [
         [width2 / 2 + shift, height / 2],
@@ -1989,9 +1989,9 @@ def _egg_path(
     radius1: float,
     radius2: float,
     arc_radius: float,
-    fn=None,
-    fa=None,
-    fs=None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> list[list[float]]:
     assert length > 0
     assert arc_radius > length / 2, "Side radius must be larger than length/2"
@@ -2011,10 +2011,11 @@ def _egg_path(
                 [c2[0] + radius2 * u2[0], c2[1] + radius2 * u2[1]],
             ]
         )
-    kw = {"fn": fn, "fa": fa, "fs": fs}
-    path = []
-    path += _arc_between_points(c2, [length / 2, 0.0], arcparms[0][2], radius2, endpoint=False, **kw)
-    path += _arc_between_points(arcparms[0][0], arcparms[0][2], arcparms[0][1], arc_radius, endpoint=False, **kw)
+    path: list[list[float]] = []
+    path += _arc_between_points(c2, [length / 2, 0.0], arcparms[0][2], radius2, endpoint=False, fn=fn, fa=fa, fs=fs)
+    path += _arc_between_points(
+        arcparms[0][0], arcparms[0][2], arcparms[0][1], arc_radius, endpoint=False, fn=fn, fa=fa, fs=fs
+    )
     path += _arc_through_3(
         c1,
         radius1,
@@ -2022,10 +2023,14 @@ def _egg_path(
         [-length / 2, 0.0],
         arcparms[1][1],
         endpoint=False,
-        **kw,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
-    path += _arc_between_points(arcparms[1][0], arcparms[1][1], arcparms[1][2], arc_radius, endpoint=False, **kw)
-    path += _arc_between_points(c2, arcparms[1][2], [length / 2, 0.0], radius2, endpoint=False, **kw)
+    path += _arc_between_points(
+        arcparms[1][0], arcparms[1][1], arcparms[1][2], arc_radius, endpoint=False, fn=fn, fa=fa, fs=fs
+    )
+    path += _arc_between_points(c2, arcparms[1][2], [length / 2, 0.0], radius2, endpoint=False, fn=fn, fa=fa, fs=fs)
     return path
 
 
@@ -2110,7 +2115,7 @@ def _superformula(
 ) -> float:
     t1 = abs(math.cos(math.radians(m1 * theta / 4)) / a) ** n2
     t2 = abs(math.sin(math.radians(m2 * theta / 4)) / b) ** n3
-    return (t1 + t2) ** (-1.0 / n1)
+    return (t1 + t2) ** (-1.0 / n1)  # type: ignore[no-any-return]
 
 
 def supershape(
@@ -2185,7 +2190,13 @@ def squircle_radius_fg(squareness: float, radius: float, angle: float) -> float:
     return radius * math.sqrt(2) / s2a * math.sqrt(1 - math.sqrt(1 - s2a * s2a)) if s2a > 0 else radius
 
 
-def _squircle_fg_path(size, squareness, fn, fa, fs) -> list:
+def _squircle_fg_path(
+    size: Sequence[float],
+    squareness: float,
+    fn: int | None,
+    fa: float | None,
+    fs: float | None,
+) -> list[list[float]]:
     sq = _linearize_squareness(squareness)
     aspect = size[1] / size[0]
     r = 0.5 * size[0]
@@ -2207,7 +2218,7 @@ def _squircle_fg_path(size, squareness, fn, fa, fs) -> list:
 
 
 def squircle(
-    size,
+    size: float | Sequence[float],
     squareness: float = 0.5,
     style: str = "fg",
     anchor: Sequence[float] = CENTER,
@@ -2249,7 +2260,7 @@ def keyhole(
     shoulder_radius: float = 0,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    _length=None,
+    _length: float | None = None,
     anchor: Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
@@ -2284,7 +2295,7 @@ def keyhole(
     ds = [spt1[0] - base[0], spt1[1] - base[1]]
     angle = math.degrees(math.atan2(abs(ds[1]), abs(ds[0])))
 
-    def _arc(**kw):
+    def _arc(**kw):  # type: ignore[no-untyped-def]
         return arc(endpoint=False, fn=fn, fa=fa, fs=fs, **kw)
 
     path: list[Any] = []
@@ -2292,20 +2303,20 @@ def keyhole(
         path += (
             [spt1]
             if shoulder_radius <= 0
-            else _arc(radius=shoulder_radius, center=spt1, start=180 - angle, angle=angle)
+            else _arc(radius=shoulder_radius, center=spt1, start=180 - angle, angle=angle)  # type: ignore[no-untyped-call]
         )
-        path += _arc(radius=r2v, center=cp2, start=0, angle=-180)
-        path += [spt2] if shoulder_radius <= 0 else _arc(radius=shoulder_radius, center=spt2, start=0, angle=angle)
-        path += _arc(radius=r1v, center=cp1, start=180 + angle, angle=-180 - 2 * angle)
+        path += _arc(radius=r2v, center=cp2, start=0, angle=-180)  # type: ignore[no-untyped-call]
+        path += [spt2] if shoulder_radius <= 0 else _arc(radius=shoulder_radius, center=spt2, start=0, angle=angle)  # type: ignore[no-untyped-call]
+        path += _arc(radius=r1v, center=cp1, start=180 + angle, angle=-180 - 2 * angle)  # type: ignore[no-untyped-call]
     else:
-        path += [spt1] if shoulder_radius <= 0 else _arc(radius=shoulder_radius, center=spt1, start=180, angle=angle)
-        path += _arc(radius=r2v, center=cp2, start=angle, angle=-180 - 2 * angle)
+        path += [spt1] if shoulder_radius <= 0 else _arc(radius=shoulder_radius, center=spt1, start=180, angle=angle)  # type: ignore[no-untyped-call]
+        path += _arc(radius=r2v, center=cp2, start=angle, angle=-180 - 2 * angle)  # type: ignore[no-untyped-call]
         path += (
             [spt2]
             if shoulder_radius <= 0
-            else _arc(radius=shoulder_radius, center=spt2, start=360 - angle, angle=angle)
+            else _arc(radius=shoulder_radius, center=spt2, start=360 - angle, angle=angle)  # type: ignore[no-untyped-call]
         )
-        path += _arc(radius=r1v, center=cp1, start=180, angle=-180)
+        path += _arc(radius=r1v, center=cp1, start=180, angle=-180)  # type: ignore[no-untyped-call]
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
     return _finish(shape, offset, spin)

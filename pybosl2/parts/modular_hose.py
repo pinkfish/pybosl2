@@ -37,7 +37,7 @@ __all__ = ["ModularHose"]
 _SQRT2 = math.sqrt(2)
 
 
-def _ts(x):
+def _ts(x: float) -> Turtle2DState:
     """Full turtle state starting at (x, 0) heading +X."""
     return Turtle2DState(path=[[float(x), 0.0]])
 
@@ -170,13 +170,13 @@ _SMALL = [[[float(x), float(y)] for x, y in turtle2d(cmds, state=_ts(x0)).points
 _BIG = [[[float(x), float(y)] for x, y in turtle2d(cmds, state=_ts(x0)).points()] for cmds, x0 in _BIG_CMDS]
 
 
-def _bounds(pts):
+def _bounds(pts: list[list[float]]) -> tuple[tuple[float, float], tuple[float, float]]:
     xs = [p[0] for p in pts]
     ys = [p[1] for p in pts]
     return (min(xs), min(ys)), (max(xs), max(ys))
 
 
-def _size_index(size):
+def _size_index(size: float) -> int:
     try:
         return _SIZES[size]
     except KeyError:
@@ -190,7 +190,7 @@ class ModularHose:
     def modular_hose(
         size: float,
         type: str = "segment",  # noqa: A002
-        clearance: float | list = 0,
+        clearance: float | list[float] = 0,
         waist_len: float | None = None,
         fn: int | None = None,
         fa: float | None = None,
