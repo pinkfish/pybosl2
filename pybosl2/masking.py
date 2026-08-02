@@ -17,7 +17,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -198,8 +198,8 @@ def _extrude_mask_along_edge(
 
 def edge_mask(
     body: "Bosl2Solid",
-    edges: str | list[Any] = "ALL",
-    except_edges: list[Any] | None = None,
+    edges: str | list[int | str] = "ALL",
+    except_edges: list[int | str] | None = None,
     children: "Bosl2Solid | None" = None,
     size: tuple[float, float, float] | None = None,
     anchor: Vector = CENTER,
@@ -233,8 +233,8 @@ def edge_mask(
 
 def edge_profile(
     body: "Bosl2Solid",
-    edges: str | list[Any] = "ALL",
-    except_edges: list[Any] | None = None,
+    edges: str | list[int | str] = "ALL",
+    except_edges: list[int | str] | None = None,
     children: "Path2D | None" = None,
     size: tuple[float, float, float] | None = None,
     convexity: int = 10,
@@ -271,11 +271,7 @@ def edge_profile(
     return body - cutter
 
 
-# edge_profile_asym() with corner_type="none" degrades to edge_profile() per edge.
-edge_profile_asym = edge_profile
-
-
-def _corner_set(v: Any) -> list[int]:
+def _corner_set(v: str | list[int]) -> list[int]:
     if isinstance(v, str):
         if v == "ALL":
             return [1] * 8
@@ -289,25 +285,28 @@ def _corner_set(v: Any) -> list[int]:
     ]
 
 
-def _corners(v: Any, except_: Any = None) -> list[int]:
+def _corners(
+    v: str | list[int] | list[str] | list[list[int]] | list[list[str]],
+    except_: list | None = None,
+) -> list[int]:
     if except_ is None:
         except_ = []
     if isinstance(v, str) or (isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)):
-        v = [v]
+        v = [v]  # type: ignore[assignment]
     if isinstance(except_, str) or (
         isinstance(except_, list) and len(except_) > 0 and not isinstance(except_[0], list)
     ):
-        except_ = [except_]
+        except_ = [except_]  # type: ignore[assignment]
     summed = [0] * 8
     for x in v:
-        cs = _corner_set(x)
+        cs = _corner_set(x)  # type: ignore[arg-type]
         summed = [summed[i] + cs[i] for i in range(8)]
     normed = [1 if s > 0 else 0 for s in summed]
     if not except_:
         return normed
     exc = [0] * 8
     for x in except_:
-        cs = _corner_set(x)
+        cs = _corner_set(x)  # type: ignore[arg-type]
         exc = [exc[i] + cs[i] for i in range(8)]
     return [1 if (normed[i] - (1 if exc[i] > 0 else 0)) > 0 else 0 for i in range(8)]
 
@@ -329,8 +328,8 @@ def _corner_cutter(
 
 def corner_profile(
     body: "Bosl2Solid",
-    corners: str | list[Any] = "ALL",
-    except_corners: list[Any] | None = None,
+    corners: str | list[int | str] = "ALL",
+    except_corners: list[int | str] | None = None,
     radius: float | None = None,
     diameter: float | None = None,
     size: tuple[float, float, float] | None = None,
@@ -363,7 +362,7 @@ def corner_profile(
         radius = diameter / 2
     rad = float(radius)
     assert size is not None, "size= (the box's size) must be given"
-    corner_set = _corners(corners, except_corners or [])
+    corner_set = _corners(corners, except_corners or [])  # type: ignore[arg-type]
     cutter: "Bosl2Solid | None" = None
     for idx, sel in enumerate(corner_set):
         if sel:
@@ -409,10 +408,10 @@ def face_profile(
         radius = diameter / 2
     rad = float(radius)
     mask = children if children is not None else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)
-    body = edge_profile(body, faces, children=mask, size=size, convexity=convexity, anchor=anchor, center=center)
+    body = edge_profile(body, faces, children=mask, size=size, convexity=convexity, anchor=anchor, center=center)  # type: ignore[arg-type]
     return corner_profile(
         body,
-        faces,
+        faces,  # type: ignore[arg-type]
         radius=rad,
         size=size,
         convexity=convexity,
