@@ -536,7 +536,7 @@ class VNF:
 
     @staticmethod
     def from_field(
-        f: np.ndarray | Callable[[np.ndarray], np.ndarray],
+        f: np.ndarray | Path3D | Callable[[np.ndarray], np.ndarray] | Callable[[Path3D], np.ndarray],
         isovalue: float | tuple[float, float],
         bounding_box: Bounds3D | None = None,
         voxel_size: float | None = None,
@@ -551,8 +551,9 @@ class VNF:
         for a range ``(lo, hi)``, where ``lo <= f <= hi``.
 
         Args:
-            f: ``(N, 3) → (N,)`` vectorised callable, ``point → value``
-                scalar callable, or a precomputed 3-D numpy array.
+            f: A :class:`~pybosl2.path3d.Path3D`, a 3-D numpy array,
+                a ``(N,3) → (N,)`` callable, or a
+                ``(:class:`~pybosl2.path3d.Path3D`) → (N,)`` callable.
             isovalue: Threshold or ``(min, max)`` range.
             bounding_box: A :class:`~pybosl2.bounds.Bounds3D` or ``None``
                 (auto-computed from array shape when *f* is an array).
@@ -578,6 +579,21 @@ class VNF:
                 ).polyhedron().show()
         """
         import math
+
+        from pybosl2.path3d import Path3D
+
+        if isinstance(f, Path3D):
+            f = np.asarray(f, dtype=float)
+        elif callable(f) and not isinstance(f, np.ndarray):
+            _original = f
+
+            def _wrapped(pts: np.ndarray) -> np.ndarray:
+                try:
+                    return np.asarray(_original(pts), dtype=float)  # type: ignore[arg-type]
+                except (TypeError, ValueError):
+                    return np.asarray(_original(Path3D(pts)), dtype=float)  # type: ignore[arg-type]
+
+            f = _wrapped
 
         if isinstance(isovalue, tuple):
             lo, hi = float(isovalue[0]), float(isovalue[1])
