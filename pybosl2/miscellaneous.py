@@ -39,6 +39,7 @@ from functools import reduce
 
 import numpy as np
 
+from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
 from pybosl2.constants import BACK, UP
 from pybosl2.transforms import axis_angle_matrix, rot_from_to
@@ -156,7 +157,7 @@ def cylindrical_extrude(
     inner_diameter: float | None = None,
     size: float | Sequence[float] | None = None,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = UP,
     convexity: int = 10,
     fn: int | None = None,
     fa: float | None = None,
@@ -201,7 +202,8 @@ def cylindrical_extrude(
         wedge = wedge.rotate([0, 0, 360 * x / circumf])
         facets.append(wedge)
     solid = reduce(operator.or_, facets)
-    angle, axis = rot_from_to(UP, orient)
+    orient_vec: Sequence[float] = orient.vector if isinstance(orient, Anchor) else orient
+    angle, axis = rot_from_to(UP.vector, orient_vec)
     m = np.eye(4)
     m[:3, :3] = axis_angle_matrix(angle, axis)
     solid = solid.rotate([0, 0, spin]).multmatrix(m.tolist())
@@ -360,7 +362,7 @@ class Extrudable:
         rotmats = []
         acc = np.eye(4)
         for i in range(sides - 1):
-            vec1 = np.asarray(UP, dtype=float) if i == 0 else unit(parr[i] - parr[i - 1])
+            vec1 = np.asarray(UP.vector, dtype=float) if i == 0 else unit(parr[i] - parr[i - 1])
             vec2 = unit(parr[i + 1] - parr[i])
             # left-multiply so each frame maps local +Z exactly onto its segment direction
             # (frame_i @ UP == dir_i); this is the discrete rotation-minimizing frame.

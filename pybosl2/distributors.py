@@ -38,13 +38,14 @@ import numpy as np
 
 from pybosl2._helpers import is_num, rot_from_to4, translate4
 from pybosl2.constants import BACK, RIGHT, UP
-from pybosl2.points import Point, Vector
+from pybosl2.points import Point
 from pybosl2.transforms import axis_angle_matrix
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pybosl2._shape import Bosl2Shape
+    from pybosl2._edges_lang import Anchor
+    from pybosl2._shape import _BaseShape
 
 _CopyType = TypeVar("_CopyType", bound="Distributable")
 
@@ -117,11 +118,11 @@ def line_copies(
 
 
 def _axis_copies(
-    direction: Vector,
+    direction: Point,
     spacing: float | Sequence[float] | np.ndarray | None,
     num_copies: int | None,
     length: float | None,
-    start_pos: float | Vector | None,
+    start_pos: float | Point | None,
 ) -> list[np.ndarray]:
     dirv = np.asarray(direction, dtype=float)
     sp_pt: Point | None = None
@@ -142,30 +143,30 @@ def xcopies(
     spacing: float | None = None,
     num_copies: int | None = None,
     length: float | None = None,
-    start_pos: float | Vector | None = None,
+    start_pos: float | Point | None = None,
 ) -> list[np.ndarray]:
     """Copies spread along the X axis (BOSL2 xcopies())."""
-    return _axis_copies(RIGHT, spacing, num_copies, length, start_pos)
+    return _axis_copies(RIGHT.vector, spacing, num_copies, length, start_pos)
 
 
 def ycopies(
     spacing: float | None = None,
     num_copies: int | None = None,
     length: float | None = None,
-    start_pos: float | Vector | None = None,
+    start_pos: float | Point | None = None,
 ) -> list[np.ndarray]:
     """Copies spread along the Y axis (BOSL2 ycopies())."""
-    return _axis_copies(BACK, spacing, num_copies, length, start_pos)
+    return _axis_copies(BACK.vector, spacing, num_copies, length, start_pos)
 
 
 def zcopies(
     spacing: float | None = None,
     num_copies: int | None = None,
     length: float | None = None,
-    start_pos: float | Vector | None = None,
+    start_pos: float | Point | None = None,
 ) -> list[np.ndarray]:
     """Copies spread along the Z axis (BOSL2 zcopies())."""
-    return _axis_copies(UP, spacing, num_copies, length, start_pos)
+    return _axis_copies(UP.vector, spacing, num_copies, length, start_pos)
 
 
 def grid_copies(
@@ -268,7 +269,7 @@ def grid_copies(
 
 def rot_copies(
     rots: Sequence[float] | None = None,
-    v: Vector | None = None,
+    v: Point | None = None,
     center: bool | Sequence[float] = (0, 0, 0),
     num_copies: int | None = None,
     sa: float = 0,
@@ -292,10 +293,10 @@ def rot_copies(
     mats = []
     for angle in angs:
         rot_m = np.eye(4)
-        rot_m[:3, :3] = axis_angle_matrix(angle, UP if v is None else v)
+        rot_m[:3, :3] = axis_angle_matrix(angle, UP.vector if v is None else v)
         rot_rev = np.eye(4)
         rev_ang = 0 if subrot else -angle
-        rot_rev[:3, :3] = axis_angle_matrix(rev_ang, UP if v is None else v)
+        rot_rev[:3, :3] = axis_angle_matrix(rev_ang, UP.vector if v is None else v)
         m = translate4(cen) @ rot_m @ translate4(deltav) @ rot_rev @ translate4(-cen)
         mats.append(m)
     return mats
@@ -317,7 +318,7 @@ def xrot_copies(
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
     return rot_copies(
         rots=rots,
-        v=RIGHT,
+        v=RIGHT.vector,
         center=center,
         num_copies=num_copies,
         sa=sa,
@@ -342,7 +343,7 @@ def yrot_copies(
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
     return rot_copies(
         rots=rots,
-        v=BACK,
+        v=BACK.vector,
         center=center,
         num_copies=num_copies,
         sa=sa,
@@ -367,7 +368,7 @@ def zrot_copies(
     rr: float = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
     return rot_copies(
         rots=rots,
-        v=UP,
+        v=UP.vector,
         center=center,
         num_copies=num_copies,
         sa=sa,
@@ -429,7 +430,7 @@ def arc_copies(
             else 0
         )
         rot_mat = np.eye(4)
-        rot_mat[:3, :3] = axis_angle_matrix(ang2, UP)
+        rot_mat[:3, :3] = axis_angle_matrix(ang2, UP.vector)
         mats.append(translate4(pos) @ rot_mat)
     return mats
 
@@ -572,7 +573,7 @@ def zflip_copy(offset: float = 0, z: float = 0) -> list[np.ndarray]:
 
 
 class DistributableMatrix:
-    """Matrix-generating copiers — each returns ``list[np.ndarray]`` (4×4 matrices)."""
+    """Matrix-generating copiers -- each returns ``list[np.ndarray]`` (4x4 matrices)."""
 
     line_copies = staticmethod(line_copies)  # -> list[np.ndarray]
     xcopies = staticmethod(xcopies)  # -> list[np.ndarray]
@@ -606,17 +607,17 @@ class Distributable(ABC):
 
     # -- instance methods ------------------------------------------------------
 
-    def move_and_copy(self, vectors: list[Vector] | None = None) -> list[_CopyType]:
+    def move_and_copy(self, vectors: list[Point] | None = None) -> list[_CopyType]:
         """Copy to each offset in *vectors* (BOSL2 move_copies).
 
         Args:
-            vectors: A list of :class:`~pybosl2.points.Vector` offsets, or ``None``
+            vectors: A list of :class:`~pybosl2.points.Point` offsets, or ``None``
                 for a single copy at the origin.
 
         Returns:
             The union (or list for paths) of copies at each offset.
         """
-        offsets = vectors if vectors is not None else [Vector(0, 0, 0)]
+        offsets = vectors if vectors is not None else [Point(0, 0, 0)]
         return self._distribute([translate4(pos) for pos in offsets])
 
     def line_copies(
@@ -635,30 +636,30 @@ class Distributable(ABC):
         spacing: float | None = None,
         num_copies: int | None = None,
         length: float | None = None,
-        start_pos: float | Vector | None = None,
+        start_pos: float | Point | None = None,
     ) -> list[_CopyType]:
         """Copies spread along the X axis (BOSL2 xcopies)."""
-        return self._distribute(_axis_copies(RIGHT, spacing, num_copies, length, start_pos))
+        return self._distribute(_axis_copies(RIGHT.vector, spacing, num_copies, length, start_pos))
 
     def ycopies(
         self,
         spacing: float | None = None,
         num_copies: int | None = None,
         length: float | None = None,
-        start_pos: float | Vector | None = None,
+        start_pos: float | Point | None = None,
     ) -> list[_CopyType]:
         """Copies spread along the Y axis (BOSL2 ycopies)."""
-        return self._distribute(_axis_copies(BACK, spacing, num_copies, length, start_pos))
+        return self._distribute(_axis_copies(BACK.vector, spacing, num_copies, length, start_pos))
 
     def zcopies(
         self,
         spacing: float | None = None,
         num_copies: int | None = None,
         length: float | None = None,
-        start_pos: float | Vector | None = None,
+        start_pos: float | Point | None = None,
     ) -> list[_CopyType]:
         """Copies spread along the Z axis (BOSL2 zcopies)."""
-        return self._distribute(_axis_copies(UP, spacing, num_copies, length, start_pos))
+        return self._distribute(_axis_copies(UP.vector, spacing, num_copies, length, start_pos))
 
     def grid_copies(
         self,
@@ -678,7 +679,7 @@ class Distributable(ABC):
     def rot_copies(
         self,
         rots: Sequence[float] | None = None,
-        v: Vector | None = None,
+        v: Point | None = None,
         center: bool | Sequence[float] = (0, 0, 0),
         num_copies: int | None = None,
         sa: float = 0,
@@ -811,12 +812,12 @@ class Distributable(ABC):
 
     @staticmethod
     def distribute(
-        children: list[Bosl2Shape],
+        children: list[_BaseShape],
         spacing: float | None = None,
         sizes: list[float] | None = None,
-        dir: Vector = RIGHT,  # noqa: A002
+        dir: Anchor | Point = RIGHT,  # noqa: A002
         length: float | None = None,
-    ) -> Bosl2Shape:
+    ) -> _BaseShape:
         """Space a list of distinct objects along *dir* so they don't overlap.
 
         Unlike the copiers, this lays out several different children.
@@ -840,9 +841,7 @@ class Distributable(ABC):
         assert cnt >= 1, "distribute(): needs at least one child."
         if sizes is None:
             extents = [
-                float(
-                    abs(np.asarray(c.bounds()[1], dtype=float) @ dirv - np.asarray(c.bounds()[0], dtype=float) @ dirv)
-                )
+                abs(float(np.dot(np.asarray(c.bounds()[1]), dirv) - np.dot(np.asarray(c.bounds()[0]), dirv)))  # type: ignore[operator]
                 for c in children
             ]
         else:
@@ -868,30 +867,30 @@ class Distributable(ABC):
 
 
 def xdistribute(
-    children: list[Bosl2Shape],
+    children: list[_BaseShape],
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,
-) -> Bosl2Shape:
+) -> _BaseShape:
     """Distribute distinct children along the X axis (BOSL2 xdistribute())."""
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=RIGHT, length=length)
 
 
 def ydistribute(
-    children: list[Bosl2Shape],
+    children: list[_BaseShape],
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,
-) -> Bosl2Shape:
+) -> _BaseShape:
     """Distribute distinct children along the Y axis (BOSL2 ydistribute())."""
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=BACK, length=length)
 
 
 def zdistribute(
-    children: list[Bosl2Shape],
+    children: list[_BaseShape],
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,
-) -> Bosl2Shape:
+) -> _BaseShape:
     """Distribute distinct children along the Z axis (BOSL2 zdistribute())."""
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=UP, length=length)

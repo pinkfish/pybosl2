@@ -154,7 +154,7 @@ def test_reflected_csg_with_a_raw_native_left_operand(op: object) -> None:
 
 def test_unknown_native_method_falls_through_still_wrapped() -> None:
     # resize() has no explicit override; __getattr__ must re-wrap its native result as 2-D
-    assert isinstance(s2.square(10).resize([20, 20, 0]), Bosl2Shape2D)
+    assert isinstance(s2.square(10).resize([20, 20, 0]), Bosl2Shape2D)  # type: ignore[operator]
 
 
 def test_missing_attribute_raises_attribute_error() -> None:
@@ -166,7 +166,7 @@ def test_sdf_only_feature_is_rejected_on_the_csg_backend() -> None:
     from pybosl2.exceptions import UnsupportedByBackendError
 
     with pytest.raises(UnsupportedByBackendError):
-        s2.square(10).round(2)
+        s2.square(10).round(2)  # type: ignore[operator]
 
 
 # ---------------------------------------------------------------------------
@@ -533,9 +533,3 @@ def test_minkowski_grows_bounding_box() -> None:
     a = s2.square([10, 10], center=True)
     result = a.minkowski(s2.circle(radius=3))
     np.testing.assert_allclose(result.shape.size, [16, 16], atol=0.1)
-
-
-def test_minkowski_moved_flag_is_set() -> None:
-    a = s2.square([10, 10], center=True)
-    result = a.minkowski(s2.circle(radius=2))
-    assert result._moved

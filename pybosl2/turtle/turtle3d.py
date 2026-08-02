@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
 
-    from pybosl2.points import Point, Vector
+    from pybosl2.points import Point
 
 from pybosl2._helpers import rot_from_to4
 from pybosl2.constants import BACK, FRONT, RIGHT, UP
@@ -110,18 +110,18 @@ class TurtleCommand:
 
     cmd_type: TurtleCommandType
     size: float | Point | None = None
-    angle: float | Vector | None = None
+    angle: float | Point | None = None
     radius: float | None = None
     steps: int | None = None
     center: Point | None = None
-    grow: float | Vector | None = None
-    shrink: float | Vector | None = None
+    grow: float | Point | None = None
+    shrink: float | Point | None = None
     twist: float | None = None
     roll: float | None = None
     reverse: bool = False
-    rollto: Vector | None = None
-    rrollto: Vector | None = None
-    lrollto: Vector | None = None
+    rollto: Point | None = None
+    rrollto: Point | None = None
+    lrollto: Point | None = None
     is_compound: bool = False
     sub_commands: list[TurtleCommand] | None = None
     rotation_type: "RotationType" = field(default=RotationType.NONE)
@@ -333,8 +333,8 @@ class Turtle3D:
             return Turtle3DState(transforms=[np.asarray(state, float)], pre_transforms=[Turtle3D._yrot4(90)])
         if Turtle3D._is_vec3(state):
             s = np.asarray(state, float)
-            updir = np.asarray(UP, float) - (np.dot(UP, s)) * s / np.dot(s, s)
-            z = FRONT if np.isclose(np.linalg.norm(updir), 0) else updir
+            updir = np.asarray(UP.vector, float) - (np.dot(UP.vector, s)) * s / np.dot(s, s)
+            z = FRONT.vector if np.isclose(np.linalg.norm(updir), 0) else updir
             return Turtle3DState(transforms=[Turtle3D._frame_map(s, z)], pre_transforms=[Turtle3D._yrot4(90)])
         return Turtle3DState(
             transforms=[np.asarray(m, float) for m in state[0]],
@@ -486,29 +486,29 @@ class Turtle3D:
         assert not is_arc or (right == 0 or left == 0), f'Cannot give both "left" and "right" at index {index}'
         assert not is_arc or (up == 0 or down == 0), f'Cannot give both "up" and "down" at index {index}'
 
-        newdir = Turtle3D._apply(Turtle3D._zrot4(left - right) @ Turtle3D._yrot4(down - up), RIGHT)
+        newdir = Turtle3D._apply(Turtle3D._zrot4(left - right) @ Turtle3D._yrot4(down - up), RIGHT.vector)
         if left - right == 0:
-            relaxis = np.asarray(BACK, float)
+            relaxis = np.asarray(BACK.vector, float)
         elif down - up == 0:
-            relaxis = np.asarray(UP, float)
+            relaxis = np.asarray(UP.vector, float)
         else:
-            relaxis = np.cross(RIGHT, newdir)
+            relaxis = np.cross(RIGHT.vector, newdir)
         if not is_arc:
             rel_angle = 0.0
         elif left - right == 0 or down - up == 0:
             rel_angle = (down - up) + (left - right)
         else:
-            rel_angle = Turtle3D._vec_angle(RIGHT, newdir)
+            rel_angle = Turtle3D._vec_angle(RIGHT.vector, newdir)
         if left - right == 0:
             center = -radius * np.array([0.0, 0.0, np.sign(down - up)])
         elif down - up == 0:
             center = -radius * np.array([0.0, np.sign(right - left), 0.0])
         else:
-            center = -radius * Turtle3D._unit(np.cross(RIGHT, np.cross(RIGHT, newdir)))
+            center = -radius * Turtle3D._unit(np.cross(RIGHT.vector, np.cross(RIGHT.vector, newdir)))
 
         # absolute rotation
         rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
-        v = Turtle3D._apply(rot_part, RIGHT)
+        v = Turtle3D._apply(rot_part, RIGHT.vector)
         absangle, absaxis = None, np.zeros(3)
         if is_arc:
             if rtype == TurtleCommand.RotationType.ROT:
@@ -518,11 +518,11 @@ class Turtle3D:
                 rd = rot_decode(rot_from_to4(v, cmd.angle))
                 absangle, absaxis = rd[0], np.asarray(rd[1], float)
             elif rtype == TurtleCommand.RotationType.XROT:
-                absangle, absaxis = angle_val, np.asarray(RIGHT, float)
+                absangle, absaxis = angle_val, np.asarray(RIGHT.vector, float)
             elif rtype == TurtleCommand.RotationType.YROT:
-                absangle, absaxis = angle_val, np.asarray(BACK, float)
+                absangle, absaxis = angle_val, np.asarray(BACK.vector, float)
             elif rtype == TurtleCommand.RotationType.ZROT:
-                absangle, absaxis = angle_val, np.asarray(UP, float)
+                absangle, absaxis = angle_val, np.asarray(UP.vector, float)
         if absangle is None:
             abscenter = vshift = None
         else:
@@ -550,8 +550,8 @@ class Turtle3D:
             roll = 0.0
         else:
             final_xform = _final_xform()
-            finaldir = Turtle3D._unit(Turtle3D._apply(Turtle3D._rotpart(final_xform), RIGHT))
-            finalup = Turtle3D._apply(Turtle3D._rotpart(final_xform), UP)
+            finaldir = Turtle3D._unit(Turtle3D._apply(Turtle3D._rotpart(final_xform), RIGHT.vector))
+            finalup = Turtle3D._apply(Turtle3D._rotpart(final_xform), UP.vector)
             desired = rollto if rollto is not None else (rrollto if rrollto is not None else lrollto)
             assert desired is not None
             delta = (Turtle3D._compute_spin(finaldir, desired) - Turtle3D._compute_spin(finaldir, finalup)) % 360
@@ -740,9 +740,9 @@ class Turtle3D:
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             v_dir = Turtle3D._apply(rot_part, [1, 0, 0])
             dir_ = {
-                TurtleCommandType.ARCXROT: np.array(RIGHT),
-                TurtleCommandType.ARCYROT: np.array(BACK),
-                TurtleCommandType.ARCZROT: np.array(UP),
+                TurtleCommandType.ARCXROT: np.array(RIGHT.vector),
+                TurtleCommandType.ARCYROT: np.array(BACK.vector),
+                TurtleCommandType.ARCZROT: np.array(UP.vector),
             }[ct]
             projv = v_dir - np.dot(dir_, v_dir) * dir_
             center = np.sign(myangle) * radius * np.cross(dir_, projv)

@@ -16,7 +16,7 @@ import pytest
 from pybosl2.distributors import DistributableMatrix, xdistribute, ydistribute, zdistribute
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
-from pybosl2.points import Vector
+from pybosl2.points import Point
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 # -- matrix generators --------------------------------------------------------------------
@@ -154,7 +154,7 @@ def test_solid_ring_and_flip_return_solid() -> None:
     result2 = box.right(20).xflip_copy()  # type: ignore[var-annotated]
     assert isinstance(result2, list)
     assert all(isinstance(c, Bosl2Solid) for c in result2)
-    result3 = box.move_and_copy([Vector(0, 0, 0), Vector(20, 0, 0), Vector(0, 20, 0)])  # type: ignore[var-annotated]
+    result3 = box.move_and_copy([Point(0, 0, 0), Point(20, 0, 0), Point(0, 20, 0)])  # type: ignore[var-annotated]
     assert isinstance(result3, list)
     assert all(isinstance(c, Bosl2Solid) for c in result3)
 

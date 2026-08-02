@@ -42,6 +42,8 @@ if TYPE_CHECKING:
 
     from openscad import PyOpenSCAD
 
+    from pybosl2._edges_lang import Anchor
+
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import cube as _ocube
     from pythonscad import polyhedron as _opolyhedron
@@ -271,7 +273,7 @@ def interior_fillet(
     diameter: float | None = None,
     anchor: Sequence[float] = FRONT + LEFT,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = UP,
 ) -> Bosl2Solid:
     """BOSL2 interior_fillet() -- a shape to fillet an interior corner between two faces.
 
@@ -293,7 +295,7 @@ def interior_fillet(
     shape = _opolygon(path).linear_extrude(height=length, center=True)
     pts3d = [[p[0], p[1], z] for z in (-length / 2, length / 2) for p in path]
     offset = _anchor_offset_hull3(pts3d, anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
 def heightfield(
@@ -305,9 +307,9 @@ def heightfield(
     yrange: Sequence[float] = [-1, 0.04, 1],
     style: str = "default",
     convexity: int = 10,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = UP,
 ) -> Bosl2Solid:
     """BOSL2 heightfield() -- a 3-D surface from a 2-D array of heights or a function literal.
 
@@ -404,7 +406,7 @@ def heightfield(
 
     shape, pts = _heightfield_polyhedron(pts, faces)
     offset = _anchor_offset_hull3(pts, anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
 def cylindrical_heightfield(
@@ -425,9 +427,9 @@ def cylindrical_heightfield(
     diameter1: float | None = None,
     diameter2: float | None = None,
     height: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = UP,
 ) -> Bosl2Solid:
     """BOSL2 cylindrical_heightfield() -- wraps a heightfield surface around a cylinder.
 
@@ -528,7 +530,7 @@ def cylindrical_heightfield(
 
     shape, pts = _heightfield_polyhedron(pts, faces)
     offset = _anchor_offset_cyl(r1v, r2v, l_val, anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
 def plot3d(
@@ -848,9 +850,9 @@ def ruler(
     alpha: float = 1.0,
     unit: float = 1,
     inch: bool = False,
-    anchor: Sequence[float] = LEFT + BACK + TOP,
+    anchor: Anchor | Sequence[float] = LEFT.vector + BACK.vector + TOP.vector,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = UP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,

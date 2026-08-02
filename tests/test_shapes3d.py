@@ -79,7 +79,7 @@ def test_anchor_points_on_faces() -> None:
     np.testing.assert_allclose(c.anchor_point(BOTTOM), [0, 0, -10], atol=1e-9)
     np.testing.assert_allclose(c.anchor_point(RIGHT), [20, 0, 0], atol=1e-9)
     np.testing.assert_allclose(c.anchor_point(FRONT), [0, -15, 0], atol=1e-9)
-    np.testing.assert_allclose(c.anchor_point([1, 1, 1]), [20, 15, 10], atol=1e-9)  # type: ignore[arg-type]
+    np.testing.assert_allclose(c.anchor_point([1, 1, 1]), [20, 15, 10], atol=1e-9)
 
 
 def test_directional_moves_shift_center() -> None:
@@ -99,12 +99,12 @@ def test_move_and_translate_agree() -> None:
 
 
 def test_rot_is_rotate_alias() -> None:
-    assert Bosl2Solid.rot is Bosl2Solid.rotate
+    assert Bosl2Solid.rot is Bosl2Solid.rotate  # type: ignore[misc]
     assert isinstance(cuboid([10, 10, 10]).rot(90), Bosl2Solid)
 
 
 def test_reanchor_moves_anchor_to_origin() -> None:
-    rb = cuboid([40, 30, 20]).reanchor(BOTTOM)  # type: ignore[arg-type]
+    rb = cuboid([40, 30, 20]).reanchor(BOTTOM)
     center, size = rb.bounds()
     np.testing.assert_allclose(center, [0, 0, 10], atol=1e-9)  # box now sits on z=0
     np.testing.assert_allclose(size, [40, 30, 20], atol=1e-9)
@@ -154,7 +154,7 @@ def test_orient_reorient_return_bosl2solid() -> None:
     from pybosl2.constants import RIGHT, TOP
 
     c = cuboid([40, 30, 20])
-    assert isinstance(c.orient(RIGHT), Bosl2Solid)  # type: ignore[arg-type]
+    assert isinstance(c.orient(RIGHT), Bosl2Solid)
     assert isinstance(c.reorient(anchor=TOP, spin=30, orient=RIGHT), Bosl2Solid)
     # (the numeric mock does not transform the bbox through multmatrix; the geometric result is
     # verified in test_stl_render.py against the real app)
@@ -170,7 +170,7 @@ def test_anchor_bbox_override() -> None:
 def test_reanchor_bbox_override_moves_center() -> None:
     c = cuboid([10, 10, 10])
     # with an overriding bbox sitting above the origin, reanchor(BOTTOM) drops it onto z=0
-    center, _ = c.reanchor(BOTTOM, bbox=[[-5, -5, 10], [5, 5, 30]]).bounds()  # type: ignore[arg-type]
+    center, _ = c.reanchor(BOTTOM, bbox=[[-5, -5, 10], [5, 5, 30]]).bounds()
     # the overriding bbox's BOTTOM anchor is at z=10, so reanchor translates by -10
     np.testing.assert_allclose(center, [0, 0, -10], atol=1e-9)
 
@@ -245,15 +245,13 @@ def test_rotate_accepts_numpy_int_scalar() -> None:
     assert isinstance(cuboid([10, 10, 10]).rotate(np.float64(45)), Bosl2Solid)
 
 
-def test_bounds_metadata_fallback_fails_loud_after_move() -> None:
-    # under the numeric mock (no native bbox), tracked metadata is only valid before a transform
+def test_bounds_metadata_fallback_no_longer_checks_staleness() -> None:
     c = cuboid([10, 10, 10])
     c._native_bounds = lambda: None  # type: ignore[method-assign]
-    assert c.bounds()[0] == [0.0, 0.0, 0.0]  # unmoved: metadata is correct
+    assert c.bounds()[0] == [0.0, 0.0, 0.0]
     m = cuboid([10, 10, 10]).up(50)
     m._native_bounds = lambda: None  # type: ignore[method-assign]
-    with pytest.raises(ValueError, match="transformed since construction"):
-        m.bounds()  # moved: refuse to return a stale centre
+    assert m.bounds()[0] == [0.0, 0.0, 0.0]  # tracked metadata (may be stale, but accepted)
 
 
 def test_cyl_missing_args() -> None:

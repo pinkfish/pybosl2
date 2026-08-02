@@ -24,7 +24,6 @@
 from __future__ import annotations
 
 import math
-import numbers
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -41,16 +40,12 @@ if TYPE_CHECKING:
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.texture import TextureType
-from pybosl2._backend import check_operand_backend as _check_operand_backend
-from pybosl2._backend import unsupported_feature as _unsupported_feature
-from pybosl2._shape import Bosl2Shape
-from pybosl2.miscellaneous import Miscellaneous
-from pybosl2.partitions import Partitionable
+from pybosl2._shape import _BaseShape
 from pybosl2.path2d import Path2D
-from pybosl2.points import Point, Vector
+from pybosl2.points import Point
 from pybosl2.vectors import is_vector, unit
 
-from .constants import BOTTOM, CENTER, DOWN, FRONT, LEFT, UP
+from .constants import BACK, BOTTOM, CENTER, DOWN, FRONT, LEFT, RIGHT, UP
 from .shapes2d import _frag_count, _pick_radius
 from .shapes2d import text as _text2d
 
@@ -142,18 +137,15 @@ def _as_native_3d(obj: object) -> "PyOpenSCAD":
 # ---------------------------------------------------------------------------
 
 
-class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
+class Bosl2Solid(_BaseShape):
     """Wraps a PyOpenSCAD solid together with the geometry metadata (nominal `size` and
     `anchor`) that BOSL2's $parent_geom attachment system would otherwise track, so that
     edge/corner/face masking (pybosl2/masking.py) work as plain chained methods instead of
     needing size=/anchor= threaded through by hand at every call site. Every function in this
     file returns an instance of this class (or a subclass).
 
-    Every geometry method (translate/rotate/mirror/multmatrix/scale/color, the union/intersection/
-    difference CSG operators) delegates to the wrapped native shape and returns a new Bosl2Solid carrying the
-    same size/anchor metadata forward. Any other method not explicitly listed here (e.g.
-    resize(), offset()) falls through via __getattr__ to the native shape and returns its raw,
-    *unwrapped* result, since we can't know whether the size/anchor metadata still applies.
+    Transforms, CSG operators, colour, and distributor methods are inherited from
+    :class:`~pybosl2._shape._BaseShape`.
 
     Only cuboid()-shaped objects (cube(), cuboid() -- the only ones in this file with a genuine
     axis-aligned box `size`) support the masking methods; every other shape (prismoid, wedge,
@@ -172,16 +164,13 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
 
     #: which realize backend produced this solid -- see pybosl2/_backend.py. Bosl2Solid is the
     #: exact-CSG (PythonSCAD) backend's Solid; the libfive/SDF backend uses its own wrapper.
-    def __init_subclass__(cls, **kwargs: Any) -> None:
-        super().__init_subclass__(**kwargs)
-
     backend: str
 
     def __init__(
         self,
         shape: PyOpenSCAD,
         size: Sequence[float] | None = None,
-        anchor: "Anchor | Vector | Sequence[float] | str | None" = None,
+        anchor: "Anchor | Sequence[float] | str | None" = None,
     ):
         self.shape = shape
         self.size = size
@@ -194,93 +183,15 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
             try:
                 a_val = _resolve_anchor(anchor)
             except ValueError:
-                a_val = None  # Non-standard anchor string (e.g. text baseline)
-        elif isinstance(anchor, Vector):
-            a_val = _resolve_anchor(list(anchor))
+                a_val = None
         else:
             a_val = _resolve_anchor(list(anchor))
         self.anchor = a_val
-        self._moved = False
         from pybosl2._backend import current_backend
 
         self.backend = current_backend()
 
-    @staticmethod
-    def _unwrap(x: object) -> "PyOpenSCAD":
-        from pybosl2._helpers import unwrap
-
-        return unwrap(x)
-
-    def _wrap(self, new_shape: PyOpenSCAD) -> "Bosl2Solid":
-        """Wrap a native result, carrying size/anchor metadata (and moved-ness) forward unchanged.
-
-        Use for ops that do NOT move/resize the geometry (colour, repair, native mesh ops)."""
-        out = Bosl2Solid(new_shape, self.size, self.anchor)
-        out._moved = self._moved
-        out.backend = self.backend
-        return out
-
-    def _wrap_moved(self, new_shape: PyOpenSCAD) -> "Bosl2Solid":
-        """Wrap a native result of a positional transform, flagging the tracked metadata stale."""
-        out = Bosl2Solid(new_shape, self.size, self.anchor)
-        out._moved = True
-        out.backend = self.backend
-        return out
-
-    def __getattr__(self, name: str) -> object:
-        # __getattr__ only fires on a normal-lookup miss. Guard the recursion trap: never bounce
-        # back through here for `shape` (or dunders) when the object is half-built (unpickling,
-        # __new__, or an __init__ that raised before setting .shape) -- raise a clean AttributeError
-        # so copy/pickle/hasattr behave instead of blowing the stack.
-        if name == "shape" or (name.startswith("__") and name.endswith("__")):
-            raise AttributeError(name)
-        _unsupported = _unsupported_feature("csg", name)  # SDF-only feature on the CSG backend?
-        if _unsupported is not None:
-            raise _unsupported
-        shape = object.__getattribute__(self, "shape")  # bypass __getattr__: no recursion
-        attr = getattr(shape, name)
-        if not callable(attr):
-            return attr  # plain native attr (.position/.size/...)
-        native_cls = type(shape)
-
-        def _forward(*args: object, **kwargs: object) -> object:
-            # Re-wrap native geometry so a passed-through op (linear_extrude/offset/resize/...) keeps
-            # the Bosl2Solid fluent API instead of silently leaking a raw handle. The result may be
-            # in a different position, so treat it as moved. Non-geometry results pass through.
-            result = attr(*args, **kwargs)
-            if isinstance(result, native_cls):
-                return self._wrap_moved(result)
-            if isinstance(result, (list, tuple)) and result and all(isinstance(r, native_cls) for r in result):
-                return type(result)(self._wrap_moved(r) for r in result)
-            return result
-
-        _forward.__name__ = name
-        return _forward
-
-    def __repr__(self) -> str:
-        return f"Bosl2Solid({self.shape!r}, size={self.size!r}, anchor={self.anchor!r})"
-
-    # ---- geometry passthrough, preserving size/anchor metadata ----
-
-    def translate(self, v: Sequence[float]) -> "Bosl2Solid":
-        return self._wrap_moved(self.shape.translate(v))
-
-    move = translate
-
-    def rotate(self, *a: object, **k: object) -> "Bosl2Solid":
-        # BOSL2 rot(a): a bare scalar angle is a rotation about the Z axis. The native openscad
-        # rotate() only accepts a vector or (angle, axis), so normalize here. Accept any real
-        # scalar (incl. numpy int/float scalars) but not bool (a subclass of int).
-        if len(a) == 1 and isinstance(a[0], numbers.Real) and not isinstance(a[0], bool) and "v" not in k:
-            a = ([0.0, 0.0, float(a[0])],)
-        return self._wrap_moved(self.shape.rotate(*a, **k))
-
-    rot = rotate
-
-    def mirror(self, v: Sequence[float]) -> "Bosl2Solid":
-        return self._wrap_moved(self.shape.mirror(v))
-
-    # Directional translates (BOSL2 transforms.scad): right/left +/-X, back/fwd +/-Y, up/down +/-Z.
+    # ---- 3-D directional overrides (use 3-vectors) -------------------------
 
     def right(self, x: float) -> "Bosl2Solid":
         return self.translate([x, 0.0, 0.0])
@@ -294,19 +205,11 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
     def forward(self, y: float) -> "Bosl2Solid":
         return self.translate([0.0, -y, 0.0])
 
-    fwd = forward
-
     def up(self, z: float) -> "Bosl2Solid":
         return self.translate([0.0, 0.0, z])
 
     def down(self, z: float) -> "Bosl2Solid":
         return self.translate([0.0, 0.0, -z])
-
-    def multmatrix(self, m: Sequence[Sequence[float]]) -> "Bosl2Solid":
-        return self._wrap_moved(self.shape.multmatrix(m))
-
-    def scale(self, v: Sequence[float]) -> "Bosl2Solid":
-        return self._wrap_moved(self.shape.scale(v))
 
     # ---- native-only mesh operations (no BOSL2 equivalent) ----
     #
@@ -370,7 +273,7 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
         Each of *others* may be a ``Bosl2Solid``, a raw native solid, or a
         :class:`~pybosl2.vnf.VNF`/point list, which is meshed as a polyhedron first.
 
-        See :meth:`~pybosl2.miscellaneous.Miscellaneous.chain_hull` to hull consecutive *pairs*
+        See :meth:`chain_hull` to hull consecutive *pairs*
         instead of everything at once.
 
         Examples:
@@ -410,9 +313,8 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
 
     # ---- colour (pybosl2/color.py) ----
     #
-    # The color.scad operators (color/recolor/color_this/hsl/hsv/highlight/ghost) come from the
-    # Colorable mixin, which resolves to these native primitives: PythonSCAD's color(),
-    # highlight() (the # modifier) and background() (the % / ghost modifier).
+    # The Colourable base class provides color/recolor/hsl/hsv/highlight/ghost;
+    # these are the native primitives they resolve to.
 
     def _color_native(self, c: str | None = None, alpha: float | None = None) -> "Bosl2Solid":
         args = () if c is None else (c,)
@@ -440,65 +342,14 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
             "instead (with use_backend('sdf')). Only SDF->CSG (PyShape.to_csg()) is supported.",
         )
 
-    def __or__(self, other: object) -> "Bosl2Solid":
-        _check_operand_backend(self.backend, other)
-        return self._wrap(self.shape | Bosl2Solid._unwrap(other))
-
-    def __and__(self, other: object) -> "Bosl2Solid":
-        _check_operand_backend(self.backend, other)
-        return self._wrap(self.shape & Bosl2Solid._unwrap(other))
-
-    def __sub__(self, other: object) -> "Bosl2Solid":
-        _check_operand_backend(self.backend, other)
-        return self._wrap(self.shape - Bosl2Solid._unwrap(other))
-
-    def __ror__(self, other: object) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Solid._unwrap(other) | self.shape)
-
-    def __rand__(self, other: object) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Solid._unwrap(other) & self.shape)
-
-    def __rsub__(self, other: object) -> "Bosl2Solid":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Solid._unwrap(other) - self.shape)
-
-    def __add__(self, other: "Sequence[float]") -> "Bosl2Solid":
-        try:
-            len(other)
-            return self.translate(other)
-        except (TypeError, ValueError):
-            return NotImplemented
-
-    def __radd__(self, other: "Sequence[float]") -> "Bosl2Solid":
-        try:
-            len(other)
-            return self.translate(other)
-        except (TypeError, ValueError):
-            return NotImplemented
-
-    def __mul__(self, other: "Sequence[float] | float") -> "Bosl2Solid":
-        if isinstance(other, (int, float)):
-            other = [other, other, other]
-        return self.scale(other)
-
-    def __rmul__(self, other: "Sequence[float] | float") -> "Bosl2Solid":
-        if isinstance(other, (int, float)):
-            other = [other, other, other]
-        return self.scale(other)
-
     # ---- distributors (pybosl2/distributors.py) ----
     #
-    # The distributors.scad copiers, inherited from Distributable, resolve to _distribute(), which
-    # for a solid means: multmatrix a copy for each transform and union them into one new solid.
-    # This reuses the wrapped native handle across the copies, which is safe for direct-CSG solids
-    # (the norm here); an SDF-backed shape must instead be distributed via a factory to
-    # avoid the frep handle-reuse segfault.
+    # The distributors.scad copiers, inherited from Distributable via _BaseShape, resolve to
+    # _distribute(), which for a solid means: multmatrix a copy for each transform.
 
     def _distribute(self, mats: list[np.ndarray]) -> list["Bosl2Solid"]:  # type: ignore[override]
         """Return a list of multmatrix copies of this solid, one per matrix."""
-        return [self._wrap_moved(self.shape.multmatrix(np.asarray(m).tolist())) for m in mats]
+        return [self._wrap(self.shape.multmatrix(np.asarray(m).tolist())) for m in mats]
 
     def distribute_on_path(
         self,
@@ -603,28 +454,15 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
 
         Prefers the native bbox, which always reflects the actual current geometry -- this is
         what lets anchoring/attachment/masking work without the caller tracking a size, and
-        stays correct after the object has been moved or combined (tracked size/anchor metadata
-        would be stale there). Falls back to the tracked cuboid size/anchor metadata only when
-        the native accessors aren't available (the numeric test mock), where it assumes the box
-        is still at its construction position. Raises if neither is available.
-
-        Examples:
-            .. pythonscad-example::
-
-                box = s3.cuboid([10, 20, 30]).translate([15, 0, 0])
-                print(box.bounds())
+        stays correct after the object has been moved or combined. Falls back to the tracked
+        cuboid size/anchor metadata only when the native accessors aren't available (the numeric
+        test mock). Raises if neither is available.
         """
         nb = self._native_bounds()
         if nb is not None:
             mincorner, size = nb
             return [mincorner[i] + size[i] / 2 for i in range(3)], size
         if self.size is not None and self.anchor is not None:
-            if self._moved:
-                raise ValueError(
-                    "bounds(): no native bounding box (numeric mock) and the object has been "
-                    "transformed since construction, so its tracked cuboid metadata is stale. Run "
-                    "under the real PythonSCAD app for a correct bbox, or anchor before transforming."
-                )
             size = [float(v) for v in self.size]
             return _anchor_offset_box3(size, self.anchor), size
         raise ValueError(
@@ -649,7 +487,9 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
         assert bool(np.all(hi >= lo - 1e-12)), "bbox must be [[min...],[max...]] with max >= min."
         return [(lo[i] + hi[i]) / 2 for i in range(3)], [hi[i] - lo[i] for i in range(3)]
 
-    def anchor_point(self, anchor: Anchor | Vector, bbox: Sequence[Sequence[float]] | None = None) -> list[float]:
+    def anchor_point(
+        self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None
+    ) -> list[float]:
         """The [x, y, z] point on this object's bounding box for the given anchor, in the
         object's current coordinate frame: center + anchor * size / 2. Works on any object.
 
@@ -657,20 +497,20 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
         :meth:`_resolve_bounds`).
 
         Args:
-            anchor: An :class:`Anchor` enum or a :class:`Vector`.
+            anchor: An :class:`Anchor` enum or a sequence of three floats.
             bbox: Optional override bounding box.
         """
         center, size = self._resolve_bounds(bbox)
-        a = anchor.vector if isinstance(anchor, Anchor) else anchor
+        a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
         return [center[i] + a[i] * size[i] / 2 for i in range(3)]
 
-    def reanchor(self, anchor: Anchor, bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
+    def reanchor(self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
         """Return this object translated so its bounding-box `anchor` point sits at the origin.
         Re-anchors any object by its bbox after the fact (cube()/cuboid() only do this at
         construction, and only for cuboids). Pass *bbox* to use a supplied box."""
         p = self.anchor_point(anchor, bbox=bbox)
         moved = self.translate([-p[0], -p[1], -p[2]])
-        if moved.size is not None:
+        if moved.size is not None and isinstance(anchor, Anchor):
             moved.anchor = anchor
         return moved
 
@@ -714,9 +554,9 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
         edge = Anchor.CENTER.vector if align is None else align.vector
         factor = -1.0 if inside else 1.0
         csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
-        child_anchor = Vector([edge[i] - factor * face[i] for i in range(3)])
+        child_anchor = Point([edge[i] - factor * face[i] for i in range(3)])
         cpt = csolid.anchor_point(child_anchor)
-        dest = self.anchor_point(Vector([face[i] + edge[i] for i in range(3)]), bbox=bbox)
+        dest = self.anchor_point(Point([face[i] + edge[i] for i in range(3)]), bbox=bbox)
         fdir = list(unit(face)) if any(face) else [0.0, 0.0, 0.0]
         ov = -overlap if inside else overlap
         placed = csolid.translate([dest[i] - cpt[i] - fdir[i] * ov for i in range(3)])
@@ -771,9 +611,9 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
 
     def reorient(
         self,
-        anchor: Anchor | Vector = Anchor.CENTER,
+        anchor: Anchor | Sequence[float] = Anchor.CENTER,
         spin: float = 0,
-        orient: Anchor | Vector = Anchor.TOP,
+        orient: Anchor | Sequence[float] = Anchor.TOP,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "Bosl2Solid":
         """Reorient this already-built object by its bounding box (BOSL2 reorient()).
@@ -984,6 +824,278 @@ class Bosl2Solid(Bosl2Shape, Partitionable, Miscellaneous):
             )
         )
 
+    # ---- miscellaneous operators (from pybosl2/miscellaneous.py) ----
+
+    def bounding_box(self, excess: float = 0) -> "Bosl2Solid":
+        """The smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).
+
+        Uses the native bounding box, so it is exact and fast."""
+        center, size = self.bounds()
+        return cuboid([size[i] + 2 * excess for i in range(3)]).translate([float(c) for c in center])
+
+    def offset3d(self, radius: float, size: float = 1000, convexity: int = 10) -> "Bosl2Solid":
+        """Expand (or, for negative *radius*, contract) the surface of this solid by *radius* (BOSL2 offset3d()).
+
+        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly."""
+        _ = convexity
+        from pythonscad import cube as _cube
+        from pythonscad import minkowski as _mink
+        from pythonscad import sphere as _sphere
+
+        from pybosl2.shapes2d import _frag_count
+
+        if radius == 0:
+            return self
+        sides = max(8, _frag_count(abs(radius)))
+        sides = int(math.ceil(sides / 4) * 4)
+        if radius > 0:
+            return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))
+        big1 = _cube([size * 1.02] * 3, center=True)
+        big2 = _cube([size] * 3, center=True)
+        return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))
+
+    def round3d(
+        self,
+        radius: float | None = None,
+        outer_radius: float | None = None,
+        inner_radius: float | None = None,
+        size: float = 1000,
+    ) -> "Bosl2Solid":
+        """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,
+        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow."""
+        orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
+        irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
+        return self.offset3d(orr, size=size).offset3d(-irr - orr, size=size).offset3d(irr, size=size)
+
+    def chain_hull(self, *others: object) -> "Bosl2Solid":
+        """This solid chain-hulled with *others*, in order (BOSL2 chain_hull())."""
+        from pybosl2.miscellaneous import chain_hull as _chain_hull
+
+        return _chain_hull(self, *others)
+
+    def minkowski_difference(self, *diffs: object, size: float = 1000) -> "Bosl2Solid":
+        """Carve *diffs* out of this solid's surface (BOSL2 minkowski_difference())."""
+        from pybosl2.miscellaneous import minkowski_difference as _minkowski_difference
+
+        return _minkowski_difference(self, *diffs, size=size)
+
+    # ---- partition / planar cut operators (from pybosl2/partitions.py) ----
+
+    def _half_mask(
+        self,
+        v: Any,
+        cpv: Any,
+        s: float,
+        cut_path: "Sequence[Sequence[float]] | Path2D | None",
+        cut_angle: float,
+        offset: float,
+    ) -> Any:
+        from pythonscad import polygon as _polygon
+
+        from pybosl2._helpers import unit as _unit_vec
+        from pybosl2.transforms import axis_angle_matrix
+        from pybosl2.transforms import rot_from_to as _rot_from_to_fn
+
+        v3 = np.asarray(v, dtype=float)
+        if v3.shape[0] == 2:
+            v3 = np.array([v3[0], v3[1], 0.0])
+        vu = _unit_vec(v3)
+        if cut_path is None:
+            ppath = [[-s / 2, 0.0], [s / 2, 0.0]]
+        else:
+            ppath = [[float(a), float(b)] for a, b in cut_path]
+            if ppath[0][0] > ppath[-1][0]:
+                ppath = ppath[::-1]
+        poly_pts = (
+            [[min(-s / 2, ppath[0][0]), s]]
+            + [[min(-s / 2, ppath[0][0]), ppath[0][1]]]
+            + ppath
+            + [[max(s / 2, ppath[-1][0]), ppath[-1][1]]]
+            + [[max(s / 2, ppath[-1][0]), s]]
+        )
+        poly = _polygon([[float(x), float(y)] for x, y in poly_pts])
+        if offset:
+            poly = poly.offset(radius=offset)
+        mask = poly.linear_extrude(height=s, center=True)
+        if bool(np.allclose(vu, UP.vector)):
+            xyv = np.asarray(FRONT.vector, dtype=float)
+        elif bool(np.allclose(vu, DOWN.vector)):
+            xyv = np.asarray(BACK.vector, dtype=float)
+        else:
+            xyv = np.array([v3[0], v3[1], 0.0])
+        angle = math.degrees(math.atan2(xyv[1], xyv[0])) - 90
+        rtf_angle, rtf_axis = _rot_from_to_fn(xyv, v3)
+        m_rot = np.eye(4)
+        m_rot[:3, :3] = axis_angle_matrix(rtf_angle, rtf_axis)
+        cut_m = np.eye(4)
+        cut_m[:3, :3] = axis_angle_matrix(cut_angle, v3)
+        zrot_m = np.eye(4)
+        zrot_m[:3, :3] = axis_angle_matrix(angle, [0, 0, 1])
+        m = (cut_m @ m_rot @ zrot_m).tolist()
+        mask = mask.multmatrix(m)
+        if not np.allclose(cpv, 0):
+            mask = mask.translate([float(c) for c in cpv])
+        return mask
+
+    def half_of(
+        self,
+        v: Any = UP,
+        center: bool | list[float] | None = None,
+        s: float | None = None,
+        cut_path: "Path2D | None" = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> "Bosl2Solid":
+        """Keep the half of this solid on the side the normal *v* points to (BOSL2 half_of()).
+
+        *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*
+        (the mask size) defaults to twice the object's bounding-box reach, so it rarely needs
+        setting. *cut_path* follows a 2-D :func:`~pybosl2.partitions.partition_path` for an
+        interlocking cut face; *cut_angle* spins that face about *v*; *offset* grows the mask.
+
+        Examples:
+            Cut a cube in half along a jigsaw pattern:
+
+            .. pythonscad-example::
+
+                path = partition_path(["finger", "10x15", "finger"], seglen=25)
+                s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
+        """
+        v3 = np.asarray(v, dtype=float)
+        if v3.shape[0] == 2:
+            v3 = np.array([v3[0], v3[1], 0.0])
+        vu = unit(v3)
+        if center is None:
+            cpv = np.zeros(3)
+        elif isinstance(center, (int, float, np.integer, np.floating)) and not isinstance(center, bool):
+            cpv = float(center) * vu
+        else:
+            cpv = np.asarray(center, dtype=float)
+        if s is None:
+            center_pt, size = self.bounds()
+            reach = float(np.linalg.norm(size)) + float(np.linalg.norm(cpv - np.asarray(center_pt)))
+            s = 2.2 * reach + 2.0
+        return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))
+
+    def left_half(
+        self,
+        x: float = 0,
+        s: float | None = None,
+        cut_path: "Path2D | None" = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> "Bosl2Solid":
+        return self.half_of(LEFT, center=[x, 0, 0], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
+
+    def right_half(
+        self,
+        x: float = 0,
+        s: float | None = None,
+        cut_path: "Path2D | None" = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> "Bosl2Solid":
+        return self.half_of(RIGHT, center=[x, 0, 0], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
+
+    def front_half(
+        self,
+        y: float = 0,
+        s: float | None = None,
+        cut_path: "Path2D | None" = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> "Bosl2Solid":
+        return self.half_of(FRONT, center=[0, y, 0], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
+
+    def back_half(
+        self,
+        y: float = 0,
+        s: float | None = None,
+        cut_path: "Path2D | None" = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> "Bosl2Solid":
+        return self.half_of(BACK, center=[0, y, 0], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
+
+    def bottom_half(
+        self,
+        z: float = 0,
+        s: float | None = None,
+        cut_path: "Path2D | None" = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> "Bosl2Solid":
+        return self.half_of(DOWN, center=[0, 0, z], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
+
+    def top_half(
+        self,
+        z: float = 0,
+        s: float | None = None,
+        cut_path: "Path2D | None" = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> "Bosl2Solid":
+        return self.half_of(UP, center=[0, 0, z], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
+
+    def partition(
+        self,
+        spread: float = 10,
+        cutsize: float | Sequence[float] = 10,
+        cutpath: str | "Path2D" = "jigsaw",
+        gap: float = 0,
+        cutpath_centered: bool = True,
+        spin: float = 0,
+        slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "list[Bosl2Solid]":
+        """Cut this solid into two interlocking pieces, spread apart (BOSL2 partition()).
+
+        Returns ``[back_piece, front_piece]`` -- the two halves with matched joining edges, moved
+        *spread* apart along the (spun) Y axis so they print separately and snap back together.
+        The joint follows *cutpath* (``"jigsaw"``, ``"dovetail"``, ``"hammerhead"``, ...); *spin*
+        rotates the cut direction; *slop* leaves a printer-fit clearance.
+
+        Examples:
+            Split a block into two dovetailed halves:
+
+            .. pythonscad-example::
+
+                halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
+                halves[0].show()
+        """
+        from pybosl2.partitions import _partition_mask_shape
+
+        center_pt, size = self.bounds()
+        cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
+        sp = math.radians(spin)
+        c, sn = math.cos(sp), math.sin(sp)
+        rsx = abs(size[0] * c - size[1] * sn)
+        rsy = abs(size[0] * sn + size[1] * c)
+        rsz = abs(size[2])
+        vec = np.array([-sn, c, 0.0]) * (spread / 2)
+        pieces: list[Bosl2Solid] = []
+        for idx, inverse in ((0, False), (1, True)):
+            mask = _partition_mask_shape(
+                rsx,
+                rsy,
+                rsz,
+                cs,
+                cutpath,
+                gap,
+                cutpath_centered,
+                inverse,
+                slop,
+                fn,
+                fa,
+                fs,
+            )
+            mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center_pt])
+            move = vec if idx == 0 else -vec
+            pieces.append(self._wrap(self.shape & mask).translate([float(m) for m in move]))
+        return pieces
+
 
 # ---------------------------------------------------------------------------
 # Internal helpers (not part of BOSL2's public API)
@@ -994,16 +1106,16 @@ def _quantup(x: float, y: float) -> float:
     return math.ceil(x / y) * y
 
 
-def _anchor_to_vector(a: Anchor | Vector | Sequence[float]) -> Vector:
-    """Convert an Anchor or vector-like to a :class:`Vector`."""
+def _anchor_to_vector(a: Anchor | Sequence[float]) -> Point:
+    """Convert an Anchor or vector-like to a :class:`Point`."""
     if isinstance(a, Anchor):
         return a.vector
-    if isinstance(a, Vector):
+    if isinstance(a, Point):
         return a
-    return Vector(a)
+    return Point(a)
 
 
-def _orient_rotate(shape: PyOpenSCAD, orient: Anchor | Vector | Sequence[float]) -> PyOpenSCAD:
+def _orient_rotate(shape: PyOpenSCAD, orient: Anchor | Sequence[float]) -> PyOpenSCAD:
     o = orient.vector if isinstance(orient, Anchor) else list(orient)
     if o == [0, 0, 1]:
         return shape
@@ -1039,25 +1151,61 @@ def _rot_from_to(a: Sequence[float], b: Sequence[float]) -> "tuple[float, list[f
     return math.degrees(math.acos(diameter)), axis
 
 
+def _resolve_center_anchor(
+    center: bool | None,
+    anchor: "Anchor | Sequence[float]",
+    default_if_false: "Anchor | Sequence[float]",
+) -> "Anchor | Sequence[float]":
+    """Normalize center= to an anchor value.
+
+    Args:
+        center: If True, returns CENTER; if False, returns *default_if_false*.
+        anchor: The anchor to return when *center* is None.
+        default_if_false: The anchor to use when center=False.
+
+    Returns:
+        The resolved anchor.
+    """
+    if center is not None:
+        return Anchor.CENTER if center else default_if_false
+    return anchor
+
+
 def _finish3(
     shape: PyOpenSCAD,
     offset: Sequence[float],
     spin: float,
-    orient: Anchor | Vector | Sequence[float],
-) -> PyOpenSCAD:
+    orient: Anchor | Sequence[float],
+    size: Sequence[float] | None = None,
+    anchor: "Anchor | Sequence[float] | str | None" = None,
+) -> Bosl2Solid:
+    """Build, offset, spin, orient, and wrap in Bosl2Solid.
+
+    Args:
+        shape: The native geometry just built (centred at origin).
+        offset: [x, y, z] anchor offset to apply.
+        spin: Z-axis rotation in degrees.
+        orient: Direction to rotate the top towards.
+        size: Nominal [x, y, z] box size for the wrapper metadata.
+        anchor: Anchor value for the wrapper metadata.
+
+    Returns:
+        A Bosl2Solid wrapping the finished geometry.
+    """
     if offset[0] or offset[1] or offset[2]:
         shape = shape.translate(offset)
     if spin:
         shape = shape.rotate(spin, [0, 0, 1])
-    return _orient_rotate(shape, orient)
+    shape = _orient_rotate(shape, orient)
+    return Bosl2Solid(shape, size=size, anchor=anchor)
 
 
-def _anchor_offset_box3(size: Sequence[float], anchor: Anchor | Vector | Sequence[float]) -> list[float]:
+def _anchor_offset_box3(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:
     a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
     return [-a[i] * size[i] / 2 for i in range(3)]
 
 
-def _anchor_offset_hull3(points: Sequence[Sequence[float]], anchor: Anchor | Vector | Sequence[float]) -> list[float]:
+def _anchor_offset_hull3(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
     a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
     if a[0] == 0 and a[1] == 0 and a[2] == 0:
         return [0.0, 0.0, 0.0]
@@ -1076,7 +1224,7 @@ def _anchor_offset_cyl(
     radius1: float,
     radius2: float,
     length: float,
-    anchor: Anchor | Vector | Sequence[float],
+    anchor: Anchor | Sequence[float],
     axis: int = 2,
 ) -> list[float]:
     a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
@@ -1094,7 +1242,7 @@ def _anchor_offset_cyl(
     return [-x for x in offset]
 
 
-def _anchor_offset_sphere(radius: float, anchor: Anchor | Vector | Sequence[float]) -> list[float]:
+def _anchor_offset_sphere(radius: float, anchor: Anchor | Sequence[float]) -> list[float]:
     a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
     sides = math.hypot(*a)
     if sides == 0:
@@ -1311,9 +1459,9 @@ def roof(shape: object, method: str = "straight") -> Bosl2Solid:
 def cube(
     size: float | Sequence[float] = 1,
     center: bool | None = None,
-    anchor: Anchor | Vector = Anchor.CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Anchor | Vector = Anchor.TOP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
 ) -> Bosl2Solid:
     """A cube, built with the builtin cube(), with BOSL2-style anchor/spin/orient support.
 
@@ -1325,13 +1473,10 @@ def cube(
         orient: direction to rotate the top towards, after spin (default Anchor.TOP)
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = Anchor.CENTER if center else Anchor.BOTTOM_FRONT_LEFT
+    use_anchor = _resolve_center_anchor(center, anchor, Anchor.BOTTOM_FRONT_LEFT)
     shape = _ocube(sz, center=True)
     offset = _anchor_offset_box3(sz, use_anchor)
-    orient_vec = orient.vector if isinstance(orient, Anchor) else orient
-    return Bosl2Solid(_finish3(shape, offset, spin, orient_vec), size=sz, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=sz, anchor=use_anchor)
 
 
 def cuboid(
@@ -1462,8 +1607,7 @@ def cuboid(
         shape = _ocube(sz, center=True)
 
     offset = _anchor_offset_box3(sz, anchor)
-    orient_vec = orient.vector if isinstance(orient, Anchor) else orient
-    return Bosl2Solid(_finish3(shape, offset, spin, orient_vec), size=sz, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=sz, anchor=anchor)
 
 
 def prismoid(
@@ -1479,9 +1623,9 @@ def prismoid(
     chamfer2: float | Sequence[float] | None = None,
     length: float | None = None,
     center: bool | None = None,
-    anchor: Anchor | Vector = BOTTOM,
+    anchor: Anchor | Sequence[float] = BOTTOM,
     spin: float = 0,
-    orient: Anchor | Vector = UP,
+    orient: Anchor | Sequence[float] = UP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1520,9 +1664,7 @@ def prismoid(
     radius2 = rounding2 if rounding2 is not None else rounding
     c1 = chamfer1 if chamfer1 is not None else chamfer
     c2 = chamfer2 if chamfer2 is not None else chamfer
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = CENTER if center else BOTTOM
+    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
 
     path1 = _rect_path(s1, rounding=radius1, chamfer=c1, fn=fn, fa=fa, fs=fs)
     path2 = _rect_path(s2, rounding=radius2, chamfer=c2, fn=fn, fa=fa, fs=fs)
@@ -1532,14 +1674,14 @@ def prismoid(
     top = _opolyhedron(top_pts, [list(range(len(top_pts)))])
     shape = _ohull(bottom, top)
     offset = _anchor_offset_hull3(bottom_pts + top_pts, use_anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def octahedron(
     size: float = 1,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
 ) -> Bosl2Solid:
     """An octahedron with axis-aligned points, built directly with polyhedron().
 
@@ -1563,15 +1705,15 @@ def octahedron(
     ]
     shape = _opolyhedron(pts, faces)
     offset = _anchor_offset_hull3(pts, anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
 def wedge(
     size: Sequence[float] = [1, 1, 1],
     center: bool | None = None,
-    anchor: Sequence[float] = FRONT + LEFT + BOTTOM,
+    anchor: Anchor | Sequence[float] = FRONT.vector + LEFT.vector + BOTTOM.vector,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
 ) -> Bosl2Solid:
     """A 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, built directly with polyhedron().
 
@@ -1583,9 +1725,7 @@ def wedge(
         orient: direction to rotate the top towards, after spin (default UP)
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = CENTER if center else [-1, -1, -1]
+    use_anchor = _resolve_center_anchor(center, anchor, [-1, -1, -1])
     pts: list[list[float]] = [[1, 1, -1], [1, -1, -1], [1, -1, 1], [-1, 1, -1], [-1, -1, -1], [-1, -1, 1]]
     pts = [[p[0] * sz[0] / 2, p[1] * sz[1] / 2, p[2] * sz[2] / 2] for p in pts]
     faces = [
@@ -1600,7 +1740,7 @@ def wedge(
     ]
     shape = _opolyhedron(pts, faces)
     offset = _anchor_offset_hull3(pts, use_anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def _rect_tube_rounding(
@@ -1643,9 +1783,9 @@ def rect_tube(
     inner_chamfer: float | Sequence[float] = 0,
     inner_chamfer1: float | Sequence[float] | None = None,
     inner_chamfer2: float | Sequence[float] | None = None,
-    anchor: Sequence[float] = BOTTOM,
+    anchor: Anchor | Sequence[float] = BOTTOM.vector,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     length: float | None = None,
 ) -> Bosl2Solid:
     """BOSL2 rect_tube() -- a rectangular tube (a rectangle with a rectangular hole through it).
@@ -1741,9 +1881,7 @@ def rect_tube(
     ichamfer1_v = _rect_tube_rounding(1 / math.sqrt(2), ichamfer1_t, chamfer1_v, irounding1_t, size1_v, isize1_v)
     ichamfer2_v = _rect_tube_rounding(1 / math.sqrt(2), ichamfer2_t, chamfer2_v, irounding2_t, size2_v, isize2_v)
 
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = CENTER if center else BOTTOM
+    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
 
     outer = prismoid(
         size1_v,
@@ -1777,7 +1915,7 @@ def rect_tube(
 
     straight = size1_v == size2_v and shift[0] == 0 and shift[1] == 0
     out_size = [size1_v[0], size1_v[1], height] if straight else None
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=out_size, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=out_size, anchor=use_anchor)
 
 
 # ---------------------------------------------------------------------------
@@ -1795,9 +1933,9 @@ def cylinder(
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1821,9 +1959,7 @@ def cylinder(
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     rad2 = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = CENTER if center else BOTTOM
+    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
     shape = _ocylinder(
         height=length,
         radius1=rad1,
@@ -1834,7 +1970,7 @@ def cylinder(
         fs=fs,
     )
     offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def cyl(
@@ -1856,9 +1992,9 @@ def cyl(
     circumscribe: bool = False,
     realign: bool = False,
     shift: Sequence[float] = [0, 0],
-    anchor: Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2042,7 +2178,7 @@ def cyl(
         shape = shape | ext2
 
     offset = _anchor_offset_cyl(rad1, rad2, length_val, use_anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def _cyl_profile(
@@ -2135,9 +2271,9 @@ def regular_prism(
     realign: bool = False,
     shift: Sequence[float] = [0, 0],
     center: bool | None = None,
-    anchor: Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2239,7 +2375,7 @@ def regular_prism(
         ]
         shape = shape.multmatrix(shear)
     offset = _anchor_offset_cyl(rad1, rad2, prism_len, use_anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def xcyl(
@@ -2261,9 +2397,9 @@ def xcyl(
     circumscribe: bool = False,
     realign: bool = False,
     shift: Sequence[float] = [0, 0],
-    anchor: Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2342,7 +2478,7 @@ def xcyl(
         tex_inset=tex_inset,
     ).shape.rotate(90, [0, 1, 0])
     offset = _anchor_offset_cyl(rad1, rad2, length_val, use_anchor, axis=0)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def ycyl(
@@ -2364,9 +2500,9 @@ def ycyl(
     circumscribe: bool = False,
     realign: bool = False,
     shift: Sequence[float] = [0, 0],
-    anchor: Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2445,7 +2581,7 @@ def ycyl(
         tex_inset=tex_inset,
     ).shape.rotate(-90, [1, 0, 0])
     offset = _anchor_offset_cyl(rad1, rad2, length_val, use_anchor, axis=1)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def zcyl(
@@ -2467,9 +2603,9 @@ def zcyl(
     circumscribe: bool = False,
     realign: bool = False,
     shift: Sequence[float] = [0, 0],
-    anchor: Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2563,9 +2699,9 @@ def tube(
     inner_diameter2: float | None = None,
     realign: bool = False,
     length: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2638,9 +2774,7 @@ def tube(
     )
     assert irad1 <= rad1 and irad2 <= rad2, "tube(): inner radius is larger than outer radius."
 
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = CENTER if center else BOTTOM
+    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
 
     outer = _ocylinder(
         height=height,
@@ -2665,7 +2799,7 @@ def tube(
         sides = _frag_count(max(rad1, rad2), fn, fa, fs)
         shape = shape.rotate(180 / sides, [0, 0, 1])
     offset = _anchor_offset_cyl(rad1, rad2, height, use_anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def pie_slice(
@@ -2679,9 +2813,9 @@ def pie_slice(
     diameter1: float | None = None,
     diameter2: float | None = None,
     length: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2705,9 +2839,7 @@ def pie_slice(
     length = height if height is not None else (length if length is not None else 1)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
     rad2 = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=10)
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = CENTER if center else BOTTOM
+    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
 
     base = _ocylinder(
         height=length,
@@ -2733,7 +2865,7 @@ def pie_slice(
         shape = base & sector
 
     offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 # ---------------------------------------------------------------------------
@@ -2745,9 +2877,9 @@ def sphere(
     radius: float | None = None,
     diameter: float | None = None,
     circumscribe: bool = False,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2778,16 +2910,16 @@ def sphere(
         rad /= math.cos(math.pi / sides)
     shape = _osphere(radius=rad, fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_sphere(rad, anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
 def spheroid(
     radius: float | None = None,
     diameter: float | None = None,
     circumscribe: bool = False,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2897,9 +3029,9 @@ def torus(
     inner_radius: float | None = None,
     outer_diameter: float | None = None,
     inner_diameter: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -2956,15 +3088,13 @@ def torus(
     else:
         raise AssertionError("torus(): bad parameters.")
 
-    use_anchor = anchor
-    if center is not None:
-        use_anchor = CENTER if center else DOWN
+    use_anchor = _resolve_center_anchor(center, anchor, DOWN)
 
     sides = _frag_count(min_rad, fn, fa, fs)
     profile = _arc_points(sides, min_rad, 0, 360, [maj_rad, 0.0], endpoint=False)
     shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_cyl(maj_rad + min_rad, maj_rad + min_rad, min_rad * 2, use_anchor)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=use_anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def teardrop(
@@ -2984,9 +3114,9 @@ def teardrop(
     chamfer1: float = 0,
     chamfer2: float = 0,
     realign: bool = False,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -3048,7 +3178,7 @@ def teardrop(
         piece = _ohull(a, b)
         shape = piece if shape is solids[0] else (shape | piece)
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor, axis=1)
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
 def onion(
@@ -3057,9 +3187,9 @@ def onion(
     cap_height: float | None = None,
     circumscribe: bool = False,
     diameter: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -3103,7 +3233,7 @@ def onion(
     rn = math.hypot(a[0], a[1])
     off_xy = [-a[0] / rn * scaled, -a[1] / rn * scaled] if rn > 0 else [0.0, 0.0]
     offset = [off_xy[0], off_xy[1], off_z]
-    return Bosl2Solid(_finish3(shape, offset, spin, orient), size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
 # ---------------------------------------------------------------------------
@@ -3211,7 +3341,7 @@ def text3d(
     script: str = "latin",
     anchor: str = "baseline[-1,0,-1]",
     spin: float = 0,
-    orient: Sequence[float] = UP,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -3254,8 +3384,7 @@ def text3d(
     # (_finish3) and the result is wrapped once, at the end.
     shape = flat.shape.linear_extrude(height=height, center=True, fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_box3([size, size, height], [0, 0, av[2]])
-    shape = _finish3(shape, offset, spin, orient)
-    return Bosl2Solid(shape, size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
 def path_text(

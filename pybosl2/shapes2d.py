@@ -31,7 +31,6 @@
 from __future__ import annotations
 
 import math
-import numbers
 import random
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Union, overload
@@ -50,9 +49,8 @@ if TYPE_CHECKING:
 
     from pybosl2.path3d import Path3D
     from pybosl2.shapes3d import Bosl2Solid
-from pybosl2._backend import check_operand_backend as _check_operand_backend
-from pybosl2._backend import unsupported_feature as _unsupported_feature
-from pybosl2._shape import Bosl2Shape
+from pybosl2._edges_lang import Anchor
+from pybosl2._shape import _BaseShape
 from pybosl2.geometry import is_collinear
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
@@ -100,7 +98,7 @@ def _norm_atype(atype: str | AnchorType) -> AnchorType:
 
 def _anchor_offset_generic(
     points: Sequence[Sequence[float]],
-    anchor: Sequence[float],
+    anchor: Anchor | Sequence[float],
     atype: str | AnchorType,
 ) -> list[float]:
     atype_enum = _norm_atype(atype)
@@ -377,17 +375,17 @@ def _vector_angle(point_a: Sequence[float], point_b: Sequence[float], point_c: S
     return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
-def _dir2(anchor: Sequence[float]) -> list[float]:
-    a = list(anchor) + [0, 0, 0]
+def _dir2(anchor: Anchor | Sequence[float]) -> list[float]:
+    a = (anchor.vector if isinstance(anchor, Anchor) else list(anchor)) + [0, 0, 0]
     return [a[0], a[1] + a[2]]
 
 
-def _anchor_offset_box(size: Sequence[float], anchor: Sequence[float]) -> list[float]:
+def _anchor_offset_box(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:
     d = _dir2(anchor)
     return [-d[0] * size[0] / 2, -d[1] * size[1] / 2]
 
 
-def _anchor_offset_hull(points: Sequence[Sequence[float]], anchor: Sequence[float]) -> list[float]:
+def _anchor_offset_hull(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
     d = _dir2(anchor)
     if d[0] == 0 and d[1] == 0:
         return [0.0, 0.0]
@@ -397,10 +395,10 @@ def _anchor_offset_hull(points: Sequence[Sequence[float]], anchor: Sequence[floa
 
 def _finish(
     shape: PyOpenSCAD,
-    offset: Sequence[float],
+    offset: Anchor | Sequence[float],
     spin: float,
     size: Sequence[float] | None = None,
-    anchor: Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | str | None = None,
 ) -> "Bosl2Shape2D":
     """Anchor-translate and spin a freshly built native 2-D shape, then wrap it.
 
@@ -410,8 +408,9 @@ def _finish(
     already wrapped (``ring()`` composes two circles) is unwrapped first, never double-wrapped.
     """
     shape = Bosl2Shape2D._unwrap(shape)
-    if offset[0] != 0 or offset[1] != 0:
-        shape = shape.translate(offset)
+    off: list[float] = list(offset.vector_2d) if isinstance(offset, Anchor) else list(offset)[:2]
+    if off[0] != 0 or off[1] != 0:
+        shape = shape.translate(off)
     if spin:
         # Native 2-D rotate needs the 3-vector form; a bare scalar is rejected.
         shape = shape.rotate([0, 0, spin])
@@ -428,14 +427,16 @@ def _finish(
 Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", Path2D, Sequence[Sequence[float]]]
 
 
-class Bosl2Shape2D(Bosl2Shape):
+class Bosl2Shape2D(_BaseShape):
     """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent, chainable API that
     :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids. Every shape constructor in this file
     returns one of these, as do :meth:`~pybosl2.paths.Path2D.polygon` and
     :meth:`~pybosl2.regions.Region.geometry`.
 
-    The 2-D specific operations live here rather than being reached for through the raw native
-    handle:
+    Transforms, CSG operators, colour, and distributor methods are inherited from
+    :class:`~pybosl2._shape._BaseShape`.
+
+    The 2-D specific operations live here:
 
     * :meth:`fill` -- drop every hole, keeping only the outermost outline (OpenSCAD ``fill()``).
     * :meth:`hull` -- the convex hull of this shape, optionally together with more shapes/paths
@@ -444,12 +445,6 @@ class Bosl2Shape2D(Bosl2Shape):
       ``offset()`` only understands ``r=``).
     * :meth:`linear_extrude` / :meth:`rotate_extrude` -- the 2-D -> 3-D operators, which return a
       :class:`~pybosl2.shapes3d.Bosl2Solid` so the result keeps the 3-D fluent API.
-
-    Transforms (translate/rotate/mirror/scale/multmatrix), the CSG operators (``|``, ``&``, ``-``),
-    the colour operators (from :class:`~pybosl2.color.Colorable`) and the distributor copiers (from
-    :class:`~pybosl2.distributors.Distributable`) all return a new ``Bosl2Shape2D``. Anything else
-    falls through ``__getattr__`` to the native handle, re-wrapped as 2-D when it hands back native
-    geometry.
 
     Like :class:`~pybosl2.shapes3d.Bosl2Solid` this is composition, not a subclass of the native
     C-extension type: passing one *directly* into a native function that wants a raw handle needs
@@ -464,111 +459,15 @@ class Bosl2Shape2D(Bosl2Shape):
         self,
         shape: PyOpenSCAD,
         size: Sequence[float] | None = None,
-        anchor: "Sequence[float] | str | None" = None,
+        anchor: "Anchor | Sequence[float] | str | None" = None,
     ):
         self.shape = shape
         #: nominal [x, y] size for the shapes that have a genuine box size, else None
         self.size = None if size is None else [float(v) for v in size][:2]
-        self.anchor = anchor if anchor is not None else CENTER
-        # True once a positional transform has been applied, so `size`/`anchor` no longer
-        # describe where the shape actually is (same flag Bosl2Solid tracks).
-        self._moved = False
+        a_val: Anchor | Sequence[float] | str | None = anchor if anchor is not None else CENTER
+        self.anchor = a_val
 
-    @staticmethod
-    def _unwrap(x: "Bosl2Shape2D | Bosl2Solid | PyOpenSCAD") -> "PyOpenSCAD":
-        """The raw native handle behind *x* (a Bosl2Shape2D/Bosl2Solid), or *x* unchanged."""
-        from pybosl2._helpers import unwrap
-
-        return unwrap(x)
-
-    def _wrap(self, new_shape: PyOpenSCAD) -> "Bosl2Shape2D":
-        """Wrap a native result, carrying size/anchor metadata (and moved-ness) forward."""
-        out = Bosl2Shape2D(new_shape, self.size, self.anchor)
-        out._moved = self._moved
-        return out
-
-    def _wrap_moved(self, new_shape: PyOpenSCAD) -> Bosl2Shape2D:
-        """Wrap a native result of a positional transform, flagging the tracked metadata stale."""
-        out = Bosl2Shape2D(new_shape, self.size, self.anchor)
-        out._moved = True
-        return out
-
-    def __getattr__(self, name: str) -> Any:
-        # __getattr__ only fires on a normal-lookup miss. Guard the recursion trap: never bounce
-        # back through here for `shape` (or dunders) when the object is half-built, so
-        # copy/pickle/hasattr raise a clean AttributeError instead of blowing the stack.
-        if name == "shape" or (name.startswith("__") and name.endswith("__")):
-            raise AttributeError(name)
-        _unsupported = _unsupported_feature("csg", name)  # SDF-only feature on the CSG backend?
-        if _unsupported is not None:
-            raise _unsupported
-        shape = object.__getattribute__(self, "shape")  # bypass __getattr__: no recursion
-        attr = getattr(shape, name)
-        if not callable(attr):
-            return attr  # plain native attr (.position/.size/...)
-        native_cls = type(shape)
-
-        def _forward(*args: Any, **kwargs: Any) -> Any:
-            # Re-wrap native geometry so a passed-through op keeps the fluent API instead of
-            # silently leaking a raw handle. Every 2-D -> 3-D operator is defined explicitly
-            # below, so whatever lands here is still 2-D.
-            result = attr(*args, **kwargs)
-            if isinstance(result, native_cls):
-                return self._wrap_moved(result)
-            if isinstance(result, (list, tuple)) and result and all(isinstance(r, native_cls) for r in result):
-                return type(result)(self._wrap_moved(r) for r in result)
-            return result
-
-        _forward.__name__ = name
-        return _forward
-
-    def __repr__(self) -> str:
-        return f"Bosl2Shape2D({self.shape!r}, size={self.size!r}, anchor={self.anchor!r})"
-
-    # ---- geometry passthrough, preserving size/anchor metadata ----
-
-    def translate(self, v: Sequence[float]) -> "Bosl2Shape2D":
-        """Translate by *v* ([x, y], or [x, y, 0])."""
-        return self._wrap_moved(self.shape.translate([float(c) for c in v]))
-
-    move = translate
-
-    def rotate(self, *a: Any, **k: Any) -> "Bosl2Shape2D":
-        """Rotate about the Z axis. A bare scalar angle is accepted (BOSL2 ``rot(a)``); the native
-        2-D rotate only takes the 3-vector form."""
-        if len(a) == 1 and isinstance(a[0], numbers.Real) and not isinstance(a[0], bool) and "v" not in k:
-            a = ([0.0, 0.0, float(a[0])],)
-        return self._wrap_moved(self.shape.rotate(*a, **k))
-
-    rot = rotate
-    spin = rotate
-
-    def mirror(self, v: Sequence[float]) -> "Bosl2Shape2D":
-        """Mirror across the line through the origin normal to *v*."""
-        return self._wrap_moved(self.shape.mirror([float(c) for c in v]))
-
-    def scale(self, v: "float | Sequence[float]") -> "Bosl2Shape2D":
-        """Scale by *v* (a scalar, or [x, y])."""
-        return self._wrap_moved(self.shape.scale(v))
-
-    def multmatrix(self, m: Sequence[Sequence[float]]) -> "Bosl2Shape2D":
-        return self._wrap_moved(self.shape.multmatrix(m))
-
-    # Directional translates (BOSL2 transforms.scad): right/left +/-X, back/fwd +/-Y.
-
-    def right(self, x: float) -> "Bosl2Shape2D":
-        return self.translate([x, 0.0])
-
-    def left(self, x: float) -> "Bosl2Shape2D":
-        return self.translate([-x, 0.0])
-
-    def back(self, y: float) -> "Bosl2Shape2D":
-        return self.translate([0.0, y])
-
-    def forward(self, y: float) -> "Bosl2Shape2D":
-        return self.translate([0.0, -y])
-
-    fwd = forward
+    spin = _BaseShape.rotate
 
     def xflip(self, x: float = 0.0) -> "Bosl2Shape2D":
         """Mirror across the vertical line at *x* (BOSL2 xflip())."""
@@ -605,7 +504,7 @@ class Bosl2Shape2D(Bosl2Shape):
             if value is not None:
                 kw[name] = value
         # The offset moves the outline, so the nominal box size no longer describes it.
-        return self._wrap_moved(self.shape.offset(**kw))
+        return self._wrap(self.shape.offset(**kw))
 
     def minkowski(self, other: "Bosl2Shape2D | PyOpenSCAD") -> "Bosl2Shape2D":
         """Minkowski sum of this shape with *other*.
@@ -624,7 +523,7 @@ class Bosl2Shape2D(Bosl2Shape):
         from pythonscad import minkowski as _minkowski
 
         result = _minkowski(self.shape, Bosl2Shape2D._unwrap(other))
-        return self._wrap_moved(result)
+        return self._wrap(result)
 
     def fill(self) -> "Bosl2Shape2D":
         """This shape with every hole filled in -- only the outermost outline survives
@@ -774,52 +673,6 @@ class Bosl2Shape2D(Bosl2Shape):
     def _ghost_native(self) -> "Bosl2Shape2D":
         return self._wrap(self.shape.background())
 
-    # ---- CSG ----
-
-    def __or__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(self.shape | Bosl2Shape2D._unwrap(other))
-
-    def __and__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(self.shape & Bosl2Shape2D._unwrap(other))
-
-    def __sub__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(self.shape - Bosl2Shape2D._unwrap(other))
-
-    def __ror__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Shape2D._unwrap(other) | self.shape)
-
-    def __rand__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Shape2D._unwrap(other) & self.shape)
-
-    def __rsub__(self, other: "Shape2DLike") -> "Bosl2Shape2D":
-        _check_operand_backend("csg", other)
-        return self._wrap(Bosl2Shape2D._unwrap(other) - self.shape)
-
-    def __add__(self, other: Sequence[float]) -> "Bosl2Shape2D":
-        try:
-            len(other)
-            return self.translate(other)
-        except (TypeError, ValueError):
-            return NotImplemented
-
-    def __radd__(self, other: Sequence[float]) -> "Bosl2Shape2D":
-        try:
-            len(other)
-            return self.translate(other)
-        except (TypeError, ValueError):
-            return NotImplemented
-
-    def __mul__(self, other: float | Sequence[float]) -> "Bosl2Shape2D":
-        return self.scale(other)
-
-    def __rmul__(self, other: float | Sequence[float]) -> "Bosl2Shape2D":
-        return self.scale(other)
-
     # ---- distributors (pybosl2/distributors.py) ----
 
     def _distribute(self, mats: list[np.ndarray]) -> list["Bosl2Shape2D"]:  # type: ignore[override]
@@ -831,7 +684,7 @@ class Bosl2Shape2D(Bosl2Shape):
                 "this copier moves the 2-D shape out of the XY plane; extrude it to 3-D first"
             )
             copy = self.shape.multmatrix(m4.tolist())
-            result.append(self._wrap_moved(copy))
+            result.append(self._wrap(copy))
         return result
 
     def distribute_on_path(
@@ -906,7 +759,7 @@ class Bosl2Shape2D(Bosl2Shape):
 
         Prefers the native bbox, which always reflects the current geometry; falls back to the
         tracked nominal size/anchor when the native accessors aren't available (the numeric test
-        mock) and the shape hasn't been moved since construction.
+        mock).
         """
         try:
             pos, sz = self.shape.position, self.shape.size
@@ -917,12 +770,8 @@ class Bosl2Shape2D(Bosl2Shape):
             size = [float(sz[i]) for i in range(2)]
             return [mincorner[i] + size[i] / 2 for i in range(2)], size
         if self.size is not None and not isinstance(self.anchor, str):
-            if self._moved:
-                raise ValueError(
-                    "bounds(): no native bounding box (numeric mock) and the shape has been "
-                    "transformed since construction, so its tracked metadata is stale."
-                )
             size = [float(v) for v in self.size]
+            assert self.anchor is not None
             return _anchor_offset_box(size, self.anchor), size
         raise ValueError("bounds(): the shape has no native bounding box and no tracked size metadata.")
 
@@ -977,7 +826,7 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
     """
     items = list(children)
     if len(items) == 1 and not _is_child_2d(items[0]):
-        items = list(items[0])  # a single list *of* shapes
+        items = list(items[0])  # type: ignore[arg-type]  # a single list *of* shapes
     assert items, "hull(): needs at least one child."
     return Bosl2Shape2D(_ohull(*[_as_native_2d(c) for c in items]))
 
@@ -990,7 +839,7 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
 def square(
     size: float | Sequence[float] = 1,
     center: bool | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float | None = None,
 ) -> Bosl2Shape2D:
     """A rectangle, built with the builtin square(), with BOSL2-style anchor/spin support.
@@ -1072,7 +921,7 @@ def rect(
     rounding: float | Sequence[float] = 0,
     atype: str = "box",
     chamfer: float | Sequence[float] = 0,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1108,7 +957,7 @@ def rect_path(
     size: float | Sequence[float] = 1,
     rounding: float | Sequence[float] = 0,
     chamfer: float | Sequence[float] = 0,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1321,7 +1170,7 @@ def circle(
     diameter: float | None = None,
     points: Sequence[Sequence[float]] | None = None,
     corner: Sequence[Sequence[float]] | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1359,7 +1208,7 @@ def circle(
 
 def polygon(
     path: Path2D,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
 ) -> Bosl2Shape2D:
     """A polygon, built with the builtin polygon(), with anchor/spin support.
@@ -1378,7 +1227,7 @@ def ellipse(
     realign: bool = False,
     circumscribe: bool = False,
     uniform: bool = False,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1474,7 +1323,7 @@ def regular_ngon(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1547,7 +1396,7 @@ def pentagon(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1587,7 +1436,7 @@ def hexagon(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1627,7 +1476,7 @@ def octagon(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1658,7 +1507,7 @@ def octagon(
 def right_triangle(
     size: Sequence[float] = [1, 1],
     center: bool | None = None,
-    anchor: Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
 ) -> Bosl2Shape2D:
     """A right triangle, built directly with polygon().
@@ -1762,7 +1611,7 @@ def trapezoid(
     chamfer: float | Sequence[float] = 0,
     rounding: float | Sequence[float] = 0,
     flip: bool = False,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1813,7 +1662,7 @@ def star(
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_pit: Sequence[float] | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     atype: str | AnchorType = AnchorType.HULL,
 ) -> Bosl2Shape2D:
@@ -1888,7 +1737,7 @@ def teardrop2d(
     diameter: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -1948,7 +1797,7 @@ def egg(
     diameter1: float | None = None,
     diameter2: float | None = None,
     arc_diameter: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -2039,7 +1888,7 @@ def glued_circles(
     spread: float = 10,
     tangent: float = 30,
     diameter: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -2130,7 +1979,7 @@ def supershape(
     b: float | None = None,
     radius: float | None = None,
     diameter: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     atype: str | AnchorType = AnchorType.HULL,
 ) -> Bosl2Shape2D:
@@ -2221,7 +2070,7 @@ def squircle(
     size: float | Sequence[float],
     squareness: float = 0.5,
     style: str = "fg",
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -2261,7 +2110,7 @@ def keyhole(
     diameter1: float | None = None,
     diameter2: float | None = None,
     _length: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -2332,7 +2181,7 @@ def ring(
     diameter1: float | None = None,
     diameter2: float | None = None,
     angle: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,
@@ -2377,7 +2226,7 @@ def reuleaux_polygon(
     sides: int = 3,
     radius: float | None = None,
     diameter: float | None = None,
-    anchor: Sequence[float] = CENTER,
+    anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     fn: int | None = None,
     fa: float | None = None,

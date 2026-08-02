@@ -49,9 +49,10 @@ from typing import TYPE_CHECKING, Any, Sequence
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from pybosl2._edges_lang import Anchor
     from pybosl2.caps import CapsSpec, CapType
     from pybosl2.paths import Path
-    from pybosl2.points import Vector
+    from pybosl2.points import Point
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
@@ -611,14 +612,14 @@ class Bezier:
         n_degree: int | None = None,
         method: str = "incremental",
         endpoint: bool = True,
-        normal: Vector | None = None,
+        normal: Point | None = None,
         closed: bool = False,
         twist: float = 0.0,
         twist_by_length: bool = True,
         scale: float = 1.0,
         scale_by_length: bool = True,
         symmetry: int = 1,
-        last_normal: Vector | None = None,
+        last_normal: Point | None = None,
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
@@ -1286,7 +1287,7 @@ class BezierPatch:
         size: float | Sequence[float],
         n_degree: int = 1,
         spin: float = 0.0,
-        orient: Sequence[float] = UP,
+        orient: Anchor | Sequence[float] = UP,
         trans: Sequence[float] = (0.0, 0.0, 0.0),
     ) -> "BezierPatch":
         """Create a flat rectangular degree-*n_degree* patch.

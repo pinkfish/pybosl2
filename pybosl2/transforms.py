@@ -4,6 +4,8 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+from __future__ import annotations
+
 # LibFile: pybosl2/transforms.py
 #    Pure-Python port of the affine-matrix machinery from BOSL2's
 #    transforms.scad (reorient()/apply(), plus the rot_from_to()/
@@ -19,11 +21,12 @@
 # FileSummary: Affine-matrix reorient/apply and polar_to_xy (BOSL2 transforms.scad, coords.scad).
 # DocCategory: Foundational
 # FileGroup: BOSL2
-
 import math
 from typing import Any, Sequence
 
 import numpy as np
+
+from pybosl2._edges_lang import Anchor
 
 
 def polar_to_xy(radius: float, angle: float) -> list[float]:
@@ -105,7 +108,7 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,
     *center* and the axial translation are returned as :class:`~pybosl2.constants.Vector`. With *long*, the
     complementary (>180 degree) rotation about the reversed axis is chosen."""
-    from pybosl2.points import Vector
+    from pybosl2.points import Point
 
     m = np.asarray(m, dtype=float)
     radius = m[:3, :3]
@@ -119,9 +122,9 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     if c_sin < 1e-12:
         return [
             0.0,
-            Vector([0.0, 0.0, 1.0]),
-            Vector([0.0, 0.0, 0.0]),
-            Vector([float(v) for v in translation]),
+            Point([0.0, 0.0, 1.0]),
+            Point([0.0, 0.0, 0.0]),
+            Point([float(v) for v in translation]),
         ]
     angle = math.degrees(2 * math.atan2(c_sin, c_cos))
     axis = (1.0 if q_re >= 0 else -1.0) * q_im / c_sin
@@ -130,16 +133,16 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     axial = (translation @ axis) * axis
     return [
         360 - angle if long else angle,
-        Vector([float(v) for v in (-axis if long else axis)]),
-        Vector([float(v) for v in center]),
-        Vector([float(v) for v in axial]),
+        Point([float(v) for v in (-axis if long else axis)]),
+        Point([float(v) for v in center]),
+        Point([float(v) for v in axial]),
     ]
 
 
 def reorient(
-    anchor: Sequence[float] | np.ndarray | None = None,
+    anchor: Anchor | Sequence[float] | np.ndarray | None = None,
     spin: float = 0,
-    orient: Sequence[float] | np.ndarray | None = None,
+    orient: Anchor | Sequence[float] | np.ndarray | None = None,
     size: Sequence[float] | np.ndarray | None = None,
 ) -> list[list[float]]:
     """The 4x4 matrix that reorients a cuboid of *size* onto *anchor*/*spin*/*orient*.
@@ -165,8 +168,8 @@ def reorient(
         orient: direction the shape's UP is rotated onto (default UP)
         size:   [x, y, z] size the anchor is resolved against (default [0, 0, 0])
     """
-    anchor = (0.0, 0.0, 0.0) if anchor is None else anchor
-    orient = (0.0, 0.0, 1.0) if orient is None else orient
+    anchor = (0.0, 0.0, 0.0) if anchor is None else list(anchor.vector) if isinstance(anchor, Anchor) else anchor
+    orient = (0.0, 0.0, 1.0) if orient is None else (list(orient.vector) if isinstance(orient, Anchor) else orient)
     size = (0.0, 0.0, 0.0) if size is None else size
 
     angle, axis = rot_from_to((0.0, 0.0, 1.0), orient)

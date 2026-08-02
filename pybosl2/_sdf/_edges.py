@@ -21,11 +21,19 @@ from pybosl2._edges_lang import (
     EDGE_OFFSETS,
     EDGES_ALL,
     EDGES_NONE,
+    Anchor,
     _edge_set,
     _edges,
     _is_edge_array,
     _is_plain_vector,
 )
+
+# The shared radius-priority resolver (radius1 > d1/2 > radius2 > d2/2 > radius > d/2 > dflt).
+# Re-exported so pybosl2._sdf.paths and pybosl2._sdf.shapes3d can import it from here as before.
+from pybosl2.shapes2d import _pick_radius
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = [
     "EDGE_OFFSETS",
@@ -44,23 +52,15 @@ __all__ = [
 
 # The shared radius-priority resolver (radius1 > d1/2 > radius2 > d2/2 > radius > d/2 > dflt).
 # Re-exported so pybosl2._sdf.paths and pybosl2._sdf.shapes3d can import it from here as before.
-from pybosl2.shapes2d import _pick_radius
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
-# ---------------------------------------------------------------------------
-# Anchor-offset helpers, one per primitive family (SDF-backend specific)
-# ---------------------------------------------------------------------------
 
 
-def _anchor_offset_box3(size: "Sequence[float]", anchor: "Sequence[float]") -> list[float]:
-    a = list(anchor)
+def _anchor_offset_box3(size: "Sequence[float]", anchor: "Anchor | Sequence[float]") -> list[float]:
+    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
     return [-a[i] * size[i] / 2 for i in range(3)]
 
 
-def _anchor_offset_hull3(points: "Sequence[Sequence[float]]", anchor: "Sequence[float]") -> list[float]:
-    a = list(anchor)
+def _anchor_offset_hull3(points: "Sequence[Sequence[float]]", anchor: "Anchor | Sequence[float]") -> list[float]:
+    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
     if a[0] == 0 and a[1] == 0 and a[2] == 0:
         return [0.0, 0.0, 0.0]
     best = max(points, key=lambda p: p[0] * a[0] + p[1] * a[1] + p[2] * a[2])
@@ -68,9 +68,9 @@ def _anchor_offset_hull3(points: "Sequence[Sequence[float]]", anchor: "Sequence[
 
 
 def _anchor_offset_cyl(
-    radius1: float, radius2: float, length: float, anchor: "Sequence[float]", axis: int = 2
+    radius1: float, radius2: float, length: float, anchor: "Anchor | Sequence[float]", axis: int = 2
 ) -> list[float]:
-    a = list(anchor)
+    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
     az = a[axis]
     r_at = radius1 if az < 0 else (radius2 if az > 0 else (radius1 + radius2) / 2)
     radial_axes = [i for i in range(3) if i != axis]
@@ -85,8 +85,8 @@ def _anchor_offset_cyl(
     return [-x for x in offset]
 
 
-def _anchor_offset_sphere(r: float, anchor: "Sequence[float]") -> list[float]:
-    a = list(anchor)
+def _anchor_offset_sphere(r: float, anchor: "Anchor | Sequence[float]") -> list[float]:
+    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
     n = math.hypot(*a)
     if n == 0:
         return [0.0, 0.0, 0.0]

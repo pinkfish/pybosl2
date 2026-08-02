@@ -701,10 +701,10 @@ class Partitionable(ABC):
         if offset:
             poly = poly.offset(radius=offset)
         mask = poly.linear_extrude(height=s, center=True)
-        if bool(np.allclose(vu, UP)):
-            xyv = np.asarray(FRONT, dtype=float)
-        elif bool(np.allclose(vu, DOWN)):
-            xyv = np.asarray(BACK, dtype=float)
+        if bool(np.allclose(vu, UP.vector)):
+            xyv = np.asarray(FRONT.vector, dtype=float)
+        elif bool(np.allclose(vu, DOWN.vector)):
+            xyv = np.asarray(BACK.vector, dtype=float)
         else:
             xyv = np.array([v3[0], v3[1], 0.0])
         angle = math.degrees(math.atan2(xyv[1], xyv[0])) - 90

@@ -58,8 +58,6 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
-    from pybosl2.points import Vector
-
 __all__ = ["CutPoint", "Path", "SubdivideMethod"]
 
 
@@ -157,7 +155,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def tangents(self, closed: bool | None = None, uniform: bool = True) -> list[Vector]:
+    def tangents(self, closed: bool | None = None, uniform: bool = True) -> list[Point]:
         """Normalized tangent vector at each point of the path, as an ndarray.
 
         Args:
@@ -170,7 +168,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def normals(self, tangents: list[Vector] | None = None, closed: bool | None = None) -> list[Vector]:
+    def normals(self, tangents: list[Point] | None = None, closed: bool | None = None) -> list[Point]:
         """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
 
         For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
@@ -285,7 +283,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cuts_path_normals(self, cuts: list[CutPoint], closed: bool = False) -> list[Vector]:
+    def cuts_path_normals(self, cuts: list[CutPoint], closed: bool = False) -> list[Point]:
         """Compute normals at each cut point from the path geometry.
 
         Args:
@@ -298,7 +296,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def plane(self, ind: int, i: int, closed: bool = False) -> list[Vector]:
+    def plane(self, ind: int, i: int, closed: bool = False) -> list[Point]:
         """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
         Args:
@@ -313,7 +311,7 @@ class Path(ABC):
         ...
 
     @abstractmethod
-    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list[Vector]:
+    def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> list[Point]:
         """Compute direction vectors at each cut point (blended from adjacent segments).
 
         Args:

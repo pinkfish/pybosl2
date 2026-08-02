@@ -105,9 +105,9 @@ def test_rot_decode_identity_is_zero_angle() -> None:
 
 
 def test_rot_decode_axis_is_vec3() -> None:
-    from pybosl2.constants import Vector  # type: ignore[attr-defined]
+    from pybosl2.points import Point
 
     _, axis, center, axial = rot_decode(rot_about_axis(30, [1, 0, 0], center=[0, 2, 0]))  # type: ignore[arg-type]
-    assert isinstance(axis, Vector)
-    assert isinstance(center, Vector)
-    assert isinstance(axial, Vector)
+    assert isinstance(axis, Point)
+    assert isinstance(center, Point)
+    assert isinstance(axial, Point)

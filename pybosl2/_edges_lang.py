@@ -24,10 +24,10 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from pybosl2.points import Vector
+from pybosl2.points import Point
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator, Sequence
 
 # -- internal edge-matrix constants (shared by both backends) -------------------
 
@@ -49,7 +49,7 @@ CORNER_OFFSETS: list[list[float]] = [[xa, ya, za] for za in (-1.0, 1.0) for ya i
 class Anchor(Enum):
     """A single selector for a face, edge, corner, or axis set on a 3-D solid.
 
-    Every member carries its own 3-D anchor vector as a :class:`Vector`.
+    Every member carries its own 3-D anchor vector as a :class:`Point`.
     Pass an ``Anchor`` wherever a public API asks for an anchor, edge set, or
     corner set -- the vector is resolved internally.
 
@@ -111,7 +111,7 @@ class Anchor(Enum):
     Z = "z"
 
     @property
-    def vector(self) -> Vector:
+    def vector(self) -> Point:
         """The 3-D anchor vector ``(±1 or 0, ±1 or 0, ±1 or 0)``.
 
         Raises:
@@ -120,7 +120,7 @@ class Anchor(Enum):
         """
         if isinstance(self.value, str):
             raise TypeError(f"Anchor.{self.name} is an axis preset, not a point -- use an edge/face/corner member")
-        return Vector(self.value)
+        return Point(self.value)
 
     @property
     def is_face(self) -> bool:
@@ -129,6 +129,20 @@ class Anchor(Enum):
             return False
         nz = sum(1 for v in self.value if v != 0)
         return nz == 1 or nz == 0  # CENTER also counts as face-ish
+
+    @property
+    def vector_2d(self) -> Point:
+        """The 2-D anchor vector ``(x, y)`` using the OpenSCAD 2-D convention.
+
+        Maps the 3-D anchor to a 2-D point where the Y axis of the 2-D plane
+        receives contributions from both the 3-D Y and Z axes (Z becomes
+        ``+Y`` in 2-D, matching OpenSCAD's native 2-D anchor behaviour).
+
+        Raises:
+            TypeError: For axis presets (``ALL``, ``NONE``, ``X``, ``Y``, ``Z``).
+        """
+        v = self.vector
+        return Point((v[0], v[1] + v[2]))
 
     @property
     def is_edge(self) -> bool:
@@ -144,7 +158,37 @@ class Anchor(Enum):
             return False
         return sum(1 for v in self.value if v != 0) == 3
 
-    def __add__(self, other: Anchor) -> Vector:
+    def __iter__(self) -> "Iterator[float]":
+        """Iterate over the anchor vector components (x, y, z).
+
+        Raises:
+            TypeError: For axis presets that don't represent a geometric point.
+        """
+        if isinstance(self.value, str):
+            raise TypeError(f"Anchor.{self.name} is an axis preset, not iterable")
+        return iter(self.value)
+
+    def __getitem__(self, index: int) -> float:
+        """Access an anchor vector component by index.
+
+        Raises:
+            TypeError: For axis presets that don't represent a geometric point.
+        """
+        if isinstance(self.value, str):
+            raise TypeError(f"Anchor.{self.name} is an axis preset, not indexable")
+        return float(self.value[index])
+
+    def __len__(self) -> int:
+        """Return 3 for geometric anchor members.
+
+        Raises:
+            TypeError: For axis presets that don't represent a geometric point.
+        """
+        if isinstance(self.value, str):
+            raise TypeError(f"Anchor.{self.name} is an axis preset, has no length")
+        return 3
+
+    def __add__(self, other: Anchor) -> Point:
         """Elementwise sum of two anchor vectors, e.g. ``Anchor.TOP + Anchor.FRONT``."""
         return self.vector + other.vector
 
@@ -209,7 +253,9 @@ _is_edge_array = _is_edge_matrix
 
 def _is_plain_vector(v: object) -> bool:
     return (
-        isinstance(v, list) and len(v) > 0 and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
+        isinstance(v, (list, Point))
+        and len(v) > 0
+        and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
     )
 
 
@@ -308,7 +354,7 @@ def _resolve_anchor(anchor: Anchor | str | list[int | float] | list[list[int]]) 
 
 
 def _edge_set(
-    v: Anchor | str | list[int | float] | list[list[int]] | list[Anchor | str],
+    v: Anchor | str | Point | list[int | float] | list[list[int]] | list[Anchor | str | Point],
 ) -> list[list[int]]:
     """Convert an edge specifier to the internal 3×4 integer matrix.
 
@@ -339,7 +385,7 @@ def _edge_set(
 
 
 def _edges(
-    v: Anchor | str | Sequence[object] | list[list[int]],
+    v: Anchor | str | Sequence[object] | list[list[int]] | Point,
     except_: Anchor | str | Sequence[object] | list[list[int]] | None = None,
 ) -> list[list[int]]:
     """Resolve edge selectors to a 3×4 integer matrix, with optional exclusion.

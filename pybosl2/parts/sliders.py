@@ -65,7 +65,7 @@ class Sliders:
                 chamfer=2,
                 edges=[FRONT, BACK],
                 except_edges=[BOTTOM],
-                anchor=BOTTOM,  # type: ignore[arg-type]
+                anchor=BOTTOM,
                 fn=fn,
                 fa=fa,
                 fs=fs,

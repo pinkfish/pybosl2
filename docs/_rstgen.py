@@ -142,7 +142,7 @@ _PATH_FALLBACK_MAP: dict[str, str] = {
     "nurbs": "Paths, regions & surfaces",
     "skin": "Paths, regions & surfaces",
     "vnf": "Paths, regions & surfaces",
-    "isosurface": "Paths, regions & surfaces",
+    "metaballs": "Paths, regions & surfaces",
     # Math & geometry
     "geometry": "Math & geometry",
     "math": "Math & geometry",

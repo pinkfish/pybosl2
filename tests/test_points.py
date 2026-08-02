@@ -4,12 +4,14 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Tests for pybosl2/points.py: the Point and Vector classes."""
+"""Tests for pybosl2/points.py: the Point class (and Vector alias)."""
 
 import numpy as np
 import pytest
 
-from pybosl2.points import Point, Vector
+from pybosl2.points import Point
+
+Vector = Point  # backward-compat alias
 
 
 class TestPoint:
@@ -52,15 +54,18 @@ class TestPoint:
 
     def test_addition(self) -> None:
         result = Point(1, 2, 3) + [4, 5, 6]
-        np.testing.assert_allclose(result, [5, 7, 9])
+        assert isinstance(result, Point)
+        assert list(result) == [5, 7, 9]
 
     def test_negation(self) -> None:
         result = -Point(1, -2, 3)
-        np.testing.assert_allclose(result, [-1, 2, -3])
+        assert isinstance(result, Point)
+        assert list(result) == [-1, 2, -3]
 
     def test_multiplication(self) -> None:
         result = Point(1, 2, 3) * 3
-        np.testing.assert_allclose(result, [3, 6, 9])
+        assert isinstance(result, Point)
+        assert list(result) == [3, 6, 9]
 
     def test_equality(self) -> None:
         assert Point(1, 2, 3) == [1, 2, 3]
@@ -72,12 +77,13 @@ class TestPoint:
         assert Point(1, 2, 3).dot([1, 1, 1]) == pytest.approx(6.0)
 
     def test_cross_3d(self) -> None:
-        result = Point(1, 0, 0).cross(Point(0, 1, 0))  # type: ignore[arg-type]
-        np.testing.assert_allclose(result, [0, 0, 1])
+        result = Point(1, 0, 0).cross(Point(0, 1, 0))
+        assert isinstance(result, Point)
+        assert list(result) == [0, 0, 1]
 
     def test_cross_2d_raises(self) -> None:
         with pytest.raises(ValueError, match="3‑D"):
-            Point(1, 2).cross(Point(3, 4))  # type: ignore[arg-type]
+            Point(1, 2).cross(Point(3, 4))
 
     def test_norm(self) -> None:
         p = Point(3, 4)
@@ -148,7 +154,8 @@ class TestVector:
 
     def test_cross(self) -> None:
         result = Vector([1, 0, 0]).cross(Vector([0, 1, 0]))
-        np.testing.assert_allclose(result, [0, 0, 1])
+        assert isinstance(result, Point)
+        assert list(result) == [0, 0, 1]
 
     def test_cross_2d_raises(self) -> None:
         with pytest.raises(ValueError, match="3‑D"):

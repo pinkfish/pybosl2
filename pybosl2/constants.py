@@ -9,17 +9,17 @@
 #    sections as the original .scad file, so the pybosl2/ package doesn't need
 #    to borrow anchor/direction vectors from base_bgtk.py.
 #
-#    The directional vectors (LEFT, RIGHT, FRONT, BACK, BOTTOM/TOP, CENTER,
-#    UP/DOWN) are :class:`Vector` instances that match the :class:`Anchor`
-#    enum values.  New code should use :class:`~pybosl2._edges_lang.Anchor`
-#    directly for type-safe anchor/edge/corner selection.
+#    The directional constants (LEFT, RIGHT, FRONT, BACK, BOTTOM, TOP, CENTER,
+#    UP, DOWN, FORWARD) are :class:`~pybosl2._edges_lang.Anchor` enum members.
+#    Code that needs the raw vector should use ``.vector`` (e.g.
+#    ``TOP.vector``) or ``list(TOP)``.  New code should use
+#    ``Anchor.LEFT`` directly for type-safe anchor/edge/corner selection.
 #
 # FileSummary: Constants provided by BOSL2 (BOSL2 constants.scad).
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
 from pybosl2._edges_lang import Anchor
-from pybosl2.points import Vector
 
 # ---------------------------------------------------------------------------
 # Section: General Constants
@@ -38,41 +38,44 @@ IDENT: list[list[float]] = [
 
 # ---------------------------------------------------------------------------
 # Section: Directional Vectors
-#   Vectors useful for rotate(), mirror(), and anchor arguments for
-#   cuboid(), cyl(), etc.  Each is a :class:`Vector` matching the
-#   corresponding :class:`Anchor` enum member.
+#   Each constant is an :class:`~pybosl2._edges_lang.Anchor` enum member.
+#   Use ``.vector`` to obtain the raw 3-D :class:`~pybosl2.points.Point`.
+#   Use ``.vector_2d`` for the 2-D equivalent.
+#
+#   Deprecated convenience aliases: Use ``Anchor.TOP`` instead of ``TOP``
+#   for type-safe anchor selection.
 # ---------------------------------------------------------------------------
 
 
-#: Left align/anchor the object.
-LEFT: Vector = Anchor.LEFT.vector
+#: Left face/anchor selector.  Equal to ``Anchor.LEFT``.
+LEFT: Anchor = Anchor.LEFT
 
-#: Right align/anchor the object.
-RIGHT: Vector = Anchor.RIGHT.vector
+#: Right face/anchor selector.  Equal to ``Anchor.RIGHT``.
+RIGHT: Anchor = Anchor.RIGHT
 
-#: Front align/anchor the object.
-FRONT: Vector = Anchor.FRONT.vector
+#: Front face/anchor selector.  Equal to ``Anchor.FRONT``.
+FRONT: Anchor = Anchor.FRONT
 
-#: Forward align/anchor the object.
-FORWARD: Vector = FRONT
+#: Forward anchor -- alias for ``FRONT``.
+FORWARD: Anchor = Anchor.FRONT
 
-#: Back align/anchor the object.
-BACK: Vector = Anchor.BACK.vector
+#: Back face/anchor selector.  Equal to ``Anchor.BACK``.
+BACK: Anchor = Anchor.BACK
 
-#: Bottom align/anchor the object.
-BOTTOM: Vector = Anchor.BOTTOM.vector
+#: Bottom face/anchor selector.  Equal to ``Anchor.BOTTOM``.
+BOTTOM: Anchor = Anchor.BOTTOM
 
-#: Down align/anchor the object.
-DOWN: Vector = BOTTOM
+#: Down anchor -- alias for ``BOTTOM``.
+DOWN: Anchor = Anchor.BOTTOM
 
-#: Top align/anchor the object.
-TOP: Vector = Anchor.TOP.vector
+#: Top face/anchor selector.  Equal to ``Anchor.TOP``.
+TOP: Anchor = Anchor.TOP
 
-#: Up align/anchor the object.
-UP: Vector = TOP
+#: Up anchor -- alias for ``TOP``.
+UP: Anchor = Anchor.TOP
 
-#: Center align/anchor the object.
-CENTER: Vector = Anchor.CENTER.vector
+#: Center anchor selector.  Equal to ``Anchor.CENTER``.
+CENTER: Anchor = Anchor.CENTER
 
 # ---------------------------------------------------------------------------
 # Section: Line specifiers

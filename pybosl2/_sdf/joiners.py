@@ -50,7 +50,7 @@ def _attach(  # type: ignore[no-untyped-def]
     o = [float(v) for v in orient]
     olen = math.sqrt(sum(v * v for v in o))
     o = [v / olen for v in o]
-    if o != UP:
+    if o != UP.vector:
         if o == [0.0, 0.0, -1.0]:
             shape = shape.rotate(180, [1, 0, 0])
         else:
