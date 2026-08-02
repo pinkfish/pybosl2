@@ -91,7 +91,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "roof": ("pybosl2.shapes3d", "roof"),
     "wedge": ("pybosl2.shapes3d", "wedge"),
     "tube": ("pybosl2.shapes3d", "tube"),
-    # cross shape is not yet ported
+    "cross": ("pybosl2.shapes3d", "cross"),
     "path_text": ("pybosl2.shapes3d", "path_text"),
     "text3d": ("pybosl2.shapes3d", "text3d"),
     # distributors

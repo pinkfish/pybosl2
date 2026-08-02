@@ -108,3 +108,9 @@ def test_roof_produces_3d_solid(tmp_path):
     m = _render(tmp_path, "roof(s2.square([20, 10]).shape)")
     assert m.ntris > 0
     assert m.volume > 0
+
+
+def test_cross_3d_shape(tmp_path):
+    m = _render(tmp_path, "cross(size=20, height=5)")
+    np.testing.assert_allclose(m.size[:2], [20, 20], atol=2.0)
+    assert abs(m.size[2] - 5) < 0.5

@@ -3543,6 +3543,64 @@ _SURFACE_EXPORTS = frozenset(
 )
 
 
+def _s2cross(
+    size: float | Sequence[float] = [10, 10],
+    arm_width: float | Sequence[float] | None = None,
+) -> "Bosl2Shape2D":
+    """Return the 2‑D cross polygon as a Bosl2Shape2D (internal helper for the 3‑D cross)."""
+    from pybosl2.shapes2d import cross as _cross2d
+
+    return _cross2d(size=size, arm_width=arm_width)
+
+
+def cross(
+    size: float | Sequence[float] = [10, 10],
+    height: float | None = None,
+    arm_width: float | Sequence[float] | None = None,
+    length: float | None = None,
+    center: bool | None = None,
+    anchor: Anchor | Sequence[float] = Anchor.CENTER,
+    spin: float = 0,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
+) -> Bosl2Solid:
+    """A 3-D cross (plus) shape: two perpendicular centred rectangular prisms.
+
+    Builds from the 2‑D :func:`~pybosl2.shapes2d.cross` polygon linear-extruded to *height*.
+
+    Args:
+        size:      overall XY size, a scalar square or ``[width, length]``
+                   (default ``[10, 10]``).
+        height:    Z-axis thickness (mutually exclusive with *length*).
+        arm_width: width of each arm; a scalar or ``[horizontal, vertical]`` pair.
+                   When *None* (default) the arms are one-third of the overall size.
+        length:    alias for *height*.
+        center:    centre alignment (default True).
+        anchor:    anchor point (default Anchor.CENTER).
+        spin:      Z-axis rotation in degrees after anchor (default 0).
+        orient:    direction to rotate the top towards, after spin (default Anchor.TOP).
+
+    Returns:
+        A :class:`Bosl2Solid`.
+
+    Examples:
+        .. pythonscad-example::
+
+            cross(size=30, height=5).show()
+    """
+    h = height if height is not None else length
+    assert h and h > 0, "cross(): need a positive height or length."
+    use_center = center if center is not None else True
+    use_anchor = anchor
+    if center is not None:
+        use_anchor = Anchor.CENTER if center else Anchor.BOTTOM
+    sz2d = [float(size)] * 2 if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
+    sz3d = [sz2d[0], sz2d[1], float(h)]
+    profile = _s2cross(size=sz2d, arm_width=arm_width)
+    body = profile.linear_extrude(height=float(h), center=use_center)
+    offset = _anchor_offset_box3(sz3d, use_anchor)
+    return _finish3(body.shape, offset, spin, orient, size=sz3d, anchor=use_anchor)
+
+
 def __getattr__(name: str) -> object:
     """Lazily resolve the surfaces3d re-exports (PEP 562), breaking the shapes3d<->surfaces3d cycle."""
     if name in _SURFACE_EXPORTS:
