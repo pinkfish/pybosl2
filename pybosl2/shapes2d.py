@@ -1647,6 +1647,11 @@ def trapezoid(
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides for rounded corners
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.trapezoid(height=20, width1=30, width2=15).linear_extrude(height=5).show()
     """
     defined = sum(x is not None for x in (height, width1, width2, angle))
     assert defined == 3, "Must give exactly 3 of the arguments height, width1, width2, and angle."
@@ -2453,7 +2458,7 @@ def cross(
     Examples:
         .. pythonscad-example::
 
-            cross(size=30).linear_extrude(height=5).show()
+            s2.cross(size=30).linear_extrude(height=5).show()
     """
     sz = [float(size)] * 2 if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
     if arm_width is None:

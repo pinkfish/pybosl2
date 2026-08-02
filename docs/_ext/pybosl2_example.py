@@ -78,6 +78,8 @@ _PREAMBLE = (
     "from pybosl2.turtle.turtle2d import turtle2d\n"
     "from pybosl2.turtle.turtle3d import turtle3d\n"
     "from pybosl2 import xdistribute, ydistribute, zdistribute\n"
+    "from pybosl2 import round_corners, smooth_path\n"
+    "from pybosl2 import MinkowskiJoin\n"
     "from pybosl2 import rainbow, rainbow_colors\n"
     "from pybosl2 import partition_path, partition_mask, partition_cut_mask\n"
     "from pybosl2 import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"

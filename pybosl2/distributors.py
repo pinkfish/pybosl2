@@ -872,7 +872,13 @@ def xdistribute(
     sizes: list[float] | None = None,
     length: float | None = None,
 ) -> _BaseShape:
-    """Distribute distinct children along the X axis (BOSL2 xdistribute())."""
+    """Distribute distinct children along the X axis (BOSL2 xdistribute()).
+
+    Examples:
+        .. pythonscad-example::
+
+            xdistribute(spacing=15, children=[s3.cuboid([5,5,20]) for _ in range(5)]).show()
+    """
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=RIGHT, length=length)
 
 

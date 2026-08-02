@@ -171,6 +171,11 @@ def cylindrical_extrude(
 
     Chops the profile into vertical facets and extrudes each radially. Handy for embossing text
     onto a curved wall. The profile's X spans one revolution by default (override with *size*).
+
+    Examples:
+        .. pythonscad-example::
+
+            cylindrical_extrude(s2.circle(r=8), inner_radius=25, outer_radius=30).show()
     """
     from pythonscad import square as _square
 
@@ -219,7 +224,13 @@ def cylindrical_extrude(
 
 
 def chain_hull(*objects: object) -> Bosl2Solid:
-    """Union the hulls of each consecutive pair of *objects* (BOSL2 chain_hull())."""
+    """Union the hulls of each consecutive pair of *objects* (BOSL2 chain_hull()).
+
+    Examples:
+        .. pythonscad-example::
+
+            chain_hull([s3.sphere(r=5).translate([x * 20, 0, 0]) for x in range(4)]).show()
+    """
     from pythonscad import hull as _hull
 
     from pybosl2.shapes3d import Bosl2Solid
