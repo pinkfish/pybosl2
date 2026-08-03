@@ -149,7 +149,7 @@ that this toolkit uses, with <strong>no</strong> <code class="docutils literal n
 an object — <a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code></a> for 2-D outlines, <a class="reference internal" href="regions.html#pybosl2.regions.Region" title="pybosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> for
 outlines-with-holes, <a class="reference internal" href="beziers.html#pybosl2.beziers.Bezier" title="pybosl2.beziers.Bezier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bezier</span></code></a> / <a class="reference internal" href="beziers.html#pybosl2.beziers.BezierPatch" title="pybosl2.beziers.BezierPatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">BezierPatch</span></code></a> for bezier
 curves and surfaces, <a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> for vertex-face meshes, and the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> primitives — so new code reads as fluent chains:</p>
+<a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> primitives — so new code reads as fluent chains:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">]])</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">r</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -180,13 +180,13 @@ also embed a viewer for any STL yourself with <code class="docutils literal notr
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b492c4f20ff247fc90f41741837b96e7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4db9478329a04c63a10b72f309630911" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b492c4f20ff247fc90f41741837b96e7");
+const el = document.getElementById("stlviewer-4db9478329a04c63a10b72f309630911");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -243,13 +243,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-065e035b84464ccb9de9ecfa82860611" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e360bcf2a24941939497989a2e23948f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-065e035b84464ccb9de9ecfa82860611");
+const el = document.getElementById("stlviewer-e360bcf2a24941939497989a2e23948f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -303,13 +303,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-33aacaee9f964055aa036cba71b7cda0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c2bb1dcdbbce4f2c8c11b48b613a51a9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-33aacaee9f964055aa036cba71b7cda0");
+const el = document.getElementById("stlviewer-c2bb1dcdbbce4f2c8c11b48b613a51a9");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
