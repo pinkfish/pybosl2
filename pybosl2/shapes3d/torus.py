@@ -88,6 +88,8 @@ def pie_slice(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes3d as s3
+
             s3.pie_slice(radius=20, angle=120, height=5).show()
     """
     from pybosl2.shapes2d import _arc_points, _opolygon
@@ -163,7 +165,9 @@ def torus(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.torus(major_radius=25, minor_radius=8)
+            from pybosl2 import torus
+
+            shape = torus(major_radius=25, minor_radius=8)
             shape.show()
     """
     from pybosl2.shapes2d import _arc_points, _opolygon

@@ -102,6 +102,8 @@ def star(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.star(tips=5, radius=20, inner_radius=8).linear_extrude(height=5).show()
     """
     rad = _pick_radius(radius1=outer_radius, diameter1=outer_diameter, radius=radius, diameter=diameter)
@@ -161,6 +163,8 @@ def teardrop2d(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes2d as s2
 
             s2.teardrop2d(radius=15, angle=45).linear_extrude(height=5).show()
     """
@@ -225,6 +229,8 @@ def egg(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes2d as s2
 
             s2.egg(length=30, radius1=10, radius2=8, arc_radius=20).linear_extrude(height=5).show()
     """
@@ -346,6 +352,8 @@ def supershape(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.supershape(m1=3, radius=20).linear_extrude(height=5).show()
     """
     n_pts = count if count is not None else math.ceil(360.0 / step)
@@ -437,6 +445,8 @@ def squircle(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes2d as s2
 
             s2.squircle(40, squareness=0.7).linear_extrude(height=5).show()
     """

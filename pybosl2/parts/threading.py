@@ -338,6 +338,7 @@ class Threading:
 
             .. pythonscad-example::
 
+                from pybosl2.parts.threading import Threading
                 Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).show()
         """
         return _rod_solid(d, l, pitch, _iso_profile(), starts, left_handed, fn, fa, fs)
@@ -363,6 +364,7 @@ class Threading:
 
             .. pythonscad-example::
 
+                from pybosl2.parts.threading import Threading
                 Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).show()
         """
         return _nut_solid(
@@ -404,6 +406,7 @@ class Threading:
 
             .. pythonscad-example::
 
+                from pybosl2.parts.threading import Threading
                 Threading.trapezoidal_threaded_rod(d=20, l=40, pitch=4, fa=6, fs=1).show()
         """
         prof = _trapezoidal_profile(pitch, thread_angle, thread_depth)
@@ -463,6 +466,7 @@ class Threading:
 
             .. pythonscad-example::
 
+                from pybosl2.parts.threading import Threading
                 Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).show()
         """
         prof = _trapezoidal_profile(pitch, 29, thread_depth if thread_depth is not None else pitch / 2)

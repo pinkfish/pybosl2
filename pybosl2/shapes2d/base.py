@@ -466,6 +466,8 @@ class CsgShape2D(_BaseShape):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import shapes2d as s2
+
                 s2.star(n=5, r=30, ir=15).offset(delta=4).linear_extrude(height=4).show()
         """
         assert (radius is None) != (delta is None), "offset(): give exactly one of radius= or delta=."
@@ -488,6 +490,8 @@ class CsgShape2D(_BaseShape):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import shapes2d as s2
+
                 s2.square([10, 10], center=True).minkowski(s2.circle(radius=3)).linear_extrude(height=2).show()
         """
         from pythonscad import minkowski as _minkowski
@@ -505,6 +509,8 @@ class CsgShape2D(_BaseShape):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import shapes2d as s2
+
                 plate = s2.square(40) - s2.circle(radius=8)
                 plate.fill().linear_extrude(height=2).show()
         """
@@ -519,6 +525,8 @@ class CsgShape2D(_BaseShape):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import shapes2d as s2
 
                 slot = s2.circle(radius=5).hull(s2.circle(radius=5).right(30))
                 slot.linear_extrude(height=3).show()
@@ -554,9 +562,13 @@ class CsgShape2D(_BaseShape):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import shapes2d as s2
+
                 s2.star(n=5, r=30, ir=15).linear_extrude(height=6, twist=45).show()
 
             .. pythonscad-example::
+
+                from pybosl2 import shapes2d as s2
 
                 s2.circle(radius=15).linear_extrude(height=20).show()
         """
@@ -596,6 +608,8 @@ class CsgShape2D(_BaseShape):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import shapes2d as s2
+
                 s2.square(10).right(15).rotate_extrude().show()
         """
         from pybosl2.shapes3d import Bosl2Solid
@@ -621,6 +635,8 @@ class CsgShape2D(_BaseShape):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import shapes2d as s2
 
                 path = [[0, 0, 0], [20, 10, 10], [40, 0, 20], [60, 10, 30]]
                 s2.circle(radius=5).path_extrude(path).show()

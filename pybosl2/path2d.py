@@ -83,6 +83,8 @@ def catenary(
 
         .. pythonscad-example::
 
+            from pybosl2 import catenary
+
             catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()
     """
     assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
@@ -191,6 +193,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         A box outline inset by the wall thickness and with rounded corners, extruded into a plate:
 
         .. pythonscad-example::
+
+            from pybosl2 import Path2D
 
             outline = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
             plate = outline.offset(radius=-3).round_corners(radius=5).polygon().linear_extrude(height=4)
@@ -831,11 +835,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             True if the point is inside or on the boundary of the polygon.
 
         Examples:
-            .. pythonscad-example::
+            .. code-block:: python
+
+                from pybosl2 import Path2D
 
                 rect = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 result = rect.contains([40, 30])
                 print("inside:", result)
+                rect.stroke(width=1).linear_extrude(h=1).show()
         """
         if not self.closed:
             return False
@@ -885,6 +892,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import Path2D
+
                 outline = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 inset = outline.offset(radius=-3)
                 inset.polygon().linear_extrude(height=4).show()
@@ -909,6 +918,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import Path2D
+
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]], closed=False)
                 result = pts.close()
                 result.stroke(width=2).linear_extrude(h=4).show()
@@ -923,6 +934,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path2D
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60], [0, 0]])
                 result = pts.cleanup()
@@ -939,6 +952,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import Path2D
+
                 rect = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 result = rect.reverse()
                 result.stroke(width=2).linear_extrude(h=4).show()
@@ -950,6 +965,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path2D
 
                 pts = Path2D([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])
                 result = pts.deduplicated()
@@ -969,6 +986,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path2D
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 result = pts.subdivide(num_copies=24)
@@ -995,6 +1014,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path2D
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 sampled = pts.resample(num_copies=20)
@@ -1188,6 +1209,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import Path2D
+
                 pts = Path2D([[0, 0], [40, 30], [80, 0], [120, 30]])
                 curve = pts.to_bezier(size=10)
                 curve.stroke(width=2).linear_extrude(h=3).show()
@@ -1227,6 +1250,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path2D
 
                 shape = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 shape.polygon().linear_extrude(height=5).show()
@@ -1337,6 +1362,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import Path2D, MinkowskiJoin
+
                 base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
                 base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.ROUND) \\
                     .polygon().linear_extrude(height=3).show()
@@ -1345,6 +1372,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import Path2D, MinkowskiJoin
+
                 base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
                 base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.MITRE) \\
                     .polygon().linear_extrude(height=3).show()
@@ -1352,6 +1381,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             Flat bevel (chamfered) corners:
 
             .. pythonscad-example::
+
+                from pybosl2 import Path2D, MinkowskiJoin
 
                 base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
                 base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.BEVEL) \\
@@ -1603,6 +1634,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path2D
 
                 plate = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 plate.linear_extrude(height=4).show()

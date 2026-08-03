@@ -67,16 +67,12 @@ class StlResult:
 _PREAMBLE = (
     "import sys, math, site, os, traceback\n"
     f"sys.path.insert(0, {str(REPO_ROOT)!r})\n"
-    # AppImage Python may not see system site-packages; add them explicitly
     "for p in site.getsitepackages():\n"
     "    if p not in sys.path:\n"
     "        sys.path.append(p)\n"
-    # Also add user site-packages (where pip install --user puts numpy/shapely in CI)
     "usp = site.getusersitepackages()\n"
     "if os.path.isdir(usp) and usp not in sys.path:\n"
     "    sys.path.insert(0, usp)\n"
-    # In CI (GitHub Actions), pythonLocation points to the host Python's root;
-    # the AppImage Python may be a different installation and not see those packages.
     "host_sp = os.environ.get('pythonLocation', '')\n"
     "if host_sp:\n"
     "    for entry in os.listdir(os.path.join(host_sp, 'lib')):\n"
@@ -101,7 +97,6 @@ _PREAMBLE = (
     "from pybosl2 import VNF\n"
     "from pybosl2 import mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, "
     "mb_octahedron, mb_connector\n"
-    # parts library classes, so examples can be terse (Gears.spur_gear(...).show())
     "from pybosl2.parts.threading import Threading\n"
     "from pybosl2.parts.screws import Screws\n"
     "from pybosl2.parts.gears import Gears\n"

@@ -265,6 +265,8 @@ def nurbs_curve(
 
         .. pythonscad-example::
 
+            from pybosl2 import nurbs_curve
+
             ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
             nurbs_curve(ctrl, 3, splinesteps=12).stroke(width=3).show()
     """
@@ -460,6 +462,8 @@ def nurbs_vnf(
         A cubic B-spline surface patch meshed into a solid:
 
         .. pythonscad-example::
+
+            from pybosl2 import nurbs_vnf
 
             patch = [
                 [[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],

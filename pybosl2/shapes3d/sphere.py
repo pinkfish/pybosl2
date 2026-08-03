@@ -92,7 +92,9 @@ def sphere(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.sphere(radius=15)
+            from pybosl2 import sphere
+
+            shape = sphere(radius=15)
             shape.show()
     """
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
@@ -128,6 +130,8 @@ def spheroid(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
 
             s3.spheroid(radius=15).show()
     """
@@ -227,7 +231,9 @@ def teardrop(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.teardrop(radius=8, angle=45, height=15)
+            from pybosl2 import teardrop
+
+            shape = teardrop(radius=8, angle=45, height=15)
             shape.show()
     """
     length = height if height is not None else 1.0
@@ -295,6 +301,8 @@ def onion(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
 
             s3.onion(radius=15).show()
     """

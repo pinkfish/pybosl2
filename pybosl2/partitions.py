@@ -455,6 +455,8 @@ def partition_path(
 
         .. pythonscad-example::
 
+            from pybosl2.partitions import partition_path
+
             wall = partition_path([40, "jigsaw", 10, "jigsaw yflip", 40], fn=24)
             wall.stroke(width=3).linear_extrude(height=30).show()
     """
@@ -590,7 +592,9 @@ def partition_mask(
 
         .. pythonscad-example::
 
+            import pybosl2.shapes3d as s3
             from pybosl2.partitions import partition_mask
+
             (s3.cuboid([100, 100, 10]) & partition_mask(w=50, height=10, cutpath="jigsaw", slop=0.15)).show()
     """
     from pybosl2.shapes3d import Bosl2Solid
@@ -634,7 +638,9 @@ def partition_cut_mask(
 
         .. pythonscad-example::
 
+            import pybosl2.shapes3d as s3
             from pybosl2.partitions import partition_cut_mask
+
             (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath="jigsaw", slop=0.15)).show()
     """
     from pybosl2.shapes3d import Bosl2Solid
@@ -734,6 +740,9 @@ class Partitionable(ABC):
             Cut a cube in half along a jigsaw pattern:
 
             .. pythonscad-example::
+
+                import pybosl2.shapes3d as s3
+                from pybosl2.partitions import partition_path
 
                 path = partition_path(["finger", "10x15", "finger"], seglen=25)
                 s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
@@ -883,6 +892,8 @@ class Partitionable(ABC):
             Split a block into two dovetailed halves:
 
             .. pythonscad-example::
+
+                import pybosl2.shapes3d as s3
 
                 halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
                 halves[0].show()

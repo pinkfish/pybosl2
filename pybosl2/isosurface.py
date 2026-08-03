@@ -127,6 +127,10 @@ def mb_sphere(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import mb_sphere, MetaballSpec
+            from pybosl2.bounds import Bounds3D
+            from pybosl2.vnf import VNF
+
             spec = [MetaballSpec([0, 0, 0], mb_sphere(radius=15))]
             VNF.from_metaballs(
                 spec, Bounds3D(-20, -20, -20, 20, 20, 20, 40, 40, 40), voxel_size=2
@@ -167,6 +171,10 @@ def mb_cuboid(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import mb_cuboid, MetaballSpec
+            from pybosl2.bounds import Bounds3D
+            from pybosl2.vnf import VNF
 
             spec = [MetaballSpec([-12, 0, 0], mb_cuboid(size=10, squareness=0.3)),
                     MetaballSpec([12, 0, 0], mb_cuboid(size=10, squareness=0.3))]
@@ -215,6 +223,10 @@ def mb_torus(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import mb_torus, MetaballSpec
+            from pybosl2.bounds import Bounds3D
+            from pybosl2.vnf import VNF
 
             spec = [MetaballSpec([0, 0, 0], mb_torus(major_radius=15, minor_radius=5))]
             VNF.from_metaballs(
@@ -446,14 +458,15 @@ def metaballs2d(
     Examples:
         .. pythonscad-example::
 
+            import numpy as np
+            from pybosl2 import mb_sphere, MetaballSpec, metaballs2d, Bounds2D, stroke
+
             spec = [
                 MetaballSpec([-14, 0, 0], mb_sphere(12)),
                 MetaballSpec([14, 0, 0], mb_sphere(12)),
             ]
-            paths = metaballs2d(
-                spec, Bounds2D(-40, -20, 40, 20, 80, 40), pixel_size=2
-            )
-            # paths is a list of contour polylines
+            paths = metaballs2d(spec, Bounds2D(-40, -20, 40, 20, 80, 40), pixel_size=2)
+            stroke(paths, width=0.5).linear_extrude(height=2).show()
     """
     assert spec, "metaballs2d(): the spec is empty."
     from pybosl2.vnf import contour

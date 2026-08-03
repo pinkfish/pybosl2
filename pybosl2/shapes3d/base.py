@@ -215,6 +215,8 @@ class CsgSolid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import shapes3d as s3
+
                 s3.cuboid([10, 20, 30]).repair().show()
         """
         return self._wrap(self.shape.repair())
@@ -237,6 +239,8 @@ class CsgSolid(_BaseShape):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import shapes3d as s3
 
                 bar = s3.cuboid([80, 5, 3])
                 bar.oversample(sides=4).wrap(radius=20).show()
@@ -268,6 +272,8 @@ class CsgSolid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import shapes3d as s3
+
                 capsule = s3.sphere(radius=8).hull(s3.sphere(radius=8).up(30))
                 capsule.show()
         """
@@ -292,6 +298,8 @@ class CsgSolid(_BaseShape):
             A footprint outline, grown 2mm, extruded into a base plate:
 
             .. pythonscad-example::
+
+                from pybosl2 import shapes3d as s3
 
                 part = s3.cuboid([30, 20, 10], rounding=3)
                 part.projection().offset(radius=2).linear_extrude(height=2).show()
@@ -499,9 +507,11 @@ class CsgSolid(_BaseShape):
         construction, and only for cuboids). Pass *bbox* to use a supplied box.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                s3.cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
+            from pybosl2 import shapes3d as s3, Anchor
+
+            s3.cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
         """
         p = self.anchor_point(anchor, bbox=bbox)
         moved = self.translate([-p[0], -p[1], -p[2]])
@@ -515,11 +525,13 @@ class CsgSolid(_BaseShape):
         unioned with the placed child. `child` may be a Bosl2Solid or a raw native solid.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                cube = s3.cuboid([30, 30, 10])
-                knob = s3.sphere(r=5)
-                cube.position(Anchor.TOP_FRONT_LEFT, knob).show()
+            from pybosl2 import shapes3d as s3, Anchor
+
+            cube = s3.cuboid([30, 30, 10])
+            knob = s3.sphere(r=5)
+            cube.position(Anchor.TOP_FRONT_LEFT, knob).show()
         """
         p = self.anchor_point(anchor, bbox=bbox)
         placed = Bosl2Solid._unwrap(child).translate(p)
@@ -554,11 +566,13 @@ class CsgSolid(_BaseShape):
             overlap: pull the child toward the parent along the face normal by this much
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                cube = s3.cuboid([30, 30, 10])
-                label = s3.cuboid([10, 5, 5])
-                cube.align(Anchor.FRONT, label, align=Anchor.LEFT).show()
+            from pybosl2 import shapes3d as s3, Anchor
+
+            cube = s3.cuboid([30, 30, 10])
+            label = s3.cuboid([10, 5, 5])
+            cube.align(Anchor.FRONT, label, align=Anchor.LEFT).show()
         """
         face = anchor.vector
         edge = Anchor.CENTER.vector if align is None else align.vector
@@ -595,11 +609,13 @@ class CsgSolid(_BaseShape):
             spin:          spin the child about the mating axis, in degrees (default 0)
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                cube = s3.cuboid([20, 30, 10])
-                cyl = s3.cylinder(h=15, r=4)
-                cube.attach(Anchor.UP, cyl).show()
+            from pybosl2 import shapes3d as s3, Anchor
+
+            cube = s3.cuboid([20, 30, 10])
+            cyl = s3.cylinder(h=15, r=4)
+            cube.attach(Anchor.UP, cyl).show()
         """
         pa = parent_anchor.vector
         ca = -pa if child_anchor is None else child_anchor.vector
@@ -635,9 +651,11 @@ class CsgSolid(_BaseShape):
         reorient against a supplied box instead of the object's own.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                s3.cuboid([10, 20, 30]).reorient(anchor=Anchor.BOTTOM, orient=Anchor.TOP).show()
+            from pybosl2 import shapes3d as s3, Anchor
+
+            s3.cuboid([10, 20, 30]).reorient(anchor=Anchor.BOTTOM, orient=Anchor.TOP).show()
         """
         from pybosl2.transforms import reorient as _reorient_matrix
 
@@ -654,9 +672,11 @@ class CsgSolid(_BaseShape):
         """Rotate this object so its top (UP) faces *direction* (BOSL2 orient()); uses the bbox.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                s3.cylinder(h=30, r=5).orient(s3.Anchor.TOP).show()
+            from pybosl2 import shapes3d as s3
+
+            s3.cylinder(h=30, r=5).orient(s3.Anchor.TOP).show()
         """
         return self.reorient(anchor=Anchor.CENTER, spin=spin, orient=direction, bbox=bbox)
 
@@ -686,17 +706,20 @@ class CsgSolid(_BaseShape):
             bbox:         override bounding box (see :meth:`_resolve_bounds`)
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                from pybosl2.masking import chamfer_edge_mask
+            from pybosl2 import shapes3d as s3
+            from pybosl2.masking import chamfer_edge_mask
 
-                box = s3.cuboid([20, 30, 10])
-                cutter = chamfer_edge_mask(length=35, chamfer=3)
-                box.edge_mask("Z", children=cutter).show()
+            box = s3.cuboid([20, 30, 10])
+            cutter = chamfer_edge_mask(length=35, chamfer=3)
+            box.edge_mask("Z", children=cutter).show()
 
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                s3.cuboid([30, 20, 10], edges=Anchor.Z, rounding=3).show()
+            from pybosl2 import shapes3d as s3, Anchor
+
+            s3.cuboid([30, 20, 10], edges=Anchor.Z, rounding=3).show()
         """
         from pybosl2 import masking
 
@@ -732,18 +755,19 @@ class CsgSolid(_BaseShape):
             bbox:         override bounding box (see :meth:`_resolve_bounds`)
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                from pybosl2.masking import mask2d_roundover
+            from pybosl2 import shapes3d as s3
+            from pybosl2.masking import mask2d_roundover
 
-                box = s3.cuboid([30, 20, 10])
-                profile = mask2d_roundover(radius=3)
-                box.edge_profile(children=profile).show()
+            box = s3.cuboid([30, 20, 10])
+            profile = mask2d_roundover(radius=3)
+            box.edge_profile(children=profile).show()
 
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                from pybosl2.shapes3d import cuboid
-                cuboid([30, 20, 10]).edge_profile(r=3, edges=Anchor.Z).show()
+            from pybosl2 import cuboid, Anchor
+            cuboid([30, 20, 10]).edge_profile(r=3, edges=Anchor.Z).show()
         """
         from pybosl2 import masking
 
@@ -798,9 +822,11 @@ class CsgSolid(_BaseShape):
             bbox:           override bounding box (see :meth:`_resolve_bounds`)
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                s3.cuboid([20, 20, 20]).corner_profile(r=3, corners=Anchor.TOP).show()
+            from pybosl2 import shapes3d as s3, Anchor
+
+            s3.cuboid([20, 20, 20]).corner_profile(r=3, corners=Anchor.TOP).show()
         """
         from pybosl2 import masking
 
@@ -993,10 +1019,12 @@ class CsgSolid(_BaseShape):
         Examples:
             Cut a cube in half along a jigsaw pattern:
 
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                path = partition_path(["finger", "10x15", "finger"], seglen=25)
-                s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
+            from pybosl2 import shapes3d as s3, partition_path, UP
+
+            path = partition_path(["finger", "10x15", "finger"], seglen=25)
+            s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
         """
         v3 = np.asarray(v, dtype=float)
         if v3.shape[0] == 2:
@@ -1097,10 +1125,12 @@ class CsgSolid(_BaseShape):
         Examples:
             Split a block into two dovetailed halves:
 
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
-                halves[0].show()
+            from pybosl2 import shapes3d as s3
+
+            halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
+            halves[0].show()
         """
         from pybosl2.partitions import _partition_mask_shape
 

@@ -71,6 +71,8 @@ class CapType(Enum):
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import Path3D, CapType
+
             spine = Path3D([[0,0,0],[0,0,30],[30,0,30]], closed=False)
             spine.stroke(width=4, endcaps=CapType.ARROW).show()
     """
@@ -134,6 +136,8 @@ class CapSpec:
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import Path3D, CapSpec, CapType
 
             spine = Path3D([[0,0,0],[0,0,40]], closed=False)
             cap = CapSpec(CapType.ARROW, length=2, width=3)

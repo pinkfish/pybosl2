@@ -63,6 +63,9 @@ def rainbow_colors(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2.color import rainbow_colors
+            from pybosl2.shapes3d import cuboid
+
             cols = rainbow_colors(3)
             a = cuboid([5, 5, 10]).color(cols[0])
             b = cuboid([5, 5, 10]).color(cols[1]).right(8)

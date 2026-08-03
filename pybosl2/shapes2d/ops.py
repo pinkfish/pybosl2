@@ -204,6 +204,8 @@ def cross(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.cross(size=30).linear_extrude(height=5).show()
     """
     sz = [float(size)] * 2 if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
