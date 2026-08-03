@@ -1403,7 +1403,7 @@ def build_variant_stls(force: bool = False) -> dict:
                 res = render_object(expr, tmp_stl, setup=SETUP[mod], timeout=240, export_format="binstl")
                 if not res.ok:
                     tmp_stl.unlink(missing_ok=True)
-                    print(f"  ! render FAILED {mod}-{vid}: {(res.error or '')[:120]}\nExpr: {tmp_stl}")
+                    print(f"  ! render FAILED {mod}-{vid}: {(res.error or '')[:120]}\nExpr: {expr}")
                     continue
                 new_mm = stl_metrics(tmp_stl)
                 cached_entry = cache[mod][vid]
