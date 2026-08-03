@@ -145,7 +145,7 @@ class Bosl2ExampleDirective(Directive):
         out.append(code_node)
 
         # Show interactive 3-D STL viewer; if no STL (e.g. 2-D object), show source only.
-        stl_uri = self._render_stl(script, code)
+        stl_uri = self._render_stl(script, code_str)
         if stl_uri is not None:
             out.append(nodes.raw("", stl_viewer_html(stl_uri), format="html"))
             para = nodes.paragraph()
