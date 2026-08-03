@@ -232,6 +232,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">            s2.square(20).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
@@ -482,6 +484,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">            s2.regular_ngon(sides=6, radius=15).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">3</span>
@@ -668,6 +672,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">            s2.right_triangle(size=[30, 20]).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="n">size</span>
@@ -789,6 +795,8 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.trapezoid(height=20, width1=30, width2=15).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>

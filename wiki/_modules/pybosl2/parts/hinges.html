@@ -205,6 +205,7 @@
 <span class="sd">            .. pythonscad-example::</span>
 
 <span class="sd">                from pybosl2.parts.hinges import Hinges</span>
+<span class="sd">                from pybosl2 import shapes3d as s3</span>
 <span class="sd">                (s3.cuboid([100, 40, 3]) - Hinges.living_hinge_mask(length=100, thick=3, foldangle=60).down(1.5)).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hingegap</span> <span class="o">=</span> <span class="p">(</span><span class="n">layerheight</span> <span class="k">if</span> <span class="n">hingegap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hingegap</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span>

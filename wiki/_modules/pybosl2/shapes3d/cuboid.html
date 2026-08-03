@@ -390,6 +390,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import roof, shapes2d as s2</span>
+
 <span class="sd">            roof(s2.square([20, 10]).shape).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">Bosl2Solid</span><span class="o">.</span><span class="n">_unwrap</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">roof</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">))</span></div>
@@ -421,6 +423,8 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.cube(size=20).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -479,12 +483,16 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            shape = pybosl2.shapes3d.cuboid([40, 30, 20])</span>
+<span class="sd">            from pybosl2 import cuboid</span>
+
+<span class="sd">            shape = cuboid([40, 30, 20])</span>
 <span class="sd">            shape.show()</span>
 
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            shape = pybosl2.shapes3d.cuboid([40, 30, 20], rounding=5)</span>
+<span class="sd">            from pybosl2 import cuboid</span>
+
+<span class="sd">            shape = cuboid([40, 30, 20], rounding=5)</span>
 <span class="sd">            shape.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">teardrop</span><span class="p">:</span>
@@ -610,7 +618,9 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            shape = pybosl2.shapes3d.prismoid([40, 40], [20, 25], height=30)</span>
+<span class="sd">            from pybosl2 import prismoid</span>
+
+<span class="sd">            shape = prismoid([40, 40], [20, 25], height=30)</span>
 <span class="sd">            shape.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_rect_path</span>
@@ -655,6 +665,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
 <span class="sd">            s3.octahedron(size=20).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span>
@@ -695,6 +707,8 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.wedge([30, 20, 15]).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -786,6 +800,8 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.rect_tube(size=30, wall=3, height=20).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -963,12 +979,16 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            shape = pybosl2.shapes3d.regular_prism(6, height=20, radius=15)</span>
+<span class="sd">            from pybosl2 import regular_prism</span>
+
+<span class="sd">            shape = regular_prism(6, height=20, radius=15)</span>
 <span class="sd">            shape.show()</span>
 
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            shape = pybosl2.shapes3d.regular_prism(5, height=20, inner_radius=12, rounding=2)</span>
+<span class="sd">            from pybosl2 import regular_prism</span>
+
+<span class="sd">            shape = regular_prism(5, height=20, inner_radius=12, rounding=2)</span>
 <span class="sd">            shape.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -1011,7 +1031,7 @@
         <span class="n">shape</span> <span class="o">=</span> <span class="n">_ocylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">prism_len</span><span class="p">,</span> <span class="n">radius1</span><span class="o">=</span><span class="n">rad1</span><span class="p">,</span> <span class="n">radius2</span><span class="o">=</span><span class="n">rad2</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">sides</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="n">_cyl_profile</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">rad2</span><span class="p">,</span> <span class="n">prism_len</span><span class="p">,</span> <span class="n">r1v</span><span class="p">,</span> <span class="n">r2v</span><span class="p">,</span> <span class="n">c1v</span><span class="p">,</span> <span class="n">c2v</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_opolygon</span>  <span class="c1"># type: ignore[attr-defined]</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_opolygon</span>
 
         <span class="n">shape</span> <span class="o">=</span> <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span> <span class="n">fn</span><span class="o">=</span><span class="n">sides</span><span class="p">)</span>
 

@@ -165,7 +165,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>  <span class="c1"># re-exported here for compatibility</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">text3d</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># for the annotations only -- importing shapes2d here would be circular</span>
@@ -175,7 +174,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">,</span> <span class="s2">&quot;Region&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Region&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_flatten_shapely_to_paths</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="n">MultiPolygon</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
@@ -238,13 +237,15 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        A rectangular plate with a rectangular hole (outline + one hole), extruded into a solid:</span>
 
-<span class="sd">        .. pythonscad-example::</span>
+<span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">            region = Region([</span>
-<span class="sd">                [[0, 0], [80, 0], [80, 60], [0, 60]],</span>
-<span class="sd">                [[20, 20], [60, 20], [60, 40], [20, 40]],</span>
-<span class="sd">            ])</span>
-<span class="sd">            region.geometry().linear_extrude(height=5).show()</span>
+<span class="sd">                from pybosl2 import Region</span>
+
+<span class="sd">                region = Region([</span>
+<span class="sd">                    [[0, 0], [80, 0], [80, 60], [0, 60]],</span>
+<span class="sd">                    [[20, 20], [60, 20], [60, 40], [20, 40]],</span>
+<span class="sd">                ])</span>
+<span class="sd">                region.geometry().linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -714,6 +715,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Region</span>
+
 <span class="sd">                a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])</span>
 <span class="sd">                b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])</span>
 <span class="sd">                a.intersection(b).geometry().linear_extrude(height=3).show()</span>
@@ -748,6 +751,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Region</span>
+
 <span class="sd">                a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])</span>
 <span class="sd">                b = Region([[20, 0], [50, 0], [50, 30], [20, 30]])</span>
 <span class="sd">                a.union(b).geometry().linear_extrude(height=3).show()</span>
@@ -781,6 +786,8 @@
 <span class="sd">            Punch a rectangular notch out of a square:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Region</span>
 
 <span class="sd">                plate = Region([[0, 0], [60, 0], [60, 40], [0, 40]])</span>
 <span class="sd">                notch = Region([[20, 10], [40, 10], [40, 30], [20, 30]])</span>

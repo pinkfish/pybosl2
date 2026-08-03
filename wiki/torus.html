@@ -190,17 +190,19 @@
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">pie_slice</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">s3</span><span class="o">.</span><span class="n">pie_slice</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-8aa64d17022445698d85e76e5d18a011" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3a39a54568ca40629c3a264e51686e43" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-8aa64d17022445698d85e76e5d18a011");
+const el = document.getElementById("stlviewer-3a39a54568ca40629c3a264e51686e43");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -223,7 +225,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/ad77479d55b131a0.stl", function (geo) {
+new STLLoader().load("_stl/8a2dad45607044e0.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -243,7 +245,7 @@ new STLLoader().load("_stl/ad77479d55b131a0.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/ad77479d55b131a0.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/8a2dad45607044e0.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -278,18 +280,20 @@ keyword <cite>or</cite>; it is exposed here as <cite>outer_radius</cite> instead
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">shape</span> <span class="o">=</span> <span class="n">pybosl2</span><span class="o">.</span><span class="n">shapes3d</span><span class="o">.</span><span class="n">torus</span><span class="p">(</span><span class="n">major_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">minor_radius</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">torus</span>
+
+<span class="n">shape</span> <span class="o">=</span> <span class="n">torus</span><span class="p">(</span><span class="n">major_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">minor_radius</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 <span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-107843efebda4c5aa7f76f230d992ea2" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-193d30cb957740878d6a191a962a7a07" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-107843efebda4c5aa7f76f230d992ea2");
+const el = document.getElementById("stlviewer-193d30cb957740878d6a191a962a7a07");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -312,7 +316,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/63c12a6bfd54f502.stl", function (geo) {
+new STLLoader().load("_stl/6ddaafeb58dd3cbc.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -332,7 +336,7 @@ new STLLoader().load("_stl/63c12a6bfd54f502.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/63c12a6bfd54f502.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/6ddaafeb58dd3cbc.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 </section>

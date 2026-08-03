@@ -643,6 +643,7 @@ def partition_cut_mask(
 
             (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath="jigsaw", slop=0.15)).show()
     """
+
     from pybosl2.shapes3d import Bosl2Solid
 
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]
@@ -744,7 +745,7 @@ class Partitionable(ABC):
                 import pybosl2.shapes3d as s3
                 from pybosl2.partitions import partition_path
 
-                path = partition_path(["finger", "10x15", "finger"], seglen=25)
+                path = partition_path(["finger", 20, "finger"], seglen=25)
                 s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
         """
         v3 = _as_vec3(v)

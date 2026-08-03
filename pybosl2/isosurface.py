@@ -459,14 +459,15 @@ def metaballs2d(
         .. pythonscad-example::
 
             import numpy as np
-            from pybosl2 import mb_sphere, MetaballSpec, metaballs2d, Bounds2D, stroke
+            from pybosl2 import mb_sphere, MetaballSpec, metaballs2d, Bounds2D
+            from pybosl2.path2d import Path2D
 
             spec = [
                 MetaballSpec([-14, 0, 0], mb_sphere(12)),
                 MetaballSpec([14, 0, 0], mb_sphere(12)),
             ]
             paths = metaballs2d(spec, Bounds2D(-40, -20, 40, 20, 80, 40), pixel_size=2)
-            stroke(paths, width=0.5).linear_extrude(height=2).show()
+            Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()
     """
     assert spec, "metaballs2d(): the spec is empty."
     from pybosl2.vnf import contour

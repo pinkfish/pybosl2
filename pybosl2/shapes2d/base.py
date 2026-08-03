@@ -564,7 +564,7 @@ class CsgShape2D(_BaseShape):
 
                 from pybosl2 import shapes2d as s2
 
-                s2.star(n=5, r=30, ir=15).linear_extrude(height=6, twist=45).show()
+                s2.star(tips=5, radius=30, inner_radius=15).linear_extrude(height=6, twist=45).show()
 
             .. pythonscad-example::
 

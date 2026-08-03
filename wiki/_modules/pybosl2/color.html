@@ -209,6 +209,9 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2.color import rainbow_colors</span>
+<span class="sd">            from pybosl2.shapes3d import cuboid</span>
+
 <span class="sd">            cols = rainbow_colors(3)</span>
 <span class="sd">            a = cuboid([5, 5, 10]).color(cols[0])</span>
 <span class="sd">            b = cuboid([5, 5, 10]).color(cols[1]).right(8)</span>
@@ -355,42 +358,44 @@
 
 <div class="viewcode-block" id="Colorable.hsl">
 <a class="viewcode-back" href="../../color.html#pybosl2.color.Colorable.hsl">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Colour this object from an HSL hue/saturation/lightness.</span>
 
 <span class="sd">        Uses :func:`colorsys.hls_to_rgb` for the conversion.  For opacity, chain</span>
-<span class="sd">        :meth:`ghost` after this call.</span>
+<span class="sd">        :meth:`ghost` after this call or pass the alpha parameter *a*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            height: Hue in degrees (0=red, 120=green, 240=blue).</span>
 <span class="sd">            s: Saturation 0..1 (0 = grey, 1 = vivid).</span>
 <span class="sd">            length: Lightness 0..1 (0 = black, 0.5 = bright, 1 = white).</span>
+<span class="sd">            a: Optional alpha (opacity) 0..1.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            This object coloured with the computed ``[R, G, B]`` value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rgb</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colorsys</span><span class="o">.</span><span class="n">hls_to_rgb</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="mi">360</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Colorable.hsv">
 <a class="viewcode-back" href="../../color.html#pybosl2.color.Colorable.hsv">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">hsv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hsv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Colour this object from an HSV hue/saturation/value.</span>
 
 <span class="sd">        Uses :func:`colorsys.hsv_to_rgb` for the conversion.  For opacity, chain</span>
-<span class="sd">        :meth:`ghost` after this call.</span>
+<span class="sd">        :meth:`ghost` after this call or pass the alpha parameter *a*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            height: Hue in degrees (0=red, 120=green, 240=blue).</span>
 <span class="sd">            s: Saturation 0..1 (0 = grey, 1 = vivid).</span>
 <span class="sd">            v: Value 0..1 (0 = black, 1 = bright).</span>
+<span class="sd">            a: Optional alpha (opacity) 0..1.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            This object coloured with the computed ``[R, G, B]`` value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rgb</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colorsys</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="mi">360</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Colorable.highlight">

@@ -623,6 +623,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">                s2.star(n=5, r=30, ir=15).offset(delta=4).linear_extrude(height=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span><span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">delta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;offset(): give exactly one of radius= or delta=.&quot;</span>
@@ -648,6 +650,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">                s2.square([10, 10], center=True).minkowski(s2.circle(radius=3)).linear_extrude(height=2).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">minkowski</span> <span class="k">as</span> <span class="n">_minkowski</span>
@@ -668,6 +672,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">                plate = s2.square(40) - s2.circle(radius=8)</span>
 <span class="sd">                plate.fill().linear_extrude(height=2).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -685,6 +691,8 @@
 
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">                slot = s2.circle(radius=5).hull(s2.circle(radius=5).right(30))</span>
 <span class="sd">                slot.linear_extrude(height=3).show()</span>
@@ -723,9 +731,13 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                s2.star(n=5, r=30, ir=15).linear_extrude(height=6, twist=45).show()</span>
+<span class="sd">                from pybosl2 import shapes2d as s2</span>
+
+<span class="sd">                s2.star(tips=5, radius=30, inner_radius=15).linear_extrude(height=6, twist=45).show()</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">                s2.circle(radius=15).linear_extrude(height=20).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -768,6 +780,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">                s2.square(10).right(15).rotate_extrude().show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
@@ -796,6 +810,8 @@
 
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">                path = [[0, 0, 0], [20, 10, 10], [40, 0, 20], [60, 10, 30]]</span>
 <span class="sd">                s2.circle(radius=5).path_extrude(path).show()</span>

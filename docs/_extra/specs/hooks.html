@@ -21,7 +21,7 @@
           <p class="lede">A ring hook: a rectangular mounting base that flares up and joins tangentially to a Y-axis cylinder — the ring — with a round, D-shaped or custom through-hole.</p>
           <div class="spec">
             <div class="draw">
-              <div class="caption"><span id="vpart">ring_hook([50, 10], 25, or_=25, ir=20)</span><span>interactive · drag to orbit</span></div>
+              <div class="caption"><span id="vpart">ring_hook([50, 10], 25, outer_radius=25, inner_radius=20)</span><span>interactive · drag to orbit</span></div>
               <div class="viewer" id="viewer">
                 <div class="poster" id="poster">
                   <svg viewBox="0 0 460 240" role="img" aria-label="Side elevation of a ring hook: a base flaring along the tangent into a holed ring." xmlns="http://www.w3.org/2000/svg">
@@ -62,7 +62,7 @@
               </div>
               <div style="position:relative">
                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                <div class="code" id="code">&gt;&gt;&gt; Hooks.<span class="k">ring_hook</span>([50, 10], 25, or_=25, ir=20)</div>
+                <div class="code" id="code">&gt;&gt;&gt; Hooks.<span class="k">ring_hook</span>([50, 10], 25, outer_radius=25, inner_radius=20)</div>
               </div>
               <div class="proof">
                 <div class="big">tangent join</div>
@@ -78,7 +78,7 @@
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "ring", "label": "ring hole", "uri": "_stl/hooks-ring.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 25, or_=25, ir=20)", "part": "ring_hook([50, 10], 25, or_=25, ir=20)", "tris": 208, "vol": "9,771.2", "bbox": "50\u00d710\u00d750", "wt": true}, {"id": "solid", "label": "solid paddle", "uri": "_stl/hooks-solid.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([70, 10], 25, or_=25, ir=0)", "part": "ring_hook([70, 10], 25, or_=25, ir=0)", "tris": 124, "vol": "25,197.0", "bbox": "70\u00d710\u00d750", "wt": true}, {"id": "d-hole", "label": "D hole", "uri": "_stl/hooks-d-hole.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 25, or_=25, ir=15, hole=\"D\")", "part": "ring_hook([50, 10], 25, or_=25, ir=15, hole=\"D\")", "tris": 144, "vol": "18,737.4", "bbox": "50\u00d710\u00d750", "wt": true}, {"id": "rounded", "label": "rounded", "uri": "_stl/hooks-rounded.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 40, or_=25, ir=15, rounding=5)", "part": "ring_hook([50, 10], 40, or_=25, ir=15, rounding=5)", "tris": 312, "vol": "21,937.7", "bbox": "50\u00d710\u00d765", "wt": true}, {"id": "custom", "label": "custom hole", "uri": "_stl/hooks-custom.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 20], 30, or_=25, hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)])", "part": "ring_hook([50, 20], 30, or_=25, hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)])", "tris": 120, "vol": "43,834.9", "bbox": "50\u00d720\u00d755", "wt": true}];
+const V = [{"id": "ring", "label": "ring hole", "uri": "_stl/hooks-ring.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 25, outer_radius=25, inner_radius=20)", "part": "ring_hook([50, 10], 25, outer_radius=25, inner_radius=20)", "tris": 208, "vol": "9,771.2", "bbox": "50\u00d710\u00d750", "wt": true}, {"id": "solid", "label": "solid paddle", "uri": "_stl/hooks-solid.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([70, 10], 25, outer_radius=25, inner_radius=0)", "part": "ring_hook([70, 10], 25, outer_radius=25, inner_radius=0)", "tris": 124, "vol": "25,197.0", "bbox": "70\u00d710\u00d750", "wt": true}, {"id": "d-hole", "label": "D hole", "uri": "_stl/hooks-d-hole.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 25, outer_radius=25, inner_radius=15, hole=\"D\")", "part": "ring_hook([50, 10], 25, outer_radius=25, inner_radius=15, hole=\"D\")", "tris": 144, "vol": "18,737.4", "bbox": "50\u00d710\u00d750", "wt": true}, {"id": "rounded", "label": "rounded", "uri": "_stl/hooks-rounded.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5)", "part": "ring_hook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5)", "tris": 312, "vol": "21,937.7", "bbox": "50\u00d710\u00d765", "wt": true}, {"id": "custom", "label": "custom hole", "uri": "_stl/hooks-custom.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 20], 30, outer_radius=25, hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)])", "part": "ring_hook([50, 20], 30, outer_radius=25, hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)])", "tris": 120, "vol": "43,834.9", "bbox": "50\u00d720\u00d755", "wt": true}];
 const box = document.getElementById("viewer"), poster = document.getElementById("poster");
 let renderer, scene, camera, controls, mesh, ready = false;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;

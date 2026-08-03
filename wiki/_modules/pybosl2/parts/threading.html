@@ -419,7 +419,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">generic_threaded_rod</span><span class="p">(</span>
         <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">l</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">profile</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">ThreadProfile</span><span class="p">,</span>
         <span class="n">starts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -430,8 +430,8 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A threaded rod from an explicit 2-D thread *profile* (x in [-1/2, 1/2], y the depth</span>
 <span class="sd">        fraction, both in pitch units) -- the core every other rod builds on (BOSL2 generic_threaded_rod()).&quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">pitch</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;generic_threaded_rod(): d, length and pitch must be positive.&quot;</span>
-        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="n">pitch</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;generic_threaded_rod(): d, l and pitch must be positive.&quot;</span>
+        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.generic_threaded_nut">
@@ -439,7 +439,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">generic_threaded_nut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
         <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">profile</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">ThreadProfile</span><span class="p">,</span>
@@ -454,7 +454,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A nut from an explicit thread *profile* (BOSL2 generic_threaded_nut()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
             <span class="n">nutwidth</span><span class="p">,</span>
-            <span class="n">inner_diameter</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
             <span class="n">h</span><span class="p">,</span>
             <span class="n">pitch</span><span class="p">,</span>
             <span class="n">profile</span><span class="p">,</span>
@@ -475,7 +475,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">threaded_rod</span><span class="p">(</span>
         <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">l</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">starts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">left_handed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -492,9 +492,10 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                Threading.threaded_rod(d=20, length=30, pitch=2.5, fa=6, fs=1).show()</span>
+<span class="sd">                from pybosl2.parts.threading import Threading</span>
+<span class="sd">                Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_iso_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_iso_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.threaded_nut">
@@ -502,7 +503,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">threaded_nut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
         <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">shape</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hex&quot;</span><span class="p">,</span>
@@ -520,11 +521,12 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                Threading.threaded_nut(nutwidth=13, inner_diameter=8, h=6.8, pitch=1.25).show()</span>
+<span class="sd">                from pybosl2.parts.threading import Threading</span>
+<span class="sd">                Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
             <span class="n">nutwidth</span><span class="p">,</span>
-            <span class="n">inner_diameter</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
             <span class="n">h</span><span class="p">,</span>
             <span class="n">pitch</span><span class="p">,</span>
             <span class="n">_iso_profile</span><span class="p">(),</span>
@@ -545,7 +547,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">trapezoidal_threaded_rod</span><span class="p">(</span>
         <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">l</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">thread_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
         <span class="n">thread_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -564,10 +566,11 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                Threading.trapezoidal_threaded_rod(d=20, length=40, pitch=4, fa=6, fs=1).show()</span>
+<span class="sd">                from pybosl2.parts.threading import Threading</span>
+<span class="sd">                Threading.trapezoidal_threaded_rod(d=20, l=40, pitch=4, fa=6, fs=1).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">,</span> <span class="n">thread_depth</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.trapezoidal_threaded_nut">
@@ -575,7 +578,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">trapezoidal_threaded_nut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
         <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">thread_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
@@ -592,7 +595,7 @@
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">,</span> <span class="n">thread_depth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
             <span class="n">nutwidth</span><span class="p">,</span>
-            <span class="n">inner_diameter</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
             <span class="n">h</span><span class="p">,</span>
             <span class="n">pitch</span><span class="p">,</span>
             <span class="n">prof</span><span class="p">,</span>
@@ -613,7 +616,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">acme_threaded_rod</span><span class="p">(</span>
         <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">l</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">thread_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">starts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -629,10 +632,11 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                Threading.acme_threaded_rod(d=12.7, length=30, pitch=2.54, fa=6, fs=1).show()</span>
+<span class="sd">                from pybosl2.parts.threading import Threading</span>
+<span class="sd">                Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.acme_threaded_nut">
@@ -640,7 +644,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">acme_threaded_nut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
         <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">thread_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -656,7 +660,7 @@
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
             <span class="n">nutwidth</span><span class="p">,</span>
-            <span class="n">inner_diameter</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
             <span class="n">h</span><span class="p">,</span>
             <span class="n">pitch</span><span class="p">,</span>
             <span class="n">prof</span><span class="p">,</span>
@@ -677,7 +681,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">square_threaded_rod</span><span class="p">(</span>
         <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">l</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">starts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">left_handed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -687,7 +691,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A square-profile threaded rod (BOSL2 square_threaded_rod()).&quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.square_threaded_nut">
@@ -695,7 +699,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">square_threaded_nut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
         <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">shape</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hex&quot;</span><span class="p">,</span>
@@ -710,7 +714,7 @@
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
             <span class="n">nutwidth</span><span class="p">,</span>
-            <span class="n">inner_diameter</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
             <span class="n">h</span><span class="p">,</span>
             <span class="n">pitch</span><span class="p">,</span>
             <span class="n">prof</span><span class="p">,</span>
@@ -731,7 +735,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">buttress_threaded_rod</span><span class="p">(</span>
         <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">l</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">starts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">left_handed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -740,7 +744,7 @@
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;An asymmetric buttress threaded rod (BOSL2 buttress_threaded_rod()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_buttress_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_buttress_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Threading.buttress_threaded_nut">
@@ -748,7 +752,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">buttress_threaded_nut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
         <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">shape</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hex&quot;</span><span class="p">,</span>
@@ -762,7 +766,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A nut for a buttress threaded rod (BOSL2 buttress_threaded_nut()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
             <span class="n">nutwidth</span><span class="p">,</span>
-            <span class="n">inner_diameter</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
             <span class="n">h</span><span class="p">,</span>
             <span class="n">pitch</span><span class="p">,</span>
             <span class="n">_buttress_profile</span><span class="p">(),</span>

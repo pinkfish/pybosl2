@@ -151,7 +151,7 @@
   &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.
 </p><p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">linear_bearings.scad</span></code>: models of LMxUU linear ball bearings that run
 along a rod, and the pillow-block housings that clamp them to a plate.
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">lmXuu_bearing()</span></code> looks a standard size up in
+<a class="reference internal" href="#pybosl2.parts.linear_bearings.LinearBearings.lmXuu_bearing" title="pybosl2.parts.linear_bearings.LinearBearings.lmXuu_bearing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lmXuu_bearing()</span></code></a> looks a standard size up in
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">lmXuu_info()</span></code> (a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">linear_bearings</span></code> table);
 <a class="reference internal" href="#pybosl2.parts.linear_bearings.LinearBearings.linear_bearing" title="pybosl2.parts.linear_bearings.LinearBearings.linear_bearing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_bearing()</span></code></a> is the generic form.</p>
@@ -216,13 +216,13 @@ lmxuu_info()).</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-64dabc75c11c4d1ab9e9180aa6c182e3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-1cdc29d4c1d842708286d71f0d832464" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-64dabc75c11c4d1ab9e9180aa6c182e3");
+const el = document.getElementById("stlviewer-1cdc29d4c1d842708286d71f0d832464");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -353,6 +353,47 @@ through the tabs let it grip the bearing.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.parts.linear_bearings.LinearBearings.lmXuu_bearing">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">lmXuu_bearing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'silver'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pybosl2.parts.linear_bearings.LinearBearings.lmXuu_bearing" title="Link to this definition">¶</a></dt>
+<dd><p>A standard LMxUU linear bearing for a <em>size</em> mm rod (BOSL2 lmxuu_bearing()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>int</em>)</p></li>
+<li><p><strong>color</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>CsgSolid</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.parts.linear_bearings.LinearBearings.lmXuu_housing">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">lmXuu_housing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tab</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tabwall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">screwsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pybosl2.parts.linear_bearings.LinearBearings.lmXuu_housing" title="Link to this definition">¶</a></dt>
+<dd><p>A pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmxuu_housing()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>int</em>)</p></li>
+<li><p><strong>tab</strong> (<em>float</em>)</p></li>
+<li><p><strong>gap</strong> (<em>float</em>)</p></li>
+<li><p><strong>wall</strong> (<em>float</em>)</p></li>
+<li><p><strong>tabwall</strong> (<em>float</em>)</p></li>
+<li><p><strong>screwsize</strong> (<em>float</em>)</p></li>
+<li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>CsgSolid</em></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <section id="examples">
@@ -365,13 +406,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-cbfe70220a42448f8a3f5c12f79f37ef" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-94bf12af290b4e67a5ab6d8aae22e080" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-cbfe70220a42448f8a3f5c12f79f37ef");
+const el = document.getElementById("stlviewer-94bf12af290b4e67a5ab6d8aae22e080");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -421,13 +462,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-aef17612fddd4bba8ece6c6491493e73" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-613d4556a25a4c1cac400c41c25f8073" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-aef17612fddd4bba8ece6c6491493e73");
+const el = document.getElementById("stlviewer-613d4556a25a4c1cac400c41c25f8073");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -477,13 +518,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-aacebb4885844a33aa82564a639ab1e9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7ee5f51f3b5a4be9a61eeefe81bbe7d9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-aacebb4885844a33aa82564a639ab1e9");
+const el = document.getElementById("stlviewer-7ee5f51f3b5a4be9a61eeefe81bbe7d9");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -533,13 +574,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-4114e800c5614515b93eeecd6824a6e3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-bbaba5d2c006437ba48f06239056cbf4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-4114e800c5614515b93eeecd6824a6e3");
+const el = document.getElementById("stlviewer-bbaba5d2c006437ba48f06239056cbf4");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

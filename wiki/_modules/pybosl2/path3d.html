@@ -230,6 +230,8 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import helix, stroke</span>
+
 <span class="sd">            stroke(helix(turns=2.5, height=100, radius=30), width=3).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">r1v</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -291,7 +293,9 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            coil = helix(turns=3, height=60, radius=20).resample(sides=120)</span>
+<span class="sd">            from pybosl2 import helix</span>
+
+<span class="sd">            coil = helix(turns=3, height=60, radius=20).resample(num_copies=120)</span>
 <span class="sd">            coil.stroke(width=4).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -566,6 +570,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path3D</span>
+
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                pieces = path3d.cut(15)</span>
 <span class="sd">                pieces[0].stroke(width=1).show()</span>
@@ -768,6 +774,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import helix</span>
+
 <span class="sd">                coil = helix(turns=3, height=60, radius=20).subdivide_path(points=200)</span>
 <span class="sd">                coil.stroke(width=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -829,14 +837,14 @@
 <a class="viewcode-back" href="../../paths.html#pybosl2.path3d.Path3D.resample_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">resample_path</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Uniformly resample path to sides points, or to a spacing near spacing.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Uniformly resample path to num_copies points, or to a spacing near spacing.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sides: Target number of points.</span>
+<span class="sd">            num_copies: Target number of points.</span>
 <span class="sd">            spacing: Approximate spacing between points.</span>
 <span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
 
@@ -844,23 +852,25 @@
 <span class="sd">            A new :class:`Path3D` with the uniformly resampled points.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If both or neither of *sides* and *spacing* are given.</span>
+<span class="sd">            AssertionError: If both or neither of *num_copies* and *spacing* are given.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            Resampling a helix to 120 evenly spaced points:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                coil = helix(turns=3, height=60, radius=20).resample_path(sides=120)</span>
+<span class="sd">                from pybosl2 import helix</span>
+
+<span class="sd">                coil = helix(turns=3, height=60, radius=20).resample_path(num_copies=120)</span>
 <span class="sd">                coil.stroke(width=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
         <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
-        <span class="k">assert</span> <span class="p">(</span><span class="n">sides</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">spacing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;Must define exactly one of sides and spacing&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">num_copies</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">spacing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;Must define exactly one of num_copies and spacing&quot;</span>
         <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perimeter</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">sides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">n_use</span> <span class="o">=</span> <span class="n">sides</span> <span class="o">-</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_use</span> <span class="o">=</span> <span class="n">num_copies</span> <span class="o">-</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">n_use</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="n">spacing</span><span class="p">)</span>
@@ -895,6 +905,8 @@
 <span class="sd">            Selecting the middle portion of a 3-D path:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                mid = path3d.select(0, 0.5, 2, 0.5)</span>
@@ -986,6 +998,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path3D</span>
+
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0]], closed=False)</span>
 <span class="sd">                loop = path3d.close()</span>
 <span class="sd">                loop.stroke(width=1).show()</span>
@@ -1009,6 +1023,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path3D</span>
+
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 0, 0]])</span>
 <span class="sd">                result = path3d.cleanup()</span>
 <span class="sd">                result.stroke(width=1).show()</span>
@@ -1030,6 +1046,8 @@
 <span class="sd">            Reversing the direction of a 3-D path:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.reverse()</span>
@@ -1054,6 +1072,8 @@
 <span class="sd">            Removing a redundant middle point from a straight segment:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [15, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.merge_collinear()</span>
@@ -1103,6 +1123,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path3D</span>
+
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.deduplicate()</span>
 <span class="sd">                result.stroke(width=1).show()</span>
@@ -1130,22 +1152,24 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            **kwargs: Passed through to the subdivide kernel; must include exactly one of</span>
-<span class="sd">                *sides* (target count), *refine* (multiplier), or *maxlen* (spacing cap).</span>
+<span class="sd">                *num_copies* (target count), *refine* (multiplier), or *maxlen* (spacing cap).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` with additional interpolated points.</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            Subdividing a 3-D path using the sides parameter:</span>
+<span class="sd">            Subdividing a 3-D path using the num_copies parameter:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path3D</span>
+
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
-<span class="sd">                result = path3d.subdivide(sides=100)</span>
+<span class="sd">                result = path3d.subdivide(num_copies=100)</span>
 <span class="sd">                result.stroke(width=1).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;sides&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;sides&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">&quot;num_copies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="s2">&quot;refine&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;refine&quot;</span><span class="p">)</span>
             <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">))</span>
@@ -1159,7 +1183,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resample to evenly spaced points.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            **kwargs: Must include exactly one of *sides* or *spacing*.</span>
+<span class="sd">            **kwargs: Must include exactly one of *num_copies* or *spacing*.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` with uniformly resampled points.</span>
@@ -1169,10 +1193,14 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path3D</span>
+
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
-<span class="sd">                result = path3d.resample(sides=50)</span>
+<span class="sd">                result = path3d.resample(num_copies=50)</span>
 <span class="sd">                result.stroke(width=1).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;num_copies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resample_path</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -1189,6 +1217,8 @@
 
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.translate([10, 5, 15])</span>
@@ -1216,6 +1246,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path3D</span>
+
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.scale(2)</span>
 <span class="sd">                result.stroke(width=2).show()</span>
@@ -1240,6 +1272,8 @@
 
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.rotate(45, v=[0, 0, 1])</span>
@@ -1275,6 +1309,8 @@
 
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.mirror([1, 0, 0])</span>
@@ -1384,6 +1420,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import helix</span>
+
 <span class="sd">                sweep_path = helix(turns=3, height=60, radius=20)</span>
 <span class="sd">                flat = sweep_path.path2d()</span>
 <span class="sd">                flat.stroke(width=2).linear_extrude(h=1).show()</span>
@@ -1424,6 +1462,8 @@
 <span class="sd">            A simple path stroked as a tube:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])</span>
 <span class="sd">                path3d.stroke(width=2).show()</span>
@@ -1486,6 +1526,8 @@
 <span class="sd">            A dashed stroke along a 3-D path:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])</span>
 <span class="sd">                path3d.dashed_stroke(dashpat=[5, 2]).show()</span>

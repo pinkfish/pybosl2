@@ -225,17 +225,19 @@ slope in degrees at the endpoints). The curve passes through <code class="docuti
 </dl>
 <p class="rubric">Examples</p>
 <p>A hanging arch, stroked into a 2-mm ribbon and extruded into a wall:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">catenary</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">droop</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">catenary</span>
+
+<span class="n">catenary</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">droop</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-744a6d2fe05f40d89d888905d8a4f033" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-1e0239946293478f81f2fca0c94cd286" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-744a6d2fe05f40d89d888905d8a4f033");
+const el = document.getElementById("stlviewer-1e0239946293478f81f2fca0c94cd286");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -258,7 +260,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/f9a9d96bec84c8e6.stl", function (geo) {
+new STLLoader().load("_stl/357b735fd305ceb9.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -278,7 +280,7 @@ new STLLoader().load("_stl/f9a9d96bec84c8e6.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/f9a9d96bec84c8e6.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/357b735fd305ceb9.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 </section>
@@ -293,53 +295,94 @@ window.addEventListener("resize", resize);
 <dt class="sig sig-object py" id="pybosl2.turtle.turtle2d">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.turtle.</span></span><span class="sig-name descname"><span class="pre">turtle2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/turtle/turtle2d.html#turtle2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.turtle2d" title="Link to this definition">¶</a></dt>
 <dd><p>Build a 2-D path from <code class="xref py py-class docutils literal notranslate"><span class="pre">TurtleCommand</span></code> objects — BOSL2’s <code class="docutils literal notranslate"><span class="pre">turtle2d()</span></code>.</p>
-<blockquote>
-<div><p>Creates a <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2D</span></code>, runs <em>commands</em> (optionally <em>repeat</em> times),
+<p>Creates a <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2D</span></code>, runs <em>commands</em> (optionally <em>repeat</em> times),
 and returns the turtle. Access the path via <code class="xref py py-meth docutils literal notranslate"><span class="pre">Turtle2D.points()</span></code> or
 the state via <code class="xref py py-meth docutils literal notranslate"><span class="pre">Turtle2D.full_state()</span></code>.</p>
-<dl>
-<dt>Args:</dt><dd><p>commands: A flat list of <code class="xref py py-class docutils literal notranslate"><span class="pre">TurtleCommand</span></code> objects.
-state: Optional starting <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2DState</span></code>.
-repeat: Number of times to repeat the command list.</p>
-</dd>
-<dt>Returns:</dt><dd><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2D</span></code> instance after executing all commands.</p>
-</dd>
-<dt>Examples:</dt><dd><p>A rounded-corner square drawn with arcs:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">turtle2d</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
-</pre></div>
-</div>
-</dd>
-</dl>
-</div></blockquote>
-<p>from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct</p>
-<blockquote>
-<div><dl class="simple">
-<dt>path = turtle2d([</dt><dd><p>TurtleCommand(Tct.MOVE, size=40),
-TurtleCommand(Tct.ARCLEFT, radius=8),
-TurtleCommand(Tct.MOVE, size=40),
-TurtleCommand(Tct.ARCLEFT, radius=8),
-TurtleCommand(Tct.MOVE, size=40),
-TurtleCommand(Tct.ARCLEFT, radius=8),
-TurtleCommand(Tct.MOVE, size=40),
-TurtleCommand(Tct.ARCLEFT, radius=8),</p>
-</dd>
-</dl>
-<p>]).points()
-path.stroke(width=3, closed=True).linear_extrude(height=4).show()</p>
-</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>commands</strong> (<em>Sequence</em><em>[</em><em>TurtleCommand</em><em>]</em>)</p></li>
-<li><p><strong>state</strong> (<em>Turtle2DState</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>repeat</strong> (<em>int</em>)</p></li>
+<li><p><strong>commands</strong> (<em>Sequence</em><em>[</em><em>TurtleCommand</em><em>]</em>) – A flat list of <code class="xref py py-class docutils literal notranslate"><span class="pre">TurtleCommand</span></code> objects.</p></li>
+<li><p><strong>state</strong> (<em>Turtle2DState</em><em> | </em><em>None</em>) – Optional starting <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2DState</span></code>.</p></li>
+<li><p><strong>repeat</strong> (<em>int</em>) – Number of times to repeat the command list.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Turtle2D</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2D</span></code> instance after executing all commands.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Turtle2D</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>A rounded-corner square drawn with arcs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">turtle2d</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommand</span><span class="p">,</span> <span class="n">TurtleCommandType</span> <span class="k">as</span> <span class="n">Tct</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="n">turtle2d</span><span class="p">([</span>
+    <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">MOVE</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span>
+    <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">ARCLEFT</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+    <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">MOVE</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span>
+    <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">ARCLEFT</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+    <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">MOVE</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span>
+    <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">ARCLEFT</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+    <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">MOVE</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">40</span><span class="p">),</span>
+    <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">ARCLEFT</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+<span class="p">])</span><span class="o">.</span><span class="n">points</span><span class="p">()</span>
+<span class="n">path</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-aba9f7206d16495d805bf0882725b8dd" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-aba9f7206d16495d805bf0882725b8dd");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/8db48dc43c84f58a.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/8db48dc43c84f58a.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 </section>

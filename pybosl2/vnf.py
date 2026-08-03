@@ -443,13 +443,14 @@ def contour(
         .. pythonscad-example::
 
             import numpy as np
-            from pybosl2 import contour, Bounds2D, stroke
+            from pybosl2 import contour, Bounds2D
+            from pybosl2.path2d import Path2D
 
             def field(p):
                 r = np.hypot(p[:, 0], p[:, 1])
                 return r
             paths = contour(field, 10, Bounds2D(-15, -15, 15, 15, 30, 30), pixel_size=0.5)
-            stroke(paths, width=0.5).linear_extrude(height=2).show()
+            Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()
     """
     bb, ps = _resolve_grid_2d(bounding_box, pixel_size, pixel_count, exact_bounds)
     xs, ys = _grid_axes_2d(bb, ps)

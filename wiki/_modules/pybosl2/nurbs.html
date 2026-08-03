@@ -411,6 +411,8 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import nurbs_curve</span>
+
 <span class="sd">            ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]</span>
 <span class="sd">            nurbs_curve(ctrl, 3, splinesteps=12).stroke(width=3).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -615,6 +617,8 @@
 <span class="sd">        A cubic B-spline surface patch meshed into a solid:</span>
 
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import nurbs_vnf</span>
 
 <span class="sd">            patch = [</span>
 <span class="sd">                [[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],</span>

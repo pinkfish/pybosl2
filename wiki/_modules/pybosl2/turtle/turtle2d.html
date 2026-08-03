@@ -263,31 +263,31 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">Turtle2D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D turtle: walk it with a command list to produce a 2-D path.</span>
 
-<span class="sd">        The turtle starts at the origin pointing along +X with a step length of 1.</span>
-<span class="sd">        The turtle&#39;s internal state is a :class:`Turtle2DState` instance accessible</span>
-<span class="sd">        via :meth:`full_state`.</span>
+<span class="sd">    The turtle starts at the origin pointing along +X with a step length of 1.</span>
+<span class="sd">    The turtle&#39;s internal state is a :class:`Turtle2DState` instance accessible</span>
+<span class="sd">    via :meth:`full_state`.</span>
 
-<span class="sd">        Examples:</span>
-<span class="sd">            A rounded-corner square:</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        A rounded-corner square:</span>
 
-<span class="sd">            .. pythonscad-example::</span>
+<span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">                from pybosl2.turtle2d import Turtle2D</span>
-<span class="sd">                from pybosl2.points import Point</span>
-<span class="sd">    from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct</span>
+<span class="sd">            from pybosl2.turtle import Turtle2D</span>
+<span class="sd">            from pybosl2.points import Point</span>
+<span class="sd">            from pybosl2.turtle import TurtleCommand, TurtleCommandType as Tct</span>
 
-<span class="sd">                cmds = [</span>
-<span class="sd">                    TurtleCommand(Tct.MOVE, size=40),</span>
-<span class="sd">                    TurtleCommand(Tct.ARCLEFT, radius=8),</span>
-<span class="sd">                    TurtleCommand(Tct.MOVE, size=40),</span>
-<span class="sd">                    TurtleCommand(Tct.ARCLEFT, radius=8),</span>
-<span class="sd">                    TurtleCommand(Tct.MOVE, size=40),</span>
-<span class="sd">                    TurtleCommand(Tct.ARCLEFT, radius=8),</span>
-<span class="sd">                    TurtleCommand(Tct.MOVE, size=40),</span>
-<span class="sd">                    TurtleCommand(Tct.ARCLEFT, radius=8),</span>
-<span class="sd">                ]</span>
-<span class="sd">                path = Turtle2D().run(cmds).points()</span>
-<span class="sd">                path.stroke(width=3, closed=True).linear_extrude(height=4).show()</span>
+<span class="sd">            cmds = [</span>
+<span class="sd">                TurtleCommand(Tct.MOVE, size=40),</span>
+<span class="sd">                TurtleCommand(Tct.ARCLEFT, radius=8),</span>
+<span class="sd">                TurtleCommand(Tct.MOVE, size=40),</span>
+<span class="sd">                TurtleCommand(Tct.ARCLEFT, radius=8),</span>
+<span class="sd">                TurtleCommand(Tct.MOVE, size=40),</span>
+<span class="sd">                TurtleCommand(Tct.ARCLEFT, radius=8),</span>
+<span class="sd">                TurtleCommand(Tct.MOVE, size=40),</span>
+<span class="sd">                TurtleCommand(Tct.ARCLEFT, radius=8),</span>
+<span class="sd">            ]</span>
+<span class="sd">            path = Turtle2D().run(cmds).points()</span>
+<span class="sd">            path.stroke(width=3, closed=True).linear_extrude(height=4).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Turtle2DState</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -673,38 +673,38 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Turtle2D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a 2-D path from :class:`TurtleCommand` objects — BOSL2&#39;s ``turtle2d()``.</span>
 
-<span class="sd">        Creates a :class:`Turtle2D`, runs *commands* (optionally *repeat* times),</span>
-<span class="sd">        and returns the turtle. Access the path via :meth:`Turtle2D.points` or</span>
-<span class="sd">        the state via :meth:`Turtle2D.full_state`.</span>
+<span class="sd">    Creates a :class:`Turtle2D`, runs *commands* (optionally *repeat* times),</span>
+<span class="sd">    and returns the turtle. Access the path via :meth:`Turtle2D.points` or</span>
+<span class="sd">    the state via :meth:`Turtle2D.full_state`.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            commands: A flat list of :class:`TurtleCommand` objects.</span>
-<span class="sd">            state: Optional starting :class:`Turtle2DState`.</span>
-<span class="sd">            repeat: Number of times to repeat the command list.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        commands: A flat list of :class:`TurtleCommand` objects.</span>
+<span class="sd">        state: Optional starting :class:`Turtle2DState`.</span>
+<span class="sd">        repeat: Number of times to repeat the command list.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            The :class:`Turtle2D` instance after executing all commands.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The :class:`Turtle2D` instance after executing all commands.</span>
 
-<span class="sd">        Examples:</span>
-<span class="sd">            A rounded-corner square drawn with arcs:</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        A rounded-corner square drawn with arcs:</span>
 
-<span class="sd">            .. pythonscad-example::</span>
+<span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">                from pybosl2.turtle2d import turtle2d</span>
-<span class="sd">                from pybosl2.points import Point</span>
-<span class="sd">    from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct</span>
+<span class="sd">            from pybosl2.turtle import turtle2d</span>
+<span class="sd">            from pybosl2.points import Point</span>
+<span class="sd">            from pybosl2.turtle import TurtleCommand, TurtleCommandType as Tct</span>
 
-<span class="sd">                path = turtle2d([</span>
-<span class="sd">                    TurtleCommand(Tct.MOVE, size=40),</span>
-<span class="sd">                    TurtleCommand(Tct.ARCLEFT, radius=8),</span>
-<span class="sd">                    TurtleCommand(Tct.MOVE, size=40),</span>
-<span class="sd">                    TurtleCommand(Tct.ARCLEFT, radius=8),</span>
-<span class="sd">                    TurtleCommand(Tct.MOVE, size=40),</span>
-<span class="sd">                    TurtleCommand(Tct.ARCLEFT, radius=8),</span>
-<span class="sd">                    TurtleCommand(Tct.MOVE, size=40),</span>
-<span class="sd">                    TurtleCommand(Tct.ARCLEFT, radius=8),</span>
-<span class="sd">                ]).points()</span>
-<span class="sd">                path.stroke(width=3, closed=True).linear_extrude(height=4).show()</span>
+<span class="sd">            path = turtle2d([</span>
+<span class="sd">                TurtleCommand(Tct.MOVE, size=40),</span>
+<span class="sd">                TurtleCommand(Tct.ARCLEFT, radius=8),</span>
+<span class="sd">                TurtleCommand(Tct.MOVE, size=40),</span>
+<span class="sd">                TurtleCommand(Tct.ARCLEFT, radius=8),</span>
+<span class="sd">                TurtleCommand(Tct.MOVE, size=40),</span>
+<span class="sd">                TurtleCommand(Tct.ARCLEFT, radius=8),</span>
+<span class="sd">                TurtleCommand(Tct.MOVE, size=40),</span>
+<span class="sd">                TurtleCommand(Tct.ARCLEFT, radius=8),</span>
+<span class="sd">            ]).points()</span>
+<span class="sd">            path.stroke(width=3, closed=True).linear_extrude(height=4).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Turtle2D</span><span class="p">(</span><span class="n">state</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">repeat</span><span class="p">)</span></div>
 

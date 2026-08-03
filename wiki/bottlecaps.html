@@ -209,13 +209,13 @@ prismoids. Geometry is anchored with its bottom on the XY plane.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-15ff6da993754091aeb511e8261756d9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8aede121554e4769946830e09fc16720" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-15ff6da993754091aeb511e8261756d9");
+const el = document.getElementById("stlviewer-8aede121554e4769946830e09fc16720");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -280,17 +280,18 @@ BOSL2 (thread taper, internal-thread flank, and cap surface textures are not rep
 <dd><p>A PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck()).</p>
 <p class="rubric">Examples</p>
 <p>A standard PCO 1810 bottle neck (28 mm):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1810_neck</span><span class="p">(</span><span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.bottlecaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">BottleCaps</span>
+<span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1810_neck</span><span class="p">(</span><span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-cc6aa8f9f2b544c88be2a87a8f5d55e7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-a68d2b853da2473ebc6db962a027af5a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-cc6aa8f9f2b544c88be2a87a8f5d55e7");
+const el = document.getElementById("stlviewer-a68d2b853da2473ebc6db962a027af5a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -313,7 +314,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/77815899d187a9bc.stl", function (geo) {
+new STLLoader().load("_stl/ec57d0f42bcb5eea.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -333,7 +334,7 @@ new STLLoader().load("_stl/77815899d187a9bc.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/77815899d187a9bc.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/ec57d0f42bcb5eea.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -355,17 +356,18 @@ window.addEventListener("resize", resize);
 back to a plain wall (surface texturing is not in this port).</p>
 <p class="rubric">Examples</p>
 <p>A plain-walled cap for a PCO 1810 neck:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1810_cap</span><span class="p">(</span><span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.bottlecaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">BottleCaps</span>
+<span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1810_cap</span><span class="p">(</span><span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7831aeb2c2af445fa99218f2e8515368" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c95b63944bae46b6856d1cad2f88c95c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7831aeb2c2af445fa99218f2e8515368");
+const el = document.getElementById("stlviewer-c95b63944bae46b6856d1cad2f88c95c");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -388,7 +390,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/fc5edea3ee201982.stl", function (geo) {
+new STLLoader().load("_stl/9bf5d5818f13dffa.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -408,7 +410,7 @@ new STLLoader().load("_stl/fc5edea3ee201982.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/fc5edea3ee201982.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/9bf5d5818f13dffa.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -431,17 +433,18 @@ window.addEventListener("resize", resize);
 <dd><p>A PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck()).</p>
 <p class="rubric">Examples</p>
 <p>A standard PCO 1881 bottle neck (38 mm):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1881_neck</span><span class="p">(</span><span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.bottlecaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">BottleCaps</span>
+<span class="n">BottleCaps</span><span class="o">.</span><span class="n">pco1881_neck</span><span class="p">(</span><span class="n">fa</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0d0ca4235f3d40bb93d3dba6b5fb4b7c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ae47df9da8ac4ea4971fed8e74ebda57" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0d0ca4235f3d40bb93d3dba6b5fb4b7c");
+const el = document.getElementById("stlviewer-ae47df9da8ac4ea4971fed8e74ebda57");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -464,7 +467,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/88b6e2928a2305c9.stl", function (geo) {
+new STLLoader().load("_stl/53c240305f291f3a.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -484,7 +487,7 @@ new STLLoader().load("_stl/88b6e2928a2305c9.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/88b6e2928a2305c9.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/53c240305f291f3a.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -533,13 +536,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7b1ca68d5bd84c20bb13cc8b03fc5703" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4735cdbb44b94d328cd6bd629093e098" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7b1ca68d5bd84c20bb13cc8b03fc5703");
+const el = document.getElementById("stlviewer-4735cdbb44b94d328cd6bd629093e098");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -589,13 +592,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-8d9b5911f8c4483fb6a7c51ff4003137" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7ecf065156874c1ba43bcb4782dcc8ef" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-8d9b5911f8c4483fb6a7c51ff4003137");
+const el = document.getElementById("stlviewer-7ecf065156874c1ba43bcb4782dcc8ef");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -645,13 +648,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-359fa6e364aa4e49bba561aba7b087ee" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e8c6a9f03a2c432e85b76d5effedf41a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-359fa6e364aa4e49bba561aba7b087ee");
+const el = document.getElementById("stlviewer-e8c6a9f03a2c432e85b76d5effedf41a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -701,13 +704,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c3ccfce7ee824609be0d565099668ea1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-50c336cc138c4f48979cd77b2ed7d9d9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c3ccfce7ee824609be0d565099668ea1");
+const el = document.getElementById("stlviewer-50c336cc138c4f48979cd77b2ed7d9d9");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
