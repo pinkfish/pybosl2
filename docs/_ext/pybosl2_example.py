@@ -116,7 +116,7 @@ _PREAMBLE = (
     "from pybosl2 import *\n"
     "import traceback\n"
     "\n"
-    "try:"
+    "try:\n"
 )
 
 _POSTAMBLE = "except Exception as e:\n"
