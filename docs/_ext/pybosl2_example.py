@@ -119,8 +119,9 @@ _PREAMBLE = (
     "try:\n"
 )
 
-_POSTAMBLE = ("except Exception as e:\n"
-    "    print(\"An error occurred during model generation:\")\n"
+_POSTAMBLE = (
+    "except Exception as e:\n"
+    '    print("An error occurred during model generation:")\n'
     "    # This prints the complete, standard Python error trace\n"
     "    traceback.print_exc()\n"
 )
@@ -171,7 +172,9 @@ class Bosl2ExampleDirective(Directive):
             return None
         if not result.ok:
             stderr_tail = (result.stderr or "")[-500:]
-            _logger.warning(f"pybosl2-example STL render FAILED: {result.error}\nstderr tail: {stderr_tail}\n{code[:300]}")
+            _logger.warning(
+                f"pybosl2-example STL render FAILED: {result.error}\nstderr tail: {stderr_tail}\n{code[:300]}"
+            )
             return None
         return f"_stl/{out_stl.name}"
 
