@@ -55,7 +55,10 @@
                 <div><span class="v" id="s-vol">—</span><span class="l">mm&sup3; volume</span></div>
                 <div><span class="v" id="s-bbox">—</span><span class="l">bbox mm</span></div>
               </div>
-              <div class="code" id="code">&gt;&gt;&gt; s2.<span class="k">circle2d</span>(r=15)</div>
+              <div style="position:relative">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code" id="code">&gt;&gt;&gt; pybosl2.<span class="k">circle2d</span>(r=15)</div>
+              </div>
               <div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">149 tests · <a href="../shapes2d.html">full API reference &rarr;</a></div>
             </div>
           </div>
@@ -66,10 +69,11 @@
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "circle", "label": "circle", "uri": "_stl/shapes2d-circle.stl", "code": "s2.<span class=\"k\">circle2d</span>(r=15)", "part": "circle2d(r=15)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "square", "label": "square", "uri": "_stl/shapes2d-square.stl", "code": "s2.<span class=\"k\">square2d</span>(30)", "part": "square2d(30)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "rect", "label": "rectangle", "uri": "_stl/shapes2d-rect.stl", "code": "s2.<span class=\"k\">rect2d</span>([30, 20], rounding=5)", "part": "rect2d([30, 20], rounding=5)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "trapezoid", "label": "trapezoid", "uri": "_stl/shapes2d-trapezoid.stl", "code": "s2.<span class=\"k\">trapezoid</span>(h=30, w1=40, w2=20)", "part": "trapezoid(h=30, w1=40, w2=20)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "star", "label": "star", "uri": "_stl/shapes2d-star.stl", "code": "s2.<span class=\"k\">star</span>(n=5, r=25, ir=10)", "part": "star(n=5, r=25, ir=10)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "ring", "label": "ring", "uri": "_stl/shapes2d-ring.stl", "code": "s2.<span class=\"k\">ring</span>(or_=18, ir=12)", "part": "ring(or_=18, ir=12)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "pie-slice", "label": "pie slice", "uri": "_stl/shapes2d-pie-slice.stl", "code": "s2.<span class=\"k\">pie_slice</span>(r=20, ang=120)", "part": "pie_slice(r=20, ang=120)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "squircle", "label": "squircle", "uri": "_stl/shapes2d-squircle.stl", "code": "s2.<span class=\"k\">squircle</span>(30, squareness=0.6)", "part": "squircle(30, squareness=0.6)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "keyhole", "label": "keyhole", "uri": "_stl/shapes2d-keyhole.stl", "code": "s2.<span class=\"k\">keyhole</span>(l=25, r1=4, r2=9)", "part": "keyhole(l=25, r1=4, r2=9)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "rounded-square", "label": "rounded square", "uri": "_stl/shapes2d-rounded-square.stl", "code": "s2.<span class=\"k\">square2d</span>(30, rounding=8)", "part": "square2d(30, rounding=8)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}];
+const V = [{"id": "circle", "label": "circle", "uri": "_stl/shapes2d-circle.stl", "code": "pybosl2.<span class=\"k\">circle2d</span>(r=15)", "part": "circle2d(r=15)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "square", "label": "square", "uri": "_stl/shapes2d-square.stl", "code": "pybosl2.<span class=\"k\">square2d</span>(30)", "part": "square2d(30)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "rect", "label": "rectangle", "uri": "_stl/shapes2d-rect.stl", "code": "pybosl2.<span class=\"k\">rect2d</span>([30, 20], rounding=5)", "part": "rect2d([30, 20], rounding=5)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "trapezoid", "label": "trapezoid", "uri": "_stl/shapes2d-trapezoid.stl", "code": "pybosl2.<span class=\"k\">trapezoid</span>(h=30, w1=40, w2=20)", "part": "trapezoid(h=30, w1=40, w2=20)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "star", "label": "star", "uri": "_stl/shapes2d-star.stl", "code": "pybosl2.<span class=\"k\">star</span>(n=5, r=25, ir=10)", "part": "star(n=5, r=25, ir=10)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "ring", "label": "ring", "uri": "_stl/shapes2d-ring.stl", "code": "pybosl2.<span class=\"k\">ring</span>(or_=18, ir=12)", "part": "ring(or_=18, ir=12)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "pie-slice", "label": "pie slice", "uri": "_stl/shapes2d-pie-slice.stl", "code": "pybosl2.<span class=\"k\">pie_slice</span>(radius=20, angle=120, height=5)", "part": "pie_slice(radius=20, angle=120, height=5)", "tris": 64, "vol": "2,078.9", "bbox": "30\u00d720\u00d75", "wt": true}, {"id": "squircle", "label": "squircle", "uri": "_stl/shapes2d-squircle.stl", "code": "pybosl2.<span class=\"k\">squircle</span>(30, squareness=0.6)", "part": "squircle(30, squareness=0.6)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "keyhole", "label": "keyhole", "uri": "_stl/shapes2d-keyhole.stl", "code": "pybosl2.<span class=\"k\">keyhole</span>(l=25, r1=4, r2=9)", "part": "keyhole(l=25, r1=4, r2=9)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "rounded-square", "label": "rounded square", "uri": "_stl/shapes2d-rounded-square.stl", "code": "pybosl2.<span class=\"k\">square2d</span>(30, rounding=8)", "part": "square2d(30, rounding=8)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}];
 const box = document.getElementById("viewer"), poster = document.getElementById("poster");
 let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
+const primaryColor = css("--model") || "#6f9ac9";
 function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
   renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
 function init() {
@@ -94,7 +98,7 @@ function load(uri) {
     const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
     geo.translate(-c.x, -c.y, -c.z);
     mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
+      new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
     scene.add(mesh);
     const r = Math.max(s.x, s.y, s.z) || 1;
     camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
@@ -120,6 +124,7 @@ function select(i) {
 document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
 select(0);
 </script>
+    <script>function copyCode(btn){const code=btn.nextElementSibling.textContent.trim();navigator.clipboard.writeText(code).then(()=>{btn.textContent="Copied!";setTimeout(()=>btn.textContent="Copy",1500);});}</script>
     <footer>
       <div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div>
     </footer>

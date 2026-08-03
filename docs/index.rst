@@ -6,7 +6,7 @@ that this toolkit uses, with **no** ``osuse()``/BOSL2 runtime dependency. Every 
 an object — :class:`~pybosl2.path2d.Path2D` for 2-D outlines, :class:`~pybosl2.regions.Region` for
 outlines-with-holes, :class:`~pybosl2.beziers.Bezier` / :class:`~pybosl2.beziers.BezierPatch` for bezier
 curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
-:class:`~pybosl2.Bosl2Solid` primitives — so new code reads as fluent chains::
+:class:`~pybosl2.shapes3d.Bosl2Solid` primitives — so new code reads as fluent chains::
 
     Path2D([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(r=-2).round_corners(radius=1).polygon()
 
@@ -79,14 +79,22 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 1
    :caption: Foundational
 
+    Circle <circle>
     Color <color>
     Constants <constants>
+    Cuboid <cuboid>
+    Curves <curves>
+    Cylinder <cylinder>
     Distributors <distributors>
+    Extrusions <extrusions>
     Masking <masking>
+    Ops <ops>
     Partitions <partitions>
-    Shapes2D <shapes2d>
-    Shapes3D <shapes3d>
+    Solid <solid>
+    Sphere <sphere>
+    Square <square>
     Texture <texture>
+    Torus <torus>
     Transforms <transforms>
     Drawing <drawing>
     Native ops <native_ops>
@@ -117,23 +125,23 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 1
    :caption: Parts library
 
-    Ball Bearings <ball_bearings>
-    Bottlecaps <bottlecaps>
-    Cubetruss <cubetruss>
-    Gears <gears>
-    Hinges <hinges>
-    Hooks <hooks>
-    Joiners <joiners>
-    Linear Bearings <linear_bearings>
-    Modular Hose <modular_hose>
-    Nema Steppers <nema_steppers>
-    Polyhedra <polyhedra>
-    Screw Drive <screw_drive>
+    Ball Bearings &#128736; <ball_bearings>
+    Bottlecaps &#128736; <bottlecaps>
+    Cubetruss &#128736; <cubetruss>
+    Gears &#128736; <gears>
+    Hinges &#128736; <hinges>
+    Hooks &#128736; <hooks>
+    Joiners &#128736; <joiners>
+    Linear Bearings &#128736; <linear_bearings>
+    Modular Hose &#128736; <modular_hose>
+    Nema Steppers &#128736; <nema_steppers>
+    Polyhedra &#128736; <polyhedra>
+    Screw Drive &#128736; <screw_drive>
     Screws <screws>
-    Sliders <sliders>
-    Threading <threading>
-    Walls <walls>
-    Wiring <wiring>
+    Sliders &#128736; <sliders>
+    Threading &#128736; <threading>
+    Walls &#128736; <walls>
+    Wiring &#128736; <wiring>
 
 .. toctree::
    :maxdepth: 1

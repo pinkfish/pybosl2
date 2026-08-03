@@ -192,39 +192,41 @@ class Colorable(ABC):
             return self
         return self._color_native(c, alpha)
 
-    def hsl(self, height: float, s: float = 1.0, length: float = 0.5) -> Self:
+    def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None) -> Self:
         """Colour this object from an HSL hue/saturation/lightness.
 
         Uses :func:`colorsys.hls_to_rgb` for the conversion.  For opacity, chain
-        :meth:`ghost` after this call.
+        :meth:`ghost` after this call or pass the alpha parameter *a*.
 
         Args:
             height: Hue in degrees (0=red, 120=green, 240=blue).
             s: Saturation 0..1 (0 = grey, 1 = vivid).
             length: Lightness 0..1 (0 = black, 0.5 = bright, 1 = white).
+            a: Optional alpha (opacity) 0..1.
 
         Returns:
             This object coloured with the computed ``[R, G, B]`` value.
         """
         rgb = list(colorsys.hls_to_rgb(height / 360, length, s))
-        return self._color_native(rgb, None)
+        return self._color_native(rgb, a)
 
-    def hsv(self, height: float, s: float = 1.0, v: float = 1.0) -> Self:
+    def hsv(self, height: float, s: float = 1.0, v: float = 1.0, a: float | None = None) -> Self:
         """Colour this object from an HSV hue/saturation/value.
 
         Uses :func:`colorsys.hsv_to_rgb` for the conversion.  For opacity, chain
-        :meth:`ghost` after this call.
+        :meth:`ghost` after this call or pass the alpha parameter *a*.
 
         Args:
             height: Hue in degrees (0=red, 120=green, 240=blue).
             s: Saturation 0..1 (0 = grey, 1 = vivid).
             v: Value 0..1 (0 = black, 1 = bright).
+            a: Optional alpha (opacity) 0..1.
 
         Returns:
             This object coloured with the computed ``[R, G, B]`` value.
         """
         rgb = list(colorsys.hsv_to_rgb(height / 360, s, v))
-        return self._color_native(rgb, None)
+        return self._color_native(rgb, a)
 
     def highlight(self, highlight: bool = True) -> Self:
         """Apply the ``#`` debug modifier (BOSL2 highlight()).

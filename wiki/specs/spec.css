@@ -72,8 +72,13 @@ table.metrics tr:last-child td{border-bottom:0}
   font-variant-numeric:tabular-nums; line-height:1}
 .proof .txt{font-size:13px; color:var(--ink-dim)} .proof .txt b{color:var(--ink)}
 .code{font-family:var(--mono); font-size:12.5px; background:var(--panel-2); border:1px solid var(--line);
-  border-radius:8px; padding:11px 13px; overflow-x:auto; color:var(--ink)}
+  border-radius:8px; padding:11px 13px; overflow-x:auto; color:var(--ink); position:relative}
 .code .k{color:var(--accent)}
+.copy-btn{position:absolute; top:8px; right:8px;
+  background:var(--panel-2); color:var(--ink-dim);
+  border:1px solid var(--line); border-radius:4px;
+  padding:2px 8px; font-size:0.8em; cursor:pointer}
+.copy-btn:hover{background:var(--accent); color:#fff}
 .tags{display:flex; flex-wrap:wrap; gap:6px}
 .tag{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); border:1px solid var(--line);
   border-radius:5px; padding:2px 7px}

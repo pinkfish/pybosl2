@@ -19,6 +19,7 @@ from .cuboid import (
     prismoid,
     rect_tube,
     regular_prism,
+    roof,
     wedge,
 )
 from .cylinder import (
@@ -77,6 +78,7 @@ __all__ = [
     "octahedron",
     "wedge",
     "rect_tube",
+    "roof",
     "cyl",
     "cylinder",
     "xcyl",

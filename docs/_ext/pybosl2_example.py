@@ -55,7 +55,7 @@ _logger = logging.getLogger(__name__)
 # examples can be terse (`s3.cuboid(...)`, `Path2D(...)`, `Bezier(...)`) and mirror how the toolkit
 # is actually used.
 _PREAMBLE = (
-    "import sys, math, site, os\n"
+    "import sys, math, site, os, traceback\n"
     f"sys.path.insert(0, {str(_REPO_ROOT)!r})\n"
     # AppImage Python may not see system site-packages; add them explicitly
     "for p in site.getsitepackages():\n"
@@ -76,16 +76,16 @@ _PREAMBLE = (
     "                sys.path.insert(0, sp)\n"
     "import numpy as np\n"
     "import pybosl2\n"
+    "from pybosl2 import shapes3d as s3\n"
+    "from pybosl2 import shapes2d as s2\n"
     "from pybosl2 import Path, Path2D, Path3D\n"
     "from pybosl2 import Region\n"
     "from pybosl2 import Bezier, BezierPatch\n"
     "from pybosl2 import VNF\n"
-    "from pybosl2 import sweep, skin, rot_resample\n"
-    "from pybosl2 import helix\n"
-    "from pybosl2 import arc\n"
-    "from pybosl2 import catenary\n"
-    "from pybosl2.turtle import turtle2d\n"
-    "from pybosl2.turtle import turtle3d\n"
+    "from pybosl2 import path_sweep, path_sweep2d, sweep, skin, "
+    "linear_sweep, rotate_sweep, spiral_sweep, rot_resample\n"
+    "from pybosl2 import arc, catenary, helix, turtle2d, "
+    "turtle3d, stroke, dashed_stroke\n"
     "from pybosl2 import xdistribute, ydistribute, zdistribute\n"
     "from pybosl2 import round_corners, smooth_path\n"
     "from pybosl2 import MinkowskiJoin\n"
@@ -171,7 +171,6 @@ class Bosl2ExampleDirective(Directive):
             _logger.error(f"pybosl2-example: unexpected error rendering STL: {exc}\ncode:\n{code[:300]}")
             return None
         if not result.ok:
-            stderr_tail = (result.stderr or "")[-500:]
             _logger.warning(
                 f"pybosl2-example STL render FAILED: {result.error}\n"
                 f"--- code ---\n{code}\n"

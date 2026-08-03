@@ -76,6 +76,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),
     # 2-D shapes
+    "shapes2d": ("pybosl2.shapes2d", ""),
     "arc": ("pybosl2.shapes2d", "arc"),
     "circle": ("pybosl2.shapes2d", "circle"),
     "egg": ("pybosl2.shapes2d", "egg"),
@@ -102,6 +103,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "text": ("pybosl2.shapes2d", "text"),
     "trapezoid": ("pybosl2.shapes2d", "trapezoid"),
     # 3-D shapes
+    "shapes3d": ("pybosl2.shapes3d", ""),
     "cuboid": ("pybosl2.shapes3d", "cuboid"),
     "cube": ("pybosl2.shapes3d", "cube"),
     "sphere": ("pybosl2.shapes3d", "sphere"),
@@ -137,9 +139,19 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "nurbs_vnf": ("pybosl2.nurbs", "nurbs_vnf"),
     "is_nurbs_patch": ("pybosl2.nurbs", "is_nurbs_patch"),
     "nurbs_elevate_degree": ("pybosl2.nurbs", "nurbs_elevate_degree"),
+    # drawing / stroke
+    "stroke": ("pybosl2.paths", "stroke"),
+    "dashed_stroke": ("pybosl2.paths", "dashed_stroke"),
+    "turtle2d": ("pybosl2.turtle", "turtle2d"),
+    "turtle3d": ("pybosl2.turtle", "turtle3d"),
     # skin / sweep
     "sweep": ("pybosl2.skin", "sweep"),
     "skin": ("pybosl2.skin", "skin"),
+    "path_sweep": ("pybosl2.skin", "path_sweep"),
+    "path_sweep2d": ("pybosl2.skin", "path_sweep2d"),
+    "linear_sweep": ("pybosl2.skin", "linear_sweep"),
+    "rotate_sweep": ("pybosl2.skin", "rotate_sweep"),
+    "spiral_sweep": ("pybosl2.skin", "spiral_sweep"),
     "rot_resample": ("pybosl2.skin", "rot_resample"),
     # partitioning
     "partition_path": ("pybosl2.partitions", "partition_path"),
@@ -155,14 +167,14 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "smooth_path": ("pybosl2.rounding", "smooth_path"),
     "MinkowskiJoin": ("pybosl2.path2d", "MinkowskiJoin"),
     # isosurface / metaballs
-    "mb_sphere": ("pybosl2.metaballs", "mb_sphere"),
-    "mb_cuboid": ("pybosl2.metaballs", "mb_cuboid"),
-    "mb_torus": ("pybosl2.metaballs", "mb_torus"),
-    "mb_capsule": ("pybosl2.metaballs", "mb_capsule"),
-    "mb_disk": ("pybosl2.metaballs", "mb_disk"),
-    "mb_octahedron": ("pybosl2.metaballs", "mb_octahedron"),
-    "mb_connector": ("pybosl2.metaballs", "mb_connector"),
-    "metaballs2d": ("pybosl2.metaballs", "metaballs2d"),
+    "mb_sphere": ("pybosl2.isosurface", "mb_sphere"),
+    "mb_cuboid": ("pybosl2.isosurface", "mb_cuboid"),
+    "mb_torus": ("pybosl2.isosurface", "mb_torus"),
+    "mb_capsule": ("pybosl2.isosurface", "mb_capsule"),
+    "mb_disk": ("pybosl2.isosurface", "mb_disk"),
+    "mb_octahedron": ("pybosl2.isosurface", "mb_octahedron"),
+    "mb_connector": ("pybosl2.isosurface", "mb_connector"),
+    "metaballs2d": ("pybosl2.isosurface", "metaballs2d"),
     "Metaball": ("pybosl2.isosurface", "Metaball"),
     "MetaballSpec": ("pybosl2.isosurface", "MetaballSpec"),
     # VNF

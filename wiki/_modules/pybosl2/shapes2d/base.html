@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pybosl2.shapes2d.base &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pysidebar.css?v=a21e84ee" />
+    <script src="../../../_static/documentation_options.js?v=44212324"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+
+
+
+
+
+  </head><body>
+  <div class="document">
+
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">pybosl2 (PythonSCAD port)</a></h1>
+
+
+
+<p class="blurb">A pure-Python PythonSCAD port of BOSL2</p>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../backends.html"> CSG &amp; SDF backends</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../circle.html"> Circle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../constants.html"> Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cuboid.html"> Cuboid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../curves.html"> Curves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cylinder.html"> Cylinder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../distributors.html"> Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extrusions.html"> Extrusions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../masking.html"> Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ops.html"> Ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../partitions.html"> Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../solid.html"> Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sphere.html"> Sphere</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../square.html"> Square</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../texture.html"> Texture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torus.html"> Torus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../drawing.html"> Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../native_ops.html"> Native ops</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../isosurface.html"> Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nurbs.html"> Nurbs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../regions.html"> Object API for 2-D paths and regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rounding.html"> Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../turtle3d.html"> Turtle3D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vnf.html"> Vnf</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../geometry.html"> Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../math.html"> Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vectors.html"> Vectors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ball_bearings.html"> Ball Bearings &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bottlecaps.html"> Bottlecaps &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cubetruss.html"> Cubetruss &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gears.html"> Gears &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hinges.html"> Hinges &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../hooks.html"> Hooks &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../joiners.html"> Joiners &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../linear_bearings.html"> Linear Bearings &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modular_hose.html"> Modular Hose &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nema_steppers.html"> Nema Steppers &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../polyhedra.html"> Polyhedra &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../screw_drive.html"> Screw Drive &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../screws.html"> Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sliders.html"> Sliders &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../threading.html"> Threading &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../walls.html"> Walls &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wiring.html"> Wiring &amp;#128736;</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Extras</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../miscellaneous.html"> Miscellaneous</a></li>
+</ul>
+
+
+<hr />
+<ul>
+
+    <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
+
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+
+
+          <div class="body" role="main">
+
+  <h1>Source code for pybosl2.shapes2d.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2026, pinkfish</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the BSD 2-Clause License. See the LICENSE file in the project</span>
+<span class="c1"># root for the full license text.</span>
+<span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
+
+<span class="c1"># LibFile: pybosl2/shapes2d/base.py</span>
+<span class="c1"># FileSummary: Base 2D shape wrapper class and anchoring/mathematical helper functions.</span>
+<span class="c1"># DocCategory: internal</span>
+<span class="c1"># FileGroup: BOSL2</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">_BaseShape</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">openscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyOpenSCAD</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">CsgSolid</span> <span class="k">as</span> <span class="n">Bosl2Solid</span>
+
+<span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">,</span> <span class="s2">&quot;PyOpenSCAD&quot;</span><span class="p">,</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">_ocircle</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">fill</span> <span class="k">as</span> <span class="n">_ofill</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">hull</span> <span class="k">as</span> <span class="n">_ohull</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon</span> <span class="k">as</span> <span class="n">_opolygon</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_osquare</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">text</span> <span class="k">as</span> <span class="n">_otext</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">_ocircle</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;circle&quot;</span><span class="p">)</span>
+    <span class="n">_ofill</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;fill&quot;</span><span class="p">)</span>
+    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;hull&quot;</span><span class="p">)</span>
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
+    <span class="n">_osquare</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;square&quot;</span><span class="p">)</span>
+    <span class="n">_otext</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AnchorType">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.AnchorType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnchorType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">HULL</span> <span class="o">=</span> <span class="s2">&quot;hull&quot;</span>
+    <span class="n">BOX</span> <span class="o">=</span> <span class="s2">&quot;box&quot;</span>
+    <span class="n">INTERSECT</span> <span class="o">=</span> <span class="s2">&quot;intersect&quot;</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_norm_atype</span><span class="p">(</span><span class="n">atype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnchorType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnchorType</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">atype</span><span class="p">,</span> <span class="n">AnchorType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">atype</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">AnchorType</span><span class="p">(</span><span class="n">atype</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid atype: </span><span class="si">{</span><span class="n">atype</span><span class="si">!r}</span><span class="s2">. Expected one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">AnchorType</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_anchor_offset_generic</span><span class="p">(</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">atype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnchorType</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="n">atype_enum</span> <span class="o">=</span> <span class="n">_norm_atype</span><span class="p">(</span><span class="n">atype</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">atype_enum</span> <span class="o">==</span> <span class="n">AnchorType</span><span class="o">.</span><span class="n">BOX</span><span class="p">:</span>
+        <span class="n">min_x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">)</span>
+        <span class="n">max_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">)</span>
+        <span class="n">min_y</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">)</span>
+        <span class="n">max_y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_x</span> <span class="o">-</span> <span class="n">min_x</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">-</span> <span class="n">min_y</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_anchor_offset_box</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">atype_enum</span> <span class="o">==</span> <span class="n">AnchorType</span><span class="o">.</span><span class="n">INTERSECT</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">_dir2</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+        <span class="n">best_t</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">best_pt</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="n">points</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span><span class="p">]</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">denom</span> <span class="o">=</span> <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">-</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span><span class="p">)</span> <span class="o">*</span> <span class="n">dy</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-9</span><span class="p">:</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1</span> <span class="o">*</span> <span class="n">dy</span> <span class="o">-</span> <span class="n">y1</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span>
+                <span class="k">if</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">u</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span><span class="p">))</span> <span class="o">/</span> <span class="n">dx</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-9</span> <span class="k">else</span> <span class="p">(</span><span class="n">y1</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span><span class="p">))</span> <span class="o">/</span> <span class="n">dy</span>
+                    <span class="k">if</span> <span class="n">t</span> <span class="o">&gt;=</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="n">best_t</span><span class="p">:</span>
+                        <span class="n">best_t</span> <span class="o">=</span> <span class="n">t</span>
+                        <span class="n">best_pt</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="o">*</span> <span class="n">dx</span><span class="p">,</span> <span class="n">t</span> <span class="o">*</span> <span class="n">dy</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">best_t</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="o">-</span><span class="n">best_pt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">best_pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">_anchor_offset_hull</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_anchor_offset_hull</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_frag_count</span><span class="p">(</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Number of polygon segments to approximate a circle of radius *radius*, mirroring OpenSCAD&#39;s</span>
+<span class="sd">    $fn/$fa/$fs rules.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fn</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+    <span class="n">fa</span> <span class="o">=</span> <span class="n">fa</span> <span class="k">if</span> <span class="n">fa</span> <span class="k">else</span> <span class="mf">12.0</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">fs</span> <span class="k">if</span> <span class="n">fs</span> <span class="k">else</span> <span class="mf">2.0</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="mf">360.0</span> <span class="o">/</span> <span class="n">fa</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">radius</span><span class="p">))</span> <span class="o">/</span> <span class="n">fs</span><span class="p">))))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_quant</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">y</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_polar_to_xy</span><span class="p">(</span><span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">),</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rotate2d</span><span class="p">(</span><span class="n">point</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">degrees</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">c</span> <span class="o">-</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">s</span> <span class="o">+</span> <span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">c</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_circle_pts</span><span class="p">(</span><span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">_polar_to_xy</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="mf">360.0</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_arc_points</span><span class="p">(</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">center</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    *count* points along an arc of radius *radius* centered at *center*, from angle *start*</span>
+<span class="sd">    sweeping *angle* degrees.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">endpoint</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_arc_points</span><span class="p">(</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="kc">True</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">[</span>
+                <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start</span><span class="p">))</span> <span class="o">+</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start</span><span class="p">))</span> <span class="o">+</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">angle</span> <span class="o">/</span> <span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">pts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">+</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">+</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">pts</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_arc_between_points</span><span class="p">(</span>
+    <span class="n">center</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">point_start</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">point_end</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Arc around *center* from *point_start* to *point_end*, sweeping the shorter way around.&quot;&quot;&quot;</span>
+    <span class="n">a0</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">point_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">point_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">point_end</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">point_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">a1</span> <span class="o">-</span> <span class="n">a0</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span> <span class="o">-</span> <span class="mi">180</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">/</span> <span class="mi">360</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_arc_points</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">a0</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_arc_through_3</span><span class="p">(</span>
+    <span class="n">center</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">point_start</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">point_mid</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">point_end</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be</span>
+<span class="sd">    the long way around).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a0</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">point_start</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">point_start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">am</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">point_mid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">point_mid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">point_end</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">point_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">d_mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">am</span> <span class="o">-</span> <span class="n">a0</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span>
+    <span class="n">d_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">a1</span> <span class="o">-</span> <span class="n">a0</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">d_end</span> <span class="k">if</span> <span class="n">d_mid</span> <span class="o">&lt;=</span> <span class="n">d_end</span> <span class="k">else</span> <span class="n">d_end</span> <span class="o">-</span> <span class="mi">360</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">/</span> <span class="mi">360</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">_arc_points</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">a0</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">)</span>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pick_radius</span><span class="p">(</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dflt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pick_radius</span><span class="p">(</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dflt</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pick_radius</span><span class="p">(</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">dflt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pick_radius</span><span class="p">(</span>  <span class="c1"># type: ignore[no-untyped-def]</span>
+    <span class="n">radius1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mirror BOSL2&#39;s get_radius(): (radius1,diameter1) &gt; (radius2,diameter2) &gt; (radius,diameter) &gt;</span>
+<span class="sd">    dflt.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">radius1</span>
+    <span class="k">if</span> <span class="n">diameter1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diameter1</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">radius2</span>
+    <span class="k">if</span> <span class="n">diameter2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diameter2</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">radius</span>
+    <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">dflt</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_circle_from_3pts</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">),</span> <span class="p">(</span><span class="n">x3</span><span class="p">,</span> <span class="n">y3</span><span class="p">)</span> <span class="o">=</span> <span class="n">points</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">*</span> <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y3</span><span class="p">)</span> <span class="o">+</span> <span class="n">x2</span> <span class="o">*</span> <span class="p">(</span><span class="n">y3</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span> <span class="o">+</span> <span class="n">x3</span> <span class="o">*</span> <span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y2</span><span class="p">))</span>
+    <span class="n">ux</span> <span class="o">=</span> <span class="p">((</span><span class="n">x1</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y1</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y3</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">x2</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y3</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">x3</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y3</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y2</span><span class="p">))</span> <span class="o">/</span> <span class="n">d</span>
+    <span class="n">uy</span> <span class="o">=</span> <span class="p">((</span><span class="n">x1</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y1</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x3</span> <span class="o">-</span> <span class="n">x2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">x2</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x3</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">x3</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y3</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span><span class="p">))</span> <span class="o">/</span> <span class="n">d</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ux</span><span class="p">,</span> <span class="n">uy</span><span class="p">],</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">ux</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">uy</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_circle_from_corner</span><span class="p">(</span><span class="n">corner</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">corner</span>
+    <span class="n">v1</span> <span class="o">=</span> <span class="n">unit</span><span class="p">([</span><span class="n">p0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="n">v2</span> <span class="o">=</span> <span class="n">unit</span><span class="p">([</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="n">bis</span> <span class="o">=</span> <span class="n">unit</span><span class="p">([</span><span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v2</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="n">half_ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">v1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">bis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">bis</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">half_ang</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">bis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">dist</span><span class="p">,</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">dist</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_circle_circle_intersection</span><span class="p">(</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">center1</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">center2</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">center1</span><span class="p">,</span> <span class="n">center2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="n">radius1</span> <span class="o">+</span> <span class="n">radius2</span> <span class="ow">or</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">radius1</span> <span class="o">-</span> <span class="n">radius2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">radius1</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">radius2</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">d</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span>
+    <span class="n">h_sq</span> <span class="o">=</span> <span class="n">radius1</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">if</span> <span class="n">h_sq</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">h_sq</span><span class="p">)</span>
+    <span class="n">xm</span> <span class="o">=</span> <span class="n">center1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="n">center2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">center1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">d</span>
+    <span class="n">ym</span> <span class="o">=</span> <span class="n">center1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="n">center2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">center1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">d</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="n">center2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">center1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">d</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="p">(</span><span class="n">center2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">center1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">d</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">xm</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">ym</span> <span class="o">-</span> <span class="n">dy</span><span class="p">],</span> <span class="p">[</span><span class="n">xm</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span> <span class="n">ym</span> <span class="o">+</span> <span class="n">dy</span><span class="p">]]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_adjacent_angle_to_hypotenuse</span><span class="p">(</span><span class="n">adjacent</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">adjacent</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_adjacent_angle_to_opposite</span><span class="p">(</span><span class="n">adjacent</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">adjacent</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_opposite_angle_to_adjacent</span><span class="p">(</span><span class="n">opposite</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">opposite</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_v_theta</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_det2</span><span class="p">(</span><span class="n">vec_a</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">vec_b</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">vec_a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">vec_b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">vec_a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">vec_b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sign</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_vector_angle</span><span class="p">(</span><span class="n">point_a</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">point_b</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">point_c</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The angle in degrees at vertex *b* of the corner a-b-c.&quot;&quot;&quot;</span>
+    <span class="n">vax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point_a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">point_b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">vay</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point_a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">point_b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">vcx</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point_c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">point_b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">vcy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point_c</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">point_b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">cosv</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span><span class="n">vax</span> <span class="o">*</span> <span class="n">vcx</span> <span class="o">+</span> <span class="n">vay</span> <span class="o">*</span> <span class="n">vcy</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">vax</span><span class="p">,</span> <span class="n">vay</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">vcx</span><span class="p">,</span> <span class="n">vcy</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cosv</span><span class="p">))))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dir2</span><span class="p">(</span><span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">anchor</span><span class="o">.</span><span class="n">vector</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">anchor</span><span class="p">,</span> <span class="n">Anchor</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">anchor</span><span class="p">))</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_anchor_offset_box</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">_dir2</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_anchor_offset_hull</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">_dir2</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="o">-</span><span class="n">best</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">best</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_finish</span><span class="p">(</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="n">PyOpenSCAD</span><span class="p">,</span>
+    <span class="n">offset</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Anchor-translate and spin a freshly built native 2-D shape, then wrap it.</span>
+
+<span class="sd">    Every shape constructor in this file funnels through here, which is what makes them all</span>
+<span class="sd">    return a :class:`Bosl2Shape2D` rather than a bare native handle. *size*/*anchor* are the</span>
+<span class="sd">    nominal box metadata to carry on the wrapper, for the shapes that have one. A shape that is</span>
+<span class="sd">    already wrapped (``ring()`` composes two circles) is unwrapped first, never double-wrapped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">Bosl2Shape2D</span><span class="o">.</span><span class="n">_unwrap</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">off</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">offset</span><span class="o">.</span><span class="n">vector_2d</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">Anchor</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">offset</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">off</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">off</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">off</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spin</span><span class="p">:</span>
+        <span class="c1"># Native 2-D rotate needs the 3-vector form; a bare scalar is rejected.</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">spin</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CsgShape2D">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CsgShape2D</span><span class="p">(</span><span class="n">_BaseShape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent, chainable API that</span>
+<span class="sd">    :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids. Every shape constructor in this file</span>
+<span class="sd">    returns one of these, as do :meth:`~pybosl2.paths.Path2D.polygon` and</span>
+<span class="sd">    :meth:`~pybosl2.regions.Region.geometry`.</span>
+
+<span class="sd">    Transforms, CSG operators, colour, and distributor methods are inherited from</span>
+<span class="sd">    :class:`~pybosl2._shape._BaseShape`.</span>
+
+<span class="sd">    The 2-D specific operations live here:</span>
+
+<span class="sd">    * :meth:`fill` -- drop every hole, keeping only the outermost outline (OpenSCAD ``fill()``).</span>
+<span class="sd">    * :meth:`hull` -- the convex hull of this shape, optionally together with more shapes/paths</span>
+<span class="sd">      (OpenSCAD ``hull()``).</span>
+<span class="sd">    * :meth:`offset` -- inset/outset, with BOSL2&#39;s ``radius=``/``delta=`` spelling (the native</span>
+<span class="sd">      ``offset()`` only understands ``r=``).</span>
+<span class="sd">    * :meth:`linear_extrude` / :meth:`rotate_extrude` -- the 2-D -&gt; 3-D operators, which return a</span>
+<span class="sd">      :class:`~pybosl2.shapes3d.Bosl2Solid` so the result keeps the 3-D fluent API.</span>
+
+<span class="sd">    Like :class:`~pybosl2.shapes3d.Bosl2Solid` this is composition, not a subclass of the native</span>
+<span class="sd">    C-extension type: passing one *directly* into a native function that wants a raw handle needs</span>
+<span class="sd">    an explicit ``.shape`` (or :func:`pybosl2._helpers.unwrap`).</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">       `Visual spec sheet &lt;specs/shapes2d.html&gt;`_ — measurements and STL previews</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: which realize backend produced this shape -- 2-D geometry is exact-CSG only (see</span>
+    <span class="c1">#: pybosl2/_backend.py); the SDF backend has no 2-D surface.</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="s2">&quot;csg&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">shape</span><span class="p">:</span> <span class="n">PyOpenSCAD</span><span class="p">,</span>
+        <span class="n">size</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">anchor</span><span class="p">:</span> <span class="s2">&quot;Anchor | Sequence[float] | str | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="c1">#: nominal [x, y] size for the shapes that have a genuine box size, else None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">][:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">a_val</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">anchor</span> <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CENTER</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span> <span class="o">=</span> <span class="n">a_val</span>
+
+    <span class="n">spin</span> <span class="o">=</span> <span class="n">_BaseShape</span><span class="o">.</span><span class="n">rotate</span>
+
+<div class="viewcode-block" id="CsgShape2D.xflip">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.xflip">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mirror across the vertical line at *x* (BOSL2 xflip()).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span><span class="o">.</span><span class="n">mirror</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="CsgShape2D.yflip">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.yflip">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">yflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mirror across the horizontal line at *y* (BOSL2 yflip()).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">mirror</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span></div>
+
+
+    <span class="c1"># ---- 2-D operators ----</span>
+
+<div class="viewcode-block" id="CsgShape2D.offset">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.offset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">chamfer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inset (negative) or outset (positive) the outline.</span>
+
+<span class="sd">        *radius* rounds the joins it creates, *delta* keeps them sharp (or bevels them with</span>
+<span class="sd">        ``chamfer=True``) -- BOSL2&#39;s spelling of OpenSCAD&#39;s ``r=``/``delta=``. Give exactly one.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                s2.star(n=5, r=30, ir=15).offset(delta=4).linear_extrude(height=4).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">delta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;offset(): give exactly one of radius= or delta=.&quot;</span>
+        <span class="n">kw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">}</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">,</span> <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">&quot;fn&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;fa&quot;</span><span class="p">,</span> <span class="n">fa</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">kw</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="c1"># The offset moves the outline, so the nominal box size no longer describes it.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="CsgShape2D.minkowski">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.minkowski">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minkowski</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Bosl2Shape2D | PyOpenSCAD&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Minkowski sum of this shape with *other*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: A second 2-D shape to sweep along the outline of this one.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new :class:`Bosl2Shape2D` whose geometry is the Minkowski sum.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                s2.square([10, 10], center=True).minkowski(s2.circle(radius=3)).linear_extrude(height=2).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">minkowski</span> <span class="k">as</span> <span class="n">_minkowski</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_minkowski</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">Bosl2Shape2D</span><span class="o">.</span><span class="n">_unwrap</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CsgShape2D.fill">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.fill">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This shape with every hole filled in -- only the outermost outline survives</span>
+<span class="sd">        (OpenSCAD ``fill()``).</span>
+
+<span class="sd">        Useful for recovering the solid footprint of a shape you have already punched holes in,</span>
+<span class="sd">        e.g. to build a backing plate for it, or to close up the interior loops of ``text()``.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                plate = s2.square(40) - s2.circle(radius=8)</span>
+<span class="sd">                plate.fill().linear_extrude(height=2).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="n">_ofill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="CsgShape2D.hull">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.hull">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="s2">&quot;Shape2DLike&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The convex hull of this shape (OpenSCAD ``hull()``).</span>
+
+<span class="sd">        With arguments, the hull of this shape *together with* each of *others* -- any mix of</span>
+<span class="sd">        ``Bosl2Shape2D``, native 2-D shapes, :class:`~pybosl2.paths.Path2D` /</span>
+<span class="sd">        :class:`~pybosl2.regions.Region`, or plain ``[[x, y], ...]`` point lists.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                slot = s2.circle(radius=5).hull(s2.circle(radius=5).right(30))</span>
+<span class="sd">                slot.linear_extrude(height=3).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_ohull</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">others</span><span class="p">]))</span></div>
+
+
+    <span class="c1"># ---- 2-D -&gt; 3-D (returns a Bosl2Solid) ----</span>
+
+<div class="viewcode-block" id="CsgShape2D.linear_extrude">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.linear_extrude">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">scale</span><span class="p">:</span> <span class="s2">&quot;float | Sequence[float]&quot;</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude this 2-D shape *height* along +Z into a 3-D solid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            height:    extrusion height</span>
+<span class="sd">            center:    centre the result on z=0 rather than starting at z=0 (default False)</span>
+<span class="sd">            twist:     degrees to rotate the top face relative to the bottom (default 0)</span>
+<span class="sd">            scale:     scale factor of the top face, a scalar or [x, y] (default 1)</span>
+<span class="sd">            slices:    number of intermediate layers (default: from the twist)</span>
+<span class="sd">            convexity: rendering hint for self-overlapping cross-sections</span>
+<span class="sd">            kwargs:    any further native ``linear_extrude()`` parameter (``origin``, ``fn``, ...)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                s2.star(n=5, r=30, ir=15).linear_extrude(height=6, twist=45).show()</span>
+
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                s2.circle(radius=15).linear_extrude(height=20).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
+
+        <span class="n">kw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+            <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+            <span class="s2">&quot;twist&quot;</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span>
+            <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">slices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s2">&quot;slices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slices</span>
+        <span class="k">if</span> <span class="n">convexity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s2">&quot;convexity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convexity</span>
+        <span class="n">kw</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">height</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CsgShape2D.rotate_extrude">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.rotate_extrude">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_extrude</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">360.0</span><span class="p">,</span>
+        <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Revolve this 2-D shape about the Y axis into a 3-D solid (OpenSCAD ``rotate_extrude()``).</span>
+
+<span class="sd">        The shape must lie entirely on one side of the axis. *angle* sweeps less than a full</span>
+<span class="sd">        revolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                s2.square(10).right(15).rotate_extrude().show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
+
+        <span class="n">kw</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;angle&quot;</span><span class="p">:</span> <span class="n">angle</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;convexity&quot;</span><span class="p">,</span> <span class="n">convexity</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;fn&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;fa&quot;</span><span class="p">,</span> <span class="n">fa</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">kw</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="n">kw</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rotate_extrude</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="CsgShape2D.path_extrude">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.path_extrude">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path3D</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sweep this 2-D shape along *path* (a :class:`~pybosl2.paths.Path3D` or point list), via</span>
+<span class="sd">        the native ``path_extrude()``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                path = [[0, 0, 0], [20, 10, 10], [40, 0, 20], [60, 10, 30]]</span>
+<span class="sd">                s2.circle(radius=5).path_extrude(path).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
+
+        <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">path_extrude</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+
+    <span class="c1"># ---- colour (pybosl2/color.py) ----</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_color_native</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">&quot;str | Sequence[float] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">()</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">c</span><span class="p">,)</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_highlight_native</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">highlight</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ghost_native</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">background</span><span class="p">())</span>
+
+    <span class="c1"># ---- distributors (pybosl2/distributors.py) ----</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_distribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">]:</span>  <span class="c1"># type: ignore[override]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of multmatrix copies of this 2-D shape, one per matrix.&quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mats</span><span class="p">:</span>
+            <span class="n">m4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m4</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="mf">1e-9</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m4</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;this copier moves the 2-D shape out of the XY plane; extrude it to 3-D first&quot;</span>
+            <span class="p">)</span>
+            <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">m4</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="n">copy</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<div class="viewcode-block" id="CsgShape2D.distribute_on_path">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.distribute_on_path">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">distribute_on_path</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
+        <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rotate_children</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Distribute copies of this 2-D shape along *path*, oriented to the path normal.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: A :class:`~pybosl2.path2d.Path2D`.</span>
+<span class="sd">            num_copies: Number of copies.</span>
+<span class="sd">            spacing: Distance between copies.</span>
+<span class="sd">            start_pos: Starting position along the path.</span>
+<span class="sd">            dist: Explicit list of distances from path start.</span>
+<span class="sd">            rotate_children: If True, rotate each copy to align with the path normal.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`Bosl2Shape2D` union of all positioned copies.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+        <span class="n">length</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">perimeter</span><span class="p">()</span>
+        <span class="n">is_closed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;closed&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">distances</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dist</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">start_pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_pos</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">spacing</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_copies</span><span class="p">)]</span>
+            <span class="k">elif</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">start_pos</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_copies</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">num_copies</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_pos</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">step</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_copies</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;distribute_on_path(): provide num_copies or spacing.&quot;</span>
+                <span class="n">cnt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">length</span> <span class="o">-</span> <span class="n">start_pos</span><span class="p">)</span> <span class="o">/</span> <span class="n">spacing</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">start_pos</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">spacing</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cnt</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_closed</span><span class="p">:</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_copies</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">num_copies</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_copies</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="n">num_copies</span> <span class="k">if</span> <span class="n">num_copies</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_copies</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;distribute_on_path(): provide num_copies, spacing, or dist.&quot;</span>
+            <span class="n">cnt</span> <span class="o">=</span> <span class="n">num_copies</span> <span class="k">if</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="n">spacing</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">is_closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">ptlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">spacing</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cnt</span><span class="p">)]</span>
+            <span class="n">center</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ptlist</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">ptlist</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_closed</span><span class="p">:</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">e</span> <span class="o">-</span> <span class="n">center</span><span class="p">)</span> <span class="o">%</span> <span class="n">length</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ptlist</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="o">+</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">center</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ptlist</span><span class="p">]</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">length</span><span class="p">)</span> <span class="k">for</span> <span class="n">dst</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">]</span>
+        <span class="n">cutlist</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">cut_points</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">is_closed</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bosl2Shape2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cp</span> <span class="ow">in</span> <span class="n">cutlist</span><span class="p">:</span>
+            <span class="n">copied</span><span class="p">:</span> <span class="n">Bosl2Shape2D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+            <span class="k">if</span> <span class="n">rotate_children</span><span class="p">:</span>
+                <span class="n">nv</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">nv</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">nv</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span> <span class="o">-</span> <span class="mi">90</span>
+                <span class="n">copied</span> <span class="o">=</span> <span class="n">copied</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">ang</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copied</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">out</span> <span class="o">|</span> <span class="n">r</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+    <span class="c1"># ---- bounding box ----</span>
+
+<div class="viewcode-block" id="CsgShape2D.bounds">
+<a class="viewcode-back" href="../../../shapes2d.html#pybosl2.shapes2d.CsgShape2D.bounds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[list[float], list[float]]&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This shape&#39;s axis-aligned bounding box as ``(center, size)`` -- both ``[x, y]`` float</span>
+<span class="sd">        lists in the shape&#39;s current frame (the 2-D form of</span>
+<span class="sd">        :meth:`~pybosl2.shapes3d.Bosl2Solid.bounds`).</span>
+
+<span class="sd">        Prefers the native bbox, which always reflects the current geometry; falls back to the</span>
+<span class="sd">        tracked nominal size/anchor when the native accessors aren&#39;t available (the numeric test</span>
+<span class="sd">        mock).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pos</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">sz</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mincorner</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">mincorner</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)],</span> <span class="n">size</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">_anchor_offset_box</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">anchor</span><span class="p">),</span> <span class="n">size</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bounds(): the shape has no native bounding box and no tracked size metadata.&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PyOpenSCAD&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape, a</span>
+<span class="sd">    :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">unwrap</span>
+
+    <span class="n">unwrapped</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unwrapped</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">obj</span><span class="p">:</span>  <span class="c1"># a Bosl2Shape2D / Bosl2Solid wrapper</span>
+        <span class="k">return</span> <span class="n">unwrapped</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Path2D / Region</span>
+    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">geom</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">geom</span><span class="p">())</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>  <span class="c1"># a bare [[x, y], ...] point list</span>
+        <span class="k">return</span> <span class="n">_opolygon</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">obj</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_child_2d</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if *obj* is a single 2-D child rather than a container of children -- a wrapper or</span>
+<span class="sd">    native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># a wrapper or a native handle</span>
+    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Path2D / Region</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
+
+
+<span class="n">Bosl2Shape2D</span> <span class="o">=</span> <span class="n">CsgShape2D</span>
+</pre></div>
+
+          </div>
+
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2026, pinkfish.
+
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+
+    </div>
+
+
+
+
+  </body>
+</html>

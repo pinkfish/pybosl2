@@ -50,6 +50,9 @@ from .cuboid import (
     regular_prism as regular_prism,
 )
 from .cuboid import (
+    roof as roof,
+)
+from .cuboid import (
     wedge as wedge,
 )
 from .cylinder import (
