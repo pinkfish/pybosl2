@@ -170,7 +170,7 @@ class Turtle3D:
 
         .. pythonscad-example::
 
-            from pybosl2.turtle3d import turtle3d, TurtleCommand, TurtleCommandType as Tct
+            from pybosl2.turtle import turtle3d, TurtleCommand, TurtleCommandType as Tct
             from pybosl2.path3d import Path3D
 
             sq = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
@@ -830,7 +830,7 @@ def turtle3d(
 
         .. pythonscad-example::
 
-            from pybosl2.turtle3d import turtle3d, TurtleCommand, TurtleCommandType as Tct
+            from pybosl2.turtle import turtle3d, TurtleCommand, TurtleCommandType as Tct
             from pybosl2.path3d import Path3D
 
             sq = [[-1, -1], [1, -1], [1, 1], [-1, 1]]

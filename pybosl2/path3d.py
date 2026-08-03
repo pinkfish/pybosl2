@@ -84,6 +84,8 @@ def helix(
 
         .. pythonscad-example::
 
+            from pybosl2 import helix, stroke
+
             stroke(helix(turns=2.5, height=100, radius=30), width=3).show()
     """
     r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -141,6 +143,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         A helix resampled to fewer points and swept into a coil:
 
         .. pythonscad-example::
+
+            from pybosl2 import helix
 
             coil = helix(turns=3, height=60, radius=20).resample(num_copies=120)
             coil.stroke(width=4).show()
@@ -391,6 +395,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import Path3D
+
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 pieces = path3d.cut(15)
                 pieces[0].stroke(width=1).show()
@@ -569,6 +575,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import helix
+
                 coil = helix(turns=3, height=60, radius=20).subdivide_path(points=200)
                 coil.stroke(width=4).show()
         """
@@ -649,6 +657,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import helix
+
                 coil = helix(turns=3, height=60, radius=20).resample_path(num_copies=120)
                 coil.stroke(width=4).show()
         """
@@ -690,6 +700,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             Selecting the middle portion of a 3-D path:
 
             .. pythonscad-example::
+
+                from pybosl2 import Path3D
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 mid = path3d.select(0, 0.5, 2, 0.5)
@@ -769,6 +781,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import Path3D
+
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0]], closed=False)
                 loop = path3d.close()
                 loop.stroke(width=1).show()
@@ -789,6 +803,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import Path3D
+
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 0, 0]])
                 result = path3d.cleanup()
                 result.stroke(width=1).show()
@@ -807,6 +823,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             Reversing the direction of a 3-D path:
 
             .. pythonscad-example::
+
+                from pybosl2 import Path3D
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.reverse()
@@ -828,6 +846,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             Removing a redundant middle point from a straight segment:
 
             .. pythonscad-example::
+
+                from pybosl2 import Path3D
 
                 path3d = Path3D([[0, 0, 0], [15, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.merge_collinear()
@@ -874,6 +894,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import Path3D
+
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.deduplicate()
                 result.stroke(width=1).show()
@@ -905,6 +927,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import Path3D
+
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.subdivide(num_copies=100)
                 result.stroke(width=1).show()
@@ -931,6 +955,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
+                from pybosl2 import Path3D
+
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.resample(num_copies=50)
                 result.stroke(width=1).show()
@@ -950,6 +976,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path3D
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.translate([10, 5, 15])
@@ -974,6 +1002,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import Path3D
+
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.scale(2)
                 result.stroke(width=2).show()
@@ -995,6 +1025,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path3D
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.rotate(45, v=[0, 0, 1])
@@ -1027,6 +1059,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Examples:
             .. pythonscad-example::
+
+                from pybosl2 import Path3D
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.mirror([1, 0, 0])
@@ -1115,6 +1149,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Examples:
             .. pythonscad-example::
 
+                from pybosl2 import helix
+
                 sweep_path = helix(turns=3, height=60, radius=20)
                 flat = sweep_path.path2d()
                 flat.stroke(width=2).linear_extrude(h=1).show()
@@ -1152,6 +1188,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A simple path stroked as a tube:
 
             .. pythonscad-example::
+
+                from pybosl2 import Path3D
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])
                 path3d.stroke(width=2).show()
@@ -1211,6 +1249,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A dashed stroke along a 3-D path:
 
             .. pythonscad-example::
+
+                from pybosl2 import Path3D
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])
                 path3d.dashed_stroke(dashpat=[5, 2]).show()

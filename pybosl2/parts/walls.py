@@ -166,6 +166,7 @@ class Walls:
         Examples:
             .. pythonscad-example::
 
+                from pybosl2.parts.walls import Walls
                 Walls.sparse_cuboid(size=[50, 40, 10], dir="Y", strut=3).show()
         """
         sx, sy, sz = (float(v) for v in (size if not isinstance(size, (int, float)) else (size, size, size)))

@@ -96,6 +96,8 @@ def circle(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.circle(radius=15).linear_extrude(height=5).show()
     """
     if points is not None:
@@ -325,6 +327,8 @@ def ellipse(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.ellipse(diameter=[30, 20]).linear_extrude(height=5).show()
     """
     _ = uniform
@@ -375,6 +379,8 @@ def keyhole(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes2d as s2
 
             s2.keyhole(length=25, radius1=4, radius2=9, shoulder_radius=2).linear_extrude(height=4).show()
     """
@@ -450,6 +456,8 @@ def ring(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.ring(radius=20, ring_width=4).linear_extrude(height=5).show()
     """
     assert angle is None, "ring(): only the full-annulus form is ported (no angle=)."
@@ -494,6 +502,8 @@ def glued_circles(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes2d as s2
 
             s2.glued_circles(radius=10, spread=25, tangent=30).linear_extrude(height=5).show()
     """
@@ -566,6 +576,8 @@ def reuleaux_polygon(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes2d as s2
 
             s2.reuleaux_polygon(sides=3, radius=15).linear_extrude(height=5).show()
     """

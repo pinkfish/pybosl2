@@ -219,6 +219,8 @@ def text3d(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import text3d
+
             text3d("BOSL2", size=10, height=3).show()
     """
     av = _text3d_anchor_vec(anchor)
@@ -422,6 +424,8 @@ def cross(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import cross
 
             cross(size=30, height=5).show()
     """

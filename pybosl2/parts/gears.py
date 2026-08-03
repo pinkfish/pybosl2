@@ -971,6 +971,7 @@ class Gears:
         Examples:
             .. pythonscad-example::
 
+                from pybosl2.parts.gears import Gears
                 Gears.ring_gear(teeth=30, thickness=8, pressure_angle=14.5, helical=20).show()
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)

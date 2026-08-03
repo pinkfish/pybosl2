@@ -119,31 +119,31 @@ class Turtle2DState:
 class Turtle2D:
     """A 2-D turtle: walk it with a command list to produce a 2-D path.
 
-        The turtle starts at the origin pointing along +X with a step length of 1.
-        The turtle's internal state is a :class:`Turtle2DState` instance accessible
-        via :meth:`full_state`.
+    The turtle starts at the origin pointing along +X with a step length of 1.
+    The turtle's internal state is a :class:`Turtle2DState` instance accessible
+    via :meth:`full_state`.
 
-        Examples:
-            A rounded-corner square:
+    Examples:
+        A rounded-corner square:
 
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                from pybosl2.turtle2d import Turtle2D
-                from pybosl2.points import Point
-    from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct
+            from pybosl2.turtle import Turtle2D
+            from pybosl2.points import Point
+            from pybosl2.turtle import TurtleCommand, TurtleCommandType as Tct
 
-                cmds = [
-                    TurtleCommand(Tct.MOVE, size=40),
-                    TurtleCommand(Tct.ARCLEFT, radius=8),
-                    TurtleCommand(Tct.MOVE, size=40),
-                    TurtleCommand(Tct.ARCLEFT, radius=8),
-                    TurtleCommand(Tct.MOVE, size=40),
-                    TurtleCommand(Tct.ARCLEFT, radius=8),
-                    TurtleCommand(Tct.MOVE, size=40),
-                    TurtleCommand(Tct.ARCLEFT, radius=8),
-                ]
-                path = Turtle2D().run(cmds).points()
-                path.stroke(width=3, closed=True).linear_extrude(height=4).show()
+            cmds = [
+                TurtleCommand(Tct.MOVE, size=40),
+                TurtleCommand(Tct.ARCLEFT, radius=8),
+                TurtleCommand(Tct.MOVE, size=40),
+                TurtleCommand(Tct.ARCLEFT, radius=8),
+                TurtleCommand(Tct.MOVE, size=40),
+                TurtleCommand(Tct.ARCLEFT, radius=8),
+                TurtleCommand(Tct.MOVE, size=40),
+                TurtleCommand(Tct.ARCLEFT, radius=8),
+            ]
+            path = Turtle2D().run(cmds).points()
+            path.stroke(width=3, closed=True).linear_extrude(height=4).show()
     """
 
     def __init__(self, state: Turtle2DState | None = None) -> None:
@@ -527,37 +527,37 @@ def turtle2d(
 ) -> Turtle2D:
     """Build a 2-D path from :class:`TurtleCommand` objects — BOSL2's ``turtle2d()``.
 
-        Creates a :class:`Turtle2D`, runs *commands* (optionally *repeat* times),
-        and returns the turtle. Access the path via :meth:`Turtle2D.points` or
-        the state via :meth:`Turtle2D.full_state`.
+    Creates a :class:`Turtle2D`, runs *commands* (optionally *repeat* times),
+    and returns the turtle. Access the path via :meth:`Turtle2D.points` or
+    the state via :meth:`Turtle2D.full_state`.
 
-        Args:
-            commands: A flat list of :class:`TurtleCommand` objects.
-            state: Optional starting :class:`Turtle2DState`.
-            repeat: Number of times to repeat the command list.
+    Args:
+        commands: A flat list of :class:`TurtleCommand` objects.
+        state: Optional starting :class:`Turtle2DState`.
+        repeat: Number of times to repeat the command list.
 
-        Returns:
-            The :class:`Turtle2D` instance after executing all commands.
+    Returns:
+        The :class:`Turtle2D` instance after executing all commands.
 
-        Examples:
-            A rounded-corner square drawn with arcs:
+    Examples:
+        A rounded-corner square drawn with arcs:
 
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                from pybosl2.turtle2d import turtle2d
-                from pybosl2.points import Point
-    from pybosl2.turtle3d import TurtleCommand, TurtleCommandType as Tct
+            from pybosl2.turtle import turtle2d
+            from pybosl2.points import Point
+            from pybosl2.turtle import TurtleCommand, TurtleCommandType as Tct
 
-                path = turtle2d([
-                    TurtleCommand(Tct.MOVE, size=40),
-                    TurtleCommand(Tct.ARCLEFT, radius=8),
-                    TurtleCommand(Tct.MOVE, size=40),
-                    TurtleCommand(Tct.ARCLEFT, radius=8),
-                    TurtleCommand(Tct.MOVE, size=40),
-                    TurtleCommand(Tct.ARCLEFT, radius=8),
-                    TurtleCommand(Tct.MOVE, size=40),
-                    TurtleCommand(Tct.ARCLEFT, radius=8),
-                ]).points()
-                path.stroke(width=3, closed=True).linear_extrude(height=4).show()
+            path = turtle2d([
+                TurtleCommand(Tct.MOVE, size=40),
+                TurtleCommand(Tct.ARCLEFT, radius=8),
+                TurtleCommand(Tct.MOVE, size=40),
+                TurtleCommand(Tct.ARCLEFT, radius=8),
+                TurtleCommand(Tct.MOVE, size=40),
+                TurtleCommand(Tct.ARCLEFT, radius=8),
+                TurtleCommand(Tct.MOVE, size=40),
+                TurtleCommand(Tct.ARCLEFT, radius=8),
+            ]).points()
+            path.stroke(width=3, closed=True).linear_extrude(height=4).show()
     """
     return Turtle2D(state).run(commands, repeat)

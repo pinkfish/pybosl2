@@ -97,6 +97,8 @@ def cylinder(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes3d as s3, Anchor
+
             s3.cylinder(height=30, radius=10, anchor=Anchor.BOTTOM).show()
     """
     length = length if length is not None else (height if height is not None else 1)
@@ -202,19 +204,25 @@ def cyl(
         A basic cylinder:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cyl(radius=10, height=30)
+            from pybosl2 import cyl
+
+            shape = cyl(radius=10, height=30)
             shape.show()
 
         A cylinder with chamfered ends:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cyl(radius=15, height=40, chamfer=2)
+            from pybosl2 import cyl
+
+            shape = cyl(radius=15, height=40, chamfer=2)
             shape.show()
 
         A cylinder with rounded ends:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cyl(radius=12, height=35, rounding=3)
+            from pybosl2 import cyl
+
+            shape = cyl(radius=12, height=35, rounding=3)
             shape.show()
     """
     if texture is not None and texture != "none":
@@ -441,7 +449,9 @@ def xcyl(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.xcyl(radius=10, height=30)
+            from pybosl2 import xcyl
+
+            shape = xcyl(radius=10, height=30)
             shape.show()
     """
     length_val = next((v for v in (length, height) if v is not None), 1.0)
@@ -544,7 +554,9 @@ def ycyl(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.ycyl(radius=10, height=30)
+            from pybosl2 import ycyl
+
+            shape = ycyl(radius=10, height=30)
             shape.show()
     """
     length_val = next((v for v in (length, height) if v is not None), 1.0)
@@ -649,7 +661,9 @@ def zcyl(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.zcyl(radius=10, height=30)
+            from pybosl2 import zcyl
+
+            shape = zcyl(radius=10, height=30)
             shape.show()
     """
     return cyl(
@@ -747,7 +761,9 @@ def tube(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.tube(height=20, outer_radius=15, inner_radius=10)
+            from pybosl2 import tube
+
+            shape = tube(height=20, outer_radius=15, inner_radius=10)
             shape.show()
     """
     height = height if height is not None else (length if length is not None else 1)

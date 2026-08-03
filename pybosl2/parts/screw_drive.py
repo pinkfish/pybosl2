@@ -219,6 +219,7 @@ class ScrewDrive:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import ScrewDrive
+                from pybosl2 import s3
                 (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask(size="#2")).show()
         """
         if fn is None and fa is None and fs is None:

@@ -91,13 +91,15 @@ class Region:
     Examples:
         A rectangular plate with a rectangular hole (outline + one hole), extruded into a solid:
 
-        .. pythonscad-example::
+            .. pythonscad-example::
 
-            region = Region([
-                [[0, 0], [80, 0], [80, 60], [0, 60]],
-                [[20, 20], [60, 20], [60, 40], [20, 40]],
-            ])
-            region.geometry().linear_extrude(height=5).show()
+                from pybosl2 import Region
+
+                region = Region([
+                    [[0, 0], [80, 0], [80, 60], [0, 60]],
+                    [[20, 20], [60, 20], [60, 40], [20, 40]],
+                ])
+                region.geometry().linear_extrude(height=5).show()
     """
 
     def __init__(self, paths: Any = ()) -> None:
@@ -523,6 +525,8 @@ class Region:
 
             .. pythonscad-example::
 
+                from pybosl2 import Region
+
                 a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
                 b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])
                 a.intersection(b).geometry().linear_extrude(height=3).show()
@@ -554,6 +558,8 @@ class Region:
 
             .. pythonscad-example::
 
+                from pybosl2 import Region
+
                 a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
                 b = Region([[20, 0], [50, 0], [50, 30], [20, 30]])
                 a.union(b).geometry().linear_extrude(height=3).show()
@@ -584,6 +590,8 @@ class Region:
             Punch a rectangular notch out of a square:
 
             .. pythonscad-example::
+
+                from pybosl2 import Region
 
                 plate = Region([[0, 0], [60, 0], [60, 40], [0, 40]])
                 notch = Region([[20, 10], [40, 10], [40, 30], [20, 30]])

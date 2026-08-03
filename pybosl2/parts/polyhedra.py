@@ -321,6 +321,7 @@ class Polyhedra:
         Examples:
             .. pythonscad-example::
 
+                from pybosl2.parts.polyhedra import Polyhedra
                 Polyhedra.icosahedron(side=20).show()
         """
         return Polyhedra.regular_polyhedron(

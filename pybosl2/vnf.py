@@ -442,11 +442,14 @@ def contour(
     Examples:
         .. pythonscad-example::
 
+            import numpy as np
+            from pybosl2 import contour, Bounds2D, stroke
+
             def field(p):
                 r = np.hypot(p[:, 0], p[:, 1])
                 return r
-            paths = contour(field, 10, Bounds2D(-15,-15,15,15,30,30), pixel_size=0.5)
-            # paths can be stroked or extruded
+            paths = contour(field, 10, Bounds2D(-15, -15, 15, 15, 30, 30), pixel_size=0.5)
+            stroke(paths, width=0.5).linear_extrude(height=2).show()
     """
     bb, ps = _resolve_grid_2d(bounding_box, pixel_size, pixel_count, exact_bounds)
     xs, ys = _grid_axes_2d(bb, ps)
@@ -639,6 +642,9 @@ class VNF:
 
         .. pythonscad-example::
 
+            import math
+            from pybosl2 import VNF
+
             grid = [[[x, y, 4 * math.sin(x / 6) * math.cos(y / 6)] for y in range(0, 60, 4)]
                     for x in range(0, 60, 4)]
             VNF.vertex_array(grid).polyhedron().show()
@@ -720,11 +726,13 @@ class VNF:
             A new :class:`VNF` containing all vertices and faces from the inputs.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                a = VNF.vertex_array([[ [0,0,0],[1,0,0] ], [ [0,1,0],[1,1,0] ]])
-                b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])
-                VNF.join([a, b]).polyhedron().show()
+            from pybosl2 import VNF
+
+            a = VNF.vertex_array([[ [0,0,0],[1,0,0] ], [ [0,1,0],[1,1,0] ]])
+            b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])
+            VNF.join([a, b]).polyhedron().show()
         """
         return VNF.union(vnfs)
 
@@ -754,14 +762,17 @@ class VNF:
             AssertionError: If *plane* does not have exactly 4 elements.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                cube_vnf = VNF.from_field(
-                    lambda p: 5 - np.max(np.abs(p), axis=1),
-                    0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1
-                )
-                cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0], keep=True, closed=True)
-                cut.polyhedron().show()
+            import numpy as np
+            from pybosl2 import VNF, Bounds3D
+
+            cube_vnf = VNF.from_field(
+                lambda p: 5 - np.max(np.abs(p), axis=1),
+                0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1
+            )
+            cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0], keep=True, closed=True)
+            cut.polyhedron().show()
         """
         assert len(plane) == 4, "halfspace(): plane must be [A, B, C, D]."
         a, b, c, d = plane[0], plane[1], plane[2], plane[3]
@@ -866,14 +877,17 @@ class VNF:
             A ``(above, below)`` tuple of :class:`VNF` objects.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                cube_vnf = VNF.from_field(
-                    lambda p: 5 - np.max(np.abs(p), axis=1),
-                    0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1
-                )
-                above, below = VNF.slice(cube_vnf, [0, 0, 1, 0], closed=True)
-                above.polyhedron().show()
+            import numpy as np
+            from pybosl2 import VNF, Bounds3D
+
+            cube_vnf = VNF.from_field(
+                lambda p: 5 - np.max(np.abs(p), axis=1),
+                0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1
+            )
+            above, below = VNF.slice(cube_vnf, [0, 0, 1, 0], closed=True)
+            above.polyhedron().show()
         """
         above = VNF.halfspace(vnf, plane, keep=True, closed=closed)
         below = VNF.halfspace(vnf, plane, keep=False, closed=closed)
@@ -1138,16 +1152,19 @@ class VNF:
             NotImplementedError: If *isovalue* is a tuple range; only scalar thresholds are supported.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                def field(p):
-                    x, y, z = p[:, 0], p[:, 1], p[:, 2]
-                    return 20 / np.sqrt(x*x + y*y + z*z) + 3 * np.sin(x / 3)
-                VNF.from_field(
-                    field, 1,
-                    Bounds3D(-30, -30, -30, 30, 30, 30, 60, 60, 60),
-                    voxel_size=2,
-                ).polyhedron().show()
+            import numpy as np
+            from pybosl2 import VNF, Bounds3D
+
+            def field(p):
+                x, y, z = p[:, 0], p[:, 1], p[:, 2]
+                return 20 / np.sqrt(x*x + y*y + z*z) + 3 * np.sin(x / 3)
+            VNF.from_field(
+                field, 1,
+                Bounds3D(-30, -30, -30, 30, 30, 30, 60, 60, 60),
+                voxel_size=2,
+            ).polyhedron().show()
         """
         from pybosl2.path3d import Path3D
 
@@ -1271,19 +1288,20 @@ class VNF:
             A :class:`VNF`.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                from pybosl2.metaballs import MetaballSpec, mb_sphere
+            from pybosl2.metaballs import MetaballSpec, mb_sphere
+            from pybosl2 import VNF, Bounds3D
 
-                spec = [
-                    MetaballSpec([-14, 0, 0], mb_sphere(12)),
-                    MetaballSpec([14, 0, 0], mb_sphere(12)),
-                ]
-                VNF.from_metaballs(
-                    spec,
-                    Bounds3D(-40, -20, -20, 40, 20, 20, 80, 40, 40),
-                    voxel_size=2,
-                ).polyhedron().show()
+            spec = [
+                MetaballSpec([-14, 0, 0], mb_sphere(12)),
+                MetaballSpec([14, 0, 0], mb_sphere(12)),
+            ]
+            VNF.from_metaballs(
+                spec,
+                Bounds3D(-40, -20, -20, 40, 20, 20, 80, 40, 40),
+                voxel_size=2,
+            ).polyhedron().show()
         """
         assert spec, "from_metaballs(): the spec is empty."
 
@@ -1354,6 +1372,8 @@ def vnf_polyhedron(vnf: VNF) -> Any:
         Build a swept VNF and render it:
 
         .. pythonscad-example::
+
+            from pybosl2 import Path2D, vnf_polyhedron
 
             sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
             v = Path2D(sq).linear_sweep(height=20)

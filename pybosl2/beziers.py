@@ -89,6 +89,10 @@ class Bezier:
 
         .. pythonscad-example::
 
+            import math
+            import numpy as np
+            from pybosl2 import Bezier
+
             circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
             tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)
             tube.polyhedron().show()
@@ -190,10 +194,12 @@ class Bezier:
             *endpoint* is False) sampled uniformly along the curve.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                pts = Bezier([[44, 5], [48, 6], [64, -15]]).curve(20)
-                pts.stroke(width=2).linear_extrude(h=3).show()
+            from pybosl2 import Bezier
+
+            pts = Bezier([[44, 5], [48, 6], [64, -15]]).curve(20)
+            pts.stroke(width=2).linear_extrude(h=3).show()
         """
         return self.points(lerpn(0, 1, splinesteps + 1, endpoint))
 
@@ -411,10 +417,12 @@ class Bezier:
             sampled bezier path.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                bz = Bezier([[0, 0], [25, 30], [50, 0], [75, -30], [100, 0]])
-                bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(h=3).show()
+            from pybosl2 import Bezier
+
+            bz = Bezier([[0, 0], [25, 30], [50, 0], [75, -30], [100, 0]])
+            bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(h=3).show()
         """
         assert len(self) % n_degree == 1, (
             f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
@@ -657,6 +665,9 @@ class Bezier:
 
             .. pythonscad-example::
 
+                import math
+                import numpy as np
+                from pybosl2 import Bezier
                 from math import cos, sin
                 circle = [[2 * cos(t), 2 * sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
                 tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)
@@ -666,6 +677,10 @@ class Bezier:
 
             .. pythonscad-example::
 
+                import math
+                import numpy as np
+                from pybosl2 import Bezier
+                from math import cos, sin
                 shape = [[cos(t), sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
                 path = Bezier.flatten([Bezier.begin([0, 0], 0, 20), Bezier.end([50, 0], 180, 20)])
                 path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()
@@ -844,14 +859,16 @@ class Bezier:
             curve, control net, and control-point markers.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                path = Bezier.flatten([
-                    Bezier.begin([0, 0, 0], -20, 0.4),
-                    Bezier.tang([5, 8, 2], 45, 0.2),
-                    Bezier.end([10, 0, 5], 230, 1),
-                ])
-                path.debug(width=0.5)
+            from pybosl2 import Bezier
+
+            path = Bezier.flatten([
+                Bezier.begin([0, 0, 0], -20, 0.4),
+                Bezier.tang([5, 8, 2], 45, 0.2),
+                Bezier.end([10, 0, 5], 230, 1),
+            ])
+            path.debug(width=0.5)
         """
         result = _debug_tube(np.asarray(self.path_curve(n_degree=n_degree)), width / 2.0).color("cyan")
         result = result | _debug_tube(np.asarray([list(p) for p in self]), width / 2.0).color("green")
@@ -1045,6 +1062,8 @@ class BezierPatch:
 
         .. pythonscad-example::
 
+            from pybosl2 import BezierPatch
+
             patch = [
                 [[-50, -50, 0], [-16, -50, 20], [16, -50, -20], [50, -50, 0]],
                 [[-50, -16, 20], [-16, -16, 20], [16, -16, -20], [50, -16, 20]],
@@ -1154,11 +1173,13 @@ class BezierPatch:
             points.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                patch = BezierPatch.flat([100, 100], n_degree=3)
-                pts = patch.points(0, [i / 16 for i in range(17)])
-                pts.stroke(width=2).linear_extrude(h=3).show()
+            from pybosl2 import BezierPatch
+
+            patch = BezierPatch.flat([100, 100], n_degree=3)
+            pts = patch.points(0, [i / 16 for i in range(17)])
+            pts.stroke(width=2).linear_extrude(h=3).show()
         """
         patch = self.array
         nrows, ncols = patch.shape[0], patch.shape[1]
@@ -1247,11 +1268,13 @@ class BezierPatch:
             A :class:`~pybosl2.vnf.VNF` vertex-face mesh of the sampled patch surface.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                patch = BezierPatch.flat([100, 100], n_degree=3)
-                vnf = patch.vnf(splinesteps=16)
-                vnf.polyhedron().show()
+            from pybosl2 import BezierPatch
+
+            patch = BezierPatch.flat([100, 100], n_degree=3)
+            vnf = patch.vnf(splinesteps=16)
+            vnf.polyhedron().show()
         """
         ss = splinesteps if isinstance(splinesteps, (list, tuple, np.ndarray)) else (splinesteps, splinesteps)
         uvals = list(lerpn(0, 1, int(ss[0]) + 1))
@@ -1275,11 +1298,13 @@ class BezierPatch:
             A combined :class:`~pybosl2.vnf.VNF` vertex-face mesh of all patches.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                p1 = BezierPatch.flat([50, 50], n_degree=3)
-                p2 = BezierPatch.flat([50, 50], n_degree=2, trans=(60, 0, 0))
-                BezierPatch.to_vnf([p1, p2], splinesteps=16).polyhedron().show()
+            from pybosl2 import BezierPatch
+
+            p1 = BezierPatch.flat([50, 50], n_degree=3)
+            p2 = BezierPatch.flat([50, 50], n_degree=2, trans=(60, 0, 0))
+            BezierPatch.to_vnf([p1, p2], splinesteps=16).polyhedron().show()
         """
         if BezierPatch.is_patch(patches):
             return BezierPatch(patches).vnf(splinesteps, style)  # type: ignore[arg-type]
@@ -1311,10 +1336,12 @@ class BezierPatch:
             the XY plane and reoriented as specified.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                patch = BezierPatch.flat([100, 100], n_degree=3, spin=45)
-                patch.vnf(splinesteps=16).polyhedron().show()
+            from pybosl2 import BezierPatch
+
+            patch = BezierPatch.flat([100, 100], n_degree=3, spin=45)
+            patch.vnf(splinesteps=16).polyhedron().show()
         """
         assert n_degree > 0
         sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
@@ -1351,10 +1378,12 @@ class BezierPatch:
             AssertionError: If the patch has degenerate normals.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                patch = BezierPatch.flat([100, 100], n_degree=3)
-                patch.sheet([0, -6], splinesteps=16).polyhedron().show()
+            from pybosl2 import BezierPatch
+
+            patch = BezierPatch.flat([100, 100], n_degree=3)
+            patch.sheet([0, -6], splinesteps=16).polyhedron().show()
         """
         diameter = [0.0, -float(delta)] if isinstance(delta, (int, float)) else [float(delta[0]), float(delta[1])]
         ss = splinesteps if isinstance(splinesteps, (list, tuple, np.ndarray)) else (splinesteps, splinesteps)
@@ -1512,10 +1541,12 @@ class BezierPatch:
             patch surface, control net, and control-point markers.
 
         Examples:
-            .. pythonscad-example::
+        .. pythonscad-example::
 
-                patch = BezierPatch.flat([100, 100], n_degree=3)
-                patch.debug(splinesteps=8, showcps=True, showpatch=True)
+            from pybosl2 import BezierPatch
+
+            patch = BezierPatch.flat([100, 100], n_degree=3)
+            patch.debug(splinesteps=8, showcps=True, showpatch=True)
         """
         return debug_bezier_patches(
             [self],  # type: ignore[list-item]

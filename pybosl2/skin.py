@@ -346,6 +346,10 @@ def _path_sweep(
 
         .. pythonscad-example::
 
+            import math
+            import numpy as np
+            from pybosl2 import Path3D
+
             square = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
             helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
             Path3D(helix).path_sweep(square).polyhedron().show()
@@ -554,6 +558,10 @@ def skin(
 
         .. pythonscad-example::
 
+            import math
+            import numpy as np
+            from pybosl2 import skin
+
             circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
             square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]
             skin([circle, square], slices=20, method="reindex", z=[0, 25]).polyhedron().show()
@@ -649,6 +657,8 @@ def _linear_sweep(
 
         .. pythonscad-example::
 
+            from pybosl2 import Path2D
+
             square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
             Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron().show()
     """
@@ -717,6 +727,8 @@ def _rotate_sweep(
 
         .. pythonscad-example::
 
+            from pybosl2 import Path2D
+
             profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]
             Path2D(profile).rotate_sweep(angle=360).polyhedron().show()
     """
@@ -777,6 +789,8 @@ def _spiral_sweep(
         A rectangular-section coil spring:
 
         .. pythonscad-example::
+
+            from pybosl2 import Path2D
 
             section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
             Path2D(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron().show()
@@ -1667,6 +1681,9 @@ def _path_sweep2d(
         A rounded bar swept along a wavy 2-D path:
 
         .. pythonscad-example::
+
+            import math
+            from pybosl2 import Path2D
 
             shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
             path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]

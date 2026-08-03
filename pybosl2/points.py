@@ -40,9 +40,9 @@ class Point(Sequence[float]):
     ``len()``, elementwise arithmetic (returning ``Point``), and ``np.asarray()``.
 
     Examples:
-        .. pythonscad-example::
+        .. code-block:: python
 
-            from pybosl2.points import Point
+            from pybosl2 import Point
 
             p2 = Point(10.0, 20.0)
             assert p2.is_2d

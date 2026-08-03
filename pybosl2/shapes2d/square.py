@@ -86,6 +86,8 @@ def square(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.square(20).linear_extrude(height=5).show()
     """
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
@@ -324,6 +326,8 @@ def regular_ngon(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.regular_ngon(sides=6, radius=15).linear_extrude(height=5).show()
     """
     assert sides >= 3
@@ -498,6 +502,8 @@ def right_triangle(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes2d as s2
+
             s2.right_triangle(size=[30, 20]).linear_extrude(height=5).show()
     """
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
@@ -616,6 +622,8 @@ def trapezoid(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes2d as s2
 
             s2.trapezoid(height=20, width1=30, width2=15).linear_extrude(height=5).show()
     """

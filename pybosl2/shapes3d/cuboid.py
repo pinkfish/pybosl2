@@ -244,6 +244,8 @@ def roof(shape: object, method: str = "straight") -> Bosl2Solid:
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import roof, shapes2d as s2
+
             roof(s2.square([20, 10]).shape).show()
     """
     return Bosl2Solid(Bosl2Solid._unwrap(shape).roof(method=method))
@@ -272,6 +274,8 @@ def cube(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
 
             s3.cube(size=20).show()
     """
@@ -327,12 +331,16 @@ def cuboid(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cuboid([40, 30, 20])
+            from pybosl2 import cuboid
+
+            shape = cuboid([40, 30, 20])
             shape.show()
 
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cuboid([40, 30, 20], rounding=5)
+            from pybosl2 import cuboid
+
+            shape = cuboid([40, 30, 20], rounding=5)
             shape.show()
     """
     if teardrop:
@@ -455,7 +463,9 @@ def prismoid(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.prismoid([40, 40], [20, 25], height=30)
+            from pybosl2 import prismoid
+
+            shape = prismoid([40, 40], [20, 25], height=30)
             shape.show()
     """
     from pybosl2.shapes2d import _rect_path
@@ -497,6 +507,8 @@ def octahedron(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import shapes3d as s3
+
             s3.octahedron(size=20).show()
     """
     s = size / 2
@@ -534,6 +546,8 @@ def wedge(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
 
             s3.wedge([30, 20, 15]).show()
     """
@@ -622,6 +636,8 @@ def rect_tube(
 
     Examples:
         .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
 
             s3.rect_tube(size=30, wall=3, height=20).show()
     """
@@ -796,12 +812,16 @@ def regular_prism(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.regular_prism(6, height=20, radius=15)
+            from pybosl2 import regular_prism
+
+            shape = regular_prism(6, height=20, radius=15)
             shape.show()
 
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.regular_prism(5, height=20, inner_radius=12, rounding=2)
+            from pybosl2 import regular_prism
+
+            shape = regular_prism(5, height=20, inner_radius=12, rounding=2)
             shape.show()
     """
     assert isinstance(sides, int) and sides > 2, f"regular_prism(): sides must be an integer >= 3, got {sides}"
