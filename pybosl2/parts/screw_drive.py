@@ -204,6 +204,7 @@ class ScrewDrive:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
+        l: float | None = None,  # noqa: ARG004, E741
     ) -> Bosl2Solid:
         """A Phillips driver-recess mask for the given Phillips *size* (BOSL2 phillips_mask()).
 
@@ -286,15 +287,17 @@ class ScrewDrive:
     # ---- Hex (Allen) -----------------------------------------------------
 
     @staticmethod
-    def hex_drive_mask(size: float, length: float, slop: float = 0.0, center: bool = False) -> Bosl2Solid:
-        """A hex (Allen) driver-recess mask, *size* across flats, *length* tall (BOSL2 hex_drive_mask()).
+    def hex_drive_mask(size: float, l: float, slop: float = 0.0, center: bool = False) -> Bosl2Solid:  # noqa: E741
+        """A hex (Allen) driver-recess mask, *size* across flats, *l* tall (BOSL2 hex_drive_mask()).
 
         The recess is slightly oversized per the ISO standard; *slop* enlarges it by a further
         ``2 * slop``.
         """
         realsize = 1.0072 * size + 0.0341 + 2 * slop  # empirical fit to the ISO standard
-        solid = hexagon(inner_diameter=realsize).linear_extrude(height=length, center=center)
-        return Bosl2Solid(solid.shape, size=[realsize, realsize, length])
+        solid = hexagon(inner_diameter=realsize).linear_extrude(height=l, center=center)
+        return Bosl2Solid(solid.shape, size=[realsize, realsize, l])
+
+    hex_mask = hex_drive_mask
 
     # ---- Torx ------------------------------------------------------------
 
@@ -356,8 +359,8 @@ class ScrewDrive:
         return solid - cut
 
     @staticmethod
-    def torx_mask(size: int, length: float = 5.0, center: bool = False) -> Bosl2Solid:
-        """A Torx driver-recess mask: the 2-D profile extruded *length* tall (BOSL2 torx_mask()).
+    def torx_mask(size: int, l: float = 5.0, center: bool = False) -> Bosl2Solid:  # noqa: E741
+        """A Torx driver-recess mask: the 2-D profile extruded *l* tall (BOSL2 torx_mask()).
 
         Examples:
             A T30 Torx tip:
@@ -365,30 +368,33 @@ class ScrewDrive:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import ScrewDrive
-                ScrewDrive.torx_mask(size=30, length=10).show()
+                ScrewDrive.torx_mask(size=30, l=10).show()
         """
         outer_diameter = ScrewDrive.torx_diam(size)
-        solid = ScrewDrive._torx_profile(size).linear_extrude(height=length, center=center)
-        return Bosl2Solid(solid.shape, size=[outer_diameter, outer_diameter, length])
+        solid = ScrewDrive._torx_profile(size).linear_extrude(height=l, center=center)
+        return Bosl2Solid(solid.shape, size=[outer_diameter, outer_diameter, l])
 
     # ---- Robertson / square ---------------------------------------------
 
     @staticmethod
-    def robertson_mask(size: int, extra: float = 1.0, angle: float = 2.5, slop: float = 0.0) -> Bosl2Solid:
+    def robertson_mask(size: str | int, l: float | None = None, angle: float = 2.5, slop: float = 0.0) -> Bosl2Solid:  # noqa: E741
         """A Robertson/square driver-recess mask for square-drive *size* ``0``..``4`` (BOSL2 robertson_mask()).
 
         Args:
-            size: square-drive size, an integer ``0``..``4``.
-            extra: extra length of drive mask beyond the nominal depth.
+            size: square-drive size, as ``"#2"`` / ``"2"`` or integer ``2``.
+            l: length of drive mask.
             angle: taper angle of each face (default 2.5, from BOSL2's print tests).
             slop: enlarge the recess by ``2 * slop``.
         """
+        if isinstance(size, str):
+            size = int(size.replace("#", ""))
         if not (isinstance(size, int) and 0 <= size <= 4):
             raise ValueError(f"robertson size must be an int 0..4, got {size!r}")
         spec = _ROBERTSON[size]
         across_flats = spec.m * INCH  # across flats
         robertson_depth = spec.t * INCH  # depth
         robertson_flat = spec.f * INCH  # flat-to-taper transition
+        extra = l - robertson_depth if l is not None else 1.0
         height = robertson_depth + extra
         m_slop = across_flats + 2 * slop
         m_top = m_slop + 2 * _adj_ang_to_opp(robertson_flat + extra, angle)

@@ -108,11 +108,11 @@ def test_reverse_close_cleanup_dedup() -> None:
 
 def test_resample_and_subdivide_keep_3d() -> None:
     p = Path3D([[0, 0, 0], [0, 0, 30]], closed=False)
-    radius = p.resample(sides=7)
+    radius = p.resample(num_copies=7)
     assert isinstance(radius, Path3D)
     assert len(radius) == 7
     assert radius.array.shape[1] == 3
-    s = p.subdivide(sides=4)
+    s = p.subdivide(num_copies=4)
     assert isinstance(s, Path3D)
     assert s.array.shape[1] == 3
 

@@ -298,7 +298,7 @@ def test_rot_resample_changes_count_and_sweeps() -> None:
     sq = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
     curve = [[0, 0, 0], [10, 0, 5], [10, 10, 10], [0, 10, 15]]
     tl = Path3D(curve).path_sweep(sq, transforms=True)  # type: ignore[arg-type]
-    out = rot_resample(tl, sides=20)  # type: ignore[arg-type]
+    out = rot_resample(tl, num_copies=20)
     assert len(out) == 20
     assert np.asarray(out[0]).shape == (4, 4)
     assert _valid(sweep(sq, out))
@@ -307,14 +307,14 @@ def test_rot_resample_changes_count_and_sweeps() -> None:
 def test_rot_resample_count_method() -> None:
     sq = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
     tl = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 20]]).path_sweep(sq, transforms=True)  # type: ignore[arg-type]
-    out = rot_resample(tl, sides=5, method="count")  # type: ignore[arg-type]
+    out = rot_resample(tl, num_copies=5, method="count")
     assert len(out) == 5 * 2 + 1  # samples-per-gap * gaps + 1
 
 
 def test_rot_resample_rejects_even_smoothlen() -> None:
     tl = Path3D([[0, 0, 0], [0, 0, 10]]).path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], transforms=True)  # type: ignore[arg-type]
     with pytest.raises(AssertionError):
-        rot_resample(tl, sides=6, smoothlen=2)  # type: ignore[arg-type]
+        rot_resample(tl, num_copies=6, smoothlen=2)
 
 
 # -- os_circle / offset_sweep ---------------------------------------------------------------

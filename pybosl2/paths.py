@@ -378,14 +378,14 @@ class Path(ABC):
     @abstractmethod
     def resample_path(
         self,
-        sides: int | None = None,
+        num_copies: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
     ) -> Path:
-        """Uniformly resample path to sides points, or to a spacing near spacing.
+        """Uniformly resample path to num_copies points, or to a spacing near spacing.
 
         Args:
-            sides: Target number of points.
+            num_copies: Target number of points.
             spacing: Approximate spacing between points.
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
@@ -483,6 +483,19 @@ class Path(ABC):
         ...
 
 
+def _make_path(points: Any, closed: bool) -> Path:
+    pts = np.asarray(points, dtype=float)
+    dim = pts.shape[-1] if len(pts.shape) > 1 else 2
+    if dim == 3:
+        from pybosl2.path3d import Path3D
+
+        return Path3D(points, closed=closed)
+    else:
+        from pybosl2.path2d import Path2D
+
+        return Path2D(points, closed=closed)
+
+
 def stroke(
     path: Any,
     width: float = 1,
@@ -493,6 +506,8 @@ def stroke(
     joints: CapType | CapSpec = CapType.ROUND,
 ) -> Any:
     """Render the path/region as a stroked polygon outline (2-D) or solid tube (3-D)."""
+    if not isinstance(path, Path):
+        path = _make_path(path, closed=True if closed is None else closed)
     return path.stroke(
         width=width,
         closed=closed,
@@ -511,6 +526,8 @@ def dashed_stroke(
     mindash: float = 0.5,
 ) -> Any:
     """Break the path/region into dashed segments and stroke them."""
+    if not isinstance(path, Path):
+        path = _make_path(path, closed=True if closed is None else closed)
     return path.dashed_stroke(
         dashpat=dashpat,
         closed=closed,

@@ -41,9 +41,9 @@ class Sliders:
 
     @staticmethod
     def slider(
-        length: float = 30,
+        l: float = 30,  # noqa: E741
         w: float = 10,
-        height: float = 10,
+        h: float = 10,
         base: float = 10,
         wall: float = 5,
         angle: float = 30,
@@ -60,13 +60,13 @@ class Sliders:
             .. pythonscad-example::
 
                 from pybosl2.parts.sliders import Sliders
-                Sliders.slider(length=30, base=10, wall=4, slop=0.2).show()
+                Sliders.slider(l=30, base=10, wall=4, slop=0.2).show()
         """
         full_width = w + 2 * wall
-        full_height = height + base
+        full_height = h + base
         parts = [
             cuboid(
-                [full_width, length, base - slop],
+                [full_width, l, base - slop],
                 chamfer=2,
                 edges=[FRONT, BACK],
                 except_edges=[BOTTOM],
@@ -78,7 +78,7 @@ class Sliders:
         ]
         for m in DistributableMatrix.xflip_copy(offset=w / 2 + slop):
             wallcube = cuboid(
-                [wall, length, full_height],
+                [wall, l, full_height],
                 chamfer=2,
                 edges=[RIGHT],
                 except_edges=[BOTTOM],
@@ -88,11 +88,11 @@ class Sliders:
                 fs=fs,
             )
             parts.append(wallcube.multmatrix(m.tolist()))
-        bev_h = height / 2 * math.tan(math.radians(angle))
+        bev_h = h / 2 * math.tan(math.radians(angle))
         for m in DistributableMatrix.xflip_copy(offset=w / 2 + slop + 0.02):
             slid = prismoid(
-                [height, length],
-                [0, length - w],
+                [h, l],
+                [0, l - w],
                 height=bev_h + 0.01,
                 orient=LEFT,
                 anchor=BOTTOM,
@@ -100,17 +100,17 @@ class Sliders:
                 fa=fa,
                 fs=fs,
             )
-            parts.append(slid.up(base + height / 2).multmatrix(m.tolist()))
-        result = _union(parts).down(base + height / 2).rotate([0, 0, 90])
+            parts.append(slid.up(base + h / 2).multmatrix(m.tolist()))
+        result = _union(parts).down(base + h / 2).rotate([0, 0, 90])
         nb = result._native_bounds()
-        size = nb[1] if nb else [length, full_width, height + 2 * base]
+        size = nb[1] if nb else [l, full_width, h + 2 * base]
         return Bosl2Solid(result.shape, size=size)
 
     @staticmethod
     def rail(
-        length: float = 30,
+        l: float = 30,  # noqa: E741
         w: float = 10,
-        height: float = 10,
+        h: float = 10,
         chamfer: float = 1.0,
         angle: float = 30,
     ) -> Bosl2Solid:
@@ -122,7 +122,7 @@ class Sliders:
             .. pythonscad-example::
 
                 from pybosl2.parts.sliders import Sliders
-                Sliders.rail(length=100, w=10, height=10).show()
+                Sliders.rail(l=100, w=10, h=10).show()
         """
         attack_ang, attack_len = 30, 2
         fudge = 1.177
@@ -132,7 +132,7 @@ class Sliders:
         saa = math.sin(math.radians(attack_ang))
         caa = math.cos(math.radians(attack_ang))
 
-        z1 = height / 2
+        z1 = h / 2
         z2 = z1 - chamf * cosa
         z3 = z1 - attack_len * saa
         z4 = 0.0
@@ -143,7 +143,7 @@ class Sliders:
         x5 = x2 - attack_len * saa
         x6 = x1 - z1 * sina
         x7 = x4 - z1 * sina
-        y1 = length / 2
+        y1 = l / 2
         y2 = y1 - attack_len * caa
 
         pts = [
@@ -230,4 +230,4 @@ class Sliders:
             [13, 22, 21],
             [13, 21, 6],
         ]
-        return Bosl2Solid(VNF(pts, faces).polyhedron(), size=[w, length, height])
+        return Bosl2Solid(VNF(pts, faces).polyhedron(), size=[w, l, h])
