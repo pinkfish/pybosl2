@@ -196,7 +196,7 @@ a <code class="docutils literal notranslate"><span class="pre">PyShape</span></c
 </ul>
 </td></tr></table>
 <p>plus the n-ary booleans <code class="docutils literal notranslate"><span class="pre">union</span></code>, <code class="docutils literal notranslate"><span class="pre">difference</span></code> and <code class="docutils literal notranslate"><span class="pre">intersection</span></code>. The backend-specific
-modules (<a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.shapes3d</span></code></a>, <code class="docutils literal notranslate"><span class="pre">pybosl2._sdf</span></code>) stay directly importable for anything not yet
+modules (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.shapes3d</span></code>, <code class="docutils literal notranslate"><span class="pre">pybosl2._sdf</span></code>) stay directly importable for anything not yet
 unified in the facade.</p>
 </section>
 <section id="selecting-a-backend">
@@ -292,7 +292,7 @@ confusing <code class="docutils literal notranslate"><span class="pre">Attribute
 </tr>
 <tr class="row-odd"><td><p><strong>CSG only</strong></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">projection</span></code>, <code class="docutils literal notranslate"><span class="pre">fill</span></code>, and all 2-D geometry
-(<a class="reference internal" href="shapes2d.html#module-pybosl2.shapes2d" title="pybosl2.shapes2d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code></a>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.polygon()</span></code>,
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.polygon()</span></code>,
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.hull()</span></code>, <code class="docutils literal notranslate"><span class="pre">rotate_extrude</span></code>, a 2-D <code class="docutils literal notranslate"><span class="pre">stroke()</span></code>)</p></td>
 <td><p>Only the CSG backend has a 2-D shape object; an SDF is a field over 3-space, with no 2-D
 shadow to project and no outline to fill. See below.</p></td>
@@ -316,7 +316,7 @@ shadow to project and no outline to fill. See below.</p></td>
 </section>
 <section id="d-on-the-two-backends">
 <h2>2-D on the two backends<a class="headerlink" href="#d-on-the-two-backends" title="Link to this heading">¶</a></h2>
-<p>2-D <em>geometry</em> is a CSG-only notion: <a class="reference internal" href="shapes2d.html#module-pybosl2.shapes2d" title="pybosl2.shapes2d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code></a> and every
+<p>2-D <em>geometry</em> is a CSG-only notion: <code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code> and every
 <code class="docutils literal notranslate"><span class="pre">pybosl2.shapes2d</span></code> constructor build exact 2-D shapes, and stay on the CSG backend even inside a
 <code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code> block (they do not silently change meaning). A <strong>path</strong>, on the other hand,
 is just points and so is backend-neutral — and the operations that take a path <em>to a 3-D solid</em>
@@ -352,7 +352,7 @@ dispatch on the active backend:</p>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.projection()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">Path.polygon()</span></code>/<code class="docutils literal notranslate"><span class="pre">.fill()</span></code>/<code class="docutils literal notranslate"><span class="pre">.hull()</span></code>/<code class="docutils literal notranslate"><span class="pre">.rotate_extrude()</span></code>, 2-D <code class="docutils literal notranslate"><span class="pre">stroke()</span></code></p></td>
-<td><p>→ <a class="reference internal" href="shapes2d.html#module-pybosl2.shapes2d" title="pybosl2.shapes2d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code></a> / <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></p></td>
+<td><p>→ <code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code> / <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></p></td>
 <td><p><a class="reference internal" href="solid.html#pybosl2.solid.UnsupportedByBackendError" title="pybosl2.exceptions.UnsupportedByBackendError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackendError</span></code></a></p></td>
 </tr>
 </tbody>
