@@ -71,7 +71,7 @@ jobs:
 
       - name: Install numpy/shapely for PythonSCAD's bundled Python
         run: |
-          PYBASE=$(find /opt/pythonscad -path '*/usr/bin/python3' -type f | head -1)
+          PYBASE=$(find /opt/pythonscad -name 'pythonscad' -type f -path '*/usr/bin/*' | head -1)
           if [ -z "$PYBASE" ]; then
             PYBASE=$(find /opt/pythonscad -path '*/bin/python3' -type f | head -1)
           fi
