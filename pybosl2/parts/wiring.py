@@ -82,7 +82,12 @@ def _hex_offsets(n: int, d: float) -> list[list[float]]:
 
 
 class Wiring:
-    """Routed bundles of wires (BOSL2 wiring.scad)."""
+    """Routed bundles of wires (BOSL2 wiring.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/wiring.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def hex_offsets(sides: int, diameter: float) -> list[list[float]]:

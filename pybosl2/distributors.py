@@ -841,7 +841,7 @@ class Distributable(ABC):
         assert cnt >= 1, "distribute(): needs at least one child."
         if sizes is None:
             extents = [
-                abs(float(np.dot(np.asarray(c.bounds()[1]), dirv) - np.dot(np.asarray(c.bounds()[0]), dirv)))  # type: ignore[operator]
+                abs(float(np.dot(np.asarray(c.bounds()[1]), dirv) - np.dot(np.asarray(c.bounds()[0]), dirv)))
                 for c in children
             ]
         else:

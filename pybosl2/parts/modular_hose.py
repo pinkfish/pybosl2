@@ -184,7 +184,12 @@ def _size_index(size: float) -> int:
 
 
 class ModularHose:
-    """Modular ball-and-socket hose segments (BOSL2 modular_hose.scad)."""
+    """Modular ball-and-socket hose segments (BOSL2 modular_hose.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/modular_hose.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def modular_hose(

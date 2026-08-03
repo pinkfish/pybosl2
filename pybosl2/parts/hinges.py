@@ -30,7 +30,12 @@ __all__ = ["Hinges"]
 
 
 class Hinges:
-    """Folding/knuckle hinges and snap connectors (BOSL2 hinges.scad)."""
+    """Folding/knuckle hinges and snap connectors (BOSL2 hinges.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/hinges.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def living_hinge_mask(

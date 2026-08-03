@@ -116,6 +116,10 @@ class _BaseShape(Colorable, Distributable):
 
     _wrap_moved = _wrap
 
+    def __scad__(self) -> Any:
+        """Auto-unwrap conversion hook for the PythonSCAD C++ layer interop."""
+        return self.shape
+
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self.shape!r}, size={self.size!r}, anchor={self.anchor!r})"
 

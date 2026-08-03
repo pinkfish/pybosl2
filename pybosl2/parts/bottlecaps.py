@@ -341,6 +341,10 @@ class BottleCaps:
     Each ``*_neck`` / ``*_cap`` returns a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored with its
     bottom on the XY plane. See the module docstring for the geometry approximations relative to
     BOSL2 (thread taper, internal-thread flank, and cap surface textures are not reproduced).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/bottlecaps.html>`_ — measurements and STL previews
     """
 
     @staticmethod

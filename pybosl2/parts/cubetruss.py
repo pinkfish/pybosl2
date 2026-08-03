@@ -92,7 +92,12 @@ def _octagon_tunnel(
 
 
 class CubeTruss:
-    """Modular cubical trusses (BOSL2 cubetruss.scad)."""
+    """Modular cubical trusses (BOSL2 cubetruss.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/cubetruss.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def cubetruss_dist(

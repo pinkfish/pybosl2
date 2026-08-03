@@ -144,7 +144,7 @@ def _cuboid_edge_sdf(
     return lv.max(lv.max(axis_sdf(0), axis_sdf(1)), axis_sdf(2))
 
 
-class PyShape(Distributable):
+class SdfSolid(Distributable):
     """Wraps a libfive SDF, kept as a *symbolic* function of (x, y, z) rather than an
     already-evaluated tree or an already-meshed solid, plus the bounding box (`mn`/`mx`)
     frep() needs and (for cuboid-shaped instances) enough metadata to add more edge
@@ -2291,4 +2291,7 @@ def stroke_3d(
             shapes.append(sphere(radius=radius).translate(end))
 
     assert shapes, "stroke_3d: path has no drawable segments."
-    return PyShape.union(*shapes)
+    return SdfSolid.union(*shapes)
+
+
+PyShape = SdfSolid

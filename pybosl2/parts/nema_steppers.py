@@ -57,7 +57,12 @@ _NEMA = {
 
 
 class NemaSteppers:
-    """NEMA stepper-motor models and mounting masks (BOSL2 nema_steppers.scad)."""
+    """NEMA stepper-motor models and mounting masks (BOSL2 nema_steppers.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/nema_steppers.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def nema_motor_info(size: int) -> NemaSpec:

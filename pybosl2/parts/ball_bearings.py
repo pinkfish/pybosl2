@@ -842,6 +842,10 @@ class BallBearings:
 
     Port of BOSL2's ``ball_bearings.scad``. Builds sealed/shielded or open bearings
     from a trade size or explicit dimensions.
+
+    .. seealso::
+
+       `Visual spec sheet <specs/ball_bearings.html>`_ — measurements and STL previews
     """
 
     @staticmethod

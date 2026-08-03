@@ -63,7 +63,12 @@ _LMXUU = {
 
 
 class LinearBearings:
-    """Linear (LMxUU) ball bearings and pillow-block housings (BOSL2 linear_bearings.scad)."""
+    """Linear (LMxUU) ball bearings and pillow-block housings (BOSL2 linear_bearings.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/linear_bearings.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def lmxuu_info(size: int) -> LinearBearingSpec:

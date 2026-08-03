@@ -38,8 +38,8 @@ def test_default_is_csg_and_context_selects_sdf() -> None:
         sdf = get_backend().construct("sphere", radius=10)
     assert csg.backend == "csg"
     assert sdf.backend == "sdf"
-    assert type(csg).__name__ == "Bosl2Solid"
-    assert type(sdf).__name__ == "PyShape"
+    assert type(csg).__name__ == "CsgSolid"
+    assert type(sdf).__name__ == "SdfSolid"
     assert isinstance(csg, Solid)
     assert isinstance(sdf, Solid)  # one common contract
 

@@ -29,14 +29,14 @@ from pybosl2.constants import BACK, CENTER, FRONT, INCH, LEFT, TOP, UP
 from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import _frag_count, _pick_radius
 from pybosl2.shapes2d import text as _text2d
-from pybosl2.shapes3d import (
+from pybosl2.shapes3d.base import (
     Bosl2Solid,
     _anchor_offset_box3,
     _anchor_offset_cyl,
     _anchor_offset_hull3,
     _finish3,
-    _interior_fillet_path,
 )
+from pybosl2.shapes3d.extrusions import _interior_fillet_path
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

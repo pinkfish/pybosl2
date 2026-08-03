@@ -36,15 +36,15 @@ def test_sdf_edge_treatments_unsupported_on_csg(feature: str) -> None:
 
 def test_csg_attachment_methods_still_work_on_csg() -> None:
     box = solid.cuboid([10, 10, 10])  # type: ignore[attr-defined]
-    assert callable(box.attach)  # real method on the CSG backend, not intercepted
-    assert callable(box.edge_mask)
+    assert callable(box.attach)  # type: ignore[attr-defined]  # real method on the CSG backend, not intercepted
+    assert callable(box.edge_mask)  # type: ignore[attr-defined]
 
 
 def test_sdf_edge_treatments_still_work_on_sdf() -> None:
     with use_backend("sdf"):
         box = solid.cuboid([10, 10, 10])  # type: ignore[attr-defined]
-        assert callable(box.round)  # real PyShape method on the SDF backend
-        assert callable(box.chamfer)
+        assert callable(box.round)  # type: ignore[attr-defined]  # real PyShape method on the SDF backend
+        assert callable(box.chamfer)  # type: ignore[attr-defined]
 
 
 def test_supports_query() -> None:

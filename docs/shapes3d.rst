@@ -1,9 +1,30 @@
 3-D shapes and Bosl2Solid
 =========================
 
+.. raw:: html
+
+   <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
+     &#9881;&#65039; <b><a href="specs/shapes3d.html">Spec sheet &rarr;</a></b>
+     &nbsp;&mdash;&nbsp; interactive 3-D viewer, metrics, and variants catalog.
+   </p>
+
 Pure-Python port of the 3-D shape generators from BOSL2's ``shapes3d.scad``. Each returns a
 :class:`~pybosl2.Bosl2Solid` wrapping native geometry, with BOSL2-style anchor/spin/orient
 support and bbox-backed attachment methods.
+
+**Live preview — try it:**
+
+.. pythonscad-example::
+
+   s3.cuboid([40, 30, 20], rounding=4).show()
+
+.. pythonscad-example::
+
+   s3.sphere(r=15).show()
+
+.. pythonscad-example::
+
+   s3.cylinder(h=30, r=10).show()
 
 Coverage of BOSL2 ``shapes3d.scad``
 -----------------------------------

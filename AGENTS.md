@@ -154,6 +154,16 @@ def fetch_user_profile(user_id: int, timeout_seconds: float = 5.0) -> dict[str, 
     ...
 ```
 
+## 3. Architectural Constraints & Dynamic Code Rules
+
+- **No Dynamic Globals**: Never use `globals()[name] = ...` or `setattr(module, ...)` to dynamically register functions, classes, or primitives. All public APIs must be explicitly declared and statically typed.
+- **No Untyped Whitelists / Magic __getattr__**: Avoid implementing dynamic method dispatchers via `__getattr__` without corresponding static type definitions or `.pyi` stubs. All usable methods must be visible to IDEs and static analyzers.
+- **Proxy Design & Autocast Interop**: Ensure `Bosl2Solid` and `Bosl2Shape2D` remain independent objects wrapping raw geometry via composition rather than inheritance. They must proxy all operations the PythonSCAD object handles. For interop with the C++ layer, implement conversion hooks (e.g., `__scad__` or standard conversion methods) to allow the PythonSCAD extension to resolve the raw shape automatically.
+- **Dimension Validation**: Always keep 2-D shapes (`Bosl2Shape2D`) and 3-D shapes (`Bosl2Solid`) separate. Do not allow implicit mixed-dimension operations (e.g., applying 3-D transforms directly on 2-D objects without extrusion).
+- **STL Examples for 2-D Shapes**: Any 2-D shape example demonstrating STL generation MUST first use `.linear_extrude(...)` or another extrusion operation to convert the 2-D shape to 3-D. Standard STL exports do not support pure 2-D geometry.
+- **Explicit Casts on FFI Primitives**: When calling native primitives obtained via `native("...")`, wrap or cast the returned callable to an explicit type signature (using `Callable` or a typing Protocol) rather than allowing the return type to default to `Any`.
+- **Run Tests Before Completion**: When modifying geometry, backends, or paths, always run `pytest` (and specifically rendering tests via `pytest tests/test_stl_render.py` if a PythonSCAD binary is available) to verify that no functional regressions were introduced.
+
 ## Validation & Verification Commands
 
 Always test modifications locally before finalizing suggestions or submitting pull requests:
