@@ -2,7 +2,7 @@
 =========================
 
 Pure-Python port of the 3-D shape generators from BOSL2's ``shapes3d.scad``. Each returns a
-:class:`~pybosl2.shapes3d` wrapping native geometry, with BOSL2-style anchor/spin/orient
+:class:`~pybosl2.Bosl2Solid` wrapping native geometry, with BOSL2-style anchor/spin/orient
 support and bbox-backed attachment methods.
 
 Coverage of BOSL2 ``shapes3d.scad``
@@ -70,7 +70,7 @@ Coverage of BOSL2 ``shapes3d.scad``
 Bosl2Solid & attachment
 -----------------------
 
-Every 3-D shape is a :class:`~pybosl2.shapes3d`, which carries the transform methods
+Every 3-D shape is a :class:`~pybosl2.Bosl2Solid`, which carries the transform methods
 (``translate``/``move``, ``rotate``/``rot``, ``right``/``left``/``back``/``forward``/``up``/``down``,
 ``mirror``, ``scale``, ``color``) and the BOSL2 attachment methods —
 ``bounds``, ``anchor_point``, ``reanchor``, ``reorient``, ``orient``, ``position``, ``attach``,
