@@ -226,7 +226,7 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                s3.cuboid([10, 20, 30]).repair().show()
+                pybosl2.cuboid([10, 20, 30]).repair().show()
         """
         return self._wrap(self.shape.repair())
 
@@ -249,7 +249,7 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                bar = s3.cuboid([80, 5, 3])
+                bar = pybosl2.cuboid([80, 5, 3])
                 bar.oversample(sides=4).wrap(radius=20).show()
         """
         return self._wrap(self.shape.oversample(int(sides)))
@@ -279,7 +279,7 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                capsule = s3.sphere(radius=8).hull(s3.sphere(radius=8).up(30))
+                capsule = pybosl2.sphere(radius=8).hull(pybosl2.sphere(radius=8).up(30))
                 capsule.show()
         """
         return Bosl2Solid(_ohull(self.shape, *[_as_native_3d(o) for o in others]))
@@ -304,7 +304,7 @@ class Bosl2Solid(_BaseShape):
 
             .. pythonscad-example::
 
-                part = s3.cuboid([30, 20, 10], rounding=3)
+                part = pybosl2.cuboid([30, 20, 10], rounding=3)
                 part.projection().offset(radius=2).linear_extrude(height=2).show()
         """
         from pybosl2.shapes2d import Bosl2Shape2D
@@ -512,7 +512,7 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                s3.cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
+                pybosl2.cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
         """
         p = self.anchor_point(anchor, bbox=bbox)
         moved = self.translate([-p[0], -p[1], -p[2]])
@@ -528,8 +528,8 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                cube = s3.cuboid([30, 30, 10])
-                knob = s3.sphere(r=5)
+                cube = pybosl2.cuboid([30, 30, 10])
+                knob = pybosl2.sphere(r=5)
                 cube.position(Anchor.TOP_FRONT_LEFT, knob).show()
         """
         p = self.anchor_point(anchor, bbox=bbox)
@@ -567,8 +567,8 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                cube = s3.cuboid([30, 30, 10])
-                label = s3.cuboid([10, 5, 5])
+                cube = pybosl2.cuboid([30, 30, 10])
+                label = pybosl2.cuboid([10, 5, 5])
                 cube.align(Anchor.FRONT, label, align=Anchor.LEFT).show()
         """
         face = anchor.vector
@@ -608,8 +608,8 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                cube = s3.cuboid([20, 30, 10])
-                cyl = s3.cylinder(h=15, r=4)
+                cube = pybosl2.cuboid([20, 30, 10])
+                cyl = pybosl2.cylinder(h=15, r=4)
                 cube.attach(Anchor.UP, cyl).show()
         """
         pa = parent_anchor.vector
@@ -648,7 +648,7 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                s3.cuboid([10, 20, 30]).reorient(anchor=Anchor.BOTTOM, orient=Anchor.TOP).show()
+                pybosl2.cuboid([10, 20, 30]).reorient(anchor=Anchor.BOTTOM, orient=Anchor.TOP).show()
         """
         from pybosl2.transforms import reorient as _reorient_matrix
 
@@ -667,7 +667,7 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                s3.cylinder(h=30, r=5).orient(s3.Anchor.TOP).show()
+                pybosl2.cylinder(h=30, r=5).orient(pybosl2.Anchor.TOP).show()
         """
         return self.reorient(anchor=Anchor.CENTER, spin=spin, orient=direction, bbox=bbox)
 
@@ -701,13 +701,13 @@ class Bosl2Solid(_BaseShape):
 
                 from pybosl2.masking import chamfer_edge_mask
 
-                box = s3.cuboid([20, 30, 10])
+                box = pybosl2.cuboid([20, 30, 10])
                 cutter = chamfer_edge_mask(length=35, chamfer=3)
                 box.edge_mask("Z", children=cutter).show()
 
             .. pythonscad-example::
 
-                s3.cuboid([30, 20, 10], edges=Anchor.Z, rounding=3).show()
+                pybosl2.cuboid([30, 20, 10], edges=Anchor.Z, rounding=3).show()
         """
         from . import masking
 
@@ -747,7 +747,7 @@ class Bosl2Solid(_BaseShape):
 
                 from pybosl2.masking import mask2d_roundover
 
-                box = s3.cuboid([30, 20, 10])
+                box = pybosl2.cuboid([30, 20, 10])
                 profile = mask2d_roundover(radius=3)
                 box.edge_profile(children=profile).show()
 
@@ -811,7 +811,7 @@ class Bosl2Solid(_BaseShape):
         Examples:
             .. pythonscad-example::
 
-                s3.cuboid([20, 20, 20]).corner_profile(r=3, corners=Anchor.TOP).show()
+                pybosl2.cuboid([20, 20, 20]).corner_profile(r=3, corners=Anchor.TOP).show()
         """
         from . import masking
 
@@ -1007,7 +1007,7 @@ class Bosl2Solid(_BaseShape):
             .. pythonscad-example::
 
                 path = partition_path(["finger", "10x15", "finger"], seglen=25)
-                s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
+                pybosl2.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
         """
         v3 = np.asarray(v, dtype=float)
         if v3.shape[0] == 2:
@@ -1110,7 +1110,7 @@ class Bosl2Solid(_BaseShape):
 
             .. pythonscad-example::
 
-                halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
+                halves = pybosl2.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
                 halves[0].show()
         """
         from pybosl2.partitions import _partition_mask_shape
@@ -1528,7 +1528,7 @@ def cube(
     Examples:
         .. pythonscad-example::
 
-            s3.cube(size=20).show()
+            pybosl2.cube(size=20).show()
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = _resolve_center_anchor(center, anchor, Anchor.BOTTOM_FRONT_LEFT)
@@ -1752,7 +1752,7 @@ def octahedron(
     Examples:
         .. pythonscad-example::
 
-            s3.octahedron(size=20).show()
+            pybosl2.octahedron(size=20).show()
     """
     s = size / 2
     pts = [[s, 0, 0], [-s, 0, 0], [0, s, 0], [0, -s, 0], [0, 0, s], [0, 0, -s]]
@@ -1790,7 +1790,7 @@ def wedge(
     Examples:
         .. pythonscad-example::
 
-            s3.wedge([30, 20, 15]).show()
+            pybosl2.wedge([30, 20, 15]).show()
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = _resolve_center_anchor(center, anchor, [-1, -1, -1])
@@ -1878,7 +1878,7 @@ def rect_tube(
     Examples:
         .. pythonscad-example::
 
-            s3.rect_tube(size=30, wall=3, height=20).show()
+            pybosl2.rect_tube(size=30, wall=3, height=20).show()
     """
     from .shapes2d import _rect_path
 
@@ -2032,7 +2032,7 @@ def cylinder(
     Examples:
         .. pythonscad-example::
 
-            s3.cylinder(height=30, radius=10, anchor=Anchor.BOTTOM).show()
+            pybosl2.cylinder(height=30, radius=10, anchor=Anchor.BOTTOM).show()
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -2915,7 +2915,7 @@ def pie_slice(
     Examples:
         .. pythonscad-example::
 
-            s3.pie_slice(radius=20, angle=120, height=5).show()
+            pybosl2.pie_slice(radius=20, angle=120, height=5).show()
     """
     from .shapes2d import _arc_points, _opolygon  # type: ignore[attr-defined]
 
@@ -3021,7 +3021,7 @@ def spheroid(
     Examples:
         .. pythonscad-example::
 
-            s3.spheroid(radius=15).show()
+            pybosl2.spheroid(radius=15).show()
     """
     return sphere(
         radius=radius,
@@ -3299,7 +3299,7 @@ def onion(
     Examples:
         .. pythonscad-example::
 
-            s3.onion(radius=15).show()
+            pybosl2.onion(radius=15).show()
     """
     from .shapes2d import _arc_points, _opolygon  # type: ignore[attr-defined]
 
