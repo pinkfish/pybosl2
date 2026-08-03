@@ -582,6 +582,7 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2.parts.screws import Screws</span>
 <span class="sd">                Screws.screw(&quot;M6&quot;, length=20, head=&quot;socket&quot;, drive=&quot;hex&quot;).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -711,6 +712,7 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2.parts.screws import Screws</span>
 <span class="sd">                Screws.nut(&quot;M8&quot;).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Threading</span>
@@ -749,6 +751,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2.parts.screws import Screws</span>
+<span class="sd">                from pybosl2 import shapes3d as s3</span>
 <span class="sd">                (s3.cuboid([20, 20, 10]) - Screws.screw_hole(&quot;M6&quot;, length=10, head=&quot;socket&quot;, fit=&quot;normal&quot;)).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 

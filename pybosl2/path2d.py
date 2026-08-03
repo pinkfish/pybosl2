@@ -842,7 +842,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 rect = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 result = rect.contains([40, 30])
                 print("inside:", result)
-                rect.stroke(width=1).linear_extrude(h=1).show()
+                rect.stroke(width=1).linear_extrude(height=1).show()
         """
         if not self.closed:
             return False
@@ -922,7 +922,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]], closed=False)
                 result = pts.close()
-                result.stroke(width=2).linear_extrude(h=4).show()
+                result.stroke(width=2).linear_extrude(height=4).show()
         """
         return self.__class__(Path2D._close_path(self), closed=self.closed)
 
@@ -939,7 +939,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60], [0, 0]])
                 result = pts.cleanup()
-                result.stroke(width=2).linear_extrude(h=4).show()
+                result.stroke(width=2).linear_extrude(height=4).show()
         """
         return self.__class__(Path2D._cleanup_path(self), closed=self.closed)
 
@@ -956,7 +956,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 rect = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 result = rect.reverse()
-                result.stroke(width=2).linear_extrude(h=4).show()
+                result.stroke(width=2).linear_extrude(height=4).show()
         """
         return self.__class__(list(reversed(self._points)), closed=self.closed)
 
@@ -970,7 +970,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 pts = Path2D([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])
                 result = pts.deduplicated()
-                result.stroke(width=2).linear_extrude(h=4).show()
+                result.stroke(width=2).linear_extrude(height=4).show()
         """
         return self.__class__(Path2D._deduplicate(self._points, closed=self.closed))
 
@@ -991,7 +991,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 result = pts.subdivide(num_copies=24)
-                result.stroke(width=1).linear_extrude(h=4).show()
+                result.stroke(width=1).linear_extrude(height=4).show()
         """
         if "num_copies" in kwargs:
             kwargs.setdefault("points", kwargs.pop("num_copies"))
@@ -1019,7 +1019,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 sampled = pts.resample(num_copies=20)
-                sampled.stroke(width=1).show()
+                sampled.stroke(width=1).linear_extrude(height=2).show()
         """
         if "num_copies" in kwargs:
             kwargs.setdefault("num_copies", kwargs.pop("num_copies"))
@@ -1212,8 +1212,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 from pybosl2 import Path2D
 
                 pts = Path2D([[0, 0], [40, 30], [80, 0], [120, 30]])
-                curve = pts.to_bezier(size=10)
-                curve.stroke(width=2).linear_extrude(h=3).show()
+                curve = pts.to_bezier(size=10).path_curve()
+                curve.stroke(width=2).linear_extrude(height=3).show()
         """
         from pybosl2.beziers import create_bezier  # local: keep the import graph acyclic
 

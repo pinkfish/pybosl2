@@ -362,6 +362,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">            s2.cross(size=30).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>

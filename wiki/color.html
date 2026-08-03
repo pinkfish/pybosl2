@@ -237,13 +237,13 @@ CSG operators if needed.</p></td>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-58f65fe66c824bf0aa0269e4c8f2318f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d4267f1c58db4da0b93cfa187f4aee9d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-58f65fe66c824bf0aa0269e4c8f2318f");
+const el = document.getElementById("stlviewer-d4267f1c58db4da0b93cfa187f4aee9d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -293,13 +293,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-06e2b06252764f5880909984eef2f2c0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-f3d3323c5c914753a46cd30ec3067891" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-06e2b06252764f5880909984eef2f2c0");
+const el = document.getElementById("stlviewer-f3d3323c5c914753a46cd30ec3067891");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -398,7 +398,10 @@ colours to objects.  Uses <code class="xref py py-func docutils literal notransl
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cols</span> <span class="o">=</span> <span class="n">rainbow_colors</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">rainbow_colors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+
+<span class="n">cols</span> <span class="o">=</span> <span class="n">rainbow_colors</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
@@ -406,13 +409,13 @@ colours to objects.  Uses <code class="xref py py-func docutils literal notransl
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c81a82dbe58e44d99c1e63067bddfa42" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7d9594998ed14415b4862326e23bbbb0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c81a82dbe58e44d99c1e63067bddfa42");
+const el = document.getElementById("stlviewer-7d9594998ed14415b4862326e23bbbb0");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -435,7 +438,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/63f7d0b4fa830974.stl", function (geo) {
+new STLLoader().load("_stl/b14945782ff103dc.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -455,7 +458,7 @@ new STLLoader().load("_stl/63f7d0b4fa830974.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/63f7d0b4fa830974.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/b14945782ff103dc.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 <dl class="py class">
@@ -541,16 +544,17 @@ or <code class="docutils literal notranslate"><span class="pre">None</span></cod
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.hsl">
-<span class="sig-name descname"><span class="pre">hsl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.hsl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.hsl" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">hsl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.hsl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.hsl" title="Link to this definition">¶</a></dt>
 <dd><p>Colour this object from an HSL hue/saturation/lightness.</p>
 <p>Uses <code class="xref py py-func docutils literal notranslate"><span class="pre">colorsys.hls_to_rgb()</span></code> for the conversion.  For opacity, chain
-<a class="reference internal" href="#pybosl2.color.Colorable.ghost" title="pybosl2.color.Colorable.ghost"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ghost()</span></code></a> after this call.</p>
+<a class="reference internal" href="#pybosl2.color.Colorable.ghost" title="pybosl2.color.Colorable.ghost"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ghost()</span></code></a> after this call or pass the alpha parameter <em>a</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>height</strong> (<em>float</em>) – Hue in degrees (0=red, 120=green, 240=blue).</p></li>
 <li><p><strong>s</strong> (<em>float</em>) – Saturation 0..1 (0 = grey, 1 = vivid).</p></li>
 <li><p><strong>length</strong> (<em>float</em>) – Lightness 0..1 (0 = black, 0.5 = bright, 1 = white).</p></li>
+<li><p><strong>a</strong> (<em>float</em><em> | </em><em>None</em>) – Optional alpha (opacity) 0..1.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -564,16 +568,17 @@ or <code class="docutils literal notranslate"><span class="pre">None</span></cod
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.hsv">
-<span class="sig-name descname"><span class="pre">hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.hsv" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.hsv" title="Link to this definition">¶</a></dt>
 <dd><p>Colour this object from an HSV hue/saturation/value.</p>
 <p>Uses <code class="xref py py-func docutils literal notranslate"><span class="pre">colorsys.hsv_to_rgb()</span></code> for the conversion.  For opacity, chain
-<a class="reference internal" href="#pybosl2.color.Colorable.ghost" title="pybosl2.color.Colorable.ghost"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ghost()</span></code></a> after this call.</p>
+<a class="reference internal" href="#pybosl2.color.Colorable.ghost" title="pybosl2.color.Colorable.ghost"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ghost()</span></code></a> after this call or pass the alpha parameter <em>a</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>height</strong> (<em>float</em>) – Hue in degrees (0=red, 120=green, 240=blue).</p></li>
 <li><p><strong>s</strong> (<em>float</em>) – Saturation 0..1 (0 = grey, 1 = vivid).</p></li>
 <li><p><strong>v</strong> (<em>float</em>) – Value 0..1 (0 = black, 1 = bright).</p></li>
+<li><p><strong>a</strong> (<em>float</em><em> | </em><em>None</em>) – Optional alpha (opacity) 0..1.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

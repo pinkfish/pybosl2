@@ -169,7 +169,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_opolygon</span>  <span class="c1"># type: ignore[attr-defined]</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_opolygon</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">cuboid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
 
@@ -320,6 +320,7 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2.parts.walls import Walls</span>
 <span class="sd">                Walls.sparse_cuboid(size=[50, 40, 10], dir=&quot;Y&quot;, strut=3).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">size</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">)))</span>

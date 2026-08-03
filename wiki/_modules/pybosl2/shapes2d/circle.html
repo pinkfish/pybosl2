@@ -242,6 +242,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">            s2.circle(radius=15).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -477,6 +479,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">            s2.ellipse(diameter=[30, 20]).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">uniform</span>
@@ -530,6 +534,8 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.keyhole(length=25, radius1=4, radius2=9, shoulder_radius=2).linear_extrude(height=4).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -608,6 +614,8 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
+
 <span class="sd">            s2.ring(radius=20, ring_width=4).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ring(): only the full-annulus form is ported (no angle=).&quot;</span>
@@ -655,6 +663,8 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.glued_circles(radius=10, spread=25, tangent=30).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -730,6 +740,8 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.reuleaux_polygon(sides=3, radius=15).linear_extrude(height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>

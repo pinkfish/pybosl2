@@ -355,54 +355,54 @@
  },
  "threading": {
   "iso-rod": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 6172,
+   "vol": "8,055.3",
+   "bbox": "20\u00d720\u00d730",
+   "wt": true
   },
   "iso-nut": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 796,
+   "vol": "610.8",
+   "bbox": "15\u00d713\u00d77",
+   "wt": true
   },
   "trapezoidal": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 3932,
+   "vol": "7,699.5",
+   "bbox": "20\u00d720\u00d730",
+   "wt": true
   },
   "acme": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 3996,
+   "vol": "3,098.2",
+   "bbox": "13\u00d713\u00d730",
+   "wt": true
   }
  },
  "screw_drive": {
   "phillips": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 176,
+   "vol": "29.3",
+   "bbox": "6\u00d76\u00d74",
+   "wt": true
   },
   "hex": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 20,
+   "vol": "80.9",
+   "bbox": "4\u00d73\u00d710",
+   "wt": true
   },
   "torx": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 188,
+   "vol": "176.3",
+   "bbox": "6\u00d75\u00d710",
+   "wt": true
   },
   "robertson": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 74,
+   "vol": "93.4",
+   "bbox": "4\u00d74\u00d710",
+   "wt": true
   }
  },
  "bottlecaps": {
@@ -427,16 +427,16 @@
  },
  "sliders": {
   "slider": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 100,
+   "vol": "8,307.2",
+   "bbox": "30\u00d718\u00d720",
+   "wt": true
   },
   "rail": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 52,
+   "vol": "6,861.2",
+   "bbox": "10\u00d7100\u00d710",
+   "wt": true
   }
  },
  "shapes3d": {

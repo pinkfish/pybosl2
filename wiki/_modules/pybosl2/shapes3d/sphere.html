@@ -238,7 +238,9 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            shape = pybosl2.shapes3d.sphere(radius=15)</span>
+<span class="sd">            from pybosl2 import sphere</span>
+
+<span class="sd">            shape = sphere(radius=15)</span>
 <span class="sd">            shape.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
@@ -277,6 +279,8 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.spheroid(radius=15).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -379,7 +383,9 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            shape = pybosl2.shapes3d.teardrop(radius=8, angle=45, height=15)</span>
+<span class="sd">            from pybosl2 import teardrop</span>
+
+<span class="sd">            shape = teardrop(radius=8, angle=45, height=15)</span>
 <span class="sd">            shape.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">length</span> <span class="o">=</span> <span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span>
@@ -451,9 +457,11 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
 <span class="sd">            s3.onion(radius=15).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_arc_points</span><span class="p">,</span> <span class="n">_opolygon</span>  <span class="c1"># type: ignore[attr-defined]</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_arc_points</span><span class="p">,</span> <span class="n">_opolygon</span>
 
     <span class="n">rad</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>

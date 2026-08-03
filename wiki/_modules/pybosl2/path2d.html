@@ -229,6 +229,8 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2 import catenary</span>
+
 <span class="sd">            catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="p">(</span><span class="n">droop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;catenary() needs exactly one of droop= or angle=&quot;</span>
@@ -324,7 +326,7 @@
 
 
 <div class="viewcode-block" id="Path2D">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Path2D</span><span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="n">Distributable</span><span class="p">,</span> <span class="n">Extrudable</span><span class="p">,</span> <span class="n">Sweepable</span><span class="p">,</span> <span class="n">Roundable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D path (formerly ``Path2D``): a list of [x, y] points, with every path operation as a method.</span>
 
@@ -346,6 +348,8 @@
 <span class="sd">        A box outline inset by the wall thickness and with rounded corners, extruded into a plate:</span>
 
 <span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import Path2D</span>
 
 <span class="sd">            outline = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
 <span class="sd">            plate = outline.offset(radius=-3).round_corners(radius=5).polygon().linear_extrude(height=4)</span>
@@ -434,7 +438,7 @@
         <span class="k">return</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">Polygon</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Path2D.from_list">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.from_list">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.from_list">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lst</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Path2D from a plain list of ``[x, y]`` coordinate pairs.</span>
@@ -452,7 +456,7 @@
     <span class="c1"># -- Path delegating implementations ----------------------------------------------------</span>
 
 <div class="viewcode-block" id="Path2D.segment_lengths">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.segment_lengths">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.segment_lengths">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">segment_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Length of each segment of the path, as an ndarray.</span>
 
@@ -469,7 +473,7 @@
 
 
 <div class="viewcode-block" id="Path2D.length_fractions">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.length_fractions">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.length_fractions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">length_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Distance fraction of each point in the path (0 at start, 1 at end).</span>
 
@@ -488,7 +492,7 @@
 
 
 <div class="viewcode-block" id="Path2D.closest_point">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.closest_point">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.closest_point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">closest_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The closest point on the path to *pt*.</span>
 
@@ -511,7 +515,7 @@
 
 
 <div class="viewcode-block" id="Path2D.tangents">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.tangents">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.tangents">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">tangents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[Point]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalized tangent vector at each point of the path.</span>
 
@@ -567,7 +571,7 @@
 
 
 <div class="viewcode-block" id="Path2D.normals">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.normals">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.normals">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tangents</span><span class="p">:</span> <span class="s2">&quot;list[Point] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[Point]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perpendicular unit normal at each point (90° rotation of tangent).&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">tangents</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -576,7 +580,7 @@
 
 
 <div class="viewcode-block" id="Path2D.curvature">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.curvature">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.curvature">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">curvature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Numeric curvature estimate at each point (0 for 2-D collinear paths).</span>
 
@@ -613,7 +617,7 @@
 
 
 <div class="viewcode-block" id="Path2D.torsion">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.torsion">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.torsion">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">torsion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Numeric torsion estimate (always 0 for 2-D paths).</span>
 
@@ -628,7 +632,7 @@
 
 
 <div class="viewcode-block" id="Path2D.cut">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.cut">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.cut">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutdist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Cut path into subpaths at the given ascending list of distances (or a single distance).</span>
 
@@ -670,7 +674,7 @@
 
 
 <div class="viewcode-block" id="Path2D.cut_getpaths">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.cut_getpaths">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.cut_getpaths">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut_getpaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>  <span class="c1"># noqa: ARG002</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct sub-paths from the output of cut_points().</span>
 
@@ -703,7 +707,7 @@
 
 
 <div class="viewcode-block" id="Path2D.cut_points">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.cut_points">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.cut_points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cutdist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -748,7 +752,7 @@
 
 
 <div class="viewcode-block" id="Path2D.cut_points_recurse">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.cut_points_recurse">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.cut_points_recurse">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut_points_recurse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dists</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Walk the path accumulating distance until each cut distance is reached.</span>
 
@@ -762,7 +766,7 @@
 
 
 <div class="viewcode-block" id="Path2D.cut_single">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.cut_single">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.cut_single">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">ind</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-7</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CutPoint</span><span class="p">:</span>  <span class="c1"># noqa: ARG002</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the single cut point at distance dist.</span>
 
@@ -781,7 +785,7 @@
 
 
 <div class="viewcode-block" id="Path2D.cuts_path_normals">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.cuts_path_normals">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.cuts_path_normals">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cuts_path_normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[Point]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute normals at each cut point from the path geometry.</span>
 
@@ -811,7 +815,7 @@
 
 
 <div class="viewcode-block" id="Path2D.plane">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.plane">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.plane">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[Point]&quot;</span><span class="p">:</span>  <span class="c1"># noqa: ARG002</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Local plane at path point (always XY for 2-D).</span>
 
@@ -826,7 +830,7 @@
 
 
 <div class="viewcode-block" id="Path2D.cuts_dir">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.cuts_dir">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.cuts_dir">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cuts_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[Point]&quot;</span><span class="p">:</span>  <span class="c1"># noqa: ARG002</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute direction vectors at each cut point.</span>
 
@@ -856,7 +860,7 @@
 
 
 <div class="viewcode-block" id="Path2D.subdivide_path">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.subdivide_path">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.subdivide_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">subdivide_path</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -926,10 +930,10 @@
 
 
 <div class="viewcode-block" id="Path2D.resample_path">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.resample_path">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.resample_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">resample_path</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
@@ -940,7 +944,7 @@
         <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="mf">1e-12</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span>
 
-        <span class="n">n</span> <span class="o">=</span> <span class="n">sides</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">num_copies</span>
         <span class="k">if</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spacing</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">total</span> <span class="o">/</span> <span class="n">spacing</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -956,7 +960,7 @@
 
 
 <div class="viewcode-block" id="Path2D.select">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.select">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.select">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">u1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s2</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">u2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -987,7 +991,7 @@
     <span class="c1"># -- measurement -----------------------------------------------------------------------</span>
 
 <div class="viewcode-block" id="Path2D.bounds">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.bounds">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.bounds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bounds2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Axis-aligned bounding box with pre-computed width and length.</span>
 
@@ -1009,7 +1013,7 @@
 
 
 <div class="viewcode-block" id="Path2D.area">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.area">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.area">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Enclosed area; *signed* keeps the sign (negative == clockwise).</span>
 
@@ -1029,21 +1033,21 @@
 
 
 <div class="viewcode-block" id="Path2D.is_clockwise">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.is_clockwise">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.is_clockwise">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_clockwise</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;True if the polygon winds clockwise (negative signed area).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="Path2D.perimeter">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.perimeter">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.perimeter">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Total length around the path.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shapely</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Path2D.contains">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.contains">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.contains">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;True if *point* is inside the closed polygon (on the boundary counts as inside).</span>
 
@@ -1057,11 +1061,14 @@
 <span class="sd">            True if the point is inside or on the boundary of the polygon.</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            .. pythonscad-example::</span>
+<span class="sd">            .. code-block:: python</span>
+
+<span class="sd">                from pybosl2 import Path2D</span>
 
 <span class="sd">                rect = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
 <span class="sd">                result = rect.contains([40, 30])</span>
 <span class="sd">                print(&quot;inside:&quot;, result)</span>
+<span class="sd">                rect.stroke(width=1).linear_extrude(height=1).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -1076,7 +1083,7 @@
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_is_closed_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Path2D.is_simple">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.is_simple">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.is_simple">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_simple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;True if the path does not self-intersect.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
@@ -1088,7 +1095,7 @@
 
 
 <div class="viewcode-block" id="Path2D.offset">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.offset">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.offset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">offset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1117,6 +1124,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                outline = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
 <span class="sd">                inset = outline.offset(radius=-3)</span>
 <span class="sd">                inset.polygon().linear_extrude(height=4).show()</span>
@@ -1134,7 +1143,7 @@
 
 
 <div class="viewcode-block" id="Path2D.close">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.close">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.close">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Append the start point if the path is not already closed.</span>
 
@@ -1144,15 +1153,17 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]], closed=False)</span>
 <span class="sd">                result = pts.close()</span>
-<span class="sd">                result.stroke(width=2).linear_extrude(h=4).show()</span>
+<span class="sd">                result.stroke(width=2).linear_extrude(height=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_close_path</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Path2D.cleanup">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.cleanup">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.cleanup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop a duplicate closing point if present.</span>
 
@@ -1162,15 +1173,17 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60], [0, 0]])</span>
 <span class="sd">                result = pts.cleanup()</span>
-<span class="sd">                result.stroke(width=2).linear_extrude(h=4).show()</span>
+<span class="sd">                result.stroke(width=2).linear_extrude(height=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_cleanup_path</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Path2D.reverse">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.reverse">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.reverse">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The same outline wound the other way.</span>
 
@@ -1180,36 +1193,40 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                rect = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
 <span class="sd">                result = rect.reverse()</span>
-<span class="sd">                result.stroke(width=2).linear_extrude(h=4).show()</span>
+<span class="sd">                result.stroke(width=2).linear_extrude(height=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Path2D.deduplicated">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.deduplicated">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.deduplicated">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">deduplicated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop consecutive repeated points (:meth:`_deduplicate`).</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                pts = Path2D([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])</span>
 <span class="sd">                result = pts.deduplicated()</span>
-<span class="sd">                result.stroke(width=2).linear_extrude(h=4).show()</span>
+<span class="sd">                result.stroke(width=2).linear_extrude(height=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_deduplicate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Path2D.subdivide">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.subdivide">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.subdivide">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">subdivide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert points along the path.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            **kwargs: Passed through to the subdivide kernel; must include exactly one of</span>
-<span class="sd">                *sides* (target count), *refine* (multiplier), or *maxlen* (spacing cap).</span>
+<span class="sd">                *num_copies* (target count), *refine* (multiplier), or *maxlen* (spacing cap).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path2D` with additional interpolated points.</span>
@@ -1217,12 +1234,14 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
-<span class="sd">                result = pts.subdivide(sides=24)</span>
-<span class="sd">                result.stroke(width=1).linear_extrude(h=4).show()</span>
+<span class="sd">                result = pts.subdivide(num_copies=24)</span>
+<span class="sd">                result.stroke(width=1).linear_extrude(height=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;sides&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;sides&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">&quot;num_copies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="s2">&quot;refine&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;refine&quot;</span><span class="p">)</span>
             <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">))</span>
@@ -1231,14 +1250,14 @@
 
 
 <div class="viewcode-block" id="Path2D.resample">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.resample">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.resample">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resample to evenly spaced points.</span>
 
-<span class="sd">        Accepts *sides* (target point count) or *spacing* (approximate spacing between points).</span>
+<span class="sd">        Accepts *num_copies* (target point count) or *spacing* (approximate spacing between points).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            **kwargs: Must include exactly one of *sides* or *spacing*.</span>
+<span class="sd">            **kwargs: Must include exactly one of *num_copies* or *spacing*.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path2D` with uniformly resampled points.</span>
@@ -1246,15 +1265,19 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
-<span class="sd">                sampled = pts.resample(sides=20)</span>
-<span class="sd">                sampled.stroke(width=1).show()</span>
+<span class="sd">                sampled = pts.resample(num_copies=20)</span>
+<span class="sd">                sampled.stroke(width=1).linear_extrude(height=2).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;num_copies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resample_path</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Path2D.split_at_self_crossings">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.split_at_self_crossings">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.split_at_self_crossings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">split_at_self_crossings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Split this 2-D path into subpaths wherever it crosses itself.</span>
 
@@ -1271,7 +1294,7 @@
 
 
 <div class="viewcode-block" id="Path2D.polygon_parts">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.polygon_parts">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.polygon_parts">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">polygon_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nonzero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Split a possibly self-intersecting polygon into non-intersecting simple polygons.</span>
 
@@ -1296,7 +1319,7 @@
     <span class="c1"># forward/fwd is -Y.</span>
 
 <div class="viewcode-block" id="Path2D.translate">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.translate">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.translate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate every point by *v* (2-D; a 1-vector shifts X only).</span>
 
@@ -1315,7 +1338,7 @@
     <span class="n">move</span> <span class="o">=</span> <span class="n">translate</span>
 
 <div class="viewcode-block" id="Path2D.rot">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.rot">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.rot">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate every point by *a* degrees about the origin (Z axis).</span>
 
@@ -1334,7 +1357,7 @@
     <span class="n">rotate</span> <span class="o">=</span> <span class="n">rot</span>
 
 <div class="viewcode-block" id="Path2D.mirror">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.mirror">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.mirror">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reflect every point across the line through the origin with normal *v*.</span>
 
@@ -1351,7 +1374,7 @@
 
 
 <div class="viewcode-block" id="Path2D.yflip">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.yflip">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.yflip">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">yflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reflect every point across the horizontal line Y=*y* (default: the X axis).</span>
 
@@ -1367,7 +1390,7 @@
 
 
 <div class="viewcode-block" id="Path2D.right">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.right">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.right">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">right</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *x* along +X.</span>
 
@@ -1381,7 +1404,7 @@
 
 
 <div class="viewcode-block" id="Path2D.left">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.left">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.left">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">left</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *x* along -X.</span>
 
@@ -1395,7 +1418,7 @@
 
 
 <div class="viewcode-block" id="Path2D.back">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.back">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.back">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">back</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *y* along +Y.</span>
 
@@ -1409,7 +1432,7 @@
 
 
 <div class="viewcode-block" id="Path2D.forward">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.forward">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.forward">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate by *y* along -Y (BOSL2 fwd()).</span>
 
@@ -1427,7 +1450,7 @@
     <span class="c1"># -- conversion ------------------------------------------------------------------------</span>
 
 <div class="viewcode-block" id="Path2D.to_region">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.to_region">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.to_region">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_region</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This path as a single-outline Region.</span>
 
@@ -1446,7 +1469,7 @@
 
 
 <div class="viewcode-block" id="Path2D.to_bezier">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.to_bezier">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.to_bezier">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_bezier</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1472,9 +1495,11 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                pts = Path2D([[0, 0], [40, 30], [80, 0], [120, 30]])</span>
-<span class="sd">                curve = pts.to_bezier(size=10)</span>
-<span class="sd">                curve.stroke(width=2).linear_extrude(h=3).show()</span>
+<span class="sd">                curve = pts.to_bezier(size=10).path_curve()</span>
+<span class="sd">                curve.stroke(width=2).linear_extrude(height=3).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.beziers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_bezier</span>  <span class="c1"># local: keep the import graph acyclic</span>
 
@@ -1499,7 +1524,7 @@
             <span class="p">)</span>
 
 <div class="viewcode-block" id="Path2D.polygon">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.polygon">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.polygon">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This path as 2-D geometry (crosses the FFI as plain floats).</span>
 
@@ -1515,6 +1540,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                shape = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
 <span class="sd">                shape.polygon().linear_extrude(height=5).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1527,7 +1554,7 @@
 
 
 <div class="viewcode-block" id="Path2D.geometry">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.geometry">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.geometry">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;2-D geometry of this path.</span>
 
@@ -1538,7 +1565,7 @@
 
 
 <div class="viewcode-block" id="Path2D.fill">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.fill">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.fill">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This path as 2-D geometry with every hole filled in -- only the outermost outline</span>
 
@@ -1552,7 +1579,7 @@
 
 
 <div class="viewcode-block" id="Path2D.minkowski_sum">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.minkowski_sum">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.minkowski_sum">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">minkowski_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The 2-D Minkowski sum of this closed path and *other*.</span>
 
@@ -1595,7 +1622,7 @@
 
 
 <div class="viewcode-block" id="Path2D.minkowski_sum_circle">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.minkowski_sum_circle">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.minkowski_sum_circle">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">minkowski_sum_circle</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1636,6 +1663,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D, MinkowskiJoin</span>
+
 <span class="sd">                base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])</span>
 <span class="sd">                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.ROUND) \\</span>
 <span class="sd">                    .polygon().linear_extrude(height=3).show()</span>
@@ -1644,6 +1673,8 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D, MinkowskiJoin</span>
+
 <span class="sd">                base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])</span>
 <span class="sd">                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.MITRE) \\</span>
 <span class="sd">                    .polygon().linear_extrude(height=3).show()</span>
@@ -1651,6 +1682,8 @@
 <span class="sd">            Flat bevel (chamfered) corners:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path2D, MinkowskiJoin</span>
 
 <span class="sd">                base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])</span>
 <span class="sd">                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.BEVEL) \\</span>
@@ -1678,7 +1711,7 @@
 
 
 <div class="viewcode-block" id="Path2D.circle2d">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.circle2d">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.circle2d">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">circle2d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a closed :class:`Path2D` approximating a circle of *radius*.</span>
@@ -1698,7 +1731,7 @@
 
 
 <div class="viewcode-block" id="Path2D.ellipse2d">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.ellipse2d">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.ellipse2d">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ellipse2d</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rx</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">ry</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a closed :class:`Path2D` approximating an ellipse.</span>
@@ -1720,7 +1753,7 @@
 
 
 <div class="viewcode-block" id="Path2D.hull">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.hull">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.hull">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="s2">&quot;Path2D | Region&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The 2-D convex hull of this path and all the given closed paths and regions.</span>
 
@@ -1745,7 +1778,7 @@
 
 
 <div class="viewcode-block" id="Path2D.union">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.union">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.union">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The 2-D union of this closed path with *others*.</span>
 
@@ -1777,7 +1810,7 @@
 
 
 <div class="viewcode-block" id="Path2D.intersection">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.intersection">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.intersection">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The 2-D intersection of this closed path with *others*.</span>
 
@@ -1808,7 +1841,7 @@
 
 
 <div class="viewcode-block" id="Path2D.difference">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.difference">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.difference">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The 2-D difference: *self* minus *other*.</span>
 
@@ -1836,7 +1869,7 @@
 
 
 <div class="viewcode-block" id="Path2D.symmetric_difference">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.symmetric_difference">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.symmetric_difference">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">symmetric_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The 2-D symmetric difference (XOR) of this path and *other*.</span>
 
@@ -1904,7 +1937,7 @@
     <span class="c1"># -- 2-D -&gt; 3-D (both backends) --------------------------------------------------------</span>
 
 <div class="viewcode-block" id="Path2D.linear_extrude">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.linear_extrude">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.linear_extrude">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude this path *height* along +Z into a 3-D solid, **on whichever backend is</span>
 
@@ -1927,6 +1960,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
+<span class="sd">                from pybosl2 import Path2D</span>
+
 <span class="sd">                plate = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])</span>
 <span class="sd">                plate.linear_extrude(height=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1936,7 +1971,7 @@
 
 
 <div class="viewcode-block" id="Path2D.rotate_extrude">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.rotate_extrude">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.rotate_extrude">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotate_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">360.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Revolve this path about the Y axis into a 3-D solid; see</span>
 
@@ -1959,7 +1994,7 @@
 
 
 <div class="viewcode-block" id="Path2D.debug_polygon">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.debug_polygon">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.debug_polygon">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">debug_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A debug view of this polygon: the filled outline (as a thin flat solid) with each vertex</span>
 
@@ -1992,7 +2027,7 @@
     <span class="c1"># -- distributors (pybosl2/distributors.py) ----------------------------------------------</span>
 
 <div class="viewcode-block" id="Path2D.stroke">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.stroke">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.stroke">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">stroke</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -2024,7 +2059,7 @@
 
 
 <div class="viewcode-block" id="Path2D.dashed_stroke">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.dashed_stroke">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.dashed_stroke">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dashed_stroke</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">dashpat</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2070,7 +2105,7 @@
     <span class="c1"># ======================================================================================</span>
 
 <div class="viewcode-block" id="Path2D.self_intersections">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.self_intersections">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.self_intersections">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">self_intersections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SelfIntersection</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;All self-intersection points of the path.</span>
 
@@ -2122,7 +2157,7 @@
 
 
 <div class="viewcode-block" id="Path2D.merge_collinear">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.merge_collinear">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.merge_collinear">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">merge_collinear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove sequential collinear points and return a new path.</span>
 
@@ -2153,7 +2188,7 @@
 
 
 <div class="viewcode-block" id="Path2D.deduplicate">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.deduplicate">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.deduplicate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">deduplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove duplicate consecutive points and return a new path.</span>
 
@@ -2171,7 +2206,7 @@
 
 
 <div class="viewcode-block" id="Path2D.is_path_simple">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.is_path_simple">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.is_path_simple">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_path_simple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;True if the 2D path has no self-intersections (repeated points are not intersections).</span>
 
@@ -2851,7 +2886,7 @@
         <span class="k">return</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_deduplicate</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Path2D.to_bezcornerpath">
-<a class="viewcode-back" href="../../regions.html#pybosl2.path2d.Path2D.to_bezcornerpath">[docs]</a>
+<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.to_bezcornerpath">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_bezcornerpath</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">parm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

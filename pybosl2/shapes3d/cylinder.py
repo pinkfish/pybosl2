@@ -449,7 +449,7 @@ def xcyl(
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import xcyl
+            from pybosl2.shapes3d.cylinder import xcyl
 
             shape = xcyl(radius=10, height=30)
             shape.show()
@@ -554,7 +554,7 @@ def ycyl(
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import ycyl
+            from pybosl2.shapes3d.cylinder import ycyl
 
             shape = ycyl(radius=10, height=30)
             shape.show()
@@ -661,7 +661,7 @@ def zcyl(
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import zcyl
+            from pybosl2.shapes3d.cylinder import zcyl
 
             shape = zcyl(radius=10, height=30)
             shape.show()

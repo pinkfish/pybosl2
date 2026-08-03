@@ -127,7 +127,7 @@ def extrude_from_to(
 
         .. pythonscad-example::
 
-            from pybosl2 import s2, extrude_from_to
+            from pybosl2 import shapes2d as s2, extrude_from_to
 
             extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30], twist=180, scale=2).show()
     """
@@ -177,9 +177,9 @@ def cylindrical_extrude(
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import s2, cylindrical_extrude
+            from pybosl2 import shapes2d as s2, cylindrical_extrude
 
-            cylindrical_extrude(s2.circle(r=8), inner_radius=25, outer_radius=30).show()
+            cylindrical_extrude(s2.circle(radius=8), inner_radius=25, outer_radius=30).show()
     """
     from pythonscad import square as _square
 
@@ -233,7 +233,7 @@ def chain_hull(*objects: object) -> Bosl2Solid:
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import s3, chain_hull
+            from pybosl2 import shapes3d as s3, chain_hull
 
             chain_hull([s3.sphere(r=5).translate([x * 20, 0, 0]) for x in range(4)]).show()
     """

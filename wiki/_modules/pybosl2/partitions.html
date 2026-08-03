@@ -601,6 +601,8 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            from pybosl2.partitions import partition_path</span>
+
 <span class="sd">            wall = partition_path([40, &quot;jigsaw&quot;, 10, &quot;jigsaw yflip&quot;, 40], fn=24)</span>
 <span class="sd">            wall.stroke(width=3).linear_extrude(height=30).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -739,7 +741,9 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            import pybosl2.shapes3d as s3</span>
 <span class="sd">            from pybosl2.partitions import partition_mask</span>
+
 <span class="sd">            (s3.cuboid([100, 100, 10]) &amp; partition_mask(w=50, height=10, cutpath=&quot;jigsaw&quot;, slop=0.15)).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
@@ -786,7 +790,9 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
+<span class="sd">            import pybosl2.shapes3d as s3</span>
 <span class="sd">            from pybosl2.partitions import partition_cut_mask</span>
+
 <span class="sd">            (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath=&quot;jigsaw&quot;, slop=0.15)).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
@@ -794,7 +800,7 @@
     <span class="n">cs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator]</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_partition_cutpath</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">cs</span><span class="p">,</span> <span class="n">cutpath</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">cutpath_centered</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="n">ribbon</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">slop</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">ribbon</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
@@ -892,7 +898,10 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                path = partition_path([&quot;finger&quot;, &quot;10x15&quot;, &quot;finger&quot;], seglen=25)</span>
+<span class="sd">                import pybosl2.shapes3d as s3</span>
+<span class="sd">                from pybosl2.partitions import partition_path</span>
+
+<span class="sd">                path = partition_path([&quot;finger&quot;, 20, &quot;finger&quot;], seglen=25)</span>
 <span class="sd">                s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">v3</span> <span class="o">=</span> <span class="n">_as_vec3</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
@@ -1061,6 +1070,8 @@
 <span class="sd">            Split a block into two dovetailed halves:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                import pybosl2.shapes3d as s3</span>
 
 <span class="sd">                halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath=&quot;dovetail&quot;, slop=0.15)</span>
 <span class="sd">                halves[0].show()</span>

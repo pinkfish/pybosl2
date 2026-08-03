@@ -57,7 +57,7 @@ class Hinges:
             .. pythonscad-example::
 
                 from pybosl2.parts.hinges import Hinges
-                from pybosl2 import s3
+                from pybosl2 import shapes3d as s3
                 (s3.cuboid([100, 40, 3]) - Hinges.living_hinge_mask(length=100, thick=3, foldangle=60).down(1.5)).show()
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop

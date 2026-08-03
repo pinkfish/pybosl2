@@ -377,7 +377,7 @@ def smooth_path(
             from pybosl2 import Path2D, smooth_path
 
             path = Path2D([[0, 0], [10, 5], [20, 0], [30, 10]])
-            smooth_path(path, size=0.3, relsize=0.1).stroke(width=1).linear_extrude(height=3).show()
+            smooth_path(path, relsize=0.1).stroke(width=1).linear_extrude(height=3).show()
     """
     from pybosl2.beziers import create_bezier
     from pybosl2.path2d import Path2D

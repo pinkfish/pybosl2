@@ -21,7 +21,7 @@
           <p class="lede">The five Platonic solids as watertight polyhedra — sized by circumradius, diameter, inradius or side. The dodecahedron is built as the dual of the icosahedron.</p>
           <div class="spec">
             <div class="draw">
-              <div class="caption"><span id="vpart">tetrahedron(r=15)</span><span>interactive · drag to orbit</span></div>
+              <div class="caption"><span id="vpart">tetrahedron(radius=15)</span><span>interactive · drag to orbit</span></div>
               <div class="viewer" id="viewer">
                 <div class="poster" id="poster">
                   <svg viewBox="0 0 460 240" role="img" aria-label="Isometric projection of a regular icosahedron, faces depth-shaded." xmlns="http://www.w3.org/2000/svg">
@@ -71,7 +71,7 @@
               </div>
               <div style="position:relative">
                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                <div class="code" id="code">&gt;&gt;&gt; Polyhedra.<span class="k">tetrahedron</span>(r=15)</div>
+                <div class="code" id="code">&gt;&gt;&gt; Polyhedra.<span class="k">tetrahedron</span>(radius=15)</div>
               </div>
               <div class="proof">
                 <div class="big">V&minus;E+F=2</div>
@@ -87,7 +87,7 @@
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "tetrahedron", "label": "tetrahedron", "uri": "_stl/polyhedra-tetrahedron.stl", "code": "Polyhedra.<span class=\"k\">tetrahedron</span>(r=15)", "part": "tetrahedron(r=15)", "tris": 4, "vol": "1,732.1", "bbox": "17\u00d717\u00d717", "wt": true}, {"id": "cube", "label": "cube", "uri": "_stl/polyhedra-cube.stl", "code": "Polyhedra.<span class=\"k\">cube</span>(r=15)", "part": "cube(r=15)", "tris": 12, "vol": "5,196.2", "bbox": "17\u00d717\u00d717", "wt": true}, {"id": "octahedron", "label": "octahedron", "uri": "_stl/polyhedra-octahedron.stl", "code": "Polyhedra.<span class=\"k\">octahedron</span>(r=15)", "part": "octahedron(r=15)", "tris": 8, "vol": "4,500.0", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "dodecahedron", "label": "dodecahedron", "uri": "_stl/polyhedra-dodecahedron.stl", "code": "Polyhedra.<span class=\"k\">dodecahedron</span>(side=12)", "part": "dodecahedron(side=12)", "tris": 36, "vol": "13,241.9", "bbox": "31\u00d731\u00d731", "wt": true}, {"id": "icosahedron", "label": "icosahedron", "uri": "_stl/polyhedra-icosahedron.stl", "code": "Polyhedra.<span class=\"k\">icosahedron</span>(r=15)", "part": "icosahedron(r=15)", "tris": 20, "vol": "8,559.5", "bbox": "26\u00d726\u00d726", "wt": true}];
+const V = [{"id": "tetrahedron", "label": "tetrahedron", "uri": "_stl/polyhedra-tetrahedron.stl", "code": "Polyhedra.<span class=\"k\">tetrahedron</span>(radius=15)", "part": "tetrahedron(radius=15)", "tris": 4, "vol": "1,732.1", "bbox": "17\u00d717\u00d717", "wt": true}, {"id": "cube", "label": "cube", "uri": "_stl/polyhedra-cube.stl", "code": "Polyhedra.<span class=\"k\">cube</span>(radius=15)", "part": "cube(radius=15)", "tris": 12, "vol": "5,196.2", "bbox": "17\u00d717\u00d717", "wt": true}, {"id": "octahedron", "label": "octahedron", "uri": "_stl/polyhedra-octahedron.stl", "code": "Polyhedra.<span class=\"k\">octahedron</span>(radius=15)", "part": "octahedron(radius=15)", "tris": 8, "vol": "4,500.0", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "dodecahedron", "label": "dodecahedron", "uri": "_stl/polyhedra-dodecahedron.stl", "code": "Polyhedra.<span class=\"k\">dodecahedron</span>(side=12)", "part": "dodecahedron(side=12)", "tris": 36, "vol": "13,241.9", "bbox": "31\u00d731\u00d731", "wt": true}, {"id": "icosahedron", "label": "icosahedron", "uri": "_stl/polyhedra-icosahedron.stl", "code": "Polyhedra.<span class=\"k\">icosahedron</span>(radius=15)", "part": "icosahedron(radius=15)", "tris": 20, "vol": "8,559.5", "bbox": "26\u00d726\u00d726", "wt": true}];
 const box = document.getElementById("viewer"), poster = document.getElementById("poster");
 let renderer, scene, camera, controls, mesh, ready = false;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
