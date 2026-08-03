@@ -119,10 +119,11 @@ _PREAMBLE = (
     "try:\n"
 )
 
-_POSTAMBLE = "except Exception as e:\n"
+_POSTAMBLE = ("except Exception as e:\n"
     "    print(\"An error occurred during model generation:\")\n"
     "    # This prints the complete, standard Python error trace\n"
     "    traceback.print_exc()\n"
+)
 
 
 class Bosl2ExampleDirective(Directive):
@@ -135,7 +136,7 @@ class Bosl2ExampleDirective(Directive):
         lines = code_str.splitlines()
         indented_str = "\n".join(f"    {line}" if line else "" for line in lines)
 
-        script = _PREAMBLE + indented_str + "\n"
+        script = _PREAMBLE + indented_str + "\n" + _POSTAMBLE
 
         out: list[nodes.Node] = []
         code_node = nodes.literal_block(code, code)
