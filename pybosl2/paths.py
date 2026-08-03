@@ -58,7 +58,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
-__all__ = ["CutPoint", "Path", "SubdivideMethod"]
+__all__ = ["CutPoint", "Path", "SubdivideMethod", "stroke", "dashed_stroke"]
 
 
 class SubdivideMethod(Enum):
@@ -481,3 +481,39 @@ class Path(ABC):
             A new path with duplicate points removed.
         """
         ...
+
+
+def stroke(
+    path: Any,
+    width: float = 1,
+    closed: bool | None = None,
+    endcaps: CapType | CapSpec = CapType.ROUND,
+    endcap1: CapType | CapSpec = CapType.ROUND,
+    endcap2: CapType | CapSpec = CapType.ROUND,
+    joints: CapType | CapSpec = CapType.ROUND,
+) -> Any:
+    """Render the path/region as a stroked polygon outline (2-D) or solid tube (3-D)."""
+    return path.stroke(
+        width=width,
+        closed=closed,
+        endcaps=endcaps,
+        endcap1=endcap1,
+        endcap2=endcap2,
+        joints=joints,
+    )
+
+
+def dashed_stroke(
+    path: Any,
+    dashpat: Sequence[float] | None = None,
+    closed: bool | None = None,
+    fit: bool = True,
+    mindash: float = 0.5,
+) -> Any:
+    """Break the path/region into dashed segments and stroke them."""
+    return path.dashed_stroke(
+        dashpat=dashpat,
+        closed=closed,
+        fit=fit,
+        mindash=mindash,
+    )

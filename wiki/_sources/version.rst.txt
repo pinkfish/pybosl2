@@ -1,9 +1,0 @@
-Version
-=======
-
-
-
-.. automodule:: pybosl2.version
-   :members:
-   :undoc-members:
-   :show-inheritance:

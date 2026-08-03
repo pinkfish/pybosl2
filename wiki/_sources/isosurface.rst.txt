@@ -81,10 +81,10 @@ The level set of a custom field function:
 
 API reference
 -------------
-.. automodule:: pybosl2.metaballs
+.. automodule:: pybosl2.isosurface
    :members:
    :undoc-members:
    :exclude-members: Metaball
 
-.. autoclass:: pybosl2.metaballs.Metaball
+.. autoclass:: pybosl2.isosurface.Metaball
    :members:

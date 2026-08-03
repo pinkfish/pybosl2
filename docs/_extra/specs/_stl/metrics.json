@@ -335,8 +335,8 @@
    "wt": true
   },
   "23": {
-   "tris": 456,
-   "vol": "79,389.8",
+   "tris": 388,
+   "vol": "79,815.8",
    "bbox": "57\u00d757\u00d744",
    "wt": true
   },
@@ -407,22 +407,22 @@
  },
  "bottlecaps": {
   "pco1810-neck": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 4130,
+   "vol": "4,358.5",
+   "bbox": "33\u00d733\u00d726",
+   "wt": true
   },
   "pco1810-cap": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 932,
+   "vol": "3,952.8",
+   "bbox": "33\u00d733\u00d716",
+   "wt": true
   },
   "pco1881-neck": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 3806,
+   "vol": "3,258.7",
+   "bbox": "33\u00d733\u00d722",
+   "wt": true
   }
  },
  "sliders": {
@@ -441,10 +441,10 @@
  },
  "shapes3d": {
   "cuboid": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 12,
+   "vol": "9,000.0",
+   "bbox": "30\u00d720\u00d715",
+   "wt": true
   },
   "sphere": {
    "tris": 0,
@@ -495,10 +495,10 @@
    "wt": false
   },
   "rounded-cuboid": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 36,
+   "vol": "8,943.7",
+   "bbox": "30\u00d720\u00d715",
+   "wt": true
   },
   "chamfered-cylinder": {
    "tris": 0,
@@ -551,10 +551,10 @@
    "wt": false
   },
   "pie-slice": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 64,
+   "vol": "2,078.9",
+   "bbox": "30\u00d720\u00d75",
+   "wt": true
   },
   "squircle": {
    "tris": 0,

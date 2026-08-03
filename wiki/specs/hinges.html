@@ -71,7 +71,10 @@
                 <div><span class="v" id="s-vol">5,886.5</span><span class="l">mm&sup3; volume</span></div>
                 <div><span class="v" id="s-bbox">40×46×6</span><span class="l">bbox mm</span></div>
               </div>
-              <div class="code" id="code">&gt;&gt;&gt; Hinges.<span class="k">knuckle_hinge_pair</span>(length=40, segs=5)</div>
+              <div style="position:relative">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code" id="code">&gt;&gt;&gt; Hinges.<span class="k">knuckle_hinge_pair</span>(length=40, segs=5)</div>
+              </div>
               <div class="proof">
                 <div class="big">0.02%</div>
                 <div class="txt"><b>&Delta;volume across the fold = 1.2 mm&sup3;.</b> A rigid rotation, not a distortion — the pin bore and knuckle mesh stay closed.</div>
@@ -89,7 +92,8 @@ import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/control
 const V = [{"id": "pair", "label": "knuckle pair", "uri": "_stl/hinges-pair.stl", "code": "Hinges.<span class=\"k\">knuckle_hinge_pair</span>(length=40, segs=5)", "part": "knuckle_hinge_pair(length=40, segs=5)", "tris": 370, "vol": "5,886.5", "bbox": "40\u00d746\u00d76", "wt": false}, {"id": "knuckle", "label": "single leaf", "uri": "_stl/hinges-knuckle.stl", "code": "Hinges.<span class=\"k\">knuckle_hinge</span>(length=40, segs=5)", "part": "knuckle_hinge(length=40, segs=5)", "tris": 212, "vol": "3,102.8", "bbox": "40\u00d726\u00d76", "wt": true}, {"id": "snap-lock", "label": "snap lock", "uri": "_stl/hinges-snap-lock.stl", "code": "Hinges.<span class=\"k\">snap_lock</span>()", "part": "snap_lock()", "tris": 36, "vol": "181.7", "bbox": "5\u00d75\u00d78", "wt": true}, {"id": "snap-socket", "label": "snap socket", "uri": "_stl/hinges-snap-socket.stl", "code": "Hinges.<span class=\"k\">snap_socket</span>()", "part": "snap_socket()", "tris": 76, "vol": "179.6", "bbox": "5\u00d75\u00d78", "wt": true}];
 const box = document.getElementById("viewer"), poster = document.getElementById("poster");
 let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
+const primaryColor = css("--model") || "#6f9ac9";
 function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
   renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
 function init() {
@@ -114,7 +118,7 @@ function load(uri) {
     const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
     geo.translate(-c.x, -c.y, -c.z);
     mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
+      new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
     scene.add(mesh);
     const r = Math.max(s.x, s.y, s.z) || 1;
     camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
@@ -140,6 +144,7 @@ function select(i) {
 document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
 select(0);
 </script>
+    <script>function copyCode(btn){const code=btn.nextElementSibling.textContent.trim();navigator.clipboard.writeText(code).then(()=>{btn.textContent="Copied!";setTimeout(()=>btn.textContent="Copy",1500);});}</script>
     <footer>
       <div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div>
     </footer>

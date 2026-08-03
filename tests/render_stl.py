@@ -31,8 +31,8 @@ import numpy as np
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-# pybosl2/tests/render_stl.py -> pybosl2/tests -> pybosl2 -> repo root.
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+# pybosl2/tests/render_stl.py -> pybosl2/tests -> repo root.
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # PythonSCAD-dev is preferred: the plain app's hardened runtime rejects the installed numpy, which
 # every pybosl2 module imports (see CLAUDE.md), so nearly all pybosl2 renders fail under it.
@@ -65,7 +65,7 @@ class StlResult:
 
 
 _PREAMBLE = (
-    "import sys, math, site, os\n"
+    "import sys, math, site, os, traceback\n"
     f"sys.path.insert(0, {str(REPO_ROOT)!r})\n"
     # AppImage Python may not see system site-packages; add them explicitly
     "for p in site.getsitepackages():\n"
@@ -90,7 +90,10 @@ _PREAMBLE = (
     "from pybosl2 import shapes2d as s2\n"
     "from pybosl2 import Path, Path2D, Path3D\n"
     "from pybosl2 import Bezier, BezierPatch\n"
-    "from pybosl2 import sweep, skin, rot_resample\n"
+    "from pybosl2 import arc, catenary, helix, turtle2d, "
+    "turtle3d, stroke, dashed_stroke\n"
+    "from pybosl2 import path_sweep, path_sweep2d, sweep, skin, "
+    "linear_sweep, rotate_sweep, spiral_sweep, rot_resample\n"
     "from pybosl2 import xdistribute, ydistribute, zdistribute\n"
     "from pybosl2 import rainbow, rainbow_colors\n"
     "from pybosl2 import partition_path, partition_mask, partition_cut_mask\n"

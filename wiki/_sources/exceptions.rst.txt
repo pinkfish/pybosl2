@@ -1,9 +1,0 @@
-Exceptions
-==========
-
-
-
-.. automodule:: pybosl2.exceptions
-   :members:
-   :undoc-members:
-   :show-inheritance:

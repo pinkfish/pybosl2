@@ -49,7 +49,10 @@
                 <div><span class="v" id="s-vol">—</span><span class="l">mm&sup3; volume</span></div>
                 <div><span class="v" id="s-bbox">—</span><span class="l">bbox mm</span></div>
               </div>
-              <div class="code" id="code">&gt;&gt;&gt; Threading.<span class="k">threaded_rod</span>(d=20, l=30, pitch=2.5, fa=6, fs=1)</div>
+              <div style="position:relative">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code" id="code">&gt;&gt;&gt; Threading.<span class="k">threaded_rod</span>(d=20, l=30, pitch=2.5, fa=6, fs=1)</div>
+              </div>
               <div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">25 tests · <a href="../threading.html">full API reference &rarr;</a></div>
             </div>
           </div>
@@ -63,7 +66,8 @@ import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/control
 const V = [{"id": "iso-rod", "label": "ISO rod", "uri": "_stl/threading-iso-rod.stl", "code": "Threading.<span class=\"k\">threaded_rod</span>(d=20, l=30, pitch=2.5, fa=6, fs=1)", "part": "threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "iso-nut", "label": "ISO nut", "uri": "_stl/threading-iso-nut.stl", "code": "Threading.<span class=\"k\">threaded_nut</span>(nutwidth=13, id=8, h=6.8, pitch=1.25)", "part": "threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "trapezoidal", "label": "trapezoidal rod", "uri": "_stl/threading-trapezoidal.stl", "code": "Threading.<span class=\"k\">trapezoidal_threaded_rod</span>(d=20, l=30, pitch=4, fa=6, fs=1)", "part": "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}, {"id": "acme", "label": "ACME rod", "uri": "_stl/threading-acme.stl", "code": "Threading.<span class=\"k\">acme_threaded_rod</span>(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "part": "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "tris": 0, "vol": "\u2014", "bbox": "\u2014", "wt": false}];
 const box = document.getElementById("viewer"), poster = document.getElementById("poster");
 let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
+const primaryColor = css("--model") || "#6f9ac9";
 function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
   renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
 function init() {
@@ -88,7 +92,7 @@ function load(uri) {
     const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
     geo.translate(-c.x, -c.y, -c.z);
     mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
+      new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
     scene.add(mesh);
     const r = Math.max(s.x, s.y, s.z) || 1;
     camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
@@ -114,6 +118,7 @@ function select(i) {
 document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
 select(0);
 </script>
+    <script>function copyCode(btn){const code=btn.nextElementSibling.textContent.trim();navigator.clipboard.writeText(code).then(()=>{btn.textContent="Copied!";setTimeout(()=>btn.textContent="Copy",1500);});}</script>
     <footer>
       <div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div>
     </footer>

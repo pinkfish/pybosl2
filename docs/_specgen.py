@@ -22,6 +22,9 @@ import re
 import sys
 from pathlib import Path
 
+# Add repo root to sys.path before importing from docs or tests
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from docs._ext.stl_viewer import spec_viewer_html
 
 OUT = Path(__file__).resolve().parent / "_extra" / "specs"
@@ -29,7 +32,6 @@ STL_DIR = OUT / "_stl"
 
 # Rendering is optional: with the PythonSCAD app present we render each variant to an STL and measure
 # it; without it, we reuse the STLs and metrics already cached on disk (_stl/metrics.json).
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 try:
     from tests.render_stl import find_pythonscad_binary, render_object, stl_metrics
 except Exception:  # pragma: no cover - only when the render harness can't be imported
@@ -1338,7 +1340,7 @@ VARIANTS = {
         (
             "rounded-cuboid",
             "rounded cuboid",
-            "pybosl2.cuboid([30, 20, 15], rounding=4, edges='Z', except=TOP+FRONT+RIGHT)",
+            "pybosl2.cuboid([30, 20, 15], rounding=4, edges='Z', except_edges=TOP+FRONT+RIGHT)",
         ),
         (
             "chamfered-cylinder",
@@ -1358,7 +1360,7 @@ VARIANTS = {
         ("trapezoid", "trapezoid", "pybosl2.trapezoid(h=30, w1=40, w2=20)"),
         ("star", "star", "pybosl2.star(n=5, r=25, ir=10)"),
         ("ring", "ring", "pybosl2.ring(or_=18, ir=12)"),
-        ("pie-slice", "pie slice", "pybosl2.pie_slice(r=20, ang=120)"),
+        ("pie-slice", "pie slice", "pybosl2.pie_slice(radius=20, angle=120, height=5)"),
         ("squircle", "squircle", "pybosl2.squircle(30, squareness=0.6)"),
         ("keyhole", "keyhole", "pybosl2.keyhole(l=25, r1=4, r2=9)"),
         (

@@ -64,7 +64,10 @@
                 <div><span class="v" id="s-vol">2,997.1</span><span class="l">mm&sup3; volume</span></div>
                 <div><span class="v" id="s-bbox">15×15×24</span><span class="l">bbox mm</span></div>
               </div>
-              <div class="code" id="code">&gt;&gt;&gt; LinearBearings.<span class="k">lmXuu_bearing</span>(8)</div>
+              <div style="position:relative">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code" id="code">&gt;&gt;&gt; LinearBearings.<span class="k">lmXuu_bearing</span>(8)</div>
+              </div>
               <div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">10 tests · <a href="../linear_bearings.html">full API reference &rarr;</a></div>
             </div>
           </div>
@@ -78,7 +81,8 @@ import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/control
 const V = [{"id": "lm8uu", "label": "LM8UU", "uri": "_stl/linear_bearings-lm8uu.stl", "code": "LinearBearings.<span class=\"k\">lmXuu_bearing</span>(8)", "part": "lmXuu_bearing(8)", "tris": 816, "vol": "2,997.1", "bbox": "15\u00d715\u00d724", "wt": true}, {"id": "housing", "label": "LM8UU housing", "uri": "_stl/linear_bearings-housing.stl", "code": "LinearBearings.<span class=\"k\">lmXuu_housing</span>(8)", "part": "lmXuu_housing(8)", "tris": 508, "vol": "6,499.2", "bbox": "27\u00d724\u00d724", "wt": true}, {"id": "lm12uu", "label": "LM12UU", "uri": "_stl/linear_bearings-lm12uu.stl", "code": "LinearBearings.<span class=\"k\">lmXuu_bearing</span>(12)", "part": "lmXuu_bearing(12)", "tris": 1088, "vol": "6,932.1", "bbox": "21\u00d721\u00d730", "wt": true}];
 const box = document.getElementById("viewer"), poster = document.getElementById("poster");
 let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
+const primaryColor = css("--model") || "#6f9ac9";
 function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
   renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
 function init() {
@@ -103,7 +107,7 @@ function load(uri) {
     const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
     geo.translate(-c.x, -c.y, -c.z);
     mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
+      new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
     scene.add(mesh);
     const r = Math.max(s.x, s.y, s.z) || 1;
     camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
@@ -129,6 +133,7 @@ function select(i) {
 document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
 select(0);
 </script>
+    <script>function copyCode(btn){const code=btn.nextElementSibling.textContent.trim();navigator.clipboard.writeText(code).then(()=>{btn.textContent="Copied!";setTimeout(()=>btn.textContent="Copy",1500);});}</script>
     <footer>
       <div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div>
     </footer>
