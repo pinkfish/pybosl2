@@ -291,7 +291,7 @@ def cyl(
             teardrop=teardrop,
             clip_angle=clip_angle,
         )
-        from pybosl2.shapes2d import _opolygon  # type: ignore[attr-defined]
+        from pybosl2.shapes2d import _opolygon
 
         shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
 

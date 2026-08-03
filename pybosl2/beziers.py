@@ -622,7 +622,7 @@ class Bezier:
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
-    ) -> VNF:
+    ) -> VNF | Bosl2Solid:
         """Sweep the 2-D *shape* along this bezier curve or path into a VNF.
 
         If *n_degree* is given and ``len(self) % n_degree == 1`` this
@@ -685,8 +685,8 @@ class Bezier:
             tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
                 list(lerpn(0, 1, splinesteps + 1, endpoint))
             )
-        return Path3D(np.asarray(path)).path_sweep(  # type: ignore[return-value, arg-type]
-            shape,  # type: ignore[arg-type]
+        return Path3D(np.asarray(path)).path_sweep(
+            shape,  # type: ignore[arg-type, return-value]
             method=method,
             normal=normal,
             closed=closed,

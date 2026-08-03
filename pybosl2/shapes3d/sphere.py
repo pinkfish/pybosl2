@@ -298,7 +298,7 @@ def onion(
 
             s3.onion(radius=15).show()
     """
-    from pybosl2.shapes2d import _arc_points, _opolygon  # type: ignore[attr-defined]
+    from pybosl2.shapes2d import _arc_points, _opolygon
 
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     sides = _frag_count(rad, fn, fa, fs)

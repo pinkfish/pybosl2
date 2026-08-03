@@ -844,7 +844,7 @@ def regular_prism(
         shape = _ocylinder(height=prism_len, radius1=rad1, radius2=rad2, center=True, fn=sides)
     else:
         profile = _cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, fn=fn, fa=fa, fs=fs)
-        from pybosl2.shapes2d import _opolygon  # type: ignore[attr-defined]
+        from pybosl2.shapes2d import _opolygon
 
         shape = _orotate_extrude(_opolygon(profile), fn=sides)
 

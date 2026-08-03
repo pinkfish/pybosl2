@@ -288,7 +288,7 @@ def interior_fillet(
         spin:    Z-axis rotation in degrees after anchor (default 0)
         orient:  direction to rotate the top towards, after spin (default UP)
     """
-    from .shapes2d import _opolygon  # type: ignore[attr-defined]
+    from .shapes2d import _opolygon
 
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     sides = _frag_count(rad)
@@ -876,7 +876,7 @@ def ruler(
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
     """
-    from .shapes2d import _opolygon  # type: ignore[attr-defined]
+    from .shapes2d import _opolygon
 
     if colors is None:
         colors = ["black", "white"]
