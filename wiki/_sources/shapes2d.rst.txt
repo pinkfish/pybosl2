@@ -1,9 +1,0 @@
-:orphan:
-
-2-D shapes
-==========
-
-.. automodule:: pybosl2.shapes2d
-   :members:
-   :undoc-members:
-   :show-inheritance:

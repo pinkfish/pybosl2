@@ -18,12 +18,14 @@ drop to the XY plane when you need the inherently-2-D operations (``polygon``, `
 
 .. automodule:: pybosl2.path2d
    :members:
-   :exclude-members: Path, CutPoint, SubdivideMethod
+   :exclude-members: Path, CutPoint, CutPoint.point, CutPoint.next_index, CutPoint.direction, CutPoint.normal, SubdivideMethod, catenary, SelfIntersection
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. automodule:: pybosl2.path3d
    :members:
    :exclude-members: Path, CutPoint, SubdivideMethod
    :undoc-members:
    :show-inheritance:
+   :no-index:

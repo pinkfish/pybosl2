@@ -1,9 +1,0 @@
-:orphan:
-
-3-D shapes and Bosl2Solid
-=========================
-
-.. automodule:: pybosl2.shapes3d
-   :members:
-   :undoc-members:
-   :show-inheritance:

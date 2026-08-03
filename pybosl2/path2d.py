@@ -1245,8 +1245,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             (``.linear_extrude(...)``).
 
         Raises:
-            pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` --
-            see :meth:`linear_extrude`, which works on both backends.
+            UnsupportedByBackendError: under ``use_backend("sdf")``.
+            Use ``linear_extrude()`` instead; it works on both backends.
 
         Examples:
             .. pythonscad-example::
