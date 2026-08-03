@@ -154,7 +154,7 @@ def test_slice_profiles_inserts_intermediates() -> None:
 def test_skin_two_profiles() -> None:
     vnf = skin([_circle(6), [[-8, -8], [8, -8], [8, 8], [-8, 8]]], slices=10, z=[0, 25])
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]  # winding fixed to outward
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]  # winding fixed to outward
 
 
 def test_skin_reindex_method() -> None:
@@ -165,13 +165,13 @@ def test_skin_reindex_method() -> None:
         z=[0, 20],
     )
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_skin_three_profiles() -> None:
     vnf = skin([_circle(4), _circle(8), _circle(4)], slices=5, z=[0, 15, 30])
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_skin_closed_stack() -> None:
@@ -202,22 +202,22 @@ def test_linear_sweep_plain_box_volume() -> None:
     sq = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
     vnf = Path2D(sq).linear_sweep(height=5)
     assert _valid(vnf)
-    assert math.isclose(vnf.volume(), 20 * 20 * 5, rel_tol=1e-6)  # type: ignore[operator]  # 2000
+    assert math.isclose(vnf.volume(), 20 * 20 * 5, rel_tol=1e-6)  # type: ignore[operator, union-attr]  # 2000
 
 
 def test_linear_sweep_twist_scale() -> None:
     sq = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
     vnf = linear_sweep(sq, height=40, twist=120, scale=0.4)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_linear_sweep_center_vs_base() -> None:
     sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
     base = Path2D(sq).linear_sweep(height=10)
     centered = Path2D(sq).linear_sweep(height=10, center=True)
-    bz = [v[2] for v in base.vertices]  # type: ignore[attr-defined]
-    cz = [v[2] for v in centered.vertices]  # type: ignore[attr-defined]
+    bz = [v[2] for v in base.vertices]  # type: ignore[attr-defined, union-attr]
+    cz = [v[2] for v in centered.vertices]  # type: ignore[attr-defined, union-attr]
     assert math.isclose(min(bz), 0.0, abs_tol=1e-9)
     assert math.isclose(max(bz), 10.0, abs_tol=1e-9)
     assert math.isclose(min(cz), -5.0, abs_tol=1e-9)
@@ -232,13 +232,13 @@ PROFILE = [[4, -10], [12, -10], [12, 10], [4, 10]]
 def test_rotate_sweep_full() -> None:
     vnf = rotate_sweep(PROFILE, 360)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_rotate_sweep_partial_has_caps() -> None:
     vnf = rotate_sweep(PROFILE, 270)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_rotate_sweep_rejects_bad_angle() -> None:
@@ -253,14 +253,14 @@ def test_spiral_sweep_coil() -> None:
     section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
     vnf = spiral_sweep(section, height=40, radius=12, turns=5)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_spiral_sweep_conical_taper() -> None:
     section = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
     vnf = spiral_sweep(section, height=30, radius1=15, radius2=5, turns=4)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 # -- path_sweep2d -------------------------------------------------------------------------
@@ -271,7 +271,7 @@ def test_path_sweep2d_open() -> None:
     path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
     vnf = path_sweep2d(shape, path)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_path_sweep2d_closed_loop() -> None:
@@ -279,7 +279,7 @@ def test_path_sweep2d_closed_loop() -> None:
     ring = [[20 * math.cos(t), 20 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 32, endpoint=False)]
     vnf = path_sweep2d(shape, ring, closed=True)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator]
+    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
 
 
 # -- subdivide_and_slice ------------------------------------------------------------------
@@ -347,7 +347,7 @@ def test_offset_sweep_plain_volume() -> None:
     vnf_os = Path2D(_SQ20).offset_sweep(height=10)
     vnf_ls = Path2D(_SQ20).linear_sweep(height=10)
     assert _valid(vnf_os)
-    assert math.isclose(vnf_os.volume(), vnf_ls.volume(), rel_tol=1e-4)  # type: ignore[operator, attr-defined]
+    assert math.isclose(vnf_os.volume(), vnf_ls.volume(), rel_tol=1e-4)  # type: ignore[operator, attr-defined, union-attr]
 
 
 def test_offset_sweep_top_roundover_smaller_volume() -> None:
@@ -506,7 +506,7 @@ def test_rounded_prism_plain() -> None:
     plain = Path2D(_SQ20).rounded_prism(height=20)
     expected = Path2D(_SQ20).linear_sweep(height=20)
     assert _valid(plain)
-    assert math.isclose(plain.volume(), expected.volume(), rel_tol=1e-4)  # type: ignore[operator, attr-defined]
+    assert math.isclose(plain.volume(), expected.volume(), rel_tol=1e-4)  # type: ignore[operator, attr-defined, union-attr]
 
 
 def test_rounded_prism_rim_rounding() -> None:
@@ -541,9 +541,9 @@ def test_rounded_prism_tapered() -> None:
     prism = Path2D(_SQ20).rounded_prism(top=top_sq, height=20, joint_sides=1)
     assert _valid(prism)
     # Volume should be between bottom-extruded and top-extruded cubes
-    vol_bot = Path2D(_SQ20).linear_sweep(height=20).volume()  # type: ignore[operator]
-    vol_top = Path2D(top_sq).linear_sweep(height=20).volume()  # type: ignore[operator]
-    assert vol_top < prism.volume() < vol_bot  # type: ignore[attr-defined]
+    vol_bot = Path2D(_SQ20).linear_sweep(height=20).volume()  # type: ignore[operator, union-attr]
+    vol_top = Path2D(top_sq).linear_sweep(height=20).volume()  # type: ignore[operator, union-attr]
+    assert vol_top < prism.volume() < vol_bot  # type: ignore[attr-defined, union-attr]
 
 
 # -- join_prism & prism_connector -----------------------------------------------------------
@@ -598,15 +598,15 @@ def test_sweepable_mixin() -> None:
 
     path2d = Path2D([[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)])
     vnf2 = path2d.path_sweep2d(shape)  # type: ignore[arg-type]
-    assert abs(vnf2.volume()) > 0  # type: ignore[operator]
+    assert abs(vnf2.volume()) > 0  # type: ignore[operator, union-attr]
 
     profile = Path2D(shape)
     vnf3 = profile.linear_sweep(height=20)
-    assert abs(vnf3.volume()) > 0  # type: ignore[operator]
+    assert abs(vnf3.volume()) > 0  # type: ignore[operator, union-attr]
 
     prof = Path2D([[2, 0], [4, 0], [4, 5], [2, 5]])
     vnf4 = prof.rotate_sweep(angle=180)
-    assert abs(vnf4.volume()) > 0  # type: ignore[operator]
+    assert abs(vnf4.volume()) > 0  # type: ignore[operator, union-attr]
 
     vnf5 = profile.spiral_sweep(height=10, radius=5, turns=2)
-    assert abs(vnf5.volume()) > 0  # type: ignore[operator]
+    assert abs(vnf5.volume()) > 0  # type: ignore[operator, union-attr]

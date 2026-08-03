@@ -34,7 +34,8 @@ from pybosl2.constants import BOTTOM, INCH
 from pybosl2.distributors import DistributableMatrix
 from pybosl2.shapes2d import _frag_count, circle, hexagon
 from pybosl2.shapes2d import hull as _hull2d
-from pybosl2.shapes3d import Bosl2Solid, _quantup, cyl, prismoid
+from pybosl2.shapes3d import cyl, prismoid
+from pybosl2.shapes3d.base import Bosl2Solid, _quantup
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon

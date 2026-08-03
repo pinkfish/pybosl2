@@ -159,14 +159,14 @@ def test_unknown_native_method_falls_through_still_wrapped() -> None:
 
 def test_missing_attribute_raises_attribute_error() -> None:
     with pytest.raises(AttributeError):
-        _ = s2.square(10).definitely_not_a_native_method
+        _ = s2.square(10).definitely_not_a_native_method  # type: ignore[attr-defined]
 
 
 def test_sdf_only_feature_is_rejected_on_the_csg_backend() -> None:
     from pybosl2.exceptions import UnsupportedByBackendError
 
     with pytest.raises(UnsupportedByBackendError):
-        s2.square(10).round(2)  # type: ignore[operator]
+        s2.square(10).round(2)  # type: ignore[operator, attr-defined]
 
 
 # ---------------------------------------------------------------------------

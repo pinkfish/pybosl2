@@ -51,7 +51,7 @@ TOL = 0.8  # CSG faceting makes sizes fall slightly short of nominal
 
 def test_matrix_covers_every_shared_constructor() -> None:
     """Guard against drift: the matrix must exercise exactly the facade's shared 3-D surface."""
-    assert set(SHARED_SHAPES) == set(solid._SHARED_3D)
+    assert set(SHARED_SHAPES) == set(solid._SHARED_3D)  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize("backend", ["csg", "sdf"])

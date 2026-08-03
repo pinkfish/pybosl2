@@ -93,7 +93,7 @@ _PREAMBLE = (
     "from pybosl2 import partition_path, partition_mask, partition_cut_mask\n"
     "from pybosl2 import extrude_from_to, cylindrical_extrude, chain_hull, minkowski_difference\n"
     "from pybosl2 import nurbs_curve, nurbs_patch_points, nurbs_vnf, nurbs_elevate_degree, is_nurbs_patch\n"
-    "from pybosl2 import metaballs, mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, mb_octahedron, mb_connector\n"
+    "from pybosl2 import mb_sphere, mb_cuboid, mb_torus, mb_capsule, mb_disk, mb_octahedron, mb_connector\n"
     "from pybosl2.parts.threading import Threading\n"
     "from pybosl2.parts.screws import Screws\n"
     # parts library classes, so part examples can be terse (Gears.spur_gear(...).show())
@@ -159,21 +159,32 @@ class Bosl2ExampleDirective(Directive):
         if out_stl.is_file():
             return f"_stl/{out_stl.name}"
         if find_pythonscad_binary() is None:
-            _logger.warning("pybosl2-example: no PythonSCAD binary found, skipping STL render")
+            _logger.warning(
+                "pybosl2-example: no PythonSCAD binary found, skipping STL render"
+            )
             return None
         _STL_DIR.mkdir(exist_ok=True)
         try:
-            result = render_stl_script(script, out_stl, timeout=300.0, export_format="binstl")
+            result = render_stl_script(
+                script, out_stl, timeout=300.0, export_format="binstl"
+            )
         except subprocess.TimeoutExpired:
-            _logger.warning(f"pybosl2-example: STL export timed out after 300s for:\n{code[:200]}")
+            _logger.warning(
+                f"pybosl2-example: STL export timed out after 300s for:\n{code[:200]}"
+            )
             return None
         except Exception as exc:
-            _logger.error(f"pybosl2-example: unexpected error rendering STL: {exc}\ncode:\n{code[:300]}")
+            _logger.error(
+                f"pybosl2-example: unexpected error rendering STL: {exc}\ncode:\n{code[:300]}"
+            )
             return None
         if not result.ok:
             stderr_tail = (result.stderr or "")[-500:]
             _logger.warning(
-                f"pybosl2-example STL render FAILED: {result.error}\nstderr tail: {stderr_tail}\n{code[:300]}"
+                f"pybosl2-example STL render FAILED: {result.error}\n"
+                f"--- code ---\n{code}\n"
+                f"--- stderr ---\n{result.stderr}\n"
+                f"---"
             )
             return None
         return f"_stl/{out_stl.name}"

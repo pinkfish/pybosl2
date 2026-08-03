@@ -16,7 +16,6 @@ import pytest
 from pybosl2.constants import BOTTOM, CENTER, FRONT, RIGHT, TOP
 from pybosl2.shapes3d import (
     Bosl2Solid,
-    _anchor_offset_hull3,
     cuboid,
     cyl,
     fillet,
@@ -29,6 +28,7 @@ from pybosl2.shapes3d import (
     ycyl,
     zcyl,
 )
+from pybosl2.shapes3d.base import _anchor_offset_hull3
 
 # unit-cube corner cloud, for exercising _anchor_offset_hull3 directly
 _UNIT_CUBE = [[x, y, z] for x in (-0.5, 0.5) for y in (-0.5, 0.5) for z in (-0.5, 0.5)]
@@ -230,7 +230,7 @@ def test_getattr_no_recursion_when_shape_unset() -> None:
     # a half-built object (via __new__, or during unpickling) must not blow the stack
     obj = Bosl2Solid.__new__(Bosl2Solid)
     with pytest.raises(AttributeError):
-        _ = obj.anything
+        _ = obj.anything  # type: ignore[attr-defined]
 
 
 def test_native_passthrough_op_keeps_wrapper_and_chains() -> None:
