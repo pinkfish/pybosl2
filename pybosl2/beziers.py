@@ -670,9 +670,9 @@ class Bezier:
                 path = Bezier.flatten([Bezier.begin([0, 0], 0, 20), Bezier.end([50, 0], 180, 20)])
                 path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()
         """
-        if n_degree is not None and len(self) % n_degree == 1:
-            from pybosl2.path3d import Path3D
+        from pybosl2.path3d import Path3D
 
+        if n_degree is not None and len(self) % n_degree == 1:
             bezpath = self.array
             nsegs = (len(bezpath) - 1) // n_degree
             path = self.path_curve(splinesteps, n_degree, endpoint)
