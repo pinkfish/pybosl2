@@ -159,24 +159,16 @@ class Bosl2ExampleDirective(Directive):
         if out_stl.is_file():
             return f"_stl/{out_stl.name}"
         if find_pythonscad_binary() is None:
-            _logger.warning(
-                "pybosl2-example: no PythonSCAD binary found, skipping STL render"
-            )
+            _logger.warning("pybosl2-example: no PythonSCAD binary found, skipping STL render")
             return None
         _STL_DIR.mkdir(exist_ok=True)
         try:
-            result = render_stl_script(
-                script, out_stl, timeout=300.0, export_format="binstl"
-            )
+            result = render_stl_script(script, out_stl, timeout=300.0, export_format="binstl")
         except subprocess.TimeoutExpired:
-            _logger.warning(
-                f"pybosl2-example: STL export timed out after 300s for:\n{code[:200]}"
-            )
+            _logger.warning(f"pybosl2-example: STL export timed out after 300s for:\n{code[:200]}")
             return None
         except Exception as exc:
-            _logger.error(
-                f"pybosl2-example: unexpected error rendering STL: {exc}\ncode:\n{code[:300]}"
-            )
+            _logger.error(f"pybosl2-example: unexpected error rendering STL: {exc}\ncode:\n{code[:300]}")
             return None
         if not result.ok:
             stderr_tail = (result.stderr or "")[-500:]
