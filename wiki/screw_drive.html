@@ -151,7 +151,7 @@
   &nbsp;&mdash;&nbsp; this module is featured in the visual parts catalog.
 </p><p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">screw_drive.scad</span></code>: masks for the driver recess cut into a screw
 head. The <code class="xref py py-class docutils literal notranslate"><span class="pre">screw_drive</span></code> class groups them as static methods that return a
-<a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code></a> mask – subtract one from a head to make the recess:</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code> mask – subtract one from a head to make the recess:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">head</span> <span class="o">-</span> <span class="n">ScrewDrive</span><span class="o">.</span><span class="n">phillips_mask</span><span class="p">(</span><span class="s2">&quot;#2&quot;</span><span class="p">)</span>     <span class="c1"># a #2 Phillips recess</span>
 <span class="n">head</span> <span class="o">-</span> <span class="n">ScrewDrive</span><span class="o">.</span><span class="n">hex_drive_mask</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>    <span class="c1"># a 5mm hex (Allen) recess, 4mm deep</span>
 <span class="n">head</span> <span class="o">-</span> <span class="n">ScrewDrive</span><span class="o">.</span><span class="n">torx_mask</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>        <span class="c1"># a T30 Torx recess</span>
@@ -175,13 +175,13 @@ Robertson square-drive inch table) are transcribed verbatim from <code class="do
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-59bb5c7f43f247a1855b9cca7da2c9a0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-be16a8fd8de04fd2bce7662ced28da7a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-59bb5c7f43f247a1855b9cca7da2c9a0");
+const el = document.getElementById("stlviewer-be16a8fd8de04fd2bce7662ced28da7a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -231,13 +231,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-71f73088495f4e228003485bb71b9804" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9fb518999a434888941e0074d7d8e618" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-71f73088495f4e228003485bb71b9804");
+const el = document.getElementById("stlviewer-9fb518999a434888941e0074d7d8e618");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -289,7 +289,7 @@ window.addEventListener("resize", resize);
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.screw_drive.</span></span><span class="sig-name descname"><span class="pre">ScrewDrive</span></span><a class="reference internal" href="_modules/pybosl2/parts/screw_drive.html#ScrewDrive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.screw_drive.ScrewDrive" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Driver-recess masks and their dimensional helpers (BOSL2 screw_drive.scad).</p>
-<p>Every <code class="docutils literal notranslate"><span class="pre">*_mask</span></code> method returns a <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> positioned with its recess
+<p>Every <code class="docutils literal notranslate"><span class="pre">*_mask</span></code> method returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> positioned with its recess
 opening at the top and its bottom on the XY plane (BOSL2’s <code class="docutils literal notranslate"><span class="pre">anchor=BOTTOM</span></code>); subtract it from a
 screw head to cut the recess. Pass <code class="docutils literal notranslate"><span class="pre">center=True</span></code> to center the mask vertically instead.</p>
 <div class="admonition seealso">
@@ -324,13 +324,13 @@ screw head to cut the recess. Pass <code class="docutils literal notranslate"><s
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-06e4faf84aeb400d8c2bbcdd9a235000" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-6eda4629b6bb4515baba50a9b18a6c8e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-06e4faf84aeb400d8c2bbcdd9a235000");
+const el = document.getElementById("stlviewer-6eda4629b6bb4515baba50a9b18a6c8e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -522,13 +522,13 @@ torx_info()).</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-bbdaec272dd642aea0814e84abe2f91c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7b714f804fd04fcfab4cdeb2facbfc8c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-bbdaec272dd642aea0814e84abe2f91c");
+const el = document.getElementById("stlviewer-7b714f804fd04fcfab4cdeb2facbfc8c");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -618,13 +618,13 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7eb3c885cb0840c79b17ecbf68298df5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8ad820b600ac4f7f9da9397421dd70e6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7eb3c885cb0840c79b17ecbf68298df5");
+const el = document.getElementById("stlviewer-8ad820b600ac4f7f9da9397421dd70e6");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -673,13 +673,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-022f3b3958ac4331b77d9f37807e8623" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-62e4f31364a24bbdb1ecfe0bd7e0ad2b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-022f3b3958ac4331b77d9f37807e8623");
+const el = document.getElementById("stlviewer-62e4f31364a24bbdb1ecfe0bd7e0ad2b");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -728,13 +728,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-18d52a840e0844ac8abac16e680b4db6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-70e36797ab8947519226937be6cc1151" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-18d52a840e0844ac8abac16e680b4db6");
+const el = document.getElementById("stlviewer-70e36797ab8947519226937be6cc1151");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -784,13 +784,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-25b81f5fae8741d3b5a81a5d0b62a10f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-098709d2ec6a4cb595337e3f09177cc4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-25b81f5fae8741d3b5a81a5d0b62a10f");
+const el = document.getElementById("stlviewer-098709d2ec6a4cb595337e3f09177cc4");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

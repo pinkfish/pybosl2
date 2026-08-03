@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>pybosl2 — a pure-Python PythonSCAD port of BOSL2 &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
-    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=0a510fb9" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=9d6d948b" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=b995914a" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=44212324"></script>
+    <script src="_static/documentation_options.js?v=0e90c361"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -149,7 +149,7 @@ that this toolkit uses, with <strong>no</strong> <code class="docutils literal n
 an object — <a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code></a> for 2-D outlines, <a class="reference internal" href="regions.html#pybosl2.regions.Region" title="pybosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> for
 outlines-with-holes, <a class="reference internal" href="beziers.html#pybosl2.beziers.Bezier" title="pybosl2.beziers.Bezier"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bezier</span></code></a> / <a class="reference internal" href="beziers.html#pybosl2.beziers.BezierPatch" title="pybosl2.beziers.BezierPatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">BezierPatch</span></code></a> for bezier
 curves and surfaces, <a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> for vertex-face meshes, and the
-<a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> primitives — so new code reads as fluent chains:</p>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> primitives — so new code reads as fluent chains:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">]])</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">r</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -174,17 +174,19 @@ HTML files directly with a <code class="docutils literal notranslate"><span clas
 also embed a viewer for any STL yourself with <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">stl::</span> <span class="pre">path/to/mesh.stl</span></code>.</p>
 </div>
 <p>A cuboid primitive:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-5fc34c11e95242288c5a9dbb89885c31" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-560b4ccb387f446cb562bd71b8ec40ad" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-5fc34c11e95242288c5a9dbb89885c31");
+const el = document.getElementById("stlviewer-560b4ccb387f446cb562bd71b8ec40ad");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -207,7 +209,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/341e0d175eaf4dfc.stl", function (geo) {
+new STLLoader().load("_stl/35dc1dab761f47c0.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -227,9 +229,11 @@ new STLLoader().load("_stl/341e0d175eaf4dfc.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/341e0d175eaf4dfc.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/35dc1dab761f47c0.stl">⬇ Download STL mesh</a></p>
 <p>A bezier surface patch, meshed to a VNF and rendered as a polyhedron:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">patch</span> <span class="o">=</span> <span class="p">[</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">BezierPatch</span>
+
+<span class="n">patch</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">[[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
     <span class="p">[[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">]],</span>
     <span class="p">[[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">]],</span>
@@ -239,13 +243,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-85c5225f05024b0eaf6e6fac51a0a9bd" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ffb4096427744edda2cede7c86407d2e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-85c5225f05024b0eaf6e6fac51a0a9bd");
+const el = document.getElementById("stlviewer-ffb4096427744edda2cede7c86407d2e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -268,7 +272,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/f5c6047924b3c34d.stl", function (geo) {
+new STLLoader().load("_stl/0b5727f4e7893b85.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -288,20 +292,24 @@ new STLLoader().load("_stl/f5c6047924b3c34d.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/f5c6047924b3c34d.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/0b5727f4e7893b85.stl">⬇ Download STL mesh</a></p>
 <p>Sweeping a profile along a bezier curve:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">circle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bezier</span>
+
+<span class="n">circle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
 <span class="n">Bezier</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">splinesteps</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e33e1ca5694945c8b4824de3260c1015" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3c7bd990a9c9477297b07a64e3e6292d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e33e1ca5694945c8b4824de3260c1015");
+const el = document.getElementById("stlviewer-3c7bd990a9c9477297b07a64e3e6292d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -324,7 +332,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/d2ba118ca2a25ada.stl", function (geo) {
+new STLLoader().load("_stl/6d97e77593a5121f.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -344,7 +352,7 @@ new STLLoader().load("_stl/d2ba118ca2a25ada.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/d2ba118ca2a25ada.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/6d97e77593a5121f.stl">⬇ Download STL mesh</a></p>
 </section>
 <section id="api-reference">
 <h2>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h2>

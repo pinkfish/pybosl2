@@ -1,5 +1,5 @@
 pybosl2 — a pure-Python PythonSCAD port of BOSL2
-==============================================
+================================================
 
 ``pybosl2`` is a pure-Python / numpy port of the pieces of `BOSL2 <https://github.com/BelfrySCAD/BOSL2>`_
 that this toolkit uses, with **no** ``osuse()``/BOSL2 runtime dependency. Every operation hangs off
@@ -40,11 +40,15 @@ A cuboid primitive:
 
 .. pythonscad-example::
 
+   from pybosl2 import shapes3d as s3
+
    s3.cuboid([40, 30, 20], rounding=4).show()
 
 A bezier surface patch, meshed to a VNF and rendered as a polyhedron:
 
 .. pythonscad-example::
+
+   from pybosl2 import BezierPatch
 
    patch = [
        [[-50, -50, 0], [-16, -50, 20], [16, -50, -20], [50, -50, 0]],
@@ -57,6 +61,10 @@ A bezier surface patch, meshed to a VNF and rendered as a polyhedron:
 Sweeping a profile along a bezier curve:
 
 .. pythonscad-example::
+
+   import math
+   import numpy as np
+   from pybosl2 import Bezier
 
    circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
    Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24).polyhedron().show()

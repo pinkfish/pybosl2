@@ -1,0 +1,35 @@
+name: Docs Build Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "pybosl2/**"
+      - "docs/**"
+      - "pyproject.toml"
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[docs]"
+
+      - name: Install pythonscad mock if binary not available
+        run: |
+          python -c "import pythonscad" 2>/dev/null || \
+            python -c "import sys; sys.path.insert(0, 'tests'); import mock_libfive"
+
+      - name: Build docs (warnings as errors)
+        run: |
+          cd docs
+          python -m sphinx -W --keep-going -b html . /tmp/docs-check/ -d /tmp/docs-doctrees/

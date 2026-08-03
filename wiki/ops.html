@@ -171,7 +171,7 @@
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> / <a class="reference internal" href="regions.html#pybosl2.regions.Region" title="pybosl2.regions.Region"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>, or a point list)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D" title="pybosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
+<dd class="field-even"><p>Bosl2Shape2D</p>
 </dd>
 </dl>
 </dd></dl>
@@ -188,7 +188,7 @@
 A single list/tuple <em>of</em> shapes is also accepted.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D" title="pybosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
+<dd class="field-even"><p>Bosl2Shape2D</p>
 </dd>
 </dl>
 </dd></dl>
@@ -207,7 +207,7 @@ radius.</p>
 <li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>) – radius to round all concave and convex corners to</p></li>
 <li><p><strong>outer_radius</strong> (<em>float</em><em> | </em><em>None</em>) – radius to round only convex (outside) corners to (BOSL2 <cite>or</cite>)</p></li>
 <li><p><strong>inner_radius</strong> (<em>float</em><em> | </em><em>None</em>) – radius to round only concave (inside) corners to</p></li>
-<li><p><strong>children</strong> (<a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D" title="pybosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a><em> | </em><em>PyOpenSCAD</em><em> | </em><em>None</em>) – the 2-D solid(s) to round</p></li>
+<li><p><strong>children</strong> (<em>Bosl2Shape2D</em><em> | </em><em>PyOpenSCAD</em><em> | </em><em>None</em>) – the 2-D solid(s) to round</p></li>
 <li><p><strong>fn/fa/fs</strong> – arc smoothness overrides</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
@@ -215,7 +215,7 @@ radius.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D" title="pybosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
+<dd class="field-even"><p>Bosl2Shape2D</p>
 </dd>
 </dl>
 </dd></dl>
@@ -234,7 +234,7 @@ or a 2-element list to do both</p></li>
 [CONVEX,CONCAVE] pair rounds those corner types separately (default 0)</p></li>
 <li><p><strong>inner_radius</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – rounding radius for inside corners of the shell; a [CONVEX,CONCAVE]
 pair rounds those corner types separately (default 0)</p></li>
-<li><p><strong>children</strong> (<a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D" title="pybosl2.shapes2d.Bosl2Shape2D"><em>Bosl2Shape2D</em></a><em> | </em><em>PyOpenSCAD</em><em> | </em><em>None</em>) – the 2-D solid(s) to shell</p></li>
+<li><p><strong>children</strong> (<em>Bosl2Shape2D</em><em> | </em><em>PyOpenSCAD</em><em> | </em><em>None</em>) – the 2-D solid(s) to shell</p></li>
 <li><p><strong>fn/fa/fs</strong> – arc smoothness overrides</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
@@ -242,7 +242,7 @@ pair rounds those corner types separately (default 0)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D" title="pybosl2.shapes2d.Bosl2Shape2D">Bosl2Shape2D</a></p>
+<dd class="field-even"><p>Bosl2Shape2D</p>
 </dd>
 </dl>
 </dd></dl>
@@ -266,7 +266,7 @@ When <em>None</em> (default) the arms are one-third of the overall size.</p></li
 <dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code> wrapping the cross polygon.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.CsgShape2D" title="pybosl2.shapes2d.base.CsgShape2D"><em>CsgShape2D</em></a></p>
+<dd class="field-odd"><p><em>CsgShape2D</em></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -276,13 +276,13 @@ When <em>None</em> (default) the arms are one-third of the overall size.</p></li
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9ce7d6bea1a649899c8086a0961a7d76" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-fbdcae2a77c140f5808497c772e86f02" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9ce7d6bea1a649899c8086a0961a7d76");
+const el = document.getElementById("stlviewer-fbdcae2a77c140f5808497c772e86f02");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -352,7 +352,7 @@ window.addEventListener("resize", resize);
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.CsgShape2D" title="pybosl2.shapes2d.base.CsgShape2D"><em>CsgShape2D</em></a></p>
+<dd class="field-even"><p><em>CsgShape2D</em></p>
 </dd>
 </dl>
 </dd></dl>

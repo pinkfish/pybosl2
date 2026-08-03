@@ -295,7 +295,7 @@ handled up to the path’s tightest radius)</p></td>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a> | list[list[list[float]]]</p>
+<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid | list[list[list[float]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -315,7 +315,7 @@ handled up to the path’s tightest radius)</p></td>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -339,7 +339,7 @@ handled up to the path’s tightest radius)</p></td>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -360,7 +360,7 @@ handled up to the path’s tightest radius)</p></td>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -386,7 +386,7 @@ handled up to the path’s tightest radius)</p></td>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -448,7 +448,7 @@ pybosl2/paths.py).</p>
 <dt class="sig sig-object py" id="pybosl2.skin.sweep">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.skin.</span></span><span class="sig-name descname"><span class="pre">sweep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.BUTT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min_edge'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/skin.html#sweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.skin.sweep" title="Link to this definition">¶</a></dt>
 <dd><p>Apply each 4x4 transform to the 2-D <em>shape</em> and skin the resulting profiles into a VNF or Bosl2Solid.</p>
-<p>Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>
+<p>Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>
 with the endcap geometry unioned to the swept body. Basic caps (NONE, BUTT, ROUND, SPHERE)
 are handled inline by <code class="xref py py-class docutils literal notranslate"><span class="pre">VNF.vertex_array</span></code>.</p>
 <dl class="field-list simple">
@@ -462,7 +462,7 @@ are handled inline by <code class="xref py py-class docutils literal notranslate
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -494,7 +494,7 @@ lists; the interpolation is vertex-by-vertex.</p>
 <p>Consecutive profiles are connected vertex-to-vertex; <em>slices</em> extra interpolated profiles are
 inserted between each pair to smooth the transition. Profiles of differing point counts are
 resampled up to the largest (via <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.subdivide_path()</span></code>).</p>
-<p>Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>
+<p>Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>
 with the endcap geometry unioned to the body.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -513,7 +513,7 @@ are not ported.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -528,13 +528,13 @@ are not ported.</p></li>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3c39969829d1472ea47621b73e3e7ce1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c9173a129973457bb191f7c4de67a56b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3c39969829d1472ea47621b73e3e7ce1");
+const el = document.getElementById("stlviewer-c9173a129973457bb191f7c4de67a56b");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
