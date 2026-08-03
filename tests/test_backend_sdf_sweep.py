@@ -64,7 +64,7 @@ def _frame_probe(shape: PyShape, path: Sequence[Sequence[float]]) -> Callable[[f
 
 def test_sweep_builds_ffi_free() -> None:
     tube = sdf.bezier_sweep(CIRCLE, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
-    assert type(tube).__name__ == "PyShape"
+    assert type(tube).__name__ == "SdfSolid"
     assert tube.backend == "sdf"
     size = tube.bounds()[1]
     assert len(size) == 3

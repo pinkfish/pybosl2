@@ -122,7 +122,7 @@ def _as_native_3d(obj: object) -> "PyOpenSCAD":
 # ---------------------------------------------------------------------------
 
 
-class Bosl2Solid(_BaseShape):
+class CsgSolid(_BaseShape):
     """Wraps a PyOpenSCAD solid together with the geometry metadata (nominal `size` and
     `anchor`) that BOSL2's $parent_geom attachment system would otherwise track, so that
     edge/corner/face masking (pybosl2/masking.py) work as plain chained methods instead of
@@ -1277,3 +1277,6 @@ def _anchor_offset_cyl(
     for i, ax in enumerate(radial_axes):
         offset[ax] = radial[i]
     return [-x for x in offset]
+
+
+Bosl2Solid = CsgSolid

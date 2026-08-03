@@ -16,7 +16,7 @@ from pybosl2._backend import Solid, current_backend, use_backend
 def test_facade_defaults_to_csg() -> None:
     s = solid.sphere(radius=10)  # type: ignore[attr-defined]
     assert s.backend == "csg"
-    assert type(s).__name__ == "Bosl2Solid"
+    assert type(s).__name__ == "CsgSolid"
     assert isinstance(s, Solid)
 
 
@@ -25,7 +25,7 @@ def test_facade_obeys_use_backend_context() -> None:
     with use_backend("sdf"):
         s = solid.sphere(radius=10)  # type: ignore[attr-defined]
         assert s.backend == "sdf"
-        assert type(s).__name__ == "PyShape"
+        assert type(s).__name__ == "SdfSolid"
     assert solid.cube(5).backend == "csg"  # type: ignore[attr-defined]  # restored to the default outside the block
 
 

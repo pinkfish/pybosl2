@@ -3,17 +3,20 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
-# DocCategory: internal
+# DocCategory: Foundational
+# LibFile: pybosl2/solid.py
+# FileSummary: Statically typed shape constructors and backend-neutral solid facade.
+# FileGroup: BOSL2
 
 # The backend-neutral solid facade: unified shape constructors that build on whichever backend is
 # active (``"csg"`` by default, ``"sdf"`` under ``use_backend("sdf")``). Each returns a common
-# :class:`~pybosl2._backend.Solid` -- a Bosl2Solid on the CSG backend, a PyShape on the SDF backend --
+# :class:`~pybosl2._backend.Solid` -- a CsgSolid on the CSG backend, an SdfSolid on the SDF backend --
 # so the same code realizes exact CSG or an F-Rep/signed-distance field depending on context:
 #
 #     from pybosl2.solid import sphere, use_backend
-#     a = sphere(radius=10)                 # CSG (default) -> Bosl2Solid
+#     a = sphere(radius=10)                 # CSG (default) -> CsgSolid
 #     with use_backend("sdf"):
-#         b = sphere(radius=10)             # libfive SDF   -> PyShape
+#         b = sphere(radius=10)             # libfive SDF   -> SdfSolid
 #
 # The shape constructors below are the 3-D primitives BOTH backends expose; each dispatches by name
 # through the active backend's ``construct``. n-ary CSG (union/difference/intersection) dispatches to
@@ -33,7 +36,6 @@ from pybosl2._backend import (
 )
 from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
 
-# 3-D constructors both the CSG (pybosl2.shapes3d) and SDF (pybosl2._sdf.shapes3d) backends provide.
 _SHARED_3D = (
     "cube",
     "cuboid",
@@ -57,7 +59,25 @@ _SHARED_3D = (
 )
 
 __all__ = [
-    *_SHARED_3D,
+    "cube",
+    "cuboid",
+    "cyl",
+    "cylinder",
+    "octahedron",
+    "onion",
+    "pie_slice",
+    "prismoid",
+    "rect_tube",
+    "regular_prism",
+    "sphere",
+    "spheroid",
+    "teardrop",
+    "torus",
+    "tube",
+    "wedge",
+    "xcyl",
+    "ycyl",
+    "zcyl",
     "polyhedron",
     "union",
     "difference",
@@ -72,21 +92,156 @@ __all__ = [
 ]
 
 
-def _make(shape: str) -> Any:
-    def _ctor(*args: Any, **kwargs: Any) -> Solid:
-        return get_backend().construct(shape, *args, **kwargs)
+def cube(*args: Any, **kwargs: Any) -> Solid:
+    """A cube on the active backend.
 
-    _ctor.__name__ = _ctor.__qualname__ = shape
-    _ctor.__doc__ = (
-        f"A ``{shape}`` on the active backend (CSG -> Bosl2Solid, SDF -> PyShape). "
-        f"See :func:`use_backend`; identical call, backend-appropriate realization."
-    )
-    return _ctor
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("cube", *args, **kwargs)
 
 
-for _shape in _SHARED_3D:
-    globals()[_shape] = _make(_shape)
-del _shape
+def cuboid(*args: Any, **kwargs: Any) -> Solid:
+    """A cuboid on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("cuboid", *args, **kwargs)
+
+
+def cyl(*args: Any, **kwargs: Any) -> Solid:
+    """A cyl on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("cyl", *args, **kwargs)
+
+
+def cylinder(*args: Any, **kwargs: Any) -> Solid:
+    """A cylinder on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("cylinder", *args, **kwargs)
+
+
+def octahedron(*args: Any, **kwargs: Any) -> Solid:
+    """An octahedron on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("octahedron", *args, **kwargs)
+
+
+def onion(*args: Any, **kwargs: Any) -> Solid:
+    """An onion on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("onion", *args, **kwargs)
+
+
+def pie_slice(*args: Any, **kwargs: Any) -> Solid:
+    """A pie_slice on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("pie_slice", *args, **kwargs)
+
+
+def prismoid(*args: Any, **kwargs: Any) -> Solid:
+    """A prismoid on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("prismoid", *args, **kwargs)
+
+
+def rect_tube(*args: Any, **kwargs: Any) -> Solid:
+    """A rect_tube on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("rect_tube", *args, **kwargs)
+
+
+def regular_prism(*args: Any, **kwargs: Any) -> Solid:
+    """A regular_prism on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("regular_prism", *args, **kwargs)
+
+
+def sphere(*args: Any, **kwargs: Any) -> Solid:
+    """A sphere on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("sphere", *args, **kwargs)
+
+
+def spheroid(*args: Any, **kwargs: Any) -> Solid:
+    """A spheroid on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("spheroid", *args, **kwargs)
+
+
+def teardrop(*args: Any, **kwargs: Any) -> Solid:
+    """A teardrop on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("teardrop", *args, **kwargs)
+
+
+def torus(*args: Any, **kwargs: Any) -> Solid:
+    """A torus on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("torus", *args, **kwargs)
+
+
+def tube(*args: Any, **kwargs: Any) -> Solid:
+    """A tube on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("tube", *args, **kwargs)
+
+
+def wedge(*args: Any, **kwargs: Any) -> Solid:
+    """A wedge on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("wedge", *args, **kwargs)
+
+
+def xcyl(*args: Any, **kwargs: Any) -> Solid:
+    """An xcyl on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("xcyl", *args, **kwargs)
+
+
+def ycyl(*args: Any, **kwargs: Any) -> Solid:
+    """A ycyl on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("ycyl", *args, **kwargs)
+
+
+def zcyl(*args: Any, **kwargs: Any) -> Solid:
+    """A zcyl on the active backend.
+
+    See :func:`use_backend`; identical call, backend-appropriate realization.
+    """
+    return get_backend().construct("zcyl", *args, **kwargs)
 
 
 def polyhedron(points: Any, faces: Any = None, **kwargs: Any) -> Solid:
