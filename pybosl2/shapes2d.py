@@ -451,6 +451,10 @@ class Bosl2Shape2D(_BaseShape):
     Like :class:`~pybosl2.shapes3d.Bosl2Solid` this is composition, not a subclass of the native
     C-extension type: passing one *directly* into a native function that wants a raw handle needs
     an explicit ``.shape`` (or :func:`pybosl2._helpers.unwrap`).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/shapes2d.html>`_ — measurements and STL previews
     """
 
     #: which realize backend produced this shape -- 2-D geometry is exact-CSG only (see

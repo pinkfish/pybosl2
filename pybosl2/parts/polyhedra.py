@@ -179,7 +179,12 @@ def _inradius_ratio(name: str) -> float:
 
 
 class Polyhedra:
-    """The five Platonic solids (BOSL2 polyhedra.scad, Platonic subset)."""
+    """The five Platonic solids (BOSL2 polyhedra.scad, Platonic subset).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/polyhedra.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def _resolve(name: PlatonicSolid | str) -> str:

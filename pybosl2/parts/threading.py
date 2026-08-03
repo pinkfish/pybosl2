@@ -260,6 +260,10 @@ class Threading:
     A *rod* is a threaded cylinder; a *nut* is a hex/square block with a matching threaded hole
     (cut by a thread 'tap', with *slop* clearance). *pitch* is the axial distance between threads,
     *starts* the number of thread starts, and *left_handed* flips the helix.
+
+    .. seealso::
+
+       `Visual spec sheet <specs/threading.html>`_ — measurements and STL previews
     """
 
     # -- generic ---------------------------------------------------------------------------
@@ -636,7 +640,7 @@ class Threading:
                     turns=turns * (-1 if left_handed else 1),
                     center=True,
                 )
-                .polyhedron()  # type: ignore[operator]
+                .polyhedron()  # type: ignore[union-attr]
             )
             if starts > 1:
                 piece = piece.rotate([0, 0, k * 360 / starts])

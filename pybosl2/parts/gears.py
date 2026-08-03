@@ -551,6 +551,10 @@ class Gears:
     Size a gear by ``circ_pitch`` (mm of pitch circle per tooth), ``mod`` (metric module) or
     ``diam_pitch``; pass one. The 20-degree ``pressure_angle`` and ``profile_shift=None`` defaults
     match BOSL2. All angles are in degrees.
+
+    .. seealso::
+
+       `Visual spec sheet <specs/gears.html>`_ — measurements and STL previews
     """
 
     # -- tooth density -----------------------------------------------------

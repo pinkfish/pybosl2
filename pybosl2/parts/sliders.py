@@ -32,7 +32,12 @@ def _union(shapes: list[Any]) -> Any:
 
 
 class Sliders:
-    """V-groove sliders and rails (BOSL2 sliders.scad)."""
+    """V-groove sliders and rails (BOSL2 sliders.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/sliders.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def slider(

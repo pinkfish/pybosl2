@@ -341,6 +341,10 @@ class Screws:
     :meth:`screw_info`, which returns a plain ``dict`` of resolved dimensions. Screws are built
     head-up: the shaft occupies ``z in [-length, 0]`` (tip at the bottom) and the head sits above
     ``z = 0``.
+
+    .. seealso::
+
+       `Visual spec sheet <specs/screws.html>`_ — measurements and STL previews
     """
 
     # -- resolved dimensions ---------------------------------------------------------------

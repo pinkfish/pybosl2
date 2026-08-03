@@ -1,11 +1,32 @@
 2-D shapes
 ==========
 
+.. raw:: html
+
+   <p class="specref" id="spec-sheet-callout" style="margin:0 0 1.5em;padding:11px 16px;border:1px solid #38bdf0;border-radius:8px;background:rgba(56,189,240,0.07);font-size:0.98em;">
+     &#9881;&#65039; <b><a href="specs/shapes2d.html">Spec sheet &rarr;</a></b>
+     &nbsp;&mdash;&nbsp; interactive 3-D viewer, metrics, and variants catalog.
+   </p>
+
 Pure-Python port of the 2-D shape generators from BOSL2's ``shapes2d.scad`` (plus ``arc()``).
 Each returns a :class:`~pybosl2.Bosl2Solid2D` -- the 2-D counterpart of
 :class:`~pybosl2.Bosl2Solid` -- so the geometry chains straight on::
 
     square(20).offset(radius=2).fill().linear_extrude(height=4).show()
+
+**Live preview — try it:**
+
+.. pythonscad-example::
+
+   s2.square(20).linear_extrude(height=5).show()
+
+.. pythonscad-example::
+
+   s2.circle(r=15).linear_extrude(height=5).show()
+
+.. pythonscad-example::
+
+   s2.star(n=5, r=20, ir=8).linear_extrude(height=5).show()
 
 The 2-D object
 --------------

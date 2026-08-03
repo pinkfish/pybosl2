@@ -55,7 +55,12 @@ def _segs(r: float) -> int:
 
 
 class Walls:
-    """FDM-optimised wall shapes (BOSL2 walls.scad)."""
+    """FDM-optimised wall shapes (BOSL2 walls.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/walls.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def narrowing_strut(w: float = 10, length: float = 100, wall: float = 5, angle: float = 30) -> Bosl2Solid:

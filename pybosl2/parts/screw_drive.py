@@ -188,6 +188,10 @@ class ScrewDrive:
     Every ``*_mask`` method returns a :class:`~pybosl2.shapes3d.Bosl2Solid` positioned with its recess
     opening at the top and its bottom on the XY plane (BOSL2's ``anchor=BOTTOM``); subtract it from a
     screw head to cut the recess. Pass ``center=True`` to center the mask vertically instead.
+
+    .. seealso::
+
+       `Visual spec sheet <specs/screw_drive.html>`_ — measurements and STL previews
     """
 
     # ---- Phillips --------------------------------------------------------

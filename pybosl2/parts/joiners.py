@@ -34,7 +34,12 @@ __all__ = ["Joiners"]
 
 
 class Joiners:
-    """Dovetail joints and snap-pin connectors (BOSL2 joiners.scad)."""
+    """Dovetail joints and snap-pin connectors (BOSL2 joiners.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/joiners.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def dovetail(

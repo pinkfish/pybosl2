@@ -53,7 +53,12 @@ def _radius(r: float | None, d: float | None) -> float | None:
 
 
 class Hooks:
-    """Hooks and hook-like parts (BOSL2 hooks.scad)."""
+    """Hooks and hook-like parts (BOSL2 hooks.scad).
+
+    .. seealso::
+
+       `Visual spec sheet <specs/hooks.html>`_ — measurements and STL previews
+    """
 
     @staticmethod
     def ring_hook(

@@ -22,6 +22,8 @@ import re
 import sys
 from pathlib import Path
 
+from docs._ext.stl_viewer import spec_viewer_html
+
 OUT = Path(__file__).resolve().parent / "_extra" / "specs"
 STL_DIR = OUT / "_stl"
 
@@ -109,8 +111,13 @@ table.metrics tr:last-child td{border-bottom:0}
   font-variant-numeric:tabular-nums; line-height:1}
 .proof .txt{font-size:13px; color:var(--ink-dim)} .proof .txt b{color:var(--ink)}
 .code{font-family:var(--mono); font-size:12.5px; background:var(--panel-2); border:1px solid var(--line);
-  border-radius:8px; padding:11px 13px; overflow-x:auto; color:var(--ink)}
+  border-radius:8px; padding:11px 13px; overflow-x:auto; color:var(--ink); position:relative}
 .code .k{color:var(--accent)}
+.copy-btn{position:absolute; top:8px; right:8px;
+  background:var(--panel-2); color:var(--ink-dim);
+  border:1px solid var(--line); border-radius:4px;
+  padding:2px 8px; font-size:0.8em; cursor:pointer}
+.copy-btn:hover{background:var(--accent); color:#fff}
 .tags{display:flex; flex-wrap:wrap; gap:6px}
 .tag{font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); border:1px solid var(--line);
   border-radius:5px; padding:2px 7px}
@@ -1473,66 +1480,6 @@ FOOT = (
 )
 
 
-_VIEWER_JS = """<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = __DATA__;
-const box = document.getElementById("viewer"), poster = document.getElementById("poster");
-let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || n;
-function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
-  renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
-function init() {
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(window.devicePixelRatio); box.appendChild(renderer.domElement);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const k = new THREE.DirectionalLight(0xffffff, 0.85); k.position.set(1, 0.6, 1); scene.add(k);
-  const f = new THREE.DirectionalLight(0xffffff, 0.4); f.position.set(-1, -0.8, 0.5); scene.add(f);
-  controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
-  window.addEventListener("resize", resize); ready = true;
-  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
-}
-const loader = new STLLoader();
-function load(uri) {
-  if (!ready) init();
-  loader.load(uri, geo => {
-    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
-    geo.computeVertexNormals(); geo.computeBoundingBox();
-    const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
-    const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
-    geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: css("--model"), specular: 0x222222, shininess: 22 }));
-    scene.add(mesh);
-    const r = Math.max(s.x, s.y, s.z) || 1;
-    camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
-    poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
-  }, undefined, () => {
-    if (!box.querySelector(".hint")) { const h = document.createElement("div");
-      h.className = "hint";
-      h.textContent = "serve the docs over HTTP for the interactive 3-D view";
-      box.appendChild(h); }
-  });
-}
-function select(i) {
-  const v = V[i];
-  document.querySelectorAll(".tags button.tag").forEach((b, j) =>
-    b.setAttribute("aria-selected", j === i ? "true" : "false"));
-  document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
-  document.getElementById("s-tris").textContent = v.tris == null ? "\\u2014" : v.tris.toLocaleString();
-  document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;
-  document.getElementById("vpart").textContent = v.part;
-  document.getElementById("wtpill").style.display = v.wt ? "" : "none";
-  load(v.uri);
-}
-document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
-select(0);
-</script>"""
-
-
 def module_page(key, m, metrics):
     variants = VARIANTS[key]
     data, cache = [], metrics.get(key, {})
@@ -1560,7 +1507,7 @@ def module_page(key, m, metrics):
     if m["proof"]:
         big, txt = m["proof"]
         proof = f'<div class="proof"><div class="big">{big}</div><div class="txt">{txt}</div></div>'
-    script = _VIEWER_JS.replace("__DATA__", json.dumps(data))
+    script = spec_viewer_html(data)
     return (
         HEAD.format(title=f"{m['title']} · pybosl2")
         + MODBAR.format(mod=m["title"])
@@ -1581,11 +1528,18 @@ def module_page(key, m, metrics):
         f'<div><span class="v" id="s-tris">{tris0}</span><span class="l">triangles</span></div>'
         f'<div><span class="v" id="s-vol">{first["vol"]}</span><span class="l">mm&sup3; volume</span></div>'
         f'<div><span class="v" id="s-bbox">{first["bbox"]}</span><span class="l">bbox mm</span></div></div>'
+        '<div style="position:relative">'
+        f'<button class="copy-btn" onclick="copyCode(this)">Copy</button>'
         f'<div class="code" id="code">&gt;&gt;&gt; {first["code"]}</div>'
+        "</div>"
         f"{proof}"
         '<div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">'
         f'{m["tests"]} tests · <a href="../{m["title"]}.html">full API reference &rarr;</a></div>'
-        "</div></div></div></section></main>" + script + FOOT
+        "</div></div></div></section></main>"
+        + script
+        + "<script>function copyCode(btn){const code=btn.nextElementSibling.textContent.trim();"
+        'navigator.clipboard.writeText(code).then(()=>{btn.textContent="Copied!";'
+        'setTimeout(()=>btn.textContent="Copy",1500);});}</script>' + FOOT
     )
 
 

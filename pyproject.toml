@@ -95,3 +95,15 @@ quote-style = "double"
 
 [tool.mypy]
 ignore_missing_imports = true
+exclude = [
+    '^build/',
+    '^\.venv/',
+    '^node_modules/',
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+    "docs.*",
+]
+ignore_errors = true

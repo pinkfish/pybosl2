@@ -160,6 +160,10 @@ class Bosl2Solid(_BaseShape):
     argument into a function that expects a native geometry object -- `hull(a, b)`,
     `minkowski(a, b)` -- rather than having a method called on it, the receiving function needs
     the raw native object: use `.shape` to unwrap explicitly.
+
+    .. seealso::
+
+       `Visual spec sheet <specs/shapes3d.html>`_ — measurements and STL previews
     """
 
     #: which realize backend produced this solid -- see pybosl2/_backend.py. Bosl2Solid is the
