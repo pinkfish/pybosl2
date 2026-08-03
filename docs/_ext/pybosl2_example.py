@@ -114,7 +114,15 @@ _PREAMBLE = (
     "from pybosl2.parts.screw_drive import ScrewDrive\n"
     "from functools import reduce\n"
     "from pybosl2 import *\n"
+    "import traceback\n"
+    "\n"
+    "try:"
 )
+
+_POSTAMBLE = "except Exception as e:\n"
+    "    print(\"An error occurred during model generation:\")\n"
+    "    # This prints the complete, standard Python error trace\n"
+    "    traceback.print_exc()\n"
 
 
 class Bosl2ExampleDirective(Directive):
@@ -123,8 +131,11 @@ class Bosl2ExampleDirective(Directive):
     has_content = True
 
     def run(self) -> list[nodes.Node]:
-        code = "\n".join(self.content)
-        script = _PREAMBLE + code + "\n"
+        code_str = "\n".join(self.content)
+        lines = code_str.splitlines()
+        indented_str = "\n".join(f"    {line}" if line else "" for line in lines)
+
+        script = _PREAMBLE + indented_str + "\n"
 
         out: list[nodes.Node] = []
         code_node = nodes.literal_block(code, code)
