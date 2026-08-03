@@ -76,7 +76,6 @@ _PREAMBLE = (
     "                sys.path.insert(0, sp)\n"
     "import numpy as np\n"
     "import pybosl2\n"
-
     "from pybosl2 import Path, Path2D, Path3D\n"
     "from pybosl2 import Region\n"
     "from pybosl2 import Bezier, BezierPatch\n"
