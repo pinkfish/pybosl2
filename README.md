@@ -34,10 +34,9 @@ the plain OpenSCAD builtins with BOSL2's anchor/spin/orient-aware versions, so t
 package is deliberately not wildcard-re-exported):
 
 ```python
-import pybosl2.shapes3d as s3
-import pybosl2.shapes2d as s2
+from pybosl2 import cuboid
 
-part = s3.cuboid([20, 20, 10]).up(5)
+part = cuboid([20, 20, 10]).up(5)
 ```
 
 ## Development & tests
