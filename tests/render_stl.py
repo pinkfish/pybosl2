@@ -123,6 +123,17 @@ _PREAMBLE = (
     "from pybosl2 import *\n"
 )
 
+_EXTRA_PREAMBLE =  (  
+    "\n"
+    "try:\n"
+)
+
+_POSTAMBLE = (
+    "except Exception as e:\n"
+    '    print("An error occurred during model generation:")\n'
+    "    # This prints the complete, standard Python error trace\n"
+    "    traceback.print_exc()\n"
+)
 
 def render_object(
     expr: str,
@@ -138,7 +149,7 @@ def render_object(
     for a compact binary STL; the default is ASCII). Returns an StlResult; never raises for a render
     failure so callers can assert on ``.ok``. Only raises if no binary can be located at all.
     """
-    body = _PREAMBLE + setup + f"obj = {expr}\n" + "obj.show()\n"
+    body = _PREAMBLE + setup + _EXTRA_PREAMBLE f"    obj = {expr}\n" + "    obj.show()\n" + _POSTAMBLE
     return render_stl_script(body, out_stl, timeout=timeout, export_format=export_format)
 
 
