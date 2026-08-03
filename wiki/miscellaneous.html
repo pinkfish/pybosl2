@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Miscellaneous: extrusions, bbox, hull &amp; minkowski &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Miscellaneous: extrusions, bbox, hull &amp; minkowski &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -72,7 +72,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -238,13 +237,13 @@ method.</p></td>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-5d76d85fea924f7d8cdaff7106253ed6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-a873d81b8e0441f1a41b341616251b6d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-5d76d85fea924f7d8cdaff7106253ed6");
+const el = document.getElementById("stlviewer-a873d81b8e0441f1a41b341616251b6d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -298,13 +297,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c6be65a81cbd487cb6cea1e680bd5e80" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-715445f0dc764aa8a27dc5df43976de6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c6be65a81cbd487cb6cea1e680bd5e80");
+const el = document.getElementById("stlviewer-715445f0dc764aa8a27dc5df43976de6");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -363,13 +362,13 @@ them. <em>profile</em> is a native 2-D shape, a Path2D/Region, a Bosl2Solid, or 
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-672cc9f27fc04636b9352a1ef5463cf1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e30e6142f9674416bbb4f336ecb698d2" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-672cc9f27fc04636b9352a1ef5463cf1");
+const el = document.getElementById("stlviewer-e30e6142f9674416bbb4f336ecb698d2");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -416,6 +415,9 @@ window.addEventListener("resize", resize);
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>profile</strong> (<em>object</em>)</p></li>
+<li><p><strong>pt1</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
+<li><p><strong>pt2</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
 <li><p><strong>twist</strong> (<em>float</em>)</p></li>
 <li><p><strong>scale</strong> (<em>float</em>)</p></li>
 <li><p><strong>slices</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
@@ -430,19 +432,26 @@ window.addEventListener("resize", resize);
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pybosl2.miscellaneous.cylindrical_extrude">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.miscellaneous.</span></span><span class="sig-name descname"><span class="pre">cylindrical_extrude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.0,</span> <span class="pre">0.0,</span> <span class="pre">1.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/miscellaneous.html#cylindrical_extrude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.miscellaneous.cylindrical_extrude" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pybosl2.miscellaneous.</span></span><span class="sig-name descname"><span class="pre">cylindrical_extrude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/miscellaneous.html#cylindrical_extrude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.miscellaneous.cylindrical_extrude" title="Link to this definition">¶</a></dt>
 <dd><p>Wrap a 2-D <em>profile</em> around a cylinder, from radius <em>inner_radius</em> out to <em>outer_radius</em> (BOSL2
 cylindrical_extrude()).</p>
 <p>Chops the profile into vertical facets and extrudes each radially. Handy for embossing text
 onto a curved wall. The profile’s X spans one revolution by default (override with <em>size</em>).</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cylindrical_extrude</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>profile</strong> (<em>object</em>)</p></li>
 <li><p><strong>inner_radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>outer_radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>outer_diameter</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>inner_diameter</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>size</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>spin</strong> (<em>float</em>)</p></li>
+<li><p><strong>orient</strong> (<em>Anchor</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
 <li><p><strong>convexity</strong> (<em>int</em>)</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
@@ -459,6 +468,18 @@ onto a curved wall. The profile’s X spans one revolution by default (override 
 <dt class="sig sig-object py" id="pybosl2.miscellaneous.chain_hull">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.miscellaneous.</span></span><span class="sig-name descname"><span class="pre">chain_hull</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">objects</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/miscellaneous.html#chain_hull"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.miscellaneous.chain_hull" title="Link to this definition">¶</a></dt>
 <dd><p>Union the hulls of each consecutive pair of <em>objects</em> (BOSL2 chain_hull()).</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">chain_hull</span><span class="p">([</span><span class="n">s3</span><span class="o">.</span><span class="n">sphere</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="n">x</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)])</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>objects</strong> (<em>object</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -468,9 +489,14 @@ onto a curved wall. The profile’s X spans one revolution by default (override 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>base</strong> (<em>object</em>)</p></li>
+<li><p><strong>diffs</strong> (<em>object</em>)</p></li>
 <li><p><strong>size</strong> (<em>float</em>)</p></li>
 <li><p><strong>convexity</strong> (<em>int</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -493,10 +519,15 @@ size (defaults to the path’s bounding-box diagonal).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>profile</strong> (<em>object</em>)</p></li>
 <li><p><strong>caps</strong> (<em>bool</em>)</p></li>
 <li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>convexity</strong> (<em>int</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -512,9 +543,13 @@ native 2-D object (text, multi-part shapes) that is not a single polygon.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>profile</strong> (<em>object</em>)</p></li>
 <li><p><strong>convexity</strong> (<em>int</em>)</p></li>
 <li><p><strong>clipsize</strong> (<em>float</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -537,6 +572,9 @@ not needed here).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>excess</strong> (<em>float</em>)</p>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -552,6 +590,9 @@ not needed here).</p>
 <li><p><strong>size</strong> (<em>float</em>)</p></li>
 <li><p><strong>convexity</strong> (<em>int</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -570,6 +611,9 @@ not needed here).</p>
 <li><p><strong>size</strong> (<em>float</em>)</p></li>
 </ul>
 </dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -577,6 +621,14 @@ not needed here).</p>
 <dt class="sig sig-object py" id="pybosl2.miscellaneous.Miscellaneous.chain_hull">
 <span class="sig-name descname"><span class="pre">chain_hull</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">others</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/miscellaneous.html#Miscellaneous.chain_hull"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.miscellaneous.Miscellaneous.chain_hull" title="Link to this definition">¶</a></dt>
 <dd><p>This solid chain-hulled with <em>others</em>, in order (see <a class="reference internal" href="#pybosl2.miscellaneous.chain_hull" title="pybosl2.miscellaneous.chain_hull"><code class="xref py py-func docutils literal notranslate"><span class="pre">chain_hull()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>others</strong> (<em>object</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -585,7 +637,13 @@ not needed here).</p>
 <dd><p>Carve <em>diffs</em> out of this solid’s surface (see <a class="reference internal" href="#pybosl2.miscellaneous.minkowski_difference" title="pybosl2.miscellaneous.minkowski_difference"><code class="xref py py-func docutils literal notranslate"><span class="pre">minkowski_difference()</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>size</strong> (<em>float</em>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diffs</strong> (<em>object</em>)</p></li>
+<li><p><strong>size</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
 </dd>
 </dl>
 </dd></dl>

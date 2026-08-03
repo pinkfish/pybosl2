@@ -1171,7 +1171,8 @@ def test_metaball_sphere_is_watertight(tmp_path):
     # a lone mb_sphere(10) at isovalue 1 -> a watertight sphere of radius 10
     m = _render(
         tmp_path,
-        "metaballs([([0,0,0], mb_sphere(10))], bounding_box=[[-16,-16,-16],[16,16,16]], voxel_size=1.5).polyhedron()",
+        "VNF.from_metaballs([([0,0,0], mb_sphere(10))], "
+        "bounding_box=[[-16,-16,-16],[16,16,16]], voxel_size=1.5).polyhedron()",
         name="mbsphere",
     )
     assert m.watertight
@@ -1183,7 +1184,7 @@ def test_metaballs_merge_into_one_blob(tmp_path):
     setup = "spec = [([-9,0,0], mb_sphere(9)), ([9,0,0], mb_sphere(9))]\n"
     m = _render(
         tmp_path,
-        "metaballs(spec, bounding_box=[[-28,-16,-16],[28,16,16]], voxel_size=2).polyhedron()",
+        "VNF.from_metaballs(spec, bounding_box=[[-28,-16,-16],[28,16,16]], voxel_size=2).polyhedron()",
         setup=setup,
         name="mbpeanut",
     )
@@ -1194,7 +1195,8 @@ def test_metaballs_merge_into_one_blob(tmp_path):
 def test_metaball_torus_has_a_hole(tmp_path):
     m = _render(
         tmp_path,
-        "metaballs([([0,0,0], mb_torus(10, 3))], bounding_box=[[-16,-16,-8],[16,16,8]], voxel_size=1.5).polyhedron()",
+        "VNF.from_metaballs([([0,0,0], mb_torus(10, 3))], "
+        "bounding_box=[[-16,-16,-8],[16,16,8]], voxel_size=1.5).polyhedron()",
         name="mbtorus",
     )
     assert m.watertight
@@ -1206,7 +1208,7 @@ def test_isosurface_of_a_field_function(tmp_path):
     setup = "def sf(pts):\n    return 8.0 / (pts[:, 0]**2 + pts[:, 1]**2 + pts[:, 2]**2) ** 0.5\n"
     m = _render(
         tmp_path,
-        "isosurface(sf, 1, bounding_box=24, voxel_size=1.5).polyhedron()",
+        "VNF.from_field(sf, 1, bounding_box=24, voxel_size=1.5).polyhedron()",
         setup=setup,
         name="isofield",
     )

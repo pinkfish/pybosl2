@@ -2,13 +2,13 @@ Isosurface: marching cubes & metaballs
 ======================================
 
 Pure-Python port of the 3-D core of BOSL2's ``isosurface.scad``:
-:func:`~pybosl2.isosurface.isosurface` meshes the level set of a scalar field over a voxel grid
-(marching cubes) into a :class:`~pybosl2.vnf`; the ``mb_*`` functions are metaball field
-primitives; and :func:`~pybosl2.isosurface.isosurface` sums transformed primitives and meshes the
+:meth:`VNF.from_field() <pybosl2.vnf.VNF.from_field>` meshes the level set of a scalar field over a voxel grid
+(marching cubes) into a :class:`~pybosl2.vnf.VNF`; the ``mb_*`` functions are metaball field
+primitives; and :meth:`VNF.from_metaballs() <pybosl2.vnf.VNF.from_metaballs>` sums transformed primitives and meshes the
 result into a blobby surface::
 
-    isosurface(field_fn, isovalue=1, bounding_box=60, voxel_size=2)
-    metaballs([(pos1, mb_sphere(12)), (pos2, mb_sphere(12))], bounding_box=box, voxel_size=2)
+    VNF.from_field(field_fn, isovalue=1, bounding_box=60, voxel_size=2)
+    VNF.from_metaballs([(pos1, mb_sphere(12)), (pos2, mb_sphere(12))], bounding_box=box, voxel_size=2)
 
 A field primitive returns a value that grows toward infinity at its center and falls off with
 distance; the surface is drawn where the summed field reaches *isovalue* (default 1). Because the
@@ -32,12 +32,12 @@ Coverage of BOSL2 ``isosurface.scad``
      - Notes
    * - ``isosurface``
      - ported
-     - :func:`~pybosl2.isosurface.isosurface` -- marching cubes over a field callable or a
+     - :meth:`VNF.from_field() <pybosl2.vnf.VNF.from_field>` -- marching cubes over a field callable or a
        precomputed 3-D array; ``voxel_size``/``voxel_count``, ``closed``, ``reverse``, range
        isovalues ``[lo, hi]`` (collapsed to a one-sided threshold).
    * - ``metaballs``
      - ported
-     - :func:`~pybosl2.isosurface.isosurface` -- a list of ``(transform, metaball)`` pairs (or the
+     - :meth:`VNF.from_metaballs() <pybosl2.vnf.VNF.from_metaballs>` -- a list of ``(transform, metaball)`` pairs (or the
        BOSL2 flat form).
    * - ``mb_sphere`` / ``mb_cuboid`` / ``mb_torus`` / ``mb_capsule`` / ``mb_disk`` / ``mb_octahedron`` / ``mb_connector``
      - ported
@@ -60,14 +60,14 @@ Two spheres merging into a peanut:
 .. pythonscad-example::
 
     spec = [([-14, 0, 0], mb_sphere(12)), ([14, 0, 0], mb_sphere(12))]
-    metaballs(spec, bounding_box=[[-40, -20, -20], [40, 20, 20]], voxel_size=2).polyhedron().show()
+    VNF.from_metaballs(spec, bounding_box=[[-40, -20, -20], [40, 20, 20]], voxel_size=2).polyhedron().show()
 
 A ring metaball plus a connecting bar:
 
 .. pythonscad-example::
 
     spec = [([0, 0, 0], mb_torus(14, 4)), ([-14, 0, 0], mb_connector([-14, 0, 0], [14, 0, 0], 4))]
-    metaballs(spec, bounding_box=[[-22, -22, -10], [22, 22, 10]], voxel_size=2).polyhedron().show()
+    VNF.from_metaballs(spec, bounding_box=[[-22, -22, -10], [22, 22, 10]], voxel_size=2).polyhedron().show()
 
 The level set of a custom field function:
 
@@ -75,16 +75,16 @@ The level set of a custom field function:
 
     def field(p):
         import numpy as np
-        diameter=np.sqrt(p[:, 0]**2 + p[:, 1]**2 + p[:, 2]**2)
+        d = np.sqrt(p[:, 0]**2 + p[:, 1]**2 + p[:, 2]**2)
         return 18 / d + 3 * np.sin(p[:, 0] / 3) * np.cos(p[:, 1] / 3)
-    isosurface(field, 1, bounding_box=70, voxel_size=2.5).polyhedron().show()
+    VNF.from_field(field, 1, bounding_box=70, voxel_size=2.5).polyhedron().show()
 
 API reference
 -------------
-.. automodule:: pybosl2.isosurface
+.. automodule:: pybosl2.metaballs
    :members:
    :undoc-members:
    :exclude-members: Metaball
 
-.. autoclass:: pybosl2.isosurface.Metaball
+.. autoclass:: pybosl2.metaballs.Metaball
    :members:

@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Threading: screw threads, rods &amp; nuts &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Threading: screw threads, rods &amp; nuts &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -73,7 +73,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -219,13 +218,13 @@ watertight with the correct major/minor diameter and length.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2fcf8e5493114534b34e32f023c07c7f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-94af6dfdb5c848b3af0d6c1f964e0410" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2fcf8e5493114534b34e32f023c07c7f");
+const el = document.getElementById("stlviewer-94af6dfdb5c848b3af0d6c1f964e0410");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -274,13 +273,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-28305560d8684e6890edc6efde6d6b5e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-cbe13468264f417383be8b950682f5d5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-28305560d8684e6890edc6efde6d6b5e");
+const el = document.getElementById("stlviewer-cbe13468264f417383be8b950682f5d5");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -331,13 +330,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e0a82a0326bb439b9ca5695a35966252" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c0b708a13a274d81967e2dfaeb6c87e2" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e0a82a0326bb439b9ca5695a35966252");
+const el = document.getElementById("stlviewer-c0b708a13a274d81967e2dfaeb6c87e2");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -404,6 +403,7 @@ fraction, both in pitch units) – the core every other rod builds on (BOSL2 gen
 <li><p><strong>d</strong> (<em>float</em>)</p></li>
 <li><p><strong>length</strong> (<em>float</em>)</p></li>
 <li><p><strong>pitch</strong> (<em>float</em>)</p></li>
+<li><p><strong>profile</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>ThreadProfile</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
@@ -428,6 +428,8 @@ fraction, both in pitch units) – the core every other rod builds on (BOSL2 gen
 <li><p><strong>inner_diameter</strong> (<em>float</em>)</p></li>
 <li><p><strong>h</strong> (<em>float</em>)</p></li>
 <li><p><strong>pitch</strong> (<em>float</em>)</p></li>
+<li><p><strong>profile</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>ThreadProfile</em>)</p></li>
+<li><p><strong>shape</strong> (<em>str</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
@@ -487,6 +489,7 @@ threaded_rod()).</p>
 <li><p><strong>inner_diameter</strong> (<em>float</em>)</p></li>
 <li><p><strong>h</strong> (<em>float</em>)</p></li>
 <li><p><strong>pitch</strong> (<em>float</em>)</p></li>
+<li><p><strong>shape</strong> (<em>str</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
@@ -545,6 +548,7 @@ trapezoidal_threaded_rod()).</p>
 <li><p><strong>pitch</strong> (<em>float</em>)</p></li>
 <li><p><strong>thread_angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>thread_depth</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>shape</strong> (<em>str</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
@@ -600,6 +604,7 @@ trapezoidal_threaded_rod()).</p>
 <li><p><strong>h</strong> (<em>float</em>)</p></li>
 <li><p><strong>pitch</strong> (<em>float</em>)</p></li>
 <li><p><strong>thread_depth</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>shape</strong> (<em>str</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
@@ -648,6 +653,7 @@ trapezoidal_threaded_rod()).</p>
 <li><p><strong>inner_diameter</strong> (<em>float</em>)</p></li>
 <li><p><strong>h</strong> (<em>float</em>)</p></li>
 <li><p><strong>pitch</strong> (<em>float</em>)</p></li>
+<li><p><strong>shape</strong> (<em>str</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
@@ -696,6 +702,7 @@ trapezoidal_threaded_rod()).</p>
 <li><p><strong>inner_diameter</strong> (<em>float</em>)</p></li>
 <li><p><strong>h</strong> (<em>float</em>)</p></li>
 <li><p><strong>pitch</strong> (<em>float</em>)</p></li>
+<li><p><strong>shape</strong> (<em>str</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
@@ -732,6 +739,7 @@ which has no arc-based primitives and therefore no smoothing resolution to contr
 <li><p><strong>turns</strong> (<em>float</em>)</p></li>
 <li><p><strong>starts</strong> (<em>int</em>)</p></li>
 <li><p><strong>left_handed</strong> (<em>bool</em>)</p></li>
+<li><p><strong>profile</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>ThreadProfile</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

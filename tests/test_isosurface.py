@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from pybosl2.bounds import Bounds3D
-from pybosl2.metaballs import (
+from pybosl2.isosurface import (
     MetaballSpec,
     mb_capsule,
     mb_connector,
@@ -166,7 +166,7 @@ def test_metaballs_scalar_bounding_box() -> None:
 
 def test_mb_disk_produces_field() -> None:
     """mb_disk() creates a metaball field."""
-    from pybosl2.metaballs import mb_disk
+    from pybosl2.isosurface import mb_disk
 
     mb = mb_disk(height=2, radius=10)
     assert mb.field(np.array([[0, 0, 0]]).reshape(1, 3)) is not None
@@ -207,7 +207,7 @@ def test_marching_cubes_closed() -> None:
 
 def test_mb_sphere_diameter() -> None:
     """mb_sphere with diameter kwarg."""
-    from pybosl2.metaballs import mb_sphere
+    from pybosl2.isosurface import mb_sphere
 
     mb = mb_sphere(diameter=10)
     assert mb.field(np.array([[0, 0, 0]]).reshape(1, 3)) is not None
@@ -215,7 +215,7 @@ def test_mb_sphere_diameter() -> None:
 
 def test_mb_negative_sphere() -> None:
     """mb_sphere with negative=True subtracts."""
-    from pybosl2.metaballs import mb_sphere
+    from pybosl2.isosurface import mb_sphere
 
     mb_pos = mb_sphere(radius=5, negative=False)
     mb_neg = mb_sphere(radius=5, negative=True)
@@ -229,7 +229,7 @@ def test_mb_negative_sphere() -> None:
 
 def test_metaballs2d_produces_contours() -> None:
     from pybosl2.bounds import Bounds2D
-    from pybosl2.metaballs import metaballs2d
+    from pybosl2.isosurface import metaballs2d
 
     spec = [
         MetaballSpec([-14, 0, 0], mb_sphere(12)),  # type: ignore[arg-type]
@@ -243,7 +243,7 @@ def test_metaballs2d_produces_contours() -> None:
 
 def test_metaballs2d_single_sphere() -> None:
     from pybosl2.bounds import Bounds2D
-    from pybosl2.metaballs import metaballs2d
+    from pybosl2.isosurface import metaballs2d
 
     spec = [
         MetaballSpec([0, 0, 0], mb_sphere(8)),  # type: ignore[arg-type]

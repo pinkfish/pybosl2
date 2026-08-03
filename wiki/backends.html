@@ -5,16 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Solid backends: CSG and SDF &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Solid backends: CSG and SDF &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Colour: colorspace conversion &amp; colour operators" href="color.html" />
+    <link rel="prev" title="pybosl2 — a pure-Python PythonSCAD port of BOSL2" href="index.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
 
@@ -39,40 +41,41 @@
 
 
 <h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> CSG &amp; SDF backends</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html"> drawing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> native_ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> Shapes2D</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> Shapes3D</a></li>
 <li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
-<li class="toctree-l1"><a class="reference internal" href="path2d.html"> 2-D path operations: area, offset, polygon containment, round_corners, linear_extrude, and more</a></li>
-<li class="toctree-l1"><a class="reference internal" href="path3d.html"> 3-D path operations: tangents, normals, curvature, torsion, resampling, cutting, and 3-D transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
 <ul>
@@ -110,6 +113,8 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">pybosl2 — a pure-Python PythonSCAD port of BOSL2</a></li>
+      <li>Next: <a href="color.html" title="next chapter">Colour: colorspace conversion &amp; colour operators</a></li>
   </ul></li>
 </ul>
 </div>
@@ -145,8 +150,8 @@ attachment features. Its solids are <code class="xref py py-class docutils liter
 <p>Both backends expose the <em>same</em> shared constructors, so the same code builds either one.</p>
 <section id="the-pybosl2-solid-facade">
 <h2>The <code class="docutils literal notranslate"><span class="pre">pybosl2.solid</span></code> facade<a class="headerlink" href="#the-pybosl2-solid-facade" title="Link to this heading">¶</a></h2>
-<p><a class="reference internal" href="solid.html#module-pybosl2.solid" title="pybosl2.solid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.solid</span></code></a> is the backend-neutral entry point. Each constructor dispatches to whichever
-backend is active and returns a common <a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2._backend.Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Solid</span></code></a> — a <code class="docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> on CSG,
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.solid</span></code> is the backend-neutral entry point. Each constructor dispatches to whichever
+backend is active and returns a common <code class="docutils literal notranslate"><span class="pre">Solid</span></code> — a <code class="docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> on CSG,
 a <code class="docutils literal notranslate"><span class="pre">PyShape</span></code> on SDF:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">use_backend</span>
 
@@ -211,12 +216,12 @@ and thread/async-safe (it is a <code class="xref py py-class docutils literal no
 </tr>
 </tbody>
 </table>
-<p>All three are re-exported from <a class="reference internal" href="solid.html#module-pybosl2.solid" title="pybosl2.solid"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.solid</span></code></a> for convenience.</p>
+<p>All three are re-exported from <code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.solid</span></code> for convenience.</p>
 </section>
 <section id="combining-and-converting-between-backends">
 <h2>Combining and converting between backends<a class="headerlink" href="#combining-and-converting-between-backends" title="Link to this heading">¶</a></h2>
 <p>A boolean or transform requires its operands to share the active backend. Combining solids from
-two different backends raises <a class="reference internal" href="exceptions.html#module-pybosl2.exceptions" title="pybosl2.exceptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions</span></code></a> rather than producing
+two different backends raises <code class="xref py py-class docutils literal notranslate"><span class="pre">exceptions</span></code> rather than producing
 nonsense:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">use_backend</span>
 
@@ -245,7 +250,7 @@ nonsense:</p>
 <td><p>Identity (already on that backend).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bosl2solid.to_sdf()</span></code></p></td>
-<td><p>Raises <code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackend</span></code> — an exact CSG solid has no faithful
+<td><p>Raises <code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackendError</span></code> — an exact CSG solid has no faithful
 distance field. Rebuild it under <code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code> instead.</p></td>
 </tr>
 </tbody>
@@ -256,7 +261,7 @@ start when you want an implicit surface.</p>
 <section id="capability-map-what-each-backend-can-do">
 <h2>Capability map: what each backend can do<a class="headerlink" href="#capability-map-what-each-backend-can-do" title="Link to this heading">¶</a></h2>
 <p>Most of the surface is shared, but a few features belong to one backend only. Calling one on the
-wrong backend raises <code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackend</span></code> (with a hint) instead of a
+wrong backend raises <code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackendError</span></code> (with a hint) instead of a
 confusing <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> — and, on the SDF side, instead of meshing via libfive just to fail:</p>
 <table class="docutils align-default">
 <colgroup>
@@ -340,7 +345,7 @@ dispatch on the active backend:</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.projection" title="pybosl2.shapes3d.Bosl2Solid.projection"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.projection()</span></code></a>,
 <code class="docutils literal notranslate"><span class="pre">Path.polygon()</span></code>/<code class="docutils literal notranslate"><span class="pre">.fill()</span></code>/<code class="docutils literal notranslate"><span class="pre">.hull()</span></code>/<code class="docutils literal notranslate"><span class="pre">.rotate_extrude()</span></code>, 2-D <code class="docutils literal notranslate"><span class="pre">stroke()</span></code></p></td>
 <td><p>→ <a class="reference internal" href="shapes2d.html#module-pybosl2.shapes2d" title="pybosl2.shapes2d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code></a> / <a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code></a></p></td>
-<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackend</span></code></p></td>
+<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackendError</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -372,6 +377,59 @@ sampled curve:</p>
 <p>This is distinct from the CSG sweeps (<a class="reference internal" href="skin.html#pybosl2.skin.skin" title="pybosl2.skin.skin"><code class="xref py py-meth docutils literal notranslate"><span class="pre">skin()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">skin</span></code>, <code class="docutils literal notranslate"><span class="pre">offset_sweep</span></code>),
 which build a VNF/polyhedron mesh rather than a distance field. Denser paths give a smoother lateral
 surface; the ends cap perpendicular to the path.</p>
+</section>
+<section id="rendering-the-docs-examples-with-pythonscad">
+<h2>Rendering the docs examples with PythonSCAD<a class="headerlink" href="#rendering-the-docs-examples-with-pythonscad" title="Link to this heading">¶</a></h2>
+<p>Every docstring example in this reference is built and mesh-exported by the <strong>real</strong> PythonSCAD
+binary (the <code class="docutils literal notranslate"><span class="pre">pythonscad-example</span></code> Sphinx directive in <code class="docutils literal notranslate"><span class="pre">docs/_ext/pybosl2_example.py</span></code>).  This
+means the PythonSCAD process must be able to import <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">shapely</span></code> — pybosl2’s core
+dependencies.  Without them every rendered example silently falls back to a source-only listing.</p>
+<p>The PythonSCAD AppImage bundles its own isolated Python interpreter; <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> on your host
+machine does <strong>not</strong> put packages where that interpreter can find them.  You need to install
+numpy and shapely <em>into the AppImage’s own Python</em>.</p>
+<p><strong>macOS</strong> (<code class="docutils literal notranslate"><span class="pre">PythonSCAD-dev.app</span></code> or <code class="docutils literal notranslate"><span class="pre">PythonSCAD.app</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The bundled Python lives inside the .app bundle:</span>
+/Applications/PythonSCAD-dev.app/Contents/Frameworks/Python.framework/Versions/*/bin/python3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>numpy<span class="w"> </span>shapely
+</pre></div>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">python3</span></code> binary inside the framework has a broken library path, install to the
+per-user site‑packages that the AppImage Python already has on <code class="docutils literal notranslate"><span class="pre">sys.path</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--target<span class="w"> </span>~/Library/Python/3.*/lib/python/site-packages<span class="w"> </span>numpy<span class="w"> </span>shapely
+</pre></div>
+</div>
+<p><strong>Linux</strong> (AppImage extracted):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract the AppImage first, then find its Python:</span>
+<span class="nv">PYBASE</span><span class="o">=</span><span class="k">$(</span>find<span class="w"> </span>/opt/pythonscad<span class="w"> </span>-path<span class="w"> </span><span class="s1">&#39;*/bin/python3*&#39;</span><span class="w"> </span>-not<span class="w"> </span>-path<span class="w"> </span><span class="s1">&#39;*/__pycache__/*&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
+<span class="nv">$PYBASE</span><span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>numpy<span class="w"> </span>shapely
+</pre></div>
+</div>
+<p><strong>Check</strong>: Run a minimal script through the binary to confirm both libraries import:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">BIN</span><span class="o">=</span>/path/to/PythonSCAD
+cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/check.py<span class="w"> </span><span class="s">&lt;&lt; &#39;PYEOF&#39;</span>
+<span class="s">import sys, site, os</span>
+<span class="s">usp = site.getusersitepackages()</span>
+<span class="s">if os.path.isdir(usp) and usp not in sys.path:</span>
+<span class="s">    sys.path.insert(0, usp)</span>
+<span class="s">import numpy as np</span>
+<span class="s">import shapely</span>
+<span class="s">print(f&quot;numpy {np.__version__}  shapely {shapely.__version__}&quot;, file=sys.stderr, flush=True)</span>
+<span class="s">from pythonscad import cube</span>
+<span class="s">cube([1,1,1]).show()</span>
+<span class="s">PYEOF</span>
+<span class="s2">&quot;</span><span class="nv">$BIN</span><span class="s2">&quot;</span><span class="w"> </span>--trust-python<span class="w"> </span>--enable<span class="w"> </span>python-engine<span class="w"> </span>-o<span class="w"> </span>/tmp/test.stl<span class="w"> </span>--backend<span class="w"> </span>Manifold<span class="w"> </span>/tmp/check.py
+ls<span class="w"> </span>-la<span class="w"> </span>/tmp/test.stl<span class="w">   </span><span class="c1"># should be a non-zero STL file</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference external" href="https://pythonscad.org/">PythonSCAD documentation — getting started</a></dt><dd><p>Official install and usage docs.</p>
+</dd>
+<dt><a class="reference external" href="https://github.com/pythonscad/pythonscad/tree/main/docs">PythonSCAD — Python libraries</a></dt><dd><p>How to install third‑party packages into PythonSCAD’s bundled Python.</p>
+</dd>
+</dl>
+</div>
 </section>
 </section>
 

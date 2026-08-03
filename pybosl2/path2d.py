@@ -1411,9 +1411,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         pts = [[float(rx * np.cos(a)), float(ry * np.sin(a))] for a in angles]
         return cls(pts, closed=True)
 
-    @classmethod
-    def hull(cls, *others: "Path2D | Region") -> "Path2D":
-        """The 2-D convex hull of all the given closed paths and regions.
+    def hull(self, *others: "Path2D | Region") -> "Path2D":
+        """The 2-D convex hull of this path and all the given closed paths and regions.
 
         Uses shapely to compute the convex hull of the union of all input
         geometries and returns the hull as a single closed :class:`Path2D`.
@@ -1429,7 +1428,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         from pybosl2.regions import Region  # local: Region imports Path2D from here
 
-        region = Region.hull(*others)
+        region = Region.hull(self, *others)
         if region.paths:
             return region.paths[0]
         return Path2D([])

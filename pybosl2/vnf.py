@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from pybosl2.caps import CapSpec, CapType
-    from pybosl2.metaballs import _MetaballSpec
+    from pybosl2.isosurface import _MetaballSpec
     from pybosl2.path3d import Path3D
 
 _EPS = 1e-9
@@ -1107,7 +1107,7 @@ class VNF:
     def from_field(
         f: np.ndarray | Path3D | Callable[[np.ndarray], np.ndarray] | Callable[[Path3D], np.ndarray],
         isovalue: float,
-        bounding_box: Bounds3D | None = None,
+        bounding_box: Bounds3D | float | Sequence[float] | Sequence[Sequence[float]] | None = None,
         voxel_size: float | None = None,
         voxel_count: int | None = None,
         closed: bool = True,
@@ -1151,6 +1151,46 @@ class VNF:
         """
         from pybosl2.path3d import Path3D
 
+        bb: Bounds3D | None = None
+        if bounding_box is not None:
+            if isinstance(bounding_box, Bounds3D):
+                bb = bounding_box
+            elif isinstance(bounding_box, (int, float)):
+                size = float(bounding_box)
+                bb = Bounds3D(-size / 2, -size / 2, -size / 2, size / 2, size / 2, size / 2, size, size, size)
+            elif isinstance(bounding_box, (list, tuple, np.ndarray)):
+                val_list = list(bounding_box)
+                if len(val_list) == 2 and isinstance(val_list[0], (list, tuple, np.ndarray)):
+                    p1 = [float(x) for x in val_list[0]]
+                    p2 = [float(x) for x in val_list[1]]
+                    bb = Bounds3D(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
+                elif len(val_list) == 3:
+                    val = [float(x) for x in val_list]
+                    bb = Bounds3D(
+                        -val[0] / 2,
+                        -val[1] / 2,
+                        -val[2] / 2,
+                        val[0] / 2,
+                        val[1] / 2,
+                        val[2] / 2,
+                        val[0],
+                        val[1],
+                        val[2],
+                    )
+                elif len(val_list) == 6:
+                    val = [float(x) for x in val_list]
+                    bb = Bounds3D(
+                        val[0],
+                        val[1],
+                        val[2],
+                        val[3],
+                        val[4],
+                        val[5],
+                        val[3] - val[0],
+                        val[4] - val[1],
+                        val[5] - val[2],
+                    )
+
         if isinstance(f, Path3D):
             f = np.asarray(f, dtype=float)
         elif callable(f) and not isinstance(f, np.ndarray):
@@ -1173,7 +1213,7 @@ class VNF:
 
         if isinstance(f, np.ndarray) or (isinstance(f, (list, tuple)) and not callable(f)):
             field = np.asarray(f, dtype=float)
-            if bounding_box is None:
+            if bb is None:
                 vs = voxel_size if voxel_size is not None else 1.0
                 half = 0.5 * vs * (np.array(field.shape) - 1)
                 bb = Bounds3D(
@@ -1189,12 +1229,11 @@ class VNF:
                 )
                 vs_final = vs
             else:
-                bb = bounding_box
                 vs_final = (bb.max_x - bb.min_x) / (field.shape[0] - 1)
             xs, ys, zs = _grid_axes(bb, vs_final)
         else:
-            assert bounding_box is not None, "from_field(): a callable field needs a bounding_box."
-            bb, vs_final = _resolve_grid(bounding_box, voxel_size, voxel_count, exact_bounds)
+            assert bb is not None, "from_field(): a callable field needs a bounding_box."
+            bb, vs_final = _resolve_grid(bb, voxel_size, voxel_count, exact_bounds)
             xs, ys, zs = _grid_axes(bb, vs_final)
             field = _sample_field(f, xs, ys, zs)
 
@@ -1209,7 +1248,7 @@ class VNF:
     @staticmethod
     def from_metaballs(
         spec: list[_MetaballSpec],
-        bounding_box: Bounds3D,
+        bounding_box: Bounds3D | float | Sequence[float] | Sequence[Sequence[float]],
         voxel_size: float | None = None,
         voxel_count: int | None = None,
         isovalue: float = 1,
@@ -1248,13 +1287,49 @@ class VNF:
         """
         assert spec, "from_metaballs(): the spec is empty."
 
-        bb, vs = _resolve_grid(bounding_box, voxel_size, voxel_count, exact_bounds)
-        invs: list[np.ndarray] = [np.linalg.inv(s.transform) for s in spec]
+        bb: Bounds3D
+        if isinstance(bounding_box, Bounds3D):
+            bb = bounding_box
+        elif isinstance(bounding_box, (int, float)):
+            size = float(bounding_box)
+            bb = Bounds3D(-size / 2, -size / 2, -size / 2, size / 2, size / 2, size / 2, size, size, size)
+        elif isinstance(bounding_box, (list, tuple, np.ndarray)):
+            val_list = list(bounding_box)
+            if len(val_list) == 2 and isinstance(val_list[0], (list, tuple, np.ndarray)):
+                p1 = [float(x) for x in val_list[0]]
+                p2 = [float(x) for x in val_list[1]]
+                bb = Bounds3D(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
+            elif len(val_list) == 3:
+                val = [float(x) for x in val_list]
+                bb = Bounds3D(
+                    -val[0] / 2, -val[1] / 2, -val[2] / 2, val[0] / 2, val[1] / 2, val[2] / 2, val[0], val[1], val[2]
+                )
+            elif len(val_list) == 6:
+                val = [float(x) for x in val_list]
+                bb = Bounds3D(
+                    val[0], val[1], val[2], val[3], val[4], val[5], val[3] - val[0], val[4] - val[1], val[5] - val[2]
+                )
+            else:
+                raise ValueError("bounding_box list must have length 2, 3 or 6.")
+        else:
+            raise TypeError("bounding_box must be Bounds3D, float, or list/tuple.")
+
+        from pybosl2.isosurface import _MetaballSpec
+
+        norm_spec: list[_MetaballSpec] = []
+        for item in spec:
+            if isinstance(item, _MetaballSpec):
+                norm_spec.append(item)
+            else:
+                norm_spec.append(_MetaballSpec(item[0], item[1]))
+
+        bb, vs = _resolve_grid(bb, voxel_size, voxel_count, exact_bounds)
+        invs: list[np.ndarray] = [np.linalg.inv(s.transform) for s in norm_spec]
 
         def field(pts: np.ndarray) -> np.ndarray:
             homo: np.ndarray = np.hstack([pts, np.ones((len(pts), 1))])
             total: np.ndarray = np.zeros(len(pts))
-            for s, inv in zip(spec, invs, strict=False):
+            for s, inv in zip(norm_spec, invs, strict=False):
                 local: np.ndarray = (inv @ homo.T).T[:, :3]
                 total += s.metaball.field(local)
             return total

@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Textures &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Textures &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -73,7 +73,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -156,6 +155,21 @@ back to a sampled height-field, which slightly flattens their vertical faces.
 <span class="sig-prename descclassname"><span class="pre">pybosl2.texture.</span></span><span class="sig-name descname"><span class="pre">vnf_tile_to_solid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tex_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/texture.html#vnf_tile_to_solid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.texture.vnf_tile_to_solid" title="Link to this definition">¶</a></dt>
 <dd><p>Tile a VNF texture cell over a <em>size</em> <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> rectangle <em>reps</em> <code class="docutils literal notranslate"><span class="pre">[nx,</span> <span class="pre">ny]</span></code> times and close
 it into a watertight solid. Returns <code class="docutils literal notranslate"><span class="pre">(verts,</span> <span class="pre">faces)</span></code> for a polyhedron.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>verts</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>faces</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>int</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>size</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
+<li><p><strong>reps</strong> (<em>Sequence</em><em>[</em><em>int</em><em>]</em>)</p></li>
+<li><p><strong>tex_depth</strong> (<em>float</em>)</p></li>
+<li><p><strong>inset</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[list[list[float]], list[list[int]]]</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

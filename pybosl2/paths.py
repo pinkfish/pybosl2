@@ -19,7 +19,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self, cast
 
 import numpy as np
 
@@ -80,6 +80,32 @@ class Path(ABC):
 
     _points: np.ndarray
     closed: bool
+
+    def __new__(
+        cls,
+        points: Sequence[Sequence[float]] | None = None,
+        closed: bool = True,  # noqa: ARG004
+    ) -> Self:
+        """Create a concrete Path2D or Path3D instance.
+
+        Determine the point dimensionality and return the appropriate subclass.
+        """
+        if cls is Path:
+            if points is None:
+                raise ValueError("Cannot instantiate abstract Path class without points to determine dimension.")
+            pts = np.asarray(points, dtype=float)
+            dim = pts.shape[-1] if len(pts.shape) > 1 else 0
+            if dim == 2:
+                from pybosl2.path2d import Path2D
+
+                return cast("Self", super().__new__(Path2D))
+            elif dim == 3:
+                from pybosl2.path3d import Path3D
+
+                return cast("Self", super().__new__(Path3D))
+            else:
+                raise ValueError("Path points must be 2-D or 3-D.")
+        return super().__new__(cls)
 
     @abstractmethod
     def __init__(self, points: Sequence[Sequence[float]], closed: bool = True) -> None: ...

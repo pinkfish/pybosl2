@@ -4,12 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Index &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="#" />
@@ -70,7 +70,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -152,6 +151,7 @@
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -174,20 +174,20 @@
 </li>
       <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.align">align() (pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.ALT">ALT (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
       <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.anchor_point">anchor_point() (pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.AnchorType">AnchorType (class in pybosl2.shapes2d)</a>
 </li>
       <li><a href="transforms.html#pybosl2.transforms.apply">apply() (in module pybosl2.transforms)</a>
 </li>
-      <li><a href="comparisons.html#pybosl2.comparisons.approx">approx() (in module pybosl2.comparisons)</a>
-</li>
       <li><a href="drawing.html#pybosl2.shapes2d.arc">arc() (in module pybosl2.shapes2d)</a>
 </li>
-      <li><a href="distributors.html#pybosl2.distributors.arc_copies">arc_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.arc_copies">arc_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.arc_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.arc_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.arc_length">arc_length() (pybosl2.beziers.Bezier method)</a>
@@ -237,13 +237,15 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.back">(pybosl2.regions.Path2D method)</a>
 </li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.back">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
         <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.back">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.back_half">back_half() (pybosl2.partitions.Partitionable method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.back_half">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.backend">backend (pybosl2.shapes2d.Bosl2Shape2D attribute)</a>
 
       <ul>
@@ -268,10 +270,10 @@
 </li>
       <li><a href="gears.html#pybosl2.parts.gears.Gears.bevel_gear">bevel_gear() (pybosl2.parts.gears.Gears static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gears.html#pybosl2.parts.gears.Gears.bevel_pitch_angle">bevel_pitch_angle() (pybosl2.parts.gears.Gears static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="beziers.html#pybosl2.beziers.Bezier">Bezier (class in pybosl2.beziers)</a>
 </li>
       <li><a href="beziers.html#pybosl2.beziers.BezierPatch">BezierPatch (class in pybosl2.beziers)</a>
@@ -285,9 +287,17 @@
       <li><a href="constants.html#pybosl2.constants.BOTTOM">BOTTOM (in module pybosl2.constants)</a>
 </li>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.bottom_half">bottom_half() (pybosl2.partitions.Partitionable method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.bottom_half">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.bounding_box">bounding_box() (pybosl2.miscellaneous.Miscellaneous method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.bounding_box">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.bounds">bounds() (pybosl2.path2d.Path2D method)</a>
 
       <ul>
@@ -324,6 +334,8 @@
 
       <ul>
         <li><a href="miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.chain_hull">(pybosl2.miscellaneous.Miscellaneous method)</a>
+</li>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.chain_hull">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
       <li><a href="skin.html#pybosl2.skin.OSType.CHAMFER">CHAMFER (pybosl2.skin.OSType attribute)</a>
@@ -366,9 +378,11 @@
 </li>
       <li><a href="paths.html#pybosl2.paths.Path.closed">closed (pybosl2.paths.Path attribute)</a>
 </li>
-      <li><a href="beziers.html#pybosl2.beziers.Bezier.closest_point">closest_point() (pybosl2.beziers.Bezier method)</a>
+      <li><a href="vectors.html#pybosl2.vectors.closest_point">closest_point() (in module pybosl2.vectors)</a>
 
       <ul>
+        <li><a href="beziers.html#pybosl2.beziers.Bezier.closest_point">(pybosl2.beziers.Bezier method)</a>
+</li>
         <li><a href="paths.html#pybosl2.path2d.Path2D.closest_point">(pybosl2.path2d.Path2D method)</a>
 </li>
         <li><a href="paths.html#pybosl2.path3d.Path3D.closest_point">(pybosl2.path3d.Path3D method)</a>
@@ -384,12 +398,20 @@
 </li>
       <li><a href="color.html#pybosl2.color.Colorable">Colorable (class in pybosl2.color)</a>
 </li>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.CONCAVE">CONCAVE (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
+      <li><a href="math.html#pybosl2.math.constrain">constrain() (in module pybosl2.math)</a>
+</li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.contains">contains() (pybosl2.path2d.Path2D method)</a>
 
       <ul>
         <li><a href="regions.html#pybosl2.regions.Path2D.contains">(pybosl2.regions.Path2D method)</a>
 </li>
       </ul></li>
+      <li><a href="vnf.html#pybosl2.vnf.contour">contour() (in module pybosl2.vnf)</a>
+</li>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.CONVEX">CONVEX (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
       <li><a href="rounding.html#pybosl2.rounding.Roundable.convex_offset_extrude">convex_offset_extrude() (pybosl2.rounding.Roundable method)</a>
 </li>
       <li><a href="masking.html#pybosl2.masking.corner_profile">corner_profile() (in module pybosl2.masking)</a>
@@ -402,6 +424,14 @@
 </li>
       <li><a href="beziers.html#pybosl2.beziers.create_bezier">create_bezier() (in module pybosl2.beziers)</a>
 </li>
+      <li><a href="shapes2d.html#pybosl2.shapes2d.cross">cross() (in module pybosl2.shapes2d)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.cross">(in module pybosl2.shapes3d)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="shapes3d.html#pybosl2.shapes3d.cube">cube() (in module pybosl2.shapes3d)</a>
 
       <ul>
@@ -410,8 +440,6 @@
       </ul></li>
       <li><a href="shapes3d.html#pybosl2.shapes3d.cuboid">cuboid() (in module pybosl2.shapes3d)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="skin.html#pybosl2.skin.OSProfile.curvature">curvature (pybosl2.skin.OSProfile attribute)</a>
 </li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.curvature">curvature() (pybosl2.beziers.Bezier method)</a>
@@ -560,6 +588,8 @@
         <li><a href="regions.html#pybosl2.regions.Path2D.deduplicated">(pybosl2.regions.Path2D method)</a>
 </li>
       </ul></li>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.DEFAULT">DEFAULT (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="math.html#pybosl2.math.deriv">deriv() (in module pybosl2.math)</a>
@@ -584,8 +614,16 @@
 </li>
       <li><a href="distributors.html#pybosl2.distributors.Distributable">Distributable (class in pybosl2.distributors)</a>
 </li>
-      <li><a href="distributors.html#pybosl2.distributors.distribute">distribute() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix">DistributableMatrix (class in pybosl2.distributors)</a>
 </li>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.distribute">distribute() (pybosl2.distributors.Distributable static method)</a>
+</li>
+      <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.distribute_on_path">distribute_on_path() (pybosl2.shapes2d.Bosl2Shape2D method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.distribute_on_path">(pybosl2.shapes3d.Bosl2Solid method)</a>
+</li>
+      </ul></li>
       <li><a href="polyhedra.html#pybosl2.parts.polyhedra.Polyhedra.dodecahedron">dodecahedron() (pybosl2.parts.polyhedra.Polyhedra static method)</a>
 </li>
       <li><a href="joiners.html#pybosl2.parts.joiners.Joiners.dovetail">dovetail() (pybosl2.parts.joiners.Joiners static method)</a>
@@ -616,12 +654,8 @@
         <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.edge_profile">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
-      <li><a href="masking.html#pybosl2.masking.edge_profile_asym">edge_profile_asym() (in module pybosl2.masking)</a>
-
-      <ul>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.edge_profile_asym">(pybosl2.shapes3d.Bosl2Solid method)</a>
+      <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.edge_profile_asym">edge_profile_asym() (pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
-      </ul></li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.egg">egg() (in module pybosl2.shapes2d)</a>
 </li>
   </ul></td>
@@ -672,6 +706,10 @@
 </li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.flatten">flatten() (pybosl2.beziers.Bezier static method)</a>
 </li>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.FLIP1">FLIP1 (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.FLIP2">FLIP2 (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
       <li><a href="constants.html#pybosl2.constants.FORWARD">FORWARD (in module pybosl2.constants)</a>
 </li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.forward">forward() (pybosl2.path2d.Path2D method)</a>
@@ -681,14 +719,14 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.forward">(pybosl2.regions.Path2D method)</a>
 </li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.forward">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
         <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.forward">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="skin.html#pybosl2.skin.frame_map">frame_map() (in module pybosl2.skin)</a>
+</li>
+      <li><a href="vnf.html#pybosl2.vnf.VNF.from_field">from_field() (pybosl2.vnf.VNF static method)</a>
 </li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.from_list">from_list() (pybosl2.beziers.Bezier class method)</a>
 
@@ -702,13 +740,21 @@
         <li><a href="regions.html#pybosl2.regions.Path2D.from_list">(pybosl2.regions.Path2D class method)</a>
 </li>
       </ul></li>
+      <li><a href="vnf.html#pybosl2.vnf.VNF.from_metaballs">from_metaballs() (pybosl2.vnf.VNF static method)</a>
+</li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.from_path">from_path() (pybosl2.beziers.Bezier class method)</a>
 </li>
       <li><a href="constants.html#pybosl2.constants.FRONT">FRONT (in module pybosl2.constants)</a>
 </li>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.front_half">front_half() (pybosl2.partitions.Partitionable method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.front_half">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="turtle3d.html#pybosl2.turtle.turtle3d.Turtle3D.full_state">full_state() (pybosl2.turtle.turtle3d.Turtle3D method)</a>
+</li>
+      <li><a href="vectors.html#pybosl2.vectors.furthest_point">furthest_point() (in module pybosl2.vectors)</a>
 </li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.fwd">fwd() (pybosl2.path2d.Path2D method)</a>
 
@@ -716,10 +762,6 @@
         <li><a href="paths.html#pybosl2.path3d.Path3D.fwd">(pybosl2.path3d.Path3D method)</a>
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.fwd">(pybosl2.regions.Path2D method)</a>
-</li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.fwd">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.fwd">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -760,10 +802,10 @@
 </li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.glued_circles">glued_circles() (in module pybosl2.shapes2d)</a>
 </li>
-      <li><a href="distributors.html#pybosl2.distributors.grid_copies">grid_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.grid_copies">grid_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.grid_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.grid_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -773,6 +815,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.half_of">half_of() (pybosl2.partitions.Partitionable method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.half_of">(pybosl2.shapes3d.Bosl2Solid method)</a>
+</li>
+      </ul></li>
+      <li><a href="vnf.html#pybosl2.vnf.VNF.halfspace">halfspace() (pybosl2.vnf.VNF static method)</a>
 </li>
       <li><a href="skin.html#pybosl2.skin.OSProfile.height">height (pybosl2.skin.OSProfile attribute)</a>
 </li>
@@ -790,24 +838,16 @@
 </li>
       <li><a href="hinges.html#pybosl2.parts.hinges.Hinges">Hinges (class in pybosl2.parts.hinges)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="regions.html#pybosl2.regions.Region.holes">holes (pybosl2.regions.Region property)</a>
 </li>
       <li><a href="hooks.html#pybosl2.parts.hooks.Hooks">Hooks (class in pybosl2.parts.hooks)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="color.html#pybosl2.color.hsl">hsl() (in module pybosl2.color)</a>
-
-      <ul>
-        <li><a href="color.html#pybosl2.color.Colorable.hsl">(pybosl2.color.Colorable method)</a>
+      <li><a href="color.html#pybosl2.color.Colorable.hsl">hsl() (pybosl2.color.Colorable method)</a>
 </li>
-      </ul></li>
-      <li><a href="color.html#pybosl2.color.hsv">hsv() (in module pybosl2.color)</a>
-
-      <ul>
-        <li><a href="color.html#pybosl2.color.Colorable.hsv">(pybosl2.color.Colorable method)</a>
+      <li><a href="color.html#pybosl2.color.Colorable.hsv">hsv() (pybosl2.color.Colorable method)</a>
 </li>
-      </ul></li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.AnchorType.HULL">HULL (pybosl2.shapes2d.AnchorType attribute)</a>
 </li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.hull">hull() (in module pybosl2.shapes2d)</a>
@@ -856,14 +896,14 @@
         <li><a href="regions.html#pybosl2.regions.Path2D.is_clockwise">(pybosl2.regions.Path2D method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="paths.html#pybosl2.path2d.Path2D.is_closed">is_closed (pybosl2.path2d.Path2D property)</a>
 
       <ul>
         <li><a href="regions.html#pybosl2.regions.Path2D.is_closed">(pybosl2.regions.Path2D property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="paths.html#pybosl2.path3d.Path3D.is_closed">is_closed() (pybosl2.path3d.Path3D method)</a>
 </li>
       <li><a href="geometry.html#pybosl2.geometry.is_collinear">is_collinear() (in module pybosl2.geometry)</a>
@@ -887,8 +927,6 @@
 </li>
       </ul></li>
       <li><a href="vectors.html#pybosl2.vectors.is_vector">is_vector() (in module pybosl2.vectors)</a>
-</li>
-      <li><a href="isosurface.html#pybosl2.isosurface.isosurface">isosurface() (in module pybosl2.isosurface)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -937,13 +975,15 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.left">(pybosl2.regions.Path2D method)</a>
 </li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.left">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
         <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.left">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.left_half">left_half() (pybosl2.partitions.Partitionable method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.left_half">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="linear_bearings.html#pybosl2.parts.linear_bearings.LinearBearingSpec.length">length (pybosl2.parts.linear_bearings.LinearBearingSpec attribute)</a>
 </li>
       <li><a href="paths.html#pybosl2.paths.SubdivideMethod.LENGTH">LENGTH (pybosl2.paths.SubdivideMethod attribute)</a>
@@ -968,10 +1008,10 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="distributors.html#pybosl2.distributors.line_copies">line_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.line_copies">line_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.line_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.line_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.line_intersection">line_intersection() (pybosl2.beziers.Bezier method)</a>
@@ -1016,19 +1056,7 @@
 </li>
       <li><a href="skin.html#pybosl2.skin.OSProfile.max_angle">max_angle (pybosl2.skin.OSProfile attribute)</a>
 </li>
-      <li><a href="isosurface.html#pybosl2.isosurface.mb_capsule">mb_capsule() (in module pybosl2.isosurface)</a>
-</li>
-      <li><a href="isosurface.html#pybosl2.isosurface.mb_connector">mb_connector() (in module pybosl2.isosurface)</a>
-</li>
-      <li><a href="isosurface.html#pybosl2.isosurface.mb_cuboid">mb_cuboid() (in module pybosl2.isosurface)</a>
-</li>
-      <li><a href="isosurface.html#pybosl2.isosurface.mb_disk">mb_disk() (in module pybosl2.isosurface)</a>
-</li>
-      <li><a href="isosurface.html#pybosl2.isosurface.mb_octahedron">mb_octahedron() (in module pybosl2.isosurface)</a>
-</li>
-      <li><a href="isosurface.html#pybosl2.isosurface.mb_sphere">mb_sphere() (in module pybosl2.isosurface)</a>
-</li>
-      <li><a href="isosurface.html#pybosl2.isosurface.mb_torus">mb_torus() (in module pybosl2.isosurface)</a>
+      <li><a href="math.html#pybosl2.math.mean">mean() (in module pybosl2.math)</a>
 </li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.merge_collinear">merge_collinear() (pybosl2.path2d.Path2D method)</a>
 
@@ -1040,14 +1068,18 @@
         <li><a href="regions.html#pybosl2.regions.Path2D.merge_collinear">(pybosl2.regions.Path2D method)</a>
 </li>
       </ul></li>
-      <li><a href="isosurface.html#pybosl2.isosurface.Metaball">Metaball (class in pybosl2.isosurface)</a>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.MIN_AREA">MIN_AREA (pybosl2.vnf.VnfStyle attribute)</a>
 </li>
-      <li><a href="isosurface.html#pybosl2.isosurface.metaballs">metaballs() (in module pybosl2.isosurface)</a>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.MIN_EDGE">MIN_EDGE (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
+      <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.minkowski">minkowski() (pybosl2.shapes2d.Bosl2Shape2D method)</a>
 </li>
       <li><a href="miscellaneous.html#pybosl2.miscellaneous.minkowski_difference">minkowski_difference() (in module pybosl2.miscellaneous)</a>
 
       <ul>
         <li><a href="miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.minkowski_difference">(pybosl2.miscellaneous.Miscellaneous method)</a>
+</li>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.minkowski_difference">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.minkowski_sum">minkowski_sum() (pybosl2.path2d.Path2D method)</a>
@@ -1071,29 +1103,27 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.mirror">(pybosl2.regions.Path2D method)</a>
 </li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.mirror">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.mirror">(pybosl2.shapes3d.Bosl2Solid method)</a>
-</li>
       </ul></li>
-      <li><a href="distributors.html#pybosl2.distributors.mirror_copy">mirror_copy() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.mirror_copy">mirror_copy() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.mirror_copy">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.mirror_copy">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="miscellaneous.html#pybosl2.miscellaneous.Miscellaneous">Miscellaneous (class in pybosl2.miscellaneous)</a>
 </li>
       <li><a href="paths.html#pybosl2.path2d.MinkowskiJoin.MITRE">MITRE (pybosl2.path2d.MinkowskiJoin attribute)</a>
 </li>
+      <li><a href="math.html#pybosl2.math.modang">modang() (in module pybosl2.math)</a>
+</li>
       <li><a href="modular_hose.html#pybosl2.parts.modular_hose.ModularHose.modular_hose">modular_hose() (pybosl2.parts.modular_hose.ModularHose static method)</a>
 </li>
       <li><a href="modular_hose.html#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius">modular_hose_radius() (pybosl2.parts.modular_hose.ModularHose static method)</a>
 </li>
-      <li><a href="modular_hose.html#pybosl2.parts.modular_hose.ModularHose">ModularHose (class in pybosl2.parts.modular_hose)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modular_hose.html#pybosl2.parts.modular_hose.ModularHose">ModularHose (class in pybosl2.parts.modular_hose)</a>
+</li>
       <li>
     module
 
@@ -1102,15 +1132,11 @@
 </li>
         <li><a href="color.html#module-pybosl2.color">pybosl2.color</a>
 </li>
-        <li><a href="comparisons.html#module-pybosl2.comparisons">pybosl2.comparisons</a>
-</li>
         <li><a href="constants.html#module-pybosl2.constants">pybosl2.constants</a>
 </li>
         <li><a href="distributors.html#module-pybosl2.distributors">pybosl2.distributors</a>
 </li>
         <li><a href="geometry.html#module-pybosl2.geometry">pybosl2.geometry</a>
-</li>
-        <li><a href="isosurface.html#module-pybosl2.isosurface">pybosl2.isosurface</a>
 </li>
         <li><a href="masking.html#module-pybosl2.masking">pybosl2.masking</a>
 </li>
@@ -1156,23 +1182,9 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.move">(pybosl2.regions.Path2D method)</a>
 </li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.move">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.move">(pybosl2.shapes3d.Bosl2Solid method)</a>
-</li>
       </ul></li>
-      <li><a href="distributors.html#pybosl2.distributors.move_copies">move_copies() (in module pybosl2.distributors)</a>
-
-      <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.move_copies">(pybosl2.distributors.Distributable method)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.move_and_copy">move_and_copy() (pybosl2.distributors.Distributable method)</a>
 </li>
-      </ul></li>
-      <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.multmatrix">multmatrix() (pybosl2.shapes2d.Bosl2Shape2D method)</a>
-
-      <ul>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.multmatrix">(pybosl2.shapes3d.Bosl2Solid method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1244,7 +1256,11 @@
 </li>
       </ul></li>
       <li><a href="miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.offset3d">offset3d() (pybosl2.miscellaneous.Miscellaneous method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.offset3d">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="rounding.html#pybosl2.rounding.Roundable.offset_stroke">offset_stroke() (pybosl2.rounding.Roundable method)</a>
 </li>
       <li><a href="rounding.html#pybosl2.rounding.Roundable.offset_sweep">offset_sweep() (pybosl2.rounding.Roundable method)</a>
@@ -1290,7 +1306,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.partition">partition() (pybosl2.partitions.Partitionable method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.partition">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="partitions.html#pybosl2.partitions.partition_cut_mask">partition_cut_mask() (in module pybosl2.partitions)</a>
 </li>
       <li><a href="partitions.html#pybosl2.partitions.partition_mask">partition_mask() (in module pybosl2.partitions)</a>
@@ -1317,10 +1337,10 @@
 </li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.path_closest_point">path_closest_point() (pybosl2.beziers.Bezier method)</a>
 </li>
-      <li><a href="distributors.html#pybosl2.distributors.path_copies">path_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.path_copies">path_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.path_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.path_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.path_curve">path_curve() (pybosl2.beziers.Bezier method)</a>
@@ -1399,6 +1419,8 @@
         <li><a href="paths.html#id0">(pybosl2.paths.CutPoint attribute)</a>, <a href="paths.html#pybosl2.paths.CutPoint.point">[1]</a>
 </li>
       </ul></li>
+      <li><a href="vectors.html#pybosl2.vectors.pointlist_bounds">pointlist_bounds() (in module pybosl2.vectors)</a>
+</li>
       <li><a href="skin.html#pybosl2.skin.OSProfile.points">points (pybosl2.skin.OSProfile attribute)</a>
 </li>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.points">points() (pybosl2.beziers.Bezier method)</a>
@@ -1411,6 +1433,8 @@
       </ul></li>
       <li><a href="transforms.html#pybosl2.transforms.polar_to_xy">polar_to_xy() (in module pybosl2.transforms)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="shapes2d.html#pybosl2.shapes2d.polygon">polygon() (in module pybosl2.shapes2d)</a>
 
       <ul>
@@ -1419,8 +1443,6 @@
         <li><a href="regions.html#pybosl2.regions.Path2D.polygon">(pybosl2.regions.Path2D method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="paths.html#pybosl2.path2d.Path2D.polygon_parts">polygon_parts() (pybosl2.path2d.Path2D method)</a>
 
       <ul>
@@ -1462,13 +1484,6 @@
 </li>
       </ul></li>
       <li>
-    pybosl2.comparisons
-
-      <ul>
-        <li><a href="comparisons.html#module-pybosl2.comparisons">module</a>
-</li>
-      </ul></li>
-      <li>
     pybosl2.constants
 
       <ul>
@@ -1487,13 +1502,6 @@
 
       <ul>
         <li><a href="geometry.html#module-pybosl2.geometry">module</a>
-</li>
-      </ul></li>
-      <li>
-    pybosl2.isosurface
-
-      <ul>
-        <li><a href="isosurface.html#module-pybosl2.isosurface">module</a>
 </li>
       </ul></li>
       <li>
@@ -1611,6 +1619,20 @@
   </ul></td>
 </tr></table>
 
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.QUAD">QUAD (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="math.html#pybosl2.math.quant">quant() (in module pybosl2.math)</a>
+</li>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle.QUINCUNX">QUINCUNX (pybosl2.vnf.VnfStyle attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -1699,15 +1721,17 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.right">(pybosl2.regions.Path2D method)</a>
 </li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.right">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
         <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.right">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.right_half">right_half() (pybosl2.partitions.Partitionable method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.right_half">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.right_triangle">right_triangle() (in module pybosl2.shapes2d)</a>
 </li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.ring">ring() (in module pybosl2.shapes2d)</a>
@@ -1729,17 +1753,13 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.rot">(pybosl2.regions.Path2D method)</a>
 </li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.rot">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.rot">(pybosl2.shapes3d.Bosl2Solid method)</a>
-</li>
       </ul></li>
       <li><a href="transforms.html#pybosl2.transforms.rot_about_axis">rot_about_axis() (in module pybosl2.transforms)</a>
 </li>
-      <li><a href="distributors.html#pybosl2.distributors.rot_copies">rot_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.rot_copies">rot_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.rot_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.rot_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="transforms.html#pybosl2.transforms.rot_decode">rot_decode() (in module pybosl2.transforms)</a>
@@ -1756,10 +1776,6 @@
         <li><a href="paths.html#pybosl2.path3d.Path3D.rotate">(pybosl2.path3d.Path3D method)</a>
 </li>
         <li><a href="regions.html#pybosl2.regions.Path2D.rotate">(pybosl2.regions.Path2D method)</a>
-</li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.rotate">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.rotate">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
       </ul></li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.rotate_extrude">rotate_extrude() (pybosl2.path2d.Path2D method)</a>
@@ -1779,10 +1795,16 @@
       <li><a href="shapes2d.html#pybosl2.shapes2d.round2d">round2d() (in module pybosl2.shapes2d)</a>
 </li>
       <li><a href="miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.round3d">round3d() (pybosl2.miscellaneous.Miscellaneous method)</a>
-</li>
-      <li><a href="regions.html#pybosl2.regions.Region.round_corners">round_corners() (pybosl2.regions.Region method)</a>
 
       <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.round3d">(pybosl2.shapes3d.Bosl2Solid method)</a>
+</li>
+      </ul></li>
+      <li><a href="rounding.html#pybosl2.rounding.round_corners">round_corners() (in module pybosl2.rounding)</a>
+
+      <ul>
+        <li><a href="regions.html#pybosl2.regions.Region.round_corners">(pybosl2.regions.Region method)</a>
+</li>
         <li><a href="rounding.html#pybosl2.rounding.Roundable.round_corners">(pybosl2.rounding.Roundable method)</a>
 </li>
       </ul></li>
@@ -1801,13 +1823,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="paths.html#pybosl2.path3d.Path3D.scale">scale() (pybosl2.path3d.Path3D method)</a>
-
-      <ul>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.scale">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
 </li>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.scale">(pybosl2.shapes3d.Bosl2Solid method)</a>
-</li>
-      </ul></li>
       <li><a href="screws.html#pybosl2.parts.screws.Screws.screw">screw() (pybosl2.parts.screws.Screws static method)</a>
 </li>
       <li><a href="nema_steppers.html#pybosl2.parts.nema_steppers.NemaSpec.screw_depth">screw_depth (pybosl2.parts.nema_steppers.NemaSpec attribute)</a>
@@ -1878,6 +1894,12 @@
 </li>
       <li><a href="skin.html#pybosl2.skin.skin">skin() (in module pybosl2.skin)</a>
 </li>
+      <li><a href="math.html#pybosl2.math.slerp">slerp() (in module pybosl2.math)</a>
+</li>
+      <li><a href="math.html#pybosl2.math.slerpn">slerpn() (in module pybosl2.math)</a>
+</li>
+      <li><a href="vnf.html#pybosl2.vnf.VNF.slice">slice() (pybosl2.vnf.VNF static method)</a>
+</li>
       <li><a href="skin.html#pybosl2.skin.slice_profiles">slice_profiles() (in module pybosl2.skin)</a>
 </li>
       <li><a href="sliders.html#pybosl2.parts.sliders.Sliders.slider">slider() (pybosl2.parts.sliders.Sliders static method)</a>
@@ -1886,14 +1908,18 @@
 </li>
       <li><a href="skin.html#pybosl2.skin.OSType.SMOOTH">SMOOTH (pybosl2.skin.OSType attribute)</a>
 </li>
-      <li><a href="rounding.html#pybosl2.rounding.Roundable.smooth_path">smooth_path() (pybosl2.rounding.Roundable method)</a>
+      <li><a href="rounding.html#pybosl2.rounding.smooth_path">smooth_path() (in module pybosl2.rounding)</a>
+
+      <ul>
+        <li><a href="rounding.html#pybosl2.rounding.Roundable.smooth_path">(pybosl2.rounding.Roundable method)</a>
 </li>
+      </ul></li>
       <li><a href="hinges.html#pybosl2.parts.hinges.Hinges.snap_lock">snap_lock() (pybosl2.parts.hinges.Hinges static method)</a>
-</li>
-      <li><a href="joiners.html#pybosl2.parts.joiners.Joiners.snap_pin">snap_pin() (pybosl2.parts.joiners.Joiners static method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="joiners.html#pybosl2.parts.joiners.Joiners.snap_pin">snap_pin() (pybosl2.parts.joiners.Joiners static method)</a>
+</li>
       <li><a href="joiners.html#pybosl2.parts.joiners.Joiners.snap_pin_socket">snap_pin_socket() (pybosl2.parts.joiners.Joiners static method)</a>
 </li>
       <li><a href="hinges.html#pybosl2.parts.hinges.Hinges.snap_socket">snap_socket() (pybosl2.parts.hinges.Hinges static method)</a>
@@ -1904,10 +1930,10 @@
 </li>
       <li><a href="shapes3d.html#pybosl2.shapes3d.sphere">sphere() (in module pybosl2.shapes3d)</a>
 </li>
-      <li><a href="distributors.html#pybosl2.distributors.sphere_copies">sphere_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.sphere_copies">sphere_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.sphere_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.sphere_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="shapes3d.html#pybosl2.shapes3d.spheroid">spheroid() (in module pybosl2.shapes3d)</a>
@@ -1948,6 +1974,8 @@
         <li><a href="regions.html#pybosl2.regions.Path2D.stroke">(pybosl2.regions.Path2D method)</a>
 </li>
         <li><a href="regions.html#pybosl2.regions.Region.stroke">(pybosl2.regions.Region method)</a>
+</li>
+        <li><a href="turtle3d.html#pybosl2.turtle.turtle3d.Turtle3D.stroke">(pybosl2.turtle.turtle3d.Turtle3D method)</a>
 </li>
       </ul></li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.subdivide">subdivide() (pybosl2.path2d.Path2D method)</a>
@@ -2034,6 +2062,12 @@
 </li>
       <li><a href="threading.html#pybosl2.parts.threading.Threading">Threading (class in pybosl2.parts.threading)</a>
 </li>
+      <li><a href="paths.html#pybosl2.path2d.Path2D.to_bezcornerpath">to_bezcornerpath() (pybosl2.path2d.Path2D method)</a>
+
+      <ul>
+        <li><a href="regions.html#pybosl2.regions.Path2D.to_bezcornerpath">(pybosl2.regions.Path2D method)</a>
+</li>
+      </ul></li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.to_bezier">to_bezier() (pybosl2.path2d.Path2D method)</a>
 
       <ul>
@@ -2060,10 +2094,10 @@
         <li><a href="regions.html#pybosl2.regions.Path2D.to_region">(pybosl2.regions.Path2D method)</a>
 </li>
       </ul></li>
-      <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.to_sdf">to_sdf() (pybosl2.shapes3d.Bosl2Solid method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.to_sdf">to_sdf() (pybosl2.shapes3d.Bosl2Solid method)</a>
+</li>
       <li><a href="regions.html#pybosl2.regions.Region.to_shapely">to_shapely() (pybosl2.regions.Region method)</a>
 </li>
       <li><a href="beziers.html#pybosl2.beziers.BezierPatch.to_vnf">to_vnf() (pybosl2.beziers.BezierPatch static method)</a>
@@ -2071,7 +2105,11 @@
       <li><a href="constants.html#pybosl2.constants.TOP">TOP (in module pybosl2.constants)</a>
 </li>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.top_half">top_half() (pybosl2.partitions.Partitionable method)</a>
+
+      <ul>
+        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.top_half">(pybosl2.shapes3d.Bosl2Solid method)</a>
 </li>
+      </ul></li>
       <li><a href="paths.html#pybosl2.path2d.Path2D.torsion">torsion() (pybosl2.path2d.Path2D method)</a>
 
       <ul>
@@ -2105,10 +2143,6 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Region.translate">(pybosl2.regions.Region method)</a>
 </li>
-        <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.translate">(pybosl2.shapes2d.Bosl2Shape2D method)</a>
-</li>
-        <li><a href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid.translate">(pybosl2.shapes3d.Bosl2Solid method)</a>
-</li>
       </ul></li>
       <li><a href="shapes2d.html#pybosl2.shapes2d.trapezoid">trapezoid() (in module pybosl2.shapes2d)</a>
 </li>
@@ -2139,6 +2173,8 @@
 </li>
         <li><a href="regions.html#pybosl2.regions.Region.union">(pybosl2.regions.Region method)</a>
 </li>
+        <li><a href="vnf.html#pybosl2.vnf.VNF.union">(pybosl2.vnf.VNF static method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -2158,19 +2194,27 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vectors.html#pybosl2.vectors.vector_angle">vector_angle() (in module pybosl2.vectors)</a>
+</li>
+      <li><a href="vectors.html#pybosl2.vectors.vector_axis">vector_axis() (in module pybosl2.vectors)</a>
+</li>
+      <li><a href="vectors.html#pybosl2.vectors.vector_bisect">vector_bisect() (in module pybosl2.vectors)</a>
+</li>
       <li><a href="vnf.html#pybosl2.vnf.VNF.vertex_array">vertex_array() (pybosl2.vnf.VNF class method)</a>
 </li>
       <li><a href="vnf.html#pybosl2.vnf.VNF">VNF (class in pybosl2.vnf)</a>
 </li>
-      <li><a href="beziers.html#pybosl2.beziers.BezierPatch.vnf">vnf() (pybosl2.beziers.BezierPatch method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="beziers.html#pybosl2.beziers.BezierPatch.vnf">vnf() (pybosl2.beziers.BezierPatch method)</a>
+</li>
       <li><a href="beziers.html#pybosl2.beziers.BezierPatch.vnf_degenerate">vnf_degenerate() (pybosl2.beziers.BezierPatch method)</a>
 </li>
       <li><a href="vnf.html#pybosl2.vnf.vnf_polyhedron">vnf_polyhedron() (in module pybosl2.vnf)</a>
 </li>
       <li><a href="texture.html#pybosl2.texture.vnf_tile_to_solid">vnf_tile_to_solid() (in module pybosl2.texture)</a>
+</li>
+      <li><a href="vnf.html#pybosl2.vnf.VnfStyle">VnfStyle (class in pybosl2.vnf)</a>
 </li>
       <li><a href="vnf.html#pybosl2.vnf.VNF.volume">volume() (pybosl2.vnf.VNF method)</a>
 </li>
@@ -2212,10 +2256,10 @@
 <h2 id="X">X</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="distributors.html#pybosl2.distributors.xcopies">xcopies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.xcopies">xcopies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.xcopies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.xcopies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="shapes3d.html#pybosl2.shapes3d.xcyl">xcyl() (in module pybosl2.shapes3d)</a>
@@ -2226,16 +2270,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D.xflip">xflip() (pybosl2.shapes2d.Bosl2Shape2D method)</a>
 </li>
-      <li><a href="distributors.html#pybosl2.distributors.xflip_copy">xflip_copy() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.xflip_copy">xflip_copy() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.xflip_copy">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.xflip_copy">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
-      <li><a href="distributors.html#pybosl2.distributors.xrot_copies">xrot_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.xrot_copies">xrot_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.xrot_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.xrot_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -2244,10 +2288,10 @@
 <h2 id="Y">Y</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="distributors.html#pybosl2.distributors.ycopies">ycopies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.ycopies">ycopies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.ycopies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.ycopies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="shapes3d.html#pybosl2.shapes3d.ycyl">ycyl() (in module pybosl2.shapes3d)</a>
@@ -2264,16 +2308,16 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="distributors.html#pybosl2.distributors.yflip_copy">yflip_copy() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.yflip_copy">yflip_copy() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.yflip_copy">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.yflip_copy">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
-      <li><a href="distributors.html#pybosl2.distributors.yrot_copies">yrot_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.yrot_copies">yrot_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.yrot_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.yrot_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -2282,10 +2326,10 @@
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="distributors.html#pybosl2.distributors.zcopies">zcopies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.zcopies">zcopies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.zcopies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.zcopies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
       <li><a href="shapes3d.html#pybosl2.shapes3d.zcyl">zcyl() (in module pybosl2.shapes3d)</a>
@@ -2294,16 +2338,16 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="distributors.html#pybosl2.distributors.zflip_copy">zflip_copy() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.zflip_copy">zflip_copy() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.zflip_copy">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.zflip_copy">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
-      <li><a href="distributors.html#pybosl2.distributors.zrot_copies">zrot_copies() (in module pybosl2.distributors)</a>
+      <li><a href="distributors.html#pybosl2.distributors.Distributable.zrot_copies">zrot_copies() (pybosl2.distributors.Distributable method)</a>
 
       <ul>
-        <li><a href="distributors.html#pybosl2.distributors.Distributable.zrot_copies">(pybosl2.distributors.Distributable method)</a>
+        <li><a href="distributors.html#pybosl2.distributors.DistributableMatrix.zrot_copies">(pybosl2.distributors.DistributableMatrix static method)</a>
 </li>
       </ul></li>
   </ul></td>
