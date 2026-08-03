@@ -123,10 +123,7 @@ _PREAMBLE = (
     "from pybosl2 import *\n"
 )
 
-_EXTRA_PREAMBLE =  (  
-    "\n"
-    "try:\n"
-)
+_EXTRA_PREAMBLE = "\ntry:\n"
 
 _POSTAMBLE = (
     "except Exception as e:\n"
@@ -134,6 +131,7 @@ _POSTAMBLE = (
     "    # This prints the complete, standard Python error trace\n"
     "    traceback.print_exc()\n"
 )
+
 
 def render_object(
     expr: str,
