@@ -264,3 +264,101 @@ def test_vnf_union_two_grids() -> None:
     assert len(j.vertices) == 18
     assert len(j.faces) == 16
     assert _valid(j)
+
+
+# -- VNF.join / halfspace / slice tests ----------------------------------------------------
+
+
+def test_vnf_join_is_alias_for_union() -> None:
+    a = VNF([[0, 0, 0], [1, 0, 0], [0, 1, 0]], [[0, 1, 2]])
+    b = VNF([[0, 0, 5], [1, 0, 5], [0, 1, 5]], [[0, 1, 2]])
+    j = VNF.join([a, b])
+    assert len(j.vertices) == 6
+    assert j.faces == [[0, 1, 2], [3, 4, 5]]
+
+
+def test_vnf_halfspace_plane_remove_top() -> None:
+    cube_vnf = VNF.vertex_array(
+        [
+            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+            [[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
+            [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
+            [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+        ],
+        style="quad",
+    )
+    cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0.5], keep=True, closed=True)
+    assert len(cut.faces) > 0
+    assert _valid(cut)
+    for v in cut.vertices:
+        assert v[2] >= 0.5 - 1e-6
+
+
+def test_vnf_halfspace_keep_false() -> None:
+    cube_vnf = VNF.vertex_array(
+        [
+            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+            [[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
+            [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
+            [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+        ],
+        style="quad",
+    )
+    cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0.5], keep=False, closed=True)
+    assert len(cut.faces) > 0
+    assert _valid(cut)
+    for v in cut.vertices:
+        assert v[2] <= 0.5 + 1e-6
+
+
+def test_vnf_halfspace_no_closed() -> None:
+    cube_vnf = VNF.vertex_array(
+        [
+            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+            [[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
+            [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
+            [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+        ],
+        style="quad",
+    )
+    cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0.5], keep=True, closed=False)
+    assert len(cut.faces) > 0
+
+
+def test_vnf_halfspace_empty() -> None:
+    v = VNF([], [])
+    cut = VNF.halfspace(v, [0, 0, 1, 0], keep=True)
+    assert len(cut.faces) == 0
+
+
+def test_vnf_halfspace_all_inside() -> None:
+    v = VNF([[0.0, 0.0, 5.0], [1.0, 0.0, 5.0], [0.0, 1.0, 5.0]], [[0, 1, 2]])
+    cut = VNF.halfspace(v, [0, 0, 1, 0], keep=True)  # z=5 > 0 → all inside
+    assert len(cut.faces) == 1
+
+
+def test_vnf_halfspace_all_outside() -> None:
+    v = VNF([[0.0, 0.0, 5.0], [1.0, 0.0, 5.0], [0.0, 1.0, 5.0]], [[0, 1, 2]])
+    cut = VNF.halfspace(v, [0, 0, 1, 10], keep=True)  # z=5 < 10 → all outside
+    assert len(cut.faces) == 0
+
+
+def test_vnf_slice_returns_above_below() -> None:
+    cube_vnf = VNF.vertex_array(
+        [
+            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+            [[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
+            [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
+            [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+        ],
+        style="quad",
+    )
+    above, below = VNF.slice(cube_vnf, [0, 0, 1, 0.5], closed=True)
+    assert len(above.faces) > 0
+    assert len(below.faces) > 0
+    assert _valid(above)
+    assert _valid(below)
+    for v in above.vertices:
+        assert v[2] >= 0.5 - 1e-6
+    for v in below.vertices:
+        assert v[2] <= 0.5 + 1e-6

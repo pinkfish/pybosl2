@@ -27,6 +27,7 @@ import numpy as np
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from pybosl2.bounds import Bounds2D
     from pybosl2.points import Point
 
 INF = math.inf
@@ -414,6 +415,71 @@ def mb_connector(
     return _Metaball(field, neg)
 
 
+def metaballs2d(
+    spec: list[_MetaballSpec],
+    bounding_box: "Bounds2D",
+    pixel_size: float | None = None,
+    pixel_count: int | None = None,
+    isovalue: float = 1,
+    closed: bool = True,
+    exact_bounds: bool = False,
+) -> list[list[list[float]]]:
+    """Generate 2-D contour paths from metaball field primitives.
+
+    The metaball spec uses the same 3-D transforms and field primitives as
+    :meth:`VNF.from_metaballs`, but evaluated on the z=0 plane to produce
+    a 2-D contour via marching squares.
+
+    Args:
+        spec: A list of :class:`_MetaballSpec` entries,
+            each holding a 4×4 transform and a :class:`_Metaball`.
+        bounding_box: A :class:`~pybosl2.bounds.Bounds2D`.
+        pixel_size: Isotropic pixel size.
+        pixel_count: Approximate total pixel count.
+        isovalue: Field threshold.  Defaults to 1.
+        closed: If True, return only closed contour loops.
+        exact_bounds: If True, use *bounding_box* exactly.
+
+    Returns:
+        A list of contour paths, each a list of ``[x, y]`` points.
+
+    Examples:
+        .. pythonscad-example::
+
+            spec = [
+                MetaballSpec([-14, 0, 0], mb_sphere(12)),
+                MetaballSpec([14, 0, 0], mb_sphere(12)),
+            ]
+            paths = metaballs2d(
+                spec, Bounds2D(-40, -20, 40, 20, 80, 40), pixel_size=2
+            )
+            # paths is a list of contour polylines
+    """
+    assert spec, "metaballs2d(): the spec is empty."
+    from pybosl2.vnf import contour
+
+    invs: list[np.ndarray] = [np.linalg.inv(s.transform) for s in spec]
+
+    def field_2d(pts: np.ndarray) -> np.ndarray:
+        pts3d: np.ndarray = np.hstack([pts, np.zeros((len(pts), 1))])
+        homo: np.ndarray = np.hstack([pts3d, np.ones((len(pts), 1))])
+        total: np.ndarray = np.zeros(len(pts))
+        for s, inv in zip(spec, invs, strict=False):
+            local: np.ndarray = (inv @ homo.T).T[:, :3]
+            total += s.metaball.field(local)
+        return total
+
+    return contour(
+        field_2d,
+        float(isovalue),
+        bounding_box,
+        pixel_size=pixel_size,
+        pixel_count=pixel_count,
+        closed=closed,
+        exact_bounds=exact_bounds,
+    )
+
+
 __all__ = [
     "_Metaball",
     "_MetaballSpec",
@@ -427,4 +493,5 @@ __all__ = [
     "mb_disk",
     "mb_octahedron",
     "mb_connector",
+    "metaballs2d",
 ]

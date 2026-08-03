@@ -222,3 +222,60 @@ def test_mb_negative_sphere() -> None:
     pt = np.array([[0, 0, 0]])
     assert mb_pos.field(pt) > 0
     assert mb_neg.field(pt) < 0
+
+
+# -- metaballs2d / contour tests ------------------------------------------------------------
+
+
+def test_metaballs2d_produces_contours() -> None:
+    from pybosl2.bounds import Bounds2D
+    from pybosl2.metaballs import metaballs2d
+
+    spec = [
+        MetaballSpec([-14, 0, 0], mb_sphere(12)),  # type: ignore[arg-type]
+        MetaballSpec([14, 0, 0], mb_sphere(12)),  # type: ignore[arg-type]
+    ]
+    paths = metaballs2d(spec, Bounds2D(-40, -20, 40, 20, 80, 40), pixel_size=2, isovalue=1)
+    assert len(paths) > 0
+    for p in paths:
+        assert all(len(pt) == 2 for pt in p)
+
+
+def test_metaballs2d_single_sphere() -> None:
+    from pybosl2.bounds import Bounds2D
+    from pybosl2.metaballs import metaballs2d
+
+    spec = [
+        MetaballSpec([0, 0, 0], mb_sphere(8)),  # type: ignore[arg-type]
+    ]
+    paths = metaballs2d(spec, Bounds2D(-12, -12, 12, 12, 24, 24), pixel_size=1, isovalue=1)
+    assert len(paths) > 0
+    for p in paths:
+        assert all(len(pt) == 2 for pt in p)
+
+
+def test_contour_from_field() -> None:
+    from pybosl2.bounds import Bounds2D
+    from pybosl2.vnf import contour
+
+    def field(p: np.ndarray) -> np.ndarray:
+        result: np.ndarray = np.hypot(p[:, 0], p[:, 1])
+        return result
+
+    paths = contour(field, 10, Bounds2D(-15, -15, 15, 15, 30, 30), pixel_size=0.5)
+    assert len(paths) > 0
+    for p in paths:
+        assert all(len(pt) == 2 for pt in p)
+
+
+def test_contour_closed_loops() -> None:
+    from pybosl2.bounds import Bounds2D
+    from pybosl2.vnf import contour
+
+    def field(p: np.ndarray) -> np.ndarray:
+        result: np.ndarray = np.hypot(p[:, 0], p[:, 1])
+        return result
+
+    paths = contour(field, 5, Bounds2D(-10, -10, 10, 10, 20, 20), pixel_size=1)
+    for p in paths:
+        assert len(p) >= 3

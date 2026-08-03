@@ -44,6 +44,20 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # constants
     "EPSILON": ("pybosl2.math", "EPSILON"),
     "CENTRE": ("pybosl2.constants", "CENTER"),  # British spelling alias
+    # math
+    "slerp": ("pybosl2.math", "slerp"),
+    "slerpn": ("pybosl2.math", "slerpn"),
+    "modang": ("pybosl2.math", "modang"),
+    "quant": ("pybosl2.math", "quant"),
+    "constrain": ("pybosl2.math", "constrain"),
+    "mean": ("pybosl2.math", "mean"),
+    # vectors
+    "vector_angle": ("pybosl2.vectors", "vector_angle"),
+    "vector_axis": ("pybosl2.vectors", "vector_axis"),
+    "vector_bisect": ("pybosl2.vectors", "vector_bisect"),
+    "pointlist_bounds": ("pybosl2.vectors", "pointlist_bounds"),
+    "closest_point": ("pybosl2.vectors", "closest_point"),
+    "furthest_point": ("pybosl2.vectors", "furthest_point"),
     # colour
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),
@@ -134,10 +148,12 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "mb_disk": ("pybosl2.metaballs", "mb_disk"),
     "mb_octahedron": ("pybosl2.metaballs", "mb_octahedron"),
     "mb_connector": ("pybosl2.metaballs", "mb_connector"),
+    "metaballs2d": ("pybosl2.metaballs", "metaballs2d"),
     "Metaball": ("pybosl2.metaballs", "Metaball"),
     "MetaballSpec": ("pybosl2.metaballs", "MetaballSpec"),
     # VNF
     "VNF": ("pybosl2.vnf", "VNF"),
+    "contour": ("pybosl2.vnf", "contour"),
     "vnf_polyhedron": ("pybosl2.vnf", "vnf_polyhedron"),
     # surfaces
     "heightfield": ("pybosl2.surfaces3d", "heightfield"),

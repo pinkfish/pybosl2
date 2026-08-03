@@ -208,3 +208,65 @@ sampled curve::
 This is distinct from the CSG sweeps (:meth:`~pybosl2.skin.skin`, ``skin``, ``offset_sweep``),
 which build a VNF/polyhedron mesh rather than a distance field. Denser paths give a smoother lateral
 surface; the ends cap perpendicular to the path.
+
+Rendering the docs examples with PythonSCAD
+--------------------------------------------
+
+Every docstring example in this reference is built and mesh-exported by the **real** PythonSCAD
+binary (the ``pythonscad-example`` Sphinx directive in ``docs/_ext/pybosl2_example.py``).  This
+means the PythonSCAD process must be able to import ``numpy`` and ``shapely`` — pybosl2's core
+dependencies.  Without them every rendered example silently falls back to a source-only listing.
+
+The PythonSCAD AppImage bundles its own isolated Python interpreter; ``pip install`` on your host
+machine does **not** put packages where that interpreter can find them.  You need to install
+numpy and shapely *into the AppImage's own Python*.
+
+**macOS** (``PythonSCAD-dev.app`` or ``PythonSCAD.app``):
+
+.. code-block:: bash
+
+   # The bundled Python lives inside the .app bundle:
+   /Applications/PythonSCAD-dev.app/Contents/Frameworks/Python.framework/Versions/*/bin/python3 \
+       -m pip install --user numpy shapely
+
+If the ``python3`` binary inside the framework has a broken library path, install to the
+per-user site‑packages that the AppImage Python already has on ``sys.path``:
+
+.. code-block:: bash
+
+   python3 -m pip install --target ~/Library/Python/3.*/lib/python/site-packages numpy shapely
+
+**Linux** (AppImage extracted):
+
+.. code-block:: bash
+
+   # Extract the AppImage first, then find its Python:
+   PYBASE=$(find /opt/pythonscad -path '*/bin/python3*' -not -path '*/__pycache__/*' | head -1)
+   $PYBASE -m pip install --user numpy shapely
+
+**Check**: Run a minimal script through the binary to confirm both libraries import:
+
+.. code-block:: bash
+
+   BIN=/path/to/PythonSCAD
+   cat > /tmp/check.py << 'PYEOF'
+   import sys, site, os
+   usp = site.getusersitepackages()
+   if os.path.isdir(usp) and usp not in sys.path:
+       sys.path.insert(0, usp)
+   import numpy as np
+   import shapely
+   print(f"numpy {np.__version__}  shapely {shapely.__version__}", file=sys.stderr, flush=True)
+   from pythonscad import cube
+   cube([1,1,1]).show()
+   PYEOF
+   "$BIN" --trust-python --enable python-engine -o /tmp/test.stl --backend Manifold /tmp/check.py
+   ls -la /tmp/test.stl   # should be a non-zero STL file
+
+.. seealso::
+
+   `PythonSCAD documentation — getting started <https://pythonscad.org/>`_
+     Official install and usage docs.
+
+   `PythonSCAD — Python libraries <https://github.com/pythonscad/pythonscad/tree/main/docs>`_
+     How to install third‑party packages into PythonSCAD's bundled Python.

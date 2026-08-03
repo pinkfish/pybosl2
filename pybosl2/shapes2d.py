@@ -857,6 +857,11 @@ def square(
         center: if given, overrides anchor (True -> CENTER, False -> FRONT+LEFT)
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.square(20).linear_extrude(height=5).show()
     """
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = anchor
@@ -1207,6 +1212,11 @@ def circle(
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.circle(radius=15).linear_extrude(height=5).show()
     """
     if points is not None:
         center, rad = _circle_from_3pts(points)
@@ -1262,6 +1272,11 @@ def ellipse(
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.ellipse(diameter=[30, 20]).linear_extrude(height=5).show()
     """
     _ = uniform
     if radius is not None:
@@ -1364,6 +1379,11 @@ def regular_ngon(
         anchor:         anchor point (default CENTER)
         spin:           Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs:    arc smoothness overrides for rounded tips
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.regular_ngon(sides=6, radius=15).linear_extrude(height=5).show()
     """
     assert sides >= 3
     sc = 1 / math.cos(math.radians(180.0 / sides))
@@ -1533,6 +1553,11 @@ def right_triangle(
         center: True forces anchor=CENTER, False forces anchor=[-1,-1] (default: use anchor=)
         anchor: anchor point (default: [-1,-1], the right-angle corner)
         spin:   Z-axis rotation in degrees after anchor (default 0)
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.right_triangle(size=[30, 20]).linear_extrude(height=5).show()
     """
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
     if anchor is not None:
@@ -1706,6 +1731,11 @@ def star(
         anchor:         anchor point (default CENTER)
         spin:           Z-axis rotation in degrees after anchor (default 0)
         atype:          anchor method (default AnchorType.HULL)
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.star(tips=5, radius=20, inner_radius=8).linear_extrude(height=5).show()
     """
     rad = _pick_radius(radius1=outer_radius, diameter1=outer_diameter, radius=radius, diameter=diameter)
     if rad is None:
@@ -1778,6 +1808,11 @@ def teardrop2d(
         anchor:     anchor point (default CENTER)
         spin:       Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.teardrop2d(radius=15, angle=45).linear_extrude(height=5).show()
     """
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     if circumscribe:
@@ -1837,6 +1872,11 @@ def egg(
         anchor:       anchor point (default CENTER)
         spin:         Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs:  arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.egg(length=30, radius1=10, radius2=8, arc_radius=20).linear_extrude(height=5).show()
     """
     radius1 = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else None)
     if radius1 is None:
@@ -1925,6 +1965,11 @@ def glued_circles(
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.glued_circles(radius=10, spread=25, tangent=30).linear_extrude(height=5).show()
     """
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 10)
     cp1 = [spread / 2, 0.0]
@@ -2021,6 +2066,11 @@ def supershape(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         atype:  anchor method (default AnchorType.HULL)
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.supershape(m1=3, radius=20).linear_extrude(height=5).show()
     """
     n_pts = count if count is not None else math.ceil(360.0 / step)
     n1v = n1 if n1 is not None else 1
@@ -2262,6 +2312,11 @@ def reuleaux_polygon(
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides
+
+    Examples:
+        .. pythonscad-example::
+
+            s2.reuleaux_polygon(sides=3, radius=15).linear_extrude(height=5).show()
     """
     assert sides >= 3 and sides % 2 == 1
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
