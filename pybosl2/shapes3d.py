@@ -753,7 +753,7 @@ class Bosl2Solid(_BaseShape):
 
             .. pythonscad-example::
 
-                from pybosl2.shapes3d import cuboid
+                from pybosl2 import cuboid
                 cuboid([30, 20, 10]).edge_profile(r=3, edges=Anchor.Z).show()
         """
         from . import masking
@@ -1582,12 +1582,12 @@ def cuboid(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cuboid([40, 30, 20])
+            shape = pybosl2.cuboid([40, 30, 20])
             shape.show()
 
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cuboid([40, 30, 20], rounding=5)
+            shape = pybosl2.cuboid([40, 30, 20], rounding=5)
             shape.show()
     """
     if teardrop:
@@ -1710,7 +1710,7 @@ def prismoid(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.prismoid([40, 40], [20, 25], height=30)
+            shape = pybosl2.prismoid([40, 40], [20, 25], height=30)
             shape.show()
     """
     from .shapes2d import _rect_path
@@ -2137,19 +2137,19 @@ def cyl(
         A basic cylinder:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cyl(radius=10, height=30)
+            shape = pybosl2.cyl(radius=10, height=30)
             shape.show()
 
         A cylinder with chamfered ends:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cyl(radius=15, height=40, chamfer=2)
+            shape = pybosl2.cyl(radius=15, height=40, chamfer=2)
             shape.show()
 
         A cylinder with rounded ends:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.cyl(radius=12, height=35, rounding=3)
+            shape = pybosl2.cyl(radius=12, height=35, rounding=3)
             shape.show()
     """
     if texture is not None and texture != "none":
@@ -2388,12 +2388,12 @@ def regular_prism(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.regular_prism(6, height=20, radius=15)
+            shape = pybosl2.regular_prism(6, height=20, radius=15)
             shape.show()
 
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.regular_prism(5, height=20, inner_radius=12, rounding=2)
+            shape = pybosl2.regular_prism(5, height=20, inner_radius=12, rounding=2)
             shape.show()
     """
     assert isinstance(sides, int) and sides > 2, f"regular_prism(): sides must be an integer >= 3, got {sides}"
@@ -2504,7 +2504,7 @@ def xcyl(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.xcyl(radius=10, height=30)
+            shape = pybosl2.xcyl(radius=10, height=30)
             shape.show()
     """
     length_val = next((v for v in (length, height) if v is not None), 1.0)
@@ -2607,7 +2607,7 @@ def ycyl(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.ycyl(radius=10, height=30)
+            shape = pybosl2.ycyl(radius=10, height=30)
             shape.show()
     """
     length_val = next((v for v in (length, height) if v is not None), 1.0)
@@ -2712,7 +2712,7 @@ def zcyl(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.zcyl(radius=10, height=30)
+            shape = pybosl2.zcyl(radius=10, height=30)
             shape.show()
     """
     return cyl(
@@ -2810,7 +2810,7 @@ def tube(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.tube(height=20, outer_radius=15, inner_radius=10)
+            shape = pybosl2.tube(height=20, outer_radius=15, inner_radius=10)
             shape.show()
     """
     height = height if height is not None else (length if length is not None else 1)
@@ -2984,7 +2984,7 @@ def sphere(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.sphere(radius=15)
+            shape = pybosl2.sphere(radius=15)
             shape.show()
     """
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
@@ -3146,7 +3146,7 @@ def torus(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.torus(major_radius=25, minor_radius=8)
+            shape = pybosl2.torus(major_radius=25, minor_radius=8)
             shape.show()
     """
     from .shapes2d import _arc_points, _opolygon  # type: ignore[attr-defined]
@@ -3230,7 +3230,7 @@ def teardrop(
     Examples:
         .. pythonscad-example::
 
-            shape = pybosl2.shapes3d.teardrop(radius=8, angle=45, height=15)
+            shape = pybosl2.teardrop(radius=8, angle=45, height=15)
             shape.show()
     """
     length = height if height is not None else 1.0
@@ -3623,7 +3623,7 @@ def path_text(
 
 # ---------------------------------------------------------------------------
 # Advanced surface / plot / ruler builders live in pybosl2/surfaces3d.py. They are re-exported here
-# LAZILY (module __getattr__) so `from pybosl2.shapes3d import heightfield` keeps working without an
+# LAZILY (module __getattr__) so `from pybosl2 import heightfield` keeps working without an
 # import cycle: surfaces3d imports the core names (Bosl2Solid, _finish3, ...) from this module, so
 # this module must not import surfaces3d at load time.
 # ---------------------------------------------------------------------------
