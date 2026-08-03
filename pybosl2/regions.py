@@ -21,7 +21,6 @@ import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
 
 from pybosl2.path2d import Path2D
-from pybosl2.path3d import Path3D  # re-exported here for compatibility
 from pybosl2.shapes3d import text3d
 
 if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would be circular
@@ -31,7 +30,7 @@ if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would b
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
-__all__ = ["Path2D", "Path3D", "Region"]
+__all__ = ["Region"]
 
 
 def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path2D]:
