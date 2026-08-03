@@ -23,22 +23,275 @@
 
 from __future__ import annotations
 
+import math
+from collections import defaultdict
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from pybosl2._mctable import CORNER_OFFSETS, EDGE_CORNERS, TRI_TABLE
-from pybosl2.bounds import Bounds3D
+from pybosl2.bounds import Bounds2D, Bounds3D
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
     from pybosl2.caps import CapSpec, CapType
     from pybosl2.metaballs import _MetaballSpec
     from pybosl2.path3d import Path3D
 
 _EPS = 1e-9
+
+
+def _plane_edge_t(
+    pt0: list[float] | np.ndarray,
+    pt1: list[float] | np.ndarray,
+    a: float,
+    b: float,
+    c: float,
+    d: float,
+) -> float:
+    """Return parametric t (0..1) where the edge pt0→pt1 crosses the plane A*x+B*y+C*z=D."""
+    d0 = a * pt0[0] + b * pt0[1] + c * pt0[2] - d
+    d1 = a * pt1[0] + b * pt1[1] + c * pt1[2] - d
+    denom = d0 - d1
+    if abs(denom) < _EPS:
+        return 0.5
+    return d0 / denom
+
+
+def _interpolate(
+    pt0: list[float] | np.ndarray,
+    pt1: list[float] | np.ndarray,
+    t: float,
+) -> list[float]:
+    """Linear interpolation between two 3-D points."""
+    return [
+        pt0[0] + t * (pt1[0] - pt0[0]),
+        pt0[1] + t * (pt1[1] - pt0[1]),
+        pt0[2] + t * (pt1[2] - pt0[2]),
+    ]
+
+
+def _triangle_area(
+    a: list[float] | np.ndarray,
+    b: list[float] | np.ndarray,
+    c: list[float] | np.ndarray,
+) -> float:
+    """Signed triangle area from three 3-D points (half the cross-product magnitude)."""
+    u = np.array(b, dtype=float) - np.array(a, dtype=float)
+    v = np.array(c, dtype=float) - np.array(a, dtype=float)
+    return float(np.linalg.norm(np.cross(u, v))) * 0.5
+
+
+def _assemble_edge_paths(
+    edges: list[tuple[int, int]],
+) -> list[list[int]]:
+    """Assemble disconnected directed edges into closed loops.
+
+    Each edge ``(i, j)`` is treated as a directed connection i→j.
+    Returns a list of vertex-index paths forming closed polygons.
+    """
+    if not edges:
+        return []
+    adj: dict[int, list[int]] = defaultdict(list)
+    for a, b in edges:
+        adj[a].append(b)
+    visited: set[int] = set()
+    paths: list[list[int]] = []
+
+    for start in list(adj):
+        if start in visited:
+            continue
+        path: list[int] = [start]
+        visited.add(start)
+        current = start
+        while True:
+            next_candidates = list(adj.get(current, []))
+            if not next_candidates:
+                break
+            nxt = next_candidates[0]
+            if nxt in visited:
+                if nxt == path[0]:
+                    paths.append(path)
+                break
+            path.append(nxt)
+            visited.add(nxt)
+            current = nxt
+
+    # Handle any remaining edges not in a loop by assembling orphan paths
+    remaining: set[tuple[int, int]] = set(edges)
+    path_edges: set[tuple[int, int]] = set()
+    for p in paths:
+        for k1 in range(len(p)):
+            k2 = (k1 + 1) % len(p)
+            path_edges.add((p[k1], p[k2]))
+    remaining -= path_edges
+
+    return paths
+
+
+# -- marching-squares lookup table -------------------------------------------
+# In the two ambiguous cases with two opposite corners above and the other
+# two below the isovalue, it is assumed the high values connect (ridge, not valley).
+# This makes the contour compatible with marching cubes at pixel boundaries.
+_MSQUARE_SEGMENT_TABLE: list[list[list[int]]] = [
+    [[], []],
+    [[0, 3], []],
+    [[1, 0], []],
+    [[1, 3], []],
+    [[3, 2], []],
+    [[0, 2], []],
+    [[1, 2], [3, 0]],
+    [[1, 2], []],
+    [[2, 1], []],
+    [[0, 1], [2, 3]],
+    [[2, 0], []],
+    [[2, 3], []],
+    [[3, 1], []],
+    [[0, 1], []],
+    [[3, 0], []],
+    [[], []],
+]
+
+_MSQUARE_VERTEX_INDEX_MAP: list[list[float]] = [
+    [0.0, 0.0],
+    [0.0, 1.0],
+    [1.0, 0.0],
+    [1.0, 1.0],
+]
+
+
+def _msquare_index(fvals: Sequence[float], isovalue: float) -> int:
+    """Return 0..15 marching-square case index for 4 corner values."""
+    idx = 0
+    for i, v in enumerate(fvals):
+        if float(v) >= isovalue:
+            idx |= 1 << i
+    return idx
+
+
+def _assemble_partial_paths_2d(
+    segments: list[list[list[float]]],
+    closed: bool,
+) -> list[list[list[float]]]:
+    """Assemble 2-D line segments into connected paths (contour polygons).
+
+    Each segment is ``[[x0,y0], [x1,y1]]``.  Returns a list of paths,
+    each a list of ``[x, y]`` points.  If *closed* is True, only closed
+    loops are kept; otherwise dangling paths are also returned open.
+    """
+    graph: dict[tuple[float, float], list[tuple[float, float]]] = defaultdict(list)
+    for seg in segments:
+        if len(seg) < 2:
+            continue
+        p0 = (float(seg[0][0]), float(seg[0][1]))
+        p1 = (float(seg[1][0]), float(seg[1][1]))
+        if abs(p0[0] - p1[0]) < _EPS and abs(p0[1] - p1[1]) < _EPS:
+            continue
+        graph[p0].append(p1)
+        graph[p1].append(p0)
+
+    visited: set[tuple[float, float]] = set()
+    paths: list[list[list[float]]] = []
+
+    for start in graph:
+        if start in visited:
+            continue
+        path: list[tuple[float, float]] = [start]
+        visited.add(start)
+        curr = start
+        prev: tuple[float, float] | None = None
+        while True:
+            neigh = graph.get(curr, [])
+            nxt: tuple[float, float] | None = None
+            if len(path) == 1:
+                if neigh:
+                    nxt = neigh[0]
+            else:
+                for n in neigh:
+                    if n != prev:
+                        nxt = n
+                        break
+            if nxt is None:
+                break
+            if nxt == start:
+                paths.append([[float(x), float(y)] for x, y in path])
+                break
+            if nxt in visited:
+                break
+            path.append(nxt)
+            visited.add(nxt)
+            prev = curr
+            curr = nxt
+
+    if not closed:
+        for start2 in graph:
+            if start2 in visited:
+                continue
+            opath: list[tuple[float, float]] = [start2]
+            visited.add(start2)
+            cur = start2
+            while True:
+                neigh2 = [n for n in graph.get(cur, []) if n not in visited]
+                if not neigh2:
+                    break
+                nx = neigh2[0]
+                opath.append(nx)
+                visited.add(nx)
+                cur = nx
+            if len(opath) >= 2:
+                paths.append([[float(x), float(y)] for x, y in opath])
+
+    return paths
+
+
+def _marching_squares(
+    field: np.ndarray,
+    xs: np.ndarray,
+    ys: np.ndarray,
+    isovalue: float,
+) -> list[list[list[float]]]:
+    """Run marching squares on a 2-D scalar field, returning contour paths."""
+    nx, ny = field.shape
+    segments: list[list[list[float]]] = []
+
+    _edge_verts = [(0, 1), (1, 3), (2, 3), (0, 2)]
+    _vert_coords = [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)]
+
+    for i in range(nx - 1):
+        dx = xs[i + 1] - xs[i]
+        for j in range(ny - 1):
+            dy = ys[j + 1] - ys[j]
+            fvals = [
+                float(field[i, j]),
+                float(field[i, j + 1]),
+                float(field[i + 1, j]),
+                float(field[i + 1, j + 1]),
+            ]
+            idx = _msquare_index(fvals, isovalue)
+            for edge_group in _MSQUARE_SEGMENT_TABLE[idx]:
+                if not edge_group:
+                    continue
+                seg: list[list[float]] = []
+                for e in edge_group:
+                    va, vb = _edge_verts[e]
+                    fa, fb = fvals[va], fvals[vb]
+                    denom = fb - fa
+                    u = 0.5 if abs(denom) < _EPS else (isovalue - fa) / denom
+                    ca = _vert_coords[va]
+                    cb = _vert_coords[vb]
+                    x = xs[i] + ca[0] * dx + u * (cb[0] - ca[0]) * dx
+                    y = ys[j] + ca[1] * dy + u * (cb[1] - ca[1]) * dy
+                    seg.append([float(x), float(y)])
+                if len(seg) == 2:
+                    segments.append(seg)
+
+    paths = _assemble_partial_paths_2d(segments, closed=True)
+    for p in paths:
+        if p and p[0] == p[-1]:
+            p.pop()
+    return paths
 
 
 def _to_grid(points: Any) -> np.ndarray:
@@ -88,6 +341,16 @@ def _resolve_grid(
     ), voxel_size
 
 
+def _grid_axes_2d(
+    bb: Bounds2D,
+    pixel_size: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Build uniform 2-D grid axes from a bounding box and pixel size."""
+    xs = np.arange(bb.min_x, bb.max_x + pixel_size * 0.5, pixel_size)
+    ys = np.arange(bb.min_y, bb.max_y + pixel_size * 0.5, pixel_size)
+    return xs, ys
+
+
 def _grid_axes(bb: Bounds3D, voxel_size: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     import math
 
@@ -100,6 +363,98 @@ def _grid_axes(bb: Bounds3D, voxel_size: float) -> tuple[np.ndarray, np.ndarray,
         axis(bb.min_y, bb.max_y, voxel_size),
         axis(bb.min_z, bb.max_z, voxel_size),
     )
+
+
+def _resolve_grid_2d(
+    bb: Bounds2D,
+    pixel_size: float | None,
+    pixel_count: int | None,
+    exact_bounds: bool,
+) -> tuple[Bounds2D, float]:
+    """Resolve 2-D grid parameters from a bounding box and optional pixel size/count."""
+    if pixel_size is None:
+        w, h = bb.max_x - bb.min_x, bb.max_y - bb.min_y
+        pixvol = (w * h) / (pixel_count if pixel_count else 32**2)
+        pixel_size = math.sqrt(pixvol)
+    if exact_bounds:
+        return bb, pixel_size
+    vs = pixel_size
+    nx = math.ceil((bb.max_x - bb.min_x) / vs)
+    ny = math.ceil((bb.max_y - bb.min_y) / vs)
+    cx = (bb.min_x + bb.max_x) / 2
+    cy = (bb.min_y + bb.max_y) / 2
+    hx = 0.5 * vs * nx
+    hy = 0.5 * vs * ny
+    return Bounds2D(
+        min_x=cx - hx,
+        min_y=cy - hy,
+        max_x=cx + hx,
+        max_y=cy + hy,
+        width=2 * hx,
+        length=2 * hy,
+    ), vs
+
+
+def _sample_field_2d(
+    f: np.ndarray | Callable[[np.ndarray], np.ndarray],
+    xs: np.ndarray,
+    ys: np.ndarray,
+) -> np.ndarray:
+    """Sample a 2-D scalar field on a grid, returning a 2-D numpy array."""
+    if isinstance(f, np.ndarray) or (isinstance(f, (list, tuple)) and not callable(f)):
+        return np.asarray(f, dtype=float)
+    gx, gy = np.meshgrid(xs, ys, indexing="ij")
+    pts = np.stack([gx.ravel(), gy.ravel()], axis=1)
+    with np.errstate(all="ignore"):
+        vals = np.asarray(f(pts), dtype=float)
+        if vals.shape == (len(pts),):
+            return vals.reshape(gx.shape)
+    raise TypeError("_sample_field_2d: callable f must accept (N,2) array and return (N,) array.")
+
+
+def contour(
+    f: np.ndarray | Callable[[np.ndarray], np.ndarray],
+    isovalue: float,
+    bounding_box: Bounds2D,
+    pixel_size: float | None = None,
+    pixel_count: int | None = None,
+    closed: bool = True,
+    exact_bounds: bool = False,
+) -> list[list[list[float]]]:
+    """Generate 2-D contour paths at a given isovalue from a scalar field.
+
+    Uses marching squares on a uniform 2-D grid to trace the contour where
+    ``f(x, y) == isovalue``.  Returns a list of closed (or open) polyline
+    paths, each being a list of ``[x, y]`` points.
+
+    Args:
+        f: A 2-D numpy array or a callable ``(N,2)→(N,)`` or ``(x,y)→float``.
+        isovalue: Scalar threshold.
+        bounding_box: A :class:`~pybosl2.bounds.Bounds2D`.
+        pixel_size: Isotropic pixel size.
+        pixel_count: Approximate total pixel count (ignored if *pixel_size* given).
+        closed: If True, return only closed contour loops.
+        exact_bounds: If True, use *bounding_box* exactly.
+
+    Returns:
+        A list of contour paths, each a list of ``[x, y]`` points.
+
+    Examples:
+        .. pythonscad-example::
+
+            def field(p):
+                r = np.hypot(p[:, 0], p[:, 1])
+                return r
+            paths = contour(field, 10, Bounds2D(-15,-15,15,15,30,30), pixel_size=0.5)
+            # paths can be stroked or extruded
+    """
+    bb, ps = _resolve_grid_2d(bounding_box, pixel_size, pixel_count, exact_bounds)
+    xs, ys = _grid_axes_2d(bb, ps)
+    field_arr = _sample_field_2d(f, xs, ys)
+    paths = _marching_squares(field_arr, xs, ys, float(isovalue))
+    if not closed:
+        return paths
+    return [p for p in paths if len(p) >= 3 and p[0] != p[-1]]
 
 
 def _sample_field(
@@ -350,6 +705,179 @@ class VNF:
             verts.extend(v.vertices)
             off += len(v.vertices)
         return VNF(verts, faces)
+
+    @staticmethod
+    def join(vnfs: list["VNF"]) -> "VNF":
+        """Merge multiple VNFs into a single consolidated VNF with shared vertices.
+
+        Each input VNF's vertices and faces are copied into a combined vertex array,
+        with face indices offset appropriately.  No deduplication is performed.
+
+        Args:
+            vnfs: A list of :class:`VNF` objects to merge.
+
+        Returns:
+            A new :class:`VNF` containing all vertices and faces from the inputs.
+
+        Examples:
+            .. pythonscad-example::
+
+                a = VNF.vertex_array([[ [0,0,0],[1,0,0] ], [ [0,1,0],[1,1,0] ]])
+                b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])
+                VNF.join([a, b]).polyhedron().show()
+        """
+        return VNF.union(vnfs)
+
+    @staticmethod
+    def halfspace(
+        vnf: "VNF",
+        plane: Sequence[float],
+        keep: bool = True,
+        closed: bool = True,
+    ) -> "VNF":
+        """Clip a VNF to one side of a plane, optionally closing the cut face.
+
+        A plane is defined as ``[A, B, C, D]`` for ``A*x + B*y + C*z = D``.
+        If *keep* is True, the positive halfspace (``A*x + B*y + C*z > D``)
+        is retained.  If *keep* is False, the negative halfspace is retained.
+
+        Args:
+            vnf: The input :class:`VNF`.
+            plane: Plane equation ``[A, B, C, D]``.
+            keep: If True, keep the positive halfspace.  Defaults to True.
+            closed: If True, triangulate and close the cut face.  Defaults to True.
+
+        Returns:
+            A new :class:`VNF` containing only the requested halfspace.
+
+        Raises:
+            AssertionError: If *plane* does not have exactly 4 elements.
+
+        Examples:
+            .. pythonscad-example::
+
+                cube_vnf = VNF.from_field(
+                    lambda p: 5 - np.max(np.abs(p), axis=1),
+                    0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1
+                )
+                cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0], keep=True, closed=True)
+                cut.polyhedron().show()
+        """
+        assert len(plane) == 4, "halfspace(): plane must be [A, B, C, D]."
+        a, b, c, d = plane[0], plane[1], plane[2], plane[3]
+        verts_in = np.asarray(vnf.vertices, dtype=float)
+        if len(verts_in) == 0:
+            return VNF([], [])
+
+        n: np.ndarray = np.array([a, b, c], dtype=float)
+        dists: np.ndarray = verts_in @ n - d
+
+        if keep:
+            inside_mask: np.ndarray = dists >= -_EPS
+        else:
+            inside_mask = dists <= _EPS
+
+        inside_indices: list[int] = [i for i, m in enumerate(inside_mask) if m]
+        vertex_map: dict[int, int] = {}
+        for new_idx, old_idx in enumerate(inside_indices):
+            vertex_map[old_idx] = new_idx
+
+        new_verts: list[list[float]] = [list(verts_in[i]) for i in inside_indices]
+        new_faces: list[list[int]] = []
+        cut_edges: list[tuple[int, int]] = []
+
+        for face in vnf.faces:
+            face_inside: list[bool] = [inside_mask[i] for i in face]
+            all_in = all(face_inside)
+            none_in = not any(face_inside)
+
+            if all_in:
+                new_faces.append([vertex_map[i] for i in face])
+            elif not none_in:
+                fv = len(new_verts)
+                clipped: list[int] = []
+                nv = len(face)
+                for idx in range(nv):
+                    i0 = face[idx]
+                    i1 = face[(idx + 1) % nv]
+                    v0_in = inside_mask[i0]
+                    v1_in = inside_mask[i1]
+
+                    if v0_in and v1_in:
+                        if not clipped or clipped[-1] != vertex_map[i0]:
+                            clipped.append(vertex_map[i0])
+                        clipped.append(vertex_map[i1])
+                    elif v0_in and not v1_in:
+                        if not clipped or clipped[-1] != vertex_map[i0]:
+                            clipped.append(vertex_map[i0])
+                        t = _plane_edge_t(vnf.vertices[i0], vnf.vertices[i1], a, b, c, d)
+                        pt = _interpolate(vnf.vertices[i0], vnf.vertices[i1], t)
+                        new_verts.append(pt)
+                        clipped.append(fv)
+                        cut_edges.append((fv, fv + 1))
+                        fv += 1
+                    elif not v0_in and v1_in:
+                        t = _plane_edge_t(vnf.vertices[i0], vnf.vertices[i1], a, b, c, d)
+                        pt = _interpolate(vnf.vertices[i0], vnf.vertices[i1], t)
+                        new_verts.append(pt)
+                        clipped.append(fv)
+                        cut_edges.append((fv, fv + 1))
+                        fv += 1
+                        clipped.append(vertex_map[i1])
+
+                if len(clipped) >= 3:
+                    # fan-triangulate the clipped polygon
+                    base = clipped[0]
+                    for k in range(1, len(clipped) - 1):
+                        tri = [base, clipped[k], clipped[k + 1]]
+                        if _triangle_area(new_verts[tri[0]], new_verts[tri[1]], new_verts[tri[2]]) > _EPS:
+                            new_faces.append(tri)
+
+        if closed and cut_edges:
+            edge_list = list(cut_edges)
+            paths: list[list[int]] = _assemble_edge_paths(edge_list)
+            for path in paths:
+                if len(path) >= 3:
+                    pbase = path[0]
+                    for k in range(1, len(path) - 1):
+                        tri = [pbase, path[k], path[k + 1]]
+                        if _triangle_area(new_verts[tri[0]], new_verts[tri[1]], new_verts[tri[2]]) > _EPS:
+                            new_faces.append(tri)
+
+        return VNF(new_verts, new_faces)
+
+    @staticmethod
+    def slice(
+        vnf: "VNF",
+        plane: Sequence[float],
+        closed: bool = True,
+    ) -> tuple["VNF", "VNF"]:
+        """Slice a VNF into two VNFs along a plane, closing both cut faces.
+
+        Returns ``(vnf_above, vnf_below)`` where *vnf_above* is the positive
+        halfspace and *vnf_below* is the negative halfspace.
+
+        Args:
+            vnf: The input :class:`VNF`.
+            plane: Plane equation ``[A, B, C, D]`` for ``A*x + B*y + C*z = D``.
+            closed: If True, close both cut faces.  Defaults to True.
+
+        Returns:
+            A ``(above, below)`` tuple of :class:`VNF` objects.
+
+        Examples:
+            .. pythonscad-example::
+
+                cube_vnf = VNF.from_field(
+                    lambda p: 5 - np.max(np.abs(p), axis=1),
+                    0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1
+                )
+                above, below = VNF.slice(cube_vnf, [0, 0, 1, 0], closed=True)
+                above.polyhedron().show()
+        """
+        above = VNF.halfspace(vnf, plane, keep=True, closed=closed)
+        below = VNF.halfspace(vnf, plane, keep=False, closed=closed)
+        return above, below
 
     @classmethod
     def vertex_array(
@@ -762,5 +1290,6 @@ def vnf_polyhedron(vnf: VNF) -> Any:
 __all__ = [
     "VNF",
     "VnfStyle",
+    "contour",
     "vnf_polyhedron",
 ]

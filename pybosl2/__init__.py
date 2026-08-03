@@ -148,10 +148,12 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "mb_disk": ("pybosl2.metaballs", "mb_disk"),
     "mb_octahedron": ("pybosl2.metaballs", "mb_octahedron"),
     "mb_connector": ("pybosl2.metaballs", "mb_connector"),
+    "metaballs2d": ("pybosl2.metaballs", "metaballs2d"),
     "Metaball": ("pybosl2.metaballs", "Metaball"),
     "MetaballSpec": ("pybosl2.metaballs", "MetaballSpec"),
     # VNF
     "VNF": ("pybosl2.vnf", "VNF"),
+    "contour": ("pybosl2.vnf", "contour"),
     "vnf_polyhedron": ("pybosl2.vnf", "vnf_polyhedron"),
     # surfaces
     "heightfield": ("pybosl2.surfaces3d", "heightfield"),
