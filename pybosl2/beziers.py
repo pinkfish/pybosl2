@@ -60,7 +60,6 @@ import numpy as np
 from pybosl2.caps import CapsSpec, CapType
 from pybosl2.constants import UP
 from pybosl2.math import EPSILON, lerp, lerpn
-from pybosl2.skin import _path_sweep
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import reorient
 from pybosl2.vectors import unit as _unit
@@ -623,7 +622,7 @@ class Bezier:
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
         transforms: bool = False,
-    ) -> VNF:
+    ) -> VNF | Bosl2Solid:
         """Sweep the 2-D *shape* along this bezier curve or path into a VNF.
 
         If *n_degree* is given and ``len(self) % n_degree == 1`` this
@@ -671,6 +670,8 @@ class Bezier:
                 path = Bezier.flatten([Bezier.begin([0, 0], 0, 20), Bezier.end([50, 0], 180, 20)])
                 path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()
         """
+        from pybosl2.path3d import Path3D
+
         if n_degree is not None and len(self) % n_degree == 1:
             bezpath = self.array
             nsegs = (len(bezpath) - 1) // n_degree
@@ -684,9 +685,8 @@ class Bezier:
             tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
                 list(lerpn(0, 1, splinesteps + 1, endpoint))
             )
-        return _path_sweep(  # type: ignore[return-value]
-            shape,  # type: ignore[arg-type]
-            np.asarray(path),  # type: ignore[arg-type]
+        return Path3D(np.asarray(path)).path_sweep(
+            shape,  # type: ignore[arg-type, return-value]
             method=method,
             normal=normal,
             closed=closed,

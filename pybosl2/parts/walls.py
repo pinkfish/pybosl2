@@ -25,7 +25,7 @@ from typing import Any
 
 import numpy as np
 
-from pybosl2.shapes2d import _opolygon  # type: ignore[attr-defined]
+from pybosl2.shapes2d import _opolygon
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 from pybosl2.vnf import VNF
 

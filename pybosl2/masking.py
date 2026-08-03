@@ -132,10 +132,10 @@ def rounding_edge_mask(
     if rad1 < rad2:
         cross = mask2d_roundover(rad2, excess=excess, fn=fn, fa=fa, fs=fs)
         shape = _opolygon(cross).linear_extrude(height=length, center=True, scale=rad1 / rad2)
-        return shape.rotate(180, [1, 0, 0])
+        return shape.rotate(180, [1, 0, 0])  # type: ignore[no-any-return]
     cross = mask2d_roundover(rad1, excess=excess, fn=fn, fa=fa, fs=fs)
     scale = rad2 / rad1 if rad1 else 1.0
-    return _opolygon(cross).linear_extrude(height=length, center=True, scale=scale)
+    return _opolygon(cross).linear_extrude(height=length, center=True, scale=scale)  # type: ignore[no-any-return]
 
 
 def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float = 0.1) -> "Bosl2Solid":
@@ -152,7 +152,7 @@ def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float =
         A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.
     """
     diamond = [[chamfer, 0.0], [0.0, chamfer], [-chamfer, 0.0], [0.0, -chamfer]]
-    return _opolygon(diamond).linear_extrude(height=length + excess, center=True)
+    return _opolygon(diamond).linear_extrude(height=length + excess, center=True)  # type: ignore[no-any-return]
 
 
 def _pick_axes(vec: Point) -> tuple[int, int, int, float, float]:
@@ -325,7 +325,7 @@ def _corner_cutter(
     sphere_center = [corner_vec[i] * (size[i] / 2 - radius) for i in range(3)]
     cube_shape = _ocube([radius, radius, radius], center=True).translate(cube_center)
     sphere_shape = _osphere(r=radius, fn=fn, fa=fa, fs=fs).translate(sphere_center)
-    return cube_shape - sphere_shape
+    return cube_shape - sphere_shape  # type: ignore[no-any-return]
 
 
 def corner_profile(

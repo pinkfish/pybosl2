@@ -90,7 +90,7 @@ def pie_slice(
 
             s3.pie_slice(radius=20, angle=120, height=5).show()
     """
-    from pybosl2.shapes2d import _arc_points, _opolygon  # type: ignore[attr-defined]
+    from pybosl2.shapes2d import _arc_points, _opolygon
 
     length = height if height is not None else (length if length is not None else 1)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
@@ -166,7 +166,7 @@ def torus(
             shape = pybosl2.shapes3d.torus(major_radius=25, minor_radius=8)
             shape.show()
     """
-    from pybosl2.shapes2d import _arc_points, _opolygon  # type: ignore[attr-defined]
+    from pybosl2.shapes2d import _arc_points, _opolygon
 
     _or = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
     _ir = _pick_radius(radius=inner_radius, diameter=inner_diameter, dflt=None)
