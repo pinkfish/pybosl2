@@ -1245,8 +1245,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             (``.linear_extrude(...)``).
 
         Raises:
-            ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` -- see the note
-            above :meth:`linear_extrude`, which works on both backends.
+            pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` --
+            see :meth:`linear_extrude`, which works on both backends.
 
         Examples:
             .. pythonscad-example::
@@ -1614,9 +1614,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     # -- 2-D -> 3-D (both backends) --------------------------------------------------------
 
     def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
-        """Extrude this path *height* along +Z into a 3-D solid, **on whichever backend is
+        """Extrude this path *height* along +Z into a 3-D solid, on whichever backend is
 
-        active**: a :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend, a
+        active: a :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend, a
         :class:`~pybosl2._sdf.shapes3d.PyShape` under ``use_backend("sdf")``::
 
             plate = Path2D(pts).linear_extrude(height=4)          # -> Bosl2Solid
@@ -1657,9 +1657,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
 
         Raises:
-            ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` -- the SDF
-            backend has no revolve; sweep the profile instead
-            (:func:`pybosl2._sdf.shapes3d.path_sweep`).
+            pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` --
+            the SDF backend has no revolve; sweep the profile instead via
+            ``pybosl2._sdf.shapes3d.path_sweep()``.
         """
         self._require_csg("rotate_extrude")
         return self.polygon().rotate_extrude(angle, **kwargs)

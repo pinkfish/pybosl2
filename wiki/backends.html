@@ -150,7 +150,7 @@
 <ul class="simple">
 <li><p><strong>CSG</strong> (the default) — exact constructive solid geometry via PythonSCAD’s native
 primitives. Booleans are exact, the attachment/anchoring system is available, and shapes
-carry their BOSL2 metadata. This is today’s <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>.</p></li>
+carry their BOSL2 metadata. This is today’s <code class="docutils literal notranslate"><span class="pre">pybosl2.shapes3d.Bosl2Solid</span></code>.</p></li>
 <li><p><strong>SDF</strong> — an F-Rep / signed-distance-field engine built on <a class="reference external" href="https://libfive.com">libfive</a> (the merged <code class="docutils literal notranslate"><span class="pre">pysolidfive</span></code> code). Shapes are implicit surfaces, so
 they round and blend smoothly and mesh at any resolution, at the cost of the CSG-only
 attachment features. Its solids are <code class="xref py py-class docutils literal notranslate"><span class="pre">PyShape</span></code> objects.</p></li>
@@ -336,13 +336,19 @@ dispatch on the active backend:</p>
 <tbody>
 <tr class="row-even"><td><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Path.linear_extrude()</span></code>,
 <a class="reference internal" href="regions.html#pybosl2.regions.Region.linear_extrude" title="pybosl2.regions.Region.linear_extrude"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Region.linear_extrude()</span></code></a></p></td>
-<td><p>native <code class="docutils literal notranslate"><span class="pre">linear_extrude</span></code> → <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>; takes
-<code class="docutils literal notranslate"><span class="pre">center</span></code>/<code class="docutils literal notranslate"><span class="pre">twist</span></code>/<code class="docutils literal notranslate"><span class="pre">scale</span></code>/<code class="docutils literal notranslate"><span class="pre">slices</span></code></p></td>
+<td><dl class="simple">
+<dt>native <code class="docutils literal notranslate"><span class="pre">linear_extrude</span></code> → <code class="docutils literal notranslate"><span class="pre">pybosl2.shapes3d.Bosl2Solid</span></code>; takes</dt><dd><p><code class="docutils literal notranslate"><span class="pre">center</span></code>/<code class="docutils literal notranslate"><span class="pre">twist</span></code>/<code class="docutils literal notranslate"><span class="pre">scale</span></code>/<code class="docutils literal notranslate"><span class="pre">slices</span></code></p>
+</dd>
+</dl>
+</td>
 <td><p><code class="docutils literal notranslate"><span class="pre">polygon_prism</span></code> → <code class="xref py py-class docutils literal notranslate"><span class="pre">PyShape</span></code>; takes <code class="docutils literal notranslate"><span class="pre">center</span></code> plus
 <code class="docutils literal notranslate"><span class="pre">rounding_top</span></code>/<code class="docutils literal notranslate"><span class="pre">rounding_bottom</span></code>/<code class="docutils literal notranslate"><span class="pre">res</span></code>, and rejects the profile-shearing options</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.hull()</span></code> /
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">PyShape.hull()</span></code></p></td>
+<tr class="row-odd"><td><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">Bosl2Solid.hull()</span></code> /</dt><dd><p><code class="docutils literal notranslate"><span class="pre">PyShape.hull()</span></code></p>
+</dd>
+</dl>
+</td>
 <td><p>exact native <code class="docutils literal notranslate"><span class="pre">hull()</span></code></p></td>
 <td><p>polyhedral hull of the children’s support points</p></td>
 </tr>
@@ -350,9 +356,12 @@ dispatch on the active backend:</p>
 <td><p>a tube of Bosl2Solid cylinders/spheres</p></td>
 <td><p>the same tube as one distance field</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">Bosl2Solid.projection()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">Path.polygon()</span></code>/<code class="docutils literal notranslate"><span class="pre">.fill()</span></code>/<code class="docutils literal notranslate"><span class="pre">.hull()</span></code>/<code class="docutils literal notranslate"><span class="pre">.rotate_extrude()</span></code>, 2-D <code class="docutils literal notranslate"><span class="pre">stroke()</span></code></p></td>
-<td><p>→ <code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code> / <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></p></td>
+<tr class="row-odd"><td><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">Bosl2Solid.projection()</span></code>,</dt><dd><p><code class="docutils literal notranslate"><span class="pre">Path.polygon()</span></code>/<code class="docutils literal notranslate"><span class="pre">.fill()</span></code>/<code class="docutils literal notranslate"><span class="pre">.hull()</span></code>/<code class="docutils literal notranslate"><span class="pre">.rotate_extrude()</span></code>, 2-D <code class="docutils literal notranslate"><span class="pre">stroke()</span></code></p>
+</dd>
+</dl>
+</td>
+<td><p>→ <code class="xref py py-class docutils literal notranslate"><span class="pre">shapes2d</span></code> / <code class="docutils literal notranslate"><span class="pre">pybosl2.shapes3d.Bosl2Solid</span></code></p></td>
 <td><p><a class="reference internal" href="solid.html#pybosl2.solid.UnsupportedByBackendError" title="pybosl2.exceptions.UnsupportedByBackendError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnsupportedByBackendError</span></code></a></p></td>
 </tr>
 </tbody>

@@ -15,6 +15,7 @@ Path2D. No osuse()/BOSL2 runtime dependency.
 A Bezier is a list of control points: a single curve, or a bezier PATH of
 degree-N curves that share endpoints (a flat list of control points where
 ``len % N == 1``). Ported, matching beziers.scad:
+
   * curve evaluation/analysis: points, curve, derivative, tangent,
     curvature, closest_point, length, line_intersection
   * path evaluation/analysis: path_points, path_curve, path_closest_point,
@@ -252,7 +253,7 @@ class Bezier:
     def curvature(self, u: float | Sequence[float] | np.ndarray) -> np.ndarray:
         """Curvature value(s) at parameter(s) *u* (inverse tangent-circle radius).
 
-        Computes the scalar curvature κ = |r' × r''| / |r'|³ at each
+        Computes the scalar curvature κ = ``|r' × r''|`` / ``|r'|³`` at each
         parameter value. For a scalar *u* returns a single float; for a list
         of *u* values returns a numpy array of floats.
 
@@ -261,7 +262,7 @@ class Bezier:
 
         Returns:
             A float (for scalar *u*) or numpy array of curvature values. The
-            curvature κ = |r' × r''| / |r'|³ is the inverse radius of the
+            curvature κ = ``|r' × r''|`` / ``|r'|³`` is the inverse radius of the
             tangent circle.
         """
         scalar = isinstance(u, (int, float, np.floating, np.integer))
