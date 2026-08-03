@@ -171,7 +171,7 @@ class Bosl2ExampleDirective(Directive):
             return None
         if not result.ok:
             stderr_tail = (result.stderr or "")[-500:]
-            _logger.warning(f"pybosl2-example STL render FAILED: {result.error}\nstderr tail: {stderr_tail}\n{code[:300]")
+            _logger.warning(f"pybosl2-example STL render FAILED: {result.error}\nstderr tail: {stderr_tail}\n{code[:300]}")
             return None
         return f"_stl/{out_stl.name}"
 
