@@ -147,11 +147,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # skin / sweep
     "sweep": ("pybosl2.skin", "sweep"),
     "skin": ("pybosl2.skin", "skin"),
-    "path_sweep": ("pybosl2.skin", "path_sweep"),
-    "path_sweep2d": ("pybosl2.skin", "path_sweep2d"),
-    "linear_sweep": ("pybosl2.skin", "linear_sweep"),
-    "rotate_sweep": ("pybosl2.skin", "rotate_sweep"),
-    "spiral_sweep": ("pybosl2.skin", "spiral_sweep"),
     "rot_resample": ("pybosl2.skin", "rot_resample"),
     # partitioning
     "partition_path": ("pybosl2.partitions", "partition_path"),

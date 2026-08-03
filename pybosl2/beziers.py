@@ -60,7 +60,6 @@ import numpy as np
 from pybosl2.caps import CapsSpec, CapType
 from pybosl2.constants import UP
 from pybosl2.math import EPSILON, lerp, lerpn
-from pybosl2.skin import _path_sweep
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import reorient
 from pybosl2.vectors import unit as _unit
@@ -672,6 +671,8 @@ class Bezier:
                 path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()
         """
         if n_degree is not None and len(self) % n_degree == 1:
+            from pybosl2.path3d import Path3D
+
             bezpath = self.array
             nsegs = (len(bezpath) - 1) // n_degree
             path = self.path_curve(splinesteps, n_degree, endpoint)
@@ -684,9 +685,8 @@ class Bezier:
             tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
                 list(lerpn(0, 1, splinesteps + 1, endpoint))
             )
-        return _path_sweep(  # type: ignore[return-value]
+        return Path3D(np.asarray(path)).path_sweep(  # type: ignore[return-value, arg-type]
             shape,  # type: ignore[arg-type]
-            np.asarray(path),  # type: ignore[arg-type]
             method=method,
             normal=normal,
             closed=closed,
