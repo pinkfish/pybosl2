@@ -79,7 +79,9 @@ def _place_and_union(
         if len(placed) < 2:
             continue
         coords: list[tuple[float, float]] = [(float(p[0]), float(p[1])) for p in placed]
-        if len(placed) < 3:
+        if coords and coords[0] != coords[-1]:
+            coords.append(coords[0])
+        if len(coords) < 4:
             geom: _shapely.Polygon | _shapely.GeometryCollection = LineString(coords).buffer(half, cap_style="flat")
         else:
             geom = _shapely.Polygon(coords)

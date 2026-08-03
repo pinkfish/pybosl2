@@ -177,12 +177,12 @@ def test_close_and_cleanup() -> None:
 
 
 def test_subdivide_adds_points() -> None:
-    out = Path2D(SQUARE).subdivide(sides=8)
+    out = Path2D(SQUARE).subdivide(num_copies=8)
     assert len(out) == 8
 
 
 def test_resample_to_n_points() -> None:
-    out = Path2D(SQUARE).resample(sides=12)
+    out = Path2D(SQUARE).resample(num_copies=12)
     assert len(out) == 12
 
 

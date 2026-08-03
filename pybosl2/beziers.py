@@ -671,6 +671,7 @@ class Bezier:
                 path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()
         """
         from pybosl2.path3d import Path3D
+        from pybosl2.skin import path3d
 
         if n_degree is not None and len(self) % n_degree == 1:
             bezpath = self.array
@@ -685,7 +686,9 @@ class Bezier:
             tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
                 list(lerpn(0, 1, splinesteps + 1, endpoint))
             )
-        return Path3D(np.asarray(path)).path_sweep(
+        path_3d = path3d(path)
+        tang_3d = path3d(tang) if tang is not None else None
+        return Path3D(np.asarray(path_3d)).path_sweep(
             shape,  # type: ignore[arg-type, return-value]
             method=method,
             normal=normal,
@@ -696,7 +699,7 @@ class Bezier:
             scale_by_length=scale_by_length,
             symmetry=symmetry,
             last_normal=last_normal,
-            tangent=tang,  # type: ignore[arg-type]
+            tangent=tang_3d,
             caps=caps,
             style=style,
             transforms=transforms,

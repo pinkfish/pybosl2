@@ -643,7 +643,7 @@ class Distributable(ABC):
         num_copies: int = 1,
     ) -> list[_CopyType]:
         """Copies spread along a line (BOSL2 line_copies)."""
-        return self._distribute(DistributableMatrix.line_copies(spacing, length, p1, p2, num_copies=num_copies))
+        return self._distribute(line_copies(spacing, length, p1, p2, num_copies=num_copies))
 
     def xcopies(
         self,
@@ -686,9 +686,7 @@ class Distributable(ABC):
         num_copies: int | Sequence[int] | np.ndarray | None = None,
     ) -> list[_CopyType]:
         """Copies in a square or staggered (hex) grid."""
-        return self._distribute(
-            DistributableMatrix.grid_copies(spacing, size, stagger, inside, nonzero, axes, num_copies)
-        )
+        return self._distribute(grid_copies(spacing, size, stagger, inside, nonzero, axes, num_copies))
 
     def rot_copies(
         self,
@@ -702,9 +700,7 @@ class Distributable(ABC):
         num_copies: int = 1,
     ) -> list[_CopyType]:
         """Rotated copies about an axis (optionally into a ring via *delta*)."""
-        return self._distribute(
-            DistributableMatrix.rot_copies(rots, v, center, sa, offset, delta, subrot, num_copies=num_copies)
-        )
+        return self._distribute(rot_copies(rots, v, center, sa, offset, delta, subrot, num_copies=num_copies))
 
     def xrot_copies(
         self,
@@ -717,9 +713,7 @@ class Distributable(ABC):
         num_copies: int = 1,
     ) -> list[_CopyType]:
         """Rotated copies around the X axis."""
-        return self._distribute(
-            DistributableMatrix.xrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies)
-        )
+        return self._distribute(xrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
 
     def yrot_copies(
         self,
@@ -732,9 +726,7 @@ class Distributable(ABC):
         num_copies: int = 1,
     ) -> list[_CopyType]:
         """Rotated copies around the Y axis."""
-        return self._distribute(
-            DistributableMatrix.yrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies)
-        )
+        return self._distribute(yrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
 
     def zrot_copies(
         self,
@@ -747,9 +739,7 @@ class Distributable(ABC):
         num_copies: int = 1,
     ) -> list[_CopyType]:
         """Rotated copies around the Z axis."""
-        return self._distribute(
-            DistributableMatrix.zrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies)
-        )
+        return self._distribute(zrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
 
     def arc_copies(
         self,
@@ -790,7 +780,7 @@ class Distributable(ABC):
         perp: bool = True,
     ) -> list[_CopyType]:
         """Copies spread over a sphere/ellipsoid surface."""
-        return self._distribute(DistributableMatrix.sphere_copies(num_copies, radius, diameter, cone_ang, scale, perp))
+        return self._distribute(sphere_copies(num_copies, radius, diameter, cone_ang, scale, perp))
 
     def path_copies(
         self,
@@ -804,7 +794,7 @@ class Distributable(ABC):
     ) -> list[_CopyType]:
         """Copies placed along *path*, oriented to it."""
         return self._distribute(
-            DistributableMatrix.path_copies(
+            path_copies(
                 path,
                 spacing,
                 start_pos,
@@ -822,19 +812,19 @@ class Distributable(ABC):
         center: bool | list[float] | None = None,
     ) -> list[_CopyType]:
         """This object plus a copy mirrored across the plane with normal *v*."""
-        return self._distribute(DistributableMatrix.mirror_copy(v, offset, center))
+        return self._distribute(mirror_copy(v, offset, center))
 
     def xflip_copy(self, offset: float = 0, x: float = 0) -> list[_CopyType]:
         """This object plus a copy mirrored across the X=*x* plane."""
-        return self._distribute(DistributableMatrix.xflip_copy(offset, x))
+        return self._distribute(xflip_copy(offset, x))
 
     def yflip_copy(self, offset: float = 0, y: float = 0) -> list[_CopyType]:
         """This object plus a copy mirrored across the Y=*y* plane."""
-        return self._distribute(DistributableMatrix.yflip_copy(offset, y))
+        return self._distribute(yflip_copy(offset, y))
 
     def zflip_copy(self, offset: float = 0, z: float = 0) -> list[_CopyType]:
         """This object plus a copy mirrored across the Z=*z* plane."""
-        return self._distribute(DistributableMatrix.zflip_copy(offset, z))
+        return self._distribute(zflip_copy(offset, z))
 
     # ---------------------------------------------------------------------------
     # Section: distributing a list of distinct children

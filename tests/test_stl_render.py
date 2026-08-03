@@ -321,7 +321,7 @@ def test_rot_resample_then_sweep(tmp_path):
     setup = (
         "sq = [[-1.5, -1.5], [1.5, -1.5], [1.5, 1.5], [-1.5, 1.5]]\n"
         "curve = [[0, 0, 0], [20, 0, 8], [20, 20, 16], [0, 20, 24]]\n"
-        "tl = rot_resample(Path3D(curve).path_sweep(sq, transforms=True), sides=30)\n"
+        "tl = rot_resample(Path3D(curve).path_sweep(sq, transforms=True), num_copies=30)\n"
     )
     m = _render(tmp_path, "sweep(sq, tl).polyhedron()", setup=setup, name="rotresample")
     assert m.ntris > 0
@@ -579,6 +579,7 @@ def test_stroke_arrow_endcap_3d_is_a_cone(tmp_path):
     m = _render(
         tmp_path,
         "stroke([[0, 0, 0], [40, 0, 0]], width=4, endcaps='arrow')",
+        setup="from pybosl2.solid import use_backend; use_backend('csg')\n",
         name="arrow3d",
     )
     assert m.ntris > 0
@@ -600,7 +601,7 @@ def test_path3d_rotated_helix_stroke(tmp_path):
 
 
 def test_path3d_resampled_helix_stroke(tmp_path):
-    setup = "coil = helix(turns=3, height=60, radius=20).resample(sides=150)\n"
+    setup = "coil = helix(turns=3, height=60, radius=20).resample(num_copies=150)\n"
     m = _render(tmp_path, "coil.stroke(width=4)", setup=setup, name="helixresample")
     assert m.ntris > 0
     assert m.volume > 0
@@ -620,7 +621,7 @@ def test_grid_copies_span_and_volume(tmp_path):
     # a 3x3 grid of 10mm cubes at 30mm spacing -> outer span 2*30 + 10 = 70, 9x the volume
     m = _render(
         tmp_path,
-        "s3.cuboid([10, 10, 10]).grid_copies(sides=[3, 3], spacing=30)",
+        "s3.cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=30)",
         name="grid",
     )
     np.testing.assert_allclose(m.size[:2], [70, 70], atol=0.5)
@@ -629,14 +630,14 @@ def test_grid_copies_span_and_volume(tmp_path):
 
 
 def test_line_copies_volume(tmp_path):
-    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).xcopies(20, sides=4)", name="linecopies")
+    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).xcopies(20, num_copies=4)", name="linecopies")
     assert math.isclose(m.volume, 4 * 6**3, rel_tol=1e-3)
     np.testing.assert_allclose(m.size[0], 3 * 20 + 6, atol=0.5)  # span of 4 copies
 
 
 def test_zrot_copies_ring(tmp_path):
     # 6 cubes in a ring of radius 30 -> spread across a ~60mm-diameter footprint in X and Y
-    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)", name="ring")
+    m = _render(tmp_path, "s3.cuboid([6, 6, 6]).zrot_copies(num_copies=6, radius=30)", name="ring")
     assert m.volume > 5 * 6**3  # roughly 6 cubes (minus any tiny overlap)
     assert 55 < m.size[0] < 70
     assert 55 < m.size[1] < 70
@@ -654,7 +655,7 @@ def test_xflip_copy_mirrors(tmp_path):
 def test_arc_copies_solid(tmp_path):
     m = _render(
         tmp_path,
-        "s3.cuboid([5, 5, 5]).arc_copies(sides=8, radius=25, sa=0, ea=180)",
+        "s3.cuboid([5, 5, 5]).arc_copies(num_copies=8, radius=25, sa=0, ea=180)",
         name="arccopies",
     )
     assert m.volume > 0
@@ -672,7 +673,7 @@ def test_path_copies_along_path(tmp_path):
     setup = "route = Path([[0, 0], [40, 0], [40, 40]], closed=False)\n"
     m = _render(
         tmp_path,
-        "s3.cuboid([4, 8, 4]).path_copies(route, sides=6)",
+        "s3.cuboid([4, 8, 4]).path_copies(route, num_copies=6)",
         setup=setup,
         name="pathcopies",
     )
@@ -1695,7 +1696,7 @@ def test_nema_stepper_motor(tmp_path):
 
 
 def test_sliders_rail_builds(tmp_path):
-    m = _render(tmp_path, "Sliders.rail(length=40, w=10, height=10)", name="slider_rail")
+    m = _render(tmp_path, "Sliders.rail(l=40, w=10, h=10)", name="slider_rail")
     assert m.watertight
     assert m.volume > 0
 

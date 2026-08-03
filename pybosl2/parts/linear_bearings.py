@@ -225,3 +225,6 @@ class LinearBearings:
             fa=fa,
             fs=fs,
         )
+
+    lmXuu_bearing = lmxuu_bearing  # noqa: N815
+    lmXuu_housing = lmxuu_housing  # noqa: N815

@@ -20,8 +20,8 @@ def _size(solid: Bosl2Solid) -> list[float]:
 @pytest.mark.parametrize(
     "kw",
     [
-        {"length": 30, "base": 10, "wall": 4, "slop": 0.2},
-        {"length": 40, "w": 14, "height": 12, "base": 8, "wall": 5},
+        {"l": 30, "base": 10, "wall": 4, "slop": 0.2},
+        {"l": 40, "w": 14, "h": 12, "base": 8, "wall": 5},
     ],
 )
 def test_slider_builds(kw: dict[str, object]) -> None:
@@ -29,7 +29,7 @@ def test_slider_builds(kw: dict[str, object]) -> None:
 
 
 def test_rail_envelope() -> None:
-    radius = Sliders.rail(length=100, w=10, height=10)
+    radius = Sliders.rail(l=100, w=10, h=10)
     assert isinstance(radius, Bosl2Solid)
     w, length, height = _size(radius)
     assert w == pytest.approx(10, abs=0.1)
@@ -38,11 +38,11 @@ def test_rail_envelope() -> None:
 
 
 def test_rail_length_scales() -> None:
-    assert _size(Sliders.rail(length=100, w=10, height=10))[1] > _size(Sliders.rail(length=40, w=10, height=10))[1]
+    assert _size(Sliders.rail(l=100, w=10, h=10))[1] > _size(Sliders.rail(l=40, w=10, h=10))[1]
 
 
 def test_slider_slop_widens_fit() -> None:
     # more slop -> a slightly larger slider footprint
-    tight = _size(Sliders.slider(length=30, slop=0.0, fn=None, fa=None, fs=None))
-    loose = _size(Sliders.slider(length=30, slop=0.4, fn=None, fa=None, fs=None))
+    tight = _size(Sliders.slider(l=30, slop=0.0, fn=None, fa=None, fs=None))
+    loose = _size(Sliders.slider(l=30, slop=0.4, fn=None, fa=None, fs=None))
     assert loose[1] >= tight[1]

@@ -721,7 +721,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def resample_path(
         self,
-        sides: int | None = None,
+        num_copies: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
     ) -> "Path2D":
@@ -732,7 +732,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if total < 1e-12:
             return self.__class__(self._points.tolist(), closed=self.closed)
 
-        n = sides
+        n = num_copies
         if spacing is not None and spacing > 0:
             n = max(2, int(total / spacing))
         if n is None:
@@ -962,7 +962,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Args:
             **kwargs: Passed through to the subdivide kernel; must include exactly one of
-                *sides* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
+                *num_copies* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
 
         Returns:
             A new :class:`Path2D` with additional interpolated points.
@@ -971,11 +971,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             .. pythonscad-example::
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
-                result = pts.subdivide(sides=24)
+                result = pts.subdivide(num_copies=24)
                 result.stroke(width=1).linear_extrude(h=4).show()
         """
-        if "sides" in kwargs:
-            kwargs.setdefault("points", kwargs.pop("sides"))
+        if "num_copies" in kwargs:
+            kwargs.setdefault("points", kwargs.pop("num_copies"))
         if "refine" in kwargs:
             r = kwargs.pop("refine")
             kwargs.setdefault("points", int(len(self._points) * r))
@@ -985,10 +985,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def resample(self, **kwargs: Any) -> "Path2D":
         """Resample to evenly spaced points.
 
-        Accepts *sides* (target point count) or *spacing* (approximate spacing between points).
+        Accepts *num_copies* (target point count) or *spacing* (approximate spacing between points).
 
         Args:
-            **kwargs: Must include exactly one of *sides* or *spacing*.
+            **kwargs: Must include exactly one of *num_copies* or *spacing*.
 
         Returns:
             A new :class:`Path2D` with uniformly resampled points.
@@ -997,9 +997,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             .. pythonscad-example::
 
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
-                sampled = pts.resample(sides=20)
+                sampled = pts.resample(num_copies=20)
                 sampled.stroke(width=1).show()
         """
+        if "num_copies" in kwargs:
+            kwargs.setdefault("num_copies", kwargs.pop("num_copies"))
         return self.resample_path(**kwargs)
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list[Path2D]:

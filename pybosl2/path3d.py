@@ -142,7 +142,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         .. pythonscad-example::
 
-            coil = helix(turns=3, height=60, radius=20).resample(sides=120)
+            coil = helix(turns=3, height=60, radius=20).resample(num_copies=120)
             coil.stroke(width=4).show()
     """
 
@@ -627,14 +627,14 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def resample_path(
         self,
-        sides: int | None = None,
+        num_copies: int | None = None,
         spacing: float | None = None,
         closed: bool | None = None,
     ) -> "Path3D":
-        """Uniformly resample path to sides points, or to a spacing near spacing.
+        """Uniformly resample path to num_copies points, or to a spacing near spacing.
 
         Args:
-            sides: Target number of points.
+            num_copies: Target number of points.
             spacing: Approximate spacing between points.
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
@@ -642,23 +642,23 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new :class:`Path3D` with the uniformly resampled points.
 
         Raises:
-            AssertionError: If both or neither of *sides* and *spacing* are given.
+            AssertionError: If both or neither of *num_copies* and *spacing* are given.
 
         Examples:
             Resampling a helix to 120 evenly spaced points:
 
             .. pythonscad-example::
 
-                coil = helix(turns=3, height=60, radius=20).resample_path(sides=120)
+                coil = helix(turns=3, height=60, radius=20).resample_path(num_copies=120)
                 coil.stroke(width=4).show()
         """
         if closed is None:
             closed = self.closed
         points = self._points
-        assert (sides is None) != (spacing is None), "Must define exactly one of sides and spacing"
+        assert (num_copies is None) != (spacing is None), "Must define exactly one of num_copies and spacing"
         length = self.perimeter()
-        if sides is not None:
-            n_use = sides - (0 if closed else 1)
+        if num_copies is not None:
+            n_use = num_copies - (0 if closed else 1)
         else:
             assert spacing is not None
             n_use = round(length / spacing)
@@ -895,22 +895,22 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Args:
             **kwargs: Passed through to the subdivide kernel; must include exactly one of
-                *sides* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
+                *num_copies* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
 
         Returns:
             A new :class:`Path3D` with additional interpolated points.
 
         Examples:
-            Subdividing a 3-D path using the sides parameter:
+            Subdividing a 3-D path using the num_copies parameter:
 
             .. pythonscad-example::
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
-                result = path3d.subdivide(sides=100)
+                result = path3d.subdivide(num_copies=100)
                 result.stroke(width=1).show()
         """
-        if "sides" in kwargs:
-            kwargs.setdefault("points", kwargs.pop("sides"))
+        if "num_copies" in kwargs:
+            kwargs.setdefault("points", kwargs.pop("num_copies"))
         if "refine" in kwargs:
             r = kwargs.pop("refine")
             kwargs.setdefault("points", int(len(self._points) * r))
@@ -921,7 +921,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """Resample to evenly spaced points.
 
         Args:
-            **kwargs: Must include exactly one of *sides* or *spacing*.
+            **kwargs: Must include exactly one of *num_copies* or *spacing*.
 
         Returns:
             A new :class:`Path3D` with uniformly resampled points.
@@ -932,9 +932,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             .. pythonscad-example::
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
-                result = path3d.resample(sides=50)
+                result = path3d.resample(num_copies=50)
                 result.stroke(width=1).show()
         """
+        if "num_copies" in kwargs:
+            kwargs.setdefault("num_copies", kwargs.pop("num_copies"))
         return self.resample_path(**kwargs)
 
     def translate(self, v: Sequence[float]) -> "Path3D":

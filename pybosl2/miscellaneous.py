@@ -383,7 +383,7 @@ class Extrudable:
             # (frame_i @ UP == dir_i); this is the discrete rotation-minimizing frame.
             acc = rot_from_to4(vec1, vec2) @ acc
             rotmats.append(acc)
-        interp = rot_resample([list(m) for m in rotmats], sides=2, method="count")
+        interp = rot_resample([list(m) for m in rotmats], num_copies=2, method="count")
         eps = 1e-4
         factory = _profile_factory(profile)
         parts = []

@@ -98,7 +98,7 @@ def test_phillips_diam_out_of_range() -> None:
         ScrewDrive.torx_mask(30, 10),
         ScrewDrive.torx_mask(8, 5, center=True),
         ScrewDrive.robertson_mask(2),
-        ScrewDrive.robertson_mask(0, extra=2, angle=3.0),
+        ScrewDrive.robertson_mask(0, l=3.27, angle=3.0),
     ],
 )
 def test_masks_return_solid(obj: Bosl2Solid) -> None:
@@ -116,4 +116,4 @@ def test_robertson_size_validation() -> None:
     with pytest.raises(ValueError, match="robertson size must be"):
         ScrewDrive.robertson_mask(5)
     with pytest.raises(ValueError, match="robertson size must be"):
-        ScrewDrive.robertson_mask("2")  # type: ignore[arg-type]
+        ScrewDrive.robertson_mask("5")

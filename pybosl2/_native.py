@@ -36,6 +36,14 @@ def native(name: str) -> Callable[..., Any]:
             import pythonscad  # deferred: the FFI is only needed to construct geometry
 
             fn = _cache[name] = getattr(pythonscad, name)
+        if name == "polygon":
+            if args:
+                points = args[0]
+                sanitized = [[float(x) for x in p] for p in points]
+                args = (sanitized,) + args[1:]
+            elif "points" in kwargs:
+                points = kwargs["points"]
+                kwargs["points"] = [[float(x) for x in p] for p in points]
         return fn(*args, **kwargs)
 
     _call.__name__ = _call.__qualname__ = f"native:{name}"

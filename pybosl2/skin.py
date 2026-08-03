@@ -37,6 +37,8 @@
 from __future__ import annotations
 
 import math
+import sys
+import types
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence, cast
@@ -44,6 +46,7 @@ from typing import TYPE_CHECKING, Any, Sequence, cast
 if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import Path
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
@@ -193,7 +196,7 @@ def _u_nd(v: np.ndarray) -> np.ndarray:
     return v / sides if sides else v
 
 
-def path3d(path: Sequence[Sequence[float]] | Path2D | Path3D) -> list[list[float]]:
+def path3d(path: Sequence[Sequence[float]] | Path | np.ndarray | Sequence[np.ndarray]) -> list[list[float]]:
     """Pad a 2-D (or 3-D) point list to 3-D with z=0.
 
     The coordinates are converted to plain Python floats, not left as whatever the input held: a
@@ -303,10 +306,11 @@ def sweep(
         return _vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
     return VNF.vertex_array(
-        points,
+        points[:-1] if closed else points,
         cap1=cap_specs[0] if cap_specs else None,
         cap2=cap_specs[1] if cap_specs else None,
         col_wrap=True,
+        row_wrap=closed,
         style=style,
     )
 
@@ -464,7 +468,7 @@ def _path_sweep(
     if transforms:
         return transform_list
     shp = clockwise_polygon(shape)
-    return sweep(shp, transform_list, closed=False, caps=caps, style=style)
+    return sweep(shp, transform_list, closed=closed, caps=caps, style=style)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -598,10 +602,11 @@ def skin(
         return _vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
-        grid,
+        grid[:-1] if closed else grid,
         cap1=cap_specs[0] if cap_specs else None,
         cap2=cap_specs[1] if cap_specs else None,
         col_wrap=True,
+        row_wrap=closed,
         style=style,
     )
     return vnf if vnf.volume() >= 0 else vnf.reverse()
@@ -1757,7 +1762,7 @@ def _smooth(data: Sequence[float], length: int, closed: bool = False, angle: boo
 
 def rot_resample(
     rotlist: Sequence[Sequence[float]],
-    sides: int,
+    num_copies: int | Sequence[int],
     twist: float | Sequence[float] | None = None,
     scale: float | Sequence[float] | None = None,
     smoothlen: int = 1,
@@ -1774,7 +1779,7 @@ def rot_resample(
 
     Args:
         rotlist: list of 4x4 transform matrices
-        sides:       number of output samples (method="length") or samples per gap (method="count")
+        num_copies: number of output samples (method="length") or samples per gap (method="count")
         twist:   extra twist in degrees (scalar or per-gap list)
         scale:   extra scale (scalar or per-gap list, multiplied cumulatively)
         smoothlen: odd window length for smoothing the twist/scale (default 1 = none)
@@ -1789,9 +1794,10 @@ def rot_resample(
     m = len(rotlist_extra)
     tcount = m + (0 if closed else -1)
     if method == "length":
-        count = (sides + 1) if closed else sides
+        assert isinstance(num_copies, int), "rot_resample(): num_copies must be an integer for method='length'."
+        count = (num_copies + 1) if closed else num_copies
     else:
-        count = (sum(sides) if isinstance(sides, (list, tuple)) else tcount * sides) + 1
+        count = int(tcount * num_copies + 1) if isinstance(num_copies, (int, float)) else int(sum(num_copies) + 1)
     long_l = list(long) if isinstance(long, (list, tuple)) else [long] * tcount
     turns_l = list(turns) if isinstance(turns, (list, tuple)) else [turns] * tcount
 
@@ -1825,8 +1831,8 @@ def rot_resample(
     stepsize = totlen / (count - 1) if count > 1 else totlen
 
     if method == "count":
-        nlist = list(sides) if isinstance(sides, (list, tuple)) else [sides] * tcount
-        samples = [[k / N for k in range(N)] for N in nlist]  # lerpn(0,1,N,endpoint=False)
+        nlist = [int(num_copies)] * tcount if isinstance(num_copies, (int, float)) else [int(x) for x in num_copies]
+        samples = [[k / N for k in range(N)] for N in nlist]
     else:
         samples = []
         for i in range(tcount):
@@ -1881,3 +1887,11 @@ def rot_resample(
     return [
         interpolated[i] @ zrot4(smoothtwist[i]) @ _scale4([smoothscale[i], smoothscale[i], 1.0]) for i in range(end)
     ]
+
+
+class _CallableModule(types.ModuleType):
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        return skin(*args, **kwargs)
+
+
+sys.modules[__name__].__class__ = _CallableModule
