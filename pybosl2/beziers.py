@@ -16,24 +16,25 @@ A Bezier is a list of control points: a single curve, or a bezier PATH of
 degree-N curves that share endpoints (a flat list of control points where
 ``len % N == 1``). Ported, matching beziers.scad:
 
-  * curve evaluation/analysis: points, curve, derivative, tangent,
-    curvature, closest_point, length, line_intersection
-  * path evaluation/analysis: path_points, path_curve, path_closest_point,
-    path_length, close_to_axis, path_offset, and Bezier.from_path()
-    (BOSL2 path_to_bezpath)
-  * control-point construction: Bezier.begin/tang/joint/end (BOSL2
-    bez_begin/bez_tang/bez_joint/bez_end), with the scalar-angle, direction
-    -vector, and 3-D spherical-angle (``p=``) forms, and Bezier.flatten
+- curve evaluation/analysis: points, curve, derivative, tangent,
+  curvature, closest_point, length, line_intersection
+- path evaluation/analysis: path_points, path_curve, path_closest_point,
+  path_length, close_to_axis, path_offset, and ``Bezier.from_path()``
+  (the BOSL2 ``path_to_bezpath`` equivalent)
+- control-point construction: Bezier.begin/tang/joint/end (BOSL2
+  bez_begin/bez_tang/bez_joint/bez_end), with the scalar-angle, direction
+  -vector, and 3-D spherical-angle (``p=``) forms, and Bezier.flatten
 
 The Bezier SURFACE subsystem is on the :class:`BezierPatch` class, built on a
 VNF port (pybosl2/vnf.py) and a sweep port (pybosl2/skin.py):
-  * patches: points, normals, reverse, flat, is_patch, vnf, to_vnf,
-    vnf_degenerate (bezier_vnf_degenerate_patch), sheet (bezier_sheet),
-    and debug (debug_bezier_patches)
-  * sweeping a shape along a bezier/bezier-path: Bezier.sweep (bezier_sweep)
-    and Bezier.sweep, plus Bezier.debug (debug_bezier)
-  * path_to_bezcornerpath() is ported as :meth:`~pybosl2.path2d.Path2D.to_bezcornerpath`
-    via the ``_bezcorner`` helper in pybosl2/rounding.py.
+
+- patches: points, normals, reverse, flat, is_patch, vnf, to_vnf,
+  vnf_degenerate (bezier_vnf_degenerate_patch), sheet (bezier_sheet),
+  and debug (debug_bezier_patches)
+- sweeping a shape along a bezier/bezier-path: Bezier.sweep (bezier_sweep)
+  and Bezier.sweep, plus Bezier.debug (debug_bezier)
+- path_to_bezcornerpath() is ported as :meth:`~pybosl2.path2d.Path2D.to_bezcornerpath`
+  via the ``_bezcorner`` helper in pybosl2/rounding.py.
 
 ``points()`` -- the hot path -- uses numpy: it builds the bezier-to-power-basis
 matrix (the same "matrix representation" BOSL2 uses, generalized to any degree

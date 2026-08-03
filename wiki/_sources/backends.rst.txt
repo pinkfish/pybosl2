@@ -14,7 +14,7 @@ Solid backends: CSG and SDF
 Both backends expose the *same* shared constructors, so the same code builds either one.
 
 The ``pybosl2.solid`` facade
---------------------------
+----------------------------
 
 :mod:`pybosl2.solid` is the backend-neutral entry point. Each constructor dispatches to whichever
 backend is active and returns a common ``Solid`` — a ``Bosl2Solid`` on CSG,

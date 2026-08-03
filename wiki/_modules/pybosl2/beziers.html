@@ -159,24 +159,26 @@
 <span class="sd">A Bezier is a list of control points: a single curve, or a bezier PATH of</span>
 <span class="sd">degree-N curves that share endpoints (a flat list of control points where</span>
 <span class="sd">``len % N == 1``). Ported, matching beziers.scad:</span>
-<span class="sd">  * curve evaluation/analysis: points, curve, derivative, tangent,</span>
-<span class="sd">    curvature, closest_point, length, line_intersection</span>
-<span class="sd">  * path evaluation/analysis: path_points, path_curve, path_closest_point,</span>
-<span class="sd">    path_length, close_to_axis, path_offset, and Bezier.from_path()</span>
-<span class="sd">    (BOSL2 path_to_bezpath)</span>
-<span class="sd">  * control-point construction: Bezier.begin/tang/joint/end (BOSL2</span>
-<span class="sd">    bez_begin/bez_tang/bez_joint/bez_end), with the scalar-angle, direction</span>
-<span class="sd">    -vector, and 3-D spherical-angle (``p=``) forms, and Bezier.flatten</span>
+
+<span class="sd">- curve evaluation/analysis: points, curve, derivative, tangent,</span>
+<span class="sd">  curvature, closest_point, length, line_intersection</span>
+<span class="sd">- path evaluation/analysis: path_points, path_curve, path_closest_point,</span>
+<span class="sd">  path_length, close_to_axis, path_offset, and ``Bezier.from_path()``</span>
+<span class="sd">  (the BOSL2 ``path_to_bezpath`` equivalent)</span>
+<span class="sd">- control-point construction: Bezier.begin/tang/joint/end (BOSL2</span>
+<span class="sd">  bez_begin/bez_tang/bez_joint/bez_end), with the scalar-angle, direction</span>
+<span class="sd">  -vector, and 3-D spherical-angle (``p=``) forms, and Bezier.flatten</span>
 
 <span class="sd">The Bezier SURFACE subsystem is on the :class:`BezierPatch` class, built on a</span>
 <span class="sd">VNF port (pybosl2/vnf.py) and a sweep port (pybosl2/skin.py):</span>
-<span class="sd">  * patches: points, normals, reverse, flat, is_patch, vnf, to_vnf,</span>
-<span class="sd">    vnf_degenerate (bezier_vnf_degenerate_patch), sheet (bezier_sheet),</span>
-<span class="sd">    and debug (debug_bezier_patches)</span>
-<span class="sd">  * sweeping a shape along a bezier/bezier-path: Bezier.sweep (bezier_sweep)</span>
-<span class="sd">    and Bezier.sweep, plus Bezier.debug (debug_bezier)</span>
-<span class="sd">  * path_to_bezcornerpath() is ported as :meth:`~pybosl2.path2d.Path2D.to_bezcornerpath`</span>
-<span class="sd">    via the ``_bezcorner`` helper in pybosl2/rounding.py.</span>
+
+<span class="sd">- patches: points, normals, reverse, flat, is_patch, vnf, to_vnf,</span>
+<span class="sd">  vnf_degenerate (bezier_vnf_degenerate_patch), sheet (bezier_sheet),</span>
+<span class="sd">  and debug (debug_bezier_patches)</span>
+<span class="sd">- sweeping a shape along a bezier/bezier-path: Bezier.sweep (bezier_sweep)</span>
+<span class="sd">  and Bezier.sweep, plus Bezier.debug (debug_bezier)</span>
+<span class="sd">- path_to_bezcornerpath() is ported as :meth:`~pybosl2.path2d.Path2D.to_bezcornerpath`</span>
+<span class="sd">  via the ``_bezcorner`` helper in pybosl2/rounding.py.</span>
 
 <span class="sd">``points()`` -- the hot path -- uses numpy: it builds the bezier-to-power-basis</span>
 <span class="sd">matrix (the same &quot;matrix representation&quot; BOSL2 uses, generalized to any degree</span>
@@ -415,7 +417,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">curvature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Curvature value(s) at parameter(s) *u* (inverse tangent-circle radius).</span>
 
-<span class="sd">        Computes the scalar curvature κ = |r&#39; × r&#39;&#39;| / |r&#39;|³ at each</span>
+<span class="sd">        Computes the scalar curvature κ = ``|r&#39; × r&#39;&#39;|`` / ``|r&#39;|³`` at each</span>
 <span class="sd">        parameter value. For a scalar *u* returns a single float; for a list</span>
 <span class="sd">        of *u* values returns a numpy array of floats.</span>
 
@@ -424,7 +426,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A float (for scalar *u*) or numpy array of curvature values. The</span>
-<span class="sd">            curvature κ = |r&#39; × r&#39;&#39;| / |r&#39;|³ is the inverse radius of the</span>
+<span class="sd">            curvature κ = ``|r&#39; × r&#39;&#39;|`` / ``|r&#39;|³`` is the inverse radius of the</span>
 <span class="sd">            tangent circle.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scalar</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
