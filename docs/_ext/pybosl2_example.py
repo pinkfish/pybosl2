@@ -140,7 +140,7 @@ class Bosl2ExampleDirective(Directive):
         script = _PREAMBLE + indented_str + "\n" + _POSTAMBLE
 
         out: list[nodes.Node] = []
-        code_node = nodes.literal_block(code, code)
+        code_node = nodes.literal_block(code_str, code_str)
         code_node["language"] = "python"
         out.append(code_node)
 
