@@ -33,7 +33,7 @@ render tests.
    * - ``solid.inside(point)``
      - solid → bool
      - Test whether a point lies inside the solid.
-   * - ``s3.roof(shape2d)``
+   * - ``pybosl2.roof(shape2d)``
      - 2-D → solid
      - Raise a hip roof over a 2-D outline via its straight skeleton.
 
@@ -51,20 +51,20 @@ roof):
 
 .. pythonscad-example::
 
-    s3.roof(s2.square([30, 30], center=True)).show()
+    pybosl2.roof(s2.square([30, 30], center=True)).show()
 
 Oversampling subdivides a solid's facets without changing its shape -- useful before a bend or a
 displacement:
 
 .. pythonscad-example::
 
-    s3.cuboid([30, 30, 12]).oversample(3).show()
+    pybosl2.cuboid([30, 30, 12]).oversample(3).show()
 
 Pulling a block apart stretches the material between the halves:
 
 .. pythonscad-example::
 
-    s3.cuboid([24, 24, 12]).pull([0, 0, 1], 8).show()
+    pybosl2.cuboid([24, 24, 12]).pull([0, 0, 1], 8).show()
 
 API reference
 -------------
