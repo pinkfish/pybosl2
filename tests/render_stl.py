@@ -149,7 +149,7 @@ def render_object(
     for a compact binary STL; the default is ASCII). Returns an StlResult; never raises for a render
     failure so callers can assert on ``.ok``. Only raises if no binary can be located at all.
     """
-    body = _PREAMBLE + setup + _EXTRA_PREAMBLE f"    obj = {expr}\n" + "    obj.show()\n" + _POSTAMBLE
+    body = _PREAMBLE + setup + _EXTRA_PREAMBLE + f"    obj = {expr}\n" + "    obj.show()\n" + _POSTAMBLE
     return render_stl_script(body, out_stl, timeout=timeout, export_format=export_format)
 
 
