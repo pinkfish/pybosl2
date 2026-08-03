@@ -69,16 +69,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Install numpy/shapely for PythonSCAD's bundled Python
-        run: |
-          PYBASE=$(find /opt/pythonscad -name 'pythonscad' -type f -path '*/usr/bin/*' | head -1)
-          if [ -z "$PYBASE" ]; then
-            PYBASE=$(find /opt/pythonscad -path '*/bin/python3' -type f | head -1)
-          fi
-          echo "AppImage Python: $PYBASE"
-          "$PYBASE" --version
-          "$PYBASE" -m pip install --user numpy shapely
-
       - name: Verify PythonSCAD renders (with library path setup)
         run: |
           BIN=$(find /opt/pythonscad -name AppRun -type f | head -1)
