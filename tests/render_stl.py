@@ -75,6 +75,15 @@ _PREAMBLE = (
     "usp = site.getusersitepackages()\n"
     "if os.path.isdir(usp) and usp not in sys.path:\n"
     "    sys.path.insert(0, usp)\n"
+    # In CI (GitHub Actions), pythonLocation points to the host Python's root;
+    # the AppImage Python may be a different installation and not see those packages.
+    "host_sp = os.environ.get('pythonLocation', '')\n"
+    "if host_sp:\n"
+    "    for entry in os.listdir(os.path.join(host_sp, 'lib')):\n"
+    "        if entry.startswith('python3.'):\n"
+    "            sp = os.path.join(host_sp, 'lib', entry, 'site-packages')\n"
+    "            if os.path.isdir(sp) and sp not in sys.path:\n"
+    "                sys.path.insert(0, sp)\n"
     "import numpy as np\n"
     "import pybosl2.shapes3d as s3\n"
     "import pybosl2.shapes2d as s2\n"
