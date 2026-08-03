@@ -46,7 +46,7 @@ from pybosl2._sdf.shapes3d import PyShape
 # ---------------------------------------------------------------------------
 
 
-class PyShape2D:
+class SdfShape2D:
     """A lazy 2-D shape: a symbolic signed-distance function of (x, y) plus bounds -- the flat
     sibling of PyShape, for building lid-pattern shapes (shapes.py/tesselations.py) entirely in
     SDF-land. Compose with translate/rotate/scale/mirror, the boolean operators, and the two
@@ -840,3 +840,6 @@ def keyhole2d(
             pts.append([cp1[0] + r1v * _m.cos(a), cp1[1] + r1v * _m.sin(a)])
 
     return polygon2d(pts, res=res)
+
+
+PyShape2D = SdfShape2D

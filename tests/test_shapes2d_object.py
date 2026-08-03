@@ -93,7 +93,7 @@ def test_unwrap_returns_the_native_handle() -> None:
 
 
 def test_repr_names_the_class() -> None:
-    assert repr(s2.square(10)).startswith("Bosl2Shape2D(")
+    assert repr(s2.square(10)).startswith("CsgShape2D(")
 
 
 # ---------------------------------------------------------------------------
