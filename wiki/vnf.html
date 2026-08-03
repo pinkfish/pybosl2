@@ -5,17 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>VNF meshes &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>VNF meshes &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Approximate comparison" href="comparisons.html" />
+    <link rel="next" title="Geometry helpers" href="geometry.html" />
     <link rel="prev" title="Turtle (3-D)" href="turtle3d.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -73,7 +73,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -115,7 +114,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="turtle3d.html" title="previous chapter">Turtle (3-D)</a></li>
-      <li>Next: <a href="comparisons.html" title="next chapter">Approximate comparison</a></li>
+      <li>Next: <a href="geometry.html" title="next chapter">Geometry helpers</a></li>
   </ul></li>
 </ul>
 </div>
@@ -144,32 +143,40 @@
 </div>
 <div class="ps-content">
 <ul class="pysidebar-list">
+<li class="ps-func"><a href="#pybosl2.vnf.contour">contour</a></li>
+<li class="ps-class"><a href="#pybosl2.vnf.VnfStyle"><strong>VnfStyle</strong></a></li>
 <li class="ps-class"><a href="#pybosl2.vnf.VNF"><strong>VNF</strong></a></li>
 <li class="ps-meth"><a href="#pybosl2.vnf.VNF.bounds">.bounds</a></li>
 <li class="ps-meth"><a href="#pybosl2.vnf.VNF.reverse">.reverse</a></li>
 <li class="ps-meth"><a href="#pybosl2.vnf.VNF.volume">.volume</a></li>
+<li class="ps-meth"><a href="#pybosl2.vnf.VNF.union">.union</a></li>
 <li class="ps-meth"><a href="#pybosl2.vnf.VNF.join">.join</a></li>
+<li class="ps-meth"><a href="#pybosl2.vnf.VNF.halfspace">.halfspace</a></li>
+<li class="ps-meth"><a href="#pybosl2.vnf.VNF.slice">.slice</a></li>
 <li class="ps-meth"><a href="#pybosl2.vnf.VNF.vertex_array">.vertex_array</a></li>
 <li class="ps-meth"><a href="#pybosl2.vnf.VNF.tri_array">.tri_array</a></li>
 <li class="ps-meth"><a href="#pybosl2.vnf.VNF.polyhedron">.polyhedron</a></li>
 <li class="ps-meth"><a href="#pybosl2.vnf.VNF.geometry">.geometry</a></li>
+<li class="ps-meth"><a href="#pybosl2.vnf.VNF.from_field">.from_field</a></li>
+<li class="ps-meth"><a href="#pybosl2.vnf.VNF.from_metaballs">.from_metaballs</a></li>
 <li class="ps-func"><a href="#pybosl2.vnf.vnf_polyhedron">vnf_polyhedron</a></li>
 </ul></div></aside>
 <script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="module-pybosl2.vnf">
 <span id="vnf-meshes"></span><h1>VNF meshes<a class="headerlink" href="#module-pybosl2.vnf" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pybosl2.vnf.VNF">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">VNF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">VNF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A VNF surface: <code class="docutils literal notranslate"><span class="pre">vertices</span></code> (3-D points) plus <code class="docutils literal notranslate"><span class="pre">faces</span></code> (index polygons into vertices).</p>
 <p>Renders to PythonSCAD’s native <code class="docutils literal notranslate"><span class="pre">polyhedron</span></code> via <a class="reference internal" href="#pybosl2.vnf.VNF.polyhedron" title="pybosl2.vnf.VNF.polyhedron"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polyhedron()</span></code></a>. Build one from a
-rectangular grid of sample points with <a class="reference internal" href="#pybosl2.vnf.VNF.vertex_array" title="pybosl2.vnf.VNF.vertex_array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">vertex_array()</span></code></a>, and merge several with
-<a class="reference internal" href="#pybosl2.vnf.VNF.join" title="pybosl2.vnf.VNF.join"><code class="xref py py-meth docutils literal notranslate"><span class="pre">join()</span></code></a>.</p>
+rectangular grid of sample points with <a class="reference internal" href="#pybosl2.vnf.VNF.vertex_array" title="pybosl2.vnf.VNF.vertex_array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">vertex_array()</span></code></a>, merge several with
+<a class="reference internal" href="#pybosl2.vnf.VNF.union" title="pybosl2.vnf.VNF.union"><code class="xref py py-meth docutils literal notranslate"><span class="pre">union()</span></code></a>, or mesh a scalar field with <a class="reference internal" href="#pybosl2.vnf.VNF.from_field" title="pybosl2.vnf.VNF.from_field"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_field()</span></code></a> and combine metaball
+primitives with <a class="reference internal" href="#pybosl2.vnf.VNF.from_metaballs" title="pybosl2.vnf.VNF.from_metaballs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_metaballs()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>vertices</strong> – list of [x, y, z] points</p></li>
-<li><p><strong>faces</strong> – list of index lists (each polygon into <em>vertices</em>)</p></li>
+<li><p><strong>vertices</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – list of [x, y, z] points</p></li>
+<li><p><strong>faces</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>int</em><em>]</em><em>] </em><em>| </em><em>None</em>) – list of index lists (each polygon into <em>vertices</em>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -181,13 +188,13 @@ rectangular grid of sample points with <a class="reference internal" href="#pybo
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b3110d4ffac642128b035df4abc1614e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-0a0592ceba1a418d90a16c99a2b1f475" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b3110d4ffac642128b035df4abc1614e");
+const el = document.getElementById("stlviewer-0a0592ceba1a418d90a16c99a2b1f475");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -234,10 +241,10 @@ window.addEventListener("resize", resize);
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.vnf.VNF.bounds">
 <span class="sig-name descname"><span class="pre">bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.bounds" title="Link to this definition">¶</a></dt>
-<dd><p>[[min_x, min_y, min_z], [max_x, max_y, max_z]].</p>
+<dd><p>Axis-aligned <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds3D</span></code> of the VNF.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+<dd class="field-odd"><p><em>Bounds3D</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -267,32 +274,12 @@ inside-out): <code class="docutils literal notranslate"><span class="pre">vnf</s
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pybosl2.vnf.VNF.join">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vnfs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.join" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pybosl2.vnf.VNF.union">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">union</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vnfs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.union"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.union" title="Link to this definition">¶</a></dt>
 <dd><p>Merge a list of VNFs into one, offsetting each VNF’s face indices (BOSL2 vnf_join()).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><em>VNF</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pybosl2.vnf.VNF.vertex_array">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">vertex_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.vertex_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array" title="Link to this definition">¶</a></dt>
-<dd><p>Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).</p>
-<p>Each grid cell becomes triangles (or a quad) chosen by <em>style</em>: “default”, “alt”,
-“min_edge”, “min_area”, “convex”, “concave”, “quincunx”, “quad”, “flip1”, “flip2”.
-<em>col_wrap</em>/<em>row_wrap</em> close the grid into a tube/torus; <em>caps</em>/<em>cap1</em>/<em>cap2</em> close the
-column-wrapped ends; <em>reverse</em> flips face winding. Degenerate (zero-area) faces are dropped.</p>
-<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>col_wrap</strong> (<em>bool</em>)</p></li>
-<li><p><strong>row_wrap</strong> (<em>bool</em>)</p></li>
-<li><p><strong>reverse</strong> (<em>bool</em>)</p></li>
-<li><p><strong>style</strong> (<em>str</em>)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>vnfs</strong> (<em>list</em><em>[</em><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><em>VNF</em></a><em>]</em>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><em>VNF</em></a></p>
@@ -301,14 +288,139 @@ column-wrapped ends; <em>reverse</em> flips face winding. Degenerate (zero-area)
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.vnf.VNF.join">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vnfs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.join" title="Link to this definition">¶</a></dt>
+<dd><p>Merge multiple VNFs into a single consolidated VNF with shared vertices.</p>
+<p>Each input VNF’s vertices and faces are copied into a combined vertex array,
+with face indices offset appropriately.  No deduplication is performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vnfs</strong> (<em>list</em><em>[</em><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><em>VNF</em></a><em>]</em>) – A list of <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> objects to merge.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> containing all vertices and faces from the inputs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><em>VNF</em></a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">([[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="p">],</span> <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="p">]])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">([[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="p">],</span> <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="p">]])</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.vnf.VNF.halfspace">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">halfspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vnf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.halfspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace" title="Link to this definition">¶</a></dt>
+<dd><p>Clip a VNF to one side of a plane, optionally closing the cut face.</p>
+<p>A plane is defined as <code class="docutils literal notranslate"><span class="pre">[A,</span> <span class="pre">B,</span> <span class="pre">C,</span> <span class="pre">D]</span></code> for <code class="docutils literal notranslate"><span class="pre">A*x</span> <span class="pre">+</span> <span class="pre">B*y</span> <span class="pre">+</span> <span class="pre">C*z</span> <span class="pre">=</span> <span class="pre">D</span></code>.
+If <em>keep</em> is True, the positive halfspace (<code class="docutils literal notranslate"><span class="pre">A*x</span> <span class="pre">+</span> <span class="pre">B*y</span> <span class="pre">+</span> <span class="pre">C*z</span> <span class="pre">&gt;</span> <span class="pre">D</span></code>)
+is retained.  If <em>keep</em> is False, the negative halfspace is retained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vnf</strong> (<a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><em>VNF</em></a>) – The input <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p></li>
+<li><p><strong>plane</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Plane equation <code class="docutils literal notranslate"><span class="pre">[A,</span> <span class="pre">B,</span> <span class="pre">C,</span> <span class="pre">D]</span></code>.</p></li>
+<li><p><strong>keep</strong> (<em>bool</em>) – If True, keep the positive halfspace.  Defaults to True.</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>) – If True, triangulate and close the cut face.  Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> containing only the requested halfspace.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>plane</em> does not have exactly 4 elements.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cube_vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="mi">5</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">cut</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">halfspace</span><span class="p">(</span><span class="n">cube_vnf</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cut</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.vnf.VNF.slice">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vnf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.slice" title="Link to this definition">¶</a></dt>
+<dd><p>Slice a VNF into two VNFs along a plane, closing both cut faces.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">(vnf_above,</span> <span class="pre">vnf_below)</span></code> where <em>vnf_above</em> is the positive
+halfspace and <em>vnf_below</em> is the negative halfspace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vnf</strong> (<a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><em>VNF</em></a>) – The input <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p></li>
+<li><p><strong>plane</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – Plane equation <code class="docutils literal notranslate"><span class="pre">[A,</span> <span class="pre">B,</span> <span class="pre">C,</span> <span class="pre">D]</span></code> for <code class="docutils literal notranslate"><span class="pre">A*x</span> <span class="pre">+</span> <span class="pre">B*y</span> <span class="pre">+</span> <span class="pre">C*z</span> <span class="pre">=</span> <span class="pre">D</span></code>.</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>) – If True, close both cut faces.  Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">(above,</span> <span class="pre">below)</span></code> tuple of <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> objects.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[‘VNF’, ‘VNF’]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cube_vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="mi">5</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">above</span><span class="p">,</span> <span class="n">below</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">cube_vnf</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">above</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.vnf.VNF.vertex_array">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">vertex_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.vertex_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array" title="Link to this definition">¶</a></dt>
+<dd><p>Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).</p>
+<p>Each grid cell becomes triangles (or a quad) chosen by <em>style</em>: “default”, “alt”,
+“min_edge”, “min_area”, “convex”, “concave”, “quincunx”, “quad”, “flip1”, “flip2”.
+<em>col_wrap</em>/<em>row_wrap</em> close the grid into a tube/torus; <em>cap1</em>/<em>cap2</em> close the
+column-wrapped ends with <code class="xref py py-class docutils literal notranslate"><span class="pre">CapType</span></code> styles;
+<em>reverse</em> flips face winding. Degenerate (zero-area) faces are dropped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<a class="reference internal" href="paths.html#pybosl2.path3d.Path3D" title="pybosl2.path3d.Path3D"><em>Path3D</em></a><em> | </em><em>list</em><em>[</em><a class="reference internal" href="paths.html#pybosl2.path3d.Path3D" title="pybosl2.path3d.Path3D"><em>Path3D</em></a><em>] </em><em>| </em><em>list</em><em>[</em><em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>]</em><em>] </em><em>| </em><em>list</em><em>[</em><em>np.ndarray</em><em>] </em><em>| </em><em>np.ndarray</em>)</p></li>
+<li><p><strong>cap1</strong> (<em>CapType</em><em> | </em><em>CapSpec</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cap2</strong> (<em>CapType</em><em> | </em><em>CapSpec</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>col_wrap</strong> (<em>bool</em>)</p></li>
+<li><p><strong>row_wrap</strong> (<em>bool</em>)</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>)</p></li>
+<li><p><strong>style</strong> (<em>str</em><em> | </em><a class="reference internal" href="#pybosl2.vnf.VnfStyle" title="pybosl2.vnf.VnfStyle"><em>VnfStyle</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.vnf.VNF.tri_array">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tri_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_bunching</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.tri_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tri_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_wrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_bunching</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.tri_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array" title="Link to this definition">¶</a></dt>
 <dd><p>Build a VNF from an array of rows whose lengths may differ (BOSL2 vnf_tri_array()).</p>
 <p>Triangulates between adjacent rows by repeatedly adding the shortest new edge, so it
 meshes triangular / irregular point arrays (what the degenerate bezier patches produce).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>list</em><em>[</em><em>list</em><em>[</em><em>list</em><em>[</em><em>float</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>caps</strong> (<em>bool</em>)</p></li>
+<li><p><strong>cap1</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cap2</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>col_wrap</strong> (<em>bool</em>)</p></li>
 <li><p><strong>row_wrap</strong> (<em>bool</em>)</p></li>
 <li><p><strong>reverse</strong> (<em>bool</em>)</p></li>
@@ -325,14 +437,201 @@ meshes triangular / irregular point arrays (what the degenerate bezier patches p
 <dt class="sig sig-object py" id="pybosl2.vnf.VNF.polyhedron">
 <span class="sig-name descname"><span class="pre">polyhedron</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.polyhedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.polyhedron" title="Link to this definition">¶</a></dt>
 <dd><p>Native geometry for this VNF via PythonSCAD’s <code class="docutils literal notranslate"><span class="pre">polyhedron(points=,</span> <span class="pre">faces=)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Any</em></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.vnf.VNF.geometry">
 <span class="sig-name descname"><span class="pre">geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.geometry" title="Link to this definition">¶</a></dt>
 <dd><p>Alias of <a class="reference internal" href="#pybosl2.vnf.VNF.polyhedron" title="pybosl2.vnf.VNF.polyhedron"><code class="xref py py-meth docutils literal notranslate"><span class="pre">polyhedron()</span></code></a>, matching Path2D/Region’s geometry() surface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Any</em></p>
+</dd>
+</dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.vnf.VNF.from_field">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voxel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voxel_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.from_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.from_field" title="Link to this definition">¶</a></dt>
+<dd><p>Mesh a scalar field into a <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> via marching cubes.</p>
+<p>The solid is the region where <code class="docutils literal notranslate"><span class="pre">f</span> <span class="pre">&gt;=</span> <span class="pre">isovalue</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>np.ndarray</em><em> | </em><a class="reference internal" href="paths.html#pybosl2.path3d.Path3D" title="pybosl2.path3d.Path3D"><em>Path3D</em></a><em> | </em><em>Callable</em><em>[</em><em>[</em><em>np.ndarray</em><em>]</em><em>, </em><em>np.ndarray</em><em>] </em><em>| </em><em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="paths.html#pybosl2.path3d.Path3D" title="pybosl2.path3d.Path3D"><em>Path3D</em></a><em>]</em><em>, </em><em>np.ndarray</em><em>]</em>) – A <a class="reference internal" href="paths.html#pybosl2.path3d.Path3D" title="pybosl2.path3d.Path3D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code></a>, a 3-D numpy array,
+a <code class="docutils literal notranslate"><span class="pre">(N,3)</span> <span class="pre">→</span> <span class="pre">(N,)</span></code> callable, or a
+<code class="docutils literal notranslate"><span class="pre">(:class:`~pybosl2.path3d.Path3D`)</span> <span class="pre">→</span> <span class="pre">(N,)</span></code> callable.</p></li>
+<li><p><strong>isovalue</strong> (<em>float</em>) – Scalar threshold.</p></li>
+<li><p><strong>bounding_box</strong> (<em>Bounds3D</em><em> | </em><em>None</em>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds3D</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>
+(auto-computed from array shape when <em>f</em> is an array).</p></li>
+<li><p><strong>voxel_size</strong> (<em>float</em><em> | </em><em>None</em>) – Isotropic voxel size.</p></li>
+<li><p><strong>voxel_count</strong> (<em>int</em><em> | </em><em>None</em>) – Approximate total voxel count (ignored if <em>voxel_size</em> given).</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>) – If True, pad field so mesh closes at bounding-box faces.</p></li>
+<li><p><strong>reverse</strong> (<em>bool</em>) – If True, reverse inside/outside sense.</p></li>
+<li><p><strong>exact_bounds</strong> (<em>bool</em>) – If True, use <em>bounding_box</em> exactly.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – If <em>isovalue</em> is a tuple range; only scalar thresholds are supported.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">field</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="mi">20</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">z</span><span class="o">*</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span>
+    <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.vnf.VNF.from_metaballs">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_metaballs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voxel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voxel_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.from_metaballs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs" title="Link to this definition">¶</a></dt>
+<dd><p>Mesh transformed metaball primitives into a blobby <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spec</strong> (<em>list</em><em>[</em><em>_MetaballSpec</em><em>]</em>) – A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">_MetaballSpec</span></code> entries,
+each holding a transform (4×4 matrix or Point position) and a <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code>.</p></li>
+<li><p><strong>bounding_box</strong> (<em>Bounds3D</em>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds3D</span></code>.</p></li>
+<li><p><strong>voxel_size</strong> (<em>float</em><em> | </em><em>None</em>) – Isotropic voxel size.</p></li>
+<li><p><strong>voxel_count</strong> (<em>int</em><em> | </em><em>None</em>) – Approximate total voxel count.</p></li>
+<li><p><strong>isovalue</strong> (<em>float</em>) – Field threshold.</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>) – Close mesh at bounding-box faces.</p></li>
+<li><p><strong>exact_bounds</strong> (<em>bool</em>) – Use <em>bounding_box</em> exactly.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.metaballs</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaballSpec</span><span class="p">,</span> <span class="n">mb_sphere</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">MetaballSpec</span><span class="p">([</span><span class="o">-</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">)),</span>
+    <span class="n">MetaballSpec</span><span class="p">([</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">)),</span>
+<span class="p">]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_metaballs</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">,</span>
+    <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+    <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">VnfStyle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VnfStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VnfStyle" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Triangulation style for <a class="reference internal" href="#pybosl2.vnf.VNF.vertex_array" title="pybosl2.vnf.VNF.vertex_array"><code class="xref py py-meth docutils literal notranslate"><span class="pre">VNF.vertex_array()</span></code></a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.DEFAULT">
+<span class="sig-name descname"><span class="pre">DEFAULT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'default'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.DEFAULT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.ALT">
+<span class="sig-name descname"><span class="pre">ALT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'alt'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.ALT" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.MIN_EDGE">
+<span class="sig-name descname"><span class="pre">MIN_EDGE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'min_edge'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.MIN_EDGE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.MIN_AREA">
+<span class="sig-name descname"><span class="pre">MIN_AREA</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'min_area'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.MIN_AREA" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.CONVEX">
+<span class="sig-name descname"><span class="pre">CONVEX</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'convex'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.CONVEX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.CONCAVE">
+<span class="sig-name descname"><span class="pre">CONCAVE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'concave'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.CONCAVE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.QUINCUNX">
+<span class="sig-name descname"><span class="pre">QUINCUNX</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'quincunx'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.QUINCUNX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.QUAD">
+<span class="sig-name descname"><span class="pre">QUAD</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'quad'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.QUAD" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.FLIP1">
+<span class="sig-name descname"><span class="pre">FLIP1</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'flip1'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.FLIP1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pybosl2.vnf.VnfStyle.FLIP2">
+<span class="sig-name descname"><span class="pre">FLIP2</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'flip2'</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle.FLIP2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pybosl2.vnf.contour">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isovalue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounding_box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#contour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.contour" title="Link to this definition">¶</a></dt>
+<dd><p>Generate 2-D contour paths at a given isovalue from a scalar field.</p>
+<p>Uses marching squares on a uniform 2-D grid to trace the contour where
+<code class="docutils literal notranslate"><span class="pre">f(x,</span> <span class="pre">y)</span> <span class="pre">==</span> <span class="pre">isovalue</span></code>.  Returns a list of closed (or open) polyline
+paths, each being a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>np.ndarray</em><em> | </em><em>Callable</em><em>[</em><em>[</em><em>np.ndarray</em><em>]</em><em>, </em><em>np.ndarray</em><em>]</em>) – A 2-D numpy array or a callable <code class="docutils literal notranslate"><span class="pre">(N,2)→(N,)</span></code> or <code class="docutils literal notranslate"><span class="pre">(x,y)→float</span></code>.</p></li>
+<li><p><strong>isovalue</strong> (<em>float</em>) – Scalar threshold.</p></li>
+<li><p><strong>bounding_box</strong> (<em>Bounds2D</em>) – A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds2D</span></code>.</p></li>
+<li><p><strong>pixel_size</strong> (<em>float</em><em> | </em><em>None</em>) – Isotropic pixel size.</p></li>
+<li><p><strong>pixel_count</strong> (<em>int</em><em> | </em><em>None</em>) – Approximate total pixel count (ignored if <em>pixel_size</em> given).</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>) – If True, return only closed contour loops.</p></li>
+<li><p><strong>exact_bounds</strong> (<em>bool</em>) – If True, use <em>bounding_box</em> exactly.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of contour paths, each a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[list[float]]]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">field</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">r</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="n">contour</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">Bounds2D</span><span class="p">(</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="n">pixel_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="c1"># paths can be stroked or extruded</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -348,6 +647,9 @@ without any change.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A PythonSCAD <code class="docutils literal notranslate"><span class="pre">polyhedron</span></code> solid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Any</em></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

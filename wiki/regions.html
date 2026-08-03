@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Regions &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Regions &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -73,7 +73,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -177,7 +176,7 @@ transforms.py, so a polygon can be built once and then chained
 point lists through free functions.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pybosl2.regions.Path2D">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.regions.</span></span><span class="sig-name descname"><span class="pre">Path2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#Path2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Path2D" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.regions.</span></span><span class="sig-name descname"><span class="pre">Path2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#Path2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Path2D" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="paths.html#pybosl2.paths.Path" title="pybosl2.paths.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, <a class="reference internal" href="distributors.html#pybosl2.distributors.Distributable" title="pybosl2.distributors.Distributable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Distributable</span></code></a>, <a class="reference internal" href="miscellaneous.html#pybosl2.miscellaneous.Extrudable" title="pybosl2.miscellaneous.Extrudable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Extrudable</span></code></a>, <a class="reference internal" href="skin.html#pybosl2.skin.Sweepable" title="pybosl2.skin.Sweepable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sweepable</span></code></a>, <a class="reference internal" href="rounding.html#pybosl2.rounding.Roundable" title="pybosl2.rounding.Roundable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Roundable</span></code></a></p>
 <p>A 2-D path (formerly <code class="docutils literal notranslate"><span class="pre">Path2D</span></code>): a list of [x, y] points, with every path operation as a method.</p>
 <p>Every place that already treats a path as a plain point list (indexing, iteration, <code class="docutils literal notranslate"><span class="pre">len()</span></code>,
@@ -314,7 +313,7 @@ If False, segment-length-weighted average at shared points.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[<em>Vector</em>]</p>
+<dd class="field-even"><p>list[<em>Point</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -326,12 +325,12 @@ If False, segment-length-weighted average at shared points.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tangents</strong> (<em>list</em><em>[</em><em>Vector</em><em>] </em><em>| </em><em>None</em>)</p></li>
+<li><p><strong>tangents</strong> (<em>list</em><em>[</em><em>Point</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[<em>Vector</em>]</p>
+<dd class="field-even"><p>list[<em>Point</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -485,7 +484,7 @@ then returns the perpendicular (normal) vector.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[<em>Vector</em>]</p>
+<dd class="field-even"><p>list[<em>Point</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -506,7 +505,7 @@ then returns the perpendicular (normal) vector.</p>
 <dd class="field-even"><p>Two basis vectors defining the XY plane.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[<em>Vector</em>]</p>
+<dd class="field-odd"><p>list[<em>Point</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -527,7 +526,7 @@ then returns the perpendicular (normal) vector.</p>
 <dd class="field-even"><p>A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code> direction vectors, one per cut point.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[<em>Vector</em>]</p>
+<dd class="field-odd"><p>list[<em>Point</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1495,16 +1494,16 @@ plus <code class="docutils literal notranslate"><span class="pre">rounding_top</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.regions.Path2D.stroke">
-<span class="sig-name descname"><span class="pre">stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endcaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.ROUND</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endcap1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.ROUND</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endcap2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.ROUND</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.ROUND</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#Path2D.stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Path2D.stroke" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endcaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endcap1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endcap2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.ROUND</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#Path2D.stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Path2D.stroke" title="Link to this definition">¶</a></dt>
 <dd><p>Render this 2-D path as a stroked polygon outline.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>width</strong> (<em>float</em>)</p></li>
 <li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>endcaps</strong> (<em>CapType</em><em> | </em><em>CapSpec</em>)</p></li>
-<li><p><strong>endcap1</strong> (<em>CapType</em><em> | </em><em>CapSpec</em>)</p></li>
-<li><p><strong>endcap2</strong> (<em>CapType</em><em> | </em><em>CapSpec</em>)</p></li>
+<li><p><strong>endcaps</strong> (<em>CapType</em><em> | </em><em>CapSpec</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>endcap1</strong> (<em>CapType</em><em> | </em><em>CapSpec</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>endcap2</strong> (<em>CapType</em><em> | </em><em>CapSpec</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>joints</strong> (<em>CapType</em><em> | </em><em>CapSpec</em>)</p></li>
 </ul>
 </dd>
@@ -1608,6 +1607,30 @@ plus <code class="docutils literal notranslate"><span class="pre">rounding_top</
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.regions.Path2D.to_bezcornerpath">
+<span class="sig-name descname"><span class="pre">to_bezcornerpath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#Path2D.to_bezcornerpath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Path2D.to_bezcornerpath" title="Link to this definition">¶</a></dt>
+<dd><p>Replace straight corners with continuous-curvature beziers (BOSL2 path_to_bezcornerpath).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parm</strong> (<em>float</em><em> | </em><em>list</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – Distance from corner to control point (scalar for all corners,
+<code class="docutils literal notranslate"><span class="pre">[d,</span> <span class="pre">k]</span></code> for asymmetrical, or per-corner list).  <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>
+leaves a corner sharp.</p></li>
+<li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>) – Override the path’s closed flag.</p></li>
+<li><p><strong>fn</strong> (<em>int</em>) – Number of facets per bezier corner (0 = auto from <em>fs</em>).</p></li>
+<li><p><strong>fs</strong> (<em>float</em>) – Maximum facet size.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new <a class="reference internal" href="#pybosl2.regions.Path2D" title="pybosl2.regions.Path2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code></a> with bezier-rounded corners.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a></p>
 </dd>
 </dl>
 </dd></dl>

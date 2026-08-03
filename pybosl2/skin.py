@@ -1339,7 +1339,7 @@ def _rounded_prism(
 
     # Pre-round the side corners if requested
     if joint_sides is not None:
-        from pybosl2.rounding import _round_corners as _rc
+        from pybosl2.rounding import round_corners as _rc
 
         m_sides = "smooth" if k_sides is not None else "circle"
         kwargs_sides: dict[str, Any] = {"method": m_sides}

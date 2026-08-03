@@ -16,10 +16,10 @@ Coverage of BOSL2 ``skin.scad``
      - Notes
    * - ``sweep(shape, transforms)``
      - ported
-     - :func:`~pybosl2.skin.skin`
+     - :func:`~pybosl2.skin.sweep`
    * - ``path_sweep(shape, path)``
      - ported
-     - :func:`~pybosl2._sdf.shapes3d` — methods ``incremental`` / ``manual`` / ``natural``, twist,
+     - :meth:`~pybosl2.skin.Sweepable.path_sweep` — methods ``incremental`` / ``manual`` / ``natural``, twist,
        scale (scalar / ``[x, y]`` / per-point / ``Nx2``), open & closed paths, flat caps, user
        tangents, and the ``transforms=True`` mode
    * - ``skin(profiles, slices)``
@@ -27,16 +27,16 @@ Coverage of BOSL2 ``skin.scad``
      - :func:`~pybosl2.skin.skin` — ``direct`` and ``reindex`` methods
    * - ``linear_sweep(region, h)``
      - ported
-     - :func:`~pybosl2.skin.linear_sweep` — single outline, with twist / scale / shift / caps
+     - :meth:`~pybosl2.skin.Sweepable.linear_sweep` — single outline, with twist / scale / shift / caps
    * - ``rotate_sweep(shape, angle)``
      - ported
-     - :func:`~pybosl2.skin.rotate_sweep`
+     - :meth:`~pybosl2.skin.Sweepable.rotate_sweep`
    * - ``spiral_sweep(poly, h, r)``
      - ported
-     - :func:`~pybosl2.skin.spiral_sweep` — without the lead-in taper options
+     - :meth:`~pybosl2.skin.Sweepable.spiral_sweep` — without the lead-in taper options
    * - ``path_sweep2d(shape, path)``
      - ported
-     - :func:`~pybosl2.skin.path_sweep2d` — 2-D shape along a 2-D path (mitre offset; local creases
+     - :meth:`~pybosl2.skin.Sweepable.path_sweep2d` — 2-D shape along a 2-D path (mitre offset; local creases
        handled up to the path's tightest radius)
    * - ``rot_resample(rotlist, n)``
      - ported

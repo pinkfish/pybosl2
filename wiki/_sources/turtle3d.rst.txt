@@ -5,7 +5,7 @@ Pure-Python port of BOSL2's ``turtle3d.scad`` as a :class:`~pybosl2.turtle.turtl
 walks through 3-D space carrying an orientation frame; a flat list of commands drives it, and the
 result is either the list of points it visited (:meth:`~pybosl2.turtle.turtle3d.Turtle3D.points`) or a list of
 4x4 transforms (:meth:`~pybosl2.turtle.turtle3d.Turtle3D.transforms`) ready to sweep a profile with
-:func:`~pybosl2.skin.path_sweep` / :func:`~pybosl2.skin.sweep`.
+:meth:`~pybosl2.skin.Sweepable.path_sweep` / :func:`~pybosl2.skin.sweep`.
 
 The full simple command set is ported — moves (``move``/``jump``/``xmove`` …), relative turns
 (``left``/``right``/``up``/``down``/``roll``), absolute turns (``xrot``/``yrot``/``zrot``/``rot``/

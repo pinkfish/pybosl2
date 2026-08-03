@@ -109,7 +109,6 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 1
    :caption: Math & geometry
 
-    Comparisons <comparisons>
     Geometry <geometry>
     Math <math>
     Vectors <vectors>

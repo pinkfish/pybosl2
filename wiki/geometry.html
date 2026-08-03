@@ -5,18 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Geometry helpers &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Geometry helpers &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Numeric helpers (math)" href="math.html" />
-    <link rel="prev" title="Approximate comparison" href="comparisons.html" />
+    <link rel="prev" title="VNF meshes" href="vnf.html" />
 
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
 
@@ -73,7 +73,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -114,7 +113,7 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="comparisons.html" title="previous chapter">Approximate comparison</a></li>
+      <li>Previous: <a href="vnf.html" title="previous chapter">VNF meshes</a></li>
       <li>Next: <a href="math.html" title="next chapter">Numeric helpers (math)</a></li>
   </ul></li>
 </ul>
@@ -254,7 +253,7 @@ clamps the parameter to the segment’s bounds using <a class="reference externa
 <dt class="sig sig-object py" id="pybosl2.geometry.line_normal">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.geometry.</span></span><span class="sig-name descname"><span class="pre">line_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/geometry.html#line_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.geometry.line_normal" title="Link to this definition">¶</a></dt>
 <dd><p>Unit 2-D normal vector perpendicular to the line direction, pointing left.</p>
-<p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code> of length 2, perpendicular to
+<p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code> of length 2, perpendicular to
 the line from <em>point1</em> to <em>point2</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -264,10 +263,10 @@ the line from <em>point1</em> to <em>point2</em>.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A unit-length <code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code> normal to the line.</p>
+<dd class="field-even"><p>A unit-length <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code> normal to the line.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Vector</em></p>
+<dd class="field-odd"><p><em>Point</em></p>
 </dd>
 </dl>
 </dd></dl>

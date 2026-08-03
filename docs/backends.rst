@@ -17,7 +17,7 @@ The ``pybosl2.solid`` facade
 --------------------------
 
 :mod:`pybosl2.solid` is the backend-neutral entry point. Each constructor dispatches to whichever
-backend is active and returns a common :class:`~pybosl2._backend.Solid` — a ``Bosl2Solid`` on CSG,
+backend is active and returns a common ``Solid`` — a ``Bosl2Solid`` on CSG,
 a ``PyShape`` on SDF::
 
     from pybosl2.solid import sphere, use_backend
@@ -101,7 +101,7 @@ Convert first with the bridge methods:
    * - ``pyshape.to_sdf()`` / ``bosl2solid.to_csg()``
      - Identity (already on that backend).
    * - ``bosl2solid.to_sdf()``
-     - Raises :class:`~pybosl2.exceptions.UnsupportedByBackend` — an exact CSG solid has no faithful
+     - Raises :class:`~pybosl2.exceptions.UnsupportedByBackendError` — an exact CSG solid has no faithful
        distance field. Rebuild it under ``use_backend("sdf")`` instead.
 
 So the CSG → SDF direction is deliberately *not* automatic: build with the SDF backend from the
@@ -111,7 +111,7 @@ Capability map: what each backend can do
 ----------------------------------------
 
 Most of the surface is shared, but a few features belong to one backend only. Calling one on the
-wrong backend raises :class:`~pybosl2.exceptions.UnsupportedByBackend` (with a hint) instead of a
+wrong backend raises :class:`~pybosl2.exceptions.UnsupportedByBackendError` (with a hint) instead of a
 confusing ``AttributeError`` — and, on the SDF side, instead of meshing via libfive just to fail:
 
 .. list-table::
@@ -178,7 +178,7 @@ dispatch on the active backend:
    * - :meth:`Bosl2Solid.projection() <pybosl2.shapes3d.Bosl2Solid.projection>`,
        ``Path.polygon()``/``.fill()``/``.hull()``/``.rotate_extrude()``, 2-D ``stroke()``
      - → :class:`~pybosl2.shapes2d` / :class:`~pybosl2.shapes3d`
-     - :class:`~pybosl2.exceptions.UnsupportedByBackend`
+     - :class:`~pybosl2.exceptions.UnsupportedByBackendError`
 
 So the same source builds on either backend as long as it goes path → solid::
 

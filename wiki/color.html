@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Colour: colorspace conversion &amp; colour operators &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Colour: colorspace conversion &amp; colour operators &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -73,7 +73,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -144,8 +143,6 @@
 </div>
 <div class="ps-content">
 <ul class="pysidebar-list">
-<li class="ps-func"><a href="#pybosl2.color.hsl">hsl</a></li>
-<li class="ps-func"><a href="#pybosl2.color.hsv">hsv</a></li>
 <li class="ps-func"><a href="#pybosl2.color.rainbow_colors">rainbow_colors</a></li>
 <li class="ps-func"><a href="#pybosl2.color.rainbow">rainbow</a></li>
 <li class="ps-class"><a href="#pybosl2.color.Colorable"><strong>Colorable</strong></a></li>
@@ -232,13 +229,13 @@ CSG operators if needed.</p></td>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-2bc87a432b06465a8e81382a0a7ff111" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-059e8357cb7c4b7d859322557f5ba041" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-2bc87a432b06465a8e81382a0a7ff111");
+const el = document.getElementById("stlviewer-059e8357cb7c4b7d859322557f5ba041");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -288,13 +285,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-8edbd2a80309449caa59bd4f758b045c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-43fb81543c7149baab938427d5987701" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-8edbd2a80309449caa59bd4f758b045c");
+const el = document.getElementById("stlviewer-43fb81543c7149baab938427d5987701");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -342,67 +339,29 @@ window.addEventListener("resize", resize);
 <section id="module-pybosl2.color">
 <span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-pybosl2.color" title="Link to this heading">¶</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.color.hsl">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.color.</span></span><span class="sig-name descname"><span class="pre">hsl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#hsl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.hsl" title="Link to this definition">¶</a></dt>
-<dd><p>Convert HSL to an <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> colour (or <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B,</span> <span class="pre">A]</span></code> if <em>a</em> is given) – BOSL2 hsl().</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>height</strong> (<em>float</em>) – hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – saturation 0..1 (0 = grey, 1 = vivid). Default 1</p></li>
-<li><p><strong>length</strong> (<em>float</em>) – lightness 0..1 (0 = black, 0.5 = bright, 1 = white). Default 0.5</p></li>
-<li><p><strong>a</strong> (<em>float</em><em> | </em><em>None</em>) – optional alpha 0..1; when given the result is <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B,</span> <span class="pre">A]</span></code></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> (each 0..1), or <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B,</span> <span class="pre">A]</span></code> when <em>a</em> is given.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[float]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.color.hsv">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.color.</span></span><span class="sig-name descname"><span class="pre">hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.hsv" title="Link to this definition">¶</a></dt>
-<dd><p>Convert HSV to an <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> colour (or <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B,</span> <span class="pre">A]</span></code> if <em>a</em> is given) – BOSL2 hsv().</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>height</strong> (<em>float</em>) – hue in degrees (0=red, 60=yellow, 120=green, 180=cyan, 240=blue, 300=magenta)</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – saturation 0..1 (0 = grey, 1 = vivid). Default 1</p></li>
-<li><p><strong>v</strong> (<em>float</em>) – value 0..1 (0 = black, 1 = bright). Default 1</p></li>
-<li><p><strong>a</strong> (<em>float</em><em> | </em><em>None</em>) – optional alpha 0..1; when given the result is <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B,</span> <span class="pre">A]</span></code></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> (each 0..1), or <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B,</span> <span class="pre">A]</span></code> when <em>a</em> is given.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[float]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="pybosl2.color.rainbow">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.color.</span></span><span class="sig-name descname"><span class="pre">rainbow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxhues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#rainbow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.rainbow" title="Link to this definition">¶</a></dt>
-<dd><p>Colour each object in <em>items</em> a different hue, returning the coloured list (BOSL2 rainbow()).</p>
-<p>Each item must support <code class="docutils literal notranslate"><span class="pre">.color([r,</span> <span class="pre">g,</span> <span class="pre">b])</span></code> (a <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> or a native
-solid). Useful for telling apart the parts of a multi-piece model or debugging a list of paths.</p>
+<dd><p>Colour each object in <em>items</em> a different hue.</p>
+<p>Each item must be a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape</span></code> (a
+<a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.Bosl2Shape2D" title="pybosl2.shapes2d.Bosl2Shape2D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code></a> or
+<a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>).  Useful for telling apart the
+parts of a multi-piece model or debugging a list of paths.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>items</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><em>Bosl2Solid</em></a><em>]</em>) – the objects to colour</p></li>
-<li><p><strong>stride</strong> (<em>int</em>) – consecutive colours stride this many steps around the wheel</p></li>
-<li><p><strong>maxhues</strong> (<em>int</em><em> | </em><em>None</em>) – cap the number of distinct hues (default: <code class="docutils literal notranslate"><span class="pre">len(items)</span></code>)</p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em>) – shuffle the hue order</p></li>
-<li><p><strong>seed</strong> (<em>int</em><em> | </em><em>None</em>) – seed for the shuffle</p></li>
+<li><p><strong>items</strong> (<em>Sequence</em><em>[</em><em>Bosl2Shape</em><em>]</em>) – The objects to colour.</p></li>
+<li><p><strong>stride</strong> (<em>int</em>) – Consecutive colours stride this many steps around the wheel.</p></li>
+<li><p><strong>maxhues</strong> (<em>int</em><em> | </em><em>None</em>) – Cap the number of distinct hues (default: <code class="docutils literal notranslate"><span class="pre">len(items)</span></code>).</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Shuffle the hue order before colouring.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em> | </em><em>None</em>) – Seed for the shuffle operation.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[Any]</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of coloured objects, one per element of <em>items</em>, each
+preserving its original 2-D or 3-D type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[Bosl2Shape]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -410,21 +369,34 @@ solid). Useful for telling apart the parts of a multi-piece model or debugging a
 <dl class="py function">
 <dt class="sig sig-object py" id="pybosl2.color.rainbow_colors">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.color.</span></span><span class="sig-name descname"><span class="pre">rainbow_colors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sides</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxhues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#rainbow_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.rainbow_colors" title="Link to this definition">¶</a></dt>
-<dd><p>The list of <code class="docutils literal notranslate"><span class="pre">sides</span></code> <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> colours stepped around the ROYGBIV wheel (BOSL2 rainbow()).</p>
+<dd><p>Generate <em>sides</em> <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> colours stepped around the hue wheel.</p>
+<p>Equivalent to BOSL2’s <code class="docutils literal notranslate"><span class="pre">rainbow()</span></code> colour generation without applying the
+colours to objects.  Uses <code class="xref py py-func docutils literal notranslate"><span class="pre">colorsys.hsv_to_rgb()</span></code> internally.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sides</strong> (<em>int</em>) – how many colours to generate</p></li>
-<li><p><strong>stride</strong> (<em>int</em>) – consecutive colours stride this many steps around the wheel</p></li>
-<li><p><strong>maxhues</strong> (<em>int</em><em> | </em><em>None</em>) – cap the number of distinct hues (default: <em>sides</em>)</p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em>) – shuffle the hue order</p></li>
-<li><p><strong>seed</strong> (<em>int</em><em> | </em><em>None</em>) – seed for the shuffle</p></li>
+<li><p><strong>sides</strong> (<em>int</em>) – How many colours to generate.</p></li>
+<li><p><strong>stride</strong> (<em>int</em>) – Consecutive colours stride this many steps around the wheel.</p></li>
+<li><p><strong>maxhues</strong> (<em>int</em><em> | </em><em>None</em>) – Cap the number of distinct hues (default: <em>sides</em>).</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Shuffle the hue order before generating colours.</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em> | </em><em>None</em>) – Seed for the shuffle operation.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list[list[float]]</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> lists, each with values 0..1.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[float]]</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cols</span> <span class="o">=</span> <span class="n">rainbow_colors</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="p">(</span><span class="n">a</span> <span class="o">|</span> <span class="n">b</span> <span class="o">|</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py class">
@@ -432,25 +404,32 @@ solid). Useful for telling apart the parts of a multi-piece model or debugging a
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.color.</span></span><span class="sig-name descname"><span class="pre">Colorable</span></span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Mixin adding the color.scad colour operators as methods.</p>
-<p>Inherited by <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>. Every operator resolves to the host’s native
-colour primitives, which the host provides as <code class="docutils literal notranslate"><span class="pre">_color_native</span></code> (PythonSCAD <code class="docutils literal notranslate"><span class="pre">color()</span></code>),
-<code class="docutils literal notranslate"><span class="pre">_highlight_native</span></code> (the <code class="docutils literal notranslate"><span class="pre">#</span></code> modifier) and <code class="docutils literal notranslate"><span class="pre">_ghost_native</span></code> (the <code class="docutils literal notranslate"><span class="pre">%</span></code> modifier). Because
-the toolkit builds native geometry rather than a BOSL2 <code class="docutils literal notranslate"><span class="pre">$color</span></code> attachment tree,
-<a class="reference internal" href="#pybosl2.color.Colorable.recolor" title="pybosl2.color.Colorable.recolor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">recolor()</span></code></a> and <a class="reference internal" href="#pybosl2.color.Colorable.color_this" title="pybosl2.color.Colorable.color_this"><code class="xref py py-meth docutils literal notranslate"><span class="pre">color_this()</span></code></a> both apply the colour directly (an object’s
-already-coloured children keep their colour, matching OpenSCAD’s <code class="docutils literal notranslate"><span class="pre">color()</span></code> semantics).</p>
+<p>Inherited by <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>.  Every operator resolves
+to the host’s native colour primitives, which the host provides as
+<code class="docutils literal notranslate"><span class="pre">_color_native</span></code> (PythonSCAD <code class="docutils literal notranslate"><span class="pre">color()</span></code>), <code class="docutils literal notranslate"><span class="pre">_highlight_native</span></code> (the <code class="docutils literal notranslate"><span class="pre">#</span></code>
+modifier) and <code class="docutils literal notranslate"><span class="pre">_ghost_native</span></code> (the <code class="docutils literal notranslate"><span class="pre">%</span></code> modifier).</p>
+<p><strong>Opacity</strong> is applied by chaining <a class="reference internal" href="#pybosl2.color.Colorable.ghost" title="pybosl2.color.Colorable.ghost"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ghost()</span></code></a> rather than through an
+<code class="docutils literal notranslate"><span class="pre">alpha</span></code> parameter — this matches how OpenSCAD’s <code class="docutils literal notranslate"><span class="pre">%</span></code> background modifier
+works.  For example <code class="docutils literal notranslate"><span class="pre">box.hsl(0,</span> <span class="pre">1,</span> <span class="pre">0.5).ghost()</span></code> produces a transparent
+red box.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.color">
 <span class="sig-name descname"><span class="pre">color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.color" title="Link to this definition">¶</a></dt>
-<dd><p>Colour this object. <em>c</em> is a name (<code class="docutils literal notranslate"><span class="pre">&quot;red&quot;</span></code>), <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code>, or <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B,</span> <span class="pre">A]</span></code>.</p>
+<dd><p>Colour this object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>Any</em>)</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>c</strong> (<em>Any</em>) – A colour name (<code class="docutils literal notranslate"><span class="pre">&quot;red&quot;</span></code>), <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> list, or <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B,</span> <span class="pre">A]</span></code> list.
+Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> to leave the colour unchanged.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em> | </em><em>None</em>) – Optional alpha transparency 0..1.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Self</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This object with the colour applied, or <code class="docutils literal notranslate"><span class="pre">self</span></code> unchanged when both
+<em>c</em> and <em>alpha</em> are <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -458,18 +437,22 @@ already-coloured children keep their colour, matching OpenSCAD’s <code class="
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.recolor">
 <span class="sig-name descname"><span class="pre">recolor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.recolor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.recolor" title="Link to this definition">¶</a></dt>
-<dd><p>Set the colour of this object and its uncoloured descendants (BOSL2 recolor()).</p>
-<p><code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">None</span></code> leaves the colour unchanged (there is no <code class="docutils literal notranslate"><span class="pre">$color</span></code> scheme to
-revert to in the native backend).</p>
+<dd><p>Set the colour of this object and its uncoloured descendants.</p>
+<p>In the native backend there is no <code class="docutils literal notranslate"><span class="pre">$color</span></code> attachment tree to revert
+to, so <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">None</span></code> leaves the colour unchanged.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>Any</em>)</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>c</strong> (<em>Any</em>) – A colour name, <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> list, or <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">None</span></code> to skip.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em> | </em><em>None</em>) – Optional alpha transparency 0..1.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Self</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This object recoloured, or <code class="docutils literal notranslate"><span class="pre">self</span></code> unchanged when <em>c</em> is <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>
+or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -477,55 +460,68 @@ revert to in the native backend).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.color_this">
 <span class="sig-name descname"><span class="pre">color_this</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.color_this"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.color_this" title="Link to this definition">¶</a></dt>
-<dd><p>Colour just this object (BOSL2 color_this()); equivalent to <a class="reference internal" href="#pybosl2.color.Colorable.color" title="pybosl2.color.Colorable.color"><code class="xref py py-meth docutils literal notranslate"><span class="pre">color()</span></code></a> in the native
-backend, where there is no <code class="docutils literal notranslate"><span class="pre">$color</span></code> attachment tree to preserve separately.</p>
+<dd><p>Colour just this object, without tinting its descendants.</p>
+<p>Equivalent to <a class="reference internal" href="#pybosl2.color.Colorable.color" title="pybosl2.color.Colorable.color"><code class="xref py py-meth docutils literal notranslate"><span class="pre">color()</span></code></a> in the native backend, where there is no
+<code class="docutils literal notranslate"><span class="pre">$color</span></code> attachment tree to preserve separately.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> (<em>Any</em>)</p></li>
-<li><p><strong>alpha</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>c</strong> (<em>Any</em>) – A colour name, <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> list, or <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">None</span></code> to skip.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em> | </em><em>None</em>) – Optional alpha transparency 0..1.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Self</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This object coloured, or <code class="docutils literal notranslate"><span class="pre">self</span></code> unchanged when <em>c</em> is <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>
+or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.hsl">
-<span class="sig-name descname"><span class="pre">hsl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.hsl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.hsl" title="Link to this definition">¶</a></dt>
-<dd><p>Colour this object from an HSL hue/saturation/lightness (BOSL2 hsl()).</p>
+<span class="sig-name descname"><span class="pre">hsl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.hsl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.hsl" title="Link to this definition">¶</a></dt>
+<dd><p>Colour this object from an HSL hue/saturation/lightness.</p>
+<p>Uses <code class="xref py py-func docutils literal notranslate"><span class="pre">colorsys.hls_to_rgb()</span></code> for the conversion.  For opacity, chain
+<a class="reference internal" href="#pybosl2.color.Colorable.ghost" title="pybosl2.color.Colorable.ghost"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ghost()</span></code></a> after this call.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>height</strong> (<em>float</em>)</p></li>
-<li><p><strong>s</strong> (<em>float</em>)</p></li>
-<li><p><strong>length</strong> (<em>float</em>)</p></li>
-<li><p><strong>a</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – Hue in degrees (0=red, 120=green, 240=blue).</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – Saturation 0..1 (0 = grey, 1 = vivid).</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – Lightness 0..1 (0 = black, 0.5 = bright, 1 = white).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Self</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This object coloured with the computed <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.hsv">
-<span class="sig-name descname"><span class="pre">hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.hsv" title="Link to this definition">¶</a></dt>
-<dd><p>Colour this object from an HSV hue/saturation/value (BOSL2 hsv()).</p>
+<span class="sig-name descname"><span class="pre">hsv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.hsv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.hsv" title="Link to this definition">¶</a></dt>
+<dd><p>Colour this object from an HSV hue/saturation/value.</p>
+<p>Uses <code class="xref py py-func docutils literal notranslate"><span class="pre">colorsys.hsv_to_rgb()</span></code> for the conversion.  For opacity, chain
+<a class="reference internal" href="#pybosl2.color.Colorable.ghost" title="pybosl2.color.Colorable.ghost"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ghost()</span></code></a> after this call.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>height</strong> (<em>float</em>)</p></li>
-<li><p><strong>s</strong> (<em>float</em>)</p></li>
-<li><p><strong>v</strong> (<em>float</em>)</p></li>
-<li><p><strong>a</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – Hue in degrees (0=red, 120=green, 240=blue).</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – Saturation 0..1 (0 = grey, 1 = vivid).</p></li>
+<li><p><strong>v</strong> (<em>float</em>) – Value 0..1 (0 = black, 1 = bright).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Self</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This object coloured with the computed <code class="docutils literal notranslate"><span class="pre">[R,</span> <span class="pre">G,</span> <span class="pre">B]</span></code> value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -533,13 +529,18 @@ backend, where there is no <code class="docutils literal notranslate"><span clas
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.highlight">
 <span class="sig-name descname"><span class="pre">highlight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">highlight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.highlight"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.highlight" title="Link to this definition">¶</a></dt>
-<dd><p>Apply the <code class="docutils literal notranslate"><span class="pre">#</span></code> debug modifier (BOSL2 highlight()); <code class="docutils literal notranslate"><span class="pre">False</span></code> leaves it unmodified.</p>
+<dd><p>Apply the <code class="docutils literal notranslate"><span class="pre">#</span></code> debug modifier (BOSL2 highlight()).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>highlight</strong> (<em>bool</em>)</p>
+<dd class="field-odd"><p><strong>highlight</strong> (<em>bool</em>) – If True (default), apply the highlight modifier.
+If False, return <em>self</em> unchanged.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Self</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This object with the highlight modifier applied, or <em>self</em> unchanged
+when <em>highlight</em> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -547,14 +548,18 @@ backend, where there is no <code class="docutils literal notranslate"><span clas
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.color.Colorable.ghost">
 <span class="sig-name descname"><span class="pre">ghost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ghost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/color.html#Colorable.ghost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.color.Colorable.ghost" title="Link to this definition">¶</a></dt>
-<dd><p>Apply the <code class="docutils literal notranslate"><span class="pre">%</span></code> (transparent, non-interacting) modifier (BOSL2 ghost()); <code class="docutils literal notranslate"><span class="pre">False</span></code> leaves
-it unmodified.</p>
+<dd><p>Apply the <code class="docutils literal notranslate"><span class="pre">%</span></code> (transparent, non-interacting) debug modifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ghost</strong> (<em>bool</em>)</p>
+<dd class="field-odd"><p><strong>ghost</strong> (<em>bool</em>) – If True (default), apply the ghost modifier.
+If False, return <em>self</em> unchanged.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Self</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>This object with the ghost modifier applied, or <em>self</em> unchanged
+when <em>ghost</em> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Self</p>
 </dd>
 </dl>
 </dd></dl>

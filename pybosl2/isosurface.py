@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/metaballs.py
+# LibFile: pybosl2/isosurface.py
 #    Metaball field primitives that produce scalar distance fields for isosurface
 #    meshing via :meth:`VNF.from_metaballs`.  Each ``mb_*`` function returns a
 #    :class:`_Metaball` — a callable that maps ``(N,3)`` points to ``(N,)`` field

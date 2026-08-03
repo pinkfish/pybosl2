@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Turtle (3-D) &#8212; pybosl2 (PythonSCAD port) 0.6.3 documentation</title>
+    <title>Turtle (3-D) &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
     <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=a21e84ee" />
-    <script src="_static/documentation_options.js?v=b8503983"></script>
+    <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -73,7 +73,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="comparisons.html"> Comparisons</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
@@ -143,7 +142,7 @@
 walks through 3-D space carrying an orientation frame; a flat list of commands drives it, and the
 result is either the list of points it visited (<a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D.points" title="pybosl2.turtle.turtle3d.Turtle3D.points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">points()</span></code></a>) or a list of
 4x4 transforms (<a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D.transforms" title="pybosl2.turtle.turtle3d.Turtle3D.transforms"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transforms()</span></code></a>) ready to sweep a profile with
-<code class="xref py py-func docutils literal notranslate"><span class="pre">path_sweep()</span></code> / <a class="reference internal" href="skin.html#pybosl2.skin.sweep" title="pybosl2.skin.sweep"><code class="xref py py-func docutils literal notranslate"><span class="pre">sweep()</span></code></a>.</p>
+<a class="reference internal" href="skin.html#pybosl2.skin.Sweepable.path_sweep" title="pybosl2.skin.Sweepable.path_sweep"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_sweep()</span></code></a> / <a class="reference internal" href="skin.html#pybosl2.skin.sweep" title="pybosl2.skin.sweep"><code class="xref py py-func docutils literal notranslate"><span class="pre">sweep()</span></code></a>.</p>
 <p>The full simple command set is ported — moves (<code class="docutils literal notranslate"><span class="pre">move</span></code>/<code class="docutils literal notranslate"><span class="pre">jump</span></code>/<code class="docutils literal notranslate"><span class="pre">xmove</span></code> …), relative turns
 (<code class="docutils literal notranslate"><span class="pre">left</span></code>/<code class="docutils literal notranslate"><span class="pre">right</span></code>/<code class="docutils literal notranslate"><span class="pre">up</span></code>/<code class="docutils literal notranslate"><span class="pre">down</span></code>/<code class="docutils literal notranslate"><span class="pre">roll</span></code>), absolute turns (<code class="docutils literal notranslate"><span class="pre">xrot</span></code>/<code class="docutils literal notranslate"><span class="pre">yrot</span></code>/<code class="docutils literal notranslate"><span class="pre">zrot</span></code>/<code class="docutils literal notranslate"><span class="pre">rot</span></code>/
 <code class="docutils literal notranslate"><span class="pre">setdir</span></code>), arcs (<code class="docutils literal notranslate"><span class="pre">arcleft</span></code>/<code class="docutils literal notranslate"><span class="pre">arcright</span></code>/<code class="docutils literal notranslate"><span class="pre">arcup</span></code>/<code class="docutils literal notranslate"><span class="pre">arcdown</span></code>/<code class="docutils literal notranslate"><span class="pre">arcxrot</span></code> …/<code class="docutils literal notranslate"><span class="pre">arctodir</span></code>/
@@ -154,7 +153,7 @@ several effects at once (<code class="docutils literal notranslate"><span class=
 frame, and, for <code class="docutils literal notranslate"><span class="pre">arc</span></code>, relative or absolute rotation.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pybosl2.turtle.turtle3d.Turtle3D">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.turtle.turtle3d.</span></span><span class="sig-name descname"><span class="pre">Turtle3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/turtle/turtle3d.html#Turtle3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.turtle.turtle3d.</span></span><span class="sig-name descname"><span class="pre">Turtle3D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.RIGHT</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/turtle/turtle3d.html#Turtle3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A 3-D turtle: walk it with a command list to produce a path or a list of sweep transforms.</p>
 <p>The turtle starts at the origin pointing in <em>state</em> (default <code class="docutils literal notranslate"><span class="pre">RIGHT</span></code> = +X), with “up” along +Z.
@@ -215,6 +214,27 @@ repeats. A compound <code class="xref py py-class docutils literal notranslate">
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list[list[float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.turtle.turtle3d.Turtle3D.stroke">
+<span class="sig-name descname"><span class="pre">stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/turtle/turtle3d.html#Turtle3D.stroke"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D.stroke" title="Link to this definition">¶</a></dt>
+<dd><p>Render the turtle’s current path as a 3-D stroked tube.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>width</strong> (<em>float</em>) – Stroke line width.</p></li>
+<li><p><strong>cap</strong> (<em>CapType</em><em> | </em><em>CapSpec</em><em> | </em><em>None</em>) – Optional endcap style applied to both ends.</p></li>
+<li><p><strong>closed</strong> (<em>bool</em><em> | </em><em>None</em>) – Override whether the path is treated as closed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> representing the tubular stroke.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
