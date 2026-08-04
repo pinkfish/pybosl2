@@ -407,7 +407,7 @@
 walks through 3-D space carrying an orientation frame; a flat list of commands drives it, and the
 result is either the list of points it visited (<a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D.points" title="pybosl2.turtle.turtle3d.Turtle3D.points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">points()</span></code></a>) or a list of
 4x4 transforms (<a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D.transforms" title="pybosl2.turtle.turtle3d.Turtle3D.transforms"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transforms()</span></code></a>) ready to sweep a profile with
-<a class="reference internal" href="skin.html#pybosl2.skin.Sweepable.path_sweep" title="pybosl2.skin.Sweepable.path_sweep"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_sweep()</span></code></a> / <code class="xref py py-func docutils literal notranslate"><span class="pre">sweep()</span></code>.</p>
+<a class="reference internal" href="skin.html#pybosl2.skin.Sweepable.path_sweep" title="pybosl2.skin.Sweepable.path_sweep"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_sweep()</span></code></a> / <a class="reference internal" href="skin.html#pybosl2.skin.Sweepable.sweep" title="pybosl2.skin.Sweepable.sweep"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sweep()</span></code></a>.</p>
 <p>The full simple command set is ported — moves (<code class="docutils literal notranslate"><span class="pre">move</span></code>/<code class="docutils literal notranslate"><span class="pre">jump</span></code>/<code class="docutils literal notranslate"><span class="pre">xmove</span></code> …), relative turns
 (<code class="docutils literal notranslate"><span class="pre">left</span></code>/<code class="docutils literal notranslate"><span class="pre">right</span></code>/<code class="docutils literal notranslate"><span class="pre">up</span></code>/<code class="docutils literal notranslate"><span class="pre">down</span></code>/<code class="docutils literal notranslate"><span class="pre">roll</span></code>), absolute turns (<code class="docutils literal notranslate"><span class="pre">xrot</span></code>/<code class="docutils literal notranslate"><span class="pre">yrot</span></code>/<code class="docutils literal notranslate"><span class="pre">zrot</span></code>/<code class="docutils literal notranslate"><span class="pre">rot</span></code>/
 <code class="docutils literal notranslate"><span class="pre">setdir</span></code>), arcs (<code class="docutils literal notranslate"><span class="pre">arcleft</span></code>/<code class="docutils literal notranslate"><span class="pre">arcright</span></code>/<code class="docutils literal notranslate"><span class="pre">arcup</span></code>/<code class="docutils literal notranslate"><span class="pre">arcdown</span></code>/<code class="docutils literal notranslate"><span class="pre">arcxrot</span></code> …/<code class="docutils literal notranslate"><span class="pre">arctodir</span></code>/
@@ -448,13 +448,13 @@ repeats. A compound <code class="xref py py-class docutils literal notranslate">
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9577447c72f44f17acc056af0ee167ee" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-cfff3f0e08464390affb5d6a63d8d5cb" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9577447c72f44f17acc056af0ee167ee");
+const el = document.getElementById("stlviewer-cfff3f0e08464390affb5d6a63d8d5cb");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

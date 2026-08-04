@@ -1020,7 +1020,7 @@ def cone(
 
             from pybosl2 import shapes3d as s3
 
-            s3.cone(height=30, radius=15, chamfer=2).show()
+            s3.cone(height=30, radius1=15, radius2=3, chamfer=2).show()
     """
     r1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     r2 = _pick_radius(radius1=radius2, diameter1=diameter2, dflt=0)

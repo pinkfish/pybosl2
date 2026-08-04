@@ -12,7 +12,7 @@ Linear bearings
 Pure-Python port of BOSL2's ``linear_bearings.scad``: models of LMxUU linear ball bearings that run
 along a rod, and the pillow-block housings that clamp them to a plate.
 :meth:`~pybosl2.parts.linear_bearings.LinearBearings.lmXuu_bearing` looks a standard size up in
-:meth:`~pybosl2.parts.linear_bearings.LinearBearings.lmXuu_info` (a
+:meth:`~pybosl2.parts.linear_bearings.LinearBearings.lmxuu_info` (a
 :class:`~pybosl2.parts.linear_bearings` table);
 :meth:`~pybosl2.parts.linear_bearings.LinearBearings.linear_bearing` is the generic form.
 
