@@ -1,419 +1,2753 @@
-<!DOCTYPE html>
 
-<html lang="en" data-content_root="./">
+
+
+<!doctype html>
+<html lang="en" class="no-js">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Drawing: path generators &amp; renderers &#8212; pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
-    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=edeebe30" />
-    <script src="_static/documentation_options.js?v=44212324"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="_static/group_toggle.js?v=ae9e6b22"></script>
-    <script src="_static/index_filter.js?v=8e7bb5b5"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="2-D Shapes" href="shapes2d.html" />
-    <link rel="prev" title="Transforms (affine / reorient)" href="transforms.html" />
-
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
 
 
 
 
-
-  </head><body>
-  <div class="document">
-
-      <div class="sphinxsidebar" role="navigation" aria-label="Main">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">pybosl2 (PythonSCAD port)</a></h1>
+        <link rel="prev" href="transforms.html">
 
 
+        <link rel="next" href="shapes2d.html">
 
-<p class="blurb">A pure-Python PythonSCAD port of BOSL2</p>
+
+      <link rel="icon" href="">
+
+
+
+        <title>Drawing: path generators & renderers - pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
 
 
 
 
 
 
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="backends.html"> CSG &amp; SDF backends</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="color.html#coverage-of-bosl2-color-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">color.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="color.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="color.html#module-pybosl2.color">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.INCH"><code class="docutils literal notranslate"><span class="pre">INCH</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.IDENT"><code class="docutils literal notranslate"><span class="pre">IDENT</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.LEFT"><code class="docutils literal notranslate"><span class="pre">LEFT</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.RIGHT"><code class="docutils literal notranslate"><span class="pre">RIGHT</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.FRONT"><code class="docutils literal notranslate"><span class="pre">FRONT</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.FORWARD"><code class="docutils literal notranslate"><span class="pre">FORWARD</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.BACK"><code class="docutils literal notranslate"><span class="pre">BACK</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.BOTTOM"><code class="docutils literal notranslate"><span class="pre">BOTTOM</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.DOWN"><code class="docutils literal notranslate"><span class="pre">DOWN</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.TOP"><code class="docutils literal notranslate"><span class="pre">TOP</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.UP"><code class="docutils literal notranslate"><span class="pre">UP</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.CENTER"><code class="docutils literal notranslate"><span class="pre">CENTER</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.SEGMENT"><code class="docutils literal notranslate"><span class="pre">SEGMENT</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.RAY"><code class="docutils literal notranslate"><span class="pre">RAY</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.LINE"><code class="docutils literal notranslate"><span class="pre">LINE</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="distributors.html#coverage-of-bosl2-distributors-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">distributors.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="distributors.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="distributors.html#module-pybosl2.distributors">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="enums.html"> Enums</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.AttachTag"><code class="docutils literal notranslate"><span class="pre">AttachTag</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.mask2d_roundover"><code class="docutils literal notranslate"><span class="pre">mask2d_roundover()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.rounding_edge_mask"><code class="docutils literal notranslate"><span class="pre">rounding_edge_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.chamfer_edge_mask"><code class="docutils literal notranslate"><span class="pre">chamfer_edge_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.edge_mask"><code class="docutils literal notranslate"><span class="pre">edge_mask()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.edge_profile"><code class="docutils literal notranslate"><span class="pre">edge_profile()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.corner_profile"><code class="docutils literal notranslate"><span class="pre">corner_profile()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.face_profile"><code class="docutils literal notranslate"><span class="pre">face_profile()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="partitions.html#planar-half-cuts">Planar half-cuts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="partitions.html#interlocking-partitions">Interlocking partitions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="partitions.html#coverage-of-bosl2-partitions-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="partitions.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="partitions.html#module-pybosl2.partitions">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="solid.html"> Solid</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.cube"><code class="docutils literal notranslate"><span class="pre">cube()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.cuboid"><code class="docutils literal notranslate"><span class="pre">cuboid()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.cyl"><code class="docutils literal notranslate"><span class="pre">cyl()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.cylinder"><code class="docutils literal notranslate"><span class="pre">cylinder()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.octahedron"><code class="docutils literal notranslate"><span class="pre">octahedron()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.onion"><code class="docutils literal notranslate"><span class="pre">onion()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.pie_slice"><code class="docutils literal notranslate"><span class="pre">pie_slice()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.prismoid"><code class="docutils literal notranslate"><span class="pre">prismoid()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.rect_tube"><code class="docutils literal notranslate"><span class="pre">rect_tube()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.regular_prism"><code class="docutils literal notranslate"><span class="pre">regular_prism()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.sphere"><code class="docutils literal notranslate"><span class="pre">sphere()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.spheroid"><code class="docutils literal notranslate"><span class="pre">spheroid()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.teardrop"><code class="docutils literal notranslate"><span class="pre">teardrop()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.torus"><code class="docutils literal notranslate"><span class="pre">torus()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.tube"><code class="docutils literal notranslate"><span class="pre">tube()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.wedge"><code class="docutils literal notranslate"><span class="pre">wedge()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.xcyl"><code class="docutils literal notranslate"><span class="pre">xcyl()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.ycyl"><code class="docutils literal notranslate"><span class="pre">ycyl()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.zcyl"><code class="docutils literal notranslate"><span class="pre">zcyl()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.polyhedron"><code class="docutils literal notranslate"><span class="pre">polyhedron()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.union"><code class="docutils literal notranslate"><span class="pre">union()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.difference"><code class="docutils literal notranslate"><span class="pre">difference()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.intersection"><code class="docutils literal notranslate"><span class="pre">intersection()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.use_backend"><code class="docutils literal notranslate"><span class="pre">use_backend()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.set_default_backend"><code class="docutils literal notranslate"><span class="pre">set_default_backend()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.current_backend"><code class="docutils literal notranslate"><span class="pre">current_backend()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.Solid"><code class="docutils literal notranslate"><span class="pre">Solid</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.CrossBackendError"><code class="docutils literal notranslate"><span class="pre">CrossBackendError</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.UnsupportedByBackendError"><code class="docutils literal notranslate"><span class="pre">UnsupportedByBackendError</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="texture.html#pybosl2.texture.vnf_tile_to_solid"><code class="docutils literal notranslate"><span class="pre">vnf_tile_to_solid()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.polar_to_xy"><code class="docutils literal notranslate"><span class="pre">polar_to_xy()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.rot_from_to"><code class="docutils literal notranslate"><span class="pre">rot_from_to()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.axis_angle_matrix"><code class="docutils literal notranslate"><span class="pre">axis_angle_matrix()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.rot_about_axis"><code class="docutils literal notranslate"><span class="pre">rot_about_axis()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.rot_inverse"><code class="docutils literal notranslate"><span class="pre">rot_inverse()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.rot_decode"><code class="docutils literal notranslate"><span class="pre">rot_decode()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.reorient"><code class="docutils literal notranslate"><span class="pre">reorient()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.apply"><code class="docutils literal notranslate"><span class="pre">apply()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#"> Drawing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#arc-catenary">Arc &amp; catenary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#helix">Helix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#d-turtle">2-D Turtle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">3-D Turtle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#stroke-dashed-stroke">Stroke &amp; dashed stroke</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#coverage-of-bosl2-drawing-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">drawing.scad</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> 2-D Shapes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="circle.html">Circle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="square.html">Square &amp; Rect</a></li>
-<li class="toctree-l2"><a class="reference internal" href="curves.html">Curves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ops.html">Ops</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> 3-D Shapes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="cuboid.html">Cuboid</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cylinder.html">Cylinder &amp; Cone</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sphere.html">Sphere &amp; Teardrop</a></li>
-<li class="toctree-l2"><a class="reference internal" href="torus.html">Torus</a></li>
-<li class="toctree-l2"><a class="reference internal" href="extrusions.html">Extrusions</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="native_ops.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="native_ops.html#api-reference">API reference</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="beziers.html"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="beziers.html#pybosl2.beziers.Bezier"><code class="docutils literal notranslate"><span class="pre">Bezier</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="beziers.html#pybosl2.beziers.create_bezier"><code class="docutils literal notranslate"><span class="pre">create_bezier()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="beziers.html#pybosl2.beziers.BezierPatch"><code class="docutils literal notranslate"><span class="pre">BezierPatch</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="beziers.html#pybosl2.beziers.debug_bezier_patches"><code class="docutils literal notranslate"><span class="pre">debug_bezier_patches()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="isosurface.html#coverage-of-bosl2-isosurface-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">isosurface.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="isosurface.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="isosurface.html#module-pybosl2.isosurface">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="nurbs.html#coverage-of-bosl2-nurbs-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">nurbs.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="nurbs.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nurbs.html#module-pybosl2.nurbs">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#pybosl2.paths.CutPoint"><code class="docutils literal notranslate"><span class="pre">CutPoint</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#pybosl2.paths.Path"><code class="docutils literal notranslate"><span class="pre">Path</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#pybosl2.paths.SubdivideMethod"><code class="docutils literal notranslate"><span class="pre">SubdivideMethod</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="regions.html#pybosl2.regions.Region"><code class="docutils literal notranslate"><span class="pre">Region</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="rounding.html#coverage-of-bosl2-rounding-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">rounding.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="rounding.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="rounding.html#module-pybosl2.rounding">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="skin.html#coverage-of-bosl2-skin-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">skin.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="skin.html#module-pybosl2.skin">API reference</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="turtle3d.html#pybosl2.turtle.turtle3d.Turtle3D"><code class="docutils literal notranslate"><span class="pre">Turtle3D</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF"><code class="docutils literal notranslate"><span class="pre">VNF</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.VnfStyle"><code class="docutils literal notranslate"><span class="pre">VnfStyle</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.contour"><code class="docutils literal notranslate"><span class="pre">contour()</span></code></a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.circle_circle_tangents"><code class="docutils literal notranslate"><span class="pre">circle_circle_tangents()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.general_line_intersection"><code class="docutils literal notranslate"><span class="pre">general_line_intersection()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.is_collinear"><code class="docutils literal notranslate"><span class="pre">is_collinear()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.line_closest_point"><code class="docutils literal notranslate"><span class="pre">line_closest_point()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.line_normal"><code class="docutils literal notranslate"><span class="pre">line_normal()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.lerp"><code class="docutils literal notranslate"><span class="pre">lerp()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.lerpn"><code class="docutils literal notranslate"><span class="pre">lerpn()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.deriv"><code class="docutils literal notranslate"><span class="pre">deriv()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.deriv2"><code class="docutils literal notranslate"><span class="pre">deriv2()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.deriv3"><code class="docutils literal notranslate"><span class="pre">deriv3()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.slerp"><code class="docutils literal notranslate"><span class="pre">slerp()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.slerpn"><code class="docutils literal notranslate"><span class="pre">slerpn()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.modang"><code class="docutils literal notranslate"><span class="pre">modang()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.constrain"><code class="docutils literal notranslate"><span class="pre">constrain()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.quant"><code class="docutils literal notranslate"><span class="pre">quant()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.mean"><code class="docutils literal notranslate"><span class="pre">mean()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="vectors.html#pybosl2.vectors.is_vector"><code class="docutils literal notranslate"><span class="pre">is_vector()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="vectors.html#pybosl2.vectors.add_scalar"><code class="docutils literal notranslate"><span class="pre">add_scalar()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="vectors.html#pybosl2.vectors.unit"><code class="docutils literal notranslate"><span class="pre">unit()</span></code></a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ball_bearings.html#pybosl2.parts.ball_bearings.BearingSpec"><code class="docutils literal notranslate"><span class="pre">BearingSpec</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="ball_bearings.html#pybosl2.parts.ball_bearings.BallBearings"><code class="docutils literal notranslate"><span class="pre">BallBearings</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="ball_bearings.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bottlecaps.html#approximations-relative-to-bosl2">Approximations relative to BOSL2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bottlecaps.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bottlecaps.html#api-reference">API reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bottlecaps.html#id1">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.CubeTruss"><code class="docutils literal notranslate"><span class="pre">CubeTruss</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="gears.html#pybosl2.parts.gears.Gears"><code class="docutils literal notranslate"><span class="pre">Gears</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="gears.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hinges.html#pybosl2.parts.hinges.Hinges"><code class="docutils literal notranslate"><span class="pre">Hinges</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="hinges.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hooks.html#pybosl2.parts.hooks.Hooks"><code class="docutils literal notranslate"><span class="pre">Hooks</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="hooks.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="joiners.html#pybosl2.parts.joiners.Joiners"><code class="docutils literal notranslate"><span class="pre">Joiners</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="joiners.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="linear_bearings.html#pybosl2.parts.linear_bearings.LinearBearingSpec"><code class="docutils literal notranslate"><span class="pre">LinearBearingSpec</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="linear_bearings.html#pybosl2.parts.linear_bearings.LinearBearings"><code class="docutils literal notranslate"><span class="pre">LinearBearings</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="linear_bearings.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="modular_hose.html#pybosl2.parts.modular_hose.ModularHose"><code class="docutils literal notranslate"><span class="pre">ModularHose</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="modular_hose.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="nema_steppers.html#pybosl2.parts.nema_steppers.NemaSpec"><code class="docutils literal notranslate"><span class="pre">NemaSpec</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="nema_steppers.html#pybosl2.parts.nema_steppers.NemaSteppers"><code class="docutils literal notranslate"><span class="pre">NemaSteppers</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="nema_steppers.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="polyhedra.html#pybosl2.parts.polyhedra.Polyhedra"><code class="docutils literal notranslate"><span class="pre">Polyhedra</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="polyhedra.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="screw_drive.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="screw_drive.html#api-reference">API reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="screw_drive.html#id1">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="screws.html#coverage-of-bosl2-screws-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">screws.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="screws.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="screws.html#api-reference">API reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="screws.html#id1">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sliders.html#pybosl2.parts.sliders.Sliders"><code class="docutils literal notranslate"><span class="pre">Sliders</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="sliders.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="threading.html#coverage-of-bosl2-threading-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">threading.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="threading.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="threading.html#api-reference">API reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="threading.html#id1">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.Walls"><code class="docutils literal notranslate"><span class="pre">Walls</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="walls.html#examples">Examples</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="wiring.html#pybosl2.parts.wiring.Wiring"><code class="docutils literal notranslate"><span class="pre">Wiring</span></code></a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Extras</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#coverage-of-bosl2-miscellaneous-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">miscellaneous.scad</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#module-pybosl2.miscellaneous">API reference</a></li>
-</ul>
-</li>
-</ul>
 
 
-<hr />
-<ul>
 
-    <li class="toctree-l1"><a href="specs/index.html">Visual parts catalog →</a></li>
 
-    <li class="toctree-l1"><a href="genindex.html">Full API index →</a></li>
 
-</ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="transforms.html" title="previous chapter">Transforms (affine / reorient)</a></li>
-      <li>Next: <a href="shapes2d.html" title="next chapter">2-D Shapes</a></li>
-  </ul></li>
-</ul>
-</div>
-<search id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
+
+
+
+
+
+        <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+
+
+
+
+
+
+  </head>
+
+
+
+
+
+
+
+
+
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+
+
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+
+
+        <a href="#arc-catenary" class="md-skip">
+          Skip to content
+        </a>
+
     </div>
-</search>
-<script>document.getElementById('searchbox').style.display = "block"</script>
+    <div data-md-component="announce">
+
+    </div>
+
+
+
+
+
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.6.7 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+
+              Drawing: path generators &amp; renderers
+
+          </span>
         </div>
       </div>
-      <div class="documentwrapper">
-        <div class="bodywrapper">
+    </div>
 
 
-          <div class="body" role="main">
+        <form class="md-header__option" data-md-component="palette">
 
-  <section id="drawing-path-generators-renderers">
-<h1>Drawing: path generators &amp; renderers<a class="headerlink" href="#drawing-path-generators-renderers" title="Link to this heading">¶</a></h1>
+
+
+
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+
+
+</form>
+
+
+
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+
+
+
+      <label class="md-header__button md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+
+  </nav>
+
+</header>
+
+    <div class="md-container" data-md-component="container">
+
+
+
+
+
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+
+
+
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    pybosl2 (PythonSCAD port) 0.6.7 documentation
+  </label>
+
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+
+  <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+
+
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="backends.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> CSG &amp; SDF backends</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+
+
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="color.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Color</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="constants.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Constants</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="distributors.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Distributors</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="enums.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Enums</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="masking.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Masking</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="partitions.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Partitions</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="solid.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Solid</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="texture.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Texture</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="transforms.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Transforms</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+
+  <span class="md-ellipsis">
+    <span> Drawing</span>
+
+  </span>
+
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+
+      <a href="#" class="md-nav__link md-nav__link--active">
+
+
+
+  <span class="md-ellipsis">
+    <span> Drawing</span>
+
+  </span>
+
+
+      </a>
+
+
+
+
+
+<nav class="md-nav md-nav--secondary">
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#arc-catenary" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Arc &amp; catenary</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Arc &amp; catenary">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc" class="md-nav__link">
+
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc (Python function) — A 2-D arc, returned as a Path2D of points (BOSL2&#39;s arc())."><span>pybosl2.<wbr>shapes2d.<wbr>arc</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="pybosl2.shapes2d.arc">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc-parameters" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.count" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.count (Python parameter) — number of points (default: from $fn/$fa/$fs)"><span>count</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.angle" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.angle (Python parameter) — degrees to sweep from start, or [start, end]"><span>angle</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.center" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.center (Python parameter) — centre point (default [0, 0])"><span>center</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.points" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.points (Python parameter) — two points (with center) or three points the arc passes through"><span>points</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.corner" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.corner (Python parameter) — three points; the arc is the radius fillet tangent to both legs"><span>corner</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.width" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.width (Python parameter) — chord width for the width/thickness form"><span>width</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.thickness" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.thickness (Python parameter) — height of the circular segment for the width/thickness form"><span>thickness</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.start" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.start (Python parameter) — starting angle in degrees (default 0)"><span>start</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.wedge" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.wedge (Python parameter) — prepend the centre point, producing a closed sector (default False)"><span>wedge</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.endpoint" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.endpoint (Python parameter) — include the final point (default True)"><span>endpoint</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.radius" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.radius (Python parameter)"><span>radius</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.diameter" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.diameter (Python parameter)"><span>diameter</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.long" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.long (Python parameter)"><span>long</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.clockwise" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.clockwise (Python parameter)"><span>clockwise</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.counterclockwise" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.counterclockwise (Python parameter)"><span>counterclockwise</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.fn" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.fn (Python parameter)"><span>fn</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.fa" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.fa (Python parameter)"><span>fa</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.fs" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.fs (Python parameter)"><span>fs</span></span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc-returns" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary" class="md-nav__link">
+
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary (Python method) — The catenary (hanging-chain) curve of the given width, as a Path2D."><span>Path2D.<wbr>catenary</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Path2D.catenary">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary-parameters" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary.width" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary.width (Python parameter) — horizontal distance between the endpoints (&gt; 0)"><span>width</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary.droop" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary.droop (Python parameter) — how far the midpoint hangs below the endpoints (give this or angle)"><span>droop</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary.sides" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary.sides (Python parameter) — number of points along the curve (default 100)"><span>sides</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary.angle" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary.angle (Python parameter) — endpoint slope in degrees, 0 &lt; |angle| &lt; 90 (give this or droop)"><span>angle</span></span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#helix" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Helix</span>
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#d-turtle" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>2-<wbr>D Turtle</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2-D Turtle">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d" class="md-nav__link">
+
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.turtle.turtle2d (Python function) — Build a 2-D path from TurtleCommand objects — BOSL2&#39;s turtle2d()."><span>pybosl2.<wbr>turtle.<wbr>turtle2d</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="pybosl2.turtle.turtle2d">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d-parameters" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d.commands" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.turtle.turtle2d.commands (Python parameter) — A flat list of TurtleCommand objects."><span>commands</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d.state" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.turtle.turtle2d.state (Python parameter) — Optional starting Turtle2DState."><span>state</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d.repeat" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.turtle.turtle2d.repeat (Python parameter) — Number of times to repeat the command list."><span>repeat</span></span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d-returns" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#id1" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>3-<wbr>D Turtle</span>
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#stroke-dashed-stroke" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Stroke &amp; dashed stroke</span>
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#coverage-of-bosl2-drawing-scad" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Coverage of BOSL2 drawing.<wbr>scad</span>
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="shapes2d.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> 2-<wbr>D Shapes</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="shapes3d.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> 3-<wbr>D Shapes</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="native_ops.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Native ops</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+
+
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="beziers.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Evaluate, analyze and build Bezier curves, paths, and surface patches <wbr>(BOSL2 beziers.<wbr>scad)</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="isosurface.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Isosurface</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="nurbs.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Nurbs</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="paths.html" class="md-nav__link">
+
+
+
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span> Abstract :<wbr>class:<wbr>`Path` base class for 2-<wbr>D and 3-<wbr>D path types</span></span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="regions.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Object API for 2-<wbr>D paths and regions</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="rounding.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Rounding</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="skin.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Skin</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="turtle3d.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Turtle3D</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="vnf.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Vnf</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+
+
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="geometry.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Geometry</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="math.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Math</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="vectors.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Vectors</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+
+
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="ball_bearings.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Ball Bearings &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="bottlecaps.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Bottlecaps &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="cubetruss.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Cubetruss &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="gears.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Gears &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="hinges.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Hinges &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="hooks.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Hooks &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="joiners.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Joiners &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="linear_bearings.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Linear Bearings &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="modular_hose.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Modular Hose &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="nema_steppers.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Nema Steppers &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="polyhedra.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Polyhedra &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="screw_drive.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Screw Drive &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="screws.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Screws</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="sliders.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Sliders &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="threading.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Threading &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="walls.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Walls &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="wiring.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Wiring &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+
+
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Extras</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="miscellaneous.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Miscellaneous</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+<nav class="md-nav md-nav--secondary">
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#arc-catenary" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Arc &amp; catenary</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Arc &amp; catenary">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc" class="md-nav__link">
+
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc (Python function) — A 2-D arc, returned as a Path2D of points (BOSL2&#39;s arc())."><span>pybosl2.<wbr>shapes2d.<wbr>arc</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="pybosl2.shapes2d.arc">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc-parameters" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.count" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.count (Python parameter) — number of points (default: from $fn/$fa/$fs)"><span>count</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.angle" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.angle (Python parameter) — degrees to sweep from start, or [start, end]"><span>angle</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.center" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.center (Python parameter) — centre point (default [0, 0])"><span>center</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.points" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.points (Python parameter) — two points (with center) or three points the arc passes through"><span>points</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.corner" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.corner (Python parameter) — three points; the arc is the radius fillet tangent to both legs"><span>corner</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.width" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.width (Python parameter) — chord width for the width/thickness form"><span>width</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.thickness" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.thickness (Python parameter) — height of the circular segment for the width/thickness form"><span>thickness</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.start" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.start (Python parameter) — starting angle in degrees (default 0)"><span>start</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.wedge" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.wedge (Python parameter) — prepend the centre point, producing a closed sector (default False)"><span>wedge</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.endpoint" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.endpoint (Python parameter) — include the final point (default True)"><span>endpoint</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.radius" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.radius (Python parameter)"><span>radius</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.diameter" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.diameter (Python parameter)"><span>diameter</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.long" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.long (Python parameter)"><span>long</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.clockwise" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.clockwise (Python parameter)"><span>clockwise</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.counterclockwise" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.counterclockwise (Python parameter)"><span>counterclockwise</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.fn" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.fn (Python parameter)"><span>fn</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.fa" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.fa (Python parameter)"><span>fa</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc.fs" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes2d.arc.fs (Python parameter)"><span>fs</span></span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc-returns" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes2d.arc-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary" class="md-nav__link">
+
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary (Python method) — The catenary (hanging-chain) curve of the given width, as a Path2D."><span>Path2D.<wbr>catenary</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Path2D.catenary">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary-parameters" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary.width" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary.width (Python parameter) — horizontal distance between the endpoints (&gt; 0)"><span>width</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary.droop" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary.droop (Python parameter) — how far the midpoint hangs below the endpoints (give this or angle)"><span>droop</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary.sides" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary.sides (Python parameter) — number of points along the curve (default 100)"><span>sides</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary.angle" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.path2d.Path2D.catenary.angle (Python parameter) — endpoint slope in degrees, 0 &lt; |angle| &lt; 90 (give this or droop)"><span>angle</span></span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.path2d.Path2D.catenary-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#helix" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Helix</span>
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#d-turtle" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>2-<wbr>D Turtle</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="2-D Turtle">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d" class="md-nav__link">
+
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.turtle.turtle2d (Python function) — Build a 2-D path from TurtleCommand objects — BOSL2&#39;s turtle2d()."><span>pybosl2.<wbr>turtle.<wbr>turtle2d</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="pybosl2.turtle.turtle2d">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d-parameters" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Parameters">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d.commands" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.turtle.turtle2d.commands (Python parameter) — A flat list of TurtleCommand objects."><span>commands</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d.state" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.turtle.turtle2d.state (Python parameter) — Optional starting Turtle2DState."><span>state</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d.repeat" class="md-nav__link">
+
+      <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.turtle.turtle2d.repeat (Python parameter) — Number of times to repeat the command list."><span>repeat</span></span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d-returns" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.turtle.turtle2d-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#id1" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>3-<wbr>D Turtle</span>
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#stroke-dashed-stroke" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Stroke &amp; dashed stroke</span>
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#coverage-of-bosl2-drawing-scad" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Coverage of BOSL2 drawing.<wbr>scad</span>
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+
+
+
+
+
+<h1 id="drawing-path-generators-renderers">Drawing: path generators &amp; renderers<a class="headerlink" href="#drawing-path-generators-renderers" title="Link to this heading">¶</a></h1>
 <p>The drawing functions are distributed across the modules where they naturally live.
 <em>Path generators</em> return points; <em>path renderers</em> turn points into geometry.</p>
-<section id="arc-catenary">
-<h2>Arc &amp; catenary<a class="headerlink" href="#arc-catenary" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.shapes2d.arc">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wedge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">counterclockwise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes2d/circle.html#arc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes2d.arc" title="Link to this definition">¶</a></dt>
+<h2 id="arc-catenary">Arc &amp; catenary<a class="headerlink" href="#arc-catenary" title="Link to this heading">¶</a></h2>
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.shapes2d.arc">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes2d.</span></span><span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.count" title="pybosl2.shapes2d.arc.count (Python parameter) — number of points (default: from $fn/$fa/$fs)"><span class="n"><span class="pre">count</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.radius" title="pybosl2.shapes2d.arc.radius (Python parameter)"><span class="n"><span class="pre">radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.angle" title="pybosl2.shapes2d.arc.angle (Python parameter) — degrees to sweep from start, or [start, end]"><span class="n"><span class="pre">angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.diameter" title="pybosl2.shapes2d.arc.diameter (Python parameter)"><span class="n"><span class="pre">diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.center" title="pybosl2.shapes2d.arc.center (Python parameter) — centre point (default [0, 0])"><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.points" title="pybosl2.shapes2d.arc.points (Python parameter) — two points (with center) or three points the arc passes through"><span class="n"><span class="pre">points</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.corner" title="pybosl2.shapes2d.arc.corner (Python parameter) — three points; the arc is the radius fillet tangent to both legs"><span class="n"><span class="pre">corner</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.width" title="pybosl2.shapes2d.arc.width (Python parameter) — chord width for the width/thickness form"><span class="n"><span class="pre">width</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.thickness" title="pybosl2.shapes2d.arc.thickness (Python parameter) — height of the circular segment for the width/thickness form"><span class="n"><span class="pre">thickness</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.start" title="pybosl2.shapes2d.arc.start (Python parameter) — starting angle in degrees (default 0)"><span class="n"><span class="pre">start</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.wedge" title="pybosl2.shapes2d.arc.wedge (Python parameter) — prepend the centre point, producing a closed sector (default False)"><span class="n"><span class="pre">wedge</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.long" title="pybosl2.shapes2d.arc.long (Python parameter)"><span class="n"><span class="pre">long</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.clockwise" title="pybosl2.shapes2d.arc.clockwise (Python parameter)"><span class="n"><span class="pre">clockwise</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.counterclockwise" title="pybosl2.shapes2d.arc.counterclockwise (Python parameter)"><span class="n"><span class="pre">counterclockwise</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.endpoint" title="pybosl2.shapes2d.arc.endpoint (Python parameter) — include the final point (default True)"><span class="n"><span class="pre">endpoint</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.fn" title="pybosl2.shapes2d.arc.fn (Python parameter)"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.fa" title="pybosl2.shapes2d.arc.fa (Python parameter)"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes2d.arc.fs" title="pybosl2.shapes2d.arc.fs (Python parameter)"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes2d/circle.html#arc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes2d.arc" title="Link to this definition">¶</a></dt>
 <dd><p>A 2-D arc, returned as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> of points (BOSL2’s <code class="docutils literal notranslate"><span class="pre">arc()</span></code>).</p>
 <p>All of BOSL2’s 2-D arc specifications are supported (3-D arcs, which project onto a plane,
 are not):</p>
@@ -430,75 +2764,99 @@ corner <code class="docutils literal notranslate"><span class="pre">P0-P1-P2</sp
 <p>Set <code class="docutils literal notranslate"><span class="pre">wedge=True</span></code> to prepend the centre point, giving a closed pie/sector path. When <em>count</em> is
 omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>count</strong> (<em>int</em><em> | </em><em>None</em>) – number of points (default: from $fn/$fa/$fs)</p></li>
-<li><p><strong>radius/diameter</strong> – radius / diameter of the arc</p></li>
-<li><p><strong>angle</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – degrees to sweep from <em>start</em>, or <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code></p></li>
-<li><p><strong>center</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – centre point (default <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>)</p></li>
-<li><p><strong>points</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – two points (with <em>center</em>) or three points the arc passes through</p></li>
-<li><p><strong>corner</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>) – three points; the arc is the radius fillet tangent to both legs</p></li>
-<li><p><strong>width</strong> (<em>float</em><em> | </em><em>None</em>) – chord width for the width/thickness form</p></li>
-<li><p><strong>thickness</strong> (<em>float</em><em> | </em><em>None</em>) – height of the circular segment for the width/thickness form</p></li>
-<li><p><strong>start</strong> (<em>float</em><em> | </em><em>None</em>) – starting angle in degrees (default 0)</p></li>
-<li><p><strong>wedge</strong> (<em>bool</em>) – prepend the centre point, producing a closed sector (default False)</p></li>
-<li><p><strong>long/clockwise/counterclockwise</strong> – for the two-point form, take the long way / a given handedness</p></li>
-<li><p><strong>endpoint</strong> (<em>bool</em>) – include the final point (default True)</p></li>
-<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>diameter</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>long</strong> (<em>bool</em>)</p></li>
-<li><p><strong>clockwise</strong> (<em>bool</em>)</p></li>
-<li><p><strong>counterclockwise</strong> (<em>bool</em>)</p></li>
-<li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-</ul>
+<dt class="field-odd" id="pybosl2.shapes2d.arc-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes2d.arc-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes2d.arc.count"><span class="sig-name descname">count</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.count" title="Permalink to this definition">¶</a></dt><dd><p>number of points (default: from $fn/$fa/$fs)</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt><span class="sig-name descname">radius/diameter</span></dt><dd><p>radius / diameter of the arc</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.angle"><span class="sig-name descname">angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.angle" title="Permalink to this definition">¶</a></dt><dd><p>degrees to sweep from <em>start</em>, or <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code></p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.center" title="Permalink to this definition">¶</a></dt><dd><p>centre point (default <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>)</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.points" title="Permalink to this definition">¶</a></dt><dd><p>two points (with <em>center</em>) or three points the arc passes through</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.corner"><span class="sig-name descname">corner</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.corner" title="Permalink to this definition">¶</a></dt><dd><p>three points; the arc is the radius fillet tangent to both legs</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.width"><span class="sig-name descname">width</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.width" title="Permalink to this definition">¶</a></dt><dd><p>chord width for the width/thickness form</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.thickness"><span class="sig-name descname">thickness</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.thickness" title="Permalink to this definition">¶</a></dt><dd><p>height of the circular segment for the width/thickness form</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.start"><span class="sig-name descname">start</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.start" title="Permalink to this definition">¶</a></dt><dd><p>starting angle in degrees (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.wedge"><span class="sig-name descname">wedge</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.wedge" title="Permalink to this definition">¶</a></dt><dd><p>prepend the centre point, producing a closed sector (default False)</p>
+</dd>
+<dt><span class="sig-name descname">long/clockwise/counterclockwise</span></dt><dd><p>for the two-point form, take the long way / a given handedness</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.endpoint"><span class="sig-name descname">endpoint</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.endpoint" title="Permalink to this definition">¶</a></dt><dd><p>include the final point (default True)</p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.radius"><span class="sig-name descname">radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.radius" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.diameter" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.long"><span class="sig-name descname">long</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.long" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.clockwise"><span class="sig-name descname">clockwise</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.clockwise" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.counterclockwise"><span class="sig-name descname">counterclockwise</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.counterclockwise" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fn" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fa" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.shapes2d.arc.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes2d.arc.fs" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes2d.arc-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes2d.arc-returns" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> (closed when <em>wedge</em> is set).</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd" id="pybosl2.shapes2d.arc-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes2d.arc-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p><em>Path2D</em></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="pybosl2.path2d.Path2D.catenary">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Path2D.</span></span><span class="sig-name descname"><span class="pre">catenary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">droop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#Path2D.catenary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary" title="Link to this definition">¶</a></dt>
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.path2d.Path2D.catenary">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Path2D.</span></span><span class="sig-name descname"><span class="pre">catenary</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.path2d.Path2D.catenary.width" title="pybosl2.path2d.Path2D.catenary.width (Python parameter) — horizontal distance between the endpoints (&gt; 0)"><span class="n"><span class="pre">width</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.path2d.Path2D.catenary.droop" title="pybosl2.path2d.Path2D.catenary.droop (Python parameter) — how far the midpoint hangs below the endpoints (give this or angle)"><span class="n"><span class="pre">droop</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.path2d.Path2D.catenary.sides" title="pybosl2.path2d.Path2D.catenary.sides (Python parameter) — number of points along the curve (default 100)"><span class="n"><span class="pre">sides</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">100</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.path2d.Path2D.catenary.angle" title="pybosl2.path2d.Path2D.catenary.angle (Python parameter) — endpoint slope in degrees, 0 &lt; |angle| &lt; 90 (give this or droop)"><span class="n"><span class="pre">angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#Path2D.catenary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary" title="Link to this definition">¶</a></dt>
 <dd><p>The catenary (hanging-chain) curve of the given <em>width</em>, as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code>.</p>
 <p>Give exactly one of <em>droop</em> (how far the middle hangs below the endpoints) or <em>angle</em> (the
 slope in degrees at the endpoints). The curve passes through <code class="docutils literal notranslate"><span class="pre">[-width/2,</span> <span class="pre">0]</span></code> and
 <code class="docutils literal notranslate"><span class="pre">[width/2,</span> <span class="pre">0]</span></code> and hangs downward (negative <em>droop</em>/<em>angle</em> flips it upward). This is BOSL2’s
 <code class="docutils literal notranslate"><span class="pre">catenary()</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>width</strong> (<em>float</em>) – horizontal distance between the endpoints (&gt; 0)</p></li>
-<li><p><strong>droop</strong> (<em>float</em><em> | </em><em>None</em>) – how far the midpoint hangs below the endpoints (give this or <em>angle</em>)</p></li>
-<li><p><strong>sides</strong> (<em>int</em>) – number of points along the curve (default 100)</p></li>
-<li><p><strong>angle</strong> (<em>float</em><em> | </em><em>None</em>) – endpoint slope in degrees, <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;</span> <span class="pre">|angle|</span> <span class="pre">&lt;</span> <span class="pre">90</span></code> (give this or <em>droop</em>)</p></li>
-</ul>
+<dt class="field-odd" id="pybosl2.path2d.Path2D.catenary-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.path2d.Path2D.catenary.width"><span class="sig-name descname">width</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary.width" title="Permalink to this definition">¶</a></dt><dd><p>horizontal distance between the endpoints (&gt; 0)</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dt id="pybosl2.path2d.Path2D.catenary.droop"><span class="sig-name descname">droop</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary.droop" title="Permalink to this definition">¶</a></dt><dd><p>how far the midpoint hangs below the endpoints (give this or <em>angle</em>)</p>
+</dd>
+<dt id="pybosl2.path2d.Path2D.catenary.sides"><span class="sig-name descname">sides</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary.sides" title="Permalink to this definition">¶</a></dt><dd><p>number of points along the curve (default 100)</p>
+</dd>
+<dt id="pybosl2.path2d.Path2D.catenary.angle"><span class="sig-name descname">angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary.angle" title="Permalink to this definition">¶</a></dt><dd><p>endpoint slope in degrees, <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;</span> <span class="pre">|angle|</span> <span class="pre">&lt;</span> <span class="pre">90</span></code> (give this or <em>droop</em>)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.path2d.Path2D.catenary-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p><em>Path2D</em></p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
+<p class="example rubric">Examples</p>
 <p>A hanging arch, stroked into a 2-mm ribbon and extruded into a wall:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
 <span class="n">Path2D</span><span class="o">.</span><span class="n">catenary</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">droop</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
+</code></pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c17ff357dffd4e1abb01d4b34268b4b9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3ed1f78695574ddcbf184c3315bc059a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c17ff357dffd4e1abb01d4b34268b4b9");
+const el = document.getElementById("stlviewer-3ed1f78695574ddcbf184c3315bc059a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -544,39 +2902,38 @@ window.addEventListener("resize", resize);
 <p><a class="reference external" href="_stl/149fce030e3c94bc.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
-</section>
-<section id="helix">
-<h2>Helix<a class="headerlink" href="#helix" title="Link to this heading">¶</a></h2>
+<h2 id="helix">Helix<a class="headerlink" href="#helix" title="Link to this heading">¶</a></h2>
 <p><code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.path3d.Path3D.helix()</span></code> — see the <a class="reference internal" href="paths.html"><span class="doc">Paths</span></a> reference for full documentation.</p>
-</section>
-<section id="d-turtle">
-<h2>2-D Turtle<a class="headerlink" href="#d-turtle" title="Link to this heading">¶</a></h2>
+<h2 id="d-turtle">2-D Turtle<a class="headerlink" href="#d-turtle" title="Link to this heading">¶</a></h2>
 <p>The 2-D turtle is a standalone function that returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code>:</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.turtle.turtle2d">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.turtle.</span></span><span class="sig-name descname"><span class="pre">turtle2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/turtle/turtle2d.html#turtle2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.turtle2d" title="Link to this definition">¶</a></dt>
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.turtle.turtle2d">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.turtle.</span></span><span class="sig-name descname"><span class="pre">turtle2d</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.turtle.turtle2d.commands" title="pybosl2.turtle.turtle2d.commands (Python parameter) — A flat list of TurtleCommand objects."><span class="n"><span class="pre">commands</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.turtle.turtle2d.state" title="pybosl2.turtle.turtle2d.state (Python parameter) — Optional starting Turtle2DState."><span class="n"><span class="pre">state</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.turtle.turtle2d.repeat" title="pybosl2.turtle.turtle2d.repeat (Python parameter) — Number of times to repeat the command list."><span class="n"><span class="pre">repeat</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/turtle/turtle2d.html#turtle2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.turtle2d" title="Link to this definition">¶</a></dt>
 <dd><p>Build a 2-D path from <code class="xref py py-class docutils literal notranslate"><span class="pre">TurtleCommand</span></code> objects — BOSL2’s <code class="docutils literal notranslate"><span class="pre">turtle2d()</span></code>.</p>
 <p>Creates a <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2D</span></code>, runs <em>commands</em> (optionally <em>repeat</em> times),
 and returns the turtle. Access the path via <code class="xref py py-meth docutils literal notranslate"><span class="pre">Turtle2D.points()</span></code> or
 the state via <code class="xref py py-meth docutils literal notranslate"><span class="pre">Turtle2D.full_state()</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>commands</strong> (<em>Sequence</em><em>[</em><em>TurtleCommand</em><em>]</em>) – A flat list of <code class="xref py py-class docutils literal notranslate"><span class="pre">TurtleCommand</span></code> objects.</p></li>
-<li><p><strong>state</strong> (<em>Turtle2DState</em><em> | </em><em>None</em>) – Optional starting <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2DState</span></code>.</p></li>
-<li><p><strong>repeat</strong> (<em>int</em>) – Number of times to repeat the command list.</p></li>
-</ul>
+<dt class="field-odd" id="pybosl2.turtle.turtle2d-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.turtle.turtle2d-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.turtle.turtle2d.commands"><span class="sig-name descname">commands</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[TurtleCommand]</span></span><a class="headerlink" href="#pybosl2.turtle.turtle2d.commands" title="Permalink to this definition">¶</a></dt><dd><p>A flat list of <code class="xref py py-class docutils literal notranslate"><span class="pre">TurtleCommand</span></code> objects.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dt id="pybosl2.turtle.turtle2d.state"><span class="sig-name descname">state</span><span class="p"> : </span><span class="desctype"><span class="desctype">Turtle2DState | None</span></span><a class="headerlink" href="#pybosl2.turtle.turtle2d.state" title="Permalink to this definition">¶</a></dt><dd><p>Optional starting <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2DState</span></code>.</p>
+</dd>
+<dt id="pybosl2.turtle.turtle2d.repeat"><span class="sig-name descname">repeat</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.turtle.turtle2d.repeat" title="Permalink to this definition">¶</a></dt><dd><p>Number of times to repeat the command list.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.turtle.turtle2d-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.turtle.turtle2d-returns" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle2D</span></code> instance after executing all commands.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dt class="field-odd" id="pybosl2.turtle.turtle2d-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.turtle.turtle2d-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p>Turtle2D</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
+<p class="example rubric">Examples</p>
 <p>A rounded-corner square drawn with arcs:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">turtle2d</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">turtle2d</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommand</span><span class="p">,</span> <span class="n">TurtleCommandType</span> <span class="k">as</span> <span class="n">Tct</span>
 
@@ -591,16 +2948,16 @@ the state via <code class="xref py py-meth docutils literal notranslate"><span c
     <span class="n">TurtleCommand</span><span class="p">(</span><span class="n">Tct</span><span class="o">.</span><span class="n">ARCLEFT</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
 <span class="p">])</span><span class="o">.</span><span class="n">points</span><span class="p">()</span>
 <span class="n">path</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
+</code></pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0a5f4fefbbaf42a780290347659037f4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4aa4b1f28ba046ba872afd45fcb47463" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0a5f4fefbbaf42a780290347659037f4");
+const el = document.getElementById("stlviewer-4aa4b1f28ba046ba872afd45fcb47463");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -646,22 +3003,16 @@ window.addEventListener("resize", resize);
 <p><a class="reference external" href="_stl/8db48dc43c84f58a.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
-</section>
-<section id="id1">
-<h2>3-D Turtle<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<h2 id="id1">3-D Turtle<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <p>The 3-D turtle is documented in <a class="reference internal" href="turtle3d.html"><span class="doc">Turtle (3-D)</span></a>.</p>
-</section>
-<section id="stroke-dashed-stroke">
-<h2>Stroke &amp; dashed stroke<a class="headerlink" href="#stroke-dashed-stroke" title="Link to this heading">¶</a></h2>
+<h2 id="stroke-dashed-stroke">Stroke &amp; dashed stroke<a class="headerlink" href="#stroke-dashed-stroke" title="Link to this heading">¶</a></h2>
 <p>Both 2-D and 3-D paths carry <code class="docutils literal notranslate"><span class="pre">stroke</span></code> and <code class="docutils literal notranslate"><span class="pre">dashed_stroke</span></code> as methods:</p>
 <ul class="simple">
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.path2d.Path2D.stroke()</span></code> / <code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.path2d.Path2D.dashed_stroke()</span></code></p></li>
 <li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.path3d.Path3D.stroke()</span></code> / <code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.path3d.Path3D.dashed_stroke()</span></code></p></li>
 </ul>
-</section>
-<section id="coverage-of-bosl2-drawing-scad">
-<h2>Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">drawing.scad</span></code><a class="headerlink" href="#coverage-of-bosl2-drawing-scad" title="Link to this heading">¶</a></h2>
-<table class="docutils align-default">
+<h2 id="coverage-of-bosl2-drawing-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">drawing.scad</span></code><a class="headerlink" href="#coverage-of-bosl2-drawing-scad" title="Link to this heading">¶</a></h2>
+<table class="docutils data align-default">
 <colgroup>
 <col style="width: 30.0%" />
 <col style="width: 20.0%" />
@@ -676,13 +3027,13 @@ window.addEventListener("resize", resize);
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">arc</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.shapes2d.arc" title="pybosl2.shapes2d.arc"><code class="xref py py-func docutils literal notranslate"><span class="pre">arc()</span></code></a> returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code>; all 2-D forms
+<td><p><a class="reference internal" href="#pybosl2.shapes2d.arc" title="pybosl2.shapes2d.arc (Python function) — A 2-D arc, returned as a Path2D of points (BOSL2's arc())."><code class="xref py py-func docutils literal notranslate"><span class="pre">arc()</span></code></a> returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code>; all 2-D forms
 (radius/angle, <code class="docutils literal notranslate"><span class="pre">angle=[start,</span> <span class="pre">end]</span></code>, <code class="docutils literal notranslate"><span class="pre">width</span></code>/<code class="docutils literal notranslate"><span class="pre">thickness</span></code>, two-point with
 <code class="docutils literal notranslate"><span class="pre">long</span></code>/<code class="docutils literal notranslate"><span class="pre">cw</span></code>/<code class="docutils literal notranslate"><span class="pre">ccw</span></code>, three-point, <code class="docutils literal notranslate"><span class="pre">corner=</span></code>, and <code class="docutils literal notranslate"><span class="pre">wedge=</span></code>). 3-D arcs are not ported.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">catenary</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.path2d.Path2D.catenary" title="pybosl2.path2d.Path2D.catenary"><code class="xref py py-meth docutils literal notranslate"><span class="pre">catenary()</span></code></a> — by <code class="docutils literal notranslate"><span class="pre">droop=</span></code> or endpoint <code class="docutils literal notranslate"><span class="pre">angle=</span></code>.</p></td>
+<td><p><a class="reference internal" href="#pybosl2.path2d.Path2D.catenary" title="pybosl2.path2d.Path2D.catenary (Python method) — The catenary (hanging-chain) curve of the given width, as a Path2D."><code class="xref py py-meth docutils literal notranslate"><span class="pre">catenary()</span></code></a> — by <code class="docutils literal notranslate"><span class="pre">droop=</span></code> or endpoint <code class="docutils literal notranslate"><span class="pre">angle=</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">helix</span></code></p></td>
 <td><p>ported</p></td>
@@ -691,7 +3042,7 @@ included).</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">turtle</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.turtle.turtle2d" title="pybosl2.turtle.turtle2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">turtle2d()</span></code></a> — the full command set, including <code class="docutils literal notranslate"><span class="pre">repeat</span></code> and the
+<td><p><a class="reference internal" href="#pybosl2.turtle.turtle2d" title="pybosl2.turtle.turtle2d (Python function) — Build a 2-D path from TurtleCommand objects — BOSL2's turtle2d()."><code class="xref py py-func docutils literal notranslate"><span class="pre">turtle2d()</span></code></a> — the full command set, including <code class="docutils literal notranslate"><span class="pre">repeat</span></code> and the
 <code class="docutils literal notranslate"><span class="pre">arcleft</span></code>/<code class="docutils literal notranslate"><span class="pre">arcright</span></code>/<code class="docutils literal notranslate"><span class="pre">arcleftto</span></code>/<code class="docutils literal notranslate"><span class="pre">arcrightto</span></code> arcs.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stroke</span></code></p></td>
@@ -710,7 +3061,7 @@ Per-vertex <code class="docutils literal notranslate"><span class="pre">width</s
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">turtle3d</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="turtle3d.html"><span class="doc">Turtle (3-D)</span></a> — the 3-D turtle as a <a class="reference internal" href="turtle3d.html#pybosl2.turtle.turtle3d.Turtle3D" title="pybosl2.turtle.turtle3d.Turtle3D"><code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle3D</span></code></a> class with
+<td><p><a class="reference internal" href="turtle3d.html"><span class="doc">Turtle (3-D)</span></a> — the 3-D turtle as a <a class="reference internal" href="turtle3d.html#pybosl2.turtle.turtle3d.Turtle3D" title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle3D</span></code></a> class with
 the full simple and compound command sets.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">debug_polygon</span></code> / <code class="docutils literal notranslate"><span class="pre">debug_region</span></code></p></td>
@@ -719,30 +3070,113 @@ the full simple and compound command sets.</p></td>
 </tr>
 </tbody>
 </table>
-</section>
-</section>
 
 
-          </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </article>
+            </div>
+
 
         </div>
-      </div>
-    <div class="clearer"></div>
+
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+
+      </main>
+
+        <footer class="md-footer">
+
+
+
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+
+
+          <a href="transforms.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Transforms (affine / reorient)">
+            <div class="md-footer__button md-icon">
+
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Transforms (affine / reorient)
+              </div>
+            </div>
+          </a>
+
+
+
+          <a href="shapes2d.html" class="md-footer__link md-footer__link--next" aria-label="Next: 2-D Shapes">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                2-D Shapes
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+
+      </nav>
+
+
+
+
+  <div class="md-footer-meta md-typeset">
+
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+
+    </div>
+
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    7.4.7.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+
+</div>
+
+    </div>
+
   </div>
-    <div class="footer">
-      &#169;2026, pinkfish.
+</footer>
 
-      |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
-
-      |
-      <a href="_sources/drawing.rst.txt"
-          rel="nofollow">Page source</a>
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
     </div>
 
 
+    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
 
+
+        <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
 
   </body>
 </html>

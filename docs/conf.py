@@ -75,9 +75,9 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
+    "sphinx_immaterial",
     "stl_viewer",
     "pybosl2_example",
-    "pybosl2_navsidebar",
 ]
 
 # pybosl2's docstrings use Google-style Args:/Returns:/Example: sections throughout.
@@ -107,26 +107,61 @@ exclude_patterns: list[str] = ["_build", "_generated", "_extra"]
 # interactive viewer and the download links use -- resolves from any of them.
 html_extra_path = ["_extra"]
 
-html_theme = "alabaster"
+html_theme = "sphinx_immaterial"
 html_static_path: list[str] = ["_static"]
-html_css_files: list[str] = ["pysidebar.css"]
-html_js_files: list[str] = ["group_toggle.js", "index_filter.js"]
 
-# A grouped, always-visible global TOC so the many modules are easy to track. Alabaster renders each
-# toctree ``:caption:`` from index.rst as a section header in the sidebar's navigation block.
 html_theme_options = {
-    "description": "A pure-Python PythonSCAD port of BOSL2",
-    "fixed_sidebar": True,
-    "sidebar_collapse": False,  # keep every group's pages visible, not just the current one's
-    "page_width": "1120px",
-    "sidebar_width": "255px",
-    "extra_nav_links": {
-        "Visual parts catalog →": "specs/index.html",
-        "Full API index →": "genindex.html",
+    "icon": {
+        "repo": "fontawesome/brands/github",
     },
-}
-html_sidebars = {
-    "**": ["about.html", "navigation.html", "relations.html", "searchbox.html"],
+    "site_url": "https://pinkfish.github.io/pybosl2/",
+    "repo_url": "https://github.com/pinkfish/pybosl2/",
+    "repo_name": "pybosl2",
+    "features": [
+        "navigation.sections",
+        "navigation.expand",
+        "navigation.top",
+        "navigation.footer",
+        "toc.follow",
+        "toc.sticky",
+        "content.code.copy",
+        "content.tooltips",
+    ],
+    "palette": [
+        {
+            "media": "(prefers-color-scheme)",
+            "scheme": "default",
+            "primary": "indigo",
+            "accent": "teal",
+            "toggle": {
+                "icon": "material/brightness-auto",
+                "name": "Switch to light mode",
+            },
+        },
+        {
+            "media": "(prefers-color-scheme: light)",
+            "scheme": "default",
+            "primary": "indigo",
+            "accent": "teal",
+            "toggle": {
+                "icon": "material/lightbulb",
+                "name": "Switch to dark mode",
+            },
+        },
+        {
+            "media": "(prefers-color-scheme: dark)",
+            "scheme": "slate",
+            "primary": "indigo",
+            "accent": "teal",
+            "toggle": {
+                "icon": "material/lightbulb-outline",
+                "name": "Switch to system preference",
+            },
+        },
+    ],
+    "font": False,
+    "globaltoc_collapse": True,
+    "toc_title": "On this page",
 }
 
 
