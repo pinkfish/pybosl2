@@ -41,11 +41,11 @@ __all__ = [
     "CapType",
     "CapSpec",
     "CapsSpec",
-    "_endcap_polys",
-    "_endcap_trim",
-    "_has_decorative_caps",
-    "_norm_caps",
-    "_vnf_with_decorative_caps",
+    "endcap_polys",
+    "endcap_trim",
+    "has_decorative_caps",
+    "norm_caps",
+    "vnf_with_decorative_caps",
 ]
 
 
@@ -159,7 +159,7 @@ class CapSpec:
 
 # ---------------------------------------------------------------------------
 # Default CapSpec for each stroke endcap/joint CapType (BOSL2 _shape_defaults).
-# Used by _endcap_polys via _normalize_one; the caller's fields override.
+# Used by endcap_polys via normalize_one; the caller's fields override.
 # ---------------------------------------------------------------------------
 
 _DEFAULTS: dict[CapType, CapSpec] = {
@@ -190,7 +190,7 @@ _DEFAULTS: dict[CapType, CapSpec] = {
 # ---------------------------------------------------------------------------
 
 
-def _norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
+def norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
     """Normalize a :data:`CapsSpec` to a ``[CapSpec, CapSpec]`` pair.
 
     Returns a list of two fully-resolved :class:`CapSpec` objects for the
@@ -207,12 +207,12 @@ def _norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
         return []
 
     if isinstance(caps, (list, tuple)):
-        return [_normalize_one(c) for c in caps[:2]]
-    result = _normalize_one(caps)  # type: ignore[arg-type]
+        return [normalize_one(c) for c in caps[:2]]
+    result = normalize_one(caps)  # type: ignore[arg-type]
     return [result, result]
 
 
-def _normalize_one(cap: CapType | CapSpec | str) -> CapSpec:
+def normalize_one(cap: CapType | CapSpec | str) -> CapSpec:
     """Normalize a single cap value to a fully-resolved :class:`CapSpec`.
 
     If given a raw :class:`CapType`, looks up the default :class:`CapSpec`
@@ -231,13 +231,13 @@ def _normalize_one(cap: CapType | CapSpec | str) -> CapSpec:
     return _DEFAULTS[CapType.BUTT]
 
 
-def _has_decorative_caps(cap_specs: list[CapSpec]) -> bool:
+def has_decorative_caps(cap_specs: list[CapSpec]) -> bool:
     """True if any endcap is a decorative (non-flat/non-dome/non-none) type."""
     _basic = frozenset({CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SPHERE})
     return any(cs.cap_type not in _basic for cs in cap_specs)
 
 
-def _vnf_with_decorative_caps(
+def vnf_with_decorative_caps(
     vnf: VNF,
     cap_specs: list[CapSpec],
     closed: bool,
@@ -258,7 +258,7 @@ def _vnf_with_decorative_caps(
     Returns:
         A Bosl2Solid with the body polyhedron and any decorative endcaps unioned.
     """
-    from pybosl2._stroke3d import _endcap_geometry_3d
+    from pybosl2._stroke3d import endcap_geometry_3d
     from pybosl2.shapes3d import Bosl2Solid
 
     if closed or not cap_specs:
@@ -272,7 +272,7 @@ def _vnf_with_decorative_caps(
         (cap_specs[1], profile_centers[1], profile_outdirs[1]),
     ]:
         if spec.cap_type not in (CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SPHERE):
-            ec = _endcap_geometry_3d(spec, list(center), list(outdir), width)
+            ec = endcap_geometry_3d(spec, list(center), list(outdir), width)
             if ec is not None:
                 body = body | ec
     return body
@@ -283,11 +283,11 @@ def _vnf_with_decorative_caps(
 # ---------------------------------------------------------------------------
 
 
-def _endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
+def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
     """The local-frame polygon(s) for an endcap (BOSL2 ``_shape_path()``).
 
     Dimensions are taken directly from the :class:`CapSpec` which has
-    already been resolved by :func:`_normalize_one` against
+    already been resolved by :func:`normalize_one` against
     :data:`_DEFAULTS`.
 
     Args:
@@ -370,7 +370,7 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
     return poly
 
 
-def _endcap_trim(spec: CapSpec, width: float) -> float:
+def endcap_trim(spec: CapSpec, width: float) -> float:
     """How far to pull the line back under an arrow endcap so it doesn't poke through the tip.
 
     Args:
@@ -388,14 +388,14 @@ def _endcap_trim(spec: CapSpec, width: float) -> float:
     return 0.0
 
 
-def _place(poly: Sequence[Sequence[float]], theta_deg: float, at: Sequence[float]) -> list[list[float]]:
+def place(poly: Sequence[Sequence[float]], theta_deg: float, at: Sequence[float]) -> list[list[float]]:
     """Rotate a local polygon by *theta_deg* and translate it to point *at*."""
     radius = math.radians(theta_deg)
     c, s = math.cos(radius), math.sin(radius)
     return [[c * p[0] - s * p[1] + at[0], s * p[0] + c * p[1] + at[1]] for p in poly]
 
 
-def _trim_ends(body: list[list[float]], trim1: float, trim2: float) -> list[list[float]]:
+def trim_ends(body: list[list[float]], trim1: float, trim2: float) -> list[list[float]]:
     """Shorten the open *body* path at each end by trim1/trim2 (clamped within the end segment)."""
     body = [list(map(float, p)) for p in body]
     if len(body) >= 2 and trim1 > 0:
@@ -415,7 +415,7 @@ def _trim_ends(body: list[list[float]], trim1: float, trim2: float) -> list[list
     return body
 
 
-def _oriented_to(shape: Any, outdir: Sequence[float], at: Sequence[float]) -> Any:
+def oriented_to(shape: Any, outdir: Sequence[float], at: Sequence[float]) -> Any:
     """Rotate a Z-up solid so +Z points along 3-D *outdir*, then translate it to *at*.
 
     Uses ``rotate(angle, axis)`` rather than a 4x4 ``multmatrix`` so it works on either backend's

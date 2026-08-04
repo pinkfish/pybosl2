@@ -28,14 +28,15 @@ import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from pybosl2._helpers import union
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import quantup, union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, INCH
 from pybosl2.distributors import DistributableMatrix
-from pybosl2.shapes2d import _frag_count, circle, hexagon
+from pybosl2.shapes2d import circle, hexagon
 from pybosl2.shapes2d import hull as _hull2d
 from pybosl2.shapes3d import cyl, prismoid
-from pybosl2.shapes3d.base import Bosl2Solid, _quantup
+from pybosl2.shapes3d.base import Bosl2Solid
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon
@@ -338,7 +339,7 @@ class ScrewDrive:
             spec.inner_rounding,
         )
         base = outer_diameter - 2 * tip
-        fn = int(_quantup(_frag_count(outer_diameter / 2), 12))
+        fn = int(quantup(_frag_count(outer_diameter / 2), 12))
 
         # Six outward lobes: two rotated copies of a hull of three tip circles, plus the base circle.
         tip_circles = [

@@ -18,24 +18,38 @@ from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
+# Import base class and helper functions from shapes2d.base
+from pybosl2._helpers import (
+    AnchorType,
+)
+from pybosl2._helpers import (
+    anchor_offset_generic as _anchor_offset_generic,
+)
+from pybosl2._helpers import (
+    anchor_offset_hull as _anchor_offset_hull,
+)
+from pybosl2._helpers import (
+    circle_pts as _circle_pts,
+)
+from pybosl2._helpers import (
+    frag_count as _frag_count,
+)
+from pybosl2._helpers import (
+    pick_radius as _pick_radius,
+)
+from pybosl2._helpers import (
+    rotate2d as _rotate2d,
+)
 from pybosl2._native import native
 from pybosl2.constants import CENTER
 from pybosl2.vectors import unit
 
-# Import base class and helper functions from shapes2d.base
 from .base import (
-    AnchorType,
     Bosl2Shape2D,
-    _anchor_offset_generic,
-    _anchor_offset_hull,
     _arc_between_points,
     _arc_through_3,
     _circle_circle_intersection,
-    _circle_pts,
     _finish,
-    _frag_count,
-    _pick_radius,
-    _rotate2d,
 )
 
 if TYPE_CHECKING:

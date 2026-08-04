@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Self
 
-    from pybosl2._shape import _BaseShape as Bosl2Shape
+    from pybosl2._shape import BaseShape as Bosl2Shape
 
 __all__ = ["rainbow", "rainbow_colors", "Colorable"]
 

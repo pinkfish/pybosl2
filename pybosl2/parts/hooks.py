@@ -20,8 +20,10 @@ import math
 
 import numpy as np
 
-from pybosl2.shapes2d import _opolygon
+from pybosl2._native import native
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid
+
+_opolygon = native("polygon")
 
 __all__ = ["Hooks"]
 

@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # The anchor-offset helpers for each primitive family (box/cylinder/sphere/convex-hull) that the SDF
 # backend's cuboid()/cyl()/sphere()/etc. need. The shared pieces are NOT duplicated here: the
-# edge-selector mini-language (`_edges()`, `EDGES_ALL`, edge vectors like `TOP+LEFT`) comes from
+# edge-selector mini-language (`edges()`, `EDGES_ALL`, edge vectors like `TOP+LEFT`) comes from
 # pybosl2._edges_lang and the radius/diameter resolver (`_pick_radius`) from pybosl2.shapes2d, so both
 # backends share one implementation of each (see M6). This module re-exports them for convenience.
 import math
@@ -23,14 +23,13 @@ from pybosl2._edges_lang import (
     EDGES_NONE,
     Anchor,
     _edge_set,
-    _edges,
     _is_edge_array,
     _is_plain_vector,
+    edges,
 )
 
 # The shared radius-priority resolver (radius1 > d1/2 > radius2 > d2/2 > radius > d/2 > dflt).
-# Re-exported so pybosl2._sdf.paths and pybosl2._sdf.shapes3d can import it from here as before.
-from pybosl2.shapes2d import _pick_radius
+from pybosl2._helpers import pick_radius as _pick_radius
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -40,7 +39,7 @@ __all__ = [
     "EDGES_ALL",
     "EDGES_NONE",
     "_edge_set",
-    "_edges",
+    "edges",
     "_is_edge_array",
     "_is_plain_vector",
     "_pick_radius",

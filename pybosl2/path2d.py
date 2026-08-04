@@ -1705,14 +1705,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     ) -> "Path2D":
         """Render this 2-D path as a stroked polygon outline."""
         from pybosl2._stroke2d import stroke_2d
-        from pybosl2.caps import CapSpec, _normalize_one
+        from pybosl2.caps import CapSpec, normalize_one
 
         if endcaps is None:
             endcaps = CapType.ROUND
         ec1_raw = endcap1 if endcap1 is not None else endcaps
         ec2_raw = endcap2 if endcap2 is not None else endcaps
-        ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else _normalize_one(ec1_raw)
-        ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else _normalize_one(ec2_raw)
+        ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else normalize_one(ec1_raw)
+        ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else normalize_one(ec2_raw)
 
         return stroke_2d(
             self,
@@ -2459,7 +2459,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             fa: Minimum angle in degrees for circle fragments.
             fs: Minimum size for circle fragments.
         """
-        from pybosl2.shapes2d import _arc_points, _frag_count
+        from pybosl2._helpers import arc_points as _arc_points
+        from pybosl2._helpers import frag_count as _frag_count
 
         p0, p1, p2 = points
         dim = len(p1)

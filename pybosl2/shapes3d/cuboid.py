@@ -24,8 +24,9 @@ if TYPE_CHECKING:
 
     from pybosl2.points import Point
 
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import quantup
 from pybosl2.constants import BOTTOM, CENTER, FRONT, LEFT, UP
-from pybosl2.shapes2d import _frag_count
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -36,7 +37,6 @@ from .base import (
     _finish3,
     _ocylinder,
     _osphere,
-    _quantup,
     _resolve_center_anchor,
 )
 
@@ -59,8 +59,9 @@ else:
     _osphere_native = native("sphere")
     _otextmetrics = native("textmetrics")
 
-from pybosl2._edges_lang import EDGE_OFFSETS, EDGES_ALL, _edges
-from pybosl2.shapes3d.cylinder import _cyl_profile
+from pybosl2._edges_lang import EDGE_OFFSETS, EDGES_ALL
+from pybosl2._edges_lang import edges as resolve_edges
+from pybosl2.shapes3d.cylinder import cyl_profile
 
 
 def _corner_edges(edges: Sequence[Sequence[float]], v: Sequence[float]) -> list[int]:
@@ -133,7 +134,7 @@ def _corner_shape(
     m = 0.01
     c2 = [corner[i] * c[i] / 2 for i in range(3)]
     c3 = [corner[i] * (c[i] - m / 2) for i in range(3)]
-    fn = 4 if is_chamfer else max(4, int(_quantup(_frag_count(radius, fn, fa, fs), 4)))
+    fn = 4 if is_chamfer else max(4, int(quantup(_frag_count(radius, fn, fa, fs), 4)))
     base_t = [corner[i] * (size[i] / 2 - c[i]) for i in range(3)]
 
     def xtcyl(length: float, radius: float) -> "PyOpenSCAD":
@@ -207,7 +208,7 @@ def _edge_mask_negative(
                         center=True,
                     ).rotate(45, [0, 0, 1])
                 else:
-                    fn = int(_quantup(_frag_count(ard, fn, fa, fs), 4))
+                    fn = int(quantup(_frag_count(ard, fn, fa, fs), 4))
                     cutter = _ocylinder(height=sz[axis] + 2.1 * ard, radius=ard, center=True, fn=fn)
                 cutters.append(_rotate_to_axis(cutter, axis).translate(t2))
     if trimcorners:
@@ -377,7 +378,7 @@ def cuboid(
         )
         return shape.translate([float(p1[0]), float(p1[1]), float(p1[2])])
 
-    edge_set = _edges(edges, except_edges or [])
+    edge_set = resolve_edges(edges, except_edges or [])
     chamfer_v = chamfer if chamfer else 0
     rounding_v = rounding if rounding else 0
     assert not (chamfer_v and rounding_v), "Cannot specify nonzero value for both chamfer and rounding"
@@ -406,7 +407,7 @@ def cuboid(
         radius = rounding_v
         if edge_set == EDGES_ALL and radius > 0:
             isize = [max(0.001, v - 2 * radius) for v in sz]
-            fn = int(_quantup(_frag_count(radius, fn, fa, fs), 4))
+            fn = int(quantup(_frag_count(radius, fn, fa, fs), 4))
             shape = _ominkowski(_ocube(isize, center=True), _osphere(radius=radius, fn=fn))
         elif radius < 0:
             shape = _edge_mask_negative(sz, edge_set, abs(radius), False, trimcorners, fn, fa, fs)
@@ -468,7 +469,7 @@ def prismoid(
             shape = prismoid([40, 40], [20, 25], height=30)
             shape.show()
     """
-    from pybosl2.shapes2d import _rect_path
+    from pybosl2._helpers import rect_path as _rect_path
 
     s1 = [float(size1)] * 2 if isinstance(size1, (int, float)) else [float(v) for v in size1]
     s2 = [float(size2)] * 2 if isinstance(size2, (int, float)) else [float(v) for v in size2]
@@ -641,7 +642,7 @@ def rect_tube(
 
             s3.rect_tube(size=30, wall=3, height=20).show()
     """
-    from pybosl2.shapes2d import _rect_path
+    from pybosl2._helpers import rect_path as _rect_path
 
     def as2(v: float | Sequence[float] | None) -> list[float] | None:
         if v is None:
@@ -863,8 +864,10 @@ def regular_prism(
     if not (r1v or r2v or c1v or c2v):
         shape = _ocylinder(height=prism_len, radius1=rad1, radius2=rad2, center=True, fn=sides)
     else:
-        profile = _cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, fn=fn, fa=fa, fs=fs)
-        from pybosl2.shapes2d import _opolygon
+        profile = cyl_profile(rad1, rad2, prism_len, r1v, r2v, c1v, c2v, fn=fn, fa=fa, fs=fs)
+        from pybosl2._native import native
+
+        _opolygon = native("polygon")
 
         shape = _orotate_extrude(_opolygon(profile), fn=sides)
 

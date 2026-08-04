@@ -23,11 +23,12 @@ from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
 
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._native import native
 from pybosl2.caps import CapType
 from pybosl2.constants import BACK, CENTER, FRONT, INCH, LEFT, TOP, UP
 from pybosl2.path2d import Path2D
-from pybosl2.shapes2d import _frag_count, _pick_radius
 from pybosl2.shapes2d import text as _text2d
 from pybosl2.shapes3d.base import (
     Bosl2Solid,
@@ -288,7 +289,9 @@ def interior_fillet(
         spin:    Z-axis rotation in degrees after anchor (default 0)
         orient:  direction to rotate the top towards, after spin (default UP)
     """
-    from .shapes2d import _opolygon
+    from pybosl2._native import native
+
+    _opolygon = native("polygon")
 
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     sides = _frag_count(rad)
@@ -888,7 +891,9 @@ def ruler(
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
     """
-    from .shapes2d import _opolygon
+    from pybosl2._native import native
+
+    _opolygon = native("polygon")
 
     if colors is None:
         colors = ["black", "white"]

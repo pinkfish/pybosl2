@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2._edges_lang import Anchor, _resolve_anchor
+from pybosl2._edges_lang import Anchor, resolve_anchor
 from pybosl2._native import native
 
 if TYPE_CHECKING:
@@ -27,11 +27,11 @@ if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
-from pybosl2._shape import _BaseShape
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
-from pybosl2.shapes2d import _frag_count
 from pybosl2.vectors import unit
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -122,7 +122,7 @@ def _as_native_3d(obj: object) -> "PyOpenSCAD":
 # ---------------------------------------------------------------------------
 
 
-class CsgSolid(_BaseShape):
+class CsgSolid(BaseShape):
     """Wraps a PyOpenSCAD solid together with the geometry metadata (nominal `size` and
     `anchor`) that BOSL2's $parent_geom attachment system would otherwise track, so that
     edge/corner/face masking (pybosl2/masking.py) work as plain chained methods instead of
@@ -130,7 +130,7 @@ class CsgSolid(_BaseShape):
     file returns an instance of this class (or a subclass).
 
     Transforms, CSG operators, colour, and distributor methods are inherited from
-    :class:`~pybosl2._shape._BaseShape`.
+    :class:`~pybosl2._shape.BaseShape`.
 
     Only cuboid()-shaped objects (cube(), cuboid() -- the only ones in this file with a genuine
     axis-aligned box `size`) support the masking methods; every other shape (prismoid, wedge,
@@ -170,11 +170,11 @@ class CsgSolid(_BaseShape):
             a_val = anchor
         elif isinstance(anchor, str):
             try:
-                a_val = _resolve_anchor(anchor)
+                a_val = resolve_anchor(anchor)
             except ValueError:
                 a_val = None
         else:
-            a_val = _resolve_anchor(list(anchor))
+            a_val = resolve_anchor(list(anchor))
         self.anchor = a_val
         from pybosl2._backend import current_backend
 
@@ -341,7 +341,7 @@ class CsgSolid(_BaseShape):
 
     # ---- distributors (pybosl2/distributors.py) ----
     #
-    # The distributors.scad copiers, inherited from Distributable via _BaseShape, resolve to
+    # The distributors.scad copiers, inherited from Distributable via BaseShape, resolve to
     # _distribute(), which for a solid means: multmatrix a copy for each transform.
 
     def _distribute(self, mats: list[np.ndarray]) -> list["Bosl2Solid"]:  # type: ignore[override]
@@ -1167,10 +1167,6 @@ class CsgSolid(_BaseShape):
 # ---------------------------------------------------------------------------
 # Internal helpers (not part of BOSL2's public API)
 # ---------------------------------------------------------------------------
-
-
-def _quantup(x: float, y: float) -> float:
-    return math.ceil(x / y) * y
 
 
 def _anchor_to_vector(a: Anchor | Sequence[float]) -> Point:

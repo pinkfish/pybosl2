@@ -322,7 +322,7 @@ def _anchor_to_corner_set(anchor: Anchor) -> list[int]:
     return [1 if all(v[i] == 0 or v[i] == c[i] for i in range(3)) else 0 for c in CORNER_OFFSETS]
 
 
-def _resolve_anchor(anchor: Anchor | str | list[int | float] | list[list[int]]) -> Anchor:
+def resolve_anchor(anchor: Anchor | str | list[int | float] | list[list[int]]) -> Anchor:
     """Normalize any anchor specifier (enum, string, legacy vector) to an Anchor enum.
 
     Args:
@@ -386,7 +386,7 @@ def _edge_set(
     raise ValueError(f"Unrecognised edge specifier: {v!r}")
 
 
-def _edges(
+def edges(
     v: Anchor | str | Sequence[object] | list[list[int]] | Point,
     except_: Anchor | str | Sequence[object] | list[list[int]] | None = None,
 ) -> list[list[int]]:
@@ -404,9 +404,9 @@ def _edges(
     if v == [] or v == Anchor.NONE:
         return EDGES_NONE
     if isinstance(v, (Anchor, str)) or _is_edge_matrix(v) or _is_plain_vector(v):
-        return _edges([v], except_)
+        return edges([v], except_)
     if isinstance(except_, (Anchor, str)) or _is_edge_matrix(except_) or _is_plain_vector(except_):
-        return _edges(v, [except_])
+        return edges(v, [except_])
     summed: list[list[int]] = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
     for x in v:
         es = _edge_set(x)  # type: ignore[arg-type]
@@ -443,6 +443,9 @@ def _edge_set_by_enum(ep: Anchor) -> list[list[int]]:
     return _anchor_to_edge_matrix(ep)
 
 
+edges = edges
+resolve_anchor = resolve_anchor
+
 __all__ = [
     "Anchor",
     "CornerPlane",
@@ -451,7 +454,9 @@ __all__ = [
     "EDGES_NONE",
     "EDGE_OFFSETS",
     "CORNER_OFFSETS",
-    "_edges",
+    "edges",
+    "resolve_anchor",
+    "edges",
     "_edge_set",
     "_is_edge_array",
     "_is_edge_matrix",
@@ -461,5 +466,5 @@ __all__ = [
     "_edge_set_by_enum",
     "_anchor_to_edge_matrix",
     "_anchor_to_corner_set",
-    "_resolve_anchor",
+    "resolve_anchor",
 ]

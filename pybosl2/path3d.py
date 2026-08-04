@@ -26,6 +26,8 @@ if TYPE_CHECKING:
     from pybosl2.shapes3d import Bosl2Solid
 
 
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.bounds import Bounds3D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.distributors import Distributable
@@ -40,7 +42,6 @@ from pybosl2.paths import (
 )
 from pybosl2.points import Point
 from pybosl2.rounding import Roundable
-from pybosl2.shapes2d import _frag_count, _pick_radius
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import unit
 
@@ -1195,12 +1196,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d.stroke(width=2).show()
         """
         from pybosl2._backend import current_backend
-        from pybosl2.caps import CapSpec, _normalize_one
+        from pybosl2.caps import CapSpec, normalize_one
 
         ec1_raw = endcap1 if endcap1 is not None else endcaps
         ec2_raw = endcap2 if endcap2 is not None else endcaps
-        ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else _normalize_one(ec1_raw)
-        ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else _normalize_one(ec2_raw)
+        ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else normalize_one(ec1_raw)
+        ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else normalize_one(ec2_raw)
 
         backend_name = current_backend()
         if backend_name != "csg":

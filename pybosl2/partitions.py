@@ -255,8 +255,9 @@ def _ptn_sect(
     fs: float | None = None,
 ) -> Path2D:
     """One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect())."""
+    from pybosl2._helpers import frag_count as _frag_count
     from pybosl2.path2d import Path2D
-    from pybosl2.shapes2d import _frag_count, arc
+    from pybosl2.shapes2d import arc
 
     if is_num(cptype):
         assert cptype > 0, "flat section length must be positive."  # type: ignore[operator]
@@ -638,10 +639,10 @@ def partition_cut_mask(
 
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
             from pybosl2.partitions import partition_cut_mask
 
-            (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutsize=5, slop=0.2)).show()
+            mask = partition_cut_mask(height=10, cutsize=8, slop=0.3)
+            mask.show()
     """
 
     from pybosl2.shapes3d import Bosl2Solid

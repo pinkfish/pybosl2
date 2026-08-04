@@ -121,10 +121,6 @@ def _buttress_profile() -> ThreadProfile:
 # ---------------------------------------------------------------------------
 
 
-def _quantup(x: float, n: int) -> int:
-    return int(math.ceil(x / n) * n)
-
-
 def _thread_grid(
     profile: list[list[float]] | ThreadProfile,
     pitch: float,
@@ -184,11 +180,11 @@ def _rod_solid(
     Each of the *starts* thread starts is one angular sector's vertex-array surface; the sectors are
     merged at the VNF level (not by CSG union, which Manifold cannot do on coaxial helical solids)
     into one polyhedron, then trimmed to length with an intersection."""
-    from pybosl2.shapes2d import _frag_count
+    from pybosl2._helpers import frag_count, quantup
     from pybosl2.vnf import VNF
 
     radius = d / 2
-    sides = _quantup(_frag_count(radius, fn, fa, fs), starts)
+    sides = int(quantup(frag_count(radius, fn, fa, fs), starts))
     verts: list[list[float]] = []
     faces: list[list[int]] = []
     for k in range(starts):

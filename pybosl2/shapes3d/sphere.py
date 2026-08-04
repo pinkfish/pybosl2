@@ -21,7 +21,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
-from pybosl2.shapes2d import _frag_count, _pick_radius
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import pick_radius as _pick_radius
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -164,7 +165,7 @@ def _teardrop2d_path(
     vertex straddling it gives a "flat" bottom -- the same effect BOSL2 gets from its own $fn
     discretization.
     """
-    from pybosl2.shapes2d import _arc_points
+    from pybosl2._helpers import arc_points as _arc_points
 
     rad = radius / math.cos(math.pi / sides) if circum else radius
     maxheight = rad / math.sin(math.radians(angle))
@@ -306,7 +307,10 @@ def onion(
 
             s3.onion(radius=15).show()
     """
-    from pybosl2.shapes2d import _arc_points, _opolygon
+    from pybosl2._helpers import arc_points as _arc_points
+    from pybosl2._native import native
+
+    _opolygon = native("polygon")
 
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     sides = _frag_count(rad, fn, fa, fs)

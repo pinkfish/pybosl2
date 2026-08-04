@@ -63,7 +63,7 @@ __all__ = [
 def _as_native_2d(profile: object) -> Any:
     """A raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
     a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to."""
-    from pybosl2.shapes2d import _as_native_2d as _coerce
+    from pybosl2._helpers import as_native_2d as _coerce
 
     return _coerce(profile)
 
@@ -183,7 +183,7 @@ def cylindrical_extrude(
     """
     from pythonscad import square as _square
 
-    from pybosl2.shapes2d import _frag_count
+    from pybosl2._helpers import frag_count as _frag_count
     from pybosl2.shapes3d import Bosl2Solid
 
     irv = inner_radius if inner_radius is not None else (inner_diameter / 2 if inner_diameter is not None else None)
@@ -458,7 +458,7 @@ class Miscellaneous(ABC):
         from pythonscad import minkowski as _mink
         from pythonscad import sphere as _sphere
 
-        from pybosl2.shapes2d import _frag_count
+        from pybosl2._helpers import frag_count as _frag_count
 
         if radius == 0:
             return self  # type: ignore[return-value]

@@ -52,7 +52,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
-from pybosl2.caps import CapsSpec, CapType, _has_decorative_caps, _norm_caps, _vnf_with_decorative_caps
+from pybosl2.caps import CapsSpec, CapType, has_decorative_caps, norm_caps, vnf_with_decorative_caps
 from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -289,13 +289,13 @@ def sweep(
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     assert len(shape3) >= 3, "shape must be a path of at least 3 points."
-    cap_specs = _norm_caps(caps, closed=closed)
+    cap_specs = norm_caps(caps, closed=closed)
     ntrans = len(transforms)
     assert ntrans >= 2, "transforms must be length 2 or more."
     hi = ntrans - (0 if closed else 1)
     points = [np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float) for i in range(hi + 1)]
 
-    if _has_decorative_caps(cap_specs):
+    if has_decorative_caps(cap_specs):
         vnf = VNF.vertex_array(points, cap1=None, cap2=None, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         center1 = list(np.mean(points[0], axis=0))
@@ -303,7 +303,7 @@ def sweep(
         radius = float(max(np.linalg.norm(np.asarray(p[:2]) - np.asarray(center1[:2])) for p in points[0]))
         outdir1 = [center1[i] - center2[i] for i in range(3)]
         outdir2 = [center2[i] - center1[i] for i in range(3)]
-        return _vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
+        return vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
     return VNF.vertex_array(
         points[:-1] if closed else points,
@@ -570,7 +570,7 @@ def skin(
     sides = len(profiles)
     assert sides > 1, "skin() needs at least two profiles."
     profcount = sides - (0 if closed else 1)
-    cap_specs = _norm_caps(caps, closed=closed)
+    cap_specs = norm_caps(caps, closed=closed)
     refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
@@ -598,7 +598,7 @@ def skin(
     sliced = slice_profiles(fixedprof, slices, closed)  # type: ignore[arg-type]
     grid = sliced if not closed else sliced + [sliced[0]]
 
-    if _has_decorative_caps(cap_specs):
+    if has_decorative_caps(cap_specs):
         vnf = VNF.vertex_array(grid, cap1=None, cap2=None, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         grid_arr = np.asarray(grid, dtype=float)
@@ -607,7 +607,7 @@ def skin(
         radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in grid_arr[0]))
         outdir1 = [center1[i] - center2[i] for i in range(3)]
         outdir2 = [center2[i] - center1[i] for i in range(3)]
-        return _vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
+        return vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
         grid[:-1] if closed else grid,
@@ -668,7 +668,7 @@ def _linear_sweep(
         slices = max(1, math.ceil(abs(twist) / 5))
     sc = [float(scale), float(scale)] if isinstance(scale, (int, float)) else [float(scale[0]), float(scale[1])]
     sh = [float(shift[0]), float(shift[1])]
-    cap_specs = _norm_caps(caps)
+    cap_specs = norm_caps(caps)
     z0 = -hh / 2 if center else 0.0
     base = np.asarray(path3d(path), dtype=float)
     verts = []
@@ -681,7 +681,7 @@ def _linear_sweep(
         )
         verts.append(np.asarray(_apply(m, base), dtype=float))
 
-    if _has_decorative_caps(cap_specs):
+    if has_decorative_caps(cap_specs):
         vnf = VNF.vertex_array(verts, cap1=None, cap2=None, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         center1 = list(verts[0].mean(axis=0).tolist())
@@ -689,7 +689,7 @@ def _linear_sweep(
         radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in verts[0]))
         outdir1 = [0.0, 0.0, -1.0]
         outdir2 = [0.0, 0.0, 1.0]
-        return _vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
+        return vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
         verts,
@@ -733,7 +733,7 @@ def _rotate_sweep(
             Path2D(profile).rotate_sweep(angle=360).polyhedron().show()
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
-    cap_specs = _norm_caps(caps)
+    cap_specs = norm_caps(caps)
     prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
     if any(s.cap_type != CapType.NONE for s in cap_specs) and not full:
@@ -1117,7 +1117,7 @@ def _offset_sweep(
     from pybosl2.path2d import Path2D as _Path
 
     assert height > 0, "offset_sweep(): height must be positive."
-    cap_specs = _norm_caps(caps)
+    cap_specs = norm_caps(caps)
 
     base = [[float(p[0]), float(p[1])] for p in path]
 
@@ -1272,7 +1272,7 @@ def _offset_sweep(
 
     norm = [_Path3D(row).subdivide_path(points=maxn, closed=True) for row in profiles_3d]
 
-    if _has_decorative_caps(cap_specs):
+    if has_decorative_caps(cap_specs):
         vnf = VNF.vertex_array(norm, cap1=None, cap2=None, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         norm_arr = np.asarray(norm, dtype=float)
@@ -1281,7 +1281,7 @@ def _offset_sweep(
         radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in norm_arr[0]))
         outdir1 = [center1[i] - center2[i] for i in range(3)]
         outdir2 = [center2[i] - center1[i] for i in range(3)]
-        return _vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
+        return vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
         norm,
@@ -1526,9 +1526,9 @@ def _rounded_prism(
     from pybosl2.path3d import Path3D as _Path3D
 
     norm = [_Path3D(row).subdivide_path(points=maxn, closed=True) for row in profiles_3d]
-    cap_specs = _norm_caps(caps)
+    cap_specs = norm_caps(caps)
 
-    if _has_decorative_caps(cap_specs):
+    if has_decorative_caps(cap_specs):
         vnf = VNF.vertex_array(norm, cap1=None, cap2=None, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         norm_arr = np.asarray(norm, dtype=float)
@@ -1537,7 +1537,7 @@ def _rounded_prism(
         radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in norm_arr[0]))
         outdir1 = [center1[i] - center2[i] for i in range(3)]
         outdir2 = [center2[i] - center1[i] for i in range(3)]
-        return _vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
+        return vnf_with_decorative_caps(vnf, cap_specs, False, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
         norm,
@@ -1694,7 +1694,7 @@ def _path_sweep2d(
     _ = quality
     shp: Path2D = shape if isinstance(shape, Path2D) else Path2D(shape)
     p: Path2D = path if isinstance(path, Path2D) else Path2D(path)
-    cap_specs = _norm_caps(caps, closed=closed)
+    cap_specs = norm_caps(caps, closed=closed)
     profile = shp if not shp.is_clockwise() else shp.reverse()  # ccw_polygon
     flip = -1.0 if (closed and p.is_clockwise()) else 1.0
     pth = p if flip > 0 else p.reverse()
@@ -1713,7 +1713,7 @@ def _path_sweep2d(
     if closed:
         grid = grid + [grid[0]]
 
-    if _has_decorative_caps(cap_specs):
+    if has_decorative_caps(cap_specs):
         vnf = VNF.vertex_array(grid, cap1=None, cap2=None, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         grid_arr = np.asarray(grid, dtype=float)
@@ -1722,7 +1722,7 @@ def _path_sweep2d(
         radius = float(max(np.linalg.norm(p[:2] - np.asarray(center1[:2])) for p in grid_arr[0]))
         outdir1 = [center1[i] - center2[i] for i in range(3)]
         outdir2 = [center2[i] - center1[i] for i in range(3)]
-        return _vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
+        return vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
     vnf = VNF.vertex_array(
         grid,
