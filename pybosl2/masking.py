@@ -21,12 +21,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pybosl2._edges_lang import CORNER_OFFSETS, Anchor
+from pybosl2._edges_lang import CORNER_OFFSETS, Anchor, EdgeAtom
 from pybosl2._native import native
 from pybosl2.points import Point
 
 if TYPE_CHECKING:
-    from pybosl2._edges_lang import CornerPlane, EdgePlane
+    from pybosl2._edges_lang import CornerPlane
 
 if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
@@ -204,8 +204,8 @@ def _extrude_mask_along_edge(
 
 def edge_mask(
     body: "Bosl2Solid",
-    edges: EdgePlane | str | list[int | str] = "ALL",
-    except_edges: list[int | str] | None = None,
+    edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+    except_edges: list[EdgeAtom] | None = None,
     children: "Bosl2Solid | None" = None,
     size: tuple[float, float, float] | None = None,
     anchor: Anchor | Point = CENTER,
@@ -239,8 +239,8 @@ def edge_mask(
 
 def edge_profile(
     body: "Bosl2Solid",
-    edges: EdgePlane | str | list[int | str] = "ALL",
-    except_edges: list[int | str] | None = None,
+    edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+    except_edges: list[EdgeAtom] | None = None,
     children: "Path2D | None" = None,
     size: tuple[float, float, float] | None = None,
     convexity: int = 10,

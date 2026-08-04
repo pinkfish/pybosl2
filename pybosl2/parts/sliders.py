@@ -18,8 +18,9 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
-from pybosl2.constants import BACK, BOTTOM, FRONT, LEFT, RIGHT
+from pybosl2.constants import BOTTOM, LEFT
 from pybosl2.distributors import DistributableMatrix
 from pybosl2.shapes3d import Bosl2Solid, cuboid, prismoid
 from pybosl2.vnf import VNF
@@ -68,8 +69,8 @@ class Sliders:
             cuboid(
                 [full_width, l, base - slop],
                 chamfer=2,
-                edges=[FRONT, BACK],
-                except_edges=[BOTTOM],
+                edges=[Anchor.FRONT, Anchor.BACK],
+                except_edges=[Anchor.BOTTOM],
                 anchor=BOTTOM,
                 fn=fn,
                 fa=fa,
@@ -80,8 +81,8 @@ class Sliders:
             wallcube = cuboid(
                 [wall, l, full_height],
                 chamfer=2,
-                edges=[RIGHT],
-                except_edges=[BOTTOM],
+                edges=[Anchor.RIGHT],
+                except_edges=[Anchor.BOTTOM],
                 anchor=[b + le for b, le in zip(BOTTOM, LEFT, strict=False)],  # type: ignore[arg-type]
                 fn=fn,
                 fa=fa,

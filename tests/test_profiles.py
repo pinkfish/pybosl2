@@ -6,6 +6,7 @@
 
 """Tests for pybosl2/masking.py: cuboid corner, face and edge profile masking methods."""
 
+from pybosl2._edges_lang import Anchor
 from pybosl2.masking import mask2d_roundover, rounding_edge_mask
 from pybosl2.shapes3d import cuboid, sphere
 
@@ -38,19 +39,19 @@ def test_edge_profile_rounds_edges() -> None:
 def test_edge_profile_specific_edges() -> None:
     """edge_profile rounds selected edges."""
     mask = mask2d_roundover(radius=2)
-    result = cuboid([20, 20, 20]).edge_profile(edges="Z", children=mask)  # type: ignore[arg-type]
+    result = cuboid([20, 20, 20]).edge_profile(edges=Anchor.Z, children=mask)
     assert result is not None
 
 
 def test_edge_profile_asymmetric() -> None:
     """rounding_edge_mask with different radii per edge via edge_mask."""
     cutter = rounding_edge_mask(length=30, radius1=1, radius2=3)
-    result = cuboid([20, 20, 20]).edge_mask(edges="Z", children=cutter)
+    result = cuboid([20, 20, 20]).edge_mask(edges=Anchor.Z, children=cutter)
     assert result is not None
 
 
 def test_edge_mask_applies_children() -> None:
     """edge_mask applies child shape to edges."""
     child = sphere(radius=3)
-    result = cuboid([20, 20, 20]).edge_mask(edges="ALL", children=child)
+    result = cuboid([20, 20, 20]).edge_mask(edges=Anchor.ALL, children=child)
     assert result is not None

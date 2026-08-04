@@ -214,6 +214,12 @@ class Anchor(Enum):
 # alias at the module level rather than subclassing.
 EdgePlane = Anchor
 CornerPlane = Anchor
+
+# Convenience type alias for edge specifications in chamfer/rounding APIs.
+# Use ``edges=[Anchor.Z, Anchor.TOP_FRONT]`` or ``edges=Anchor.X``.
+EdgeAtom = Anchor  # a single edge specifier (no type-ignore needed; equals Anchor at runtime)
+EdgeSpec: object = Anchor
+
 # -- internal conversion helpers -----------------------------------------------
 
 
@@ -356,7 +362,7 @@ def resolve_anchor(anchor: Anchor | str | list[int | float] | list[list[int]]) -
 
 
 def _edge_set(
-    v: Anchor | str | Point | list[int | float] | list[list[int]] | list[Anchor | str | Point],
+    v: EdgeAtom,
 ) -> list[list[int]]:
     """Convert an edge specifier to the internal 3×4 integer matrix.
 
@@ -372,13 +378,13 @@ def _edge_set(
     if isinstance(v, Anchor):
         return _anchor_to_edge_matrix(v)
     if _is_edge_matrix(v):
-        return v  # type: ignore[return-value]
+        return v
     if _is_plain_vector(v):
-        return _vector_to_edge_set(v)  # type: ignore[arg-type]
+        return _vector_to_edge_set(v)
     if isinstance(v, list):
         summed: list[list[int]] = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         for x in v:
-            es = _edge_set(x)  # type: ignore[arg-type]
+            es = _edge_set(x)
             for ax in range(3):
                 for i in range(4):
                     summed[ax][i] += es[ax][i]
@@ -387,8 +393,8 @@ def _edge_set(
 
 
 def edges(
-    v: Anchor | str | Sequence[object] | list[list[int]] | Point,
-    except_: Anchor | str | Sequence[object] | list[list[int]] | None = None,
+    v: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+    except_: list[EdgeAtom] | None = None,
 ) -> list[list[int]]:
     """Resolve edge selectors to a 3×4 integer matrix, with optional exclusion.
 
@@ -404,12 +410,12 @@ def edges(
     if v == [] or v == Anchor.NONE:
         return EDGES_NONE
     if isinstance(v, (Anchor, str)) or _is_edge_matrix(v) or _is_plain_vector(v):
-        return edges([v], except_)
+        return edges([v], except_)  # type: ignore[list-item]
     if isinstance(except_, (Anchor, str)) or _is_edge_matrix(except_) or _is_plain_vector(except_):
-        return edges(v, [except_])
+        return edges(v, [except_])  # type: ignore[list-item]
     summed: list[list[int]] = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
     for x in v:
-        es = _edge_set(x)  # type: ignore[arg-type]
+        es = _edge_set(x)
         for ax in range(3):
             for i in range(4):
                 summed[ax][i] += es[ax][i]
@@ -418,7 +424,7 @@ def edges(
         return normed
     exc: list[list[int]] = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
     for x in except_:
-        es = _edge_set(x)  # type: ignore[arg-type]
+        es = _edge_set(x)
         for ax in range(3):
             for i in range(4):
                 exc[ax][i] += es[ax][i]
@@ -449,7 +455,9 @@ resolve_anchor = resolve_anchor
 __all__ = [
     "Anchor",
     "CornerPlane",
+    "EdgeAtom",
     "EdgePlane",
+    "EdgeSpec",
     "EDGES_ALL",
     "EDGES_NONE",
     "EDGE_OFFSETS",

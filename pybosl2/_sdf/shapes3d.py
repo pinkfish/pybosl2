@@ -22,6 +22,7 @@ import numpy as np
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
+from pybosl2._edges_lang import Anchor
 from pybosl2._native import native
 from pybosl2._sdf._constants import BOTTOM, CENTER, FRONT, LEFT
 from pybosl2._sdf._libfive import LVTree, lv
@@ -55,6 +56,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike, NDArray
 
+    from pybosl2._edges_lang import EdgeAtom
     from pybosl2.caps import CapSpec
 
 
@@ -166,7 +168,7 @@ class SdfSolid(Distributable):
         add more edge treatment to an existing cuboid-shaped PyShape. Because this
         intersects (max()) the requested treatment into the *current* SDF rather than
         rebuilding from scratch, edges can be built up incrementally with different
-        treatments -- e.g. `cuboid(size).round(2, edges="Z").chamfer(1, edges=[TOP+LEFT])`
+        treatments -- e.g. `cuboid(size).round(2, edges=Anchor.Z).chamfer(1, edges=[TOP+LEFT])`
         -- which a single pybosl2.shapes3d.cuboid() call can't do (rounding/chamfer are
         mutually exclusive there, one radius for the whole call).
 
@@ -561,11 +563,15 @@ class SdfSolid(Distributable):
             modes,
         )
 
-    def round(self, radius: float, edges: str | list = "ALL", except_edges: list[Any] | None = None) -> PyShape:  # type: ignore[type-arg]
+    def round(
+        self, radius: float, edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL, except_edges: list[EdgeAtom] | None = None
+    ) -> PyShape:
         """Round the selected edges by `radius`, in addition to any existing edge treatment."""
         return self._edge_treat(radius, edges, except_edges, "round")
 
-    def chamfer(self, size: float, edges: str | list = "ALL", except_edges: list[Any] | None = None) -> PyShape:  # type: ignore[type-arg]
+    def chamfer(
+        self, size: float, edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL, except_edges: list[EdgeAtom] | None = None
+    ) -> PyShape:
         """Chamfer the selected edges by `size`, in addition to any existing edge treatment."""
         return self._edge_treat(size, edges, except_edges, "chamfer")
 
@@ -783,8 +789,8 @@ def cuboid(
     size: float | list[float] | None = None,
     rounding: float = 0,
     chamfer: float = 0,
-    edges: str | list = "ALL",  # type: ignore[type-arg]
-    except_edges: list[Any] | None = None,
+    edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+    except_edges: list[EdgeAtom] | None = None,
     res: int = 10,
     anchor: "Sequence[float]" = CENTER,
 ) -> PyShape:
@@ -797,7 +803,7 @@ def cuboid(
     `rounding` and `chamfer` are mutually exclusive in a single call (matching
     pybosl2.shapes3d.cuboid()); to mix both on different edges of the same cuboid, chain
     PyShape.round()/.chamfer() calls instead, e.g.
-    `cuboid(size).round(2, edges="Z").chamfer(1, edges=[TOP+LEFT])`.
+    `cuboid(size).round(2, edges=Anchor.Z).chamfer(1, edges=[TOP+LEFT])`.
 
     Args:
         size:         size of the cuboid, a number or length-3 vector
@@ -828,8 +834,9 @@ def cuboid(
 
         .. pythonscad-example::
 
+            from pybosl2 import Anchor
             import pybosl2._sdf.shapes3d as sdf_s3d
-            shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4, edges="Z")
+            shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4, edges=Anchor.Z)
             shape.show()
     """
     if size is None:
@@ -1557,7 +1564,7 @@ def rect_tube(
     """A rectangular tube (a rectangle with a rectangular hole through it), as a libfive SDF
     (outer rounded-rect-extrusion minus inner rounded-rect-extrusion, reusing
     pybosl2.shapes3d.cuboid()'s per-edge machinery for each). Only the 4 vertical edges are
-    ever rounded (`edges="Z"`, matching the "rounded rectangular tube" look BOSL2's own
+    ever rounded (`edges=Anchor.Z`, matching the "rounded rectangular tube" look BOSL2's own
     rect_tube() produces) -- there's no per-edge selection here, just one outer radius and
     one inner radius (default: same as the outer).
 
@@ -1580,7 +1587,7 @@ def rect_tube(
         assert wall is not None, "rect_tube(): must give isize or wall."
         isz = [sz[0] - 2 * wall, sz[1] - 2 * wall]
     irounding_v = inner_rounding if inner_rounding is not None else rounding
-    edge_set_z = resolve_edges("Z", [])
+    edge_set_z = resolve_edges(Anchor.Z, [])
     o_amounts, o_modes = _edge_matrices(rounding, edge_set_z, "round")
     i_amounts, i_modes = _edge_matrices(irounding_v, edge_set_z, "round")
 

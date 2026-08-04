@@ -27,6 +27,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Any
 
+from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, CENTER
 from pybosl2.distributors import DistributableMatrix
@@ -453,7 +454,7 @@ class CubeTruss:
         base = cuboid(
             [span + 2 * clipthick, size - 2 * strut, clipthick],
             chamfer=strut,
-            edges="Z",
+            edges=Anchor.Z,
             fn=fn,
             fa=fa,
             fs=fs,

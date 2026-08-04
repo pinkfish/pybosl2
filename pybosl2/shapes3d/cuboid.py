@@ -12,9 +12,9 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from pybosl2._edges_lang import Anchor
+from pybosl2._edges_lang import Anchor, EdgeAtom
 from pybosl2._native import native
 
 if TYPE_CHECKING:
@@ -262,8 +262,8 @@ def cube(
     center: bool | None = None,
     chamfer: float | None = None,
     rounding: float | None = None,
-    edges: Anchor | str | list[object] = "ALL",
-    except_edges: list[Any] | None = None,
+    edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+    except_edges: list[EdgeAtom] | None = None,
     trimcorners: bool = True,
     teardrop: bool | float = False,
     anchor: Anchor | Sequence[float] = Anchor.CENTER,
@@ -343,8 +343,8 @@ def cuboid(
     p2: Point | None = None,
     chamfer: float | None = None,
     rounding: float | None = None,
-    edges: Anchor | str | list[object] = "ALL",
-    except_edges: list[Any] | None = None,
+    edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+    except_edges: list[EdgeAtom] | None = None,
     trimcorners: bool = True,
     teardrop: bool | float = False,
     anchor: Anchor = Anchor.CENTER,

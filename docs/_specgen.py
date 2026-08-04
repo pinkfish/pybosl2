@@ -1340,7 +1340,7 @@ VARIANTS = {
         (
             "rounded-cuboid",
             "rounded cuboid",
-            "pybosl2.cuboid([30, 20, 15], rounding=4, edges='Z', except_edges=TOP+FRONT+RIGHT)",
+            "pybosl2.cuboid([30, 20, 15], rounding=4, edges=Anchor.Z, except_edges=TOP+FRONT+RIGHT)",
         ),
         (
             "chamfered-cylinder",

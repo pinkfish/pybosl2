@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2._edges_lang import Anchor, resolve_anchor
+from pybosl2._edges_lang import Anchor, EdgeAtom, resolve_anchor
 from pybosl2._native import native
 
 if TYPE_CHECKING:
@@ -688,8 +688,8 @@ class CsgSolid(BaseShape):
 
     def edge_mask(
         self,
-        edges: str | list[object] = "ALL",
-        except_edges: list[Any] | None = None,
+        edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+        except_edges: list[EdgeAtom] | None = None,
         children: PyOpenSCAD | None = None,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "Bosl2Solid":
@@ -727,7 +727,7 @@ class CsgSolid(BaseShape):
         return self._wrap(
             masking.edge_mask(
                 self.shape,
-                edges,  # type: ignore[arg-type]
+                edges,
                 except_edges,
                 children,
                 size=(size[0], size[1], size[2]),
@@ -737,8 +737,8 @@ class CsgSolid(BaseShape):
 
     def edge_profile(
         self,
-        edges: str | list[object] = "ALL",
-        except_edges: list[Any] | None = None,
+        edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+        except_edges: list[EdgeAtom] | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
         bbox: Sequence[Sequence[float]] | None = None,
@@ -775,7 +775,7 @@ class CsgSolid(BaseShape):
         return self._wrap(
             masking.edge_profile(
                 self.shape,
-                edges,  # type: ignore[arg-type]
+                edges,
                 except_edges,
                 children=None
                 if children is None
@@ -788,8 +788,8 @@ class CsgSolid(BaseShape):
 
     def edge_profile_asym(
         self,
-        edges: str | list[object] = "ALL",
-        except_edges: list[Any] | None = None,
+        edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
+        except_edges: list[EdgeAtom] | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
     ) -> "Bosl2Solid":
