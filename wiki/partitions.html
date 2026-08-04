@@ -168,7 +168,7 @@
 <h1>Partitions: planar cuts &amp; interlocking splits<a class="headerlink" href="#partitions-planar-cuts-interlocking-splits" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code> – slice an object with a plane, or partition a
 large object into two interlocking pieces for printing. The cut operators are methods on
-<a class="reference internal" href="shapes3d.html#module-pybosl2.shapes3d" title="pybosl2.shapes3d"><code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code></a> via the <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-class docutils literal notranslate"><span class="pre">partitions</span></code></a> mixin; the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code> via the <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions"><code class="xref py py-class docutils literal notranslate"><span class="pre">partitions</span></code></a> mixin; the
 2-D cut-path generators return <a class="reference internal" href="paths.html#module-pybosl2.paths" title="pybosl2.paths"><code class="xref py py-class docutils literal notranslate"><span class="pre">paths</span></code></a> objects and the mask builders return
 Bosl2Solids.</p>
 <section id="planar-half-cuts">
@@ -252,113 +252,11 @@ the <code class="docutils literal notranslate"><span class="pre">altpath</span><
 <span class="p">(</span><span class="n">back</span> <span class="o">|</span> <span class="n">front</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-2f7ce7a78f63468c92e9b79918a710b8" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-2f7ce7a78f63468c92e9b79918a710b8");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/629f9d0e73f9a476.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/629f9d0e73f9a476.stl">⬇ Download STL mesh</a></p>
 <p>A jigsaw cut face on one half of a long bar:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cut</span> <span class="o">=</span> <span class="n">partition_path</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span> <span class="n">_fn</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 <span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span><span class="o">.</span><span class="n">back_half</span><span class="p">(</span><span class="n">cut_path</span><span class="o">=</span><span class="n">cut</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-39d206464cc0422a8791817424e0f472" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-39d206464cc0422a8791817424e0f472");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/69a3605fa9f19902.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/69a3605fa9f19902.stl">⬇ Download STL mesh</a></p>
 </section>
 <section id="module-pybosl2.partitions">
 <span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-pybosl2.partitions" title="Link to this heading">¶</a></h2>
@@ -378,7 +276,7 @@ resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip
 <li><p><strong>pathdesc</strong> (<em>Sequence</em><em>[</em><em>Any</em><em>]</em>) – list of segment descriptors</p></li>
 <li><p><strong>repeat</strong> (<em>int</em>) – repeat the whole <em>pathdesc</em> this many times (default 1)</p></li>
 <li><p><strong>y</strong> (<em>float</em><em> | </em><em>None</em>) – if given, close the path at this Y (for a polygon); its sign orients the result</p></li>
-<li><p><strong>altpath</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>) – optional base path the pattern is redirected along</p></li>
+<li><p><strong>altpath</strong> (<em>Path2D</em><em> | </em><em>None</em>) – optional base path the pattern is redirected along</p></li>
 <li><p><strong>seglen</strong> (<em>float</em>) – default length for named sections (default 25)</p></li>
 <li><p><strong>segwidth</strong> (<em>float</em>) – default width for named sections (default 25)</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
@@ -390,7 +288,7 @@ resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip
 <dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> (closed when <em>y</em> is given).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D">Path2D</a></p>
+<dd class="field-odd"><p>Path2D</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -402,13 +300,13 @@ resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-04e940738c104db1920ecebbbacbb9f0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-5782db87fd8c4d8e9a0fee1911a89dd6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-04e940738c104db1920ecebbbacbb9f0");
+const el = document.getElementById("stlviewer-5782db87fd8c4d8e9a0fee1911a89dd6");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -467,7 +365,7 @@ Pair a plain mask with an <code class="docutils literal notranslate"><span class
 <li><p><strong>w</strong> (<em>float</em>) – width of the kept part, back from the cut plane</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – height of the part</p></li>
 <li><p><strong>cutsize</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – cut-pattern width (scalar, or <code class="docutils literal notranslate"><span class="pre">[length,</span> <span class="pre">width]</span></code>)</p></li>
-<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a>) – named cut pattern or an explicit 2-D path</p></li>
+<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><em>Path2D</em>) – named cut pattern or an explicit 2-D path</p></li>
 <li><p><strong>gap</strong> (<em>float</em>) – empty gaps between pattern iterations</p></li>
 <li><p><strong>cutpath_centered</strong> (<em>bool</em>) – keep the pattern centered (default True)</p></li>
 <li><p><strong>inverse</strong> (<em>bool</em>) – build the mating (inverted) mask</p></li>
@@ -478,7 +376,7 @@ Pair a plain mask with an <code class="docutils literal notranslate"><span class
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p>Bosl2Solid</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -490,13 +388,13 @@ Pair a plain mask with an <code class="docutils literal notranslate"><span class
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-5414482bdceb488bbc94f7ddb6c1a640" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-ff213d61d50e486c8cf57d3560e2141f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-5414482bdceb488bbc94f7ddb6c1a640");
+const el = document.getElementById("stlviewer-ff213d61d50e486c8cf57d3560e2141f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -555,64 +453,13 @@ window.addEventListener("resize", resize);
 <span class="p">(</span><span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span> <span class="o">-</span> <span class="n">partition_cut_mask</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.15</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-657ae34d1da74a3aa23c1d0d844cb453" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-657ae34d1da74a3aa23c1d0d844cb453");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/3a9705b704cadb4c.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/3a9705b704cadb4c.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>length</strong> (<em>float</em>)</p></li>
 <li><p><strong>height</strong> (<em>float</em>)</p></li>
 <li><p><strong>cutsize</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
-<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a>)</p></li>
+<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><em>Path2D</em>)</p></li>
 <li><p><strong>gap</strong> (<em>float</em>)</p></li>
 <li><p><strong>cutpath_centered</strong> (<em>bool</em>)</p></li>
 <li><p><strong>slop</strong> (<em>float</em>)</p></li>
@@ -622,7 +469,7 @@ window.addEventListener("resize", resize);
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p>Bosl2Solid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -632,7 +479,7 @@ window.addEventListener("resize", resize);
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">Partitionable</span></span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Mixin adding the partitions.scad planar cuts and the partition() split as methods.</p>
-<p>Inherited by <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a>. A half-cut intersects the solid with a
+<p>Inherited by <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>. A half-cut intersects the solid with a
 half-space mask whose size defaults to the object’s own bounding box (so BOSL2’s <code class="docutils literal notranslate"><span class="pre">s=</span></code>
 argument is optional). <code class="docutils literal notranslate"><span class="pre">cut_path=</span></code> follows a 2-D <a class="reference internal" href="#pybosl2.partitions.partition_path" title="pybosl2.partitions.partition_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> to make an
 interlocking cut face instead of a flat plane.</p>
@@ -659,7 +506,7 @@ setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#py
 <li><p><strong>v</strong> (<em>Any</em>)</p></li>
 <li><p><strong>center</strong> (<em>bool</em><em> | </em><em>list</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
 <li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<em>Path2D</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>offset</strong> (<em>float</em>)</p></li>
 </ul>
@@ -679,7 +526,7 @@ setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#py
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<em>float</em>)</p></li>
 <li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<em>Path2D</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>offset</strong> (<em>float</em>)</p></li>
 </ul>
@@ -699,7 +546,7 @@ setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#py
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<em>float</em>)</p></li>
 <li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<em>Path2D</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>offset</strong> (<em>float</em>)</p></li>
 </ul>
@@ -719,7 +566,7 @@ setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#py
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>y</strong> (<em>float</em>)</p></li>
 <li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<em>Path2D</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>offset</strong> (<em>float</em>)</p></li>
 </ul>
@@ -739,7 +586,7 @@ setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#py
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>y</strong> (<em>float</em>)</p></li>
 <li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<em>Path2D</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>offset</strong> (<em>float</em>)</p></li>
 </ul>
@@ -759,7 +606,7 @@ setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#py
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>z</strong> (<em>float</em>)</p></li>
 <li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<em>Path2D</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>offset</strong> (<em>float</em>)</p></li>
 </ul>
@@ -779,7 +626,7 @@ setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#py
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>z</strong> (<em>float</em>)</p></li>
 <li><p><strong>s</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cut_path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><em>None</em>)</p></li>
+<li><p><strong>cut_path</strong> (<em>Path2D</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>cut_angle</strong> (<em>float</em>)</p></li>
 <li><p><strong>offset</strong> (<em>float</em>)</p></li>
 </ul>
@@ -807,13 +654,13 @@ rotates the cut direction; <em>slop</em> leaves a printer-fit clearance.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e83e7a1402d64a5d92e71b24a27064ff" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3e8f776602084bd383354cc7b5f4370e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e83e7a1402d64a5d92e71b24a27064ff");
+const el = document.getElementById("stlviewer-3e8f776602084bd383354cc7b5f4370e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -862,7 +709,7 @@ window.addEventListener("resize", resize);
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>spread</strong> (<em>float</em>)</p></li>
 <li><p><strong>cutsize</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>)</p></li>
-<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a>)</p></li>
+<li><p><strong>cutpath</strong> (<em>str</em><em> | </em><em>Path2D</em>)</p></li>
 <li><p><strong>gap</strong> (<em>float</em>)</p></li>
 <li><p><strong>cutpath_centered</strong> (<em>bool</em>)</p></li>
 <li><p><strong>spin</strong> (<em>float</em>)</p></li>

@@ -119,7 +119,7 @@ class Bosl2ExampleDirective(Directive):
         if out_stl.is_file():
             return f"_stl/{out_stl.name}"
         if find_pythonscad_binary() is None:
-            _logger.warning("pybosl2-example: no PythonSCAD binary found, skipping STL render")
+            _logger.info("pybosl2-example: no PythonSCAD binary found, skipping STL render")
             return None
         _STL_DIR.mkdir(exist_ok=True)
         try:

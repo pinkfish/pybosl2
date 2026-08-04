@@ -34,12 +34,6 @@ class CutPoint:
     Returned by :meth:`~pybosl2.path2d.Path2D.cut_points` and related methods.
     When requested with ``direction=True``, the *direction* and *normal*
     attributes are populated; otherwise they are ``None``.
-
-    Attributes:
-        point: The (x, y) or (x, y, z) coordinates of the cut point.
-        next_index: The 0-based index of the next point in the original path.
-        direction: Unit tangent vector at the cut point, or None.
-        normal: Unit normal vector at the cut point, or None.
     """
 
     point: Point

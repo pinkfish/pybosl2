@@ -5,7 +5,7 @@ Solid backends: CSG and SDF
 
 * **CSG** (the default) — exact constructive solid geometry via PythonSCAD's native
   primitives. Booleans are exact, the attachment/anchoring system is available, and shapes
-  carry their BOSL2 metadata. This is today's :class:`~pybosl2.Bosl2Solid`.
+  carry their BOSL2 metadata. This is today's ``pybosl2.shapes3d.Bosl2Solid``.
 * **SDF** — an F-Rep / signed-distance-field engine built on `libfive
   <https://libfive.com>`_ (the merged ``pysolidfive`` code). Shapes are implicit surfaces, so
   they round and blend smoothly and mesh at any resolution, at the cost of the CSG-only
@@ -14,7 +14,7 @@ Solid backends: CSG and SDF
 Both backends expose the *same* shared constructors, so the same code builds either one.
 
 The ``pybosl2.solid`` facade
---------------------------
+----------------------------
 
 :mod:`pybosl2.solid` is the backend-neutral entry point. Each constructor dispatches to whichever
 backend is active and returns a common ``Solid`` — a ``Bosl2Solid`` on CSG,
@@ -164,20 +164,20 @@ dispatch on the active backend:
      - SDF
    * - :meth:`Path.linear_extrude() <pybosl2.paths.Path.linear_extrude>`,
        :meth:`Region.linear_extrude() <pybosl2.regions.Region.linear_extrude>`
-     - native ``linear_extrude`` → :class:`~pybosl2.Bosl2Solid`; takes
-       ``center``/``twist``/``scale``/``slices``
+     - native ``linear_extrude`` → ``pybosl2.shapes3d.Bosl2Solid``; takes
+        ``center``/``twist``/``scale``/``slices``
      - ``polygon_prism`` → :class:`PyShape`; takes ``center`` plus
        ``rounding_top``/``rounding_bottom``/``res``, and rejects the profile-shearing options
-   * - :meth:`Bosl2Solid.hull() <pybosl2.shapes3d.Bosl2Solid.hull>` /
-       :meth:`PyShape.hull() <pybosl2._sdf.shapes3d.PyShape.hull>`
+   * - ``Bosl2Solid.hull()`` /
+        ``PyShape.hull()``
      - exact native ``hull()``
      - polyhedral hull of the children's support points
    * - :func:`stroke() <pybosl2.path2d.Path2D.stroke>` of a **3-D** path
      - a tube of Bosl2Solid cylinders/spheres
      - the same tube as one distance field
-   * - :meth:`Bosl2Solid.projection() <pybosl2.Bosl2Solid.projection>`,
-       ``Path.polygon()``/``.fill()``/``.hull()``/``.rotate_extrude()``, 2-D ``stroke()``
-     - → :class:`~pybosl2.shapes2d` / :class:`~pybosl2.Bosl2Solid`
+   * - ``Bosl2Solid.projection()``,
+        ``Path.polygon()``/``.fill()``/``.hull()``/``.rotate_extrude()``, 2-D ``stroke()``
+     - → :class:`~pybosl2.shapes2d` / ``pybosl2.shapes3d.Bosl2Solid``
      - :class:`~pybosl2.exceptions.UnsupportedByBackendError`
 
 So the same source builds on either backend as long as it goes path → solid::

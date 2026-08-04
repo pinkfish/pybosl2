@@ -183,7 +183,7 @@
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p>Bosl2Solid</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -193,13 +193,13 @@
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-41e4912c2ac54c23b21541526dbc52ae" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-37d79bf9851d4a0292cc583552bdc73f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-41e4912c2ac54c23b21541526dbc52ae");
+const el = document.getElementById("stlviewer-37d79bf9851d4a0292cc583552bdc73f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -252,7 +252,7 @@ window.addEventListener("resize", resize);
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<a class="reference internal" href="paths.html#pybosl2.path2d.Path2D" title="pybosl2.path2d.Path2D"><em>Path2D</em></a><em> | </em><a class="reference internal" href="paths.html#pybosl2.path3d.Path3D" title="pybosl2.path3d.Path3D"><em>Path3D</em></a>) – path to place the text on</p></li>
+<li><p><strong>path</strong> (<em>Path2D</em><em> | </em><em>Path3D</em>) – path to place the text on</p></li>
 <li><p><strong>text</strong> (<em>str</em>) – text to create</p></li>
 <li><p><strong>font</strong> (<em>str</em>) – font to use (default “Liberation Sans”)</p></li>
 <li><p><strong>size</strong> (<em>float</em>) – font size divided by 0.72 (default 10)</p></li>
@@ -271,7 +271,7 @@ window.addEventListener("resize", resize);
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-even"><p>Bosl2Solid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -280,7 +280,7 @@ window.addEventListener("resize", resize);
 <dt class="sig sig-object py" id="pybosl2.shapes3d.extrusions.cross">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.extrusions.</span></span><span class="sig-name descname"><span class="pre">cross</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[10,</span> <span class="pre">10]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arm_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.CENTER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/extrusions.html#cross"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.extrusions.cross" title="Link to this definition">¶</a></dt>
 <dd><p>A 3-D cross (plus) shape: two perpendicular centred rectangular prisms.</p>
-<p>Builds from the 2‑D <a class="reference internal" href="shapes2d.html#pybosl2.shapes2d.cross" title="pybosl2.shapes2d.cross"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross()</span></code></a> polygon linear-extruded to <em>height</em>.</p>
+<p>Builds from the 2‑D <code class="xref py py-func docutils literal notranslate"><span class="pre">cross()</span></code> polygon linear-extruded to <em>height</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -300,7 +300,7 @@ When <em>None</em> (default) the arms are one-third of the overall size.</p></li
 <dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-odd"><p>Bosl2Solid</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -310,13 +310,13 @@ When <em>None</em> (default) the arms are one-third of the overall size.</p></li
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-f05acfa120154542a7a91b1c936b273c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-b2de2750e3484126b7488a911f5dfa95" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-f05acfa120154542a7a91b1c936b273c");
+const el = document.getElementById("stlviewer-b2de2750e3484126b7488a911f5dfa95");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

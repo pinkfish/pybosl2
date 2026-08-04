@@ -204,7 +204,7 @@
 
 
 <div class="viewcode-block" id="catenary">
-<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.catenary">[docs]</a>
+<a class="viewcode-back" href="../../drawing.html#pybosl2.path2d.catenary">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">catenary</span><span class="p">(</span>
     <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">droop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -303,8 +303,6 @@
 
 
 
-<div class="viewcode-block" id="SelfIntersection">
-<a class="viewcode-back" href="../../paths.html#pybosl2.path2d.SelfIntersection">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SelfIntersection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A single self-intersection point on a path.</span>
@@ -321,8 +319,7 @@
     <span class="n">seg1</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">prop1</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">seg2</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">prop2</span><span class="p">:</span> <span class="nb">float</span></div>
-
+    <span class="n">prop2</span><span class="p">:</span> <span class="nb">float</span>
 
 
 <div class="viewcode-block" id="Path2D">
@@ -1534,8 +1531,8 @@
 <span class="sd">            (``.linear_extrude(...)``).</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend(&quot;sdf&quot;)`` -- see the note</span>
-<span class="sd">            above :meth:`linear_extrude`, which works on both backends.</span>
+<span class="sd">            UnsupportedByBackendError: under ``use_backend(&quot;sdf&quot;)``.</span>
+<span class="sd">            Use ``linear_extrude()`` instead; it works on both backends.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
@@ -1939,9 +1936,9 @@
 <div class="viewcode-block" id="Path2D.linear_extrude">
 <a class="viewcode-back" href="../../paths.html#pybosl2.path2d.Path2D.linear_extrude">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude this path *height* along +Z into a 3-D solid, **on whichever backend is</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude this path *height* along +Z into a 3-D solid, on whichever backend is</span>
 
-<span class="sd">        active**: a :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend, a</span>
+<span class="sd">        active: a :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend, a</span>
 <span class="sd">        :class:`~pybosl2._sdf.shapes3d.PyShape` under ``use_backend(&quot;sdf&quot;)``::</span>
 
 <span class="sd">            plate = Path2D(pts).linear_extrude(height=4)          # -&gt; Bosl2Solid</span>
@@ -1985,9 +1982,9 @@
 <span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            ~pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend(&quot;sdf&quot;)`` -- the SDF</span>
-<span class="sd">            backend has no revolve; sweep the profile instead</span>
-<span class="sd">            (:func:`pybosl2._sdf.shapes3d.path_sweep`).</span>
+<span class="sd">            pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend(&quot;sdf&quot;)`` --</span>
+<span class="sd">            the SDF backend has no revolve; sweep the profile instead via</span>
+<span class="sd">            ``pybosl2._sdf.shapes3d.path_sweep()``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_require_csg</span><span class="p">(</span><span class="s2">&quot;rotate_extrude&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">rotate_extrude</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>

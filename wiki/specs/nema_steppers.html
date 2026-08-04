@@ -53,8 +53,8 @@
                 <button class="tag" type="button">mount mask</button>
               </div>
               <div class="stats">
-                <div><span class="v" id="s-tris">300</span><span class="l">triangles</span></div>
-                <div><span class="v" id="s-vol">43,714.4</span><span class="l">mm&sup3; volume</span></div>
+                <div><span class="v" id="s-tris">290</span><span class="l">triangles</span></div>
+                <div><span class="v" id="s-vol">43,858.4</span><span class="l">mm&sup3; volume</span></div>
                 <div><span class="v" id="s-bbox">42×42×44</span><span class="l">bbox mm</span></div>
               </div>
               <div style="position:relative">
@@ -71,7 +71,7 @@
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "17", "label": "NEMA 17", "uri": "_stl/nema_steppers-17.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(17)", "part": "nema_stepper_motor(17)", "tris": 300, "vol": "43,714.4", "bbox": "42\u00d742\u00d744", "wt": true}, {"id": "23", "label": "NEMA 23", "uri": "_stl/nema_steppers-23.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(23)", "part": "nema_stepper_motor(23)", "tris": 388, "vol": "79,815.8", "bbox": "57\u00d757\u00d744", "wt": true}, {"id": "8", "label": "NEMA 8", "uri": "_stl/nema_steppers-8.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(8)", "part": "nema_stepper_motor(8)", "tris": 272, "vol": "10,168.0", "bbox": "20\u00d720\u00d744", "wt": true}, {"id": "mask", "label": "mount mask", "uri": "_stl/nema_steppers-mask.stl", "code": "NemaSteppers.<span class=\"k\">nema_mount_mask</span>(17)", "part": "nema_mount_mask(17)", "tris": 506, "vol": "2,843.8", "bbox": "34\u00d739\u00d75", "wt": true}];
+const V = [{"id": "17", "label": "NEMA 17", "uri": "_stl/nema_steppers-17.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(17)", "part": "nema_stepper_motor(17)", "tris": 290, "vol": "43,858.4", "bbox": "42\u00d742\u00d744", "wt": true}, {"id": "23", "label": "NEMA 23", "uri": "_stl/nema_steppers-23.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(23)", "part": "nema_stepper_motor(23)", "tris": 388, "vol": "79,815.8", "bbox": "57\u00d757\u00d744", "wt": true}, {"id": "8", "label": "NEMA 8", "uri": "_stl/nema_steppers-8.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(8)", "part": "nema_stepper_motor(8)", "tris": 262, "vol": "10,312.0", "bbox": "20\u00d720\u00d744", "wt": true}, {"id": "mask", "label": "mount mask", "uri": "_stl/nema_steppers-mask.stl", "code": "NemaSteppers.<span class=\"k\">nema_mount_mask</span>(17)", "part": "nema_mount_mask(17)", "tris": 506, "vol": "2,843.8", "bbox": "34\u00d739\u00d75", "wt": true}];
 const box = document.getElementById("viewer"), poster = document.getElementById("poster");
 let renderer, scene, camera, controls, mesh, ready = false;
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;

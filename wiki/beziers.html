@@ -204,31 +204,27 @@ Path2D. No osuse()/BOSL2 runtime dependency.</p>
 <p>A Bezier is a list of control points: a single curve, or a bezier PATH of
 degree-N curves that share endpoints (a flat list of control points where
 <code class="docutils literal notranslate"><span class="pre">len</span> <span class="pre">%</span> <span class="pre">N</span> <span class="pre">==</span> <span class="pre">1</span></code>). Ported, matching beziers.scad:</p>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>curve evaluation/analysis: points, curve, derivative, tangent,
 curvature, closest_point, length, line_intersection</p></li>
 <li><p>path evaluation/analysis: path_points, path_curve, path_closest_point,
-path_length, close_to_axis, path_offset, and Bezier.from_path()
-(BOSL2 path_to_bezpath)</p></li>
+path_length, close_to_axis, path_offset, and <code class="docutils literal notranslate"><span class="pre">Bezier.from_path()</span></code>
+(the BOSL2 <code class="docutils literal notranslate"><span class="pre">path_to_bezpath</span></code> equivalent)</p></li>
 <li><p>control-point construction: Bezier.begin/tang/joint/end (BOSL2
 bez_begin/bez_tang/bez_joint/bez_end), with the scalar-angle, direction
 -vector, and 3-D spherical-angle (<code class="docutils literal notranslate"><span class="pre">p=</span></code>) forms, and Bezier.flatten</p></li>
 </ul>
-</div></blockquote>
 <p>The Bezier SURFACE subsystem is on the <a class="reference internal" href="#pybosl2.beziers.BezierPatch" title="pybosl2.beziers.BezierPatch"><code class="xref py py-class docutils literal notranslate"><span class="pre">BezierPatch</span></code></a> class, built on a
 VNF port (pybosl2/vnf.py) and a sweep port (pybosl2/skin.py):</p>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>patches: points, normals, reverse, flat, is_patch, vnf, to_vnf,
 vnf_degenerate (bezier_vnf_degenerate_patch), sheet (bezier_sheet),
 and debug (debug_bezier_patches)</p></li>
 <li><p>sweeping a shape along a bezier/bezier-path: Bezier.sweep (bezier_sweep)
 and Bezier.sweep, plus Bezier.debug (debug_bezier)</p></li>
-<li><p>path_to_bezcornerpath() is ported as <a class="reference internal" href="paths.html#pybosl2.path2d.Path2D.to_bezcornerpath" title="pybosl2.path2d.Path2D.to_bezcornerpath"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_bezcornerpath()</span></code></a>
+<li><p>path_to_bezcornerpath() is ported as <code class="xref py py-meth docutils literal notranslate"><span class="pre">to_bezcornerpath()</span></code>
 via the <code class="docutils literal notranslate"><span class="pre">_bezcorner</span></code> helper in pybosl2/rounding.py.</p></li>
 </ul>
-</div></blockquote>
 <p><code class="docutils literal notranslate"><span class="pre">points()</span></code> – the hot path – uses numpy: it builds the bezier-to-power-basis
 matrix (the same “matrix representation” BOSL2 uses, generalized to any degree
 N via M[i][j] = C(N,j)*C(N-j,i-j)*(-1)^(i-j) rather than BOSL2’s hardcoded
@@ -267,13 +263,13 @@ groups that <code class="docutils literal notranslate"><span class="pre">flatten
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-4d583b6490a64c8fb4b50fe0b53d0cb4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-59aa2ee62b234d718cbaed7b31b4a7ee" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-4d583b6490a64c8fb4b50fe0b53d0cb4");
+const el = document.getElementById("stlviewer-59aa2ee62b234d718cbaed7b31b4a7ee");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -449,7 +445,7 @@ a 1-D vector; for a list of <em>u</em> values the result is a 2-D array.</p>
 <dt class="sig sig-object py" id="pybosl2.beziers.Bezier.curvature">
 <span class="sig-name descname"><span class="pre">curvature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/beziers.html#Bezier.curvature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.beziers.Bezier.curvature" title="Link to this definition">¶</a></dt>
 <dd><p>Curvature value(s) at parameter(s) <em>u</em> (inverse tangent-circle radius).</p>
-<p>Computes the scalar curvature κ = <a href="#id9"><span class="problematic" id="id10">|r' × r''|</span></a> / <a href="#id1"><span class="problematic" id="id2">|</span></a>r’<a href="#id3"><span class="problematic" id="id4">|</span></a>³ at each
+<p>Computes the scalar curvature κ = <code class="docutils literal notranslate"><span class="pre">|r'</span> <span class="pre">×</span> <span class="pre">r''|</span></code> / <code class="docutils literal notranslate"><span class="pre">|r'|³</span></code> at each
 parameter value. For a scalar <em>u</em> returns a single float; for a list
 of <em>u</em> values returns a numpy array of floats.</p>
 <dl class="field-list simple">
@@ -458,7 +454,7 @@ of <em>u</em> values returns a numpy array of floats.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A float (for scalar <em>u</em>) or numpy array of curvature values. The
-curvature κ = <a href="#id11"><span class="problematic" id="id12">|r' × r''|</span></a> / <a href="#id5"><span class="problematic" id="id6">|</span></a>r’<a href="#id7"><span class="problematic" id="id8">|</span></a>³ is the inverse radius of the
+curvature κ = <code class="docutils literal notranslate"><span class="pre">|r'</span> <span class="pre">×</span> <span class="pre">r''|</span></code> / <code class="docutils literal notranslate"><span class="pre">|r'|³</span></code> is the inverse radius of the
 tangent circle.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -766,7 +762,7 @@ All other parameters are passed through to
 <dd class="field-even"><p>A <a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> vertex-face mesh of the swept shape.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -781,13 +777,13 @@ All other parameters are passed through to
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-c4c63d9142e14b1295179b16c9fb8860" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-54439c482fdc405f9896b39e7aab1cdd" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-c4c63d9142e14b1295179b16c9fb8860");
+const el = document.getElementById("stlviewer-54439c482fdc405f9896b39e7aab1cdd");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -842,13 +838,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3ab13ad5f2ec4f1296c7ad36eb08db3b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4ade6064b4cc42009572e0670eb7594f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3ab13ad5f2ec4f1296c7ad36eb08db3b");
+const el = document.getElementById("stlviewer-4ade6064b4cc42009572e0670eb7594f");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1130,13 +1126,13 @@ BOSL2’s un-ported path_sweep), plus the debug_* visualization modules.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-f747debbb0c348e5aee4802e711bacd6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c77fb4f72aff4418a0cb9aba4094c9b9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-f747debbb0c348e5aee4802e711bacd6");
+const el = document.getElementById("stlviewer-c77fb4f72aff4418a0cb9aba4094c9b9");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1488,11 +1484,11 @@ draws the control net, and <em>showdots</em> highlights the mesh vertices.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> wrapping the rendered
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> wrapping the rendered
 patch surface, control net, and control-point markers.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-odd"><p>Bosl2Solid</p>
 </dd>
 </dl>
 <p>Examples:
@@ -1511,7 +1507,7 @@ patch surface, control net, and control-point markers.</p>
 <dt class="sig sig-object py" id="pybosl2.beziers.debug_bezier_patches">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.beziers.</span></span><span class="sig-name descname"><span class="pre">debug_bezier_patches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splinesteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">showcps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">showdots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">showpatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/beziers.html#debug_bezier_patches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.beziers.debug_bezier_patches" title="Link to this definition">¶</a></dt>
 <dd><p>Native geometry showing bezier patches: surfaces, control points and control-net lines.</p>
-<p>Returns a <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> wrapping the rendered patches.
+<p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> wrapping the rendered patches.
 Requires the real PythonSCAD app; builds on VNF.polyhedron() and the
 ported path_sweep tube.</p>
 <dl class="field-list simple">
@@ -1527,11 +1523,11 @@ ported path_sweep tube.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A <a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code></a> wrapping the rendered patch
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> wrapping the rendered patch
 surfaces, control nets, and control-point markers.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="shapes3d.html#pybosl2.shapes3d.Bosl2Solid" title="pybosl2.shapes3d.Bosl2Solid">Bosl2Solid</a></p>
+<dd class="field-odd"><p>Bosl2Solid</p>
 </dd>
 </dl>
 </dd></dl>

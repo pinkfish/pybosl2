@@ -329,8 +329,8 @@
  },
  "nema_steppers": {
   "17": {
-   "tris": 300,
-   "vol": "43,714.4",
+   "tris": 290,
+   "vol": "43,858.4",
    "bbox": "42\u00d742\u00d744",
    "wt": true
   },
@@ -341,8 +341,8 @@
    "wt": true
   },
   "8": {
-   "tris": 272,
-   "vol": "10,168.0",
+   "tris": 262,
+   "vol": "10,312.0",
    "bbox": "20\u00d720\u00d744",
    "wt": true
   },
@@ -447,52 +447,52 @@
    "wt": true
   },
   "sphere": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 896,
+   "vol": "13,880.9",
+   "bbox": "30\u00d730\u00d730",
+   "wt": true
   },
   "cylinder": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 100,
+   "vol": "3,982.2",
+   "bbox": "16\u00d716\u00d720",
+   "wt": true
   },
   "cone": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 116,
+   "vol": "2,890.0",
+   "bbox": "20\u00d720\u00d720",
+   "wt": true
   },
   "prismoid": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 12,
+   "vol": "3,500.0",
+   "bbox": "20\u00d720\u00d715",
+   "wt": true
   },
   "torus": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 780,
+   "vol": "3,617.5",
+   "bbox": "32\u00d732\u00d78",
+   "wt": true
   },
   "tube": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 196,
+   "vol": "4,016.4",
+   "bbox": "20\u00d720\u00d720",
+   "wt": true
   },
   "teardrop": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 92,
+   "vol": "6,676.4",
+   "bbox": "20\u00d720\u00d724",
+   "wt": true
   },
   "capsule": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 896,
+   "vol": "7,107.0",
+   "bbox": "24\u00d724\u00d724",
+   "wt": true
   },
   "rounded-cuboid": {
    "tris": 36,
@@ -501,54 +501,54 @@
    "wt": true
   },
   "chamfered-cylinder": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 116,
+   "vol": "6,237.4",
+   "bbox": "20\u00d720\u00d720",
+   "wt": true
   },
   "octahedron": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 8,
+   "vol": "1,333.3",
+   "bbox": "20\u00d720\u00d720",
+   "wt": true
   }
  },
  "shapes2d": {
   "circle": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 116,
+   "vol": "1,403.4",
+   "bbox": "30\u00d730\u00d72",
+   "wt": true
   },
   "square": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 12,
+   "vol": "1,800.0",
+   "bbox": "30\u00d730\u00d72",
+   "wt": true
   },
   "rect": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 76,
+   "vol": "1,153.1",
+   "bbox": "30\u00d720\u00d72",
+   "wt": true
   },
   "trapezoid": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 12,
+   "vol": "1,800.0",
+   "bbox": "40\u00d730\u00d72",
+   "wt": true
   },
   "star": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 36,
+   "vol": "1,469.5",
+   "bbox": "45\u00d748\u00d72",
+   "wt": true
   },
   "ring": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 240,
+   "vol": "1,571.8",
+   "bbox": "48\u00d748\u00d72",
+   "wt": true
   },
   "pie-slice": {
    "tris": 64,
@@ -557,22 +557,22 @@
    "wt": true
   },
   "squircle": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
+   "tris": 124,
+   "vol": "1,128.7",
+   "bbox": "30\u00d730\u00d72",
    "wt": false
   },
   "keyhole": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 136,
+   "vol": "810.6",
+   "bbox": "18\u00d738\u00d72",
+   "wt": true
   },
   "rounded-square": {
-   "tris": 0,
-   "vol": "\u2014",
-   "bbox": "\u2014",
-   "wt": false
+   "tris": 124,
+   "vol": "1,686.8",
+   "bbox": "30\u00d730\u00d72",
+   "wt": true
   }
  }
 }
