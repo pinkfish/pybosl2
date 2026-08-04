@@ -834,6 +834,7 @@ def cuboid(
 
         .. pythonscad-example::
 
+            from pybosl2 import Anchor
             import pybosl2._sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4, edges=Anchor.Z)
             shape.show()

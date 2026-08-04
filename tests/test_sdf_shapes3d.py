@@ -8,6 +8,7 @@ import math
 
 import pytest
 
+from pybosl2._edges_lang import Anchor
 from pybosl2._sdf import shapes3d as sdf_s3d
 from pybosl2._sdf._constants import BACK, CENTER, FRONT, LEFT, RIGHT, TOP
 
@@ -193,13 +194,13 @@ class TestNamedCombinators:
 class TestCuboid:
     def test_sharp_box_matches_reference_formula(self) -> None:
         size, b = [10.0, 10.0, 10.0], [5.0, 5.0, 5.0]
-        shape = sdf_s3d.cuboid(size=size, edges="NONE").mesh()
+        shape = sdf_s3d.cuboid(size=size, edges=Anchor.NONE).mesh()
         for p in [(4.9, 0, 0), (0, -4.9, 0), (0, 0, 4.9), (0, 0, 0), (2, 2, 2)]:
             assert math.isclose(float(shape.sample(*p)), float(_sharp_box_sdf(p, b)), abs_tol=10 ** (-9))  # type: ignore[arg-type]
 
     def test_edges_all_rounding_matches_classic_formula(self) -> None:
         size, b, r = [10.0, 10.0, 10.0], [5.0, 5.0, 5.0], 2.0
-        shape = sdf_s3d.cuboid(size=size, rounding=r, edges="ALL").mesh()
+        shape = sdf_s3d.cuboid(size=size, rounding=r, edges=Anchor.ALL).mesh()
         for p in [
             (5, 0, 0),
             (0, 5, 0),
@@ -214,7 +215,7 @@ class TestCuboid:
 
     def test_rounding_zero_degenerates_to_sharp_box(self) -> None:
         size, b = [8.0, 8.0, 8.0], [4.0, 4.0, 4.0]
-        shape = sdf_s3d.cuboid(size=size, rounding=0, edges="ALL").mesh()
+        shape = sdf_s3d.cuboid(size=size, rounding=0, edges=Anchor.ALL).mesh()
         for p in [(3, 0, 0), (0, 0, 0), (1, 1, 1)]:
             assert math.isclose(float(shape.sample(*p)), float(_sharp_box_sdf(p, b)), abs_tol=10 ** (-9))  # type: ignore[arg-type]
 
@@ -233,7 +234,7 @@ class TestCuboid:
 
     def test_edges_z_shorthand_rounds_only_vertical_edges(self) -> None:
         size, r = [10.0, 10.0, 10.0], 2.0
-        shape = sdf_s3d.cuboid(size=size, rounding=r, edges="Z").mesh()
+        shape = sdf_s3d.cuboid(size=size, rounding=r, edges=Anchor.Z).mesh()
         assert math.isclose(
             float(shape.sample(5, 5, 0)),
             float(round_offset(r)),
@@ -266,7 +267,7 @@ class TestCuboid:
 
     def test_round_then_chamfer_compose(self) -> None:
         size, r, c = [10.0, 10.0, 10.0], 2.0, 1.5
-        shape = sdf_s3d.cuboid(size=size).round(r, edges="Z").chamfer(c, edges=[list(TOP + FRONT)]).mesh()
+        shape = sdf_s3d.cuboid(size=size).round(r, edges=Anchor.Z).chamfer(c, edges=[list(TOP + FRONT)]).mesh()
         assert math.isclose(
             float(shape.sample(5, 5, 0)),
             float(round_offset(r)),
@@ -302,7 +303,7 @@ class TestCuboid:
 
     def test_negative_rounding_rejects_z_edges(self) -> None:
         with pytest.raises(AssertionError):
-            sdf_s3d.cuboid([20.0, 20.0, 10.0], rounding=-2, edges="Z")
+            sdf_s3d.cuboid([20.0, 20.0, 10.0], rounding=-2, edges=Anchor.Z)
 
 
 class TestOctahedron:
@@ -348,7 +349,7 @@ class TestScale:
 
     def test_scale_drops_cuboid_metadata(self) -> None:
         with pytest.raises(AssertionError):
-            sdf_s3d.cuboid([10.0, 10.0, 10.0]).scale(2).round(1, edges="Z")
+            sdf_s3d.cuboid([10.0, 10.0, 10.0]).scale(2).round(1, edges=Anchor.Z)
 
     def test_rejects_nonpositive_factors(self) -> None:
         with pytest.raises(AssertionError):
