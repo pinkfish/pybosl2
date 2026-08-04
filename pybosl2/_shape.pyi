@@ -9,11 +9,15 @@ from typing import Any, Self
 
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
+from pybosl2.enums import AttachTag
 
 class BaseShape(Colorable, Distributable):
     shape: Any
     size: Sequence[float] | None
     anchor: Any
+    attachments: list[BaseShape]
+    tag_name: str
+    diff_config: dict[str, Any] | None
 
     def _color_native(self, c: Any = None, alpha: float | None = None) -> Self: ...
     def _highlight_native(self) -> Self: ...
@@ -64,3 +68,28 @@ class BaseShape(Colorable, Distributable):
     def roof(self) -> Self: ...
     def show(self) -> None: ...
     def __scad__(self) -> Any: ...
+    def tag(self, name: AttachTag | str) -> Self: ...
+    def tag_this(self, name: AttachTag | str) -> Self: ...
+    def diff(
+        self,
+        remove: AttachTag | str | Sequence[AttachTag | str] = ...,
+        keep: AttachTag | str | Sequence[AttachTag | str] = ...,
+    ) -> Self: ...
+    def intersect(
+        self,
+        intersect: AttachTag | str | Sequence[AttachTag | str] = ...,
+        keep: AttachTag | str | Sequence[AttachTag | str] = ...,
+    ) -> Self: ...
+    def realize(self) -> Self: ...
+    def _realize_node(self, parent_tag: str) -> Self: ...
+
+def diff(
+    shape: BaseShape,
+    remove: AttachTag | str | Sequence[AttachTag | str] = ...,
+    keep: AttachTag | str | Sequence[AttachTag | str] = ...,
+) -> BaseShape: ...
+def intersect(
+    shape: BaseShape,
+    intersect: AttachTag | str | Sequence[AttachTag | str] = ...,
+    keep: AttachTag | str | Sequence[AttachTag | str] = ...,
+) -> BaseShape: ...

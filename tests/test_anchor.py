@@ -373,39 +373,20 @@ class TestBackwardCompatAliases:
 
 
 class TestEdgeSet:
-    def test_edge_set_with_string_x(self) -> None:
-        matrix = _edge_set("X")
-        assert len(matrix) == 3
-        assert all(len(row) == 4 for row in matrix)
-
-    def test_edge_set_with_string_y(self) -> None:
-        matrix = _edge_set("Y")
-        assert len(matrix) == 3
-        assert all(len(row) == 4 for row in matrix)
-
-    def test_edge_set_with_string_z(self) -> None:
-        matrix = _edge_set("Z")
-        assert len(matrix) == 3
-        assert all(len(row) == 4 for row in matrix)
+    def test_edge_set_with_string_raises(self) -> None:
+        with pytest.raises(ValueError, match="Legacy string edge selection is not allowed"):
+            _edge_set("X")  # type: ignore[arg-type]
 
     def test_edge_set_with_anchor(self) -> None:
         matrix = _edge_set(Anchor.TOP)
         assert len(matrix) == 3
         assert all(len(row) == 4 for row in matrix)
 
-    def test_edge_set_with_list_of_strings(self) -> None:
-        spec: list[str] = ["X", "Y"]
+    def test_edge_set_with_list_of_anchors(self) -> None:
+        spec: list[Anchor] = [Anchor.X, Anchor.Y]
         matrix = _edge_set(spec)  # type: ignore[arg-type]
         assert len(matrix) == 3
         assert any(v == 1 for row in matrix for v in row)
-
-    def test_edge_set_with_string_all(self) -> None:
-        matrix = _edge_set("ALL")
-        assert matrix == EDGES_ALL
-
-    def test_edge_set_with_string_none(self) -> None:
-        matrix = _edge_set("NONE")
-        assert matrix == EDGES_NONE
 
     def test_edge_set_with_empty_list(self) -> None:
         spec: list[Anchor] = [Anchor.NONE]
@@ -427,11 +408,11 @@ class TestEdges:
 
     def test_edges_with_except_x(self) -> None:
         matrix_all = edges(Anchor.ALL)
-        matrix_except = edges(Anchor.ALL, except_="X")
+        matrix_except = edges(Anchor.ALL, except_=Anchor.X)
         assert matrix_except != matrix_all  # something was removed
 
     def test_edges_combines_multiple(self) -> None:
-        matrix = edges(["X", "Y"])
+        matrix = edges([Anchor.X, Anchor.Y])
         assert len(matrix) == 3
         assert all(len(row) == 4 for row in matrix)
         assert any(v == 1 for row in matrix for v in row)
@@ -444,6 +425,12 @@ class TestEdges:
         matrix = edges([])
         assert matrix == EDGES_NONE
 
+    def test_edges_with_string_raises(self) -> None:
+        with pytest.raises(ValueError, match="Legacy string edge selection is not allowed"):
+            edges("X")  # type: ignore[arg-type]
+        with pytest.raises(ValueError, match="Legacy string edge selection is not allowed"):
+            edges(Anchor.ALL, except_="X")  # type: ignore[arg-type]
+
 
 # ---------------------------------------------------------------------------
 # String resolution
@@ -451,35 +438,11 @@ class TestEdges:
 
 
 class TestResolveAnchor:
-    def test_resolve_anchor_from_string_x(self) -> None:
-        assert resolve_anchor("x") is Anchor.X
-
-    def test_resolve_anchor_from_string_y(self) -> None:
-        assert resolve_anchor("Y") is Anchor.Y
-
-    def test_resolve_anchor_from_string_z(self) -> None:
-        assert resolve_anchor("z") is Anchor.Z
-
-    def test_resolve_anchor_from_string_all(self) -> None:
-        assert resolve_anchor("ALL") is Anchor.ALL
-
-    def test_resolve_anchor_from_string_none(self) -> None:
-        assert resolve_anchor("none") is Anchor.NONE
-
-    def test_resolve_anchor_from_legacy_string_top(self) -> None:
-        assert resolve_anchor("top") is Anchor.TOP
-
-    def test_resolve_anchor_from_legacy_string_bottom(self) -> None:
-        assert resolve_anchor("bottom") is Anchor.BOTTOM
-
-    def test_resolve_anchor_from_legacy_string_front(self) -> None:
-        assert resolve_anchor("front") is Anchor.FRONT
-
-    def test_resolve_anchor_from_legacy_string_left(self) -> None:
-        assert resolve_anchor("left") is Anchor.LEFT
-
-    def test_resolve_anchor_from_legacy_string_right(self) -> None:
-        assert resolve_anchor("right") is Anchor.RIGHT
+    def test_resolve_anchor_from_string_raises(self) -> None:
+        with pytest.raises(ValueError, match="Legacy string anchor selection is not allowed"):
+            resolve_anchor("x")  # type: ignore[arg-type]
+        with pytest.raises(ValueError, match="Legacy string anchor selection is not allowed"):
+            resolve_anchor("top")  # type: ignore[arg-type]
 
     def test_resolve_anchor_from_anchor_passthrough(self) -> None:
         assert resolve_anchor(Anchor.TOP) is Anchor.TOP
@@ -500,8 +463,8 @@ class TestResolveAnchor:
         assert resolve_anchor(vec) is Anchor.TOP_FRONT_LEFT
 
     def test_resolve_anchor_unknown_string_raises(self) -> None:
-        with pytest.raises(ValueError, match="Unknown anchor string"):
-            resolve_anchor("nonsense")
+        with pytest.raises(ValueError, match="Legacy string anchor selection is not allowed"):
+            resolve_anchor("nonsense")  # type: ignore[arg-type]
 
     def test_resolve_anchor_unmatching_vector_raises(self) -> None:
         vec: list[int | float] = [2, 0, 0]

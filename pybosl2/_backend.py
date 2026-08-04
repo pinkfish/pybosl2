@@ -64,6 +64,11 @@ CSG_ONLY_FEATURES = frozenset(
         "edge_profile_asym",
         "corner_profile",
         "face_profile",
+        "tag",
+        "tag_this",
+        "diff",
+        "intersect",
+        "realize",
         # 2-D geometry: only the CSG backend has a 2-D shape object (Bosl2Shape2D). An SDF is a
         # field over 3-space, with no 2-D shadow and no outline to fill.
         "projection",
