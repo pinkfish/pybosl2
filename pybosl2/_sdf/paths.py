@@ -24,8 +24,8 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2._sdf._edges import _pick_radius
 from pybosl2._sdf._libfive import LVTree, lv
+from pybosl2._sdf.edges import _pick_radius
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -93,7 +93,7 @@ def _radius(
         dflt=dflt,
     )
     assert result is not None
-    return result
+    return float(result)
 
 
 def _lv_hypot(a: LVTree, b: LVTree) -> LVTree:

@@ -4,52 +4,15 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-from typing import Any
-
-from .base import (
+from pybosl2._helpers import (
     AnchorType as AnchorType,
 )
+
 from .base import (
     Bosl2Shape2D as Bosl2Shape2D,
 )
 from .base import (
-    _anchor_offset_generic as _anchor_offset_generic,
-)
-from .base import (
-    _arc_points as _arc_points,
-)
-from .base import (
-    _as_native_2d as _as_native_2d,
-)
-from .base import (
-    _circle_from_3pts as _circle_from_3pts,
-)
-from .base import (
-    _circle_pts as _circle_pts,
-)
-from .base import (
-    _dir2 as _dir2,
-)
-from .base import (
     _finish as _finish,
-)
-from .base import (
-    _frag_count as _frag_count,
-)
-from .base import (
-    _is_child_2d as _is_child_2d,
-)
-from .base import (
-    _pick_radius as _pick_radius,
-)
-from .base import (
-    _polar_to_xy as _polar_to_xy,
-)
-from .base import (
-    _quant as _quant,
-)
-from .base import (
-    _rotate2d as _rotate2d,
 )
 from .circle import (
     arc as arc,
@@ -73,9 +36,6 @@ from .circle import (
     ring as ring,
 )
 from .curves import (
-    _squircle_fg_path as _squircle_fg_path,
-)
-from .curves import (
     egg as egg,
 )
 from .curves import (
@@ -83,9 +43,6 @@ from .curves import (
 )
 from .curves import (
     squircle as squircle,
-)
-from .curves import (
-    squircle_radius_fg as squircle_radius_fg,
 )
 from .curves import (
     star as star,
@@ -113,9 +70,6 @@ from .ops import (
 )
 from .ops import (
     text as text,
-)
-from .square import (
-    _rect_path as _rect_path,
 )
 from .square import (
     hexagon as hexagon,
@@ -149,4 +103,3 @@ from .square import (
 )
 
 CsgShape2D = Bosl2Shape2D
-_opolygon: Any

@@ -10,21 +10,33 @@ import math
 
 import numpy as np
 
+from pybosl2._helpers import (
+    arc_points as _arc_points,
+)
+from pybosl2._helpers import (
+    circle_from_3pts as _circle_from_3pts,
+)
+from pybosl2._helpers import (
+    circle_pts as _circle_pts,
+)
+from pybosl2._helpers import (
+    frag_count as _frag_count,
+)
+from pybosl2._helpers import (
+    polar_to_xy as _polar_to_xy,
+)
+from pybosl2._helpers import (
+    rotate2d as _rotate2d,
+)
 from pybosl2.shapes2d import (
-    _arc_points,
-    _circle_from_3pts,
-    _circle_pts,
-    _frag_count,
-    _polar_to_xy,
-    _rotate2d,
     arc,
     circle,
     keyhole,
     rect_path,
     ring,
     squircle,
-    squircle_radius_fg,
 )
+from pybosl2.shapes2d.curves import squircle_radius_fg
 
 
 def test_frag_count_fn_override() -> None:
@@ -102,7 +114,7 @@ def test_circle_builds_a_solid_via_mock() -> None:
 
 
 def test_squircle_circle_at_zero_squareness() -> None:
-    from pybosl2.shapes2d import _squircle_fg_path
+    from pybosl2.shapes2d.curves import _squircle_fg_path
 
     pts = _squircle_fg_path([40, 40], 0.0, None, None, None)
     radii = [math.hypot(x, y) for x, y in pts]
@@ -111,7 +123,7 @@ def test_squircle_circle_at_zero_squareness() -> None:
 
 
 def test_squircle_square_at_high_squareness() -> None:
-    from pybosl2.shapes2d import _squircle_fg_path
+    from pybosl2.shapes2d.curves import _squircle_fg_path
 
     pts = _squircle_fg_path([40, 40], 0.99, None, None, None)
     assert math.isclose(max(abs(x) for x, y in pts), 20.0, abs_tol=0.2)

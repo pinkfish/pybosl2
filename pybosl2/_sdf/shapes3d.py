@@ -24,15 +24,17 @@ from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._native import native
 from pybosl2._sdf._constants import BOTTOM, CENTER, FRONT, LEFT
-from pybosl2._sdf._edges import (
+from pybosl2._sdf._libfive import LVTree, lv
+from pybosl2._sdf.edges import (
     _anchor_offset_box3,
     _anchor_offset_cyl,
     _anchor_offset_hull3,
     _anchor_offset_sphere,
-    _edges,
     _pick_radius,
 )
-from pybosl2._sdf._libfive import LVTree, lv
+from pybosl2._sdf.edges import (
+    edges as resolve_edges,
+)
 from pybosl2._sdf.paths import (
     _PENALTY,
     _SQRT2,
@@ -536,7 +538,7 @@ class SdfSolid(Distributable):
         assert self.cuboid_edge_amounts is not None and self.cuboid_edge_modes is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
         )
-        edge_set = _edges(edges, except_edges or [])
+        edge_set = resolve_edges(edges, except_edges or [])
         amounts = [row[:] for row in self.cuboid_edge_amounts]
         modes = [row[:] for row in self.cuboid_edge_modes]
         for a in range(3):
@@ -790,7 +792,7 @@ def cuboid(
     distance function (F-Rep) and returned as a PyShape (meshed lazily, via frep(), on first
     use) -- see pybosl2.shapes3d.cuboid() for the equivalent BOSL2-style mesh-CSG version
     (identical `edges=`/`except_edges=` semantics; both accept the same edge selector values,
-    since pybosl2._sdf._edges's edge-set resolver is a byte-for-byte copy of pybosl2's own).
+    since pybosl2._sdf.edges's edge-set resolver is a byte-for-byte copy of pybosl2's own).
 
     `rounding` and `chamfer` are mutually exclusive in a single call (matching
     pybosl2.shapes3d.cuboid()); to mix both on different edges of the same cuboid, chain
@@ -834,7 +836,7 @@ def cuboid(
         size = [1, 1, 1]
     assert not (rounding and chamfer), "Cannot specify nonzero value for both rounding and chamfer"
     sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 3
-    edge_set = _edges(edges, except_edges or [])
+    edge_set = resolve_edges(edges, except_edges or [])
     half = [s / 2 for s in sz]
     if rounding < 0:
         # BOSL2's negative rounding: an external cove flare on the selected edges (see
@@ -1578,7 +1580,7 @@ def rect_tube(
         assert wall is not None, "rect_tube(): must give isize or wall."
         isz = [sz[0] - 2 * wall, sz[1] - 2 * wall]
     irounding_v = inner_rounding if inner_rounding is not None else rounding
-    edge_set_z = _edges("Z", [])
+    edge_set_z = resolve_edges("Z", [])
     o_amounts, o_modes = _edge_matrices(rounding, edge_set_z, "round")
     i_amounts, i_modes = _edge_matrices(irounding_v, edge_set_z, "round")
 

@@ -10,7 +10,7 @@ from typing import Any, Self
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 
-class _BaseShape(Colorable, Distributable):
+class BaseShape(Colorable, Distributable):
     shape: Any
     size: Sequence[float] | None
     anchor: Any

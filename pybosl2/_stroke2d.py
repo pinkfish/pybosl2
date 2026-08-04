@@ -21,7 +21,7 @@ import numpy as np
 import shapely as _shapely
 from shapely.geometry import LineString
 
-from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _normalize_one, _place, _trim_ends
+from pybosl2.caps import CapSpec, CapType, endcap_polys, endcap_trim, normalize_one, place, trim_ends
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -74,8 +74,8 @@ def _place_and_union(
     angle = math.degrees(math.atan2(tangent[1], tangent[0]))
     half = width / 2
 
-    for ep_poly in _endcap_polys(cap_spec, width):
-        placed = _place(ep_poly, angle, at)
+    for ep_poly in endcap_polys(cap_spec, width):
+        placed = place(ep_poly, angle, at)
         if len(placed) < 2:
             continue
         coords: list[tuple[float, float]] = [(float(p[0]), float(p[1])) for p in placed]
@@ -131,8 +131,8 @@ def stroke_2d(
     pts = [list(map(float, p)) for p in path]
     assert len(pts) >= 2, "stroke(): need at least 2 points."
     is_closed = _ensure_closed(pts, closed, getattr(path, "closed", False))
-    ec1 = endcap1 if isinstance(endcap1, CapSpec) else _normalize_one(endcap1)
-    ec2 = endcap2 if isinstance(endcap2, CapSpec) else _normalize_one(endcap2)
+    ec1 = endcap1 if isinstance(endcap1, CapSpec) else normalize_one(endcap1)
+    ec2 = endcap2 if isinstance(endcap2, CapSpec) else normalize_one(endcap2)
     half = width / 2
 
     coords = [(float(p[0]), float(p[1])) for p in pts]
@@ -146,9 +146,9 @@ def stroke_2d(
     has_dec1 = _needs_decorative_cap(ec1)
     has_dec2 = _needs_decorative_cap(ec2)
 
-    trim1 = _endcap_trim(ec1, width) if has_dec1 else 0.0
-    trim2 = _endcap_trim(ec2, width) if has_dec2 else 0.0
-    work_pts = _trim_ends(pts, trim1, trim2) if (trim1 or trim2) else pts
+    trim1 = endcap_trim(ec1, width) if has_dec1 else 0.0
+    trim2 = endcap_trim(ec2, width) if has_dec2 else 0.0
+    work_pts = trim_ends(pts, trim1, trim2) if (trim1 or trim2) else pts
 
     cs = "flat" if (has_dec1 or has_dec2) else _cap_style(ec1)
     work_coords = [(float(p[0]), float(p[1])) for p in work_pts]

@@ -20,7 +20,7 @@ import operator
 from functools import reduce
 from typing import TYPE_CHECKING, Any
 
-from pybosl2.caps import CapSpec, CapType, _endcap_polys, _oriented_to
+from pybosl2.caps import CapSpec, CapType, endcap_polys, oriented_to
 from pybosl2.shapes3d import cyl as _cyl
 from pybosl2.shapes3d import sphere as _sphere
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from pybosl2.shapes3d import Bosl2Solid
 
 
-def _endcap_geometry_3d(spec: CapSpec, at: Sequence[float], outdir: Sequence[float], width: float) -> Any:
+def endcap_geometry_3d(spec: CapSpec, at: Sequence[float], outdir: Sequence[float], width: float) -> Any:
     import warnings
 
     from pybosl2._backend import current_backend
@@ -41,7 +41,7 @@ def _endcap_geometry_3d(spec: CapSpec, at: Sequence[float], outdir: Sequence[flo
         return _sphere(radius=width / 2).translate([float(c) for c in at])
     if spec.cap_type == CapType.DOT:
         return _sphere(radius=width).translate([float(c) for c in at])
-    polys = _endcap_polys(spec, width)
+    polys = endcap_polys(spec, width)
     if not polys:
         return None
     if current_backend() != "csg":
@@ -59,7 +59,7 @@ def _endcap_geometry_3d(spec: CapSpec, at: Sequence[float], outdir: Sequence[flo
     big = max(abs(v) for poly in polys for p in poly for v in p) * 4 + width
     right = _osquare([big, big], center=True).translate([big / 2, 0])
     solids = [_orotate_extrude((_opolygon(poly) & right)) for poly in polys]
-    return _oriented_to(Bosl2Solid(reduce(operator.or_, solids)), outdir, at)
+    return oriented_to(Bosl2Solid(reduce(operator.or_, solids)), outdir, at)
 
 
 def stroke_3d(
@@ -88,7 +88,7 @@ def stroke_3d(
         length = math.hypot(math.hypot(dx, dy), dz)
         if length < 1e-9:
             continue
-        seg = _oriented_to(
+        seg = oriented_to(
             _cyl(height=length, radius=radius).translate([0, 0, length / 2]),
             [dx, dy, dz],
             [ax, ay, az],
@@ -99,7 +99,7 @@ def stroke_3d(
     if not is_closed and sides >= 2:
         for cap, end, ref in ((ec1, pts[0], pts[1]), (ec2, pts[-1], pts[-2])):
             outdir = [end[j] - ref[j] for j in range(3)]
-            blob = _endcap_geometry_3d(cap, end, outdir, width)
+            blob = endcap_geometry_3d(cap, end, outdir, width)
             if blob is not None:
                 shapes.append(blob)
     assert shapes, "stroke(): path has no drawable segments."

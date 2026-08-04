@@ -14,11 +14,17 @@
 
 from __future__ import annotations
 
+import math
 import operator
+from enum import Enum
 from functools import reduce
 from typing import TYPE_CHECKING, Any
 
+from pybosl2._edges_lang import Anchor
+
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -157,3 +163,268 @@ def unwrap(obj: Bosl2Solid | Bosl2Shape2D | Any) -> Any:
     from pybosl2.shapes3d import Bosl2Solid
 
     return obj.shape if isinstance(obj, (Bosl2Solid, Bosl2Shape2D)) else obj
+
+
+# ---------------------------------------------------------------------------
+# Consolidated Internal Geometry & Math Helpers (moved from shapes2d/base.py)
+# ---------------------------------------------------------------------------
+
+
+class AnchorType(Enum):
+    HULL = "hull"
+    BOX = "box"
+    INTERSECT = "intersect"
+
+
+def norm_atype(atype: str | AnchorType) -> AnchorType:
+    if isinstance(atype, AnchorType):
+        return atype
+    try:
+        return AnchorType(atype.lower())
+    except (ValueError, AttributeError):
+        raise ValueError(f"Invalid atype: {atype!r}. Expected one of {list(AnchorType)}") from None
+
+
+def quantup(x: float, y: float) -> float:
+    """Ceiling quantization, rounding x up to the next multiple of y."""
+    return math.ceil(x / y - 1e-9) * y
+
+
+def frag_count(
+    radius: float,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> int:
+    """Number of polygon segments to approximate a circle of radius *radius*, mirroring OpenSCAD's
+    $fn/$fa/$fs rules.
+    """
+    if fn is not None and fn >= 3:
+        return int(math.floor(fn))
+    fa = fa if fa else 12.0
+    fs = fs if fs else 2.0
+    return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(radius)) / fs))))
+
+
+def pick_radius(
+    radius1: float | None = None,
+    diameter1: float | None = None,
+    radius2: float | None = None,
+    diameter2: float | None = None,
+    radius: float | None = None,
+    diameter: float | None = None,
+    dflt: float | None = None,
+) -> Any:
+    """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) >
+    dflt.
+    """
+    if radius1 is not None:
+        return radius1
+    if diameter1 is not None:
+        return diameter1 / 2
+    if radius2 is not None:
+        return radius2
+    if diameter2 is not None:
+        return diameter2 / 2
+    if radius is not None:
+        return radius
+    if diameter is not None:
+        return diameter / 2
+    return dflt
+
+
+def polar_to_xy(radius: float, angle: float) -> list[float]:
+    rad = math.radians(angle)
+    return [radius * math.cos(rad), radius * math.sin(rad)]
+
+
+def rotate2d(point: Sequence[float], degrees: float) -> list[float]:
+    rad = math.radians(degrees)
+    c, s = math.cos(rad), math.sin(rad)
+    return [point[0] * c - point[1] * s, point[0] * s + point[1] * c]
+
+
+def circle_pts(radius: float, count: int, start: float = 0.0) -> list[list[float]]:
+    return [polar_to_xy(radius, start + 360.0 * i / count) for i in range(count)]
+
+
+def dir2(anchor: Anchor | Sequence[float]) -> list[float]:
+    a = (anchor.vector if isinstance(anchor, Anchor) else list(anchor)) + [0, 0, 0]
+    return [a[0], a[1] + a[2]]
+
+
+def anchor_offset_box(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:
+    d = dir2(anchor)
+    return [-d[0] * size[0] / 2, -d[1] * size[1] / 2]
+
+
+def anchor_offset_hull(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
+    d = dir2(anchor)
+    if d[0] == 0 and d[1] == 0:
+        return [0.0, 0.0]
+    best = max(points, key=lambda p: p[0] * d[0] + p[1] * d[1])
+    return [-best[0], -best[1]]
+
+
+def anchor_offset_generic(
+    points: Sequence[Sequence[float]],
+    anchor: Anchor | Sequence[float],
+    atype: str | AnchorType,
+) -> list[float]:
+    atype_enum = norm_atype(atype)
+    if atype_enum == AnchorType.BOX:
+        min_x = min(p[0] for p in points)
+        max_x = max(p[0] for p in points)
+        min_y = min(p[1] for p in points)
+        max_y = max(p[1] for p in points)
+        size = [max_x - min_x, max_y - min_y]
+        return anchor_offset_box(size, anchor)
+    elif atype_enum == AnchorType.INTERSECT:
+        d = dir2(anchor)
+        if d[0] == 0 and d[1] == 0:
+            return [0.0, 0.0]
+        best_t = 0.0
+        best_pt = [0.0, 0.0]
+        n = len(points)
+        for i in range(n):
+            p1 = points[i]
+            p2 = points[(i + 1) % n]
+            x1, y1 = p1[0], p1[1]
+            x2, y2 = p2[0], p2[1]
+            dx, dy = d[0], d[1]
+
+            denom = (y2 - y1) * dx - (x2 - x1) * dy
+            if abs(denom) > 1e-9:
+                u = (x1 * dy - y1 * dx) / denom
+                if 0.0 <= u <= 1.0:
+                    t = (x1 + u * (x2 - x1)) / dx if abs(dx) > 1e-9 else (y1 + u * (y2 - y1)) / dy
+                    if t >= 0.0 and t > best_t:
+                        best_t = t
+                        best_pt = [t * dx, t * dy]
+        if best_t > 0.0:
+            return [-best_pt[0], -best_pt[1]]
+        return anchor_offset_hull(points, anchor)
+    else:
+        return anchor_offset_hull(points, anchor)
+
+
+def arc_points(
+    count: int,
+    radius: float,
+    start: float,
+    angle: float,
+    center: Sequence[float] = (0.0, 0.0),
+    endpoint: bool = True,
+) -> list[list[float]]:
+    """
+    *count* points along an arc of radius *radius* centered at *center*, from angle *start*
+    sweeping *angle* degrees.
+    """
+    if not endpoint:
+        return arc_points(count + 1, radius, start, angle, center, True)[:-1]
+    if count <= 1:
+        return [
+            [
+                radius * math.cos(math.radians(start)) + center[0],
+                radius * math.sin(math.radians(start)) + center[1],
+            ]
+        ]
+    pts = []
+    for i in range(count):
+        theta = math.radians(start + i * angle / (count - 1))
+        pts.append([radius * math.cos(theta) + center[0], radius * math.sin(theta) + center[1]])
+    return pts
+
+
+def circle_from_3pts(points: Sequence[Sequence[float]]) -> tuple[list[float], float]:
+    (x1, y1), (x2, y2), (x3, y3) = points
+    d = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
+    ux = ((x1**2 + y1**2) * (y2 - y3) + (x2**2 + y2**2) * (y3 - y1) + (x3**2 + y3**2) * (y1 - y2)) / d
+    uy = ((x1**2 + y1**2) * (x3 - x2) + (x2**2 + y2**2) * (x1 - x3) + (x3**2 + y3**2) * (x2 - x1)) / d
+    return [ux, uy], math.hypot(x1 - ux, y1 - uy)
+
+
+def rect_path(
+    size: Sequence[float],
+    rounding: float | Sequence[float] = 0,
+    chamfer: float | Sequence[float] = 0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> list[list[float]]:
+    sx, sy = size
+    rounding_l = [float(rounding)] * 4 if isinstance(rounding, (int, float)) else [float(v) for v in rounding]
+    chamfer_l = [float(chamfer)] * 4 if isinstance(chamfer, (int, float)) else [float(v) for v in chamfer]
+    if all(v == 0 for v in rounding_l) and all(v == 0 for v in chamfer_l):
+        return [
+            [sx / 2, -sy / 2],
+            [-sx / 2, -sy / 2],
+            [-sx / 2, sy / 2],
+            [sx / 2, sy / 2],
+        ]
+    quadorder = [3, 2, 1, 0]
+    quadpos = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+    eps = 1e-9
+    insets = [
+        (chamfer_l[i] if abs(chamfer_l[i]) >= eps else (rounding_l[i] if abs(rounding_l[i]) >= eps else 0))
+        for i in range(4)
+    ]
+    insets_x = max(insets[0] + insets[1], insets[2] + insets[3])
+    insets_y = max(insets[0] + insets[3], insets[1] + insets[2])
+    assert insets_x <= sx, "Requested roundings and/or chamfers exceed the rect width."
+    assert insets_y <= sy, "Requested roundings and/or chamfers exceed the rect height."
+    path = []
+    for i in range(4):
+        quad = quadorder[i]
+        qinset = insets[quad]
+        qpos = quadpos[quad]
+        qchamf = chamfer_l[quad]
+        qround = rounding_l[quad]
+        cverts = int(quantup(frag_count(abs(qinset), fn, fa, fs), 4) / 4) if abs(qinset) >= eps else 0
+        step = 90.0 / cverts if cverts else 0.0
+        center = [(sx / 2 - qinset) * qpos[0], (sy / 2 - abs(qinset)) * qpos[1]]
+        if abs(qchamf) >= eps:
+            qpts = [[0, abs(qinset)], [qinset, 0]]
+        elif abs(qround) >= eps:
+            sign = 1 if qinset >= 0 else -1
+            qpts = []
+            for j in range(cverts + 1):
+                a = 90 - j * step
+                p = polar_to_xy(abs(qinset), a)
+                qpts.append([p[0] * sign, p[1]])
+        else:
+            qpts = [[0, 0]]
+        qfpts = [[p[0] * qpos[0], p[1] * qpos[1]] for p in qpts]
+        qrpts = list(reversed(qfpts)) if qpos[0] * qpos[1] < 0 else qfpts
+        for p in qrpts:
+            path.append([p[0] + center[0], p[1] + center[1]])
+    return path
+
+
+def as_native_2d(obj: Any) -> Any:
+    """A raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape, a
+    :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
+    """
+    unwrapped = unwrap(obj)
+    if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
+        return unwrapped
+    geom = getattr(obj, "geometry", None)  # Path2D / Region
+    if callable(geom):
+        return unwrap(geom())
+    if isinstance(obj, (list, tuple)):  # a bare [[x, y], ...] point list
+        from pybosl2._native import native
+
+        opolygon = native("polygon")
+        return opolygon([[float(p[0]), float(p[1])] for p in obj])
+    return obj
+
+
+def is_child_2d(obj: Any) -> bool:
+    """True if *obj* is a single 2-D child rather than a container of children -- a wrapper or
+    native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
+    """
+    if not isinstance(obj, (list, tuple)):
+        return True  # a wrapper or a native handle
+    if callable(getattr(obj, "geometry", None)):
+        return True  # Path2D / Region
+    return bool(len(obj)) and isinstance(obj[0], (list, tuple)) and len(obj[0]) == 2

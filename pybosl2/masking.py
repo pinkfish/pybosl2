@@ -32,10 +32,14 @@ if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.shapes3d.base import Bosl2Solid
 
-from ._edges_lang import EDGE_OFFSETS, _edges
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import polar_to_xy as _polar_to_xy
+from pybosl2._helpers import quantup
+
+from ._edges_lang import EDGE_OFFSETS
+from ._edges_lang import edges as resolve_edges
 from .constants import CENTER
-from .shapes2d import _frag_count, _polar_to_xy
-from .shapes3d.base import _anchor_offset_box3, _quantup
+from .shapes3d.base import _anchor_offset_box3
 
 _ocube = native("cube")
 _opolygon = native("polygon")
@@ -70,7 +74,7 @@ def mask2d_roundover(
         radius = diameter / 2
     rad = float(radius)
     inset_x, inset_y = inset if isinstance(inset, tuple) else (float(inset), float(inset))
-    steps = max(1, int(_quantup(_frag_count(rad, fn, fa, fs), 4) // 4))
+    steps = max(1, int(quantup(_frag_count(rad, fn, fa, fs), 4) // 4))
     step = 90.0 / steps
     path = [
         [rad + inset_x, -excess],
@@ -220,7 +224,7 @@ def edge_mask(
     """
     assert size is not None, "size= (the box's size) must be given"
     assert children is not None, "children= (the edge cutter) must be given"
-    edge_set = _edges(edges, except_edges or [])
+    edge_set = resolve_edges(edges, except_edges or [])
     cutter: "Bosl2Solid | None" = None
     for axis in range(3):
         for i in range(4):
@@ -258,7 +262,7 @@ def edge_profile(
     _ = convexity
     assert size is not None, "size= (the box's size) must be given"
     assert children is not None, "children= (the 2-D mask path) must be given"
-    edge_set = _edges(edges, except_edges or [])
+    edge_set = resolve_edges(edges, except_edges or [])
     cutter: "Bosl2Solid | None" = None
     for axis in range(3):
         for i in range(4):

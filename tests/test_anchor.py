@@ -16,8 +16,8 @@ from pybosl2._edges_lang import (
     CornerPlane,
     EdgePlane,
     _edge_set,
-    _edges,
-    _resolve_anchor,
+    edges,
+    resolve_anchor,
 )
 
 # ---------------------------------------------------------------------------
@@ -415,33 +415,33 @@ class TestEdgeSet:
 
 class TestEdges:
     def test_edges_with_anchor_all(self) -> None:
-        matrix = _edges(Anchor.ALL)
+        matrix = edges(Anchor.ALL)
         assert matrix == EDGES_ALL
 
     def test_edges_with_except_z(self) -> None:
-        matrix = _edges(Anchor.ALL, except_=Anchor.Z)
+        matrix = edges(Anchor.ALL, except_=Anchor.Z)
         assert len(matrix) == 3
         assert all(len(row) == 4 for row in matrix)
         assert matrix != EDGES_ALL  # something was removed
         assert any(v == 1 for row in matrix for v in row)
 
     def test_edges_with_except_x(self) -> None:
-        matrix_all = _edges(Anchor.ALL)
-        matrix_except = _edges(Anchor.ALL, except_="X")
+        matrix_all = edges(Anchor.ALL)
+        matrix_except = edges(Anchor.ALL, except_="X")
         assert matrix_except != matrix_all  # something was removed
 
     def test_edges_combines_multiple(self) -> None:
-        matrix = _edges(["X", "Y"])
+        matrix = edges(["X", "Y"])
         assert len(matrix) == 3
         assert all(len(row) == 4 for row in matrix)
         assert any(v == 1 for row in matrix for v in row)
 
     def test_edges_with_none(self) -> None:
-        matrix = _edges(Anchor.NONE)
+        matrix = edges(Anchor.NONE)
         assert matrix == EDGES_NONE
 
     def test_edges_with_empty_list(self) -> None:
-        matrix = _edges([])
+        matrix = edges([])
         assert matrix == EDGES_NONE
 
 
@@ -452,65 +452,65 @@ class TestEdges:
 
 class TestResolveAnchor:
     def test_resolve_anchor_from_string_x(self) -> None:
-        assert _resolve_anchor("x") is Anchor.X
+        assert resolve_anchor("x") is Anchor.X
 
     def test_resolve_anchor_from_string_y(self) -> None:
-        assert _resolve_anchor("Y") is Anchor.Y
+        assert resolve_anchor("Y") is Anchor.Y
 
     def test_resolve_anchor_from_string_z(self) -> None:
-        assert _resolve_anchor("z") is Anchor.Z
+        assert resolve_anchor("z") is Anchor.Z
 
     def test_resolve_anchor_from_string_all(self) -> None:
-        assert _resolve_anchor("ALL") is Anchor.ALL
+        assert resolve_anchor("ALL") is Anchor.ALL
 
     def test_resolve_anchor_from_string_none(self) -> None:
-        assert _resolve_anchor("none") is Anchor.NONE
+        assert resolve_anchor("none") is Anchor.NONE
 
     def test_resolve_anchor_from_legacy_string_top(self) -> None:
-        assert _resolve_anchor("top") is Anchor.TOP
+        assert resolve_anchor("top") is Anchor.TOP
 
     def test_resolve_anchor_from_legacy_string_bottom(self) -> None:
-        assert _resolve_anchor("bottom") is Anchor.BOTTOM
+        assert resolve_anchor("bottom") is Anchor.BOTTOM
 
     def test_resolve_anchor_from_legacy_string_front(self) -> None:
-        assert _resolve_anchor("front") is Anchor.FRONT
+        assert resolve_anchor("front") is Anchor.FRONT
 
     def test_resolve_anchor_from_legacy_string_left(self) -> None:
-        assert _resolve_anchor("left") is Anchor.LEFT
+        assert resolve_anchor("left") is Anchor.LEFT
 
     def test_resolve_anchor_from_legacy_string_right(self) -> None:
-        assert _resolve_anchor("right") is Anchor.RIGHT
+        assert resolve_anchor("right") is Anchor.RIGHT
 
     def test_resolve_anchor_from_anchor_passthrough(self) -> None:
-        assert _resolve_anchor(Anchor.TOP) is Anchor.TOP
+        assert resolve_anchor(Anchor.TOP) is Anchor.TOP
 
     def test_resolve_anchor_from_vector_float(self) -> None:
-        assert _resolve_anchor([0.0, 0.0, 1.0]) is Anchor.TOP
+        assert resolve_anchor([0.0, 0.0, 1.0]) is Anchor.TOP
 
     def test_resolve_anchor_from_vector_int(self) -> None:
         vec: list[int | float] = [0, 0, 1]
-        assert _resolve_anchor(vec) is Anchor.TOP
+        assert resolve_anchor(vec) is Anchor.TOP
 
     def test_resolve_anchor_from_vector_edge(self) -> None:
         vec: list[int | float] = [-1, -1, 0]
-        assert _resolve_anchor(vec) is Anchor.FRONT_LEFT
+        assert resolve_anchor(vec) is Anchor.FRONT_LEFT
 
     def test_resolve_anchor_from_vector_corner(self) -> None:
         vec: list[int | float] = [-1, -1, 1]
-        assert _resolve_anchor(vec) is Anchor.TOP_FRONT_LEFT
+        assert resolve_anchor(vec) is Anchor.TOP_FRONT_LEFT
 
     def test_resolve_anchor_unknown_string_raises(self) -> None:
         with pytest.raises(ValueError, match="Unknown anchor string"):
-            _resolve_anchor("nonsense")
+            resolve_anchor("nonsense")
 
     def test_resolve_anchor_unmatching_vector_raises(self) -> None:
         vec: list[int | float] = [2, 0, 0]
         with pytest.raises(ValueError, match="No Anchor member matches"):
-            _resolve_anchor(vec)
+            resolve_anchor(vec)
 
     def test_resolve_anchor_edge_matrix_raises(self) -> None:
         with pytest.raises(ValueError, match="raw edge matrix"):
-            _resolve_anchor(EDGES_ALL)
+            resolve_anchor(EDGES_ALL)
 
 
 # ---------------------------------------------------------------------------

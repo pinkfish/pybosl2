@@ -25,7 +25,7 @@ from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 
-__all__ = ["_BaseShape"]
+__all__ = ["BaseShape"]
 
 _NATIVE_PASSTHROUGH = frozenset(
     {
@@ -66,7 +66,7 @@ _NATIVE_PASSTHROUGH = frozenset(
 )
 
 
-class _BaseShape(Colorable, Distributable):
+class BaseShape(Colorable, Distributable):
     """Concrete base providing transforms, directional moves, CSG operators,
     colour, and distributor methods shared by both 2-D and 3-D shapes.
 

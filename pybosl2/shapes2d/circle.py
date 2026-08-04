@@ -17,6 +17,31 @@ from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 
+# Import base class and helper functions from shapes2d.base
+from pybosl2._helpers import (
+    anchor_offset_box as _anchor_offset_box,
+)
+from pybosl2._helpers import (
+    anchor_offset_hull as _anchor_offset_hull,
+)
+from pybosl2._helpers import (
+    arc_points as _arc_points,
+)
+from pybosl2._helpers import (
+    circle_from_3pts as _circle_from_3pts,
+)
+from pybosl2._helpers import (
+    circle_pts as _circle_pts,
+)
+from pybosl2._helpers import (
+    frag_count as _frag_count,
+)
+from pybosl2._helpers import (
+    pick_radius as _pick_radius,
+)
+from pybosl2._helpers import (
+    polar_to_xy as _polar_to_xy,
+)
 from pybosl2._native import native
 from pybosl2.constants import CENTER
 from pybosl2.geometry import is_collinear
@@ -24,20 +49,11 @@ from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 from pybosl2.vectors import unit
 
-# Import base class and helper functions from shapes2d.base
 from .base import (
     Bosl2Shape2D,
-    _anchor_offset_box,
-    _anchor_offset_hull,
-    _arc_points,
-    _circle_from_3pts,
     _circle_from_corner,
-    _circle_pts,
     _det2,
     _finish,
-    _frag_count,
-    _pick_radius,
-    _polar_to_xy,
     _sign,
     _vector_angle,
 )

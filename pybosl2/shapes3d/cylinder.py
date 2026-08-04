@@ -22,8 +22,10 @@ if TYPE_CHECKING:
 
     from pybosl2.texture import TextureType
 
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import pick_radius as _pick_radius
+from pybosl2._helpers import quantup
 from pybosl2.constants import BOTTOM, CENTER
-from pybosl2.shapes2d import _frag_count, _pick_radius
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -32,7 +34,6 @@ from .base import (
     _finish3,
     _ocylinder,
     _osphere,
-    _quantup,
     _resolve_center_anchor,
 )
 
@@ -275,13 +276,13 @@ def cyl(
         # Straight cylinder, uniform rounding on both ends: exact via minkowski(cylinder, sphere).
         inner_r = max(0.001, rad1 - r1v)
         inner_l = max(0.001, length_val - 2 * r1v)
-        sphere_fn = int(_quantup(_frag_count(r1v, fn, fa, fs), 4))
+        sphere_fn = int(quantup(_frag_count(r1v, fn, fa, fs), 4))
         shape = _ominkowski(
             _ocylinder(height=inner_l, radius=inner_r, center=True, fn=fn, fa=fa, fs=fs),
             _osphere(radius=r1v, fn=sphere_fn),
         )
     else:
-        profile = _cyl_profile(
+        profile = cyl_profile(
             rad1,
             rad2,
             length_val,
@@ -299,7 +300,9 @@ def cyl(
             teardrop=teardrop,
             clip_angle=clip_angle,
         )
-        from pybosl2.shapes2d import _opolygon
+        from pybosl2._native import native
+
+        _opolygon = native("polygon")
 
         shape = _orotate_extrude(_opolygon(profile), fn=fn, fa=fa, fs=fs)
 
@@ -332,7 +335,7 @@ def cyl(
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
-def _cyl_profile(
+def cyl_profile(
     radius1: float,
     radius2: float,
     length: float,
@@ -350,7 +353,7 @@ def _cyl_profile(
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
 ) -> list[list[float]]:
-    from pybosl2.shapes2d import _arc_points
+    from pybosl2._helpers import arc_points as _arc_points
 
     eff_clip = float(clip_angle)
     if teardrop is not False and teardrop is not None:

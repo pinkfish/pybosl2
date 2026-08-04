@@ -17,17 +17,21 @@ from typing import TYPE_CHECKING, Union
 import numpy as np
 
 from pybosl2._edges_lang import Anchor
+
+# Import base class and helper functions from shapes2d.base
+from pybosl2._helpers import (
+    anchor_offset_box as _anchor_offset_box,
+)
+from pybosl2._helpers import (
+    as_native_2d as _as_native_2d,
+)
+from pybosl2._helpers import (
+    is_child_2d as _is_child_2d,
+)
 from pybosl2._native import native
 from pybosl2.constants import CENTER
 
-# Import base class and helper functions from shapes2d.base
-from .base import (
-    Bosl2Shape2D,
-    _anchor_offset_box,
-    _as_native_2d,
-    _finish,
-    _is_child_2d,
-)
+from .base import Bosl2Shape2D, _finish
 
 if TYPE_CHECKING:
     from openscad import PyOpenSCAD

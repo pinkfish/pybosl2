@@ -13,14 +13,25 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from enum import Enum
-from typing import TYPE_CHECKING, Any, Union, overload
+from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 
 from pybosl2._edges_lang import Anchor
+from pybosl2._helpers import (
+    anchor_offset_box as _anchor_offset_box,
+)
+from pybosl2._helpers import (
+    arc_points as _arc_points,
+)
+from pybosl2._helpers import (
+    as_native_2d as _as_native_2d,
+)
+from pybosl2._helpers import (
+    frag_count as _frag_count,
+)
 from pybosl2._native import native
-from pybosl2._shape import _BaseShape
+from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.constants import CENTER
 from pybosl2.vectors import unit
 
@@ -47,127 +58,6 @@ else:
     _opolygon = native("polygon")
     _osquare = native("square")
     _otext = native("text")
-
-
-class AnchorType(Enum):
-    HULL = "hull"
-    BOX = "box"
-    INTERSECT = "intersect"
-
-
-def _norm_atype(atype: str | AnchorType) -> AnchorType:
-    if isinstance(atype, AnchorType):
-        return atype
-    try:
-        return AnchorType(atype.lower())
-    except (ValueError, AttributeError):
-        raise ValueError(f"Invalid atype: {atype!r}. Expected one of {list(AnchorType)}") from None
-
-
-def _anchor_offset_generic(
-    points: Sequence[Sequence[float]],
-    anchor: Anchor | Sequence[float],
-    atype: str | AnchorType,
-) -> list[float]:
-    atype_enum = _norm_atype(atype)
-    if atype_enum == AnchorType.BOX:
-        min_x = min(p[0] for p in points)
-        max_x = max(p[0] for p in points)
-        min_y = min(p[1] for p in points)
-        max_y = max(p[1] for p in points)
-        size = [max_x - min_x, max_y - min_y]
-        return _anchor_offset_box(size, anchor)
-    elif atype_enum == AnchorType.INTERSECT:
-        d = _dir2(anchor)
-        if d[0] == 0 and d[1] == 0:
-            return [0.0, 0.0]
-        best_t = 0.0
-        best_pt = [0.0, 0.0]
-        n = len(points)
-        for i in range(n):
-            p1 = points[i]
-            p2 = points[(i + 1) % n]
-            x1, y1 = p1[0], p1[1]
-            x2, y2 = p2[0], p2[1]
-            dx, dy = d[0], d[1]
-
-            denom = (y2 - y1) * dx - (x2 - x1) * dy
-            if abs(denom) > 1e-9:
-                u = (x1 * dy - y1 * dx) / denom
-                if 0.0 <= u <= 1.0:
-                    t = (x1 + u * (x2 - x1)) / dx if abs(dx) > 1e-9 else (y1 + u * (y2 - y1)) / dy
-                    if t >= 0.0 and t > best_t:
-                        best_t = t
-                        best_pt = [t * dx, t * dy]
-        if best_t > 0.0:
-            return [-best_pt[0], -best_pt[1]]
-        return _anchor_offset_hull(points, anchor)
-    else:
-        return _anchor_offset_hull(points, anchor)
-
-
-def _frag_count(
-    radius: float,
-    fn: int | None = None,
-    fa: float | None = None,
-    fs: float | None = None,
-) -> int:
-    """
-    Number of polygon segments to approximate a circle of radius *radius*, mirroring OpenSCAD's
-    $fn/$fa/$fs rules.
-    """
-    if fn is not None and fn >= 3:
-        return int(math.floor(fn))
-    fa = fa if fa else 12.0
-    fs = fs if fs else 2.0
-    return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(radius)) / fs))))
-
-
-def _quant(x: float, y: float) -> float:
-    return math.ceil(x / y) * y
-
-
-def _polar_to_xy(radius: float, angle: float) -> list[float]:
-    rad = math.radians(angle)
-    return [radius * math.cos(rad), radius * math.sin(rad)]
-
-
-def _rotate2d(point: Sequence[float], degrees: float) -> list[float]:
-    rad = math.radians(degrees)
-    c, s = math.cos(rad), math.sin(rad)
-    return [point[0] * c - point[1] * s, point[0] * s + point[1] * c]
-
-
-def _circle_pts(radius: float, count: int, start: float = 0.0) -> list[list[float]]:
-    return [_polar_to_xy(radius, start + 360.0 * i / count) for i in range(count)]
-
-
-def _arc_points(
-    count: int,
-    radius: float,
-    start: float,
-    angle: float,
-    center: Sequence[float] = (0.0, 0.0),
-    endpoint: bool = True,
-) -> list[list[float]]:
-    """
-    *count* points along an arc of radius *radius* centered at *center*, from angle *start*
-    sweeping *angle* degrees.
-    """
-    if not endpoint:
-        return _arc_points(count + 1, radius, start, angle, center, True)[:-1]
-    if count <= 1:
-        return [
-            [
-                radius * math.cos(math.radians(start)) + center[0],
-                radius * math.sin(math.radians(start)) + center[1],
-            ]
-        ]
-    pts = []
-    for i in range(count):
-        theta = math.radians(start + i * angle / (count - 1))
-        pts.append([radius * math.cos(theta) + center[0], radius * math.sin(theta) + center[1]])
-    return pts
 
 
 def _arc_between_points(
@@ -211,80 +101,6 @@ def _arc_through_3(
     delta = d_end if d_mid <= d_end else d_end - 360
     count = max(3, math.ceil(_frag_count(radius, fn, fa, fs) * abs(delta) / 360))
     return _arc_points(count, radius, a0, delta, center, endpoint=endpoint)
-
-
-@overload
-def _pick_radius(
-    radius1: float | None = None,
-    diameter1: float | None = None,
-    radius2: float | None = None,
-    diameter2: float | None = None,
-    radius: float | None = None,
-    diameter: float | None = None,
-    *,
-    dflt: float,
-) -> float: ...
-
-
-@overload
-def _pick_radius(
-    radius1: float | None = None,
-    diameter1: float | None = None,
-    radius2: float | None = None,
-    diameter2: float | None = None,
-    radius: float | None = None,
-    diameter: float | None = None,
-    dflt: None = None,
-) -> float | None: ...
-
-
-@overload
-def _pick_radius(
-    radius1: float | None = None,
-    diameter1: float | None = None,
-    radius2: float | None = None,
-    diameter2: float | None = None,
-    radius: float | None = None,
-    diameter: float | None = None,
-    *,
-    dflt: float | None = None,
-) -> float | None: ...
-
-
-def _pick_radius(  # type: ignore[no-untyped-def]
-    radius1=None,
-    diameter1=None,
-    radius2=None,
-    diameter2=None,
-    radius=None,
-    diameter=None,
-    dflt=None,
-):
-    """
-    Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) >
-    dflt.
-    """
-    if radius1 is not None:
-        return radius1
-    if diameter1 is not None:
-        return diameter1 / 2
-    if radius2 is not None:
-        return radius2
-    if diameter2 is not None:
-        return diameter2 / 2
-    if radius is not None:
-        return radius
-    if diameter is not None:
-        return diameter / 2
-    return dflt
-
-
-def _circle_from_3pts(points: Sequence[Sequence[float]]) -> tuple[list[float], float]:
-    (x1, y1), (x2, y2), (x3, y3) = points
-    d = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
-    ux = ((x1**2 + y1**2) * (y2 - y3) + (x2**2 + y2**2) * (y3 - y1) + (x3**2 + y3**2) * (y1 - y2)) / d
-    uy = ((x1**2 + y1**2) * (x3 - x2) + (x2**2 + y2**2) * (x1 - x3) + (x3**2 + y3**2) * (x2 - x1)) / d
-    return [ux, uy], math.hypot(x1 - ux, y1 - uy)
 
 
 def _circle_from_corner(corner: Sequence[Sequence[float]], radius: float) -> list[float]:
@@ -351,24 +167,6 @@ def _vector_angle(point_a: Sequence[float], point_b: Sequence[float], point_c: S
     return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
-def _dir2(anchor: Anchor | Sequence[float]) -> list[float]:
-    a = (anchor.vector if isinstance(anchor, Anchor) else list(anchor)) + [0, 0, 0]
-    return [a[0], a[1] + a[2]]
-
-
-def _anchor_offset_box(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:
-    d = _dir2(anchor)
-    return [-d[0] * size[0] / 2, -d[1] * size[1] / 2]
-
-
-def _anchor_offset_hull(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
-    d = _dir2(anchor)
-    if d[0] == 0 and d[1] == 0:
-        return [0.0, 0.0]
-    best = max(points, key=lambda p: p[0] * d[0] + p[1] * d[1])
-    return [-best[0], -best[1]]
-
-
 def _finish(
     shape: PyOpenSCAD,
     offset: Anchor | Sequence[float],
@@ -393,14 +191,14 @@ def _finish(
     return Bosl2Shape2D(shape, size=size, anchor=anchor)
 
 
-class CsgShape2D(_BaseShape):
+class CsgShape2D(BaseShape):
     """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent, chainable API that
     :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids. Every shape constructor in this file
     returns one of these, as do :meth:`~pybosl2.paths.Path2D.polygon` and
     :meth:`~pybosl2.regions.Region.geometry`.
 
     Transforms, CSG operators, colour, and distributor methods are inherited from
-    :class:`~pybosl2._shape._BaseShape`.
+    :class:`~pybosl2._shape.BaseShape`.
 
     The 2-D specific operations live here:
 
@@ -437,7 +235,7 @@ class CsgShape2D(_BaseShape):
         a_val: Anchor | Sequence[float] | str | None = anchor if anchor is not None else CENTER
         self.anchor = a_val
 
-    spin = _BaseShape.rotate
+    spin = BaseShape.rotate
 
     def xflip(self, x: float = 0.0) -> "Bosl2Shape2D":
         """Mirror across the vertical line at *x* (BOSL2 xflip())."""
@@ -766,34 +564,6 @@ class CsgShape2D(_BaseShape):
             assert self.anchor is not None
             return _anchor_offset_box(size, self.anchor), size
         raise ValueError("bounds(): the shape has no native bounding box and no tracked size metadata.")
-
-
-def _as_native_2d(obj: Any) -> "PyOpenSCAD":
-    """A raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape, a
-    :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
-    """
-    from pybosl2._helpers import unwrap
-
-    unwrapped = unwrap(obj)
-    if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
-        return unwrapped
-    geom = getattr(obj, "geometry", None)  # Path2D / Region
-    if callable(geom):
-        return unwrap(geom())
-    if isinstance(obj, (list, tuple)):  # a bare [[x, y], ...] point list
-        return _opolygon([[float(p[0]), float(p[1])] for p in obj])
-    return obj
-
-
-def _is_child_2d(obj: Any) -> bool:
-    """True if *obj* is a single 2-D child rather than a container of children -- a wrapper or
-    native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
-    """
-    if not isinstance(obj, (list, tuple)):
-        return True  # a wrapper or a native handle
-    if callable(getattr(obj, "geometry", None)):
-        return True  # Path2D / Region
-    return bool(len(obj)) and isinstance(obj[0], (list, tuple)) and len(obj[0]) == 2
 
 
 Bosl2Shape2D = CsgShape2D

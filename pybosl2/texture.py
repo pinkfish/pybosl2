@@ -33,6 +33,8 @@ if TYPE_CHECKING:
 
 import numpy as np
 
+from pybosl2._helpers import quantup as _quantup_float
+
 __all__ = ["texture", "TEXTURES", "is_heightfield_texture", "is_vnf_texture", "TextureType"]
 
 
@@ -49,9 +51,9 @@ def _lerpn(a: float, b: float, sides: int, endpoint: bool = True) -> list[float]
     return [a + (b - a) * i / sides for i in range(sides)]
 
 
-def _quantup(x: float, m: int) -> int:
+def quantup(x: float, m: int) -> int:
     """Round *x* up to the next multiple of *m* (BOSL2 quantup)."""
-    return math.ceil(x / m - 1e-9) * m
+    return int(_quantup_float(x, m))
 
 
 def _sel(lst: list[float], i: int) -> float:
@@ -68,12 +70,12 @@ def _rands(lo: float, hi: float, sides: int, seed: int) -> list[float]:
 
 
 def _tex_ribs(sides: int | None = None, **_: object) -> list[list[float]]:
-    sides = _quantup(sides if sides is not None else 2, 2)
+    sides = quantup(sides if sides is not None else 2, 2)
     return [_lerpn(1, 0, sides // 2, False) + _lerpn(0, 1, sides // 2, False)]
 
 
 def _tex_trunc_ribs(sides: int | None = None, **_: object) -> list[list[float]]:
-    sides = _quantup(sides if sides is not None else 4, 4)
+    sides = quantup(sides if sides is not None else 4, 4)
     q = sides // 4
     return [[0.0] * q + _lerpn(0, 1, q, False) + [1.0] * q + _lerpn(1, 0, q, False)]
 
@@ -84,20 +86,20 @@ def _tex_wave_ribs(sides: int | None = None, **_: object) -> list[list[float]]:
 
 
 def _tex_diamonds(sides: int | None = None, **_: object) -> list[list[float]]:
-    sides = _quantup(sides if sides is not None else 2, 2)
+    sides = quantup(sides if sides is not None else 2, 2)
     path = _lerpn(0, 1, sides // 2, False) + _lerpn(1, 0, sides // 2, False)
     return [[min(_sel(path, i + j), _sel(path, i - j)) for j in range(sides)] for i in range(sides)]
 
 
 def _tex_pyramids(sides: int | None = None, **_: object) -> list[list[float]]:
-    sides = _quantup(sides if sides is not None else 2, 2)
+    sides = quantup(sides if sides is not None else 2, 2)
     return [
         [1 - (max(abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2)) for j in range(sides)] for i in range(sides)
     ]
 
 
 def _tex_trunc_pyramids(sides: int | None = None, **_: object) -> list[list[float]]:
-    sides = _quantup(sides if sides is not None else 6, 3)
+    sides = quantup(sides if sides is not None else 6, 3)
     return [
         [(1 - (max(sides / 6, abs(i - sides / 2), abs(j - sides / 2)) / (sides / 2))) * 1.5 for j in range(sides)]
         for i in range(sides)
@@ -111,7 +113,7 @@ def _tex_hills(sides: int | None = None, **_: object) -> list[list[float]]:
 
 
 def _tex_bricks(sides: int | None = None, roughness: float | None = None, **_: object) -> list[list[float]]:
-    sides = _quantup(sides if sides is not None else 24, 2)
+    sides = quantup(sides if sides is not None else 24, 2)
     rough = roughness if roughness is not None else 0.1
     thin = max(1, sides / 16)
     out = []
@@ -477,7 +479,7 @@ def _tex_cones_vnf(
     # BOSL2 defaults border=0, but a zero border leaves the tile's rim on the cell edge, which this
     # port's weld-and-close tiler can't seam watertight -- so default to a small positive border.
     b = border if border is not None else 0.05
-    sides = _quantup(fn, 4) if fn else _TEX_FN_DEFAULT
+    sides = quantup(fn, 4) if fn else _TEX_FN_DEFAULT
     assert 0 < b < 0.5, "this port's cones texture requires border in (0, 0.5)."
     rim = [[0.5 + x, 0.5 + y, 0.0] for x, y in _circle_xy(1 - 2 * b, sides)]
     verts = rim + [[0.5, 0.5, 1.0]] + [[x, y, 0.0] for x, y in _square_pts(b)]
@@ -489,7 +491,7 @@ def _tex_dots_vnf(
     fn: int | None = None, border: float | None = None, **_: object
 ) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.05
-    sides = _quantup(fn, 4) if fn else _TEX_FN_DEFAULT
+    sides = quantup(fn, 4) if fn else _TEX_FN_DEFAULT
     assert 0 <= b < 0.5, "dots texture requires border in [0, 0.5)."
     rows = math.ceil(sides / 4)
     radius = (0.5 - b) / math.cos(math.radians(45))  # adj_ang_to_hyp(0.5-border, 45)

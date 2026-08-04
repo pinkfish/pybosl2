@@ -15,7 +15,7 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.caps import CapSpec, CapType, _endcap_polys, _endcap_trim, _has_decorative_caps, _normalize_one
+from pybosl2.caps import CapSpec, CapType, endcap_polys, endcap_trim, has_decorative_caps, normalize_one
 from pybosl2.path2d import Path2D, catenary
 from pybosl2.path3d import Path3D, helix
 from pybosl2.regions import Region
@@ -205,28 +205,28 @@ def test_every_endcap_style_builds_3d(style: object) -> None:
 
 def test_endcap_polys_shapes() -> None:
     # butt/false produce no polygon; x and cross are four triangles; arrow is one hexagon-ish poly
-    assert _endcap_polys(CapSpec(cap_type=CapType.BUTT), 1) == []
-    assert _endcap_polys(CapSpec(cap_type=CapType.NONE), 1) == []
-    assert len(_endcap_polys(CapSpec(cap_type=CapType.X), 1)) == 2
-    assert len(_endcap_polys(CapSpec(cap_type=CapType.CROSS), 1)) == 1
-    assert len(_endcap_polys(_normalize_one(CapType.ARROW), 1)) == 1
-    assert len(_endcap_polys(_normalize_one(CapType.ARROW), 1)[0]) == 5
-    assert len(_endcap_polys(_normalize_one(CapType.ARROW3), 1)[0]) == 7
+    assert endcap_polys(CapSpec(cap_type=CapType.BUTT), 1) == []
+    assert endcap_polys(CapSpec(cap_type=CapType.NONE), 1) == []
+    assert len(endcap_polys(CapSpec(cap_type=CapType.X), 1)) == 2
+    assert len(endcap_polys(CapSpec(cap_type=CapType.CROSS), 1)) == 1
+    assert len(endcap_polys(normalize_one(CapType.ARROW), 1)) == 1
+    assert len(endcap_polys(normalize_one(CapType.ARROW), 1)[0]) == 5
+    assert len(endcap_polys(normalize_one(CapType.ARROW3), 1)[0]) == 7
 
 
 def test_endcap_polys_scale_with_linewidth() -> None:
-    small = _endcap_polys(CapSpec(cap_type=CapType.ARROW), 1)[0]
-    big = _endcap_polys(CapSpec(cap_type=CapType.ARROW), 2)[0]
+    small = endcap_polys(CapSpec(cap_type=CapType.ARROW), 1)[0]
+    big = endcap_polys(CapSpec(cap_type=CapType.ARROW), 2)[0]
     np.testing.assert_allclose(np.array(big), 2 * np.array(small), atol=1e-9)
 
 
 def test_arrow_endcaps_trim_but_round_does_not() -> None:
-    assert _endcap_trim(_normalize_one(CapType.ARROW), 3) > 0
-    assert _endcap_trim(_normalize_one(CapType.ARROW3), 3) > 0
-    assert _endcap_trim(_normalize_one(CapType.ARROW2), 3) > 0
-    assert _endcap_trim(_normalize_one(CapType.ROUND), 3) == 0
-    assert _endcap_trim(_normalize_one(CapType.SQUARE), 3) == 0
-    assert _endcap_trim(_normalize_one(CapType.NONE), 3) == 0
+    assert endcap_trim(normalize_one(CapType.ARROW), 3) > 0
+    assert endcap_trim(normalize_one(CapType.ARROW3), 3) > 0
+    assert endcap_trim(normalize_one(CapType.ARROW2), 3) > 0
+    assert endcap_trim(normalize_one(CapType.ROUND), 3) == 0
+    assert endcap_trim(normalize_one(CapType.SQUARE), 3) == 0
+    assert endcap_trim(normalize_one(CapType.NONE), 3) == 0
 
 
 def test_unknown_endcap_style_raises() -> None:
@@ -257,37 +257,37 @@ def test_fancy_joint_style_builds() -> None:
 
 # -- decorative endcap geometry tests -------------------------------------------------------
 
-from pybosl2._stroke3d import _endcap_geometry_3d  # noqa: E402
+from pybosl2._stroke3d import endcap_geometry_3d  # noqa: E402
 from pybosl2.vnf import VNF  # noqa: E402
 
 
 def test_endcap_geometry_3d_butt_returns_none() -> None:
-    spec = _normalize_one(CapType.BUTT)
-    result = _endcap_geometry_3d(spec, [0, 0, 0], [0, 0, 1], 2)
+    spec = normalize_one(CapType.BUTT)
+    result = endcap_geometry_3d(spec, [0, 0, 0], [0, 0, 1], 2)
     assert result is None
 
 
 def test_endcap_geometry_3d_round_returns_sphere() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
-    spec = _normalize_one(CapType.ROUND)
-    result = _endcap_geometry_3d(spec, [1, 2, 3], [0, 0, 1], 4)
+    spec = normalize_one(CapType.ROUND)
+    result = endcap_geometry_3d(spec, [1, 2, 3], [0, 0, 1], 4)
     assert isinstance(result, Bosl2Solid)
 
 
 def test_endcap_geometry_3d_dot_returns_larger_sphere() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
-    spec = _normalize_one(CapType.DOT)
-    result = _endcap_geometry_3d(spec, [1, 2, 3], [0, 0, 1], 4)
+    spec = normalize_one(CapType.DOT)
+    result = endcap_geometry_3d(spec, [1, 2, 3], [0, 0, 1], 4)
     assert isinstance(result, Bosl2Solid)
 
 
 def test_endcap_geometry_3d_arrow_produces_solid() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
-    spec = _normalize_one(CapType.ARROW)
-    result = _endcap_geometry_3d(spec, [1, 2, 3], [0, 0, 1], 4)
+    spec = normalize_one(CapType.ARROW)
+    result = endcap_geometry_3d(spec, [1, 2, 3], [0, 0, 1], 4)
     assert isinstance(result, Bosl2Solid)
     assert result is not None
 
@@ -295,8 +295,8 @@ def test_endcap_geometry_3d_arrow_produces_solid() -> None:
 def test_endcap_geometry_3d_diamond_produces_solid() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
-    spec = _normalize_one(CapType.DIAMOND)
-    result = _endcap_geometry_3d(spec, [1, 2, 3], [0, 0, 1], 4)
+    spec = normalize_one(CapType.DIAMOND)
+    result = endcap_geometry_3d(spec, [1, 2, 3], [0, 0, 1], 4)
     assert isinstance(result, Bosl2Solid)
     assert result is not None
 
@@ -309,8 +309,8 @@ _SAFE_CAPS: list[CapType] = [ct for ct in CapType if ct not in (CapType.CIRCLE, 
 
 @pytest.mark.parametrize("style", _SAFE_CAPS)
 def test_endcap_polys_each_cap_type_produces_polygons(style: CapType) -> None:
-    spec = _normalize_one(style)
-    result = _endcap_polys(spec, 2)
+    spec = normalize_one(style)
+    result = endcap_polys(spec, 2)
     assert isinstance(result, list)
 
 
@@ -318,18 +318,18 @@ def test_endcap_polys_each_cap_type_produces_polygons(style: CapType) -> None:
 
 
 def test_has_decorative_caps_true_for_arrow() -> None:
-    caps = [_normalize_one(CapType.ARROW), _normalize_one(CapType.ARROW)]
-    assert _has_decorative_caps(caps) is True
+    caps = [normalize_one(CapType.ARROW), normalize_one(CapType.ARROW)]
+    assert has_decorative_caps(caps) is True
 
 
 def test_has_decorative_caps_false_for_butt() -> None:
-    caps = [_normalize_one(CapType.BUTT), _normalize_one(CapType.BUTT)]
-    assert _has_decorative_caps(caps) is False
+    caps = [normalize_one(CapType.BUTT), normalize_one(CapType.BUTT)]
+    assert has_decorative_caps(caps) is False
 
 
 def test_has_decorative_caps_false_for_round() -> None:
-    caps = [_normalize_one(CapType.ROUND), _normalize_one(CapType.ROUND)]
-    assert _has_decorative_caps(caps) is False
+    caps = [normalize_one(CapType.ROUND), normalize_one(CapType.ROUND)]
+    assert has_decorative_caps(caps) is False
 
 
 def _tube_grid(rows: int, cols: int) -> list[list[list[float]]]:
@@ -337,13 +337,13 @@ def _tube_grid(rows: int, cols: int) -> list[list[list[float]]]:
 
 
 def test_vnf_with_decorative_caps_produces_bosl2solid() -> None:
-    from pybosl2.caps import _vnf_with_decorative_caps
+    from pybosl2.caps import vnf_with_decorative_caps
     from pybosl2.shapes3d import Bosl2Solid
 
     grid = _tube_grid(3, 12)
     vnf = VNF.vertex_array(grid, col_wrap=True)
-    caps = [_normalize_one(CapType.ARROW), _normalize_one(CapType.ARROW)]
-    result = _vnf_with_decorative_caps(
+    caps = [normalize_one(CapType.ARROW), normalize_one(CapType.ARROW)]
+    result = vnf_with_decorative_caps(
         vnf,
         caps,
         False,
@@ -355,13 +355,13 @@ def test_vnf_with_decorative_caps_produces_bosl2solid() -> None:
 
 
 def test_vnf_with_decorative_caps_closed_skips_caps() -> None:
-    from pybosl2.caps import _vnf_with_decorative_caps
+    from pybosl2.caps import vnf_with_decorative_caps
     from pybosl2.shapes3d import Bosl2Solid
 
     grid = _tube_grid(3, 12)
     vnf = VNF.vertex_array(grid, col_wrap=True)
-    caps = [_normalize_one(CapType.ARROW), _normalize_one(CapType.ARROW)]
-    result = _vnf_with_decorative_caps(
+    caps = [normalize_one(CapType.ARROW), normalize_one(CapType.ARROW)]
+    result = vnf_with_decorative_caps(
         vnf,
         caps,
         True,

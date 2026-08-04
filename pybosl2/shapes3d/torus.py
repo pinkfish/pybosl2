@@ -21,8 +21,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
+from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.constants import BOTTOM, DOWN
-from pybosl2.shapes2d import _frag_count, _pick_radius
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -92,7 +93,10 @@ def pie_slice(
 
             s3.pie_slice(radius=20, angle=120, height=5).show()
     """
-    from pybosl2.shapes2d import _arc_points, _opolygon
+    from pybosl2._helpers import arc_points as _arc_points
+    from pybosl2._native import native
+
+    _opolygon = native("polygon")
 
     length = height if height is not None else (length if length is not None else 1)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
@@ -170,7 +174,10 @@ def torus(
             shape = torus(major_radius=25, minor_radius=8)
             shape.show()
     """
-    from pybosl2.shapes2d import _arc_points, _opolygon
+    from pybosl2._helpers import arc_points as _arc_points
+    from pybosl2._native import native
+
+    _opolygon = native("polygon")
 
     _or = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
     _ir = _pick_radius(radius=inner_radius, diameter=inner_diameter, dflt=None)

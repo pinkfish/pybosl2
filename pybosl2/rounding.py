@@ -130,7 +130,8 @@ def _circlecorner(
     fs: float | None = None,
 ) -> list[list[float]]:
     """A circular-arc corner (BOSL2 _circlecorner())."""
-    from pybosl2.shapes2d import _frag_count, arc
+    from pybosl2._helpers import frag_count as _frag_count
+    from pybosl2.shapes2d import arc
 
     angle = _vector_angle3(points[0], points[1], points[2]) / 2
     d, radius = float(parm[0]), float(parm[1])

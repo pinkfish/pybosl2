@@ -65,7 +65,7 @@ def _interior_fillet_path(radius: float, angle: float, overlap: float, sides: in
     corner point so the piece unions cleanly onto both adjoining faces instead of meeting them at
     an exact, potentially non-manifold, edge.
     """
-    from pybosl2.shapes2d import _arc_points
+    from pybosl2._helpers import arc_points as _arc_points
 
     half = math.radians(angle / 2)
     tlen = radius / math.tan(half) if radius > 0 else 0.0

@@ -17,25 +17,43 @@ from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
+# Import base class and helper functions from shapes2d.base
+from pybosl2._helpers import (
+    anchor_offset_box as _anchor_offset_box,
+)
+from pybosl2._helpers import (
+    anchor_offset_hull as _anchor_offset_hull,
+)
+from pybosl2._helpers import (
+    arc_points as _arc_points,
+)
+from pybosl2._helpers import (
+    circle_pts as _circle_pts,
+)
+from pybosl2._helpers import (
+    frag_count as _frag_count,
+)
+from pybosl2._helpers import (
+    pick_radius as _pick_radius,
+)
+from pybosl2._helpers import (
+    polar_to_xy as _polar_to_xy,
+)
+from pybosl2._helpers import (
+    rect_path as _rect_path,
+)
+from pybosl2._helpers import (
+    rotate2d as _rotate2d,
+)
 from pybosl2._native import native
 from pybosl2.constants import CENTER
 
-# Import base class and helper functions from shapes2d.base
 from .base import (
     Bosl2Shape2D,
     _adjacent_angle_to_hypotenuse,
     _adjacent_angle_to_opposite,
-    _anchor_offset_box,
-    _anchor_offset_hull,
-    _arc_points,
-    _circle_pts,
     _finish,
-    _frag_count,
     _opposite_angle_to_adjacent,
-    _pick_radius,
-    _polar_to_xy,
-    _quant,
-    _rotate2d,
     _v_theta,
 )
 
@@ -111,63 +129,6 @@ def square(
     shape = _osquare(sz, center=True)
     offset = _anchor_offset_box(sz, use_anchor)
     return _finish(shape, offset, spin or 0, size=sz, anchor=use_anchor)
-
-
-def _rect_path(
-    size: Sequence[float],
-    rounding: float | Sequence[float] = 0,
-    chamfer: float | Sequence[float] = 0,
-    fn: int | None = None,
-    fa: float | None = None,
-    fs: float | None = None,
-) -> list[list[float]]:
-    sx, sy = size
-    rounding_l = [float(rounding)] * 4 if isinstance(rounding, (int, float)) else [float(v) for v in rounding]
-    chamfer_l = [float(chamfer)] * 4 if isinstance(chamfer, (int, float)) else [float(v) for v in chamfer]
-    if all(v == 0 for v in rounding_l) and all(v == 0 for v in chamfer_l):
-        return [
-            [sx / 2, -sy / 2],
-            [-sx / 2, -sy / 2],
-            [-sx / 2, sy / 2],
-            [sx / 2, sy / 2],
-        ]
-    quadorder = [3, 2, 1, 0]
-    quadpos = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
-    eps = 1e-9
-    insets = [
-        (chamfer_l[i] if abs(chamfer_l[i]) >= eps else (rounding_l[i] if abs(rounding_l[i]) >= eps else 0))
-        for i in range(4)
-    ]
-    insets_x = max(insets[0] + insets[1], insets[2] + insets[3])
-    insets_y = max(insets[0] + insets[3], insets[1] + insets[2])
-    assert insets_x <= sx, "Requested roundings and/or chamfers exceed the rect width."
-    assert insets_y <= sy, "Requested roundings and/or chamfers exceed the rect height."
-    path = []
-    for i in range(4):
-        quad = quadorder[i]
-        qinset = insets[quad]
-        qpos = quadpos[quad]
-        qchamf = chamfer_l[quad]
-        qround = rounding_l[quad]
-        cverts = int(_quant(_frag_count(abs(qinset), fn, fa, fs), 4) / 4) if abs(qinset) >= eps else 0
-        step = 90.0 / cverts if cverts else 0.0
-        center = [(sx / 2 - qinset) * qpos[0], (sy / 2 - abs(qinset)) * qpos[1]]
-        if abs(qchamf) >= eps:
-            qpts = [[0, abs(qinset)], [qinset, 0]]
-        elif abs(qround) >= eps:
-            sign = 1 if qinset >= 0 else -1
-            qpts = []
-            for j in range(cverts + 1):
-                a = 90 - j * step
-                p = _polar_to_xy(abs(qinset), a)
-                qpts.append([p[0] * sign, p[1]])
-        else:
-            qpts = [[0, 0]]
-        qfpts = [[p[0] * qpos[0], p[1] * qpos[1]] for p in qpts]
-        qrpts = list(reversed(qfpts)) if qpos[0] * qpos[1] < 0 else qfpts
-        for p in qrpts:
-            path.append([p[0] + center[0], p[1] + center[1]])
-    return path
 
 
 def rect(

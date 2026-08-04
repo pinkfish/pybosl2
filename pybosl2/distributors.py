@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from pybosl2._edges_lang import Anchor
-    from pybosl2._shape import _BaseShape
+    from pybosl2._shape import BaseShape as BaseShape
 
 _CopyType = TypeVar("_CopyType", bound="Distributable")
 
@@ -832,12 +832,12 @@ class Distributable(ABC):
 
     @staticmethod
     def distribute(
-        children: list[_BaseShape],
+        children: list[BaseShape],
         spacing: float | None = None,
         sizes: list[float] | None = None,
         dir: Anchor | Point = RIGHT,  # noqa: A002
         length: float | None = None,
-    ) -> _BaseShape:
+    ) -> BaseShape:
         """Space a list of distinct objects along *dir* so they don't overlap.
 
         Unlike the copiers, this lays out several different children.
@@ -887,11 +887,11 @@ class Distributable(ABC):
 
 
 def xdistribute(
-    children: list[_BaseShape],
+    children: list[BaseShape],
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,
-) -> _BaseShape:
+) -> BaseShape:
     """Distribute distinct children along the X axis (BOSL2 xdistribute()).
 
     Examples:
@@ -906,20 +906,20 @@ def xdistribute(
 
 
 def ydistribute(
-    children: list[_BaseShape],
+    children: list[BaseShape],
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,
-) -> _BaseShape:
+) -> BaseShape:
     """Distribute distinct children along the Y axis (BOSL2 ydistribute())."""
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=BACK, length=length)
 
 
 def zdistribute(
-    children: list[_BaseShape],
+    children: list[BaseShape],
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,
-) -> _BaseShape:
+) -> BaseShape:
     """Distribute distinct children along the Z axis (BOSL2 zdistribute())."""
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=UP, length=length)
