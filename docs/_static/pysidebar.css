@@ -165,9 +165,99 @@ div.clearer {
         overflow-y: visible;
     }
     div.documentwrapper {
-        width: 100%;
+         width: 100%;
     }
     div.bodywrapper {
         margin: 0;
     }
+}
+
+/* ---- sticky sidebar header ---- */
+
+.sidebar-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--sidebar-bg, #f2f2f2);
+    padding: 10px 14px 6px 14px;
+    margin: 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-logo {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: #2a5c8a;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+}
+
+.sidebar-logo:hover {
+    color: #1a3c5a;
+    text-decoration: none;
+}
+
+.sidebar-icons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.sidebar-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    color: #666;
+    background: transparent;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none;
+}
+
+.sidebar-icon-link:hover {
+    background: #dde4ea;
+    color: #2a5c8a;
+    text-decoration: none;
+}
+
+/* Search box inside sticky header */
+.sidebar-sticky form.search {
+    margin: 8px 0 0 0;
+    padding: 0;
+    border: none;
+}
+
+.sidebar-sticky form.search input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Push the sidebar content below the sticky header */
+div.sphinxsidebar > div.sphinxsidebarwrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Make the Alabaster sidebar content scroll independently */
+div.sphinxsidebar {
+    display: flex;
+    flex-direction: column;
+    max-height: 100vh;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+}
+
+/* Remove duplicate logo when sticky header is present */
+div.sphinxsidebar h1.logo {
+    display: none;
+}
 }
