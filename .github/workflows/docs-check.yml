@@ -7,6 +7,7 @@ on:
       - "pybosl2/**"
       - "docs/**"
       - "pyproject.toml"
+      - ".github/workflows/docs-check.yml"
 
 jobs:
   docs-check:
@@ -22,14 +23,25 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[docs]"
-
-      - name: Install pythonscad mock if binary not available
-        run: |
-          python -c "import pythonscad" 2>/dev/null || \
-            python -c "import sys; sys.path.insert(0, 'tests'); import mock_libfive"
+          pip install -e ".[docs,test]"
 
       - name: Build docs (warnings as errors)
+        shell: python
         run: |
-          cd docs
-          python -m sphinx -W --keep-going -b html . /tmp/docs-check/ -d /tmp/docs-doctrees/
+          import importlib.util, os, sys
+
+          repo = os.environ["GITHUB_WORKSPACE"]
+          sys.path.insert(0, os.path.join(repo, "tests"))
+
+          if importlib.util.find_spec("pythonscad") is None:
+              import mock_libfive
+
+          from sphinx.cmd.build import main
+
+          sys.exit(main([
+              "-W", "--keep-going",
+              "-b", "html",
+              os.path.join(repo, "docs"),
+              os.path.join(repo, "wiki-check"),
+              "-d", os.path.join(repo, "docs", "_build", "doctrees"),
+          ]))
