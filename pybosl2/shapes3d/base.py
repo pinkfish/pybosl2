@@ -160,7 +160,7 @@ class CsgSolid(BaseShape):
         self,
         shape: PyOpenSCAD,
         size: Sequence[float] | None = None,
-        anchor: "Anchor | Sequence[float] | str | None" = None,
+        anchor: Anchor | Sequence[float] | None = None,
     ):
         self.shape = shape
         self.size = size
@@ -170,10 +170,7 @@ class CsgSolid(BaseShape):
         elif isinstance(anchor, Anchor):
             a_val = anchor
         elif isinstance(anchor, str):
-            try:
-                a_val = resolve_anchor(anchor)
-            except ValueError:
-                a_val = None
+            raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
         else:
             a_val = resolve_anchor(list(anchor))
         self.anchor = a_val
@@ -830,8 +827,8 @@ class CsgSolid(BaseShape):
 
     def corner_profile(
         self,
-        corners: str | Anchor | list[int | str] = "ALL",
-        except_corners: list[Any] | None = None,
+        corners: Anchor = Anchor.ALL,
+        except_corners: list[Anchor] | None = None,
         radius: float | None = None,
         diameter: float | None = None,
         children: Sequence[Sequence[float]] | None = None,
@@ -1316,7 +1313,7 @@ def _finish3(
     spin: float,
     orient: Anchor | Sequence[float],
     size: Sequence[float] | None = None,
-    anchor: "Anchor | Sequence[float] | str | None" = None,
+    anchor: Anchor | Sequence[float] | None = None,
 ) -> Bosl2Solid:
     """Build, offset, spin, orient, and wrap in Bosl2Solid.
 

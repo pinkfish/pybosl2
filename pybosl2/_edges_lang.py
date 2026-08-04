@@ -223,33 +223,6 @@ EdgeSpec: object = Anchor
 # -- internal conversion helpers -----------------------------------------------
 
 
-_STR_EDGE_MAP: dict[str, Anchor] = {
-    "x": Anchor.X,
-    "y": Anchor.Y,
-    "z": Anchor.Z,
-    "all": Anchor.ALL,
-    "none": Anchor.NONE,
-    "X": Anchor.X,
-    "Y": Anchor.Y,
-    "Z": Anchor.Z,
-    "ALL": Anchor.ALL,
-    "NONE": Anchor.NONE,
-}
-
-
-# Map legacy string face/corner names to Anchor members
-_LEGACY_CORNER_MAP: dict[str, Anchor] = {
-    "all": Anchor.ALL,
-    "none": Anchor.NONE,
-    "top": Anchor.TOP,
-    "bottom": Anchor.BOTTOM,
-    "front": Anchor.FRONT,
-    "back": Anchor.BACK,
-    "left": Anchor.LEFT,
-    "right": Anchor.RIGHT,
-}
-
-
 def _is_edge_matrix(x: object) -> bool:
     return isinstance(x, list) and len(x) == 3 and all(isinstance(row, list) and len(row) == 4 for row in x)
 
@@ -328,27 +301,22 @@ def _anchor_to_corner_set(anchor: Anchor) -> list[int]:
     return [1 if all(v[i] == 0 or v[i] == c[i] for i in range(3)) else 0 for c in CORNER_OFFSETS]
 
 
-def resolve_anchor(anchor: Anchor | str | list[int | float] | list[list[int]]) -> Anchor:
-    """Normalize any anchor specifier (enum, string, legacy vector) to an Anchor enum.
+def resolve_anchor(anchor: Anchor | list[int | float] | list[list[int]]) -> Anchor:
+    """Normalize any anchor specifier (enum, legacy vector) to an Anchor enum.
 
     Args:
-        anchor: An anchor specifier -- :class:`Anchor` enum, a string name, or a legacy vector.
+        anchor: An anchor specifier -- :class:`Anchor` enum or a legacy vector.
 
     Returns:
         An :class:`Anchor` member.
 
     Raises:
-        ValueError: If the specifier is unrecognised.
+        ValueError: If the specifier is unrecognised or is a legacy string.
     """
     if isinstance(anchor, Anchor):
         return anchor
     if isinstance(anchor, str):
-        candidate = _STR_EDGE_MAP.get(anchor)
-        if candidate is None:
-            candidate = _LEGACY_CORNER_MAP.get(anchor.lower())
-        if candidate is not None:
-            return candidate
-        raise ValueError(f"Unknown anchor string: {anchor!r}")
+        raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
     if _is_edge_matrix(anchor):
         raise ValueError("Cannot resolve a raw edge matrix to a single Anchor; use a list of Anchors instead.")
     if _is_plain_vector(anchor):
@@ -374,7 +342,7 @@ def _edge_set(
         A ``[[int×4],[int×4],[int×4]]`` edge matrix.
     """
     if isinstance(v, str):
-        return _anchor_to_edge_matrix(_STR_EDGE_MAP[v])
+        raise ValueError(f"Legacy string edge selection is not allowed: {v!r}")
     if isinstance(v, Anchor):
         return _anchor_to_edge_matrix(v)
     if _is_edge_matrix(v):
@@ -409,9 +377,13 @@ def edges(
         except_ = []
     if v == [] or v == Anchor.NONE:
         return EDGES_NONE
-    if isinstance(v, (Anchor, str)) or _is_edge_matrix(v) or _is_plain_vector(v):
+    if isinstance(v, str):
+        raise ValueError(f"Legacy string edge selection is not allowed: {v!r}")
+    if isinstance(except_, str):
+        raise ValueError(f"Legacy string edge selection is not allowed: {except_!r}")
+    if isinstance(v, Anchor) or _is_edge_matrix(v) or _is_plain_vector(v):
         return edges([v], except_)  # type: ignore[list-item]
-    if isinstance(except_, (Anchor, str)) or _is_edge_matrix(except_) or _is_plain_vector(except_):
+    if isinstance(except_, Anchor) or _is_edge_matrix(except_) or _is_plain_vector(except_):
         return edges(v, [except_])  # type: ignore[list-item]
     summed: list[list[int]] = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
     for x in v:

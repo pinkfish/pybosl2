@@ -244,7 +244,7 @@ def text3d(
     # (_finish3) and the result is wrapped once, at the end.
     shape = flat.shape.linear_extrude(height=height, center=True, fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_box3([size, size, height], [0, 0, av[2]])
-    return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
+    return _finish3(shape, offset, spin, orient, size=None, anchor=av)
 
 
 def path_text(

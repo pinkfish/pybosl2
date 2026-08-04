@@ -26,9 +26,6 @@ from pybosl2._native import native
 from pybosl2.points import Point
 
 if TYPE_CHECKING:
-    from pybosl2._edges_lang import CornerPlane
-
-if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.shapes3d.base import Bosl2Solid
 
@@ -285,22 +282,11 @@ def edge_profile(
     return body - cutter
 
 
-def _corner_set(v: str | list[int] | Anchor) -> list[int]:
+def _corner_set(v: list[int] | Anchor) -> list[int]:
     if isinstance(v, Anchor):
         return v.to_corner_set()
     if isinstance(v, str):
-        if v == "ALL":
-            return [1] * 8
-        if v == "NONE":
-            return [0] * 8
-        from pybosl2._edges_lang import resolve_anchor
-
-        try:
-            anc = resolve_anchor(v)
-            return anc.to_corner_set()
-        except ValueError:
-            pass
-        raise ValueError(f'{v} must be "ALL", "NONE", or a vector')
+        raise ValueError(f"Legacy string corner selection is not allowed: {v!r}")
     arr = np.asarray(v, dtype=int)
     return [
         1 if arr[0] == 0 or arr[0] == c[0] and arr[1] == 0 or arr[1] == c[1] and arr[2] == 0 or arr[2] == c[2] else 0
@@ -309,14 +295,18 @@ def _corner_set(v: str | list[int] | Anchor) -> list[int]:
 
 
 def _corners(
-    v: Anchor | str | list[int] | list[str] | list[list[int]] | list[list[str]] | list[Anchor],
+    v: Anchor | list[int] | list[list[int]] | list[Anchor],
     except_: list | None = None,  # type: ignore[type-arg]
 ) -> list[int]:
     if except_ is None:
         except_ = []
-    if isinstance(v, (str, Anchor)) or (isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)):
+    if isinstance(v, str):
+        raise ValueError(f"Legacy string corner selection is not allowed: {v!r}")
+    if isinstance(except_, str):
+        raise ValueError(f"Legacy string corner selection is not allowed: {except_!r}")
+    if isinstance(v, Anchor) or (isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)):
         v = [v]  # type: ignore[assignment]
-    if isinstance(except_, (str, Anchor)) or (
+    if isinstance(except_, Anchor) or (
         isinstance(except_, list) and len(except_) > 0 and not isinstance(except_[0], list)
     ):
         except_ = [except_]
@@ -367,8 +357,8 @@ def _corner_cutter(
 
 def corner_profile(
     body: "Bosl2Solid",
-    corners: CornerPlane | str | list[int | str] = "ALL",
-    except_corners: list[int | str] | None = None,
+    corners: Anchor = Anchor.ALL,
+    except_corners: list[Anchor] | None = None,
     radius: float | None = None,
     diameter: float | None = None,
     size: tuple[float, float, float] | None = None,
@@ -403,7 +393,7 @@ def corner_profile(
         radius = diameter / 2
     rad = float(radius)
     assert size is not None, "size= (the box's size) must be given"
-    corner_set = _corners(corners, except_corners or [])  # type: ignore[arg-type]
+    corner_set = _corners(corners, except_corners or [])
     cutter: "Bosl2Solid | None" = None
     for idx, sel in enumerate(corner_set):
         if sel:
