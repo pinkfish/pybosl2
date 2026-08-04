@@ -424,8 +424,8 @@
 <script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="rounding-round-corners-smooth-path">
 <h1>Rounding: round_corners &amp; smooth_path<a class="headerlink" href="#rounding-round-corners-smooth-path" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of the path-rounding core of BOSL2’s <code class="docutils literal notranslate"><span class="pre">rounding.scad</span></code>:
-<code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code> rounds every corner of a path, and
-<code class="xref py py-func docutils literal notranslate"><span class="pre">smooth_path()</span></code> fits a continuous-curvature curve through a path. Both work on
+<a class="reference internal" href="#pybosl2.rounding.Roundable.round_corners" title="pybosl2.rounding.Roundable.round_corners"><code class="xref py py-meth docutils literal notranslate"><span class="pre">round_corners()</span></code></a> rounds every corner of a path, and
+<a class="reference internal" href="#pybosl2.rounding.Roundable.smooth_path" title="pybosl2.rounding.Roundable.smooth_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth_path()</span></code></a> fits a continuous-curvature curve through a path. Both work on
 2-D and 3-D paths and are methods on <a class="reference internal" href="paths.html#module-pybosl2.paths" title="pybosl2.paths"><code class="xref py py-class docutils literal notranslate"><span class="pre">paths</span></code></a> and <code class="xref py py-class docutils literal notranslate"><span class="pre">path3d</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Path</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">]])</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">Path</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">]])</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
@@ -456,12 +456,12 @@ toolkit’s original <code class="docutils literal notranslate"><span class="pre
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">round_corners</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code> – all three methods, all four size measures, open/closed,
+<td><p><a class="reference internal" href="#pybosl2.rounding.Roundable.round_corners" title="pybosl2.rounding.Roundable.round_corners"><code class="xref py py-meth docutils literal notranslate"><span class="pre">round_corners()</span></code></a> – all three methods, all four size measures, open/closed,
 2-D and 3-D. The roundover-overflow (scale-factor) check is included.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smooth_path</span></code></p></td>
 <td><p>ported (<code class="docutils literal notranslate"><span class="pre">method=&quot;edges&quot;</span></code>)</p></td>
-<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">smooth_path()</span></code> – a bezier fit through the points; the
+<td><p><a class="reference internal" href="#pybosl2.rounding.Roundable.smooth_path" title="pybosl2.rounding.Roundable.smooth_path"><code class="xref py py-meth docutils literal notranslate"><span class="pre">smooth_path()</span></code></a> – a bezier fit through the points; the
 <code class="docutils literal notranslate"><span class="pre">method=&quot;corners&quot;</span></code> variant is not ported.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">path_join</span></code></p></td>
@@ -492,13 +492,13 @@ toolkit’s original <code class="docutils literal notranslate"><span class="pre
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-97484ac3729548879584476700771628" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-67f77390fc254e999e7173ea3cd2c28c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-97484ac3729548879584476700771628");
+const el = document.getElementById("stlviewer-67f77390fc254e999e7173ea3cd2c28c");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -550,13 +550,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-a129bf71074341fb8c206a3a6fb31031" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-fc12ce417e8e49a5bf98542b944f6537" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-a129bf71074341fb8c206a3a6fb31031");
+const el = document.getElementById("stlviewer-fc12ce417e8e49a5bf98542b944f6537");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

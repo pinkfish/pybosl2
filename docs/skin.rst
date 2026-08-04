@@ -16,7 +16,7 @@ Coverage of BOSL2 ``skin.scad``
      - Notes
    * - ``sweep(shape, transforms)``
      - ported
-     - :func:`~pybosl2.skin.sweep`
+     - :meth:`~pybosl2.skin.Sweepable.sweep`
    * - ``path_sweep(shape, path)``
      - ported
      - :meth:`~pybosl2.skin.Sweepable.path_sweep` — methods ``incremental`` / ``manual`` / ``natural``, twist,
@@ -24,7 +24,7 @@ Coverage of BOSL2 ``skin.scad``
        tangents, and the ``transforms=True`` mode
    * - ``skin(profiles, slices)``
      - ported
-     - :func:`~pybosl2.skin.skin` — ``direct`` and ``reindex`` methods
+      - :meth:`~pybosl2.vnf.VNF.from_skin` — ``direct`` and ``reindex`` methods
    * - ``linear_sweep(region, h)``
      - ported
      - :meth:`~pybosl2.skin.Sweepable.linear_sweep` — single outline, with twist / scale / shift / caps
@@ -40,11 +40,11 @@ Coverage of BOSL2 ``skin.scad``
        handled up to the path's tightest radius)
    * - ``rot_resample(rotlist, n)``
      - ported
-     - :func:`~pybosl2.skin.skin` — resample a transform list along its screw motion, with
+      - ported — resample a transform list along its screw motion, with
        ``rot_decode`` / ``rot_inverse`` in :mod:`pybosl2.transforms`
    * - ``subdivide_and_slice`` / ``slice_profiles``
      - ported
-     - :func:`~pybosl2.skin.skin`, :func:`~pybosl2.skin.skin`
+      - :meth:`~pybosl2.skin.Sweepable.sweep`
    * - ``skin()`` ``distance`` / ``tangent`` methods
      - not ported
      - use ``direct`` / ``reindex`` (they need the dynamic-programming vertex matcher)

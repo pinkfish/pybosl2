@@ -205,7 +205,7 @@ sampled curve::
     circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
     tube = bezier_sweep(circle, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
 
-This is distinct from the CSG sweeps (:meth:`~pybosl2.skin.skin`, ``skin``, ``offset_sweep``),
+This is distinct from the CSG sweeps (:meth:`~pybosl2.skin.Sweepable.sweep`, ``skin``, ``offset_sweep``),
 which build a VNF/polyhedron mesh rather than a distance field. Denser paths give a smoother lateral
 surface; the ends cap perpendicular to the path.
 
