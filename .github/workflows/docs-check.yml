@@ -9,6 +9,9 @@ on:
       - "pyproject.toml"
       - ".github/workflows/docs-check.yml"
 
+permissions:
+  contents: read
+
 jobs:
   docs-check:
     runs-on: ubuntu-latest
