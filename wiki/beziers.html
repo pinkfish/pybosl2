@@ -13,6 +13,7 @@
     <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/group_toggle.js?v=4c0ef988"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Isosurface: marching cubes &amp; metaballs" href="isosurface.html" />
@@ -47,67 +48,320 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="circle.html"> Circle</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a></li>
-<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cuboid.html"> Cuboid</a></li>
-<li class="toctree-l1"><a class="reference internal" href="curves.html"> Curves</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cylinder.html"> Cylinder</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="extrusions.html"> Extrusions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ops.html"> Ops</a></li>
-<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="solid.html"> Solid</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphere.html"> Sphere</a></li>
-<li class="toctree-l1"><a class="reference internal" href="square.html"> Square</a></li>
-<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torus.html"> Torus</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="drawing.html"> Drawing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html"> Color</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="color.html#coverage-of-bosl2-color-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">color.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="color.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="color.html#module-pybosl2.color">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"> Constants</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.INCH"><code class="docutils literal notranslate"><span class="pre">INCH</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.IDENT"><code class="docutils literal notranslate"><span class="pre">IDENT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.LEFT"><code class="docutils literal notranslate"><span class="pre">LEFT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.RIGHT"><code class="docutils literal notranslate"><span class="pre">RIGHT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.FRONT"><code class="docutils literal notranslate"><span class="pre">FRONT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.FORWARD"><code class="docutils literal notranslate"><span class="pre">FORWARD</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.BACK"><code class="docutils literal notranslate"><span class="pre">BACK</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.BOTTOM"><code class="docutils literal notranslate"><span class="pre">BOTTOM</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.DOWN"><code class="docutils literal notranslate"><span class="pre">DOWN</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.TOP"><code class="docutils literal notranslate"><span class="pre">TOP</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.UP"><code class="docutils literal notranslate"><span class="pre">UP</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.CENTER"><code class="docutils literal notranslate"><span class="pre">CENTER</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.SEGMENT"><code class="docutils literal notranslate"><span class="pre">SEGMENT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.RAY"><code class="docutils literal notranslate"><span class="pre">RAY</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="constants.html#pybosl2.constants.LINE"><code class="docutils literal notranslate"><span class="pre">LINE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="distributors.html"> Distributors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="distributors.html#coverage-of-bosl2-distributors-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">distributors.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributors.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributors.html#module-pybosl2.distributors">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.mask2d_roundover"><code class="docutils literal notranslate"><span class="pre">mask2d_roundover()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.rounding_edge_mask"><code class="docutils literal notranslate"><span class="pre">rounding_edge_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.chamfer_edge_mask"><code class="docutils literal notranslate"><span class="pre">chamfer_edge_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.edge_mask"><code class="docutils literal notranslate"><span class="pre">edge_mask()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.edge_profile"><code class="docutils literal notranslate"><span class="pre">edge_profile()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.corner_profile"><code class="docutils literal notranslate"><span class="pre">corner_profile()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="masking.html#pybosl2.masking.face_profile"><code class="docutils literal notranslate"><span class="pre">face_profile()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="partitions.html"> Partitions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#planar-half-cuts">Planar half-cuts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#interlocking-partitions">Interlocking partitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#coverage-of-bosl2-partitions-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="partitions.html#module-pybosl2.partitions">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="solid.html"> Solid</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.cube"><code class="docutils literal notranslate"><span class="pre">cube()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.cuboid"><code class="docutils literal notranslate"><span class="pre">cuboid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.cyl"><code class="docutils literal notranslate"><span class="pre">cyl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.cylinder"><code class="docutils literal notranslate"><span class="pre">cylinder()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.octahedron"><code class="docutils literal notranslate"><span class="pre">octahedron()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.onion"><code class="docutils literal notranslate"><span class="pre">onion()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.pie_slice"><code class="docutils literal notranslate"><span class="pre">pie_slice()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.prismoid"><code class="docutils literal notranslate"><span class="pre">prismoid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.rect_tube"><code class="docutils literal notranslate"><span class="pre">rect_tube()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.regular_prism"><code class="docutils literal notranslate"><span class="pre">regular_prism()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.sphere"><code class="docutils literal notranslate"><span class="pre">sphere()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.spheroid"><code class="docutils literal notranslate"><span class="pre">spheroid()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.teardrop"><code class="docutils literal notranslate"><span class="pre">teardrop()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.torus"><code class="docutils literal notranslate"><span class="pre">torus()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.tube"><code class="docutils literal notranslate"><span class="pre">tube()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.wedge"><code class="docutils literal notranslate"><span class="pre">wedge()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.xcyl"><code class="docutils literal notranslate"><span class="pre">xcyl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.ycyl"><code class="docutils literal notranslate"><span class="pre">ycyl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.zcyl"><code class="docutils literal notranslate"><span class="pre">zcyl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.polyhedron"><code class="docutils literal notranslate"><span class="pre">polyhedron()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.union"><code class="docutils literal notranslate"><span class="pre">union()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.difference"><code class="docutils literal notranslate"><span class="pre">difference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.intersection"><code class="docutils literal notranslate"><span class="pre">intersection()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.use_backend"><code class="docutils literal notranslate"><span class="pre">use_backend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.set_default_backend"><code class="docutils literal notranslate"><span class="pre">set_default_backend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.current_backend"><code class="docutils literal notranslate"><span class="pre">current_backend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.Solid"><code class="docutils literal notranslate"><span class="pre">Solid</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.CrossBackendError"><code class="docutils literal notranslate"><span class="pre">CrossBackendError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="solid.html#pybosl2.solid.UnsupportedByBackendError"><code class="docutils literal notranslate"><span class="pre">UnsupportedByBackendError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="texture.html"> Texture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="texture.html#pybosl2.texture.vnf_tile_to_solid"><code class="docutils literal notranslate"><span class="pre">vnf_tile_to_solid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="transforms.html"> Transforms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.polar_to_xy"><code class="docutils literal notranslate"><span class="pre">polar_to_xy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.rot_from_to"><code class="docutils literal notranslate"><span class="pre">rot_from_to()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.axis_angle_matrix"><code class="docutils literal notranslate"><span class="pre">axis_angle_matrix()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.rot_about_axis"><code class="docutils literal notranslate"><span class="pre">rot_about_axis()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.rot_inverse"><code class="docutils literal notranslate"><span class="pre">rot_inverse()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.rot_decode"><code class="docutils literal notranslate"><span class="pre">rot_decode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.reorient"><code class="docutils literal notranslate"><span class="pre">reorient()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html#pybosl2.transforms.apply"><code class="docutils literal notranslate"><span class="pre">apply()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html"> Drawing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html#arc-catenary">Arc &amp; catenary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html#helix">Helix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html#d-turtle">2-D Turtle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html#id1">3-D Turtle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html#stroke-dashed-stroke">Stroke &amp; dashed stroke</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html#coverage-of-bosl2-drawing-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">drawing.scad</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="shapes2d.html"> 2-D Shapes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="circle.html">Circle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="square.html">Square &amp; Rect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="curves.html">Curves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ops.html">Ops</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="shapes3d.html"> 3-D Shapes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cuboid.html">Cuboid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cylinder.html">Cylinder &amp; Cone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sphere.html">Sphere &amp; Teardrop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="torus.html">Torus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extrusions.html">Extrusions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="native_ops.html"> Native ops</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="native_ops.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="native_ops.html#api-reference">API reference</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a></li>
-<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a></li>
-<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pybosl2.beziers.Bezier"><code class="docutils literal notranslate"><span class="pre">Bezier</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pybosl2.beziers.create_bezier"><code class="docutils literal notranslate"><span class="pre">create_bezier()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pybosl2.beziers.BezierPatch"><code class="docutils literal notranslate"><span class="pre">BezierPatch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pybosl2.beziers.debug_bezier_patches"><code class="docutils literal notranslate"><span class="pre">debug_bezier_patches()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="isosurface.html"> Isosurface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="isosurface.html#coverage-of-bosl2-isosurface-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">isosurface.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="isosurface.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="isosurface.html#module-pybosl2.isosurface">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nurbs.html"> Nurbs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nurbs.html#coverage-of-bosl2-nurbs-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">nurbs.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="nurbs.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nurbs.html#module-pybosl2.nurbs">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="paths.html"> Abstract :class:`Path` base class for 2-D and 3-D path types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#pybosl2.paths.CutPoint"><code class="docutils literal notranslate"><span class="pre">CutPoint</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#pybosl2.paths.Path"><code class="docutils literal notranslate"><span class="pre">Path</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#pybosl2.paths.SubdivideMethod"><code class="docutils literal notranslate"><span class="pre">SubdivideMethod</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="regions.html"> Object API for 2-D paths and regions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="regions.html#pybosl2.regions.Region"><code class="docutils literal notranslate"><span class="pre">Region</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rounding.html"> Rounding</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rounding.html#coverage-of-bosl2-rounding-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">rounding.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="rounding.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rounding.html#module-pybosl2.rounding">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="skin.html"> Skin</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="skin.html#coverage-of-bosl2-skin-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">skin.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="skin.html#module-pybosl2.skin">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="turtle3d.html"> Turtle3D</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="turtle3d.html#pybosl2.turtle.turtle3d.Turtle3D"><code class="docutils literal notranslate"><span class="pre">Turtle3D</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vnf.html"> Vnf</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF"><code class="docutils literal notranslate"><span class="pre">VNF</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.VnfStyle"><code class="docutils literal notranslate"><span class="pre">VnfStyle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.contour"><code class="docutils literal notranslate"><span class="pre">contour()</span></code></a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a></li>
-<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html"> Geometry</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.circle_circle_tangents"><code class="docutils literal notranslate"><span class="pre">circle_circle_tangents()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.general_line_intersection"><code class="docutils literal notranslate"><span class="pre">general_line_intersection()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.is_collinear"><code class="docutils literal notranslate"><span class="pre">is_collinear()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.line_closest_point"><code class="docutils literal notranslate"><span class="pre">line_closest_point()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#pybosl2.geometry.line_normal"><code class="docutils literal notranslate"><span class="pre">line_normal()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="math.html"> Math</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.lerp"><code class="docutils literal notranslate"><span class="pre">lerp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.lerpn"><code class="docutils literal notranslate"><span class="pre">lerpn()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.deriv"><code class="docutils literal notranslate"><span class="pre">deriv()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.deriv2"><code class="docutils literal notranslate"><span class="pre">deriv2()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.deriv3"><code class="docutils literal notranslate"><span class="pre">deriv3()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.slerp"><code class="docutils literal notranslate"><span class="pre">slerp()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.slerpn"><code class="docutils literal notranslate"><span class="pre">slerpn()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.modang"><code class="docutils literal notranslate"><span class="pre">modang()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.constrain"><code class="docutils literal notranslate"><span class="pre">constrain()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.quant"><code class="docutils literal notranslate"><span class="pre">quant()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="math.html#pybosl2.math.mean"><code class="docutils literal notranslate"><span class="pre">mean()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vectors.html"> Vectors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vectors.html#pybosl2.vectors.is_vector"><code class="docutils literal notranslate"><span class="pre">is_vector()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vectors.html#pybosl2.vectors.add_scalar"><code class="docutils literal notranslate"><span class="pre">add_scalar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="vectors.html#pybosl2.vectors.unit"><code class="docutils literal notranslate"><span class="pre">unit()</span></code></a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls &amp;#128736;</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring &amp;#128736;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ball_bearings.html"> Ball Bearings &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ball_bearings.html#pybosl2.parts.ball_bearings.BearingSpec"><code class="docutils literal notranslate"><span class="pre">BearingSpec</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_bearings.html#pybosl2.parts.ball_bearings.BallBearings"><code class="docutils literal notranslate"><span class="pre">BallBearings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_bearings.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bottlecaps.html"> Bottlecaps &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bottlecaps.html#approximations-relative-to-bosl2">Approximations relative to BOSL2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottlecaps.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottlecaps.html#api-reference">API reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottlecaps.html#id1">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Cubetruss &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.CubeTruss"><code class="docutils literal notranslate"><span class="pre">CubeTruss</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gears.html"> Gears &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gears.html#pybosl2.parts.gears.Gears"><code class="docutils literal notranslate"><span class="pre">Gears</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gears.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hinges.html"> Hinges &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hinges.html#pybosl2.parts.hinges.Hinges"><code class="docutils literal notranslate"><span class="pre">Hinges</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="hinges.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html"> Hooks &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hooks.html#pybosl2.parts.hooks.Hooks"><code class="docutils literal notranslate"><span class="pre">Hooks</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="hooks.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="joiners.html"> Joiners &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="joiners.html#pybosl2.parts.joiners.Joiners"><code class="docutils literal notranslate"><span class="pre">Joiners</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="joiners.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="linear_bearings.html"> Linear Bearings &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="linear_bearings.html#pybosl2.parts.linear_bearings.LinearBearingSpec"><code class="docutils literal notranslate"><span class="pre">LinearBearingSpec</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="linear_bearings.html#pybosl2.parts.linear_bearings.LinearBearings"><code class="docutils literal notranslate"><span class="pre">LinearBearings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="linear_bearings.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modular_hose.html"> Modular Hose &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modular_hose.html#pybosl2.parts.modular_hose.ModularHose"><code class="docutils literal notranslate"><span class="pre">ModularHose</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="modular_hose.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nema_steppers.html"> Nema Steppers &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nema_steppers.html#pybosl2.parts.nema_steppers.NemaSpec"><code class="docutils literal notranslate"><span class="pre">NemaSpec</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="nema_steppers.html#pybosl2.parts.nema_steppers.NemaSteppers"><code class="docutils literal notranslate"><span class="pre">NemaSteppers</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="nema_steppers.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="polyhedra.html"> Polyhedra &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="polyhedra.html#pybosl2.parts.polyhedra.Polyhedra"><code class="docutils literal notranslate"><span class="pre">Polyhedra</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="polyhedra.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="screw_drive.html"> Screw Drive &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="screw_drive.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="screw_drive.html#api-reference">API reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="screw_drive.html#id1">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="screws.html"> Screws</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="screws.html#coverage-of-bosl2-screws-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">screws.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="screws.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="screws.html#api-reference">API reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="screws.html#id1">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sliders.html"> Sliders &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sliders.html#pybosl2.parts.sliders.Sliders"><code class="docutils literal notranslate"><span class="pre">Sliders</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sliders.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="threading.html"> Threading &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="threading.html#coverage-of-bosl2-threading-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">threading.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="threading.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threading.html#api-reference">API reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threading.html#id1">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="walls.html"> Walls &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.Walls"><code class="docutils literal notranslate"><span class="pre">Walls</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="walls.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wiring.html"> Wiring &amp;#128736;</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wiring.html#pybosl2.parts.wiring.Wiring"><code class="docutils literal notranslate"><span class="pre">Wiring</span></code></a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Extras</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="miscellaneous.html"> Miscellaneous</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#coverage-of-bosl2-miscellaneous-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">miscellaneous.scad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="miscellaneous.html#module-pybosl2.miscellaneous">API reference</a></li>
+</ul>
+</li>
 </ul>
 
 

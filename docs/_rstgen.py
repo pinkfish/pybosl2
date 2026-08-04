@@ -359,7 +359,7 @@ def _generate_index(modules: dict[str, dict[str, Any]]) -> None:
             continue
 
         lines.append(".. toctree::")
-        lines.append("   :maxdepth: 1")
+        lines.append("   :maxdepth: 2")
         lines.append(f"   :caption: {caption}")
         lines.append("")
         for info in sorted(entries, key=lambda x: x["page"]):
@@ -378,6 +378,47 @@ def _generate_index(modules: dict[str, dict[str, Any]]) -> None:
                     insert_at += 1
                 lines.insert(insert_at, "    Drawing <drawing>")
                 break
+
+    # Group individual 2-D and 3-D shape pages under shapes2d/shapes3d
+    _2d_shapes = frozenset({"circle", "square", "curves", "ops"})
+    _3d_shapes = frozenset({"cuboid", "cylinder", "sphere", "torus", "extrusions"})
+    _shape_pages = _2d_shapes | _3d_shapes
+
+    new_lines: list[str] = []
+    skip_until_blank = False
+    for line in lines:
+        if skip_until_blank:
+            if line.strip() == "":
+                skip_until_blank = False
+            continue
+        stripped = line.strip()
+        if stripped.startswith(":caption: Foundational"):
+            new_lines.append(line)
+            continue
+        if stripped.startswith(":caption:"):
+            new_lines.append(line)
+            continue
+        if any(
+            stripped == f"{label} <{page}>"
+            or stripped.startswith(f"{label} <{page}>")
+            or any(stripped.endswith(f"<{page}>") for page in _shape_pages)
+            for label in ("Circle", "Square", "Curves", "Ops", "Cuboid", "Cylinder", "Sphere", "Torus", "Extrusions")
+        ):
+            skip_until_blank = False
+            continue
+        new_lines.append(line)
+
+    lines = new_lines
+
+    # Insert the grouped pages before the toctree ends in Foundational
+    for i, line in enumerate(lines):
+        if line.strip() == ":caption: Foundational":
+            insert_at = i + 3
+            while insert_at < len(lines) and lines[insert_at].strip() and not lines[insert_at].startswith(".."):
+                insert_at += 1
+            lines.insert(insert_at, "    3-D Shapes <shapes3d>")
+            lines.insert(insert_at, "    2-D Shapes <shapes2d>")
+            break
 
     # Hand-written pages without corresponding .py modules
     extra_pages = {
