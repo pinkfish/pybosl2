@@ -202,9 +202,9 @@ omitted the point count follows OpenSCAD’s $fn/$fa/$fs rules, matching BOSL2.<
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.path2d.catenary">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.path2d.</span></span><span class="sig-name descname"><span class="pre">catenary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">droop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#catenary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.path2d.catenary" title="Link to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.path2d.Path2D.catenary">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Path2D.</span></span><span class="sig-name descname"><span class="pre">catenary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">droop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/path2d.html#Path2D.catenary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.path2d.Path2D.catenary" title="Link to this definition">¶</a></dt>
 <dd><p>The catenary (hanging-chain) curve of the given <em>width</em>, as a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code>.</p>
 <p>Give exactly one of <em>droop</em> (how far the middle hangs below the endpoints) or <em>angle</em> (the
 slope in degrees at the endpoints). The curve passes through <code class="docutils literal notranslate"><span class="pre">[-width/2,</span> <span class="pre">0]</span></code> and
@@ -225,19 +225,19 @@ slope in degrees at the endpoints). The curve passes through <code class="docuti
 </dl>
 <p class="rubric">Examples</p>
 <p>A hanging arch, stroked into a 2-mm ribbon and extruded into a wall:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">catenary</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
-<span class="n">catenary</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">droop</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">Path2D</span><span class="o">.</span><span class="n">catenary</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">droop</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-7f9258f294ba4c89a028ce558f60ba4d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-e087f60395654b81bc9887f655113da1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-7f9258f294ba4c89a028ce558f60ba4d");
+const el = document.getElementById("stlviewer-e087f60395654b81bc9887f655113da1");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -260,7 +260,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/357b735fd305ceb9.stl", function (geo) {
+new STLLoader().load("_stl/149fce030e3c94bc.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -280,13 +280,13 @@ new STLLoader().load("_stl/357b735fd305ceb9.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/357b735fd305ceb9.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/149fce030e3c94bc.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 </section>
 <section id="helix">
 <h2>Helix<a class="headerlink" href="#helix" title="Link to this heading">¶</a></h2>
-<p><code class="xref py py-func docutils literal notranslate"><span class="pre">pybosl2.path3d.helix()</span></code> — see the <a class="reference internal" href="paths.html"><span class="doc">Paths</span></a> reference for full documentation.</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.path3d.Path3D.helix()</span></code> — see the <a class="reference internal" href="paths.html"><span class="doc">Paths</span></a> reference for full documentation.</p>
 </section>
 <section id="d-turtle">
 <h2>2-D Turtle<a class="headerlink" href="#d-turtle" title="Link to this heading">¶</a></h2>
@@ -333,13 +333,13 @@ the state via <code class="xref py py-meth docutils literal notranslate"><span c
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-1cf3f9a7a0c540cfb6d6f7b813b6d684" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-440c450507da4186b97f5370ebe3d524" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-1cf3f9a7a0c540cfb6d6f7b813b6d684");
+const el = document.getElementById("stlviewer-440c450507da4186b97f5370ebe3d524");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -421,11 +421,11 @@ window.addEventListener("resize", resize);
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">catenary</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.path2d.catenary" title="pybosl2.path2d.catenary"><code class="xref py py-func docutils literal notranslate"><span class="pre">catenary()</span></code></a> — by <code class="docutils literal notranslate"><span class="pre">droop=</span></code> or endpoint <code class="docutils literal notranslate"><span class="pre">angle=</span></code>.</p></td>
+<td><p><a class="reference internal" href="#pybosl2.path2d.Path2D.catenary" title="pybosl2.path2d.Path2D.catenary"><code class="xref py py-meth docutils literal notranslate"><span class="pre">catenary()</span></code></a> — by <code class="docutils literal notranslate"><span class="pre">droop=</span></code> or endpoint <code class="docutils literal notranslate"><span class="pre">angle=</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">helix</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">helix()</span></code> — returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code> (conical/flat spirals
+<td><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">helix()</span></code> — returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code> (conical/flat spirals
 included).</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">turtle</span></code></p></td>

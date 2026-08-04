@@ -162,24 +162,38 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="c1"># Import base class and helper functions from shapes2d.base</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AnchorType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">anchor_offset_generic</span> <span class="k">as</span> <span class="n">_anchor_offset_generic</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">anchor_offset_hull</span> <span class="k">as</span> <span class="n">_anchor_offset_hull</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">circle_pts</span> <span class="k">as</span> <span class="n">_circle_pts</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">rotate2d</span> <span class="k">as</span> <span class="n">_rotate2d</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
-<span class="c1"># Import base class and helper functions from shapes2d.base</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AnchorType</span><span class="p">,</span>
     <span class="n">Bosl2Shape2D</span><span class="p">,</span>
-    <span class="n">_anchor_offset_generic</span><span class="p">,</span>
-    <span class="n">_anchor_offset_hull</span><span class="p">,</span>
     <span class="n">_arc_between_points</span><span class="p">,</span>
     <span class="n">_arc_through_3</span><span class="p">,</span>
     <span class="n">_circle_circle_intersection</span><span class="p">,</span>
-    <span class="n">_circle_pts</span><span class="p">,</span>
     <span class="n">_finish</span><span class="p">,</span>
-    <span class="n">_frag_count</span><span class="p">,</span>
-    <span class="n">_pick_radius</span><span class="p">,</span>
-    <span class="n">_rotate2d</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>

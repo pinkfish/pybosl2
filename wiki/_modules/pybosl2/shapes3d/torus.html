@@ -165,8 +165,9 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span><span class="p">,</span> <span class="n">DOWN</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frag_count</span><span class="p">,</span> <span class="n">_pick_radius</span>
 
 <span class="c1"># Import base class and helper functions from shapes3d.base</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -238,7 +239,10 @@
 
 <span class="sd">            s3.pie_slice(radius=20, angle=120, height=5).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_arc_points</span><span class="p">,</span> <span class="n">_opolygon</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
+
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">length</span> <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">rad1</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -319,7 +323,10 @@
 <span class="sd">            shape = torus(major_radius=25, minor_radius=8)</span>
 <span class="sd">            shape.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_arc_points</span><span class="p">,</span> <span class="n">_opolygon</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
+
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
 
     <span class="n">_or</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">_ir</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>

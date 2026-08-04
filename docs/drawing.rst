@@ -9,12 +9,12 @@ Arc & catenary
 
 .. autofunction:: pybosl2.shapes2d.arc
 
-.. autofunction:: pybosl2.path2d.catenary
+.. automethod:: pybosl2.path2d.Path2D.catenary
 
 Helix
 -----
 
-:func:`pybosl2.path3d.helix` — see the :doc:`paths` reference for full documentation.
+:meth:`pybosl2.path3d.Path3D.helix` — see the :doc:`paths` reference for full documentation.
 
 2-D Turtle
 ----------
@@ -53,10 +53,10 @@ Coverage of BOSL2 ``drawing.scad``
        ``long``/``cw``/``ccw``, three-point, ``corner=``, and ``wedge=``). 3-D arcs are not ported.
    * - ``catenary``
      - ported
-     - :func:`~pybosl2.path2d.catenary` — by ``droop=`` or endpoint ``angle=``.
+     - :meth:`~pybosl2.path2d.Path2D.catenary` — by ``droop=`` or endpoint ``angle=``.
    * - ``helix``
      - ported
-     - :func:`~pybosl2.path3d.helix` — returns a :class:`~pybosl2.path3d.Path3D` (conical/flat spirals
+     - :meth:`~pybosl2.path3d.Path3D.helix` — returns a :class:`~pybosl2.path3d.Path3D` (conical/flat spirals
        included).
    * - ``turtle``
      - ported

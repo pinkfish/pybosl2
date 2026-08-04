@@ -170,6 +170,8 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.distributors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Distributable</span>
@@ -184,87 +186,10 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.rounding</span><span class="w"> </span><span class="kn">import</span> <span class="n">Roundable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frag_count</span><span class="p">,</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sweepable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Path3D&quot;</span><span class="p">,</span> <span class="s2">&quot;helix&quot;</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="helix">
-<a class="viewcode-back" href="../../paths.html#pybosl2.path3d.helix">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">helix</span><span class="p">(</span>
-    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">turns</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path3D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 3-D helical path on a (possibly conical) surface -- BOSL2&#39;s ``helix()``.</span>
-
-<span class="sd">    Returned as a :class:`~pybosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D</span>
-<span class="sd">    transforms/measurements and feeds straight into :func:`stroke` or ``path_sweep``. Give</span>
-<span class="sd">    exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*</span>
-<span class="sd">    is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat</span>
-<span class="sd">    spiral is ``height=0`` with a turn count).</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        length: Height of the helix (0 for a flat spiral).</span>
-<span class="sd">        height: Height of the helix (0 for a flat spiral).</span>
-<span class="sd">        turns: Number of turns (positive = right-handed).</span>
-<span class="sd">        angle: Helix angle in degrees (measured at the base radius).</span>
-<span class="sd">        radius: Radius for a constant-radius helix.</span>
-<span class="sd">        radius1: Bottom radius.</span>
-<span class="sd">        radius2: Top radius.</span>
-<span class="sd">        diameter: Diameter for a constant-radius helix.</span>
-<span class="sd">        diameter1: Bottom diameter.</span>
-<span class="sd">        diameter2: Top diameter.</span>
-
-<span class="sd">    Examples:</span>
-<span class="sd">        A 2.5-turn helix drawn as a tube:</span>
-
-<span class="sd">        .. pythonscad-example::</span>
-
-<span class="sd">            from pybosl2 import helix, stroke</span>
-
-<span class="sd">            stroke(helix(turns=2.5, height=100, radius=30), width=3).show()</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">r1v</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">r2v</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="n">length</span> <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">height</span>
-    <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">turns</span><span class="p">,</span> <span class="n">angle</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span>
-        <span class="s2">&quot;helix() needs exactly two of length/height, turns, and angle.&quot;</span>
-    <span class="p">)</span>
-    <span class="k">assert</span> <span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">length</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;helix() cannot take an angle with length 0.&quot;</span>
-    <span class="k">if</span> <span class="n">angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">dz</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r1v</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">turns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># else-branch only reached with both set</span>
-        <span class="n">dz</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">turns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">maxtheta</span> <span class="o">=</span> <span class="mf">360.0</span> <span class="o">*</span> <span class="n">turns</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">maxtheta</span> <span class="o">=</span> <span class="mf">360.0</span> <span class="o">*</span> <span class="n">length</span> <span class="o">/</span> <span class="n">dz</span>
-    <span class="n">nseg</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">r1v</span><span class="p">,</span> <span class="n">r2v</span><span class="p">))</span>
-    <span class="n">count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">maxtheta</span><span class="p">)</span> <span class="o">*</span> <span class="n">nseg</span> <span class="o">/</span> <span class="mi">360</span><span class="p">))</span>
-    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">theta</span> <span class="ow">in</span> <span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxtheta</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
-        <span class="n">radius</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">r1v</span><span class="p">,</span> <span class="n">r2v</span><span class="p">,</span> <span class="n">theta</span> <span class="o">/</span> <span class="n">maxtheta</span><span class="p">)</span> <span class="k">if</span> <span class="n">maxtheta</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">r1v</span>  <span class="c1"># type: ignore[assignment]</span>
-        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">theta</span><span class="p">)),</span>  <span class="c1"># type: ignore[operator]</span>
-                <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">theta</span><span class="p">)),</span>  <span class="c1"># type: ignore[operator]</span>
-                <span class="nb">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">/</span> <span class="mf">360.0</span> <span class="o">*</span> <span class="n">dz</span><span class="p">,</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">Path3D</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
-
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Path3D&quot;</span><span class="p">]</span>
 
 
 <span class="c1"># Section: Path3D object</span>
@@ -309,6 +234,83 @@
             <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Path3D needs float64 points, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">pts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="n">closed</span>
+
+<div class="viewcode-block" id="Path3D.helix">
+<a class="viewcode-back" href="../../paths.html#pybosl2.path3d.Path3D.helix">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">helix</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">turns</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path3D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A 3-D helical path on a (possibly conical) surface -- BOSL2&#39;s ``helix()``.</span>
+
+<span class="sd">        Returned as a :class:`~pybosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D</span>
+<span class="sd">        transforms/measurements and feeds straight into stroke or ``path_sweep``. Give</span>
+<span class="sd">        exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*</span>
+<span class="sd">        is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat</span>
+<span class="sd">        spiral is ``height=0`` with a turn count).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            length: Height of the helix (0 for a flat spiral).</span>
+<span class="sd">            height: Height of the helix (0 for a flat spiral).</span>
+<span class="sd">            turns: Number of turns (positive = right-handed).</span>
+<span class="sd">            angle: Helix angle in degrees (measured at the base radius).</span>
+<span class="sd">            radius: Radius for a constant-radius helix.</span>
+<span class="sd">            radius1: Bottom radius.</span>
+<span class="sd">            radius2: Top radius.</span>
+<span class="sd">            diameter: Diameter for a constant-radius helix.</span>
+<span class="sd">            diameter1: Bottom diameter.</span>
+<span class="sd">            diameter2: Top diameter.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            A 2.5-turn helix drawn as a tube:</span>
+
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path3D</span>
+
+<span class="sd">                Path3D.helix(turns=2.5, height=100, radius=30).stroke(width=3).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r1v</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">r2v</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">length</span> <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">height</span>
+        <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">turns</span><span class="p">,</span> <span class="n">angle</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;helix() needs exactly two of length/height, turns, and angle.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">length</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;helix() cannot take an angle with length 0.&quot;</span>
+        <span class="k">if</span> <span class="n">angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">dz</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">r1v</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">turns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># else-branch only reached with both set</span>
+            <span class="n">dz</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">turns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">maxtheta</span> <span class="o">=</span> <span class="mf">360.0</span> <span class="o">*</span> <span class="n">turns</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">maxtheta</span> <span class="o">=</span> <span class="mf">360.0</span> <span class="o">*</span> <span class="n">length</span> <span class="o">/</span> <span class="n">dz</span>
+        <span class="n">nseg</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">r1v</span><span class="p">,</span> <span class="n">r2v</span><span class="p">))</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">maxtheta</span><span class="p">)</span> <span class="o">*</span> <span class="n">nseg</span> <span class="o">/</span> <span class="mi">360</span><span class="p">))</span>
+        <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">theta</span> <span class="ow">in</span> <span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxtheta</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">r1v</span><span class="p">,</span> <span class="n">r2v</span><span class="p">,</span> <span class="n">theta</span> <span class="o">/</span> <span class="n">maxtheta</span><span class="p">)</span> <span class="k">if</span> <span class="n">maxtheta</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">r1v</span>  <span class="c1"># type: ignore[assignment]</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">theta</span><span class="p">)),</span>  <span class="c1"># type: ignore[operator]</span>
+                    <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">theta</span><span class="p">)),</span>  <span class="c1"># type: ignore[operator]</span>
+                    <span class="nb">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">/</span> <span class="mf">360.0</span> <span class="o">*</span> <span class="n">dz</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
@@ -1469,12 +1471,12 @@
 <span class="sd">                path3d.stroke(width=2).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_backend</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">_normalize_one</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">normalize_one</span>
 
         <span class="n">ec1_raw</span> <span class="o">=</span> <span class="n">endcap1</span> <span class="k">if</span> <span class="n">endcap1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">endcaps</span>
         <span class="n">ec2_raw</span> <span class="o">=</span> <span class="n">endcap2</span> <span class="k">if</span> <span class="n">endcap2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">endcaps</span>
-        <span class="n">ec1</span> <span class="o">=</span> <span class="n">ec1_raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ec1_raw</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">)</span> <span class="k">else</span> <span class="n">_normalize_one</span><span class="p">(</span><span class="n">ec1_raw</span><span class="p">)</span>
-        <span class="n">ec2</span> <span class="o">=</span> <span class="n">ec2_raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ec2_raw</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">)</span> <span class="k">else</span> <span class="n">_normalize_one</span><span class="p">(</span><span class="n">ec2_raw</span><span class="p">)</span>
+        <span class="n">ec1</span> <span class="o">=</span> <span class="n">ec1_raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ec1_raw</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">)</span> <span class="k">else</span> <span class="n">normalize_one</span><span class="p">(</span><span class="n">ec1_raw</span><span class="p">)</span>
+        <span class="n">ec2</span> <span class="o">=</span> <span class="n">ec2_raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ec2_raw</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">)</span> <span class="k">else</span> <span class="n">normalize_one</span><span class="p">(</span><span class="n">ec2_raw</span><span class="p">)</span>
 
         <span class="n">backend_name</span> <span class="o">=</span> <span class="n">current_backend</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">backend_name</span> <span class="o">!=</span> <span class="s2">&quot;csg&quot;</span><span class="p">:</span>

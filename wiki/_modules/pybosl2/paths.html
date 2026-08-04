@@ -199,7 +199,7 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CutPoint&quot;</span><span class="p">,</span> <span class="s2">&quot;Path&quot;</span><span class="p">,</span> <span class="s2">&quot;SubdivideMethod&quot;</span><span class="p">,</span> <span class="s2">&quot;stroke&quot;</span><span class="p">,</span> <span class="s2">&quot;dashed_stroke&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CutPoint&quot;</span><span class="p">,</span> <span class="s2">&quot;Path&quot;</span><span class="p">,</span> <span class="s2">&quot;SubdivideMethod&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="SubdivideMethod">
@@ -696,65 +696,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 </div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_make_path</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">dim</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">2</span>
-    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
-
-        <span class="k">return</span> <span class="n">Path3D</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
-
-        <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="stroke">
-<a class="viewcode-back" href="../../paths.html#pybosl2.paths.stroke">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">stroke</span><span class="p">(</span>
-    <span class="n">path</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">endcaps</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
-    <span class="n">endcap1</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
-    <span class="n">endcap2</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
-    <span class="n">joints</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render the path/region as a stroked polygon outline (2-D) or solid tube (3-D).&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">_make_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span>
-        <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
-        <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
-        <span class="n">endcaps</span><span class="o">=</span><span class="n">endcaps</span><span class="p">,</span>
-        <span class="n">endcap1</span><span class="o">=</span><span class="n">endcap1</span><span class="p">,</span>
-        <span class="n">endcap2</span><span class="o">=</span><span class="n">endcap2</span><span class="p">,</span>
-        <span class="n">joints</span><span class="o">=</span><span class="n">joints</span><span class="p">,</span>
-    <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="dashed_stroke">
-<a class="viewcode-back" href="../../paths.html#pybosl2.paths.dashed_stroke">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">dashed_stroke</span><span class="p">(</span>
-    <span class="n">path</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-    <span class="n">dashpat</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">fit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">mindash</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Break the path/region into dashed segments and stroke them.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">_make_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">dashed_stroke</span><span class="p">(</span>
-        <span class="n">dashpat</span><span class="o">=</span><span class="n">dashpat</span><span class="p">,</span>
-        <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
-        <span class="n">fit</span><span class="o">=</span><span class="n">fit</span><span class="p">,</span>
-        <span class="n">mindash</span><span class="o">=</span><span class="n">mindash</span><span class="p">,</span>
-    <span class="p">)</span></div>
 
 </pre></div>
 

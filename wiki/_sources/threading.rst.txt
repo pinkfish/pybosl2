@@ -208,4 +208,4 @@ A single thread ridge, swept as a helix:
 .. pythonscad-example::
 
    from pybosl2.parts.threading import Threading
-   Threading.thread_helix(diameter=10, pitch=2, thread_depth=0.75, flank_angle=15, turns=2.5).show()
+   Threading.thread_helix(d=10, pitch=2, thread_depth=0.75, flank_angle=15, turns=2.5).show()

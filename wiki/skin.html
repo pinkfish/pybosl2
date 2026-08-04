@@ -157,12 +157,11 @@
 <li class="ps-meth"><a href="#pybosl2.skin.Sweepable.linear_sweep">.linear_sweep</a></li>
 <li class="ps-meth"><a href="#pybosl2.skin.Sweepable.rotate_sweep">.rotate_sweep</a></li>
 <li class="ps-meth"><a href="#pybosl2.skin.Sweepable.spiral_sweep">.spiral_sweep</a></li>
+<li class="ps-meth"><a href="#pybosl2.skin.Sweepable.sweep">.sweep</a></li>
 <li class="ps-func"><a href="#pybosl2.skin.path3d">path3d</a></li>
 <li class="ps-func"><a href="#pybosl2.skin.clockwise_polygon">clockwise_polygon</a></li>
 <li class="ps-func"><a href="#pybosl2.skin.frame_map">frame_map</a></li>
-<li class="ps-func"><a href="#pybosl2.skin.sweep">sweep</a></li>
 <li class="ps-func"><a href="#pybosl2.skin.slice_profiles">slice_profiles</a></li>
-<li class="ps-func"><a href="#pybosl2.skin.skin">skin</a></li>
 <li class="ps-func"><a href="#pybosl2.skin.subdivide_and_slice">subdivide_and_slice</a></li>
 <li class="ps-class"><a href="#pybosl2.skin.OSType"><strong>OSType</strong></a></li>
 <li class="ps-class"><a href="#pybosl2.skin.OSProfile"><strong>OSProfile</strong></a></li>
@@ -196,7 +195,7 @@
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sweep(shape,</span> <span class="pre">transforms)</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.skin.sweep" title="pybosl2.skin.sweep"><code class="xref py py-func docutils literal notranslate"><span class="pre">sweep()</span></code></a></p></td>
+<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">sweep()</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">path_sweep(shape,</span> <span class="pre">path)</span></code></p></td>
 <td><p>ported</p></td>
@@ -206,7 +205,7 @@ tangents, and the <code class="docutils literal notranslate"><span class="pre">t
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">skin(profiles,</span> <span class="pre">slices)</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.skin.skin" title="pybosl2.skin.skin"><code class="xref py py-func docutils literal notranslate"><span class="pre">skin()</span></code></a> — <code class="docutils literal notranslate"><span class="pre">direct</span></code> and <code class="docutils literal notranslate"><span class="pre">reindex</span></code> methods</p></td>
+<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">skin()</span></code> — <code class="docutils literal notranslate"><span class="pre">direct</span></code> and <code class="docutils literal notranslate"><span class="pre">reindex</span></code> methods</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">linear_sweep(region,</span> <span class="pre">h)</span></code></p></td>
 <td><p>ported</p></td>
@@ -227,12 +226,12 @@ handled up to the path’s tightest radius)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rot_resample(rotlist,</span> <span class="pre">n)</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.skin.skin" title="pybosl2.skin.skin"><code class="xref py py-func docutils literal notranslate"><span class="pre">skin()</span></code></a> — resample a transform list along its screw motion, with
+<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">skin()</span></code> — resample a transform list along its screw motion, with
 <code class="docutils literal notranslate"><span class="pre">rot_decode</span></code> / <code class="docutils literal notranslate"><span class="pre">rot_inverse</span></code> in <a class="reference internal" href="transforms.html#module-pybosl2.transforms" title="pybosl2.transforms"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pybosl2.transforms</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_and_slice</span></code> / <code class="docutils literal notranslate"><span class="pre">slice_profiles</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.skin.skin" title="pybosl2.skin.skin"><code class="xref py py-func docutils literal notranslate"><span class="pre">skin()</span></code></a>, <a class="reference internal" href="#pybosl2.skin.skin" title="pybosl2.skin.skin"><code class="xref py py-func docutils literal notranslate"><span class="pre">skin()</span></code></a></p></td>
+<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">skin()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">skin()</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">skin()</span></code> <code class="docutils literal notranslate"><span class="pre">distance</span></code> / <code class="docutils literal notranslate"><span class="pre">tangent</span></code> methods</p></td>
 <td><p>not ported</p></td>
@@ -391,6 +390,27 @@ handled up to the path’s tightest radius)</p></td>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pybosl2.skin.Sweepable.sweep">
+<span class="sig-name descname"><span class="pre">sweep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.BUTT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min_edge'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/skin.html#Sweepable.sweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.skin.Sweepable.sweep" title="Link to this definition">¶</a></dt>
+<dd><p>Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF
+or Bosl2Solid (BOSL2 sweep()).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<em>Path2D</em>)</p></li>
+<li><p><strong>transforms</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>)</p></li>
+<li><p><strong>caps</strong> (<em>CapsSpec</em>)</p></li>
+<li><p><strong>style</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -445,29 +465,6 @@ pybosl2/paths.py).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.skin.sweep">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.skin.</span></span><span class="sig-name descname"><span class="pre">sweep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.BUTT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min_edge'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/skin.html#sweep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.skin.sweep" title="Link to this definition">¶</a></dt>
-<dd><p>Apply each 4x4 transform to the 2-D <em>shape</em> and skin the resulting profiles into a VNF or Bosl2Solid.</p>
-<p>Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>
-with the endcap geometry unioned to the swept body. Basic caps (NONE, BUTT, ROUND, SPHERE)
-are handled inline by <code class="xref py py-class docutils literal notranslate"><span class="pre">VNF.vertex_array</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>shape</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>) – a 2-D polygon (list of [x, y] points)</p></li>
-<li><p><strong>transforms</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em><em>]</em>) – list of 4x4 matrices, one per cross section along the path</p></li>
-<li><p><strong>closed</strong> (<em>bool</em>) – the sweep loops back on itself (no caps)</p></li>
-<li><p><strong>caps</strong> (<em>CapsSpec</em>) – cap the open ends (default: BUTT); supports decorative cap types</p></li>
-<li><p><strong>style</strong> (<em>str</em>) – vnf_vertex_array quad-subdivision style</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="pybosl2.skin.slice_profiles">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.skin.</span></span><span class="sig-name descname"><span class="pre">slice_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/skin.html#slice_profiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.skin.slice_profiles" title="Link to this definition">¶</a></dt>
 <dd><p>Interpolate <em>slices</em> extra profiles between each consecutive pair (BOSL2 slice_profiles()).</p>
@@ -485,99 +482,6 @@ lists; the interpolation is vertex-by-vertex.</p>
 <dd class="field-even"><p>list[list[list[float]]]</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.skin.skin">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.skin.</span></span><span class="sig-name descname"><span class="pre">skin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'direct'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">CapType.BUTT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'min_edge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/skin.html#skin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.skin.skin" title="Link to this definition">¶</a></dt>
-<dd><p>Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.</p>
-<p>Consecutive profiles are connected vertex-to-vertex; <em>slices</em> extra interpolated profiles are
-inserted between each pair to smooth the transition. Profiles of differing point counts are
-resampled up to the largest (via <code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.subdivide_path()</span></code>).</p>
-<p>Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>
-with the endcap geometry unioned to the body.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>profiles</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em><em>]</em>) – list of &gt;= 2 closed profiles (each a list of points). If 2-D, give matching <em>z</em>.</p></li>
-<li><p><strong>slices</strong> (<em>int</em>) – number of interpolated profiles inserted between each pair (int or per-gap list)</p></li>
-<li><p><strong>refine</strong> (<em>float</em>) – subdivide every profile by this factor before skinning (default 1)</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – “direct” (connect vertex i to vertex i) or “reindex” (rotate each profile to
-best-align with the previous). The “distance”/”tangent” vertex-matching methods
-are not ported.</p></li>
-<li><p><strong>sampling</strong> (<em>str</em><em> | </em><em>None</em>) – “length” or “segment” resampling (default “length”)</p></li>
-<li><p><strong>caps</strong> (<em>CapsSpec</em>) – cap the ends; supports decorative cap types</p></li>
-<li><p><strong>closed</strong> (<em>bool</em>) – the stack loops back to the first profile (default False)</p></li>
-<li><p><strong>style</strong> (<em>str</em>) – vnf_vertex_array quad-subdivision style</p></li>
-<li><p><strong>z</strong> (<em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – per-profile Z heights, required when the profiles are 2-D</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF">VNF</a> | Bosl2Solid</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>Skinning a round profile up to a square one (a lofted transition):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">skin</span>
-
-<span class="n">circle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">6</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
-<span class="n">square</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">]]</span>
-<span class="n">skin</span><span class="p">([</span><span class="n">circle</span><span class="p">,</span> <span class="n">square</span><span class="p">],</span> <span class="n">slices</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;reindex&quot;</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-
-<div class="stl-viewer" id="stlviewer-f650aeaaee4a4b0cb03f1f527ea8fdad" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-f650aeaaee4a4b0cb03f1f527ea8fdad");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/140d48168822d568.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/140d48168822d568.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -874,7 +778,7 @@ relative to the vertical wall, allowing support-free printing.</p>
 <dd><p>Resample a list of 4x4 transforms to uniform screw-motion spacing (BOSL2 rot_resample()).</p>
 <p>Interpolates between successive transforms along their screw motion (via <code class="xref py py-func docutils literal notranslate"><span class="pre">rot_decode()</span></code>),
 optionally adding <em>twist</em> and <em>scale</em> (smoothed over <em>smoothlen</em>). Handy for regularizing the
-transform list from <code class="docutils literal notranslate"><span class="pre">path_sweep(...,</span> <span class="pre">transforms=True)</span></code> before handing it to <a class="reference internal" href="#pybosl2.skin.sweep" title="pybosl2.skin.sweep"><code class="xref py py-func docutils literal notranslate"><span class="pre">sweep()</span></code></a>.</p>
+transform list from <code class="docutils literal notranslate"><span class="pre">path_sweep(...,</span> <span class="pre">transforms=True)</span></code> before handing it to <code class="xref py py-func docutils literal notranslate"><span class="pre">sweep()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

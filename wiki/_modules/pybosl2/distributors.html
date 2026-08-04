@@ -189,7 +189,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">_BaseShape</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseShape</span> <span class="k">as</span> <span class="n">BaseShape</span>
 
 <span class="n">_CopyType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CopyType&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Distributable&quot;</span><span class="p">)</span>
 
@@ -1034,12 +1034,12 @@
 <a class="viewcode-back" href="../../distributors.html#pybosl2.distributors.Distributable.distribute">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">distribute</span><span class="p">(</span>
-        <span class="n">children</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_BaseShape</span><span class="p">],</span>
+        <span class="n">children</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseShape</span><span class="p">],</span>
         <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="nb">dir</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">=</span> <span class="n">RIGHT</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
         <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseShape</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Space a list of distinct objects along *dir* so they don&#39;t overlap.</span>
 
 <span class="sd">        Unlike the copiers, this lays out several different children.</span>
@@ -1093,11 +1093,11 @@
 <div class="viewcode-block" id="xdistribute">
 <a class="viewcode-back" href="../../distributors.html#pybosl2.distributors.xdistribute">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">xdistribute</span><span class="p">(</span>
-    <span class="n">children</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_BaseShape</span><span class="p">],</span>
+    <span class="n">children</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseShape</span><span class="p">],</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseShape</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Distribute distinct children along the X axis (BOSL2 xdistribute()).</span>
 
 <span class="sd">    Examples:</span>
@@ -1115,11 +1115,11 @@
 <div class="viewcode-block" id="ydistribute">
 <a class="viewcode-back" href="../../distributors.html#pybosl2.distributors.ydistribute">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ydistribute</span><span class="p">(</span>
-    <span class="n">children</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_BaseShape</span><span class="p">],</span>
+    <span class="n">children</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseShape</span><span class="p">],</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseShape</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Distribute distinct children along the Y axis (BOSL2 ydistribute()).&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Distributable</span><span class="o">.</span><span class="n">distribute</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">sizes</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">BACK</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">)</span></div>
 
@@ -1128,11 +1128,11 @@
 <div class="viewcode-block" id="zdistribute">
 <a class="viewcode-back" href="../../distributors.html#pybosl2.distributors.zdistribute">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">zdistribute</span><span class="p">(</span>
-    <span class="n">children</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_BaseShape</span><span class="p">],</span>
+    <span class="n">children</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseShape</span><span class="p">],</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseShape</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Distribute distinct children along the Z axis (BOSL2 zdistribute()).&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Distributable</span><span class="o">.</span><span class="n">distribute</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">sizes</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">UP</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">)</span></div>
 

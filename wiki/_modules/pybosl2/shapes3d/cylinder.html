@@ -166,8 +166,10 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.texture</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextureType</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantup</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span><span class="p">,</span> <span class="n">CENTER</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frag_count</span><span class="p">,</span> <span class="n">_pick_radius</span>
 
 <span class="c1"># Import base class and helper functions from shapes3d.base</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -176,7 +178,6 @@
     <span class="n">_finish3</span><span class="p">,</span>
     <span class="n">_ocylinder</span><span class="p">,</span>
     <span class="n">_osphere</span><span class="p">,</span>
-    <span class="n">_quantup</span><span class="p">,</span>
     <span class="n">_resolve_center_anchor</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -424,13 +425,13 @@
         <span class="c1"># Straight cylinder, uniform rounding on both ends: exact via minkowski(cylinder, sphere).</span>
         <span class="n">inner_r</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">rad1</span> <span class="o">-</span> <span class="n">r1v</span><span class="p">)</span>
         <span class="n">inner_l</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">length_val</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">r1v</span><span class="p">)</span>
-        <span class="n">sphere_fn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">r1v</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">sphere_fn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">r1v</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">))</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">_ominkowski</span><span class="p">(</span>
             <span class="n">_ocylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">inner_l</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">inner_r</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">),</span>
             <span class="n">_osphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">r1v</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">sphere_fn</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">profile</span> <span class="o">=</span> <span class="n">_cyl_profile</span><span class="p">(</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="n">cyl_profile</span><span class="p">(</span>
             <span class="n">rad1</span><span class="p">,</span>
             <span class="n">rad2</span><span class="p">,</span>
             <span class="n">length_val</span><span class="p">,</span>
@@ -448,7 +449,9 @@
             <span class="n">teardrop</span><span class="o">=</span><span class="n">teardrop</span><span class="p">,</span>
             <span class="n">clip_angle</span><span class="o">=</span><span class="n">clip_angle</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_opolygon</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
+
+        <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
 
         <span class="n">shape</span> <span class="o">=</span> <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
 
@@ -482,7 +485,9 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_cyl_profile</span><span class="p">(</span>
+<div class="viewcode-block" id="cyl_profile">
+<a class="viewcode-back" href="../../../cylinder.html#pybosl2.shapes3d.cylinder.cyl_profile">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cyl_profile</span><span class="p">(</span>
     <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -500,7 +505,7 @@
     <span class="n">teardrop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">clip_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">90.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_arc_points</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
 
     <span class="n">eff_clip</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">clip_angle</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">teardrop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -548,7 +553,8 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">radius2</span><span class="p">,</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
     <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
 
 
 <div class="viewcode-block" id="xcyl">

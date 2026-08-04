@@ -200,84 +200,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sweepable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="s2">&quot;MinkowskiJoin&quot;</span><span class="p">,</span> <span class="s2">&quot;catenary&quot;</span><span class="p">,</span> <span class="s2">&quot;SelfIntersection&quot;</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="catenary">
-<a class="viewcode-back" href="../../drawing.html#pybosl2.path2d.catenary">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">catenary</span><span class="p">(</span>
-    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">droop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
-    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.</span>
-
-<span class="sd">    Give exactly one of *droop* (how far the middle hangs below the endpoints) or *angle* (the</span>
-<span class="sd">    slope in degrees at the endpoints). The curve passes through ``[-width/2, 0]`` and</span>
-<span class="sd">    ``[width/2, 0]`` and hangs downward (negative *droop*/*angle* flips it upward). This is BOSL2&#39;s</span>
-<span class="sd">    ``catenary()``.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        width: horizontal distance between the endpoints (&gt; 0)</span>
-<span class="sd">        droop: how far the midpoint hangs below the endpoints (give this or *angle*)</span>
-<span class="sd">        sides:     number of points along the curve (default 100)</span>
-<span class="sd">        angle: endpoint slope in degrees, ``0 &lt; |angle| &lt; 90`` (give this or *droop*)</span>
-
-<span class="sd">    Examples:</span>
-<span class="sd">        A hanging arch, stroked into a 2-mm ribbon and extruded into a wall:</span>
-
-<span class="sd">        .. pythonscad-example::</span>
-
-<span class="sd">            from pybosl2 import catenary</span>
-
-<span class="sd">            catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="p">(</span><span class="n">droop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;catenary() needs exactly one of droop= or angle=&quot;</span>
-    <span class="k">assert</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;catenary() needs width &gt; 0.&quot;</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;catenary() needs a positive integer sides.&quot;</span>
-    <span class="n">given</span> <span class="o">=</span> <span class="n">droop</span> <span class="k">if</span> <span class="n">droop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">angle</span>
-    <span class="k">assert</span> <span class="n">given</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-    <span class="n">sgn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">given</span><span class="p">))</span>
-    <span class="n">droop_a</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">droop</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">droop</span><span class="p">)</span>
-    <span class="n">angle_a</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">angle_a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">angle_a</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">),</span> <span class="s2">&quot;catenary() angle must satisfy 0 &lt; |angle| &lt; 90.&quot;</span>
-
-    <span class="k">if</span> <span class="n">droop_a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># solve for the scale that gives the requested endpoint slope</span>
-        <span class="k">assert</span> <span class="n">angle_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">slope_fn</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-            <span class="n">p1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="n">p2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">))</span>
-
-        <span class="n">target</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">angle_a</span><span class="p">,</span> <span class="n">slope_fn</span>
-    <span class="k">else</span><span class="p">:</span>  <span class="c1"># solve for the scale that gives the requested droop</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">droop_fn</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
-
-        <span class="n">target</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">droop_a</span> <span class="o">/</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">droop_fn</span>
-
-    <span class="c1"># binary search on x for f(x) == target (f is monotonic increasing away from 0)</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">inc</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span>
-    <span class="k">while</span> <span class="n">inc</span> <span class="o">&gt;=</span> <span class="mf">1e-9</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">inc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">target</span><span class="p">:</span>
-            <span class="n">inc</span> <span class="o">/=</span> <span class="mi">2</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">x</span> <span class="o">+=</span> <span class="n">inc</span>
-    <span class="n">scx</span> <span class="o">=</span> <span class="n">x</span>
-    <span class="n">sc</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">scx</span>
-    <span class="n">droop_v</span> <span class="o">=</span> <span class="n">droop_a</span> <span class="k">if</span> <span class="n">droop_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">scx</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sc</span>
-    <span class="n">pts</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">xv</span> <span class="ow">in</span> <span class="n">lerpn</span><span class="p">(</span><span class="o">-</span><span class="n">scx</span><span class="p">,</span> <span class="n">scx</span><span class="p">,</span> <span class="n">sides</span><span class="p">):</span>
-        <span class="n">xval</span> <span class="o">=</span> <span class="n">xv</span> <span class="o">*</span> <span class="n">sc</span>
-        <span class="n">yval</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">xv</span><span class="p">)</span> <span class="o">-</span> <span class="n">scx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span> <span class="k">else</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">xv</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sc</span> <span class="o">-</span> <span class="n">droop_v</span>
-        <span class="n">pts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">xval</span><span class="p">,</span> <span class="n">yval</span><span class="p">])</span>
-    <span class="k">if</span> <span class="n">sgn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
-
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="s2">&quot;MinkowskiJoin&quot;</span><span class="p">,</span> <span class="s2">&quot;SelfIntersection&quot;</span><span class="p">]</span>
 
 
 <span class="c1"># Section: Path2D object</span>
@@ -370,6 +293,81 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_geom</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_geom</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">catenary</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">droop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.</span>
+
+<span class="sd">        Give exactly one of *droop* (how far the middle hangs below the endpoints) or *angle* (the</span>
+<span class="sd">        slope in degrees at the endpoints). The curve passes through ``[-width/2, 0]`` and</span>
+<span class="sd">        ``[width/2, 0]`` and hangs downward (negative *droop*/*angle* flips it upward). This is BOSL2&#39;s</span>
+<span class="sd">        ``catenary()``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            width: horizontal distance between the endpoints (&gt; 0)</span>
+<span class="sd">            droop: how far the midpoint hangs below the endpoints (give this or *angle*)</span>
+<span class="sd">            sides:     number of points along the curve (default 100)</span>
+<span class="sd">            angle: endpoint slope in degrees, ``0 &lt; |angle| &lt; 90`` (give this or *droop*)</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            A hanging arch, stroked into a 2-mm ribbon and extruded into a wall:</span>
+
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path2D</span>
+
+<span class="sd">                Path2D.catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">droop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;catenary() needs exactly one of droop= or angle=&quot;</span>
+        <span class="k">assert</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;catenary() needs width &gt; 0.&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;catenary() needs a positive integer sides.&quot;</span>
+        <span class="n">given</span> <span class="o">=</span> <span class="n">droop</span> <span class="k">if</span> <span class="n">droop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">angle</span>
+        <span class="k">assert</span> <span class="n">given</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">sgn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">given</span><span class="p">))</span>
+        <span class="n">droop_a</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">droop</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">droop</span><span class="p">)</span>
+        <span class="n">angle_a</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">angle_a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">angle_a</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">),</span> <span class="s2">&quot;catenary() angle must satisfy 0 &lt; |angle| &lt; 90.&quot;</span>
+
+        <span class="k">if</span> <span class="n">droop_a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># solve for the scale that gives the requested endpoint slope</span>
+            <span class="k">assert</span> <span class="n">angle_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">slope_fn</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">))</span>
+
+            <span class="n">target</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">angle_a</span><span class="p">,</span> <span class="n">slope_fn</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># solve for the scale that gives the requested droop</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">droop_fn</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+            <span class="n">target</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">droop_a</span> <span class="o">/</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">droop_fn</span>
+
+        <span class="c1"># binary search on x for f(x) == target (f is monotonic increasing away from 0)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">inc</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">4.0</span>
+        <span class="k">while</span> <span class="n">inc</span> <span class="o">&gt;=</span> <span class="mf">1e-9</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">inc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">target</span><span class="p">:</span>
+                <span class="n">inc</span> <span class="o">/=</span> <span class="mi">2</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">+=</span> <span class="n">inc</span>
+        <span class="n">scx</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">scx</span>
+        <span class="n">droop_v</span> <span class="o">=</span> <span class="n">droop_a</span> <span class="k">if</span> <span class="n">droop_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">scx</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sc</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">xv</span> <span class="ow">in</span> <span class="n">lerpn</span><span class="p">(</span><span class="o">-</span><span class="n">scx</span><span class="p">,</span> <span class="n">scx</span><span class="p">,</span> <span class="n">sides</span><span class="p">):</span>
+            <span class="n">xval</span> <span class="o">=</span> <span class="n">xv</span> <span class="o">*</span> <span class="n">sc</span>
+            <span class="n">yval</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">xv</span><span class="p">)</span> <span class="o">-</span> <span class="n">scx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span> <span class="k">else</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">xv</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">sc</span> <span class="o">-</span> <span class="n">droop_v</span>
+            <span class="n">pts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">xval</span><span class="p">,</span> <span class="n">yval</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">sgn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_closed_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return coordinates with the closing segment appended for closed paths.&quot;&quot;&quot;</span>
@@ -2036,14 +2034,14 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Render this 2-D path as a stroked polygon outline.&quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">stroke_2d</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">_normalize_one</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">normalize_one</span>
 
         <span class="k">if</span> <span class="n">endcaps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">endcaps</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span>
         <span class="n">ec1_raw</span> <span class="o">=</span> <span class="n">endcap1</span> <span class="k">if</span> <span class="n">endcap1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">endcaps</span>
         <span class="n">ec2_raw</span> <span class="o">=</span> <span class="n">endcap2</span> <span class="k">if</span> <span class="n">endcap2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">endcaps</span>
-        <span class="n">ec1</span> <span class="o">=</span> <span class="n">ec1_raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ec1_raw</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">)</span> <span class="k">else</span> <span class="n">_normalize_one</span><span class="p">(</span><span class="n">ec1_raw</span><span class="p">)</span>
-        <span class="n">ec2</span> <span class="o">=</span> <span class="n">ec2_raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ec2_raw</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">)</span> <span class="k">else</span> <span class="n">_normalize_one</span><span class="p">(</span><span class="n">ec2_raw</span><span class="p">)</span>
+        <span class="n">ec1</span> <span class="o">=</span> <span class="n">ec1_raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ec1_raw</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">)</span> <span class="k">else</span> <span class="n">normalize_one</span><span class="p">(</span><span class="n">ec1_raw</span><span class="p">)</span>
+        <span class="n">ec2</span> <span class="o">=</span> <span class="n">ec2_raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ec2_raw</span><span class="p">,</span> <span class="n">CapSpec</span><span class="p">)</span> <span class="k">else</span> <span class="n">normalize_one</span><span class="p">(</span><span class="n">ec2_raw</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">stroke_2d</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -2806,7 +2804,8 @@
 <span class="sd">            fa: Minimum angle in degrees for circle fragments.</span>
 <span class="sd">            fs: Minimum size for circle fragments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_arc_points</span><span class="p">,</span> <span class="n">_frag_count</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
 
         <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">points</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
