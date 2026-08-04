@@ -1691,7 +1691,7 @@ def _format_html(html: str, indent: str = "  ") -> str:
             i += 1
 
     # Split off <script>...</script> so its JS is passed through untouched (odd chunks are scripts).
-    for idx, part in enumerate(re.split(r"(<script\b[^>]*>.*?</script\s*>)", html, flags=re.S | re.I)):
+    for idx, part in enumerate(re.split(r"(<script\b[^>]*>.*?</script[^>]*>)", html, flags=re.S | re.I)):
         if not part:
             continue
         if idx % 2 == 1:
