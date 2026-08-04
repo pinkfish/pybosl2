@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=7a7913eb" />
-    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=941d4646" />
+    <link rel="stylesheet" type="text/css" href="_static/pysidebar.css?v=edeebe30" />
     <script src="_static/documentation_options.js?v=44212324"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
@@ -77,6 +77,10 @@
 <li class="toctree-l2"><a class="reference internal" href="distributors.html#coverage-of-bosl2-distributors-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">distributors.scad</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="distributors.html#examples">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="distributors.html#module-pybosl2.distributors">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="enums.html"> Enums</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.AttachTag"><code class="docutils literal notranslate"><span class="pre">AttachTag</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="masking.html"> Masking</a><ul>
@@ -437,13 +441,13 @@ algorithm. PythonSCAD-only (no BOSL2 counterpart); covered by the STL render tes
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-6b807d537441406cb74d4bd1de2f0a1e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-5c25b72195a0441e87a920ae49dc668e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-6b807d537441406cb74d4bd1de2f0a1e");
+const el = document.getElementById("stlviewer-5c25b72195a0441e87a920ae49dc668e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -502,7 +506,7 @@ window.addEventListener("resize", resize);
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pybosl2.shapes3d.cuboid.cube">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ALL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">except_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimcorners</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teardrop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.CENTER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.ALL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">except_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimcorners</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teardrop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.CENTER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube" title="Link to this definition">¶</a></dt>
 <dd><p>A cube with optional chamfering or rounding of edges and corners.</p>
 <p>Delegates to <a class="reference internal" href="#pybosl2.shapes3d.cuboid.cuboid" title="pybosl2.shapes3d.cuboid.cuboid"><code class="xref py py-func docutils literal notranslate"><span class="pre">cuboid()</span></code></a> with the full set of edge/corner chamfer and rounding options.</p>
 <dl class="field-list simple">
@@ -512,8 +516,8 @@ window.addEventListener("resize", resize);
 <li><p><strong>center</strong> (<em>bool</em><em> | </em><em>None</em>) – if given, overrides anchor (True -&gt; CENTER, False -&gt; FRONT+LEFT+BOTTOM)</p></li>
 <li><p><strong>chamfer</strong> (<em>float</em><em> | </em><em>None</em>) – chamfer size along all edges (default none)</p></li>
 <li><p><strong>rounding</strong> (<em>float</em><em> | </em><em>None</em>) – rounding radius along all edges (default none)</p></li>
-<li><p><strong>edges</strong> (<em>Anchor</em><em> | </em><em>str</em><em> | </em><em>list</em><em>[</em><em>object</em><em>]</em>) – edge specifier — “ALL”, “NONE”, “X”, “Y”, “Z”, or list of direction vectors</p></li>
-<li><p><strong>except_edges</strong> (<em>list</em><em>[</em><em>Any</em><em>] </em><em>| </em><em>None</em>) – edges to exclude from chamfer/rounding</p></li>
+<li><p><strong>edges</strong> (<em>EdgeAtom</em><em> | </em><em>list</em><em>[</em><em>EdgeAtom</em><em>]</em>) – edge specifier — “ALL”, “NONE”, “X”, “Y”, “Z”, or list of direction vectors</p></li>
+<li><p><strong>except_edges</strong> (<em>list</em><em>[</em><em>EdgeAtom</em><em>] </em><em>| </em><em>None</em>) – edges to exclude from chamfer/rounding</p></li>
 <li><p><strong>trimcorners</strong> (<em>bool</em>) – trim corners where 3+ edges meet (default True)</p></li>
 <li><p><strong>teardrop</strong> (<em>bool</em><em> | </em><em>float</em>) – limit the overhang angle for FDM printing (default False)</p></li>
 <li><p><strong>anchor</strong> (<em>Anchor</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – anchor point (default Anchor.CENTER)</p></li>
@@ -537,13 +541,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0aae8e0cb2764dddb5120e88e04a5ca5" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8e0c8b1797f84342a631e0dde36e68da" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0aae8e0cb2764dddb5120e88e04a5ca5");
+const el = document.getElementById("stlviewer-8e0c8b1797f84342a631e0dde36e68da");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -594,13 +598,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d4e934c1977341c88f8dec235fe0aa70" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-26fb8383c77a4363be8ed788c51c4229" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d4e934c1977341c88f8dec235fe0aa70");
+const el = document.getElementById("stlviewer-26fb8383c77a4363be8ed788c51c4229");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -651,13 +655,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-74f47e978a424e539e7bb3cdf874ae0c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-7fceb8ef020342e3b1aae8e586859e5c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-74f47e978a424e539e7bb3cdf874ae0c");
+const el = document.getElementById("stlviewer-7fceb8ef020342e3b1aae8e586859e5c");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -705,7 +709,7 @@ window.addEventListener("resize", resize);
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pybosl2.shapes3d.cuboid.cuboid">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">cuboid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ALL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">except_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimcorners</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teardrop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.CENTER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#cuboid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">cuboid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.ALL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">except_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimcorners</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teardrop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.CENTER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#cuboid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid" title="Link to this definition">¶</a></dt>
 <dd><p>A cube/cuboid with optional chamfering or rounding of edges and corners.</p>
 <p>Built directly from cube()/cylinder()/sphere()/hull()/minkowski(), mirroring BOSL2’s own
 cuboid() algorithm (which is itself CSG composition of primitive shapes at each corner,
@@ -721,8 +725,8 @@ create external fillets, but only apply to edges around the top or bottom face.<
 <li><p><strong>p2</strong> (<em>Point</em><em> | </em><em>None</em>) – if given with p1, defines the cuboid’s opposing cornerpoint</p></li>
 <li><p><strong>chamfer</strong> (<em>float</em><em> | </em><em>None</em>) – chamfer size, inset from sides (default: no chamfer)</p></li>
 <li><p><strong>rounding</strong> (<em>float</em><em> | </em><em>None</em>) – edge rounding radius (default: no rounding)</p></li>
-<li><p><strong>edges</strong> (<em>Anchor</em><em> | </em><em>str</em><em> | </em><em>list</em><em>[</em><em>object</em><em>]</em>) – edges to mask (default <code class="docutils literal notranslate"><span class="pre">&quot;ALL&quot;</span></code>)</p></li>
-<li><p><strong>except_edges</strong> (<em>list</em><em>[</em><em>Any</em><em>] </em><em>| </em><em>None</em>) – edges to explicitly not mask (BOSL2’s <cite>except=</cite> synonym; <cite>except</cite> is a Python keyword)</p></li>
+<li><p><strong>edges</strong> (<em>EdgeAtom</em><em> | </em><em>list</em><em>[</em><em>EdgeAtom</em><em>]</em>) – edges to mask (default <code class="docutils literal notranslate"><span class="pre">&quot;ALL&quot;</span></code>)</p></li>
+<li><p><strong>except_edges</strong> (<em>list</em><em>[</em><em>EdgeAtom</em><em>] </em><em>| </em><em>None</em>) – edges to explicitly not mask (BOSL2’s <cite>except=</cite> synonym; <cite>except</cite> is a Python keyword)</p></li>
 <li><p><strong>trimcorners</strong> (<em>bool</em>) – round/chamfer corners where three treated edges meet (default True)</p></li>
 <li><p><strong>anchor</strong> (<em>Anchor</em>) – anchor point (default Anchor.CENTER)</p></li>
 <li><p><strong>spin</strong> (<em>float</em>) – Z-axis rotation in degrees (default 0)</p></li>
@@ -746,13 +750,13 @@ create external fillets, but only apply to edges around the top or bottom face.<
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e733cdd561a74b99a6f9e775bba77ead" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-660907af413c4a648889694a4c7c4a08" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e733cdd561a74b99a6f9e775bba77ead");
+const el = document.getElementById("stlviewer-660907af413c4a648889694a4c7c4a08");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -803,13 +807,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-13d7f158ad0f4c92957b95594afc522a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c145decece0c4762bb4a08608cba5135" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-13d7f158ad0f4c92957b95594afc522a");
+const el = document.getElementById("stlviewer-c145decece0c4762bb4a08608cba5135");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -896,13 +900,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3444da0460b24e31b6cefffff3a03203" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-c72855d2e7394c9bb09be1ce574f7bd0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3444da0460b24e31b6cefffff3a03203");
+const el = document.getElementById("stlviewer-c72855d2e7394c9bb09be1ce574f7bd0");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -972,13 +976,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e891136f3ff74d698106f06a1199912c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4faa56c6114b4588aea6c52358ecdd2e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e891136f3ff74d698106f06a1199912c");
+const el = document.getElementById("stlviewer-4faa56c6114b4588aea6c52358ecdd2e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1049,13 +1053,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-cf77b889616946459d0484e9b0a5d009" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-0939a95743ea45e5a4e686bd6209c2f1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-cf77b889616946459d0484e9b0a5d009");
+const el = document.getElementById("stlviewer-0939a95743ea45e5a4e686bd6209c2f1");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1154,13 +1158,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-fd775c6ccc31467fa4b3738d0f6fc812" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-0dcde239d1aa409e9ade3d5388990d42" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-fd775c6ccc31467fa4b3738d0f6fc812");
+const el = document.getElementById("stlviewer-0dcde239d1aa409e9ade3d5388990d42");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1268,13 +1272,13 @@ texturing machinery this pure-Python port doesn’t implement).</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-0de1b8a5fbfd4968bd605509634b8643" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-6d6344cf11ff43ba9b64c759208c7a64" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-0de1b8a5fbfd4968bd605509634b8643");
+const el = document.getElementById("stlviewer-6d6344cf11ff43ba9b64c759208c7a64");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -1325,13 +1329,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9a5b180050eb4eadaa9dcaf57c0e7beb" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-05164ac912d7473fa038001aa3c4bcb0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9a5b180050eb4eadaa9dcaf57c0e7beb");
+const el = document.getElementById("stlviewer-05164ac912d7473fa038001aa3c4bcb0");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
