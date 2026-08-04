@@ -28,6 +28,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[docs,test]"
 
+      - name: Validate example imports
+        run: |
+          python tests/validate_examples.py
+
       - name: Build docs (warnings as errors)
         run: |
           echo '

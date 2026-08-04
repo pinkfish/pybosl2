@@ -34,22 +34,26 @@ A 608 skate bearing:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.ball_bearings import BallBearings
    BallBearings.ball_bearing("608").show()
 
 A shielded 608ZZ:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.ball_bearings import BallBearings
    BallBearings.ball_bearing("608ZZ").show()
 
 An R8 imperial bearing:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.ball_bearings import BallBearings
    BallBearings.ball_bearing("R8").show()
 
 A custom open bearing by dimensions:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.ball_bearings import BallBearings
    BallBearings.ball_bearing(inner_diameter=12, outer_diameter=32, width=10, shield=False).show()

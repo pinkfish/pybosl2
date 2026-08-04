@@ -1291,7 +1291,7 @@ class VNF:
         Examples:
         .. pythonscad-example::
 
-            from pybosl2.metaballs import MetaballSpec, mb_sphere
+            from pybosl2.isosurface import MetaballSpec, mb_sphere
             from pybosl2 import VNF, Bounds3D
 
             spec = [

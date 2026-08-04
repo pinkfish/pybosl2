@@ -60,18 +60,21 @@ An M8 socket cap screw with a hex drive recess:
 
 .. pythonscad-example::
 
+    from pybosl2.parts.screws import Screws
     Screws.screw("M8", 24, head="socket", drive="hex", _fa=6, _fs=1).show()
 
 A countersunk (flat-head) screw:
 
 .. pythonscad-example::
 
+    from pybosl2.parts.screws import Screws
     Screws.screw("M6", 20, head="flat", _fa=6, _fs=1).show()
 
 A screw threaded into its matching hex nut (shown side by side):
 
 .. pythonscad-example::
 
+    from pybosl2.parts.screws import Screws
     screw = Screws.screw("M6", 18, head="button", drive="hex", _fa=6, _fs=1)
     nut = Screws.nut("M6", slop=0.1, _fa=6, _fs=1).right(18)
     (screw | nut).show()
@@ -96,18 +99,21 @@ An M6 screw:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.screws import Screws
    Screws.screw("M6", length=12).show()
 
 A socket-head M6:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.screws import Screws
    Screws.screw("M6", head="socket", length=12).show()
 
 A Torx button-head M6:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.screws import Screws
    Screws.screw("M6", head="button", drive="torx", length=12).show()
 
 .. rubric:: ``nut``
@@ -116,6 +122,7 @@ An M6 nut:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.screws import Screws
    Screws.nut("M6").show()
 
 .. rubric:: ``screw_hole``
@@ -124,4 +131,5 @@ A threaded screw-hole mask:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.screws import Screws
    Screws.screw_hole("M6", length=10).show()

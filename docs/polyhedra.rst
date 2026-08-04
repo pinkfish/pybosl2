@@ -32,28 +32,33 @@ Tetrahedron:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.polyhedra import Polyhedra
    Polyhedra.regular_polyhedron("tetrahedron", radius=12).show()
 
 Cube:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.polyhedra import Polyhedra
    Polyhedra.regular_polyhedron("cube", radius=12).show()
 
 Octahedron:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.polyhedra import Polyhedra
    Polyhedra.regular_polyhedron("octahedron", radius=12).show()
 
 Dodecahedron:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.polyhedra import Polyhedra
    Polyhedra.regular_polyhedron("dodecahedron", radius=12).show()
 
 Icosahedron:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.polyhedra import Polyhedra
    Polyhedra.regular_polyhedron("icosahedron", radius=12).show()

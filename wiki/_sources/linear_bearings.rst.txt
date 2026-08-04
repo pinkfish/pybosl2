@@ -36,6 +36,7 @@ A generic cartridge:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.linear_bearings import LinearBearings
    LinearBearings.linear_bearing(length=24, outer_diameter=15, inner_diameter=8).show()
 
 .. rubric:: ``lmXuu_bearing``
@@ -44,6 +45,7 @@ A standard LM10UU:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.linear_bearings import LinearBearings
    LinearBearings.lmXuu_bearing(size=10).show()
 
 .. rubric:: ``linear_bearing_housing``
@@ -52,6 +54,7 @@ A pillow-block housing:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.linear_bearings import LinearBearings
    LinearBearings.linear_bearing_housing(diameter=19, length=29, wall=2, tab=8, screwsize=2.5).show()
 
 .. rubric:: ``lmXuu_housing``
@@ -60,4 +63,5 @@ A housing sized for an LM10UU:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.linear_bearings import LinearBearings
    LinearBearings.lmXuu_housing(size=10, wall=2, tab=6, screwsize=2.5).show()

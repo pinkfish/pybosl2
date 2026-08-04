@@ -60,12 +60,16 @@ A cubic clamped NURBS curve, swept into a tube:
 
 .. pythonscad-example::
 
+    from pybosl2 import nurbs_curve
+
     ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
     nurbs_curve(ctrl, 3, splinesteps=12).stroke(width=3).show()
 
 A cubic B-spline surface patch meshed into a sheet:
 
 .. pythonscad-example::
+
+    from pybosl2 import nurbs_vnf
 
     patch = [
         [[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],
@@ -78,6 +82,8 @@ A cubic B-spline surface patch meshed into a sheet:
 A sphere as a rational NURBS surface (weights + repeated knots):
 
 .. pythonscad-example::
+
+    from pybosl2 import nurbs_vnf
 
     patch = [[[0, 0, 1]] * 7,
              [[2, 0, 1], [2, 4, 1], [-2, 4, 1], [-2, 0, 1], [-2, -4, 1], [2, -4, 1], [2, 0, 1]],

@@ -32,36 +32,42 @@ Straight dovetail, male:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.joiners import Joiners
    Joiners.dovetail("male", width=15, height=8, slide=30).show()
 
 Straight dovetail, female socket:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.joiners import Joiners
    Joiners.dovetail("female", width=15, height=8, slide=30).show()
 
 A 6-degree taper:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.joiners import Joiners
    Joiners.dovetail("male", width=15, height=8, slide=30, taper=6).show()
 
 Setting the dovetail angle:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.joiners import Joiners
    Joiners.dovetail("male", width=15, height=8, slide=10, angle=30).show()
 
 A narrower back width:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.joiners import Joiners
    Joiners.dovetail("male", slide=50, width=18, height=4, back_width=15).show()
 
 Setting the flank slope:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.joiners import Joiners
    Joiners.dovetail("male", slide=15, width=20, height=8, slope=2).show()
 
 .. rubric:: ``snap_pin``
@@ -70,6 +76,7 @@ A snap pin:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.joiners import Joiners
    Joiners.snap_pin().show()
 
 .. rubric:: ``snap_pin_socket``
@@ -78,4 +85,5 @@ The matching socket:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.joiners import Joiners
    Joiners.snap_pin_socket().show()

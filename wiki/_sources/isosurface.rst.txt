@@ -59,6 +59,8 @@ Two spheres merging into a peanut:
 
 .. pythonscad-example::
 
+    from pybosl2 import VNF, mb_sphere
+
     spec = [([-14, 0, 0], mb_sphere(12)), ([14, 0, 0], mb_sphere(12))]
     VNF.from_metaballs(spec, bounding_box=[[-40, -20, -20], [40, 20, 20]], voxel_size=2).polyhedron().show()
 
@@ -66,12 +68,16 @@ A ring metaball plus a connecting bar:
 
 .. pythonscad-example::
 
+    from pybosl2 import VNF, mb_connector, mb_torus
+
     spec = [([0, 0, 0], mb_torus(14, 4)), ([-14, 0, 0], mb_connector([-14, 0, 0], [14, 0, 0], 4))]
     VNF.from_metaballs(spec, bounding_box=[[-22, -22, -10], [22, 22, 10]], voxel_size=2).polyhedron().show()
 
 The level set of a custom field function:
 
 .. pythonscad-example::
+
+    from pybosl2 import VNF
 
     def field(p):
         import numpy as np
