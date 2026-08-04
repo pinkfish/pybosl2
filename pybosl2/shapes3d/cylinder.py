@@ -822,6 +822,12 @@ def tube(
     inner_radius2: float | None = None,
     inner_diameter1: float | None = None,
     inner_diameter2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
     realign: bool = False,
     length: float | None = None,
     anchor: Anchor | Sequence[float] = Anchor.CENTER,
@@ -831,28 +837,30 @@ def tube(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 tube() -- a hollow cylindrical tube.
+    """BOSL2 tube() -- a hollow cylindrical tube, with optional chamfer/rounding on end rims.
 
-    Note: BOSL2's outer-radius parameters are named `or`/`or1`/`or2`, which collide with the
-    Python keyword `or`; they are exposed here as `outer_radius`/`outer_radius1`/`outer_radius2` instead.
+    Note: BOSL2's outer-radius parameters are named ``or``/``or1``/``or2``, which collide with the
+    Python keyword ``or``; they are exposed here as ``outer_radius``/``outer_radius1``/``outer_radius2`` instead.
 
     Args:
         height/length:      height of the tube (default 1)
-        outer_radius:  outer radius of the tube (BOSL2 `or`) (default 1)
+        outer_radius:       outer radius of the tube (BOSL2 ``or``) (default 1)
         inner_radius:       inner radius of the tube
-        center:   if given, overrides anchor (True -> CENTER, False -> DOWN)
-        outer_diameter:       outer diameter of the tube
-        inner_diameter:       inner diameter of the tube
-        wall:     horizontal wall thickness (default 1)
-        outer_radius1/outer_radius2: outer radius of the bottom/top (BOSL2 `or1`/`or2`)
-        outer_diameter1/outer_diameter2:  outer diameter of the bottom/top
+        center:             if given, overrides anchor (True -> CENTER, False -> DOWN)
+        outer_diameter:     outer diameter of the tube
+        inner_diameter:     inner diameter of the tube
+        wall:               horizontal wall thickness (default 1)
+        outer_radius1/outer_radius2: outer radius of the bottom/top
+        outer_diameter1/outer_diameter2: outer diameter of the bottom/top
         inner_radius1/inner_radius2:  inner radius of the bottom/top
         inner_diameter1/inner_diameter2:  inner diameter of the bottom/top
-        realign:  rotate by half the angle of one face (default False)
-        anchor:   anchor point (default CENTER)
-        spin:     Z-axis rotation in degrees after anchor (default 0)
-        orient:   direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        chamfer/chamfer1/chamfer2: chamfer size on end rims (overall/bottom/top)
+        rounding/rounding1/rounding2: rounding radius on end rims (overall/bottom/top)
+        realign:            rotate by half the angle of one face (default False)
+        anchor:             anchor point (default CENTER)
+        spin:               Z-axis rotation in degrees after anchor (default 0)
+        orient:             direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs:           arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -860,6 +868,15 @@ def tube(
             from pybosl2 import tube
 
             shape = tube(height=20, outer_radius=15, inner_radius=10)
+            shape.show()
+
+        A tube with chamfered end rims:
+
+        .. pythonscad-example::
+
+            from pybosl2 import tube
+
+            shape = tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)
             shape.show()
     """
     height = height if height is not None else (length if length is not None else 1)
@@ -900,20 +917,27 @@ def tube(
         "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
     )
     assert irad1 <= rad1 and irad2 <= rad2, "tube(): inner radius is larger than outer radius."
-
     use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
 
-    outer = _ocylinder(
+    # Build outer and inner cylinders via cyl() for chamfer/rounding support
+    outer = cyl(
         height=height,
         radius1=rad1,
         radius2=rad2,
         center=True,
+        chamfer=chamfer,
+        chamfer1=chamfer1,
+        chamfer2=chamfer2,
+        rounding=rounding,
+        rounding1=rounding1,
+        rounding2=rounding2,
         fn=fn,
         fa=fa,
         fs=fs,
     )
-    inner = _ocylinder(
-        height=height + 0.02,
+    extra_h = max(chamfer or 0, rounding or 0, chamfer1 or 0, rounding1 or 0, chamfer2 or 0, rounding2 or 0)
+    inner = cyl(
+        height=height + extra_h + 0.02,
         radius1=irad1,
         radius2=irad2,
         center=True,
@@ -921,7 +945,7 @@ def tube(
         fa=fa,
         fs=fs,
     )
-    shape = outer - inner
+    shape = outer.shape - inner.shape
     if realign:
         sides = _frag_count(max(rad1, rad2), fn, fa, fs)
         shape = shape.rotate(180 / sides, [0, 0, 1])
