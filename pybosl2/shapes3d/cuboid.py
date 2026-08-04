@@ -260,31 +260,81 @@ def roof(shape: object, method: str = "straight") -> Bosl2Solid:
 def cube(
     size: float | Sequence[float] = 1,
     center: bool | None = None,
+    chamfer: float | None = None,
+    rounding: float | None = None,
+    edges: Anchor | str | list[object] = "ALL",
+    except_edges: list[Any] | None = None,
+    trimcorners: bool = True,
+    teardrop: bool | float = False,
     anchor: Anchor | Sequence[float] = Anchor.CENTER,
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
-    """A cube, built with the builtin cube(), with BOSL2-style anchor/spin/orient support.
+    """A cube with optional chamfering or rounding of edges and corners.
+
+    Delegates to :func:`cuboid` with the full set of edge/corner chamfer and rounding options.
 
     Args:
-        size:   size of the cube, a number or length-3 vector
-        center: if given, overrides anchor (True -> CENTER, False -> FRONT+LEFT+BOTTOM)
-        anchor: anchor point (default Anchor.CENTER)
-        spin:   Z-axis rotation in degrees after anchor (default 0)
-        orient: direction to rotate the top towards, after spin (default Anchor.TOP)
+        size:          size of the cube, a number or length-3 vector
+        center:        if given, overrides anchor (True -> CENTER, False -> FRONT+LEFT+BOTTOM)
+        chamfer:       chamfer size along all edges (default none)
+        rounding:      rounding radius along all edges (default none)
+        edges:         edge specifier — "ALL", "NONE", "X", "Y", "Z", or list of direction vectors
+        except_edges:  edges to exclude from chamfer/rounding
+        trimcorners:   trim corners where 3+ edges meet (default True)
+        teardrop:      limit the overhang angle for FDM printing (default False)
+        anchor:        anchor point (default Anchor.CENTER)
+        spin:          Z-axis rotation in degrees after anchor (default 0)
+        orient:        direction to rotate the top towards, after spin (default Anchor.TOP)
+        fn/fa/fs:      arc smoothness overrides
 
     Examples:
+        Basic cube:
+
         .. pythonscad-example::
 
             from pybosl2 import shapes3d as s3
 
             s3.cube(size=20).show()
+
+        Cube with chamfered edges:
+
+        .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
+
+            s3.cube(size=20, chamfer=2).show()
+
+        Cube with rounded edges:
+
+        .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
+
+            s3.cube(size=20, rounding=3).show()
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
-    use_anchor = _resolve_center_anchor(center, anchor, Anchor.BOTTOM_FRONT_LEFT)
-    shape = _ocube(sz, center=True)
-    offset = _anchor_offset_box3(sz, use_anchor)
-    return _finish3(shape, offset, spin, orient, size=sz, anchor=use_anchor)
+    use_anchor: Anchor | Sequence[float] = anchor
+    if center is not None:
+        use_anchor = Anchor.CENTER if center else Anchor.BOTTOM_FRONT_LEFT
+    return cuboid(
+        size=sz,
+        chamfer=chamfer,
+        rounding=rounding,
+        edges=edges,
+        except_edges=except_edges,
+        trimcorners=trimcorners,
+        teardrop=teardrop,
+        anchor=use_anchor,  # type: ignore[arg-type]
+        spin=spin,
+        orient=orient,  # type: ignore[arg-type]
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
 
 
 def cuboid(
