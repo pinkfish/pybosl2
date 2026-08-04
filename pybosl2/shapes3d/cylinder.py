@@ -951,3 +951,95 @@ def tube(
         shape = shape.rotate(180 / sides, [0, 0, 1])
     offset = _anchor_offset_cyl(rad1, rad2, height, use_anchor)
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
+
+
+def cone(
+    height: float | None = None,
+    radius: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    center: bool | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    length: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float = 0,
+    orient: Anchor | Sequence[float] = Anchor.TOP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Bosl2Solid:
+    """A cone/truncated cone with optional chamfering or rounding of the end rims.
+
+    Convenience wrapper around :func:`cyl` / :func:`cylinder` with ``radius2=0`` by default
+    for a pointed cone, or with explicit ``radius2`` for a truncated (frustum) form.
+
+    Args:
+        height/length:  height of the cone (default 1)
+        radius:         base radius (default 1)
+        radius1:        bottom radius (overrides *radius*)
+        radius2:        top radius (default 0 for a pointed cone)
+        center:         if given, overrides anchor
+        diameter:       base diameter
+        diameter1:      bottom diameter
+        diameter2:      top diameter
+        chamfer/chamfer1/chamfer2: chamfer size on the end rims
+        rounding/rounding1/rounding2: rounding radius on the end rims
+        anchor:         anchor point
+        spin:           Z-axis rotation in degrees after anchor (default 0)
+        orient:         direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs:       arc smoothness overrides
+
+    Examples:
+        A pointed cone:
+
+        .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
+
+            s3.cone(height=30, radius=15).show()
+
+        A truncated cone (frustum):
+
+        .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
+
+            s3.cone(height=30, radius1=15, radius2=8).show()
+
+        A cone with chamfered base:
+
+        .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
+
+            s3.cone(height=30, radius=15, chamfer=2).show()
+    """
+    r1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
+    r2 = _pick_radius(radius1=radius2, diameter1=diameter2, dflt=0)
+    return cyl(
+        height=height,
+        radius1=r1,
+        radius2=r2,
+        center=center,
+        length=length,
+        chamfer=chamfer,
+        chamfer1=chamfer1,
+        chamfer2=chamfer2,
+        rounding=rounding,
+        rounding1=rounding1,
+        rounding2=rounding2,
+        anchor=anchor,
+        spin=spin,
+        orient=orient,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )

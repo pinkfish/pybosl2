@@ -1,6 +1,11 @@
 Hinges
 ======
 
+.. raw:: html
+
+   <p style="margin-top:0;margin-bottom:1.2em">&#9881;&#65039; <b><a href="specs/hinges.html">Spec sheet &rarr;</a></b> &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.</p>
+
+
 
 Pure-Python port of the hinges in BOSL2's ``hinges.scad``: a print-in-place
 :meth:`~pybosl2.parts.hinges.Hinges.living_hinge_mask` (differenced from a plate to make a folding "live"

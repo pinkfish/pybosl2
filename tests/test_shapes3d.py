@@ -16,14 +16,18 @@ import pytest
 from pybosl2.constants import BOTTOM, CENTER, FRONT, RIGHT, TOP
 from pybosl2.shapes3d import (
     Bosl2Solid,
+    cone,
+    cube,
     cuboid,
     cyl,
+    cylinder,
     fillet,
     plot3d,
     plot_revolution,
     prismoid,
     sphere,
     textured_tile,
+    tube,
     xcyl,
     ycyl,
     zcyl,
@@ -384,3 +388,118 @@ def test_attach_aligns_child_to_parent() -> None:
     child = cuboid([5, 5, 15])
     result = parent.attach(Anchor.TOP, child, child_anchor=Anchor.BOTTOM)
     assert result is not None
+
+
+# ---------------------------------------------------------------------------
+# cone() tests
+# ---------------------------------------------------------------------------
+
+
+def test_cone_pointed_returns_solid() -> None:
+    result = cone(height=30, radius=15)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cone_truncated_returns_solid() -> None:
+    result = cone(height=30, radius1=15, radius2=8)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cone_chamfered_returns_solid() -> None:
+    result = cone(height=30, radius=15, chamfer=2)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cone_rounded_returns_solid() -> None:
+    result = cone(height=30, radius=15, rounding=2)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cone_bounds_positive_z() -> None:
+    result = cone(height=30, radius=15)
+    center, size = result.bounds()
+    assert size[2] > 0
+    assert abs(size[0] - 30) < 1
+
+
+# ---------------------------------------------------------------------------
+# cube() chamfer / rounding tests
+# ---------------------------------------------------------------------------
+
+
+def test_cube_returns_solid() -> None:
+    result = cube(size=20)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cube_chamfered_returns_solid() -> None:
+    result = cube(size=20, chamfer=3)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cube_rounded_returns_solid() -> None:
+    result = cube(size=20, rounding=3)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cube_center_false_anchors_correctly() -> None:
+    from pybosl2._edges_lang import Anchor
+
+    c = cube(size=10, anchor=Anchor.BOTTOM_FRONT_LEFT)
+    center, size = c.bounds()
+    assert center[0] > 0
+
+
+# ---------------------------------------------------------------------------
+# tube() chamfer / rounding tests
+# ---------------------------------------------------------------------------
+
+
+def test_tube_returns_solid() -> None:
+    result = tube(height=20, outer_radius=15, inner_radius=10)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_tube_chamfered_returns_solid() -> None:
+    result = tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_tube_rounded_returns_solid() -> None:
+    result = tube(height=20, outer_radius=15, inner_radius=10, rounding=1)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_tube_bounds_has_height() -> None:
+    result = tube(height=30, outer_radius=10, inner_radius=6)
+    center, size = result.bounds()
+    assert size[2] > 0
+
+
+# ---------------------------------------------------------------------------
+# cylinder() unified API tests
+# ---------------------------------------------------------------------------
+
+
+def test_cylinder_chamfered_returns_solid() -> None:
+    result = cylinder(height=20, radius=10, chamfer=2)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cylinder_rounded_returns_solid() -> None:
+    result = cylinder(height=20, radius=10, rounding=2)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cylinder_teardrop_returns_solid() -> None:
+    result = cylinder(height=20, radius=10, rounding=2, teardrop=True)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cylinder_equals_cyl() -> None:
+    a = cylinder(height=20, radius=10)
+    b = cyl(height=20, radius=10)
+    ca, sa = a.bounds()
+    cb, sb = b.bounds()
+    for i in range(3):
+        assert abs(sa[i] - sb[i]) < 1
