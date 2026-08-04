@@ -41,8 +41,6 @@ from pybosl2.vectors import unit
 
 __all__ = [
     "Roundable",
-    "round_corners",
-    "smooth_path",
 ]
 
 
@@ -168,7 +166,7 @@ def _circlecorner(
 # ---------------------------------------------------------------------------
 
 
-def round_corners(
+def _round_corners(
     path: Sequence[Sequence[float]],
     method: str = "circle",
     radius: float | None = None,
@@ -342,7 +340,7 @@ def _dedup(pts: Sequence[Sequence[float]], eps: float = 1e-9) -> list[list[float
 # ---------------------------------------------------------------------------
 
 
-def smooth_path(
+def _smooth_path(
     path: Sequence[Sequence[float]],
     tangents: Sequence[Sequence[float]] | None = None,
     size: float | Sequence[float] | None = None,
@@ -421,7 +419,7 @@ class Roundable:
     ) -> object:
         """Round every corner of this path (see :func:`round_corners`)."""
         curv = curvature if curvature is not None else cast("float | None", kwargs.get("k"))
-        return round_corners(
+        return _round_corners(
             self,  # type: ignore[arg-type]
             method=method,
             radius=radius,
@@ -443,7 +441,7 @@ class Roundable:
         closed: bool | None = None,
     ) -> object:
         """Fit a smooth continuous-curvature curve through this path (see :func:`smooth_path`)."""
-        return smooth_path(
+        return _smooth_path(
             self,  # type: ignore[arg-type]
             tangents=tangents,
             size=size,
@@ -767,7 +765,7 @@ def _path_join(
     if k_list is not None:
         rc_kwargs["k"] = k_list
 
-    return round_corners(pts, **rc_kwargs)  # type: ignore[arg-type]
+    return _round_corners(pts, **rc_kwargs)  # type: ignore[arg-type]
 
 
 def _from_shapely(geom: "MultiPolygon") -> list[Path2D]:

@@ -26,10 +26,8 @@ from pybosl2.skin import (
     os_teardrop,
     path3d,
     rot_resample,
-    skin,
     slice_profiles,
     subdivide_and_slice,
-    sweep,
 )
 from pybosl2.skin import (
     _linear_sweep as linear_sweep,
@@ -39,6 +37,9 @@ from pybosl2.skin import (
 )
 from pybosl2.skin import (
     _rotate_sweep as rotate_sweep,
+)
+from pybosl2.skin import (
+    _skin as skin,
 )
 from pybosl2.skin import (
     _spiral_sweep as spiral_sweep,
@@ -135,7 +136,7 @@ def test_sweep_direct_from_transforms() -> None:
     ident = np.eye(4)
     up = np.eye(4)
     up[2, 3] = 10
-    vnf = sweep(SQUARE, [ident, up])  # type: ignore[list-item]
+    vnf = Path2D(SQUARE).sweep([ident, up])  # type: ignore[list-item]
     assert _valid(vnf)
 
 
@@ -301,7 +302,7 @@ def test_rot_resample_changes_count_and_sweeps() -> None:
     out = rot_resample(tl, num_copies=20)
     assert len(out) == 20
     assert np.asarray(out[0]).shape == (4, 4)
-    assert _valid(sweep(sq, out))
+    assert _valid(Path2D(sq).sweep(out))
 
 
 def test_rot_resample_count_method() -> None:
@@ -610,3 +611,20 @@ def test_sweepable_mixin() -> None:
 
     vnf5 = profile.spiral_sweep(height=10, radius=5, turns=2)
     assert abs(vnf5.volume()) > 0  # type: ignore[operator, union-attr]
+
+
+def test_oop_skin_and_sweep() -> None:
+    from pybosl2.vnf import VNF
+
+    circle = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
+    square = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+    vnf_skinned = VNF.from_skin([circle, square], slices=5, method="reindex", z=[0, 10])
+    assert isinstance(vnf_skinned, VNF)
+    assert abs(vnf_skinned.volume()) > 0
+
+    shape = Path2D(square)
+    transforms = [np.eye(4), np.eye(4)]
+    transforms[1][:3, 3] = [0, 0, 10]
+    vnf_swept = shape.sweep(transforms)
+    assert isinstance(vnf_swept, VNF)
+    assert abs(vnf_swept.volume()) > 0

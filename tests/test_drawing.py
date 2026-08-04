@@ -16,8 +16,8 @@ import numpy as np
 import pytest
 
 from pybosl2.caps import CapSpec, CapType, endcap_polys, endcap_trim, has_decorative_caps, normalize_one
-from pybosl2.path2d import Path2D, catenary
-from pybosl2.path3d import Path3D, helix
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.regions import Region
 from pybosl2.shapes2d import arc
 
@@ -78,7 +78,7 @@ def test_arc_collinear_points_raise() -> None:
 
 
 def test_catenary_droop_hits_endpoints_and_midpoint() -> None:
-    c = catenary(width=80, droop=30, sides=21)
+    c = Path2D.catenary(width=80, droop=30, sides=21)
     assert isinstance(c, Path2D)
     assert c.closed is False
     np.testing.assert_allclose(c[0], [-40, 0], atol=1e-6)
@@ -87,22 +87,22 @@ def test_catenary_droop_hits_endpoints_and_midpoint() -> None:
 
 
 def test_catenary_sign_flips_with_negative_droop() -> None:
-    up = catenary(width=50, droop=-15, sides=15)
+    up = Path2D.catenary(width=50, droop=-15, sides=15)
     assert up[len(up) // 2][1] > 0  # negative droop hangs upward
 
 
 def test_catenary_requires_exactly_one_of_droop_angle() -> None:
     with pytest.raises(AssertionError):
-        catenary(width=10)
+        Path2D.catenary(width=10)
     with pytest.raises(AssertionError):
-        catenary(width=10, droop=2, angle=30)
+        Path2D.catenary(width=10, droop=2, angle=30)
 
 
 # -- helix --------------------------------------------------------------------------------
 
 
 def test_helix_returns_path3d() -> None:
-    height = helix(turns=2, height=40, radius=10)
+    height = Path3D.helix(turns=2, height=40, radius=10)
     assert isinstance(height, Path3D)  # the 3-D path object
     assert not isinstance(height, Path2D)
     assert len(height[0]) == 3
@@ -112,11 +112,11 @@ def test_helix_returns_path3d() -> None:
 
 def test_helix_needs_exactly_two_params() -> None:
     with pytest.raises(AssertionError):
-        helix(height=40, radius=10)  # only one of length/turns/angle
+        Path3D.helix(height=40, radius=10)  # only one of length/turns/angle
 
 
 def test_helix_flat_spiral() -> None:
-    height = helix(height=0, radius1=50, radius2=25, length=0, turns=4)
+    height = Path3D.helix(height=0, radius1=50, radius2=25, length=0, turns=4)
     assert all(math.isclose(p[2], 0, abs_tol=1e-9) for p in height)  # flat: every z is 0
 
 
@@ -128,7 +128,7 @@ def test_stroke_2d_builds() -> None:
 
 
 def test_stroke_3d_builds() -> None:
-    assert helix(turns=2, height=40, radius=20).stroke(width=3) is not None
+    assert Path3D.helix(turns=2, height=40, radius=20).stroke(width=3) is not None
 
 
 def test_stroke_closed_path_defaults_from_flag() -> None:
@@ -166,7 +166,7 @@ def test_dashed_stroke_region_flattens() -> None:
 def test_dashed_stroke_3d_yields_path3d() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
-    dashes = helix(turns=2, height=40, radius=10).dashed_stroke(dashpat=[6, 4])
+    dashes = Path3D.helix(turns=2, height=40, radius=10).dashed_stroke(dashpat=[6, 4])
     assert isinstance(dashes, Bosl2Solid)
 
 

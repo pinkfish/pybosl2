@@ -37,8 +37,6 @@
 from __future__ import annotations
 
 import math
-import sys
-import types
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence, cast
@@ -184,6 +182,23 @@ class Sweepable:
             style=style,
         )
 
+    def sweep(  # type: ignore[misc]
+        self: Path2D,
+        transforms: Sequence[Sequence[Sequence[float]]],
+        closed: bool = False,
+        caps: CapsSpec = CapType.BUTT,
+        style: str = "min_edge",
+    ) -> VNF | Bosl2Solid:
+        """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF
+        or Bosl2Solid (BOSL2 sweep())."""
+        return _sweep(
+            [list(p) for p in self],
+            transforms,
+            closed=closed,
+            caps=caps,
+            style=style,
+        )
+
 
 def _u(v: Sequence[float]) -> np.ndarray:
     a = np.asarray(v, dtype=float)
@@ -267,7 +282,7 @@ def frame_map(
     return m
 
 
-def sweep(
+def _sweep(
     shape: Sequence[Sequence[float]],
     transforms: Sequence[Sequence[Sequence[float]]],
     closed: bool = False,
@@ -472,7 +487,7 @@ def _path_sweep(
     if transforms:
         return transform_list
     shp = clockwise_polygon(shape)
-    return sweep(shp, transform_list, closed=closed, caps=caps, style=style)
+    return _sweep(shp, transform_list, closed=closed, caps=caps, style=style)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -520,7 +535,7 @@ def slice_profiles(
     return out
 
 
-def skin(
+def _skin(
     profiles: Sequence[Sequence[Sequence[float]]],
     slices: int,
     refine: float = 1.0,
@@ -747,7 +762,7 @@ def _rotate_sweep(
         angs = [start + angle * i / (steps - 1) for i in range(steps)]
     transforms = [zrot4(a) @ _xrot4(90) for a in angs]
     cap_list: CapsSpec = [CapType.NONE, CapType.NONE] if full else cap_specs
-    result = sweep(
+    result = _sweep(
         prof,
         transforms,
         closed=full,
@@ -830,7 +845,7 @@ def _spiral_sweep(
         transforms.append(
             translate4([0, 0, z]) @ zrot4(a * math.copysign(1, turns)) @ translate4([rad, 0, 0]) @ _xrot4(90)
         )
-    result = sweep(poly, transforms, closed=False, caps=[CapType.BUTT, CapType.BUTT], style=style)
+    result = _sweep(poly, transforms, closed=False, caps=[CapType.BUTT, CapType.BUTT], style=style)
     if isinstance(result, VNF):
         return result if result.volume() >= 0 else result.reverse()
     return result
@@ -1358,7 +1373,7 @@ def _rounded_prism(
 
     # Pre-round the side corners if requested
     if joint_sides is not None:
-        from pybosl2.rounding import round_corners as _rc
+        from pybosl2.rounding import _round_corners as _rc
 
         m_sides = "smooth" if k_sides is not None else "circle"
         kwargs_sides: dict[str, Any] = {"method": m_sides}
@@ -1904,11 +1919,3 @@ def rot_resample(
     return [
         interpolated[i] @ zrot4(smoothtwist[i]) @ _scale4([smoothscale[i], smoothscale[i], 1.0]) for i in range(end)
     ]
-
-
-class _CallableModule(types.ModuleType):
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return skin(*args, **kwargs)
-
-
-sys.modules[__name__].__class__ = _CallableModule
