@@ -56,17 +56,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
-      # The pythonscad wheel is an OpenSCAD-derived C extension; auditwheel bundles
-      # most of its libraries, but GL/font/X system libs are dlopen'd at import time
-      # and must be present on the runner.
-      - name: Install system libraries for the pythonscad wheel
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libgl1 libglu1-mesa libegl1 libglib2.0-0 \
-            libfontconfig1 libfreetype6 libharfbuzz0b \
-            libxkbcommon0 libx11-6 libxext6 libxrender1
-
       - name: Install package with test and docs extras
         run: |
           python -m pip install --upgrade pip
@@ -79,10 +68,49 @@ jobs:
           python3 _specgen.py
           cd ..
 
-      # Confirm the native modules import before running the suite, so a wheel/ABI
-      # problem is reported clearly rather than as a wall of collection errors.
+      - name: Run tests (excluding render tests)
+        run: pytest -q --deselect tests/test_stl_render.py --deselect tests/test_stl_render_2d.py
+
+  test-render:
+    name: render (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install system libraries for the pythonscad wheel
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1 libglu1-mesa libegl1 libglib2.0-0 \
+            libfontconfig1 libfreetype6 libharfbuzz0b \
+            libxkbcommon0 libx11-6 libxext6 libxrender1
+
+      - name: Install package with test extras
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[test]'
+
       - name: Verify pythonscad imports
         run: python -c "import pythonscad, openscad, pybosl2.shapes3d; print('native modules import OK')"
 
-      - name: Run tests
-        run: pytest -q
+      - name: Run render tests (includes pythonscad-dependent 2D/3D tests)
+        run: |
+          pytest -q \
+            tests/test_stl_render.py \
+            tests/test_stl_render_2d.py \
+            tests/test_shapes2d_object.py \
+            tests/test_sdf_shapes2d.py \
+            tests/test_backend_crossbackend.py \
+            tests/test_backend_sdf.py \
+            tests/test_native_ops.py
