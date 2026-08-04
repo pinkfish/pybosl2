@@ -1345,7 +1345,7 @@ VARIANTS = {
         (
             "chamfered-cylinder",
             "chamfered cyl",
-            "pybosl2.cylinder(height=20, radius=10)",
+            "pybosl2.cylinder(height=20, radius=10, chamfer=2)",
         ),
         (
             "octahedron",

@@ -64,59 +64,152 @@ else:
 
 def cylinder(
     height: float | None = None,
-    radius1: float | None = None,
-    radius2: float | None = None,
+    radius: float | None = None,
     center: bool | None = None,
     length: float | None = None,
-    radius: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    anchor: Anchor | Sequence[float] = Anchor.CENTER,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    circumscribe: bool = False,
+    realign: bool = False,
+    shift: Sequence[float] = [0, 0],
+    anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    from_end: bool = False,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    extra: float = 0.0,
+    extra1: float | None = None,
+    extra2: float | None = None,
+    teardrop: float | bool = False,
+    clip_angle: float = 90.0,
+    texture: str | TextureType | None = None,
+    tex_size: float | Sequence[float] | None = None,
+    tex_reps: int | Sequence[int] | None = None,
+    tex_depth: float = 1.0,
+    tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """A cylinder/cone, built with the builtin cylinder(), with BOSL2-style anchor/spin/orient support.
+    """A cylinder with optional chamfering/rounding of its end rims, built with
+    cube()/cylinder()/sphere()/rotate_extrude().
+
+    Positive rounding is built as a minkowski() of a shorter cylinder with a sphere at each
+    rounded end (an inset fillet, not an outward bulge), matching BOSL2's own rounded-end
+    geometry. Chamfering builds the exact half-profile (with the requested bevel at each end)
+    and revolves it with rotate_extrude().
+
+    Note: ``texture=`` (VNF surface texturing) is not supported by this pure-Python port.
 
     Args:
-        length/height:    height of the cylinder
-        radius1:     bottom radius (before orientation)
-        radius2:     top radius (before orientation)
-        center: if given, overrides anchor (True -> CENTER, False -> BOTTOM)
-        diameter1:     bottom diameter (before orientation)
-        diameter2:     top diameter (before orientation)
-        radius:      radius of the cylinder
-        diameter:      diameter of the cylinder
-        anchor: anchor point (default CENTER)
-        spin:   Z-axis rotation in degrees after anchor (default 0)
-        orient: direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        length/height:  length of the cylinder along its axis (default 1)
+        radius:         radius of the cylinder (default 1)
+        diameter:       diameter of the cylinder
+        radius1:        radius of the negative end of the cylinder
+        radius2:        radius of the positive end of the cylinder
+        diameter1:      diameter of the negative end of the cylinder
+        diameter2:      diameter of the positive end of the cylinder
+        center:         if given, overrides anchor (True -> CENTER, False -> BOTTOM)
+        chamfer/chamfer1/chamfer2: chamfer size on the end rims (overall/negative/positive)
+        rounding/rounding1/rounding2: rounding radius on the end rims (overall/negative/positive)
+        circumscribe:   circumscribe rather than inscribe the given radius (default False)
+        realign:        shift point alignment (default False)
+        shift:          X/Y offset for the positive end (shear) (default [0,0])
+        anchor:         anchor point (default BOTTOM if center=False, otherwise CENTER)
+        spin:           Z-axis rotation in degrees after anchor (default 0)
+        orient:         direction to rotate the top towards, after spin (default UP)
+        fn/fa/fs:       arc smoothness overrides
+        chamfer_angle/chamfer_angle1/chamfer_angle2: chamfer angle in degrees away from ends
+        from_end/from_end1/from_end2: measure chamfer along conic face (default False)
+        extra/extra1/extra2: add extra height at ends (invisible to anchoring)
+        teardrop:       limit rounding angle from horizontal
+        clip_angle:     clip rounding arc at bottom of cylinder
+        texture:        named texture to apply to cylinder side surface
+        tex_size:       size of texture tile
+        tex_reps:       number of texture repetitions
+        tex_depth:      depth of the texture
+        tex_inset:      inset the texture
 
     Examples:
+        A basic cylinder:
+
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3, Anchor
+            from pybosl2 import shapes3d as s3
 
-            s3.cylinder(height=30, radius=10, anchor=Anchor.BOTTOM).show()
+            s3.cylinder(height=30, radius=10).show()
+
+        A cylinder with chamfered ends:
+
+        .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
+
+            s3.cylinder(height=40, radius=15, chamfer=2).show()
+
+        A cylinder with rounded ends:
+
+        .. pythonscad-example::
+
+            from pybosl2 import shapes3d as s3
+
+            s3.cylinder(height=30, radius=12, rounding=2).show()
     """
-    length = length if length is not None else (height if height is not None else 1)
-    rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
-    use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
-    shape = _ocylinder(
-        height=length,
-        radius1=rad1,
-        radius2=rad2,
-        center=True,
+    return cyl(
+        height=height,
+        radius=radius,
+        center=center,
+        length=length,
+        radius1=radius1,
+        radius2=radius2,
+        diameter=diameter,
+        diameter1=diameter1,
+        diameter2=diameter2,
+        chamfer=chamfer,
+        chamfer1=chamfer1,
+        chamfer2=chamfer2,
+        rounding=rounding,
+        rounding1=rounding1,
+        rounding2=rounding2,
+        circumscribe=circumscribe,
+        realign=realign,
+        shift=list(shift),
+        anchor=anchor,
+        spin=spin,
+        orient=orient,
         fn=fn,
         fa=fa,
         fs=fs,
+        chamfer_angle=chamfer_angle,
+        chamfer_angle1=chamfer_angle1,
+        chamfer_angle2=chamfer_angle2,
+        from_end=from_end,
+        from_end1=from_end1,
+        from_end2=from_end2,
+        extra=extra,
+        extra1=extra1,
+        extra2=extra2,
+        teardrop=teardrop,
+        clip_angle=clip_angle,
+        texture=texture,
+        tex_size=tex_size,
+        tex_reps=tex_reps,
+        tex_depth=tex_depth,
+        tex_inset=tex_inset,
     )
-    offset = _anchor_offset_cyl(rad1, rad2, length, use_anchor)
-    return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
 def cyl(
