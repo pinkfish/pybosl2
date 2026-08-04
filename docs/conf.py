@@ -110,6 +110,7 @@ html_extra_path = ["_extra"]
 html_theme = "alabaster"
 html_static_path: list[str] = ["_static"]
 html_css_files: list[str] = ["pysidebar.css"]
+html_js_files: list[str] = ["group_toggle.js"]
 
 # A grouped, always-visible global TOC so the many modules are easy to track. Alabaster renders each
 # toctree ``:caption:`` from index.rst as a section header in the sidebar's navigation block.

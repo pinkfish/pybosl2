@@ -84,31 +84,24 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     CSG & SDF backends <backends>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Foundational
 
-    Circle <circle>
     Color <color>
     Constants <constants>
-    Cuboid <cuboid>
-    Curves <curves>
-    Cylinder <cylinder>
     Distributors <distributors>
-    Extrusions <extrusions>
     Masking <masking>
-    Ops <ops>
     Partitions <partitions>
     Solid <solid>
-    Sphere <sphere>
-    Square <square>
     Texture <texture>
-    Torus <torus>
     Transforms <transforms>
     Drawing <drawing>
+    2-D Shapes <shapes2d>
+    3-D Shapes <shapes3d>
     Native ops <native_ops>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Paths, regions & surfaces
 
     Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad) <beziers>
@@ -122,7 +115,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     Vnf <vnf>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Math & geometry
 
     Geometry <geometry>
@@ -130,7 +123,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     Vectors <vectors>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Parts library
 
     Ball Bearings &#128736; <ball_bearings>
@@ -152,7 +145,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     Wiring &#128736; <wiring>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Extras
 
     Miscellaneous <miscellaneous>
