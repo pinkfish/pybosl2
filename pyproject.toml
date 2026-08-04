@@ -53,8 +53,9 @@ geo = [
 # Build the API docs (Sphinx autodoc). Needs pythonscad because the geometry
 # modules import it at load time, before autodoc can read their docstrings.
 docs = [
-    "sphinx>=7",
+    "sphinx>=7,<9",
     "shapely",
+    "sphinx-immaterial>=0.13",
 ]
 
 [project.urls]
