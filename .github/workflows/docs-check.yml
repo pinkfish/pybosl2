@@ -26,22 +26,14 @@ jobs:
           pip install -e ".[docs,test]"
 
       - name: Build docs (warnings as errors)
-        shell: python
         run: |
+          echo '
           import importlib.util, os, sys
-
-          repo = os.environ["GITHUB_WORKSPACE"]
-          sys.path.insert(0, os.path.join(repo, "tests"))
-
           if importlib.util.find_spec("pythonscad") is None:
+              sys.path.insert(0, os.path.join(os.path.dirname(__file__), "tests"))
               import mock_libfive
-
-          from sphinx.cmd.build import main
-
-          sys.exit(main([
-              "-W", "--keep-going",
-              "-b", "html",
-              os.path.join(repo, "docs"),
-              os.path.join(repo, "wiki-check"),
-              "-d", os.path.join(repo, "docs", "_build", "doctrees"),
-          ]))
+          ' > sitecustomize.py
+          PYTHONPATH=. python -m sphinx -W --keep-going \
+            -b html docs/ wiki-check/ \
+            -d docs/_build/doctrees/
+          rm -f sitecustomize.py
