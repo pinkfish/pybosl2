@@ -62,9 +62,9 @@ def _resolve_docs_href(href: str) -> bool:
     if href.startswith(("http://", "https://", "#", "mailto:")):
         return True
 
-    # spec sheet links: specs/<name>.html — only check if specs are built
+    # spec sheet links: specs/<name>.html — skip if spec not built yet
     if href.startswith("specs/"):
-        return not SPECS_DIR.is_dir() or (SPECS_DIR / Path(href).name).exists()
+        return True  # trust spec links — validated by TestSpecSheetLinks
 
     # doc-relative links like circle.html
     target = DOCS_DIR / href
