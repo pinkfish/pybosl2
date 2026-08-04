@@ -244,7 +244,7 @@ def test_skin_lofts_two_profiles(tmp_path):
     )
     m = _render(
         tmp_path,
-        "skin([circle, square], slices=16, method='reindex', z=[0, 25]).polyhedron()",
+        "VNF.from_skin([circle, square], slices=16, method='reindex', z=[0, 25]).polyhedron()",
         setup=setup,
         name="skin",
     )
@@ -319,11 +319,12 @@ def test_path_sweep2d_wavy_bar(tmp_path):
 
 def test_rot_resample_then_sweep(tmp_path):
     setup = (
+        "import pybosl2.skin\n"
         "sq = [[-1.5, -1.5], [1.5, -1.5], [1.5, 1.5], [-1.5, 1.5]]\n"
         "curve = [[0, 0, 0], [20, 0, 8], [20, 20, 16], [0, 20, 24]]\n"
-        "tl = rot_resample(Path3D(curve).path_sweep(sq, transforms=True), num_copies=30)\n"
+        "tl = pybosl2.skin.rot_resample(Path3D(curve).path_sweep(Path2D(sq), transforms=True), num_copies=30)\n"
     )
-    m = _render(tmp_path, "sweep(sq, tl).polyhedron()", setup=setup, name="rotresample")
+    m = _render(tmp_path, "Path2D(sq).sweep(tl).polyhedron()", setup=setup, name="rotresample")
     assert m.ntris > 0
     assert m.volume > 0
 
@@ -488,7 +489,7 @@ def test_stroke_2d_closed_square(tmp_path):
 def test_stroke_3d_helix_tube(tmp_path):
     m = _render(
         tmp_path,
-        "stroke(helix(turns=2, height=40, radius=15), width=4)",
+        "Path3D.helix(turns=2, height=40, radius=15).stroke(width=4)",
         name="stroke3d",
     )
     assert m.ntris > 0
@@ -498,7 +499,7 @@ def test_stroke_3d_helix_tube(tmp_path):
 
 def test_dashed_stroke_makes_multiple_solids(tmp_path):
     setup = (
-        "dashes = dashed_stroke(arc(radius=30, angle=360), dashpat=[8, 5], closed=True)\n"
+        "dashes = arc(radius=30, angle=360).dashed_stroke(dashpat=[8, 5], closed=True)\n"
         "solid = dashes[0].stroke(width=2)\n"
         "for d in dashes[1:]:\n"
         "    solid = solid | d.stroke(width=2)\n"
@@ -513,7 +514,7 @@ def test_dashed_stroke_makes_multiple_solids(tmp_path):
 def test_catenary_stroke(tmp_path):
     m = _render(
         tmp_path,
-        "catenary(width=80, droop=30).stroke(width=3).linear_extrude(height=2)",
+        "Path2D.catenary(width=80, droop=30).stroke(width=3).linear_extrude(height=2)",
         name="catenary",
     )
     assert m.volume > 0
@@ -593,7 +594,7 @@ def test_stroke_arrow_endcap_3d_is_a_cone(tmp_path):
 
 def test_path3d_rotated_helix_stroke(tmp_path):
     # rotating the helix about X swaps its Z-height into -Y; the tube follows
-    setup = "coil = helix(turns=2, height=40, radius=12).rotate(90, [1, 0, 0])\n"
+    setup = "coil = Path3D.helix(turns=2, height=40, radius=12).rotate(90, [1, 0, 0])\n"
     m = _render(tmp_path, "coil.stroke(width=3)", setup=setup, name="helixrot")
     assert m.volume > 0
     # after a 90-deg X rotation the ~40 tall extent now lies along Y (plus tube thickness)
@@ -601,7 +602,7 @@ def test_path3d_rotated_helix_stroke(tmp_path):
 
 
 def test_path3d_resampled_helix_stroke(tmp_path):
-    setup = "coil = helix(turns=3, height=60, radius=20).resample(num_copies=150)\n"
+    setup = "coil = Path3D.helix(turns=3, height=60, radius=20).resample(num_copies=150)\n"
     m = _render(tmp_path, "coil.stroke(width=4)", setup=setup, name="helixresample")
     assert m.ntris > 0
     assert m.volume > 0
@@ -609,7 +610,7 @@ def test_path3d_resampled_helix_stroke(tmp_path):
 
 
 def test_path3d_translate_moves_stroke(tmp_path):
-    setup = "coil = helix(turns=1.5, height=30, radius=10).up(100)\n"
+    setup = "coil = Path3D.helix(turns=1.5, height=30, radius=10).up(100)\n"
     m = _render(tmp_path, "coil.stroke(width=3)", setup=setup, name="helixup")
     assert m.bbmin[2] > 90  # lifted 100mm up
 
@@ -960,7 +961,7 @@ def test_rounding_methods_extrude(tmp_path):
     ):
         m = _render(
             tmp_path,
-            f"round_corners({sq}, method='{method}', {kw}).polygon().linear_extrude(height=4)",
+            f"Path2D({sq}).round_corners(method='{method}', {kw}).polygon().linear_extrude(height=4)",
             name=name,
         )
         assert m.volume > 0
@@ -973,7 +974,7 @@ def test_smooth_path_stroke(tmp_path):
     setup = "pts = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]\n"
     m = _render(
         tmp_path,
-        "smooth_path(pts, relsize=0.4).stroke(width=2).linear_extrude(height=3)",
+        "Path2D(pts).smooth_path(relsize=0.4).stroke(width=2).linear_extrude(height=3)",
         setup=setup,
         name="smoothpath",
     )
@@ -983,7 +984,10 @@ def test_smooth_path_stroke(tmp_path):
 
 def test_round_corners_3d_path(tmp_path):
     # a 3-D path with smooth corners, swept into a tube
-    setup = "route = round_corners([[0,0,0],[40,0,0],[40,40,20],[0,40,20]], method='smooth', joint=8, closed=False)\n"
+    setup = (
+        "route = Path3D([[0,0,0],[40,0,0],[40,40,20],[0,40,20]])"
+        ".round_corners(method='smooth', joint=8, closed=False)\n"
+    )
     m = _render(tmp_path, "route.stroke(width=3)", setup=setup, name="round3d")
     assert m.volume > 0
     assert m.bbmax[2] > 15  # follows the path up in Z

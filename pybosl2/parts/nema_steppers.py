@@ -20,6 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl
 
@@ -102,13 +103,20 @@ class NemaSteppers:
             body = cuboid(
                 [s.motor_width, s.motor_width, height],
                 chamfer=2 if size >= 8 else 0.5,
-                edges="Z",
+                edges=Anchor.Z,
                 fn=fn,
                 fa=fa,
                 fs=fs,
             )
         else:
-            body = cuboid([s.motor_width, s.motor_width, height], rounding=s.screw_size, edges="Z", fn=fn, fa=fa, fs=fs)
+            body = cuboid(
+                [s.motor_width, s.motor_width, height],
+                rounding=s.screw_size,
+                edges=Anchor.Z,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            )
         body = body.down(height / 2)  # mounting face at z=0, body below
         for sx in (-1, 1):
             for sy in (-1, 1):  # blind mounting holes at the corners
