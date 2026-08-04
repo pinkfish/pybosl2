@@ -530,7 +530,7 @@ class CsgSolid(_BaseShape):
             from pybosl2 import shapes3d as s3, Anchor
 
             cube = s3.cuboid([30, 30, 10])
-            knob = s3.sphere(r=5)
+            knob = s3.sphere(radius=5)
             cube.position(Anchor.TOP_FRONT_LEFT, knob).show()
         """
         p = self.anchor_point(anchor, bbox=bbox)
@@ -614,7 +614,7 @@ class CsgSolid(_BaseShape):
             from pybosl2 import shapes3d as s3, Anchor
 
             cube = s3.cuboid([20, 30, 10])
-            cyl = s3.cylinder(h=15, r=4)
+            cyl = s3.cylinder(height=15, radius=4)
             cube.attach(Anchor.UP, cyl).show()
         """
         pa = parent_anchor.vector
@@ -676,7 +676,7 @@ class CsgSolid(_BaseShape):
 
             from pybosl2 import shapes3d as s3
 
-            s3.cylinder(h=30, r=5).orient(s3.Anchor.TOP).show()
+            s3.cylinder(height=30, radius=5).orient(s3.Anchor.TOP).show()
         """
         return self.reorient(anchor=Anchor.CENTER, spin=spin, orient=direction, bbox=bbox)
 

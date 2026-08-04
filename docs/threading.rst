@@ -73,22 +73,22 @@ An ISO M16 x 2 rod:
 .. pythonscad-example::
 
     from pybosl2.parts.threading import Threading
-    Threading.threaded_rod(16, 30, 2, _fa=4, _fs=1).show()
+    Threading.threaded_rod(16, 30, 2, fa=4, fs=1).show()
 
 An ACME lead screw:
 
 .. pythonscad-example::
 
     from pybosl2.parts.threading import Threading
-    Threading.acme_threaded_rod(24, 36, 5, _fa=4, _fs=1).show()
+    Threading.acme_threaded_rod(24, 36, 5, fa=4, fs=1).show()
 
 A rod threaded into its matching hex nut (shown side by side):
 
 .. pythonscad-example::
 
     from pybosl2.parts.threading import Threading
-    rod = Threading.threaded_rod(12, 30, 1.75, _fa=6, _fs=1)
-    nut = Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1, _fa=6, _fs=1).right(22)
+    rod = Threading.threaded_rod(12, 30, 1.75, fa=6, fs=1)
+    nut = Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1).right(22)
     (rod | nut).show()
 
 API reference
@@ -208,4 +208,4 @@ A single thread ridge, swept as a helix:
 .. pythonscad-example::
 
    from pybosl2.parts.threading import Threading
-   Threading.thread_helix(diameter=10, pitch=2, thread_depth=0.75, flank_angle=15, turns=2.5).show()
+   Threading.thread_helix(d=10, pitch=2, thread_depth=0.75, flank_angle=15, turns=2.5).show()

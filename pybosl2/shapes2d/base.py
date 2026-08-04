@@ -468,7 +468,7 @@ class CsgShape2D(_BaseShape):
 
                 from pybosl2 import shapes2d as s2
 
-                s2.star(n=5, r=30, ir=15).offset(delta=4).linear_extrude(height=4).show()
+                s2.star(tips=5, radius=30, inner_radius=15).offset(delta=4).linear_extrude(height=4).show()
         """
         assert (radius is None) != (delta is None), "offset(): give exactly one of radius= or delta=."
         kw: dict[str, Any] = {"r": radius} if radius is not None else {"delta": delta, "chamfer": chamfer}

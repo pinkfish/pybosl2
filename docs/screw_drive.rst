@@ -46,7 +46,7 @@ A T30 Torx tip:
 .. pythonscad-example::
 
     from pybosl2.parts.screw_drive import ScrewDrive
-    ScrewDrive.torx_mask(size=30, length=10).show()
+    ScrewDrive.torx_mask(size=30, l=10).show()
 
 API reference
 -------------

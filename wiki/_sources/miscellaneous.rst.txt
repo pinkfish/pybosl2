@@ -79,7 +79,7 @@ A profile swept along a rising 3-D path:
     from pybosl2 import Path3D, shapes2d as s2
 
     route = Path3D([[0, 0, 0], [30, 0, 10], [30, 30, 20], [0, 30, 30]], closed=False)
-    route.path_extrude(s2.circle(radius=4, _fn=16)).show()
+    route.path_extrude(s2.circle(radius=4, fn=16)).show()
 
 A twisting, tapering column between two points:
 

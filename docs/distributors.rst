@@ -12,8 +12,8 @@ What a copier returns depends on the object it is called on:
 * :class:`~pybosl2.shapes3d` -- the **union** of the transformed geometry copies (a new
   solid), matching BOSL2's module form::
 
-      cuboid([10, 10, 10]).grid_copies(n=[3, 3], spacing=30)   # 9 cubes, unioned
-      cuboid([6, 6, 6]).zrot_copies(sides=6, radius=30)                 # a ring of 6 cubes
+      cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=30)   # 9 cubes, unioned
+      cuboid([6, 6, 6]).zrot_copies(rots=6, radius=30)                 # a ring of 6 cubes
       part.right(20).xflip_copy()                              # part + its mirror image
 
 * :class:`~pybosl2.paths` / :class:`~pybosl2._sdf.skin.path3d` -- a plain ``list`` of the transformed
@@ -83,7 +83,7 @@ A grid of rounded pillars, unioned into one solid:
 
     from pybosl2 import shapes3d as s3
 
-    s3.cyl(height=12, radius=4, rounding=1).grid_copies(n=[4, 3], spacing=14).show()
+    s3.cyl(height=12, radius=4, rounding=1).grid_copies(num_copies=[4, 3], spacing=14).show()
 
 A ring of wedges facing the centre:
 
@@ -91,7 +91,7 @@ A ring of wedges facing the centre:
 
     from pybosl2 import shapes3d as s3
 
-    s3.prismoid([6, 10], [2, 10], height=12).zrot_copies(sides=8, radius=24).show()
+    s3.prismoid([6, 10], [2, 10], height=12).zrot_copies(rots=8, radius=24).show()
 
 Copies of a 2-D outline along an arc, extruded together:
 
@@ -101,7 +101,7 @@ Copies of a 2-D outline along an arc, extruded together:
     from pybosl2 import Path2D
 
     tile = Path2D([[-3, -3], [3, -3], [3, 3], [-3, 3]])
-    reduce(lambda a, b: a | b, (c.polygon() for c in tile.arc_copies(sides=10, radius=30, ea=180))) \
+    reduce(lambda a, b: a | b, (c.polygon() for c in tile.arc_copies(radius=30, ea=180))) \
         .linear_extrude(height=3).show()
 
 API reference

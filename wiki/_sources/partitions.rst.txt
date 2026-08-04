@@ -88,7 +88,7 @@ A jigsaw cut face on one half of a long bar:
 
     from pybosl2 import partition_path, shapes3d as s3
 
-    cut = partition_path([50, "jigsaw", 50], _fn=20)
+    cut = partition_path([50, "jigsaw", 50], fn=20)
     s3.cuboid([100, 40, 16]).back_half(cut_path=cut).show()
 
 API reference

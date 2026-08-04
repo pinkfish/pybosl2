@@ -255,13 +255,13 @@ the <code class="docutils literal notranslate"><span class="pre">altpath</span><
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-b4e850efeb5f4e87817f4f710fc9291d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-5eb1348c5dd4492eae390807e09bb40e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-b4e850efeb5f4e87817f4f710fc9291d");
+const el = document.getElementById("stlviewer-5eb1348c5dd4492eae390807e09bb40e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -308,10 +308,61 @@ window.addEventListener("resize", resize);
 <p>A jigsaw cut face on one half of a long bar:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">partition_path</span><span class="p">,</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
 
-<span class="n">cut</span> <span class="o">=</span> <span class="n">partition_path</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span> <span class="n">_fn</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">cut</span> <span class="o">=</span> <span class="n">partition_path</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 <span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span><span class="o">.</span><span class="n">back_half</span><span class="p">(</span><span class="n">cut_path</span><span class="o">=</span><span class="n">cut</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+
+<div class="stl-viewer" id="stlviewer-1aa4c1b781084f64b9205317ac23dfe1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-1aa4c1b781084f64b9205317ac23dfe1");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/0662b14c9215662f.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/0662b14c9215662f.stl">⬇ Download STL mesh</a></p>
 </section>
 <section id="module-pybosl2.partitions">
 <span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-pybosl2.partitions" title="Link to this heading">¶</a></h2>
@@ -355,13 +406,13 @@ resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-5b2445ceb5144cb292696ef87e40fa22" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-8f8a793664d7499298de7a02c98e39cc" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-5b2445ceb5144cb292696ef87e40fa22");
+const el = document.getElementById("stlviewer-8f8a793664d7499298de7a02c98e39cc");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -443,13 +494,13 @@ Pair a plain mask with an <code class="docutils literal notranslate"><span class
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-6f12398b275344b69e08b87f5d6b5ae6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-378a0d006b3947c0a47d830410e3377a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-6f12398b275344b69e08b87f5d6b5ae6");
+const el = document.getElementById("stlviewer-378a0d006b3947c0a47d830410e3377a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -557,13 +608,13 @@ setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#py
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-e8ed0db94c924d14b0353dd3b91d495a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-2327a66cdfea4853ab23c00bf5dff653" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-e8ed0db94c924d14b0353dd3b91d495a");
+const el = document.getElementById("stlviewer-2327a66cdfea4853ab23c00bf5dff653");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -761,13 +812,13 @@ rotates the cut direction; <em>slop</em> leaves a printer-fit clearance.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-39dd41fb3c794cbf9fb3b6b265552c34" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-a18ea15e896245be83f26ee12dd586da" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-39dd41fb3c794cbf9fb3b6b265552c34");
+const el = document.getElementById("stlviewer-a18ea15e896245be83f26ee12dd586da");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);

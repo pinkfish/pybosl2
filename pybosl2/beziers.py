@@ -201,7 +201,7 @@ class Bezier:
             from pybosl2 import Bezier
 
             pts = Bezier([[44, 5], [48, 6], [64, -15]]).curve(20)
-            pts.stroke(width=2).linear_extrude(h=3).show()
+            pts.stroke(width=2).linear_extrude(height=3).show()
         """
         return self.points(lerpn(0, 1, splinesteps + 1, endpoint))
 
@@ -424,7 +424,7 @@ class Bezier:
             from pybosl2 import Bezier
 
             bz = Bezier([[0, 0], [25, 30], [50, 0], [75, -30], [100, 0]])
-            bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(h=3).show()
+            bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(height=3).show()
         """
         assert len(self) % n_degree == 1, (
             f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
@@ -1181,7 +1181,7 @@ class BezierPatch:
 
             patch = BezierPatch.flat([100, 100], n_degree=3)
             pts = patch.points(0, [i / 16 for i in range(17)])
-            pts.stroke(width=2).linear_extrude(h=3).show()
+            pts.stroke(width=2).linear_extrude(height=3).show()
         """
         patch = self.array
         nrows, ncols = patch.shape[0], patch.shape[1]
