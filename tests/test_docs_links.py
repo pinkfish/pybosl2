@@ -58,26 +58,30 @@ def _resolve_module_attr(module_path: str, attr_name: str = "") -> bool:
 
 
 def _resolve_docs_href(href: str) -> bool:
-    """Check whether an href in *rst_file* points to a real resource."""
+    """Check whether an href points to a real resource."""
     if href.startswith(("http://", "https://", "#", "mailto:")):
         return True
 
-    # spec sheet links: specs/<name>.html
+    # spec sheet links: specs/<name>.html — only check if specs are built
     if href.startswith("specs/"):
-        return (SPECS_DIR / Path(href).name).exists()
+        return not SPECS_DIR.is_dir() or (SPECS_DIR / Path(href).name).exists()
 
     # doc-relative links like circle.html
     target = DOCS_DIR / href
     if target.exists():
         return True
 
-    # wiki-relative: e.g. _static/..., _images/...
-    target = WIKI_DIR / href
-    return target.exists()
+    # wiki-relative: e.g. _static/..., _images/... — only check if wiki is built
+    if WIKI_DIR.is_dir():
+        target = WIKI_DIR / href
+        if target.exists():
+            return True
+
+    return False
 
 
 def _resolve_spec_href(href: str) -> bool:
-    """Check whether an href in *spec_file* points to a real resource."""
+    """Check whether an href in a spec sheet points to a real resource."""
     if href.startswith(("http://", "https://", "#", "mailto:")):
         return True
 
@@ -85,29 +89,31 @@ def _resolve_spec_href(href: str) -> bool:
     if href in ("spec.css",):
         return True
 
-    # STL files: _stl/<name>.stl
+    # STL files: _stl/<name>.stl — only check if specs dir has STL cache
     if href.startswith("_stl/"):
-        return (SPECS_DIR / href).exists()
+        return (SPECS_DIR / href).exists() if SPECS_DIR.is_dir() else True
 
     # spec-local pages
-    target = SPECS_DIR / href
-    if target.exists():
-        return True
+    if SPECS_DIR.is_dir():
+        target = SPECS_DIR / href
+        if target.exists():
+            return True
 
     # docs-local (API pages linked from specs)
     target = DOCS_DIR / href
-    in_docs = target.exists()
+    if target.exists():
+        return True
 
-    # wiki output (generated HTML from RST)
-    target = WIKI_DIR / href
-    in_wiki = target.exists()
+    # wiki output (generated HTML from RST) — only check if built
+    if WIKI_DIR.is_dir():
+        target = WIKI_DIR / href
+        if target.exists():
+            return True
 
     # RST source (API page exists as .rst)
     stem = Path(href).stem
     rst = DOCS_DIR / f"{stem}.rst"
-    in_rst = rst.exists()
-
-    return in_docs or in_wiki or in_rst
+    return rst.exists()
 
 
 # ── regex patterns ───────────────────────────────────────────────────────────
@@ -212,6 +218,8 @@ class TestRstLocalLinks:
 class TestSpecSheetLinks:
     @pytest.mark.parametrize("spec_file", list(_spec_htmls()), ids=lambda f: f.name)
     def test_nav_links_exist(self, spec_file: Path) -> None:
+        if not SPECS_DIR.is_dir():
+            pytest.skip("specs directory not built")
         text = spec_file.read_text()
         failures: list[str] = []
 
@@ -250,6 +258,8 @@ class TestSpecSheetCoverage:
     """Every spec sheet has a corresponding API .rst page and vice-versa for parts."""
 
     def test_spec_sheets_have_api_pages(self) -> None:
+        if not SPECS_DIR.is_dir():
+            pytest.skip("specs directory not built")
         failures: list[str] = []
         for spec in _spec_htmls():
             name = spec.stem
