@@ -72,9 +72,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         .. pythonscad-example::
 
-            from pybosl2 import helix
+            from pybosl2.path3d import Path3D
 
-            coil = helix(turns=3, height=60, radius=20).resample(num_copies=120)
+            coil = Path3D.helix(turns=3, height=60, radius=20).resample(num_copies=120)
             coil.stroke(width=4).show()
     """
 
@@ -577,9 +577,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
-                from pybosl2 import helix
+                from pybosl2.path3d import Path3D
 
-                coil = helix(turns=3, height=60, radius=20).subdivide_path(points=200)
+                coil = Path3D.helix(turns=3, height=60, radius=20).subdivide_path(points=200)
                 coil.stroke(width=4).show()
         """
         if closed is None:
@@ -659,9 +659,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
-                from pybosl2 import helix
+                from pybosl2.path3d import Path3D
 
-                coil = helix(turns=3, height=60, radius=20).resample_path(num_copies=120)
+                coil = Path3D.helix(turns=3, height=60, radius=20).resample_path(num_copies=120)
                 coil.stroke(width=4).show()
         """
         if closed is None:
@@ -1151,9 +1151,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Examples:
             .. pythonscad-example::
 
-                from pybosl2 import helix
+                from pybosl2.path3d import Path3D
 
-                sweep_path = helix(turns=3, height=60, radius=20)
+                sweep_path = Path3D.helix(turns=3, height=60, radius=20)
                 flat = sweep_path.path2d()
                 flat.stroke(width=2).linear_extrude(height=1).show()
         """

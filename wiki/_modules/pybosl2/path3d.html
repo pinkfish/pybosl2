@@ -218,9 +218,9 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            from pybosl2 import helix</span>
+<span class="sd">            from pybosl2.path3d import Path3D</span>
 
-<span class="sd">            coil = helix(turns=3, height=60, radius=20).resample(num_copies=120)</span>
+<span class="sd">            coil = Path3D.helix(turns=3, height=60, radius=20).resample(num_copies=120)</span>
 <span class="sd">            coil.stroke(width=4).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -776,9 +776,9 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                from pybosl2 import helix</span>
+<span class="sd">                from pybosl2.path3d import Path3D</span>
 
-<span class="sd">                coil = helix(turns=3, height=60, radius=20).subdivide_path(points=200)</span>
+<span class="sd">                coil = Path3D.helix(turns=3, height=60, radius=20).subdivide_path(points=200)</span>
 <span class="sd">                coil.stroke(width=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -861,9 +861,9 @@
 
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                from pybosl2 import helix</span>
+<span class="sd">                from pybosl2.path3d import Path3D</span>
 
-<span class="sd">                coil = helix(turns=3, height=60, radius=20).resample_path(num_copies=120)</span>
+<span class="sd">                coil = Path3D.helix(turns=3, height=60, radius=20).resample_path(num_copies=120)</span>
 <span class="sd">                coil.stroke(width=4).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1422,9 +1422,9 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>
 
-<span class="sd">                from pybosl2 import helix</span>
+<span class="sd">                from pybosl2.path3d import Path3D</span>
 
-<span class="sd">                sweep_path = helix(turns=3, height=60, radius=20)</span>
+<span class="sd">                sweep_path = Path3D.helix(turns=3, height=60, radius=20)</span>
 <span class="sd">                flat = sweep_path.path2d()</span>
 <span class="sd">                flat.stroke(width=2).linear_extrude(height=1).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
