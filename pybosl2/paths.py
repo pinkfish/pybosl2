@@ -495,13 +495,13 @@ def stroke(
     width: float = 1,
     closed: bool | None = None,
     endcaps: CapType | CapSpec = CapType.ROUND,
-    endcap1: CapType | CapSpec = CapType.ROUND,
-    endcap2: CapType | CapSpec = CapType.ROUND,
+    endcap1: CapType | CapSpec | None = None,
+    endcap2: CapType | CapSpec | None = None,
     joints: CapType | CapSpec = CapType.ROUND,
 ) -> Any:
     """Render the path/region as a stroked polygon outline (2-D) or solid tube (3-D)."""
     if not isinstance(path, Path):
-        path = _make_path(path, closed=True if closed is None else closed)
+        path = _make_path(path, closed=False if closed is None else closed)
     return path.stroke(
         width=width,
         closed=closed,
@@ -521,7 +521,7 @@ def dashed_stroke(
 ) -> Any:
     """Break the path/region into dashed segments and stroke them."""
     if not isinstance(path, Path):
-        path = _make_path(path, closed=True if closed is None else closed)
+        path = _make_path(path, closed=False if closed is None else closed)
     return path.dashed_stroke(
         dashpat=dashpat,
         closed=closed,

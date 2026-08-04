@@ -641,7 +641,7 @@ def partition_cut_mask(
             import pybosl2.shapes3d as s3
             from pybosl2.partitions import partition_cut_mask
 
-            (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath="jigsaw", slop=0.15)).show()
+            (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutsize=5, slop=0.2)).show()
     """
 
     from pybosl2.shapes3d import Bosl2Solid

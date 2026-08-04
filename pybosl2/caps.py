@@ -107,7 +107,7 @@ class CapType(Enum):
 #: * a ``Sequence[CapType | CapSpec]`` pair (per-end caps)
 #:
 #: Use ``CapType.NONE`` to request no cap; ``CapType.BUTT`` for a flat cap.
-CapsSpec = Union["CapType", "CapSpec", "Sequence[Union['CapType', 'CapSpec']]"]
+CapsSpec = Union["CapType", "CapSpec", "str", "Sequence[Union['CapType', 'CapSpec', str]]"]
 
 #: The default cap type used when no explicit cap is requested.
 DEFAULT_CAP = CapType.BUTT
@@ -212,7 +212,7 @@ def _norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
     return [result, result]
 
 
-def _normalize_one(cap: CapType | CapSpec) -> CapSpec:
+def _normalize_one(cap: CapType | CapSpec | str) -> CapSpec:
     """Normalize a single cap value to a fully-resolved :class:`CapSpec`.
 
     If given a raw :class:`CapType`, looks up the default :class:`CapSpec`
@@ -221,6 +221,11 @@ def _normalize_one(cap: CapType | CapSpec) -> CapSpec:
     """
     if isinstance(cap, CapSpec):
         return cap
+    if isinstance(cap, str):
+        try:
+            cap = CapType(cap)
+        except ValueError:
+            return _DEFAULTS[CapType.BUTT]
     if isinstance(cap, CapType):
         return _DEFAULTS.get(cap, _DEFAULTS[CapType.NONE])
     return _DEFAULTS[CapType.BUTT]
@@ -307,7 +312,7 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
     length = spec.length * spec.width
     l2 = spec.extent * spec.width
     w2 = w - l2
-    s = lw / 2
+    s = (lw / 2) / w if w else lw / 2
     ss = s * w2
 
     style = spec.cap_type
@@ -324,7 +329,7 @@ def _endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
         poly.append([[0, -s], [p, -s], [p, s], [0, s]])
     elif style == CapType.DIAMOND:
         p = s * length
-        poly.append([[0, 0], [p / 2, -s], [p, 0], [p / 2, s]])
+        poly.append([[-p / 2, 0], [0, -s], [p / 2, 0], [0, s]])
     elif style == CapType.DOT:
         th = [i * 2 * math.pi / 16 for i in range(16)]
         poly.append([[math.cos(t) * s, math.sin(t) * s] for t in th])
@@ -375,10 +380,11 @@ def _endcap_trim(spec: CapSpec, width: float) -> float:
     Returns:
         The trim distance in world units (0.0 for non-arrow styles).
     """
+    s = (width / 2) / spec.width if spec.width else width / 2
     if spec.cap_type in (CapType.ARROW, CapType.ARROW3):
-        return width * (spec.length * spec.width - 0.01)
+        return s * (spec.length * spec.width - 0.01)
     if spec.cap_type == CapType.ARROW2:
-        return width * (spec.length * spec.width * 3 / 4)
+        return s * (spec.length * spec.width * 3 / 4)
     return 0.0
 
 
