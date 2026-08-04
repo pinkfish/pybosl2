@@ -72,16 +72,24 @@ else:
 def square(
     size: float | Sequence[float] = 1,
     center: bool | None = None,
+    rounding: float | Sequence[float] = 0,
+    chamfer: float | Sequence[float] = 0,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A rectangle, built with the builtin square(), with BOSL2-style anchor/spin support.
+    """A rectangle, built via polygon() with BOSL2-style anchor/spin support.
 
     Args:
-        size:   size of the square; a scalar uses the same size for X and Y
-        center: if given, overrides anchor (True -> CENTER, False -> FRONT+LEFT)
-        anchor: anchor point (default CENTER)
-        spin:   Z-axis rotation in degrees after anchor (default 0)
+        size:     size of the square; a scalar uses the same size for X and Y
+        center:   if given, overrides anchor (True -> CENTER, False -> FRONT+LEFT)
+        rounding: corner rounding radius, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
+        chamfer:  corner chamfer size, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
+        anchor:   anchor point (default CENTER)
+        spin:     Z-axis rotation in degrees after anchor (default 0)
+        fn/fa/fs: arc smoothness overrides for rounded corners
 
     Examples:
         .. pythonscad-example::
@@ -90,10 +98,16 @@ def square(
 
             s2.square(20).linear_extrude(height=5).show()
     """
+    assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = anchor
     if center is not None:
         use_anchor = CENTER if center else [-1, -1, 0]
+    if rounding != 0 or chamfer != 0:
+        path = _rect_path(sz, rounding=rounding, chamfer=chamfer, fn=fn, fa=fa, fs=fs)
+        shape = _opolygon(path)
+        offset = _anchor_offset_hull(path, use_anchor)
+        return _finish(shape, offset, spin or 0)
     shape = _osquare(sz, center=True)
     offset = _anchor_offset_box(sz, use_anchor)
     return _finish(shape, offset, spin or 0, size=sz, anchor=use_anchor)
@@ -180,6 +194,10 @@ def rect(
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn/fa/fs: arc smoothness overrides for rounded corners
     """
+    rl = [float(rounding)] * 4 if isinstance(rounding, (int, float)) else [float(v) for v in rounding]
+    cl = [float(chamfer)] * 4 if isinstance(chamfer, (int, float)) else [float(v) for v in chamfer]
+    msg = "Cannot set both rounding and chamfer on the same corner."
+    assert not any(a and b for a, b in zip(rl, cl, strict=False)), msg
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else list(size)
     path = _rect_path(sz, rounding=rounding, chamfer=chamfer, fn=fn, fa=fa, fs=fs)
     shape = _opolygon(path)
@@ -253,6 +271,7 @@ def _regular_ngon_path(
     sides: int,
     radius: float,
     rounding: float = 0,
+    chamfer: float = 0,
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
@@ -260,16 +279,34 @@ def _regular_ngon_path(
     fa: float | None = None,
     fs: float | None = None,
 ) -> list[list[float]]:
-    if not rounding:
+    if not rounding and not chamfer:
         path = _circle_pts(radius, sides)
     else:
-        inset = rounding / math.sin(math.radians((180 - 360.0 / sides) / 2))
+        inset: float
+        if chamfer:
+            inset = chamfer / math.sin(math.radians((180 - 360.0 / sides) / 2))
+        else:
+            inset = rounding / math.sin(math.radians((180 - 360.0 / sides) / 2))
         steps = max(1, int(_frag_count(radius, fn, fa, fs) // sides))
-        path2 = []
+        path2: list[list[float]] = []
         for i in range(sides):
             a = 360 - i * 360.0 / sides
             p = _polar_to_xy(radius - inset, a)
-            path2.extend(_arc_points(steps, rounding, a + 180.0 / sides, -360.0 / sides, p))
+            if chamfer:
+                half_angle = math.radians(180.0 / sides)
+                chamf_len = chamfer / math.sin(half_angle) * math.cos(half_angle)
+                c1 = [
+                    p[0] + chamf_len * math.cos(math.radians(a - 90)),
+                    p[1] + chamf_len * math.sin(math.radians(a - 90)),
+                ]
+                c2 = [
+                    p[0] + chamf_len * math.cos(math.radians(a + 90)),
+                    p[1] + chamf_len * math.sin(math.radians(a + 90)),
+                ]
+                path2.append(c1)
+                path2.append(c2)
+            else:
+                path2.extend(_arc_points(steps, rounding, a + 180.0 / sides, -360.0 / sides, p))
         maxx_idx = max(range(len(path2)), key=lambda k: path2[k][0])
         path = path2[maxx_idx:] + path2[:maxx_idx]
     extra_rot = 0.0
@@ -294,6 +331,7 @@ def regular_ngon(
     inner_diameter: float | None = None,
     side: float | None = None,
     rounding: float = 0,
+    chamfer: float = 0,
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
@@ -310,12 +348,13 @@ def regular_ngon(
 
     Args:
         sides:          number of sides (default 6)
-        radius/outer_radius: outside radius, at the points (BOSL2 `or`)
+        radius/outer_radius: outside radius, at the points (BOSL2 ``or``)
         diameter/outer_diameter: outside diameter, at the points
         inner_radius:   inside radius, at the center of the sides
         inner_diameter: inside diameter, at the center of the sides
         side:           length of each side
         rounding:       rounding radius for the tips of the polygon (default 0)
+        chamfer:        chamfer size for the tips of the polygon (default 0)
         realign:        put the midpoint of the last edge (instead of vertex 0) on the X+ axis (default False)
         align_tip:      rotate so the first vertex points in this 2-D direction (applied before spin)
         align_side:     rotate so the normal of side 0 points in this 2-D direction (applied before spin)
@@ -330,6 +369,7 @@ def regular_ngon(
 
             s2.regular_ngon(sides=6, radius=15).linear_extrude(height=5).show()
     """
+    assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
     assert sides >= 3
     sc = 1 / math.cos(math.radians(180.0 / sides))
     ir_s = inner_radius * sc if inner_radius is not None else None
@@ -353,6 +393,7 @@ def regular_ngon(
         sides,
         rad,
         rounding=rounding,
+        chamfer=chamfer,
         realign=realign,
         align_tip=align_tip,
         align_side=align_side,
@@ -374,6 +415,7 @@ def pentagon(
     inner_diameter: float | None = None,
     side: float | None = None,
     rounding: float = 0,
+    chamfer: float = 0,
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
@@ -394,6 +436,7 @@ def pentagon(
         inner_diameter=inner_diameter,
         side=side,
         rounding=rounding,
+        chamfer=chamfer,
         realign=realign,
         align_tip=align_tip,
         align_side=align_side,
@@ -414,6 +457,7 @@ def hexagon(
     inner_diameter: float | None = None,
     side: float | None = None,
     rounding: float = 0,
+    chamfer: float = 0,
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
@@ -434,6 +478,7 @@ def hexagon(
         inner_diameter=inner_diameter,
         side=side,
         rounding=rounding,
+        chamfer=chamfer,
         realign=realign,
         align_tip=align_tip,
         align_side=align_side,
@@ -454,6 +499,7 @@ def octagon(
     inner_diameter: float | None = None,
     side: float | None = None,
     rounding: float = 0,
+    chamfer: float = 0,
     realign: bool = False,
     align_tip: Sequence[float] | None = None,
     align_side: Sequence[float] | None = None,
@@ -474,6 +520,7 @@ def octagon(
         inner_diameter=inner_diameter,
         side=side,
         rounding=rounding,
+        chamfer=chamfer,
         realign=realign,
         align_tip=align_tip,
         align_side=align_side,
@@ -488,16 +535,24 @@ def octagon(
 def right_triangle(
     size: Sequence[float] = [1, 1],
     center: bool | None = None,
+    rounding: float = 0,
+    chamfer: float = 0,
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Shape2D:
     """A right triangle, built directly with polygon().
 
     Args:
-        size:   [width, length] of the right triangle
-        center: True forces anchor=CENTER, False forces anchor=[-1,-1] (default: use anchor=)
-        anchor: anchor point (default: [-1,-1], the right-angle corner)
-        spin:   Z-axis rotation in degrees after anchor (default 0)
+        size:     [width, length] of the right triangle
+        center:   True forces anchor=CENTER, False forces anchor=[-1,-1] (default: use anchor=)
+        rounding: corner rounding radius (default 0)
+        chamfer:  corner chamfer size (default 0)
+        anchor:   anchor point (default: [-1,-1], the right-angle corner)
+        spin:     Z-axis rotation in degrees after anchor (default 0)
+        fn/fa/fs: arc smoothness overrides for rounded corners
 
     Examples:
         .. pythonscad-example::
@@ -506,6 +561,7 @@ def right_triangle(
 
             s2.right_triangle(size=[30, 20]).linear_extrude(height=5).show()
     """
+    assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
     if anchor is not None:
         use_anchor = anchor
@@ -513,10 +569,14 @@ def right_triangle(
         use_anchor = CENTER
     else:
         use_anchor = [-1, -1, 0]
-    path = [[sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, sz[1] / 2]]
-    shape = _opolygon(path)
+    shape = _opolygon([[sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, sz[1] / 2]])
+    bshape = Bosl2Shape2D(shape)
+    if chamfer:
+        bshape = bshape.offset(delta=chamfer, chamfer=True).offset(delta=-chamfer)
+    if rounding:
+        bshape = bshape.offset(radius=rounding, fn=fn, fa=fa, fs=fs)
     offset = _anchor_offset_box(sz, use_anchor)
-    return _finish(shape, offset, spin, size=sz, anchor=use_anchor)
+    return _finish(bshape.__scad__(), offset, spin, size=sz, anchor=use_anchor)
 
 
 def _trapezoid_path(

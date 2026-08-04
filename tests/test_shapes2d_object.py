@@ -44,6 +44,8 @@ SQUARE_PTS = [[0, 0], [20, 0], [20, 10], [0, 10]]
 CONSTRUCTORS = {
     "square": lambda: s2.square(10),
     "square_center_false": lambda: s2.square([10, 4], center=False),
+    "square_rounded": lambda: s2.square(20, rounding=3),
+    "square_chamfered": lambda: s2.square(20, chamfer=2),
     "rect": lambda: s2.rect([20, 10]),
     "rect_rounded_perim": lambda: s2.rect([20, 10], rounding=2, atype="perim"),
     "circle": lambda: s2.circle(radius=5),
@@ -51,10 +53,16 @@ CONSTRUCTORS = {
     "circle_corner": lambda: s2.circle(corner=[[0, 10], [0, 0], [10, 0]], radius=3),
     "ellipse": lambda: s2.ellipse(radius=[10, 4]),
     "regular_ngon": lambda: s2.regular_ngon(sides=7, radius=10),
+    "regular_ngon_chamfered": lambda: s2.regular_ngon(sides=6, radius=15, chamfer=2),
+    "pentagon_rounded": lambda: s2.pentagon(radius=12, rounding=2),
+    "hexagon_chamfered": lambda: s2.hexagon(radius=12, chamfer=1.5),
+    "octagon_rounded": lambda: s2.octagon(radius=12, rounding=3),
     "pentagon": lambda: s2.pentagon(radius=10),
     "hexagon": lambda: s2.hexagon(radius=10),
     "octagon": lambda: s2.octagon(radius=10),
     "right_triangle": lambda: s2.right_triangle([10, 6]),
+    "right_triangle_rounded": lambda: s2.right_triangle([15, 10], rounding=2),
+    "right_triangle_chamfered": lambda: s2.right_triangle([15, 10], chamfer=1.5),
     "trapezoid": lambda: s2.trapezoid(height=10, width1=20, width2=10),
     "star": lambda: s2.star(tips=5, radius=20, inner_radius=10),
     "teardrop2d": lambda: s2.teardrop2d(radius=10),
@@ -533,3 +541,83 @@ def test_minkowski_grows_bounding_box() -> None:
     a = s2.square([10, 10], center=True)
     result = a.minkowski(s2.circle(radius=3))
     np.testing.assert_allclose(result.shape.size, [16, 16], atol=0.1)
+
+
+# ---------------------------------------------------------------------------
+# chamfer / rounding parameter tests
+# ---------------------------------------------------------------------------
+
+
+def test_square_rounding_returns_shape2d() -> None:
+    result = s2.square(20, rounding=3)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_square_chamfer_returns_shape2d() -> None:
+    result = s2.square(20, chamfer=2)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_square_rounding_and_chamfer_mutually_exclusive() -> None:
+    with pytest.raises(AssertionError, match="rounding and chamfer"):
+        s2.square(20, rounding=3, chamfer=2)
+
+
+def test_regular_ngon_chamfer_returns_shape2d() -> None:
+    result = s2.regular_ngon(sides=6, radius=15, chamfer=2)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_regular_ngon_rounding_and_chamfer_mutually_exclusive() -> None:
+    with pytest.raises(AssertionError, match="rounding and chamfer"):
+        s2.regular_ngon(sides=6, radius=15, rounding=2, chamfer=2)
+
+
+def test_pentagon_chamfer_returns_shape2d() -> None:
+    result = s2.pentagon(radius=12, chamfer=2)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_hexagon_chamfer_returns_shape2d() -> None:
+    result = s2.hexagon(radius=12, chamfer=1.5)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_octagon_chamfer_returns_shape2d() -> None:
+    result = s2.octagon(radius=12, chamfer=2)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_right_triangle_rounding_returns_shape2d() -> None:
+    result = s2.right_triangle([15, 10], rounding=2)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_right_triangle_chamfer_returns_shape2d() -> None:
+    result = s2.right_triangle([15, 10], chamfer=1.5)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_right_triangle_rounding_and_chamfer_mutually_exclusive() -> None:
+    with pytest.raises(AssertionError, match="rounding and chamfer"):
+        s2.right_triangle([15, 10], rounding=2, chamfer=1.5)
+
+
+def test_rect_rounding_and_chamfer_mutually_exclusive() -> None:
+    with pytest.raises(AssertionError, match="rounding and chamfer"):
+        s2.rect([20, 10], rounding=3, chamfer=2)
+
+
+def test_square_rounded_chainable_to_solid() -> None:
+    result = s2.square(20, rounding=3).linear_extrude(height=5)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_square_chamfered_chainable_to_solid() -> None:
+    result = s2.square(20, chamfer=2).linear_extrude(height=5)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_right_triangle_rounded_chainable_to_solid() -> None:
+    result = s2.right_triangle([15, 10], rounding=2).linear_extrude(height=5)
+    assert isinstance(result, Bosl2Solid)
