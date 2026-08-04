@@ -161,17 +161,21 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
+
+<span class="c1"># Import base class and helper functions from shapes2d.base</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">anchor_offset_box</span> <span class="k">as</span> <span class="n">_anchor_offset_box</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">as_native_2d</span> <span class="k">as</span> <span class="n">_as_native_2d</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">is_child_2d</span> <span class="k">as</span> <span class="n">_is_child_2d</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span>
 
-<span class="c1"># Import base class and helper functions from shapes2d.base</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Bosl2Shape2D</span><span class="p">,</span>
-    <span class="n">_anchor_offset_box</span><span class="p">,</span>
-    <span class="n">_as_native_2d</span><span class="p">,</span>
-    <span class="n">_finish</span><span class="p">,</span>
-    <span class="n">_is_child_2d</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span><span class="p">,</span> <span class="n">_finish</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">openscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyOpenSCAD</span>

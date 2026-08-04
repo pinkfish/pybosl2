@@ -65,13 +65,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "quant": ("pybosl2.math", "quant"),
     "constrain": ("pybosl2.math", "constrain"),
     "mean": ("pybosl2.math", "mean"),
-    # vectors
-    "vector_angle": ("pybosl2.vectors", "vector_angle"),
-    "vector_axis": ("pybosl2.vectors", "vector_axis"),
-    "vector_bisect": ("pybosl2.vectors", "vector_bisect"),
-    "pointlist_bounds": ("pybosl2.vectors", "pointlist_bounds"),
-    "closest_point": ("pybosl2.vectors", "closest_point"),
-    "furthest_point": ("pybosl2.vectors", "furthest_point"),
     # colour
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),
@@ -128,9 +121,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "xdistribute": ("pybosl2.distributors", "xdistribute"),
     "ydistribute": ("pybosl2.distributors", "ydistribute"),
     "zdistribute": ("pybosl2.distributors", "zdistribute"),
-    # path generators
-    "catenary": ("pybosl2.path2d", "catenary"),
-    "helix": ("pybosl2.path3d", "helix"),
     # bezier / NURBS
     "Bezier": ("pybosl2.beziers", "Bezier"),
     "BezierPatch": ("pybosl2.beziers", "BezierPatch"),
@@ -139,15 +129,8 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "nurbs_vnf": ("pybosl2.nurbs", "nurbs_vnf"),
     "is_nurbs_patch": ("pybosl2.nurbs", "is_nurbs_patch"),
     "nurbs_elevate_degree": ("pybosl2.nurbs", "nurbs_elevate_degree"),
-    # drawing / stroke
-    "stroke": ("pybosl2.paths", "stroke"),
-    "dashed_stroke": ("pybosl2.paths", "dashed_stroke"),
     "turtle2d": ("pybosl2.turtle", "turtle2d"),
     "turtle3d": ("pybosl2.turtle", "turtle3d"),
-    # skin / sweep
-    "sweep": ("pybosl2.skin", "sweep"),
-    "skin": ("pybosl2.skin", "skin"),
-    "rot_resample": ("pybosl2.skin", "rot_resample"),
     # partitioning
     "partition_path": ("pybosl2.partitions", "partition_path"),
     "partition_mask": ("pybosl2.partitions", "partition_mask"),
@@ -157,9 +140,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "cylindrical_extrude": ("pybosl2.miscellaneous", "cylindrical_extrude"),
     "chain_hull": ("pybosl2.miscellaneous", "chain_hull"),
     "minkowski_difference": ("pybosl2.miscellaneous", "minkowski_difference"),
-    # rounding
-    "round_corners": ("pybosl2.rounding", "round_corners"),
-    "smooth_path": ("pybosl2.rounding", "smooth_path"),
     "MinkowskiJoin": ("pybosl2.path2d", "MinkowskiJoin"),
     # isosurface / metaballs
     "mb_sphere": ("pybosl2.isosurface", "mb_sphere"),
@@ -175,7 +155,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # VNF
     "VNF": ("pybosl2.vnf", "VNF"),
     "contour": ("pybosl2.vnf", "contour"),
-    "vnf_polyhedron": ("pybosl2.vnf", "vnf_polyhedron"),
     # surfaces
     "heightfield": ("pybosl2.surfaces3d", "heightfield"),
     "cylindrical_heightfield": ("pybosl2.surfaces3d", "cylindrical_heightfield"),

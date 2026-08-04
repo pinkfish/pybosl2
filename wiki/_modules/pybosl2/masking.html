@@ -176,10 +176,14 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDGE_OFFSETS</span><span class="p">,</span> <span class="n">_edges</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">polar_to_xy</span> <span class="k">as</span> <span class="n">_polar_to_xy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantup</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDGE_OFFSETS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">edges</span> <span class="k">as</span> <span class="n">resolve_edges</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frag_count</span><span class="p">,</span> <span class="n">_polar_to_xy</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.shapes3d.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">_anchor_offset_box3</span><span class="p">,</span> <span class="n">_quantup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.shapes3d.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">_anchor_offset_box3</span>
 
 <span class="n">_ocube</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;cube&quot;</span><span class="p">)</span>
 <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
@@ -216,7 +220,7 @@
         <span class="n">radius</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
     <span class="n">inset_x</span><span class="p">,</span> <span class="n">inset_y</span> <span class="o">=</span> <span class="n">inset</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inset</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">inset</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">inset</span><span class="p">))</span>
-    <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">_quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">))</span>
     <span class="n">step</span> <span class="o">=</span> <span class="mf">90.0</span> <span class="o">/</span> <span class="n">steps</span>
     <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">[</span><span class="n">rad</span> <span class="o">+</span> <span class="n">inset_x</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
@@ -375,7 +379,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;size= (the box&#39;s size) must be given&quot;</span>
     <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;children= (the edge cutter) must be given&quot;</span>
-    <span class="n">edge_set</span> <span class="o">=</span> <span class="n">_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
+    <span class="n">edge_set</span> <span class="o">=</span> <span class="n">resolve_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="n">cutter</span><span class="p">:</span> <span class="s2">&quot;Bosl2Solid | None&quot;</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -416,7 +420,7 @@
     <span class="n">_</span> <span class="o">=</span> <span class="n">convexity</span>
     <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;size= (the box&#39;s size) must be given&quot;</span>
     <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;children= (the 2-D mask path) must be given&quot;</span>
-    <span class="n">edge_set</span> <span class="o">=</span> <span class="n">_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
+    <span class="n">edge_set</span> <span class="o">=</span> <span class="n">resolve_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="n">cutter</span><span class="p">:</span> <span class="s2">&quot;Bosl2Solid | None&quot;</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>

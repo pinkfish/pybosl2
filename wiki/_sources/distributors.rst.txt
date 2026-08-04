@@ -81,17 +81,19 @@ A grid of rounded pillars, unioned into one solid:
 
 .. pythonscad-example::
 
+    from functools import reduce
     from pybosl2 import shapes3d as s3
 
-    s3.cyl(height=12, radius=4, rounding=1).grid_copies(num_copies=[4, 3], spacing=14).show()
+    reduce(lambda a, b: a | b, s3.cyl(height=12, radius=4, rounding=1).grid_copies(num_copies=[4, 3], spacing=14)).show()
 
 A ring of wedges facing the centre:
 
 .. pythonscad-example::
 
+    from functools import reduce
     from pybosl2 import shapes3d as s3
 
-    s3.prismoid([6, 10], [2, 10], height=12).zrot_copies(rots=8, radius=24).show()
+    reduce(lambda a, b: a | b, s3.prismoid([6, 10], [2, 10], height=12).zrot_copies(rots=8, radius=24)).show()
 
 Copies of a 2-D outline along an arc, extruded together:
 
@@ -101,7 +103,7 @@ Copies of a 2-D outline along an arc, extruded together:
     from pybosl2 import Path2D
 
     tile = Path2D([[-3, -3], [3, -3], [3, 3], [-3, 3]])
-    reduce(lambda a, b: a | b, (c.polygon() for c in tile.arc_copies(radius=30, ea=180))) \
+    reduce(lambda a, b: a | b, (c.polygon() for c in tile.arc_copies(radius=30, ea=180, num_copies=10))) \
         .linear_extrude(height=3).show()
 
 API reference

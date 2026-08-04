@@ -53,22 +53,22 @@ A square rounded three ways (circle, smooth, chamfer), extruded:
 
 .. pythonscad-example::
 
-    from pybosl2 import round_corners
+    from pybosl2 import Path2D
 
     sq = [[0, 0], [40, 0], [40, 30], [0, 30]]
-    a = round_corners(sq, method="circle", radius=6).polygon().linear_extrude(height=4)
-    b = round_corners(sq, method="smooth", joint=10).polygon().linear_extrude(height=4).right(50)
-    c = round_corners(sq, method="chamfer", joint=8).polygon().linear_extrude(height=4).right(100)
+    a = Path2D(sq).round_corners(method="circle", radius=6).polygon().linear_extrude(height=4)
+    b = Path2D(sq).round_corners(method="smooth", joint=10).polygon().linear_extrude(height=4).right(50)
+    c = Path2D(sq).round_corners(method="chamfer", joint=8).polygon().linear_extrude(height=4).right(100)
     (a | b | c).show()
 
 A wiggly path smoothed into a flowing ribbon:
 
 .. pythonscad-example::
 
-    from pybosl2 import smooth_path
+    from pybosl2 import Path2D
 
     pts = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]
-    smooth_path(pts, relsize=0.4).stroke(width=2).linear_extrude(height=3).show()
+    Path2D(pts).smooth_path(relsize=0.4).stroke(width=2).linear_extrude(height=3).show()
 
 API reference
 -------------

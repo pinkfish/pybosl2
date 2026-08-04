@@ -52,7 +52,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
-__all__ = ["CutPoint", "Path", "SubdivideMethod", "stroke", "dashed_stroke"]
+__all__ = ["CutPoint", "Path", "SubdivideMethod"]
 
 
 class SubdivideMethod(Enum):
@@ -475,56 +475,3 @@ class Path(ABC):
             A new path with duplicate points removed.
         """
         ...
-
-
-def _make_path(points: Any, closed: bool) -> Path:
-    pts = np.asarray(points, dtype=float)
-    dim = pts.shape[-1] if len(pts.shape) > 1 else 2
-    if dim == 3:
-        from pybosl2.path3d import Path3D
-
-        return Path3D(points, closed=closed)
-    else:
-        from pybosl2.path2d import Path2D
-
-        return Path2D(points, closed=closed)
-
-
-def stroke(
-    path: Any,
-    width: float = 1,
-    closed: bool | None = None,
-    endcaps: CapType | CapSpec = CapType.ROUND,
-    endcap1: CapType | CapSpec | None = None,
-    endcap2: CapType | CapSpec | None = None,
-    joints: CapType | CapSpec = CapType.ROUND,
-) -> Any:
-    """Render the path/region as a stroked polygon outline (2-D) or solid tube (3-D)."""
-    if not isinstance(path, Path):
-        path = _make_path(path, closed=False if closed is None else closed)
-    return path.stroke(
-        width=width,
-        closed=closed,
-        endcaps=endcaps,
-        endcap1=endcap1,
-        endcap2=endcap2,
-        joints=joints,
-    )
-
-
-def dashed_stroke(
-    path: Any,
-    dashpat: Sequence[float] | None = None,
-    closed: bool | None = None,
-    fit: bool = True,
-    mindash: float = 0.5,
-) -> Any:
-    """Break the path/region into dashed segments and stroke them."""
-    if not isinstance(path, Path):
-        path = _make_path(path, closed=False if closed is None else closed)
-    return path.dashed_stroke(
-        dashpat=dashpat,
-        closed=closed,
-        fit=fit,
-        mindash=mindash,
-    )

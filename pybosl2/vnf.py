@@ -36,9 +36,10 @@ from pybosl2.bounds import Bounds2D, Bounds3D
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from pybosl2.caps import CapSpec, CapType
+    from pybosl2.caps import CapSpec, CapsSpec, CapType
     from pybosl2.isosurface import _MetaballSpec
     from pybosl2.path3d import Path3D
+    from pybosl2.shapes3d import Bosl2Solid
 
 _EPS = 1e-9
 
@@ -696,8 +697,8 @@ class VNF:
                 total += float(np.dot(a, np.cross(v[f[k]], v[f[k + 1]])))
         return total / 6.0
 
-    @staticmethod
-    def union(vnfs: list["VNF"]) -> "VNF":
+    @classmethod
+    def union(cls, vnfs: list["VNF"]) -> "VNF":
         """Merge a list of VNFs into one, offsetting each VNF's face indices (BOSL2 vnf_join())."""
         vnfs = list(vnfs)
         if len(vnfs) == 1:
@@ -711,10 +712,10 @@ class VNF:
                     faces.append([off + j for j in f])
             verts.extend(v.vertices)
             off += len(v.vertices)
-        return VNF(verts, faces)
+        return cls(verts, faces)
 
-    @staticmethod
-    def join(vnfs: list["VNF"]) -> "VNF":
+    @classmethod
+    def join(cls, vnfs: list["VNF"]) -> "VNF":
         """Merge multiple VNFs into a single consolidated VNF with shared vertices.
 
         Each input VNF's vertices and faces are copied into a combined vertex array,
@@ -735,11 +736,10 @@ class VNF:
             b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])
             VNF.join([a, b]).polyhedron().show()
         """
-        return VNF.union(vnfs)
+        return cls.union(vnfs)
 
-    @staticmethod
     def halfspace(
-        vnf: "VNF",
+        self,
         plane: Sequence[float],
         keep: bool = True,
         closed: bool = True,
@@ -751,7 +751,6 @@ class VNF:
         is retained.  If *keep* is False, the negative halfspace is retained.
 
         Args:
-            vnf: The input :class:`VNF`.
             plane: Plane equation ``[A, B, C, D]``.
             keep: If True, keep the positive halfspace.  Defaults to True.
             closed: If True, triangulate and close the cut face.  Defaults to True.
@@ -772,12 +771,12 @@ class VNF:
                 lambda p: 5 - np.max(np.abs(p), axis=1),
                 0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1
             )
-            cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0], keep=True, closed=True)
+            cut = cube_vnf.halfspace([0, 0, 1, 0], keep=True, closed=True)
             cut.polyhedron().show()
         """
         assert len(plane) == 4, "halfspace(): plane must be [A, B, C, D]."
         a, b, c, d = plane[0], plane[1], plane[2], plane[3]
-        verts_in = np.asarray(vnf.vertices, dtype=float)
+        verts_in = np.asarray(self.vertices, dtype=float)
         if len(verts_in) == 0:
             return VNF([], [])
 
@@ -798,7 +797,7 @@ class VNF:
         new_faces: list[list[int]] = []
         cut_edges: list[tuple[int, int]] = []
 
-        for face in vnf.faces:
+        for face in self.faces:
             face_inside: list[bool] = [inside_mask[i] for i in face]
             all_in = all(face_inside)
             none_in = not any(face_inside)
@@ -822,15 +821,15 @@ class VNF:
                     elif v0_in and not v1_in:
                         if not clipped or clipped[-1] != vertex_map[i0]:
                             clipped.append(vertex_map[i0])
-                        t = _plane_edge_t(vnf.vertices[i0], vnf.vertices[i1], a, b, c, d)
-                        pt = _interpolate(vnf.vertices[i0], vnf.vertices[i1], t)
+                        t = _plane_edge_t(self.vertices[i0], self.vertices[i1], a, b, c, d)
+                        pt = _interpolate(self.vertices[i0], self.vertices[i1], t)
                         new_verts.append(pt)
                         clipped.append(fv)
                         cut_edges.append((fv, fv + 1))
                         fv += 1
                     elif not v0_in and v1_in:
-                        t = _plane_edge_t(vnf.vertices[i0], vnf.vertices[i1], a, b, c, d)
-                        pt = _interpolate(vnf.vertices[i0], vnf.vertices[i1], t)
+                        t = _plane_edge_t(self.vertices[i0], self.vertices[i1], a, b, c, d)
+                        pt = _interpolate(self.vertices[i0], self.vertices[i1], t)
                         new_verts.append(pt)
                         clipped.append(fv)
                         cut_edges.append((fv, fv + 1))
@@ -858,9 +857,8 @@ class VNF:
 
         return VNF(new_verts, new_faces)
 
-    @staticmethod
     def slice(
-        vnf: "VNF",
+        self,
         plane: Sequence[float],
         closed: bool = True,
     ) -> tuple["VNF", "VNF"]:
@@ -870,7 +868,6 @@ class VNF:
         halfspace and *vnf_below* is the negative halfspace.
 
         Args:
-            vnf: The input :class:`VNF`.
             plane: Plane equation ``[A, B, C, D]`` for ``A*x + B*y + C*z = D``.
             closed: If True, close both cut faces.  Defaults to True.
 
@@ -887,11 +884,11 @@ class VNF:
                 lambda p: 5 - np.max(np.abs(p), axis=1),
                 0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1
             )
-            above, below = VNF.slice(cube_vnf, [0, 0, 1, 0], closed=True)
+            above, below = cube_vnf.slice([0, 0, 1, 0], closed=True)
             above.polyhedron().show()
         """
-        above = VNF.halfspace(vnf, plane, keep=True, closed=closed)
-        below = VNF.halfspace(vnf, plane, keep=False, closed=closed)
+        above = self.halfspace(plane, keep=True, closed=closed)
+        below = self.halfspace(plane, keep=False, closed=closed)
         return above, below
 
     @classmethod
@@ -1118,8 +1115,9 @@ class VNF:
         """Alias of :meth:`polyhedron`, matching Path2D/Region's geometry() surface."""
         return self.polyhedron()
 
-    @staticmethod
+    @classmethod
     def from_field(
+        cls,
         f: np.ndarray | Path3D | Callable[[np.ndarray], np.ndarray] | Callable[[Path3D], np.ndarray],
         isovalue: float,
         bounding_box: Bounds3D | float | Sequence[float] | Sequence[Sequence[float]] | None = None,
@@ -1256,15 +1254,16 @@ class VNF:
             field = _sample_field(f, xs, ys, zs)
 
         verts, faces = _marching_cubes(field, xs, ys, zs, iso, closed)
-        vnf = VNF(verts, faces)
+        vnf = cls(verts, faces)
         if len(faces):
             vol = vnf.volume()
             if (vol < 0) != reverse:
                 vnf = vnf.reverse()
         return vnf
 
-    @staticmethod
+    @classmethod
     def from_metaballs(
+        cls,
         spec: list[_MetaballSpec],
         bounding_box: Bounds3D | float | Sequence[float] | Sequence[Sequence[float]],
         voxel_size: float | None = None,
@@ -1353,39 +1352,55 @@ class VNF:
                 total += s.metaball.field(local)
             return total
 
-        return VNF.from_field(field, isovalue, bounding_box=bb, voxel_size=vs, closed=closed, exact_bounds=True)
+        return cls.from_field(field, isovalue, bounding_box=bb, voxel_size=vs, closed=closed, exact_bounds=True)
 
+    @classmethod
+    def from_skin(
+        cls,
+        profiles: Sequence[Sequence[Sequence[float]]],
+        slices: int,
+        refine: float = 1.0,
+        method: str = "direct",
+        sampling: str | None = None,
+        caps: "CapsSpec" = "butt",
+        closed: bool = False,
+        style: str = "min_edge",
+        z: Sequence[float] | None = None,
+    ) -> "VNF | Bosl2Solid":
+        """Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.
 
-def vnf_polyhedron(vnf: VNF) -> Any:
-    """Render a :class:`VNF` to a PythonSCAD ``polyhedron`` (BOSL2 ``vnf_polyhedron()``).
+        Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are
+        inserted between each pair to smooth the transition.
 
-    A module-level convenience wrapper around :meth:`VNF.polyhedron` so existing
-    code using the BOSL2 OpenSCAD calling convention ``vnf_polyhedron(vnf)`` works
-    without any change.
+        Args:
+            profiles: list of >= 2 closed profiles (each a list of points). If 2-D, give matching *z*.
+            slices:   number of interpolated profiles inserted between each pair (int or per-gap list)
+            refine:   subdivide every profile by this factor before skinning (default 1)
+            method:   "direct" (connect vertex i to vertex i) or "reindex" (rotate each profile to
+                      best-align with the previous).
+            sampling: "length" or "segment" resampling (default "length")
+            caps:     cap the ends; supports decorative cap types
+            closed:   the stack loops back to the first profile (default False)
+            style:    vnf_vertex_array quad-subdivision style
+            z:        per-profile Z heights, required when the profiles are 2-D
+        """
+        from pybosl2.skin import _skin
 
-    Args:
-        vnf: the :class:`VNF` to render.
-
-    Returns:
-        A PythonSCAD ``polyhedron`` solid.
-
-    Examples:
-        Build a swept VNF and render it:
-
-        .. pythonscad-example::
-
-            from pybosl2 import Path2D, vnf_polyhedron
-
-            sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
-            v = Path2D(sq).linear_sweep(height=20)
-            vnf_polyhedron(v).show()
-    """
-    return vnf.polyhedron()
+        return _skin(
+            profiles,
+            slices,
+            refine=refine,
+            method=method,
+            sampling=sampling,
+            caps=caps,
+            closed=closed,
+            style=style,
+            z=z,
+        )
 
 
 __all__ = [
     "VNF",
     "VnfStyle",
     "contour",
-    "vnf_polyhedron",
 ]

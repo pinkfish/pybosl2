@@ -151,8 +151,6 @@
 </div>
 <div class="ps-content">
 <ul class="pysidebar-list">
-<li class="ps-func"><a href="#pybosl2.rounding.round_corners">round_corners</a></li>
-<li class="ps-func"><a href="#pybosl2.rounding.smooth_path">smooth_path</a></li>
 <li class="ps-class"><a href="#pybosl2.rounding.Roundable"><strong>Roundable</strong></a></li>
 <li class="ps-meth"><a href="#pybosl2.rounding.Roundable.round_corners">.round_corners</a></li>
 <li class="ps-meth"><a href="#pybosl2.rounding.Roundable.smooth_path">.smooth_path</a></li>
@@ -169,8 +167,8 @@
 <script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="rounding-round-corners-smooth-path">
 <h1>Rounding: round_corners &amp; smooth_path<a class="headerlink" href="#rounding-round-corners-smooth-path" title="Link to this heading">¶</a></h1>
 <p>Pure-Python port of the path-rounding core of BOSL2’s <code class="docutils literal notranslate"><span class="pre">rounding.scad</span></code>:
-<a class="reference internal" href="#pybosl2.rounding.round_corners" title="pybosl2.rounding.round_corners"><code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code></a> rounds every corner of a path, and
-<a class="reference internal" href="#pybosl2.rounding.smooth_path" title="pybosl2.rounding.smooth_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">smooth_path()</span></code></a> fits a continuous-curvature curve through a path. Both work on
+<code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code> rounds every corner of a path, and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">smooth_path()</span></code> fits a continuous-curvature curve through a path. Both work on
 2-D and 3-D paths and are methods on <a class="reference internal" href="paths.html#module-pybosl2.paths" title="pybosl2.paths"><code class="xref py py-class docutils literal notranslate"><span class="pre">paths</span></code></a> and <code class="xref py py-class docutils literal notranslate"><span class="pre">path3d</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Path</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">]])</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">Path</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">]])</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
@@ -201,12 +199,12 @@ toolkit’s original <code class="docutils literal notranslate"><span class="pre
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">round_corners</span></code></p></td>
 <td><p>ported</p></td>
-<td><p><a class="reference internal" href="#pybosl2.rounding.round_corners" title="pybosl2.rounding.round_corners"><code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code></a> – all three methods, all four size measures, open/closed,
+<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code> – all three methods, all four size measures, open/closed,
 2-D and 3-D. The roundover-overflow (scale-factor) check is included.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smooth_path</span></code></p></td>
 <td><p>ported (<code class="docutils literal notranslate"><span class="pre">method=&quot;edges&quot;</span></code>)</p></td>
-<td><p><a class="reference internal" href="#pybosl2.rounding.smooth_path" title="pybosl2.rounding.smooth_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">smooth_path()</span></code></a> – a bezier fit through the points; the
+<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">smooth_path()</span></code> – a bezier fit through the points; the
 <code class="docutils literal notranslate"><span class="pre">method=&quot;corners&quot;</span></code> variant is not ported.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">path_join</span></code></p></td>
@@ -227,23 +225,23 @@ toolkit’s original <code class="docutils literal notranslate"><span class="pre
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
 <p>A square rounded three ways (circle, smooth, chamfer), extruded:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_corners</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
 <span class="n">sq</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">]]</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">round_corners</span><span class="p">(</span><span class="n">sq</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;circle&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="n">b</span> <span class="o">=</span> <span class="n">round_corners</span><span class="p">(</span><span class="n">sq</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
-<span class="n">c</span> <span class="o">=</span> <span class="n">round_corners</span><span class="p">(</span><span class="n">sq</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;chamfer&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">sq</span><span class="p">)</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;circle&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">sq</span><span class="p">)</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">sq</span><span class="p">)</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;chamfer&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 <span class="p">(</span><span class="n">a</span> <span class="o">|</span> <span class="n">b</span> <span class="o">|</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9baece9eec294e45b274ff0ea0b54642" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-0ef7845fc0e54b0380dcc6f06426e116" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9baece9eec294e45b274ff0ea0b54642");
+const el = document.getElementById("stlviewer-0ef7845fc0e54b0380dcc6f06426e116");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -266,7 +264,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/9daed8df8213dc7d.stl", function (geo) {
+new STLLoader().load("_stl/e5164c4d6cae9535.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -286,22 +284,22 @@ new STLLoader().load("_stl/9daed8df8213dc7d.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/9daed8df8213dc7d.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/e5164c4d6cae9535.stl">⬇ Download STL mesh</a></p>
 <p>A wiggly path smoothed into a flowing ribbon:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">smooth_path</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
 <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
-<span class="n">smooth_path</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">relsize</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">smooth_path</span><span class="p">(</span><span class="n">relsize</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3ec375c1593445de9d9556d2a2346ec4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-3ce3941d961a481cb4da585a4a86ac9a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3ec375c1593445de9d9556d2a2346ec4");
+const el = document.getElementById("stlviewer-3ce3941d961a481cb4da585a4a86ac9a");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -324,7 +322,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/298d7035756d1add.stl", function (geo) {
+new STLLoader().load("_stl/1db3ebcd5a8535d0.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -344,308 +342,10 @@ new STLLoader().load("_stl/298d7035756d1add.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/298d7035756d1add.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/1db3ebcd5a8535d0.stl">⬇ Download STL mesh</a></p>
 </section>
 <section id="module-pybosl2.rounding">
 <span id="api-reference"></span><h2>API reference<a class="headerlink" href="#module-pybosl2.rounding" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.rounding.round_corners">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.rounding.</span></span><span class="sig-name descname"><span class="pre">round_corners</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'circle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curvature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/rounding.html#round_corners"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.rounding.round_corners" title="Link to this definition">¶</a></dt>
-<dd><p>Round every corner of <em>path</em> (BOSL2 round_corners()).</p>
-<p><em>method</em> is <code class="docutils literal notranslate"><span class="pre">&quot;circle&quot;</span></code> (a constant-radius arc), <code class="docutils literal notranslate"><span class="pre">&quot;smooth&quot;</span></code> (a continuous-curvature bezier),
-or <code class="docutils literal notranslate"><span class="pre">&quot;chamfer&quot;</span></code> (a straight bevel). Size the roundover with exactly one of <em>radius</em>/<em>radius</em> (circle
-only), <em>cut</em> (depth toward the corner), <em>joint</em> (distance back from the corner along each edge),
-or <em>width</em> (chamfer only) – each a scalar or a per-corner list. <em>curvature</em> (smooth only, 0..1) tunes
-how tight the curvature match is. Works on 2-D and 3-D paths.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> (2-D) or <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code> (3-D).</p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>path</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>)</p></li>
-<li><p><strong>method</strong> (<em>str</em>)</p></li>
-<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>cut</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>joint</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>width</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>curvature</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>closed</strong> (<em>bool</em>)</p></li>
-<li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>kwargs</strong> (<em>object</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>object</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>A rounded, smoothed and chamfered square (three copies):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">round_corners</span>
-
-<span class="n">sq</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">]]</span>
-<span class="n">round_corners</span><span class="p">(</span><span class="n">sq</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-
-<div class="stl-viewer" id="stlviewer-f393c2c2c4384f9b93b5c87b56d5e230" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-f393c2c2c4384f9b93b5c87b56d5e230");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/5686c7c90e151f7f.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/5686c7c90e151f7f.stl">⬇ Download STL mesh</a></p>
-<p>A 2-D path with circle-rounded corners:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span><span class="p">,</span> <span class="n">round_corners</span>
-
-<span class="n">path</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">]])</span>
-<span class="n">round_corners</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;circle&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-
-<div class="stl-viewer" id="stlviewer-6ce6a1bd57344e8e89fa6a8cbfde68e7" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-6ce6a1bd57344e8e89fa6a8cbfde68e7");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/df975b93f2adb9c0.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/df975b93f2adb9c0.stl">⬇ Download STL mesh</a></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pybosl2.rounding.smooth_path">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.rounding.</span></span><span class="sig-name descname"><span class="pre">smooth_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tangents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splinesteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/rounding.html#smooth_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.rounding.smooth_path" title="Link to this definition">¶</a></dt>
-<dd><p>Fit a smooth continuous-curvature curve through <em>path</em> (BOSL2 smooth_path(), method=”edges”).</p>
-<p>Runs a cubic bezier through every point of <em>path</em>, matching the path’s tangents, and samples it
-with <em>splinesteps</em> points per segment. <em>size</em> / <em>relsize</em> bound how far the curve may bow away
-from the straight path (relsize is a fraction of each segment, default 0.1). The BOSL2
-<code class="docutils literal notranslate"><span class="pre">method=&quot;corners&quot;</span></code> variant is not ported.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> (2-D) or <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code> (3-D).</p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>path</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>]</em>)</p></li>
-<li><p><strong>tangents</strong> (<em>Sequence</em><em>[</em><em>Sequence</em><em>[</em><em>float</em><em>]</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>size</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>relsize</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
-<li><p><strong>splinesteps</strong> (<em>int</em>)</p></li>
-<li><p><strong>uniform</strong> (<em>bool</em>)</p></li>
-<li><p><strong>closed</strong> (<em>bool</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>object</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>A wiggly control path smoothed into a flowing curve:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">smooth_path</span>
-
-<span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
-<span class="n">smooth_path</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">relsize</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-
-<div class="stl-viewer" id="stlviewer-b5a49026125a478c852ad129fc0c9f19" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-b5a49026125a478c852ad129fc0c9f19");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/298d7035756d1add.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/298d7035756d1add.stl">⬇ Download STL mesh</a></p>
-<p>A sawtooth path smoothed with explicit size and relsize:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span><span class="p">,</span> <span class="n">smooth_path</span>
-
-<span class="n">path</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">10</span><span class="p">]])</span>
-<span class="n">smooth_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">relsize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-
-<div class="stl-viewer" id="stlviewer-f5bf09ccd8494239b8ed8c13c5174e54" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-f5bf09ccd8494239b8ed8c13c5174e54");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/6364f243406fa7b9.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/6364f243406fa7b9.stl">⬇ Download STL mesh</a></p>
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="pybosl2.rounding.Roundable">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.rounding.</span></span><span class="sig-name descname"><span class="pre">Roundable</span></span><a class="reference internal" href="_modules/pybosl2/rounding.html#Roundable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.rounding.Roundable" title="Link to this definition">¶</a></dt>
@@ -655,7 +355,7 @@ window.addEventListener("resize", resize);
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.rounding.Roundable.round_corners">
 <span class="sig-name descname"><span class="pre">round_corners</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'circle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">joint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curvature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/rounding.html#Roundable.round_corners"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.rounding.Roundable.round_corners" title="Link to this definition">¶</a></dt>
-<dd><p>Round every corner of this path (see <a class="reference internal" href="#pybosl2.rounding.round_corners" title="pybosl2.rounding.round_corners"><code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code></a>).</p>
+<dd><p>Round every corner of this path (see <a class="reference internal" href="#pybosl2.rounding.Roundable.round_corners" title="pybosl2.rounding.Roundable.round_corners"><code class="xref py py-func docutils literal notranslate"><span class="pre">round_corners()</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -679,7 +379,7 @@ window.addEventListener("resize", resize);
 <dl class="py method">
 <dt class="sig sig-object py" id="pybosl2.rounding.Roundable.smooth_path">
 <span class="sig-name descname"><span class="pre">smooth_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tangents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splinesteps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/rounding.html#Roundable.smooth_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.rounding.Roundable.smooth_path" title="Link to this definition">¶</a></dt>
-<dd><p>Fit a smooth continuous-curvature curve through this path (see <a class="reference internal" href="#pybosl2.rounding.smooth_path" title="pybosl2.rounding.smooth_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">smooth_path()</span></code></a>).</p>
+<dd><p>Fit a smooth continuous-curvature curve through this path (see <a class="reference internal" href="#pybosl2.rounding.Roundable.smooth_path" title="pybosl2.rounding.Roundable.smooth_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">smooth_path()</span></code></a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

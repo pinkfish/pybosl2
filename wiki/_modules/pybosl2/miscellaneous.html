@@ -207,7 +207,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,</span>
 <span class="sd">    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.&quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_as_native_2d</span> <span class="k">as</span> <span class="n">_coerce</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_native_2d</span> <span class="k">as</span> <span class="n">_coerce</span>
 
     <span class="k">return</span> <span class="n">_coerce</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
 
@@ -332,7 +332,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_square</span>
 
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frag_count</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
     <span class="n">irv</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">inner_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">inner_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
@@ -630,7 +630,7 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">minkowski</span> <span class="k">as</span> <span class="n">_mink</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span> <span class="k">as</span> <span class="n">_sphere</span>
 
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frag_count</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
 
         <span class="k">if</span> <span class="n">radius</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>  <span class="c1"># type: ignore[return-value]</span>

@@ -86,9 +86,7 @@ _PREAMBLE = (
     "from pybosl2 import shapes2d as s2\n"
     "from pybosl2 import Path, Path2D, Path3D\n"
     "from pybosl2 import Bezier, BezierPatch\n"
-    "from pybosl2 import arc, catenary, helix, turtle2d, "
-    "turtle3d, stroke, dashed_stroke\n"
-    "from pybosl2 import sweep, skin, rot_resample\n"
+    "from pybosl2 import arc, turtle2d, turtle3d\n"
     "from pybosl2 import xdistribute, ydistribute, zdistribute\n"
     "from pybosl2 import rainbow, rainbow_colors\n"
     "from pybosl2 import partition_path, partition_mask, partition_cut_mask\n"
@@ -115,7 +113,6 @@ _PREAMBLE = (
     "from pybosl2.parts.bottlecaps import BottleCaps\n"
     "from pybosl2.parts.screw_drive import ScrewDrive\n"
     "from functools import reduce\n"
-    "from pybosl2 import round_corners, smooth_path\n"
     "from pybosl2 import Region\n"
     "from pybosl2 import *\n"
 )

@@ -226,6 +226,120 @@ class Point(Sequence[float]):
         """
         return Point(self.x, self.y, self.z if self.z is not None and z == 0.0 else z)
 
+    def normalized(self, error: Point | Sequence[float] | np.ndarray | None = None) -> Point:
+        """Normalize this vector to unit length, returning a new Point.
+
+        If it has (near) zero length, returns *error* if given, else raises ValueError.
+        """
+        from pybosl2.math import EPSILON
+
+        arr = np.asarray(self, dtype=float)
+        sides = float(np.linalg.norm(arr))
+        if sides < EPSILON:
+            if error is not None:
+                return Point.from_seq(error)
+            raise ValueError("Cannot normalize a zero vector")
+        return Point.from_seq(arr / sides)
+
+    def angle(self, other: Point) -> float:
+        """Angle between this vector and *other* in radians.
+
+        The result is always in the range [0, pi].
+        """
+        import math
+
+        from pybosl2.math import EPSILON, constrain
+
+        if len(self) != len(other):
+            raise ValueError(f"Vectors must have the same dimension, got {len(self)} and {len(other)}")
+        norm_a: float = math.hypot(*self)
+        norm_b: float = math.hypot(*other)
+        if norm_a < EPSILON or norm_b < EPSILON:
+            raise ValueError("Cannot compute angle with a zero-length vector")
+        dot: float = constrain(
+            sum(self[i] * other[i] for i in range(len(self))) / (norm_a * norm_b),
+            -1.0,
+            1.0,
+        )
+        return math.acos(dot)
+
+    def axis(self, other: Point) -> tuple[list[float], float]:
+        """Return the axis vector (cross product) and angle between this vector and *other*.
+
+        Requires 3-D vectors.
+        """
+        import math
+
+        from pybosl2.math import EPSILON
+
+        if len(self) != 3 or len(other) != 3:
+            raise ValueError(f"axis requires 3-D vectors, got sizes {len(self)} and {len(other)}")
+        norm_a: float = math.hypot(*self)
+        norm_b: float = math.hypot(*other)
+        if norm_a < EPSILON or norm_b < EPSILON:
+            raise ValueError("Cannot compute axis with a zero-length vector")
+        ang: float = self.angle(other)
+        u: list[float] = [x / norm_a for x in self]
+        v: list[float] = [x / norm_b for x in other]
+        cross: list[float] = [
+            u[1] * v[2] - u[2] * v[1],
+            u[2] * v[0] - u[0] * v[2],
+            u[0] * v[1] - u[1] * v[0],
+        ]
+        cross_norm: float = math.hypot(*cross)
+        if cross_norm < EPSILON:
+            return ([0.0, 0.0, 1.0], ang)
+        return ([x / cross_norm for x in cross], ang)
+
+    def bisect(self, other: Point) -> Point | None:
+        """Return a unit vector that bisects the minor angle between this vector and *other*.
+
+        Returns None if they are directly opposite.
+        """
+        import math
+
+        from pybosl2.math import EPSILON
+
+        if len(self) != len(other):
+            raise ValueError(f"Vectors must have the same dimension, got {len(self)} and {len(other)}")
+        norm_a: float = math.hypot(*self)
+        norm_b: float = math.hypot(*other)
+        if norm_a < EPSILON or norm_b < EPSILON:
+            raise ValueError("Cannot bisect a zero-length vector")
+        u: list[float] = [x / norm_a for x in self]
+        v: list[float] = [x / norm_b for x in other]
+        mid: list[float] = [u[i] + v[i] for i in range(len(u))]
+        mid_norm: float = math.hypot(*mid)
+        if mid_norm < EPSILON:
+            return None
+        return Point.from_seq([x / mid_norm for x in mid])
+
+    def closest(self, points: Sequence[Point]) -> int:
+        """Return the index of the closest point in *points* to this point."""
+        if len(points) == 0:
+            raise ValueError("Cannot find closest point in an empty list")
+        result: int = 0
+        result_dist_sq: float = float("inf")
+        for i, candidate in enumerate(points):
+            dist_sq: float = sum((candidate[j] - self[j]) ** 2 for j in range(len(self)))
+            if dist_sq < result_dist_sq:
+                result_dist_sq = dist_sq
+                result = i
+        return result
+
+    def furthest(self, points: Sequence[Point]) -> int:
+        """Return the index of the furthest point in *points* from this point."""
+        if len(points) == 0:
+            raise ValueError("Cannot find furthest point in an empty list")
+        result: int = 0
+        result_dist_sq: float = -1.0
+        for i, candidate in enumerate(points):
+            dist_sq: float = sum((candidate[j] - self[j]) ** 2 for j in range(len(self)))
+            if dist_sq > result_dist_sq:
+                result_dist_sq = dist_sq
+                result = i
+        return result
+
 
 # ---------------------------------------------------------------------------
 # Vector — backward-compatible alias for Point

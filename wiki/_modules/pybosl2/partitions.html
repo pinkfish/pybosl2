@@ -399,8 +399,9 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect()).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frag_count</span><span class="p">,</span> <span class="n">arc</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc</span>
 
     <span class="k">if</span> <span class="n">is_num</span><span class="p">(</span><span class="n">cptype</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">cptype</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;flat section length must be positive.&quot;</span>  <span class="c1"># type: ignore[operator]</span>
@@ -790,10 +791,10 @@
 
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            import pybosl2.shapes3d as s3</span>
 <span class="sd">            from pybosl2.partitions import partition_cut_mask</span>
 
-<span class="sd">            (s3.cuboid([100, 100, 10]) - partition_cut_mask(height=10, cutpath=&quot;jigsaw&quot;, slop=0.15)).show()</span>
+<span class="sd">            mask = partition_cut_mask(height=10, cutsize=8, slop=0.3)</span>
+<span class="sd">            mask.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>

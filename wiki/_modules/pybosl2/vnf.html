@@ -180,9 +180,10 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
 
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapType</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">CapType</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.isosurface</span><span class="w"> </span><span class="kn">import</span> <span class="n">_MetaballSpec</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
 <span class="n">_EPS</span> <span class="o">=</span> <span class="mf">1e-9</span>
 
@@ -859,8 +860,8 @@
 
 <div class="viewcode-block" id="VNF.union">
 <a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.VNF.union">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="n">vnfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;VNF&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vnfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;VNF&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge a list of VNFs into one, offsetting each VNF&#39;s face indices (BOSL2 vnf_join()).&quot;&quot;&quot;</span>
         <span class="n">vnfs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vnfs</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vnfs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -874,13 +875,13 @@
                     <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">off</span> <span class="o">+</span> <span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">f</span><span class="p">])</span>
             <span class="n">verts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
             <span class="n">off</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">VNF</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VNF.join">
 <a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.VNF.join">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">join</span><span class="p">(</span><span class="n">vnfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;VNF&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">join</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vnfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;VNF&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge multiple VNFs into a single consolidated VNF with shared vertices.</span>
 
 <span class="sd">        Each input VNF&#39;s vertices and faces are copied into a combined vertex array,</span>
@@ -901,14 +902,13 @@
 <span class="sd">            b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])</span>
 <span class="sd">            VNF.join([a, b]).polyhedron().show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">VNF</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">vnfs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">vnfs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VNF.halfspace">
 <a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.VNF.halfspace">[docs]</a>
-    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">halfspace</span><span class="p">(</span>
-        <span class="n">vnf</span><span class="p">:</span> <span class="s2">&quot;VNF&quot;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">plane</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -920,7 +920,6 @@
 <span class="sd">        is retained.  If *keep* is False, the negative halfspace is retained.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            vnf: The input :class:`VNF`.</span>
 <span class="sd">            plane: Plane equation ``[A, B, C, D]``.</span>
 <span class="sd">            keep: If True, keep the positive halfspace.  Defaults to True.</span>
 <span class="sd">            closed: If True, triangulate and close the cut face.  Defaults to True.</span>
@@ -941,12 +940,12 @@
 <span class="sd">                lambda p: 5 - np.max(np.abs(p), axis=1),</span>
 <span class="sd">                0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1</span>
 <span class="sd">            )</span>
-<span class="sd">            cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0], keep=True, closed=True)</span>
+<span class="sd">            cut = cube_vnf.halfspace([0, 0, 1, 0], keep=True, closed=True)</span>
 <span class="sd">            cut.polyhedron().show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;halfspace(): plane must be [A, B, C, D].&quot;</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">plane</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-        <span class="n">verts_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">verts_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">verts_in</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">VNF</span><span class="p">([],</span> <span class="p">[])</span>
 
@@ -967,7 +966,7 @@
         <span class="n">new_faces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">cut_edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">vnf</span><span class="o">.</span><span class="n">faces</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">:</span>
             <span class="n">face_inside</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">inside_mask</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">face</span><span class="p">]</span>
             <span class="n">all_in</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">face_inside</span><span class="p">)</span>
             <span class="n">none_in</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">face_inside</span><span class="p">)</span>
@@ -991,15 +990,15 @@
                     <span class="k">elif</span> <span class="n">v0_in</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">v1_in</span><span class="p">:</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">clipped</span> <span class="ow">or</span> <span class="n">clipped</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">vertex_map</span><span class="p">[</span><span class="n">i0</span><span class="p">]:</span>
                             <span class="n">clipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vertex_map</span><span class="p">[</span><span class="n">i0</span><span class="p">])</span>
-                        <span class="n">t</span> <span class="o">=</span> <span class="n">_plane_edge_t</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i0</span><span class="p">],</span> <span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-                        <span class="n">pt</span> <span class="o">=</span> <span class="n">_interpolate</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i0</span><span class="p">],</span> <span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">t</span><span class="p">)</span>
+                        <span class="n">t</span> <span class="o">=</span> <span class="n">_plane_edge_t</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+                        <span class="n">pt</span> <span class="o">=</span> <span class="n">_interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">t</span><span class="p">)</span>
                         <span class="n">new_verts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
                         <span class="n">clipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fv</span><span class="p">)</span>
                         <span class="n">cut_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fv</span><span class="p">,</span> <span class="n">fv</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
                         <span class="n">fv</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">elif</span> <span class="ow">not</span> <span class="n">v0_in</span> <span class="ow">and</span> <span class="n">v1_in</span><span class="p">:</span>
-                        <span class="n">t</span> <span class="o">=</span> <span class="n">_plane_edge_t</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i0</span><span class="p">],</span> <span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
-                        <span class="n">pt</span> <span class="o">=</span> <span class="n">_interpolate</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i0</span><span class="p">],</span> <span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">t</span><span class="p">)</span>
+                        <span class="n">t</span> <span class="o">=</span> <span class="n">_plane_edge_t</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+                        <span class="n">pt</span> <span class="o">=</span> <span class="n">_interpolate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">t</span><span class="p">)</span>
                         <span class="n">new_verts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
                         <span class="n">clipped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fv</span><span class="p">)</span>
                         <span class="n">cut_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fv</span><span class="p">,</span> <span class="n">fv</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
@@ -1030,9 +1029,8 @@
 
 <div class="viewcode-block" id="VNF.slice">
 <a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.VNF.slice">[docs]</a>
-    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">slice</span><span class="p">(</span>
-        <span class="n">vnf</span><span class="p">:</span> <span class="s2">&quot;VNF&quot;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">plane</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="s2">&quot;VNF&quot;</span><span class="p">,</span> <span class="s2">&quot;VNF&quot;</span><span class="p">]:</span>
@@ -1042,7 +1040,6 @@
 <span class="sd">        halfspace and *vnf_below* is the negative halfspace.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            vnf: The input :class:`VNF`.</span>
 <span class="sd">            plane: Plane equation ``[A, B, C, D]`` for ``A*x + B*y + C*z = D``.</span>
 <span class="sd">            closed: If True, close both cut faces.  Defaults to True.</span>
 
@@ -1059,11 +1056,11 @@
 <span class="sd">                lambda p: 5 - np.max(np.abs(p), axis=1),</span>
 <span class="sd">                0, Bounds3D(-10,-10,-10,10,10,10,20,20,20), voxel_size=1</span>
 <span class="sd">            )</span>
-<span class="sd">            above, below = VNF.slice(cube_vnf, [0, 0, 1, 0], closed=True)</span>
+<span class="sd">            above, below = cube_vnf.slice([0, 0, 1, 0], closed=True)</span>
 <span class="sd">            above.polyhedron().show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">above</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">halfspace</span><span class="p">(</span><span class="n">vnf</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
-        <span class="n">below</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">halfspace</span><span class="p">(</span><span class="n">vnf</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
+        <span class="n">above</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halfspace</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
+        <span class="n">below</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halfspace</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">above</span><span class="p">,</span> <span class="n">below</span></div>
 
 
@@ -1305,8 +1302,9 @@
 
 <div class="viewcode-block" id="VNF.from_field">
 <a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.VNF.from_field">[docs]</a>
-    <span class="nd">@staticmethod</span>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_field</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
         <span class="n">f</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Path3D</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Path3D</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">bounding_box</span><span class="p">:</span> <span class="n">Bounds3D</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1443,7 +1441,7 @@
             <span class="n">field</span> <span class="o">=</span> <span class="n">_sample_field</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
         <span class="n">verts</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">_marching_cubes</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">,</span> <span class="n">iso</span><span class="p">,</span> <span class="n">closed</span><span class="p">)</span>
-        <span class="n">vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
+        <span class="n">vnf</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">faces</span><span class="p">):</span>
             <span class="n">vol</span> <span class="o">=</span> <span class="n">vnf</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">vol</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">reverse</span><span class="p">:</span>
@@ -1453,8 +1451,9 @@
 
 <div class="viewcode-block" id="VNF.from_metaballs">
 <a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.VNF.from_metaballs">[docs]</a>
-    <span class="nd">@staticmethod</span>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_metaballs</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
         <span class="n">spec</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_MetaballSpec</span><span class="p">],</span>
         <span class="n">bounding_box</span><span class="p">:</span> <span class="n">Bounds3D</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
         <span class="n">voxel_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1543,38 +1542,55 @@
                 <span class="n">total</span> <span class="o">+=</span> <span class="n">s</span><span class="o">.</span><span class="n">metaball</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">total</span>
 
-        <span class="k">return</span> <span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="n">bb</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="n">vs</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">exact_bounds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">isovalue</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="n">bb</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="n">vs</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">exact_bounds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VNF.from_skin">
+<a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.VNF.from_skin">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_skin</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">profiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
+        <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;direct&quot;</span><span class="p">,</span>
+        <span class="n">sampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">caps</span><span class="p">:</span> <span class="s2">&quot;CapsSpec&quot;</span> <span class="o">=</span> <span class="s2">&quot;butt&quot;</span><span class="p">,</span>
+        <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+        <span class="n">z</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF | Bosl2Solid&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.</span>
+
+<span class="sd">        Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are</span>
+<span class="sd">        inserted between each pair to smooth the transition.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            profiles: list of &gt;= 2 closed profiles (each a list of points). If 2-D, give matching *z*.</span>
+<span class="sd">            slices:   number of interpolated profiles inserted between each pair (int or per-gap list)</span>
+<span class="sd">            refine:   subdivide every profile by this factor before skinning (default 1)</span>
+<span class="sd">            method:   &quot;direct&quot; (connect vertex i to vertex i) or &quot;reindex&quot; (rotate each profile to</span>
+<span class="sd">                      best-align with the previous).</span>
+<span class="sd">            sampling: &quot;length&quot; or &quot;segment&quot; resampling (default &quot;length&quot;)</span>
+<span class="sd">            caps:     cap the ends; supports decorative cap types</span>
+<span class="sd">            closed:   the stack loops back to the first profile (default False)</span>
+<span class="sd">            style:    vnf_vertex_array quad-subdivision style</span>
+<span class="sd">            z:        per-profile Z heights, required when the profiles are 2-D</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_skin</span>
+
+        <span class="k">return</span> <span class="n">_skin</span><span class="p">(</span>
+            <span class="n">profiles</span><span class="p">,</span>
+            <span class="n">slices</span><span class="p">,</span>
+            <span class="n">refine</span><span class="o">=</span><span class="n">refine</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">sampling</span><span class="o">=</span><span class="n">sampling</span><span class="p">,</span>
+            <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
+            <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
+            <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+            <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
-
-
-
-<div class="viewcode-block" id="vnf_polyhedron">
-<a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.vnf_polyhedron">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">vnf_polyhedron</span><span class="p">(</span><span class="n">vnf</span><span class="p">:</span> <span class="n">VNF</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render a :class:`VNF` to a PythonSCAD ``polyhedron`` (BOSL2 ``vnf_polyhedron()``).</span>
-
-<span class="sd">    A module-level convenience wrapper around :meth:`VNF.polyhedron` so existing</span>
-<span class="sd">    code using the BOSL2 OpenSCAD calling convention ``vnf_polyhedron(vnf)`` works</span>
-<span class="sd">    without any change.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        vnf: the :class:`VNF` to render.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A PythonSCAD ``polyhedron`` solid.</span>
-
-<span class="sd">    Examples:</span>
-<span class="sd">        Build a swept VNF and render it:</span>
-
-<span class="sd">        .. pythonscad-example::</span>
-
-<span class="sd">            from pybosl2 import Path2D, vnf_polyhedron</span>
-
-<span class="sd">            sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]</span>
-<span class="sd">            v = Path2D(sq).linear_sweep(height=20)</span>
-<span class="sd">            vnf_polyhedron(v).show()</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span></div>
 
 
 
@@ -1582,7 +1598,6 @@
     <span class="s2">&quot;VNF&quot;</span><span class="p">,</span>
     <span class="s2">&quot;VnfStyle&quot;</span><span class="p">,</span>
     <span class="s2">&quot;contour&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;vnf_polyhedron&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 

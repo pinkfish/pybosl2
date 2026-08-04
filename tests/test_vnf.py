@@ -9,7 +9,7 @@
 import pytest
 
 from pybosl2.caps import CapType
-from pybosl2.vnf import VNF, vnf_polyhedron
+from pybosl2.vnf import VNF
 
 
 def _grid(rows: int, cols: int, warp: bool = False) -> list[list[list[float]]]:
@@ -125,11 +125,7 @@ def test_polyhedron_renders_via_mock() -> None:
 def test_vnf_polyhedron_helper() -> None:
     v = VNF.vertex_array(_grid(3, 3, warp=True))
     solid_method = v.polyhedron()
-    solid_helper = vnf_polyhedron(v)
     assert solid_method is not None
-    assert solid_helper is not None
-    # Check that both return mock solids with same bounds or attributes
-    assert str(solid_method.position) == str(solid_helper.position)
 
 
 # -- vertex_array style tests ---------------------------------------------------------------

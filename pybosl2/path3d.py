@@ -45,80 +45,7 @@ from pybosl2.rounding import Roundable
 from pybosl2.skin import Sweepable
 from pybosl2.vectors import unit
 
-__all__ = ["Path3D", "helix"]
-
-
-def helix(
-    length: float | None = None,
-    height: float | None = None,
-    turns: float | None = None,
-    angle: float | None = None,
-    radius: float | None = None,
-    radius1: float | None = None,
-    radius2: float | None = None,
-    diameter: float | None = None,
-    diameter1: float | None = None,
-    diameter2: float | None = None,
-) -> Path3D:
-    """A 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
-
-    Returned as a :class:`~pybosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
-    transforms/measurements and feeds straight into :func:`stroke` or ``path_sweep``. Give
-    exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*
-    is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
-    spiral is ``height=0`` with a turn count).
-
-    Args:
-        length: Height of the helix (0 for a flat spiral).
-        height: Height of the helix (0 for a flat spiral).
-        turns: Number of turns (positive = right-handed).
-        angle: Helix angle in degrees (measured at the base radius).
-        radius: Radius for a constant-radius helix.
-        radius1: Bottom radius.
-        radius2: Top radius.
-        diameter: Diameter for a constant-radius helix.
-        diameter1: Bottom diameter.
-        diameter2: Top diameter.
-
-    Examples:
-        A 2.5-turn helix drawn as a tube:
-
-        .. pythonscad-example::
-
-            from pybosl2 import helix, stroke
-
-            stroke(helix(turns=2.5, height=100, radius=30), width=3).show()
-    """
-    r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
-    length = length if length is not None else height
-    assert sum(v is not None for v in (length, turns, angle)) == 2, (
-        "helix() needs exactly two of length/height, turns, and angle."
-    )
-    assert angle is None or length != 0, "helix() cannot take an angle with length 0."
-    if angle is not None and length != 0:
-        dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
-    else:
-        assert length is not None and turns is not None  # else-branch only reached with both set
-        dz = length / abs(turns)
-    if turns is not None:
-        maxtheta = 360.0 * turns
-    else:
-        assert length is not None
-        maxtheta = 360.0 * length / dz
-    nseg = _frag_count(max(r1v, r2v))
-    count = max(3, math.ceil(abs(maxtheta) * nseg / 360))
-    out: list[list[float]] = []
-    for theta in lerpn(0, maxtheta, count):
-        radius = lerp(r1v, r2v, theta / maxtheta) if maxtheta != 0 else r1v  # type: ignore[assignment]
-        out.append(
-            [
-                radius * math.cos(math.radians(theta)),  # type: ignore[operator]
-                radius * math.sin(math.radians(theta)),  # type: ignore[operator]
-                abs(theta) / 360.0 * dz,
-            ]
-        )
-    return Path3D(out, closed=False)
+__all__ = ["Path3D"]
 
 
 # Section: Path3D object
@@ -145,9 +72,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         .. pythonscad-example::
 
-            from pybosl2 import helix
+            from pybosl2.path3d import Path3D
 
-            coil = helix(turns=3, height=60, radius=20).resample(num_copies=120)
+            coil = Path3D.helix(turns=3, height=60, radius=20).resample(num_copies=120)
             coil.stroke(width=4).show()
     """
 
@@ -161,6 +88,80 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             assert pts.dtype == np.float64, f"Path3D needs float64 points, got {pts.dtype}"
             self._points = pts
         self.closed = closed
+
+    @classmethod
+    def helix(
+        cls,
+        length: float | None = None,
+        height: float | None = None,
+        turns: float | None = None,
+        angle: float | None = None,
+        radius: float | None = None,
+        radius1: float | None = None,
+        radius2: float | None = None,
+        diameter: float | None = None,
+        diameter1: float | None = None,
+        diameter2: float | None = None,
+    ) -> Path3D:
+        """A 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
+
+        Returned as a :class:`~pybosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
+        transforms/measurements and feeds straight into stroke or ``path_sweep``. Give
+        exactly two of *length*/*height* (length), *turns*, and *angle*; the third is derived. Positive *turns*
+        is right-handed, negative left-handed. Start/end radii may differ for a conical helix (a flat
+        spiral is ``height=0`` with a turn count).
+
+        Args:
+            length: Height of the helix (0 for a flat spiral).
+            height: Height of the helix (0 for a flat spiral).
+            turns: Number of turns (positive = right-handed).
+            angle: Helix angle in degrees (measured at the base radius).
+            radius: Radius for a constant-radius helix.
+            radius1: Bottom radius.
+            radius2: Top radius.
+            diameter: Diameter for a constant-radius helix.
+            diameter1: Bottom diameter.
+            diameter2: Top diameter.
+
+        Examples:
+            A 2.5-turn helix drawn as a tube:
+
+            .. pythonscad-example::
+
+                from pybosl2 import Path3D
+
+                Path3D.helix(turns=2.5, height=100, radius=30).stroke(width=3).show()
+        """
+        r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
+        r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+        length = length if length is not None else height
+        assert sum(v is not None for v in (length, turns, angle)) == 2, (
+            "helix() needs exactly two of length/height, turns, and angle."
+        )
+        assert angle is None or length != 0, "helix() cannot take an angle with length 0."
+        if angle is not None and length != 0:
+            dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
+        else:
+            assert length is not None and turns is not None  # else-branch only reached with both set
+            dz = length / abs(turns)
+        if turns is not None:
+            maxtheta = 360.0 * turns
+        else:
+            assert length is not None
+            maxtheta = 360.0 * length / dz
+        nseg = _frag_count(max(r1v, r2v))
+        count = max(3, math.ceil(abs(maxtheta) * nseg / 360))
+        out: list[list[float]] = []
+        for theta in lerpn(0, maxtheta, count):
+            radius = lerp(r1v, r2v, theta / maxtheta) if maxtheta != 0 else r1v  # type: ignore[assignment]
+            out.append(
+                [
+                    radius * math.cos(math.radians(theta)),  # type: ignore[operator]
+                    radius * math.sin(math.radians(theta)),  # type: ignore[operator]
+                    abs(theta) / 360.0 * dz,
+                ]
+            )
+        return cls(out, closed=False)
 
     def __len__(self) -> int:
         return len(self._points)
@@ -576,9 +577,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
-                from pybosl2 import helix
+                from pybosl2.path3d import Path3D
 
-                coil = helix(turns=3, height=60, radius=20).subdivide_path(points=200)
+                coil = Path3D.helix(turns=3, height=60, radius=20).subdivide_path(points=200)
                 coil.stroke(width=4).show()
         """
         if closed is None:
@@ -658,9 +659,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             .. pythonscad-example::
 
-                from pybosl2 import helix
+                from pybosl2.path3d import Path3D
 
-                coil = helix(turns=3, height=60, radius=20).resample_path(num_copies=120)
+                coil = Path3D.helix(turns=3, height=60, radius=20).resample_path(num_copies=120)
                 coil.stroke(width=4).show()
         """
         if closed is None:
@@ -1150,9 +1151,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Examples:
             .. pythonscad-example::
 
-                from pybosl2 import helix
+                from pybosl2.path3d import Path3D
 
-                sweep_path = helix(turns=3, height=60, radius=20)
+                sweep_path = Path3D.helix(turns=3, height=60, radius=20)
                 flat = sweep_path.path2d()
                 flat.stroke(width=2).linear_extrude(height=1).show()
         """
