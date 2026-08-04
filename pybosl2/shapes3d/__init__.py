@@ -23,6 +23,7 @@ from .cuboid import (
     wedge,
 )
 from .cylinder import (
+    cone,
     cyl,
     cylinder,
     tube,
@@ -79,6 +80,7 @@ __all__ = [
     "wedge",
     "rect_tube",
     "roof",
+    "cone",
     "cyl",
     "cylinder",
     "xcyl",

@@ -103,6 +103,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "spheroid": ("pybosl2.shapes3d", "spheroid"),
     "cylinder": ("pybosl2.shapes3d", "cylinder"),
     "cyl": ("pybosl2.shapes3d", "cyl"),
+    "cone": ("pybosl2.shapes3d", "cone"),
     "prismoid": ("pybosl2.shapes3d", "prismoid"),
     "regular_prism": ("pybosl2.shapes3d", "regular_prism"),
     "octahedron": ("pybosl2.shapes3d", "octahedron"),
