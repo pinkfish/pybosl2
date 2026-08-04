@@ -90,6 +90,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     Color <color>
     Constants <constants>
     Distributors <distributors>
+    Enums <enums>
     Masking <masking>
     Partitions <partitions>
     Solid <solid>

@@ -233,10 +233,21 @@ div.clearer {
     margin: 8px 0 0 0;
     padding: 0;
     border: none;
+    display: flex;
+    gap: 4px;
 }
 
-.sidebar-sticky form.search input {
-    width: 100%;
+.sidebar-sticky form.search input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.sidebar-sticky form.search input[type="submit"] {
+    flex-shrink: 0;
+    padding: 2px 6px;
+    font-size: 0.72em;
+    line-height: 1.2;
     box-sizing: border-box;
 }
 
@@ -259,5 +270,15 @@ div.sphinxsidebar {
 /* Remove duplicate logo when sticky header is present */
 div.sphinxsidebar h1.logo {
     display: none;
+}
+
+/* Hide the Alabaster blurb / description line */
+div.sphinxsidebar p.blurb {
+    display: none;
+}
+
+/* Align sidebar content top with main content */
+div.sphinxsidebar {
+    padding-top: 0;
 }
 }
