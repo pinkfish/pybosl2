@@ -67,10 +67,17 @@ jobs:
             libfontconfig1 libfreetype6 libharfbuzz0b \
             libxkbcommon0 libx11-6 libxext6 libxrender1
 
-      - name: Install package with test extras
+      - name: Install package with test and docs extras
         run: |
           python -m pip install --upgrade pip
-          pip install -e '.[test]'
+          pip install -e '.[test,docs]'
+
+      - name: Build spec sheets (required by test_docs_links)
+        run: |
+          cd docs
+          mkdir -p _extra/specs
+          python3 _specgen.py
+          cd ..
 
       # Confirm the native modules import before running the suite, so a wheel/ABI
       # problem is reported clearly rather than as a wall of collection errors.
