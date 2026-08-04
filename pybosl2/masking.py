@@ -210,7 +210,8 @@ def edge_mask(
     size: tuple[float, float, float] | None = None,
     anchor: Anchor | Point = CENTER,
     center: Point | None = None,
-) -> "Bosl2Solid":
+    return_cutter: bool = False,
+) -> "Bosl2Solid | None":
     """Cut a 3-D edge cutter along each selected edge of the box-shaped *body*.
 
     Args:
@@ -221,6 +222,7 @@ def edge_mask(
         size: The box's ``(x, y, z)`` size.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
+        return_cutter: If True, returns the generated cutter shape instead of cutting it.
     """
     assert size is not None, "size= (the box's size) must be given"
     assert children is not None, "children= (the edge cutter) must be given"
@@ -232,8 +234,10 @@ def edge_mask(
                 piece = _orient_mask_along_edge(children, size, Point(EDGE_OFFSETS[axis][i]))
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
-        return body
+        return None if return_cutter else body
     cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    if return_cutter:
+        return cutter
     return body - cutter
 
 
@@ -246,7 +250,8 @@ def edge_profile(
     convexity: int = 10,
     anchor: Anchor | Point = CENTER,
     center: Point | None = None,
-) -> "Bosl2Solid":
+    return_cutter: bool = False,
+) -> "Bosl2Solid | None":
     """Cut a 2-D mask profile extruded along each selected edge of the box-shaped *body*.
 
     Args:
@@ -258,6 +263,7 @@ def edge_profile(
         convexity: Accepted for signature compatibility; unused.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
+        return_cutter: If True, returns the generated cutter shape instead of cutting it.
     """
     _ = convexity
     assert size is not None, "size= (the box's size) must be given"
@@ -272,17 +278,28 @@ def edge_profile(
                 piece = _extrude_mask_along_edge(children, length, size, Point(vec))
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
-        return body
+        return None if return_cutter else body
     cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    if return_cutter:
+        return cutter
     return body - cutter
 
 
-def _corner_set(v: str | list[int]) -> list[int]:
+def _corner_set(v: str | list[int] | Anchor) -> list[int]:
+    if isinstance(v, Anchor):
+        return v.to_corner_set()
     if isinstance(v, str):
         if v == "ALL":
             return [1] * 8
         if v == "NONE":
             return [0] * 8
+        from pybosl2._edges_lang import resolve_anchor
+
+        try:
+            anc = resolve_anchor(v)
+            return anc.to_corner_set()
+        except ValueError:
+            pass
         raise ValueError(f'{v} must be "ALL", "NONE", or a vector')
     arr = np.asarray(v, dtype=int)
     return [
@@ -292,14 +309,14 @@ def _corner_set(v: str | list[int]) -> list[int]:
 
 
 def _corners(
-    v: str | list[int] | list[str] | list[list[int]] | list[list[str]],
+    v: Anchor | str | list[int] | list[str] | list[list[int]] | list[list[str]] | list[Anchor],
     except_: list | None = None,  # type: ignore[type-arg]
 ) -> list[int]:
     if except_ is None:
         except_ = []
-    if isinstance(v, str) or (isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)):
+    if isinstance(v, (str, Anchor)) or (isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)):
         v = [v]  # type: ignore[assignment]
-    if isinstance(except_, str) or (
+    if isinstance(except_, (str, Anchor)) or (
         isinstance(except_, list) and len(except_) > 0 and not isinstance(except_[0], list)
     ):
         except_ = [except_]
@@ -325,11 +342,27 @@ def _corner_cutter(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Bosl2Solid":
-    cube_center = [corner_vec[i] * (size[i] / 2 - radius / 2) for i in range(3)]
-    sphere_center = [corner_vec[i] * (size[i] / 2 - radius) for i in range(3)]
-    cube_shape = _ocube([radius, radius, radius], center=True).translate(cube_center)
-    sphere_shape = _osphere(r=radius, fn=fn, fa=fa, fs=fs).translate(sphere_center)
-    return cube_shape - sphere_shape  # type: ignore[no-any-return]
+    assert radius > 0
+    # Standard cutter: box-shaped negative roundover. Built by placing a negative sphere
+    # (or rather, the positive chunk to subtract) in the corner of a size-sized box.
+    # We do this by taking a box at the corner, and subtracting a sphere.
+    from pybosl2.shapes3d import cuboid, sphere
+
+    # Create the block representing the corner volume: size is 2*radius
+    block = cuboid([2 * radius, 2 * radius, 2 * radius])
+    # And a sphere at the inner corner
+    sph = sphere(radius=radius, fn=fn, fa=fa, fs=fs)
+    # The cutter is block - sphere, placed so the sphere's center is at the inner corner
+    # (i.e. at distance `radius` from the corner along each axis, moving inward).
+    # If the corner vector is `c` (elements ±1): the box's outer corner is at `[c[0]*r, c[1]*r, c[2]*r]`
+    # and the sphere is at `[0, 0, 0]`.
+    # Shift block to `[-c[0]*r, -c[1]*r, -c[2]*r]`.
+    # Standard way in pybosl2/BOSL2: cutter's outer corner matches the body's corner.
+    offset = Point([-corner_vec[0] * radius, -corner_vec[1] * radius, -corner_vec[2] * radius])
+    cutter = block.translate(offset) - sph
+    # Translate to the actual corner of the size-sized body (which is at `size/2 * corner_vec`)
+    corner_pt = Point([size[i] / 2 * corner_vec[i] for i in range(3)])
+    return cutter.translate(corner_pt)
 
 
 def corner_profile(
@@ -346,7 +379,8 @@ def corner_profile(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> "Bosl2Solid":
+    return_cutter: bool = False,
+) -> "Bosl2Solid | None":
     """Round each selected corner of the box-shaped *body* to radius *radius*.
 
     Args:
@@ -361,6 +395,7 @@ def corner_profile(
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
         fn/fa/fs: Arc smoothness overrides.
+        return_cutter: If True, returns the generated cutter shape instead of cutting it.
     """
     _ = (children, convexity)
     if radius is None:
@@ -375,14 +410,16 @@ def corner_profile(
             piece = _corner_cutter(size, CORNER_OFFSETS[idx], rad, fn, fa, fs)
             cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
-        return body
+        return None if return_cutter else body
     cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    if return_cutter:
+        return cutter
     return body - cutter
 
 
 def face_profile(
     body: "Bosl2Solid",
-    faces: str | list[str] = "ALL",
+    faces: Anchor | list[Anchor] = Anchor.ALL,
     radius: float | None = None,
     diameter: float | None = None,
     size: tuple[float, float, float] | None = None,
@@ -393,7 +430,8 @@ def face_profile(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> "Bosl2Solid":
+    return_cutter: bool = False,
+) -> "Bosl2Solid | None":
     """Round all edges and corners bounding the given face(s) of the box-shaped *body*.
 
     Args:
@@ -408,13 +446,44 @@ def face_profile(
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
         fn/fa/fs: Arc smoothness overrides.
+        return_cutter: If True, returns the generated cutter shape instead of cutting it.
     """
     if radius is None:
         assert diameter is not None, "face_profile(): must give radius or diameter"
         radius = diameter / 2
     rad = float(radius)
     mask = children if children is not None else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)
-    body = edge_profile(body, faces, children=mask, size=size, convexity=convexity, anchor=anchor, center=center)  # type: ignore[arg-type]
+    if return_cutter:
+        edge_c = edge_profile(
+            body,
+            faces,
+            children=mask,
+            size=size,
+            convexity=convexity,
+            anchor=anchor,
+            center=center,
+            return_cutter=True,
+        )
+        corner_c = corner_profile(
+            body,
+            faces,  # type: ignore[arg-type]
+            radius=rad,
+            size=size,
+            convexity=convexity,
+            anchor=anchor,
+            center=center,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+            return_cutter=True,
+        )
+        if edge_c is None:
+            return corner_c
+        if corner_c is None:
+            return edge_c
+        return edge_c | corner_c
+
+    body = edge_profile(body, faces, children=mask, size=size, convexity=convexity, anchor=anchor, center=center)  # type: ignore[assignment]
     return corner_profile(
         body,
         faces,  # type: ignore[arg-type]

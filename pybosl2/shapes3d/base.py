@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
+from pybosl2.enums import AttachTag
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 from pybosl2.vectors import unit
@@ -534,10 +535,12 @@ class CsgSolid(BaseShape):
             cube.position(Anchor.TOP_FRONT_LEFT, knob).show()
         """
         p = self.anchor_point(anchor, bbox=bbox)
-        placed = Bosl2Solid._unwrap(child).translate(p)
-        # Untracked result: bounds() on it queries the true combined bbox rather than the
-        # parent box, so a chained attach/position builds on the combined shape.
-        return Bosl2Solid(self.shape | placed)
+        csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
+        placed = csolid.translate(p)
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(placed)
+        return out
 
     def align(
         self,
@@ -584,7 +587,10 @@ class CsgSolid(BaseShape):
         fdir = list(unit(face)) if any(face) else [0.0, 0.0, 0.0]
         ov = -overlap if inside else overlap
         placed = csolid.translate([dest[i] - cpt[i] - fdir[i] * ov for i in range(3)])
-        return Bosl2Solid(self.shape | placed.shape)
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(placed)
+        return out
 
     def attach(
         self,
@@ -633,7 +639,10 @@ class CsgSolid(BaseShape):
         ppt = self.anchor_point(pa, bbox=bbox)
         pdir = list(unit(pa)) if any(pa) else [0.0, 0.0, 0.0]
         placed = placed.translate([ppt[i] - pdir[i] * overlap for i in range(3)])
-        return Bosl2Solid(self.shape | placed.shape)
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(placed)
+        return out
 
     def reorient(
         self,
@@ -685,16 +694,15 @@ class CsgSolid(BaseShape):
     # These now work on ANY box-shaped object: the cutter size and box center come from
     # bounds() (tracked metadata when available, else the native bbox), so callers no longer
     # have to pass size= or keep the object as a freshly-built cuboid.
-
     def edge_mask(
         self,
         edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
         except_edges: list[EdgeAtom] | None = None,
         children: PyOpenSCAD | None = None,
         bbox: Sequence[Sequence[float]] | None = None,
+        tag: AttachTag | str | None = None,
     ) -> "Bosl2Solid":
-        """Cut a pre-built 3-D edge cutter (e.g. from :func:`pybosl2.masking.chamfer_edge_mask`)
-        along each selected edge of this box-shaped solid.
+        """Cut a pre-built 3-D edge cutter along each selected edge of this box-shaped solid.
 
         The cutter size and box center come from :meth:`bounds`, so you don't need to pass
         *size* or keep the object as a freshly-built cuboid.
@@ -704,36 +712,30 @@ class CsgSolid(BaseShape):
             except_edges: edges to explicitly not mask
             children:     the pre-built 3-D edge cutter
             bbox:         override bounding box (see :meth:`_resolve_bounds`)
-
-        Examples:
-        .. pythonscad-example::
-
-            from pybosl2 import shapes3d as s3
-            from pybosl2.masking import chamfer_edge_mask
-
-            box = s3.cuboid([20, 30, 10])
-            cutter = chamfer_edge_mask(length=35, chamfer=3)
-            box.edge_mask("Z", children=cutter).show()
-
-        .. pythonscad-example::
-
-            from pybosl2 import shapes3d as s3, Anchor
-
-            s3.cuboid([30, 20, 10], edges=Anchor.Z, rounding=3).show()
+            tag:          override tag for attachment (default: AttachTag.REMOVE)
         """
         from pybosl2 import masking
 
         center, size = self._resolve_bounds(bbox)
-        return self._wrap(
-            masking.edge_mask(
-                self.shape,
-                edges,
-                except_edges,
-                children,
-                size=(size[0], size[1], size[2]),
-                center=Point(center[0], center[1], center[2]),
-            )
+        cutter_shape = masking.edge_mask(
+            self.shape,
+            edges,
+            except_edges,
+            children,
+            size=(size[0], size[1], size[2]),
+            center=Point(center[0], center[1], center[2]),
+            return_cutter=True,
         )
+        if cutter_shape is None:
+            return self._wrap(self.shape)
+
+        t: AttachTag | str = AttachTag.REMOVE if tag is None else tag
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(Bosl2Solid(cutter_shape).tag(t))
+        if t == AttachTag.REMOVE:
+            out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
+        return out
 
     def edge_profile(
         self,
@@ -742,49 +744,65 @@ class CsgSolid(BaseShape):
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
         bbox: Sequence[Sequence[float]] | None = None,
+        radius: float | None = None,
+        diameter: float | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
     ) -> "Bosl2Solid":
-        """Cut a 2-D mask profile (e.g. from :func:`pybosl2.masking.mask2d_roundover`),
-        extruded along the edge's own length, along each selected edge of this box-shaped
-        solid.
+        """Cut a 2-D mask profile along each selected edge of this box-shaped solid.
 
         Args:
             edges:        edges to mask (default ``"ALL"``)
             except_edges: edges to explicitly not mask
-            children:     the 2-D mask cross-section path (list of ``[x, y]`` points)
+            children:     the 2-D mask cross-section path
             convexity:    accepted for compatibility; unused
             bbox:         override bounding box (see :meth:`_resolve_bounds`)
-
-        Examples:
-        .. pythonscad-example::
-
-            from pybosl2 import shapes3d as s3
-            from pybosl2.masking import mask2d_roundover
-
-            box = s3.cuboid([30, 20, 10])
-            profile = mask2d_roundover(radius=3)
-            box.edge_profile(children=profile).show()
-
-        .. pythonscad-example::
-
-            from pybosl2 import cuboid, Anchor
-            cuboid([30, 20, 10]).edge_profile(r=3, edges=Anchor.Z).show()
+            radius:       rounding radius
+            diameter:     rounding diameter
+            r:            rounding radius alias
+            d:            rounding diameter alias
+            tag:          override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
         """
         from pybosl2 import masking
 
         center, size = self._resolve_bounds(bbox)
-        return self._wrap(
-            masking.edge_profile(
-                self.shape,
-                edges,
-                except_edges,
-                children=None
-                if children is None
-                else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children),
-                size=(size[0], size[1], size[2]),
-                convexity=convexity,
-                center=Point(center[0], center[1], center[2]) if center is not None else None,
-            )
+
+        rad = radius if radius is not None else r
+        if rad is None:
+            dia = diameter if diameter is not None else d
+            if dia is not None:
+                rad = dia / 2
+
+        resolved_children: Sequence[Sequence[float]] | Path2D | None = children
+        if rad is not None and resolved_children is None:
+            resolved_children = masking.mask2d_roundover(abs(rad))
+        if resolved_children is not None and not isinstance(resolved_children, Path2D):
+            resolved_children = Path2D(resolved_children, closed=False)
+
+        cutter_shape = masking.edge_profile(
+            self.shape,
+            edges,
+            except_edges,
+            children=resolved_children,
+            size=(size[0], size[1], size[2]),
+            convexity=convexity,
+            center=Point(center[0], center[1], center[2]) if center is not None else None,
+            return_cutter=True,
         )
+        if cutter_shape is None:
+            return self._wrap(self.shape)
+
+        t: AttachTag | str = (
+            (AttachTag.KEEP if (rad is not None and rad < 0) else AttachTag.REMOVE) if tag is None else tag
+        )
+
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(Bosl2Solid(cutter_shape).tag(t))
+        if t == AttachTag.REMOVE:
+            out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
+        return out
 
     def edge_profile_asym(
         self,
@@ -792,8 +810,23 @@ class CsgSolid(BaseShape):
         except_edges: list[EdgeAtom] | None = None,
         children: Sequence[Sequence[float]] | None = None,
         convexity: int = 10,
+        radius: float | None = None,
+        diameter: float | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
     ) -> "Bosl2Solid":
-        return self.edge_profile(edges, except_edges, children, convexity)
+        return self.edge_profile(
+            edges=edges,
+            except_edges=except_edges,
+            children=children,
+            convexity=convexity,
+            radius=radius,
+            diameter=diameter,
+            r=r,
+            d=d,
+            tag=tag,
+        )
 
     def corner_profile(
         self,
@@ -807,9 +840,11 @@ class CsgSolid(BaseShape):
         fa: float | None = None,
         fs: float | None = None,
         bbox: Sequence[Sequence[float]] | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
     ) -> "Bosl2Solid":
-        """Cut a 2-D mask profile, extruded along the corner, at each selected corner of this
-        box-shaped solid.
+        """Cut a 2-D mask profile along each selected corner of this box-shaped solid.
 
         Args:
             corners:        corners to mask (default ``"ALL"``)
@@ -820,41 +855,58 @@ class CsgSolid(BaseShape):
             convexity:      accepted for compatibility; unused
             fn/fa/fs:       arc smoothness overrides
             bbox:           override bounding box (see :meth:`_resolve_bounds`)
-
-        Examples:
-        .. pythonscad-example::
-
-            from pybosl2 import shapes3d as s3, Anchor
-
-            s3.cuboid([20, 20, 20]).corner_profile(r=3, corners=Anchor.TOP).show()
+            r:              rounding radius alias
+            d:              rounding diameter alias
+            tag:            override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
         """
         from pybosl2 import masking
 
         center, size = self._resolve_bounds(bbox)
-        return self._wrap(
-            masking.corner_profile(
-                self.shape,
-                corners,
-                except_corners,
-                radius,
-                diameter,
-                size=(size[0], size[1], size[2]),
-                children=(
-                    None
-                    if children is None
-                    else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children)
-                ),
-                convexity=convexity,
-                center=Point(center[0], center[1], center[2]) if center is not None else None,
-                fn=fn,
-                fa=fa,
-                fs=fs,
-            )
+        rad = radius if radius is not None else r
+        dia = diameter if diameter is not None else d
+
+        clean_rad = abs(rad) if rad is not None else None
+        clean_dia = abs(dia) if dia is not None else None
+
+        cutter_shape = masking.corner_profile(
+            self.shape,
+            corners,
+            except_corners,
+            clean_rad,
+            clean_dia,
+            size=(size[0], size[1], size[2]),
+            children=(
+                None
+                if children is None
+                else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children)
+            ),
+            convexity=convexity,
+            center=Point(center[0], center[1], center[2]) if center is not None else None,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+            return_cutter=True,
         )
+        if cutter_shape is None:
+            return self._wrap(self.shape)
+
+        t: AttachTag | str
+        if tag is None:
+            resolved_rad = rad if rad is not None else (dia / 2 if dia is not None else None)
+            t = AttachTag.KEEP if (resolved_rad is not None and resolved_rad < 0) else AttachTag.REMOVE
+        else:
+            t = tag
+
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(Bosl2Solid(cutter_shape).tag(t))
+        if t == AttachTag.REMOVE:
+            out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
+        return out
 
     def face_profile(
         self,
-        faces: str | Anchor | list[int | str] = "ALL",
+        faces: Anchor | list[Anchor] = Anchor.ALL,
         radius: float | None = None,
         diameter: float | None = None,
         children: Sequence[Sequence[float]] | None = None,
@@ -863,29 +915,53 @@ class CsgSolid(BaseShape):
         fa: float | None = None,
         fs: float | None = None,
         bbox: Sequence[Sequence[float]] | None = None,
+        r: float | None = None,
+        d: float | None = None,
+        tag: AttachTag | str | None = None,
     ) -> "Bosl2Solid":
         from pybosl2 import masking
 
         center, size = self._resolve_bounds(bbox)
-        return self._wrap(
-            masking.face_profile(
-                self.shape,
-                faces,  # type: ignore[arg-type]
-                radius,
-                diameter,
-                size=(size[0], size[1], size[2]),
-                children=(
-                    None
-                    if children is None
-                    else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children)
-                ),
-                convexity=convexity,
-                center=Point(center[0], center[1], center[2]) if center is not None else None,
-                fn=fn,
-                fa=fa,
-                fs=fs,
-            )
+        rad = radius if radius is not None else r
+        dia = diameter if diameter is not None else d
+
+        clean_rad = abs(rad) if rad is not None else None
+        clean_dia = abs(dia) if dia is not None else None
+
+        cutter_shape = masking.face_profile(
+            self.shape,
+            faces,
+            clean_rad,
+            clean_dia,
+            size=(size[0], size[1], size[2]),
+            children=(
+                None
+                if children is None
+                else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children)
+            ),
+            convexity=convexity,
+            center=Point(center[0], center[1], center[2]) if center is not None else None,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+            return_cutter=True,
         )
+        if cutter_shape is None:
+            return self._wrap(self.shape)
+
+        t: AttachTag | str
+        if tag is None:
+            resolved_rad = rad if rad is not None else (dia / 2 if dia is not None else None)
+            t = AttachTag.KEEP if (resolved_rad is not None and resolved_rad < 0) else AttachTag.REMOVE
+        else:
+            t = tag
+
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(Bosl2Solid(cutter_shape).tag(t))
+        if t == AttachTag.REMOVE:
+            out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
+        return out
 
     # ---- miscellaneous operators (from pybosl2/miscellaneous.py) ----
 

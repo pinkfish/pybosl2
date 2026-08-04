@@ -162,7 +162,9 @@ def unwrap(obj: Bosl2Solid | Bosl2Shape2D | Any) -> Any:
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
-    return obj.shape if isinstance(obj, (Bosl2Solid, Bosl2Shape2D)) else obj
+    if isinstance(obj, (Bosl2Solid, Bosl2Shape2D)):
+        return obj.realize().shape
+    return obj
 
 
 # ---------------------------------------------------------------------------

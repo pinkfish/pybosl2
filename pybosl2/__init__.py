@@ -40,6 +40,9 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "Anchor": ("pybosl2._edges_lang", "Anchor"),
     "EdgePlane": ("pybosl2._edges_lang", "EdgePlane"),
     "CornerPlane": ("pybosl2._edges_lang", "CornerPlane"),
+    "AttachTag": ("pybosl2.enums", "AttachTag"),
+    "diff": ("pybosl2._shape", "diff"),
+    "intersect": ("pybosl2._shape", "intersect"),
     # constants
     "EPSILON": ("pybosl2.math", "EPSILON"),
     "CENTRE": ("pybosl2.constants", "CENTER"),  # British spelling alias
