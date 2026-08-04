@@ -41,10 +41,9 @@
     if (oldLogo) oldLogo.style.display = "none";
 
     // ---- collapsible toctree groups ----
-    var navList = sidebar.querySelector("div.sphinxsidebarwrapper ul");
-    if (navList) {
-      var items = navList.querySelectorAll("li");
-      items.forEach(function (li) {
+    var allNavLists = sidebar.querySelectorAll("div.sphinxsidebarwrapper ul");
+    allNavLists.forEach(function (navList) {
+      navList.querySelectorAll("li").forEach(function (li) {
         var nested = li.querySelector("ul");
         if (!nested) return;
         var link = li.querySelector("a.reference.internal");
@@ -52,23 +51,24 @@
 
         var toggle = document.createElement("span");
         toggle.className = "ps-group-toggle";
-        toggle.textContent = "\u25bc";
+        toggle.textContent = "\u25b6";
         toggle.style.cssText =
           "cursor:pointer;display:inline-block;width:14px;font-size:10px;" +
           "margin-right:2px;vertical-align:middle;user-select:none;";
 
         link.parentNode.insertBefore(toggle, link);
 
-        var collapsed = false;
+        nested.style.display = "none";
+
         toggle.addEventListener("click", function (e) {
           e.preventDefault();
           e.stopPropagation();
-          collapsed = !collapsed;
-          nested.style.display = collapsed ? "none" : "";
-          toggle.textContent = collapsed ? "\u25b6" : "\u25bc";
+          var isHidden = nested.style.display === "none";
+          nested.style.display = isHidden ? "" : "none";
+          toggle.textContent = isHidden ? "\u25bc" : "\u25b6";
         });
       });
-    }
+    });
   }
 
   if (document.readyState === "loading") {
