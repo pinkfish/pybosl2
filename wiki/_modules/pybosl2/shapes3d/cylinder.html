@@ -210,59 +210,152 @@
 <a class="viewcode-back" href="../../../cylinder.html#pybosl2.shapes3d.cylinder.cylinder">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cylinder</span><span class="p">(</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">circumscribe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">shift</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer_angle1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer_angle2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">from_end</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">from_end1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">from_end2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">extra</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">extra1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">extra2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">teardrop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">clip_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">90.0</span><span class="p">,</span>
+    <span class="n">texture</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">TextureType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tex_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tex_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tex_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">tex_inset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A cylinder/cone, built with the builtin cylinder(), with BOSL2-style anchor/spin/orient support.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A cylinder with optional chamfering/rounding of its end rims, built with</span>
+<span class="sd">    cube()/cylinder()/sphere()/rotate_extrude().</span>
+
+<span class="sd">    Positive rounding is built as a minkowski() of a shorter cylinder with a sphere at each</span>
+<span class="sd">    rounded end (an inset fillet, not an outward bulge), matching BOSL2&#39;s own rounded-end</span>
+<span class="sd">    geometry. Chamfering builds the exact half-profile (with the requested bevel at each end)</span>
+<span class="sd">    and revolves it with rotate_extrude().</span>
+
+<span class="sd">    Note: ``texture=`` (VNF surface texturing) is not supported by this pure-Python port.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        length/height:    height of the cylinder</span>
-<span class="sd">        radius1:     bottom radius (before orientation)</span>
-<span class="sd">        radius2:     top radius (before orientation)</span>
-<span class="sd">        center: if given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)</span>
-<span class="sd">        diameter1:     bottom diameter (before orientation)</span>
-<span class="sd">        diameter2:     top diameter (before orientation)</span>
-<span class="sd">        radius:      radius of the cylinder</span>
-<span class="sd">        diameter:      diameter of the cylinder</span>
-<span class="sd">        anchor: anchor point (default CENTER)</span>
-<span class="sd">        spin:   Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        orient: direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        length/height:  length of the cylinder along its axis (default 1)</span>
+<span class="sd">        radius:         radius of the cylinder (default 1)</span>
+<span class="sd">        diameter:       diameter of the cylinder</span>
+<span class="sd">        radius1:        radius of the negative end of the cylinder</span>
+<span class="sd">        radius2:        radius of the positive end of the cylinder</span>
+<span class="sd">        diameter1:      diameter of the negative end of the cylinder</span>
+<span class="sd">        diameter2:      diameter of the positive end of the cylinder</span>
+<span class="sd">        center:         if given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)</span>
+<span class="sd">        chamfer/chamfer1/chamfer2: chamfer size on the end rims (overall/negative/positive)</span>
+<span class="sd">        rounding/rounding1/rounding2: rounding radius on the end rims (overall/negative/positive)</span>
+<span class="sd">        circumscribe:   circumscribe rather than inscribe the given radius (default False)</span>
+<span class="sd">        realign:        shift point alignment (default False)</span>
+<span class="sd">        shift:          X/Y offset for the positive end (shear) (default [0,0])</span>
+<span class="sd">        anchor:         anchor point (default BOTTOM if center=False, otherwise CENTER)</span>
+<span class="sd">        spin:           Z-axis rotation in degrees after anchor (default 0)</span>
+<span class="sd">        orient:         direction to rotate the top towards, after spin (default UP)</span>
+<span class="sd">        fn/fa/fs:       arc smoothness overrides</span>
+<span class="sd">        chamfer_angle/chamfer_angle1/chamfer_angle2: chamfer angle in degrees away from ends</span>
+<span class="sd">        from_end/from_end1/from_end2: measure chamfer along conic face (default False)</span>
+<span class="sd">        extra/extra1/extra2: add extra height at ends (invisible to anchoring)</span>
+<span class="sd">        teardrop:       limit rounding angle from horizontal</span>
+<span class="sd">        clip_angle:     clip rounding arc at bottom of cylinder</span>
+<span class="sd">        texture:        named texture to apply to cylinder side surface</span>
+<span class="sd">        tex_size:       size of texture tile</span>
+<span class="sd">        tex_reps:       number of texture repetitions</span>
+<span class="sd">        tex_depth:      depth of the texture</span>
+<span class="sd">        tex_inset:      inset the texture</span>
 
 <span class="sd">    Examples:</span>
+<span class="sd">        A basic cylinder:</span>
+
 <span class="sd">        .. pythonscad-example::</span>
 
-<span class="sd">            from pybosl2 import shapes3d as s3, Anchor</span>
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
 
-<span class="sd">            s3.cylinder(height=30, radius=10, anchor=Anchor.BOTTOM).show()</span>
+<span class="sd">            s3.cylinder(height=30, radius=10).show()</span>
+
+<span class="sd">        A cylinder with chamfered ends:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
+<span class="sd">            s3.cylinder(height=40, radius=15, chamfer=2).show()</span>
+
+<span class="sd">        A cylinder with rounded ends:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
+<span class="sd">            s3.cylinder(height=30, radius=12, rounding=2).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="n">length</span> <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">rad1</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">rad2</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">BOTTOM</span><span class="p">)</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">_ocylinder</span><span class="p">(</span>
-        <span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span>
-        <span class="n">radius1</span><span class="o">=</span><span class="n">rad1</span><span class="p">,</span>
-        <span class="n">radius2</span><span class="o">=</span><span class="n">rad2</span><span class="p">,</span>
-        <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span>
+        <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+        <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+        <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span>
+        <span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span>
+        <span class="n">radius2</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span>
+        <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span>
+        <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span>
+        <span class="n">diameter2</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span>
+        <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">,</span>
+        <span class="n">chamfer1</span><span class="o">=</span><span class="n">chamfer1</span><span class="p">,</span>
+        <span class="n">chamfer2</span><span class="o">=</span><span class="n">chamfer2</span><span class="p">,</span>
+        <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
+        <span class="n">rounding1</span><span class="o">=</span><span class="n">rounding1</span><span class="p">,</span>
+        <span class="n">rounding2</span><span class="o">=</span><span class="n">rounding2</span><span class="p">,</span>
+        <span class="n">circumscribe</span><span class="o">=</span><span class="n">circumscribe</span><span class="p">,</span>
+        <span class="n">realign</span><span class="o">=</span><span class="n">realign</span><span class="p">,</span>
+        <span class="n">shift</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">shift</span><span class="p">),</span>
+        <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
+        <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+        <span class="n">orient</span><span class="o">=</span><span class="n">orient</span><span class="p">,</span>
         <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
         <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_cyl</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">rad2</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">use_anchor</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">use_anchor</span><span class="p">)</span></div>
+        <span class="n">chamfer_angle</span><span class="o">=</span><span class="n">chamfer_angle</span><span class="p">,</span>
+        <span class="n">chamfer_angle1</span><span class="o">=</span><span class="n">chamfer_angle1</span><span class="p">,</span>
+        <span class="n">chamfer_angle2</span><span class="o">=</span><span class="n">chamfer_angle2</span><span class="p">,</span>
+        <span class="n">from_end</span><span class="o">=</span><span class="n">from_end</span><span class="p">,</span>
+        <span class="n">from_end1</span><span class="o">=</span><span class="n">from_end1</span><span class="p">,</span>
+        <span class="n">from_end2</span><span class="o">=</span><span class="n">from_end2</span><span class="p">,</span>
+        <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">,</span>
+        <span class="n">extra1</span><span class="o">=</span><span class="n">extra1</span><span class="p">,</span>
+        <span class="n">extra2</span><span class="o">=</span><span class="n">extra2</span><span class="p">,</span>
+        <span class="n">teardrop</span><span class="o">=</span><span class="n">teardrop</span><span class="p">,</span>
+        <span class="n">clip_angle</span><span class="o">=</span><span class="n">clip_angle</span><span class="p">,</span>
+        <span class="n">texture</span><span class="o">=</span><span class="n">texture</span><span class="p">,</span>
+        <span class="n">tex_size</span><span class="o">=</span><span class="n">tex_size</span><span class="p">,</span>
+        <span class="n">tex_reps</span><span class="o">=</span><span class="n">tex_reps</span><span class="p">,</span>
+        <span class="n">tex_depth</span><span class="o">=</span><span class="n">tex_depth</span><span class="p">,</span>
+        <span class="n">tex_inset</span><span class="o">=</span><span class="n">tex_inset</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 
@@ -893,6 +986,12 @@
     <span class="n">inner_radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inner_diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inner_diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span>
@@ -902,28 +1001,30 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;BOSL2 tube() -- a hollow cylindrical tube.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;BOSL2 tube() -- a hollow cylindrical tube, with optional chamfer/rounding on end rims.</span>
 
-<span class="sd">    Note: BOSL2&#39;s outer-radius parameters are named `or`/`or1`/`or2`, which collide with the</span>
-<span class="sd">    Python keyword `or`; they are exposed here as `outer_radius`/`outer_radius1`/`outer_radius2` instead.</span>
+<span class="sd">    Note: BOSL2&#39;s outer-radius parameters are named ``or``/``or1``/``or2``, which collide with the</span>
+<span class="sd">    Python keyword ``or``; they are exposed here as ``outer_radius``/``outer_radius1``/``outer_radius2`` instead.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        height/length:      height of the tube (default 1)</span>
-<span class="sd">        outer_radius:  outer radius of the tube (BOSL2 `or`) (default 1)</span>
+<span class="sd">        outer_radius:       outer radius of the tube (BOSL2 ``or``) (default 1)</span>
 <span class="sd">        inner_radius:       inner radius of the tube</span>
-<span class="sd">        center:   if given, overrides anchor (True -&gt; CENTER, False -&gt; DOWN)</span>
-<span class="sd">        outer_diameter:       outer diameter of the tube</span>
-<span class="sd">        inner_diameter:       inner diameter of the tube</span>
-<span class="sd">        wall:     horizontal wall thickness (default 1)</span>
-<span class="sd">        outer_radius1/outer_radius2: outer radius of the bottom/top (BOSL2 `or1`/`or2`)</span>
-<span class="sd">        outer_diameter1/outer_diameter2:  outer diameter of the bottom/top</span>
+<span class="sd">        center:             if given, overrides anchor (True -&gt; CENTER, False -&gt; DOWN)</span>
+<span class="sd">        outer_diameter:     outer diameter of the tube</span>
+<span class="sd">        inner_diameter:     inner diameter of the tube</span>
+<span class="sd">        wall:               horizontal wall thickness (default 1)</span>
+<span class="sd">        outer_radius1/outer_radius2: outer radius of the bottom/top</span>
+<span class="sd">        outer_diameter1/outer_diameter2: outer diameter of the bottom/top</span>
 <span class="sd">        inner_radius1/inner_radius2:  inner radius of the bottom/top</span>
 <span class="sd">        inner_diameter1/inner_diameter2:  inner diameter of the bottom/top</span>
-<span class="sd">        realign:  rotate by half the angle of one face (default False)</span>
-<span class="sd">        anchor:   anchor point (default CENTER)</span>
-<span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        orient:   direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        chamfer/chamfer1/chamfer2: chamfer size on end rims (overall/bottom/top)</span>
+<span class="sd">        rounding/rounding1/rounding2: rounding radius on end rims (overall/bottom/top)</span>
+<span class="sd">        realign:            rotate by half the angle of one face (default False)</span>
+<span class="sd">        anchor:             anchor point (default CENTER)</span>
+<span class="sd">        spin:               Z-axis rotation in degrees after anchor (default 0)</span>
+<span class="sd">        orient:             direction to rotate the top towards, after spin (default UP)</span>
+<span class="sd">        fn/fa/fs:           arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -931,6 +1032,15 @@
 <span class="sd">            from pybosl2 import tube</span>
 
 <span class="sd">            shape = tube(height=20, outer_radius=15, inner_radius=10)</span>
+<span class="sd">            shape.show()</span>
+
+<span class="sd">        A tube with chamfered end rims:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import tube</span>
+
+<span class="sd">            shape = tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)</span>
 <span class="sd">            shape.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">height</span> <span class="o">=</span> <span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">length</span> <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
@@ -971,20 +1081,27 @@
         <span class="s2">&quot;tube(): must specify two of inner radius/diam, outer radius/diam, and wall width.&quot;</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="n">irad1</span> <span class="o">&lt;=</span> <span class="n">rad1</span> <span class="ow">and</span> <span class="n">irad2</span> <span class="o">&lt;=</span> <span class="n">rad2</span><span class="p">,</span> <span class="s2">&quot;tube(): inner radius is larger than outer radius.&quot;</span>
-
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">BOTTOM</span><span class="p">)</span>
 
-    <span class="n">outer</span> <span class="o">=</span> <span class="n">_ocylinder</span><span class="p">(</span>
+    <span class="c1"># Build outer and inner cylinders via cyl() for chamfer/rounding support</span>
+    <span class="n">outer</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span>
         <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
         <span class="n">radius1</span><span class="o">=</span><span class="n">rad1</span><span class="p">,</span>
         <span class="n">radius2</span><span class="o">=</span><span class="n">rad2</span><span class="p">,</span>
         <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">,</span>
+        <span class="n">chamfer1</span><span class="o">=</span><span class="n">chamfer1</span><span class="p">,</span>
+        <span class="n">chamfer2</span><span class="o">=</span><span class="n">chamfer2</span><span class="p">,</span>
+        <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
+        <span class="n">rounding1</span><span class="o">=</span><span class="n">rounding1</span><span class="p">,</span>
+        <span class="n">rounding2</span><span class="o">=</span><span class="n">rounding2</span><span class="p">,</span>
         <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
         <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">inner</span> <span class="o">=</span> <span class="n">_ocylinder</span><span class="p">(</span>
-        <span class="n">height</span><span class="o">=</span><span class="n">height</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">,</span>
+    <span class="n">extra_h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">chamfer</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rounding</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span> <span class="n">chamfer1</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rounding1</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span> <span class="n">chamfer2</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rounding2</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">inner</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span>
+        <span class="n">height</span><span class="o">=</span><span class="n">height</span> <span class="o">+</span> <span class="n">extra_h</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">,</span>
         <span class="n">radius1</span><span class="o">=</span><span class="n">irad1</span><span class="p">,</span>
         <span class="n">radius2</span><span class="o">=</span><span class="n">irad2</span><span class="p">,</span>
         <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -992,12 +1109,107 @@
         <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">outer</span> <span class="o">-</span> <span class="n">inner</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">outer</span><span class="o">.</span><span class="n">shape</span> <span class="o">-</span> <span class="n">inner</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">if</span> <span class="n">realign</span><span class="p">:</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">rad2</span><span class="p">),</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">180</span> <span class="o">/</span> <span class="n">sides</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_cyl</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">rad2</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">use_anchor</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">use_anchor</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cone">
+<a class="viewcode-back" href="../../../cylinder.html#pybosl2.shapes3d.cylinder.cone">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cone</span><span class="p">(</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A cone/truncated cone with optional chamfering or rounding of the end rims.</span>
+
+<span class="sd">    Convenience wrapper around :func:`cyl` / :func:`cylinder` with ``radius2=0`` by default</span>
+<span class="sd">    for a pointed cone, or with explicit ``radius2`` for a truncated (frustum) form.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        height/length:  height of the cone (default 1)</span>
+<span class="sd">        radius:         base radius (default 1)</span>
+<span class="sd">        radius1:        bottom radius (overrides *radius*)</span>
+<span class="sd">        radius2:        top radius (default 0 for a pointed cone)</span>
+<span class="sd">        center:         if given, overrides anchor</span>
+<span class="sd">        diameter:       base diameter</span>
+<span class="sd">        diameter1:      bottom diameter</span>
+<span class="sd">        diameter2:      top diameter</span>
+<span class="sd">        chamfer/chamfer1/chamfer2: chamfer size on the end rims</span>
+<span class="sd">        rounding/rounding1/rounding2: rounding radius on the end rims</span>
+<span class="sd">        anchor:         anchor point</span>
+<span class="sd">        spin:           Z-axis rotation in degrees after anchor (default 0)</span>
+<span class="sd">        orient:         direction to rotate the top towards, after spin (default UP)</span>
+<span class="sd">        fn/fa/fs:       arc smoothness overrides</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A pointed cone:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
+<span class="sd">            s3.cone(height=30, radius=15).show()</span>
+
+<span class="sd">        A truncated cone (frustum):</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
+<span class="sd">            s3.cone(height=30, radius1=15, radius2=8).show()</span>
+
+<span class="sd">        A cone with chamfered base:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
+<span class="sd">            s3.cone(height=30, radius=15, chamfer=2).show()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r1</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cyl</span><span class="p">(</span>
+        <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+        <span class="n">radius1</span><span class="o">=</span><span class="n">r1</span><span class="p">,</span>
+        <span class="n">radius2</span><span class="o">=</span><span class="n">r2</span><span class="p">,</span>
+        <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span>
+        <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">,</span>
+        <span class="n">chamfer1</span><span class="o">=</span><span class="n">chamfer1</span><span class="p">,</span>
+        <span class="n">chamfer2</span><span class="o">=</span><span class="n">chamfer2</span><span class="p">,</span>
+        <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
+        <span class="n">rounding1</span><span class="o">=</span><span class="n">rounding1</span><span class="p">,</span>
+        <span class="n">rounding2</span><span class="o">=</span><span class="n">rounding2</span><span class="p">,</span>
+        <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
+        <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+        <span class="n">orient</span><span class="o">=</span><span class="n">orient</span><span class="p">,</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+        <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 

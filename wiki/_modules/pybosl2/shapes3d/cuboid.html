@@ -409,31 +409,81 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">cube</span><span class="p">(</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ALL&quot;</span><span class="p">,</span>
+    <span class="n">except_edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">trimcorners</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">teardrop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A cube, built with the builtin cube(), with BOSL2-style anchor/spin/orient support.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A cube with optional chamfering or rounding of edges and corners.</span>
+
+<span class="sd">    Delegates to :func:`cuboid` with the full set of edge/corner chamfer and rounding options.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        size:   size of the cube, a number or length-3 vector</span>
-<span class="sd">        center: if given, overrides anchor (True -&gt; CENTER, False -&gt; FRONT+LEFT+BOTTOM)</span>
-<span class="sd">        anchor: anchor point (default Anchor.CENTER)</span>
-<span class="sd">        spin:   Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        orient: direction to rotate the top towards, after spin (default Anchor.TOP)</span>
+<span class="sd">        size:          size of the cube, a number or length-3 vector</span>
+<span class="sd">        center:        if given, overrides anchor (True -&gt; CENTER, False -&gt; FRONT+LEFT+BOTTOM)</span>
+<span class="sd">        chamfer:       chamfer size along all edges (default none)</span>
+<span class="sd">        rounding:      rounding radius along all edges (default none)</span>
+<span class="sd">        edges:         edge specifier — &quot;ALL&quot;, &quot;NONE&quot;, &quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;, or list of direction vectors</span>
+<span class="sd">        except_edges:  edges to exclude from chamfer/rounding</span>
+<span class="sd">        trimcorners:   trim corners where 3+ edges meet (default True)</span>
+<span class="sd">        teardrop:      limit the overhang angle for FDM printing (default False)</span>
+<span class="sd">        anchor:        anchor point (default Anchor.CENTER)</span>
+<span class="sd">        spin:          Z-axis rotation in degrees after anchor (default 0)</span>
+<span class="sd">        orient:        direction to rotate the top towards, after spin (default Anchor.TOP)</span>
+<span class="sd">        fn/fa/fs:      arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
+<span class="sd">        Basic cube:</span>
+
 <span class="sd">        .. pythonscad-example::</span>
 
 <span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.cube(size=20).show()</span>
+
+<span class="sd">        Cube with chamfered edges:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
+<span class="sd">            s3.cube(size=20, chamfer=2).show()</span>
+
+<span class="sd">        Cube with rounded edges:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes3d as s3</span>
+
+<span class="sd">            s3.cube(size=20, rounding=3).show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
-    <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">BOTTOM_FRONT_LEFT</span><span class="p">)</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">_ocube</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_box3</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">use_anchor</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_finish3</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">orient</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">use_anchor</span><span class="p">)</span></div>
+    <span class="n">use_anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">anchor</span>
+    <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span> <span class="k">if</span> <span class="n">center</span> <span class="k">else</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">BOTTOM_FRONT_LEFT</span>
+    <span class="k">return</span> <span class="n">cuboid</span><span class="p">(</span>
+        <span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span>
+        <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">,</span>
+        <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
+        <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span>
+        <span class="n">except_edges</span><span class="o">=</span><span class="n">except_edges</span><span class="p">,</span>
+        <span class="n">trimcorners</span><span class="o">=</span><span class="n">trimcorners</span><span class="p">,</span>
+        <span class="n">teardrop</span><span class="o">=</span><span class="n">teardrop</span><span class="p">,</span>
+        <span class="n">anchor</span><span class="o">=</span><span class="n">use_anchor</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+        <span class="n">orient</span><span class="o">=</span><span class="n">orient</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+        <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 

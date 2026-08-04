@@ -501,10 +501,10 @@
    "wt": true
   },
   "chamfered-cylinder": {
-   "tris": 116,
-   "vol": "6,237.4",
+   "tris": 360,
+   "vol": "6,004.5",
    "bbox": "20\u00d720\u00d720",
-   "wt": true
+   "wt": false
   },
   "octahedron": {
    "tris": 8,

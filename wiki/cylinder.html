@@ -158,33 +158,70 @@
 <li class="ps-func"><a href="#pybosl2.shapes3d.cylinder.ycyl">ycyl</a></li>
 <li class="ps-func"><a href="#pybosl2.shapes3d.cylinder.zcyl">zcyl</a></li>
 <li class="ps-func"><a href="#pybosl2.shapes3d.cylinder.tube">tube</a></li>
+<li class="ps-func"><a href="#pybosl2.shapes3d.cylinder.cone">cone</a></li>
 </ul></div></aside>
-<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="module-pybosl2.shapes3d.cylinder">
-<span id="cylinder"></span><h1>Cylinder<a class="headerlink" href="#module-pybosl2.shapes3d.cylinder" title="Link to this heading">¶</a></h1>
-<dl class="py function">
+<script>(function(){var s=document.getElementById('pysidebar-global');if(!s)return;var d=document.querySelector('.document');if(d)d.insertBefore(s,d.querySelector('.clearer'));var btn=s.querySelector('.ps-toggle');var saved=localStorage.getItem('ps-collapsed');var narrow=window.matchMedia('(max-width:1060px)');function apply(v){if(v){s.classList.add('collapsed');}else{s.classList.remove('collapsed');}}function toggle(){var v=!s.classList.contains('collapsed');apply(v);localStorage.setItem('ps-collapsed',v?'1':'0');}if(narrow.matches){apply(saved==='0'?false:true);}else{apply(saved==='1');}btn.onclick=toggle;narrow.onchange=function(e){if(e.matches&&saved!=='0')apply(true);else if(!e.matches&&saved!=='1')apply(false);};})();</script><section id="cylinder">
+<h1>Cylinder<a class="headerlink" href="#cylinder" title="Link to this heading">¶</a></h1>
+<p style="margin-top:0;margin-bottom:1.2em">&#9881;&#65039; <b><a href="specs/shapes3d.html">Spec sheet &rarr;</a></b> &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.</p><dl class="py function" id="module-pybosl2.shapes3d.cylinder">
 <dt class="sig sig-object py" id="pybosl2.shapes3d.cylinder.cylinder">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cylinder.</span></span><span class="sig-name descname"><span class="pre">cylinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.CENTER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cylinder.html#cylinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cylinder.cylinder" title="Link to this definition">¶</a></dt>
-<dd><p>A cylinder/cone, built with the builtin cylinder(), with BOSL2-style anchor/spin/orient support.</p>
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cylinder.</span></span><span class="sig-name descname"><span class="pre">cylinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circumscribe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer_angle1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer_angle2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_end1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_end2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teardrop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texture</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tex_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tex_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tex_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tex_inset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cylinder.html#cylinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cylinder.cylinder" title="Link to this definition">¶</a></dt>
+<dd><p>A cylinder with optional chamfering/rounding of its end rims, built with
+cube()/cylinder()/sphere()/rotate_extrude().</p>
+<p>Positive rounding is built as a minkowski() of a shorter cylinder with a sphere at each
+rounded end (an inset fillet, not an outward bulge), matching BOSL2’s own rounded-end
+geometry. Chamfering builds the exact half-profile (with the requested bevel at each end)
+and revolves it with rotate_extrude().</p>
+<p>Note: <code class="docutils literal notranslate"><span class="pre">texture=</span></code> (VNF surface texturing) is not supported by this pure-Python port.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>length/height</strong> – height of the cylinder</p></li>
-<li><p><strong>radius1</strong> (<em>float</em><em> | </em><em>None</em>) – bottom radius (before orientation)</p></li>
-<li><p><strong>radius2</strong> (<em>float</em><em> | </em><em>None</em>) – top radius (before orientation)</p></li>
-<li><p><strong>center</strong> (<em>bool</em><em> | </em><em>None</em>) – if given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)</p></li>
-<li><p><strong>diameter1</strong> (<em>float</em><em> | </em><em>None</em>) – bottom diameter (before orientation)</p></li>
-<li><p><strong>diameter2</strong> (<em>float</em><em> | </em><em>None</em>) – top diameter (before orientation)</p></li>
-<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>) – radius of the cylinder</p></li>
+<li><p><strong>length/height</strong> – length of the cylinder along its axis (default 1)</p></li>
+<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>) – radius of the cylinder (default 1)</p></li>
 <li><p><strong>diameter</strong> (<em>float</em><em> | </em><em>None</em>) – diameter of the cylinder</p></li>
-<li><p><strong>anchor</strong> (<em>Anchor</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – anchor point (default CENTER)</p></li>
+<li><p><strong>radius1</strong> (<em>float</em><em> | </em><em>None</em>) – radius of the negative end of the cylinder</p></li>
+<li><p><strong>radius2</strong> (<em>float</em><em> | </em><em>None</em>) – radius of the positive end of the cylinder</p></li>
+<li><p><strong>diameter1</strong> (<em>float</em><em> | </em><em>None</em>) – diameter of the negative end of the cylinder</p></li>
+<li><p><strong>diameter2</strong> (<em>float</em><em> | </em><em>None</em>) – diameter of the positive end of the cylinder</p></li>
+<li><p><strong>center</strong> (<em>bool</em><em> | </em><em>None</em>) – if given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)</p></li>
+<li><p><strong>chamfer/chamfer1/chamfer2</strong> – chamfer size on the end rims (overall/negative/positive)</p></li>
+<li><p><strong>rounding/rounding1/rounding2</strong> – rounding radius on the end rims (overall/negative/positive)</p></li>
+<li><p><strong>circumscribe</strong> (<em>bool</em>) – circumscribe rather than inscribe the given radius (default False)</p></li>
+<li><p><strong>realign</strong> (<em>bool</em>) – shift point alignment (default False)</p></li>
+<li><p><strong>shift</strong> (<em>Sequence</em><em>[</em><em>float</em><em>]</em>) – X/Y offset for the positive end (shear) (default [0,0])</p></li>
+<li><p><strong>anchor</strong> (<em>Anchor</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – anchor point (default BOTTOM if center=False, otherwise CENTER)</p></li>
 <li><p><strong>spin</strong> (<em>float</em>) – Z-axis rotation in degrees after anchor (default 0)</p></li>
 <li><p><strong>orient</strong> (<em>Anchor</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – direction to rotate the top towards, after spin (default UP)</p></li>
 <li><p><strong>fn/fa/fs</strong> – arc smoothness overrides</p></li>
+<li><p><strong>chamfer_angle/chamfer_angle1/chamfer_angle2</strong> – chamfer angle in degrees away from ends</p></li>
+<li><p><strong>from_end/from_end1/from_end2</strong> – measure chamfer along conic face (default False)</p></li>
+<li><p><strong>extra/extra1/extra2</strong> – add extra height at ends (invisible to anchoring)</p></li>
+<li><p><strong>teardrop</strong> (<em>float</em><em> | </em><em>bool</em>) – limit rounding angle from horizontal</p></li>
+<li><p><strong>clip_angle</strong> (<em>float</em>) – clip rounding arc at bottom of cylinder</p></li>
+<li><p><strong>texture</strong> (<em>str</em><em> | </em><em>TextureType</em><em> | </em><em>None</em>) – named texture to apply to cylinder side surface</p></li>
+<li><p><strong>tex_size</strong> (<em>float</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – size of texture tile</p></li>
+<li><p><strong>tex_reps</strong> (<em>int</em><em> | </em><em>Sequence</em><em>[</em><em>int</em><em>] </em><em>| </em><em>None</em>) – number of texture repetitions</p></li>
+<li><p><strong>tex_depth</strong> (<em>float</em>) – depth of the texture</p></li>
+<li><p><strong>tex_inset</strong> (<em>float</em><em> | </em><em>bool</em>) – inset the texture</p></li>
 <li><p><strong>height</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>length</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer_angle</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer_angle1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer_angle2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>from_end</strong> (<em>bool</em>)</p></li>
+<li><p><strong>from_end1</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>from_end2</strong> (<em>bool</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>extra</strong> (<em>float</em>)</p></li>
+<li><p><strong>extra1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>extra2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -192,19 +229,20 @@
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span><span class="p">,</span> <span class="n">Anchor</span>
+<p>A basic cylinder:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
 
-<span class="n">s3</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">s3</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-3c4d4a09af2c42a7b659c7b5ab88ff57" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-4380089c052f49e9a9b3025d6ff23a37" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-3c4d4a09af2c42a7b659c7b5ab88ff57");
+const el = document.getElementById("stlviewer-4380089c052f49e9a9b3025d6ff23a37");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -227,7 +265,7 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-new STLLoader().load("_stl/19dafbf7de3237c9.stl", function (geo) {
+new STLLoader().load("_stl/1f0e496b1599e3e1.stl", function (geo) {
   geo.computeVertexNormals();
   geo.computeBoundingBox();
   const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
@@ -247,7 +285,121 @@ new STLLoader().load("_stl/19dafbf7de3237c9.stl", function (geo) {
 });
 window.addEventListener("resize", resize);
 </script>
-<p><a class="reference external" href="_stl/19dafbf7de3237c9.stl">⬇ Download STL mesh</a></p>
+<p><a class="reference external" href="_stl/1f0e496b1599e3e1.stl">⬇ Download STL mesh</a></p>
+<p>A cylinder with chamfered ends:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">s3</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-e41536fbfde8484fb0cb1a3f6b099d4b" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-e41536fbfde8484fb0cb1a3f6b099d4b");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/127ac55ede3cbea1.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/127ac55ede3cbea1.stl">⬇ Download STL mesh</a></p>
+<p>A cylinder with rounded ends:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">s3</span><span class="o">.</span><span class="n">cylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-d13d21b14d9b4367b9f080ba75988cc1" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-d13d21b14d9b4367b9f080ba75988cc1");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/0194ea62e055cc0c.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/0194ea62e055cc0c.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 <dl class="py function">
@@ -385,13 +537,13 @@ and revolves it with rotate_extrude().</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-19942307ad92481c80205c92f957162f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-67b6110763b44793a4ddd211a619c57d" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-19942307ad92481c80205c92f957162f");
+const el = document.getElementById("stlviewer-67b6110763b44793a4ddd211a619c57d");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -498,13 +650,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9c8e55dce2ee49b389d45e7ec6cd19d3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-17fcbc149d4d47768df5578ec1151390" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9c8e55dce2ee49b389d45e7ec6cd19d3");
+const el = document.getElementById("stlviewer-17fcbc149d4d47768df5578ec1151390");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -612,13 +764,13 @@ argument details.</p>
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-1794b3191b4b4559b3e81b747cb61ba0" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-07595371407945e8bb1be97b360cbf60" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-1794b3191b4b4559b3e81b747cb61ba0");
+const el = document.getElementById("stlviewer-07595371407945e8bb1be97b360cbf60");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -715,24 +867,26 @@ window.addEventListener("resize", resize);
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pybosl2.shapes3d.cylinder.tube">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cylinder.</span></span><span class="sig-name descname"><span class="pre">tube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.CENTER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cylinder.html#tube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cylinder.tube" title="Link to this definition">¶</a></dt>
-<dd><p>BOSL2 tube() – a hollow cylindrical tube.</p>
-<p>Note: BOSL2’s outer-radius parameters are named <cite>or</cite>/<cite>or1</cite>/<cite>or2</cite>, which collide with the
-Python keyword <cite>or</cite>; they are exposed here as <cite>outer_radius</cite>/<cite>outer_radius1</cite>/<cite>outer_radius2</cite> instead.</p>
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cylinder.</span></span><span class="sig-name descname"><span class="pre">tube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_radius2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outer_diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_radius2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.CENTER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cylinder.html#tube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cylinder.tube" title="Link to this definition">¶</a></dt>
+<dd><p>BOSL2 tube() – a hollow cylindrical tube, with optional chamfer/rounding on end rims.</p>
+<p>Note: BOSL2’s outer-radius parameters are named <code class="docutils literal notranslate"><span class="pre">or</span></code>/<code class="docutils literal notranslate"><span class="pre">or1</span></code>/<code class="docutils literal notranslate"><span class="pre">or2</span></code>, which collide with the
+Python keyword <code class="docutils literal notranslate"><span class="pre">or</span></code>; they are exposed here as <code class="docutils literal notranslate"><span class="pre">outer_radius</span></code>/<code class="docutils literal notranslate"><span class="pre">outer_radius1</span></code>/<code class="docutils literal notranslate"><span class="pre">outer_radius2</span></code> instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>height/length</strong> – height of the tube (default 1)</p></li>
-<li><p><strong>outer_radius</strong> (<em>float</em><em> | </em><em>None</em>) – outer radius of the tube (BOSL2 <cite>or</cite>) (default 1)</p></li>
+<li><p><strong>outer_radius</strong> (<em>float</em><em> | </em><em>None</em>) – outer radius of the tube (BOSL2 <code class="docutils literal notranslate"><span class="pre">or</span></code>) (default 1)</p></li>
 <li><p><strong>inner_radius</strong> (<em>float</em><em> | </em><em>None</em>) – inner radius of the tube</p></li>
 <li><p><strong>center</strong> (<em>bool</em><em> | </em><em>None</em>) – if given, overrides anchor (True -&gt; CENTER, False -&gt; DOWN)</p></li>
 <li><p><strong>outer_diameter</strong> (<em>float</em><em> | </em><em>None</em>) – outer diameter of the tube</p></li>
 <li><p><strong>inner_diameter</strong> (<em>float</em><em> | </em><em>None</em>) – inner diameter of the tube</p></li>
 <li><p><strong>wall</strong> (<em>float</em><em> | </em><em>None</em>) – horizontal wall thickness (default 1)</p></li>
-<li><p><strong>outer_radius1/outer_radius2</strong> – outer radius of the bottom/top (BOSL2 <cite>or1</cite>/<cite>or2</cite>)</p></li>
+<li><p><strong>outer_radius1/outer_radius2</strong> – outer radius of the bottom/top</p></li>
 <li><p><strong>outer_diameter1/outer_diameter2</strong> – outer diameter of the bottom/top</p></li>
 <li><p><strong>inner_radius1/inner_radius2</strong> – inner radius of the bottom/top</p></li>
 <li><p><strong>inner_diameter1/inner_diameter2</strong> – inner diameter of the bottom/top</p></li>
+<li><p><strong>chamfer/chamfer1/chamfer2</strong> – chamfer size on end rims (overall/bottom/top)</p></li>
+<li><p><strong>rounding/rounding1/rounding2</strong> – rounding radius on end rims (overall/bottom/top)</p></li>
 <li><p><strong>realign</strong> (<em>bool</em>) – rotate by half the angle of one face (default False)</p></li>
 <li><p><strong>anchor</strong> (<em>Anchor</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – anchor point (default CENTER)</p></li>
 <li><p><strong>spin</strong> (<em>float</em>) – Z-axis rotation in degrees after anchor (default 0)</p></li>
@@ -747,6 +901,12 @@ Python keyword <cite>or</cite>; they are exposed here as <cite>outer_radius</cit
 <li><p><strong>inner_radius2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>inner_diameter1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>inner_diameter2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>length</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
 <li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
@@ -765,13 +925,13 @@ Python keyword <cite>or</cite>; they are exposed here as <cite>outer_radius</cit
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-9fad53da7a4b40699524225d61f8c8e6" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-93b5969360994228967bda551e04d287" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-9fad53da7a4b40699524225d61f8c8e6");
+const el = document.getElementById("stlviewer-93b5969360994228967bda551e04d287");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -815,6 +975,227 @@ new STLLoader().load("_stl/4bfe37b2b35dbfd3.stl", function (geo) {
 window.addEventListener("resize", resize);
 </script>
 <p><a class="reference external" href="_stl/4bfe37b2b35dbfd3.stl">⬇ Download STL mesh</a></p>
+<p>A tube with chamfered end rims:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">tube</span>
+
+<span class="n">shape</span> <span class="o">=</span> <span class="n">tube</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-3a1e8b2a3d65443c95a790721f27f540" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-3a1e8b2a3d65443c95a790721f27f540");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/487efa20bf366a57.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/487efa20bf366a57.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pybosl2.shapes3d.cylinder.cone">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cylinder.</span></span><span class="sig-name descname"><span class="pre">cone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diameter2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chamfer2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Anchor.TOP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cylinder.html#cone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cylinder.cone" title="Link to this definition">¶</a></dt>
+<dd><p>A cone/truncated cone with optional chamfering or rounding of the end rims.</p>
+<p>Convenience wrapper around <a class="reference internal" href="#pybosl2.shapes3d.cylinder.cyl" title="pybosl2.shapes3d.cylinder.cyl"><code class="xref py py-func docutils literal notranslate"><span class="pre">cyl()</span></code></a> / <a class="reference internal" href="#pybosl2.shapes3d.cylinder.cylinder" title="pybosl2.shapes3d.cylinder.cylinder"><code class="xref py py-func docutils literal notranslate"><span class="pre">cylinder()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">radius2=0</span></code> by default
+for a pointed cone, or with explicit <code class="docutils literal notranslate"><span class="pre">radius2</span></code> for a truncated (frustum) form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>height/length</strong> – height of the cone (default 1)</p></li>
+<li><p><strong>radius</strong> (<em>float</em><em> | </em><em>None</em>) – base radius (default 1)</p></li>
+<li><p><strong>radius1</strong> (<em>float</em><em> | </em><em>None</em>) – bottom radius (overrides <em>radius</em>)</p></li>
+<li><p><strong>radius2</strong> (<em>float</em><em> | </em><em>None</em>) – top radius (default 0 for a pointed cone)</p></li>
+<li><p><strong>center</strong> (<em>bool</em><em> | </em><em>None</em>) – if given, overrides anchor</p></li>
+<li><p><strong>diameter</strong> (<em>float</em><em> | </em><em>None</em>) – base diameter</p></li>
+<li><p><strong>diameter1</strong> (<em>float</em><em> | </em><em>None</em>) – bottom diameter</p></li>
+<li><p><strong>diameter2</strong> (<em>float</em><em> | </em><em>None</em>) – top diameter</p></li>
+<li><p><strong>chamfer/chamfer1/chamfer2</strong> – chamfer size on the end rims</p></li>
+<li><p><strong>rounding/rounding1/rounding2</strong> – rounding radius on the end rims</p></li>
+<li><p><strong>anchor</strong> (<em>Anchor</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>] </em><em>| </em><em>None</em>) – anchor point</p></li>
+<li><p><strong>spin</strong> (<em>float</em>) – Z-axis rotation in degrees after anchor (default 0)</p></li>
+<li><p><strong>orient</strong> (<em>Anchor</em><em> | </em><em>Sequence</em><em>[</em><em>float</em><em>]</em>) – direction to rotate the top towards, after spin (default UP)</p></li>
+<li><p><strong>fn/fa/fs</strong> – arc smoothness overrides</p></li>
+<li><p><strong>height</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>chamfer2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding1</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>rounding2</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>length</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fn</strong> (<em>int</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fa</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+<li><p><strong>fs</strong> (<em>float</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>A pointed cone:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">s3</span><span class="o">.</span><span class="n">cone</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-b9da14f00c5147fea1e465e18083cf34" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-b9da14f00c5147fea1e465e18083cf34");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/5ee31505959d86b5.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/5ee31505959d86b5.stl">⬇ Download STL mesh</a></p>
+<p>A truncated cone (frustum):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">s3</span><span class="o">.</span><span class="n">cone</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">radius1</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">radius2</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+
+<div class="stl-viewer" id="stlviewer-ade171dccfee4393a3b17debce5942d4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-ade171dccfee4393a3b17debce5942d4");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/8374aea4d2bfc0b3.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/8374aea4d2bfc0b3.stl">⬇ Download STL mesh</a></p>
+<p>A cone with chamfered base:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">s3</span><span class="o">.</span><span class="n">cone</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

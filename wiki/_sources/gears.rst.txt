@@ -1,6 +1,11 @@
 Gears
 =====
 
+.. raw:: html
+
+   <p style="margin-top:0;margin-bottom:1.2em">&#9881;&#65039; <b><a href="specs/gears.html">Spec sheet &rarr;</a></b> &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.</p>
+
+
 
 Pure-Python port of BOSL2's current ``gears.scad``. Gears are sized by circular pitch
 (``circ_pitch``), metric ``mod``, or ``diam_pitch``; the 20-degree ``pressure_angle`` and
