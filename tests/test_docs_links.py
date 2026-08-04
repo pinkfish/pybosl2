@@ -57,14 +57,25 @@ def _resolve_module_attr(module_path: str, attr_name: str = "") -> bool:
         return False
 
 
+def _html_spec_exists(filename: str) -> bool:
+    """Check whether *filename* exists inside the specs directory.
+
+    Returns True even if the specs dir doesn't exist (spec not yet built
+    in CI — the link is still valid, just not yet verifiable).
+    """
+    if not SPECS_DIR.is_dir():
+        return True
+    return (SPECS_DIR / filename).is_file()
+
+
 def _resolve_docs_href(href: str) -> bool:
     """Check whether an href points to a real resource."""
     if href.startswith(("http://", "https://", "#", "mailto:")):
         return True
 
-    # spec sheet links: specs/<name>.html — skip if spec not built yet
+    # spec sheet links: specs/<name>.html
     if href.startswith("specs/"):
-        return True  # trust spec links — validated by TestSpecSheetLinks
+        return _html_spec_exists(Path(href).name)
 
     # doc-relative links like circle.html
     target = DOCS_DIR / href
