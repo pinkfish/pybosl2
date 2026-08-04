@@ -172,13 +172,13 @@ the printed fit with the slider’s <code class="docutils literal notranslate"><
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-49e22eab804d4da895c074e9d5d83481" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-0fea4c807ce045dd844dd61a6c6128bd" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-49e22eab804d4da895c074e9d5d83481");
+const el = document.getElementById("stlviewer-0fea4c807ce045dd844dd61a6c6128bd");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -254,13 +254,13 @@ window.addEventListener("resize", resize);
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-d0aa5ee58c0445e0b72eac45aef0bce9" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-fd0c9caf2a94465bb658bd012fd9621e" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-d0aa5ee58c0445e0b72eac45aef0bce9");
+const el = document.getElementById("stlviewer-fd0c9caf2a94465bb658bd012fd9621e");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -328,12 +328,14 @@ window.addEventListener("resize", resize);
 Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">slider</span></code></p>
 <p>A V-groove slider:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.sliders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sliders</span>
+<span class="n">Sliders</span><span class="o">.</span><span class="n">slider</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">rail</span></code></p>
 <p>The mating rail:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Sliders</span><span class="o">.</span><span class="n">rail</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.sliders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sliders</span>
+<span class="n">Sliders</span><span class="o">.</span><span class="n">rail</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>

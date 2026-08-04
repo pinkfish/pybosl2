@@ -81,6 +81,7 @@ A PCO-1810 bottle neck:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.bottlecaps import BottleCaps
    BottleCaps.pco1810_neck().show()
 
 .. rubric:: ``pco1810_cap``
@@ -89,6 +90,7 @@ Its matching cap:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.bottlecaps import BottleCaps
    BottleCaps.pco1810_cap().show()
 
 .. rubric:: ``pco1881_neck``
@@ -97,6 +99,7 @@ A PCO-1881 bottle neck:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.bottlecaps import BottleCaps
    BottleCaps.pco1881_neck().show()
 
 .. rubric:: ``pco1881_cap``
@@ -105,4 +108,5 @@ Its matching cap:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.bottlecaps import BottleCaps
    BottleCaps.pco1881_cap().show()

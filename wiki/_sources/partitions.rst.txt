@@ -77,12 +77,16 @@ A box split into two dovetail-jointed pieces, spread apart:
 
 .. pythonscad-example::
 
+    from pybosl2 import shapes3d as s3
+
     back, front = s3.cuboid([60, 40, 20]).partition(spread=14, cutpath="dovetail")
     (back | front).show()
 
 A jigsaw cut face on one half of a long bar:
 
 .. pythonscad-example::
+
+    from pybosl2 import partition_path, shapes3d as s3
 
     cut = partition_path([50, "jigsaw", 50], _fn=20)
     s3.cuboid([100, 40, 16]).back_half(cut_path=cut).show()

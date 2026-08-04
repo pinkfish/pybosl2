@@ -62,12 +62,18 @@ A stack of blocks, each a different hue from HSV:
 
 .. pythonscad-example::
 
+    from functools import reduce
+    from pybosl2 import shapes3d as s3
+
     blocks = [s3.cuboid([20, 20, 4]).up(i * 5).hsv(i * 40, 0.8, 0.95) for i in range(5)]
     reduce(lambda a, b: a | b, blocks).show()
 
 Rainbow-colouring a list of parts to tell them apart:
 
 .. pythonscad-example::
+
+    from functools import reduce
+    from pybosl2 import rainbow, shapes3d as s3
 
     parts = [s3.cyl(height=20, radius=4).right(i * 12) for i in range(6)]
     reduce(lambda a, b: a | b, rainbow(parts)).show()

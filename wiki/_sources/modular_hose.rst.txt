@@ -31,28 +31,33 @@ Examples that rely on BOSL2's attachment/anchor system, or on features not in th
 
 .. pythonscad-example::
 
+   from pybosl2.parts.modular_hose import ModularHose
    ModularHose.modular_hose(0.25, "segment").show()
 
 1/2" segment:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.modular_hose import ModularHose
    ModularHose.modular_hose(0.5, "segment").show()
 
 3/4" segment:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.modular_hose import ModularHose
    ModularHose.modular_hose(0.75, "segment").show()
 
 1/2" ball end with a longer waist:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.modular_hose import ModularHose
    ModularHose.modular_hose(0.5, "ball", waist_len=15).show()
 
 3/4" socket end:
 
 .. pythonscad-example::
 
+   from pybosl2.parts.modular_hose import ModularHose
    ModularHose.modular_hose(0.75, "socket").show()

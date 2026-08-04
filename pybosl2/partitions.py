@@ -744,6 +744,7 @@ class Partitionable(ABC):
 
                 import pybosl2.shapes3d as s3
                 from pybosl2.partitions import partition_path
+                from pybosl2 import UP
 
                 path = partition_path(["finger", 20, "finger"], seglen=25)
                 s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()

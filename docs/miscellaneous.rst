@@ -67,6 +67,8 @@ A moulding that follows an L-shaped path:
 
 .. pythonscad-example::
 
+    from pybosl2 import Path, shapes2d as s2
+
     route = Path([[0, 0], [40, 0], [40, 40]], closed=False)
     route.path_extrude2d(s2.square([4, 8], center=True)).show()
 
@@ -74,12 +76,16 @@ A profile swept along a rising 3-D path:
 
 .. pythonscad-example::
 
+    from pybosl2 import Path3D, shapes2d as s2
+
     route = Path3D([[0, 0, 0], [30, 0, 10], [30, 30, 20], [0, 30, 30]], closed=False)
     route.path_extrude(s2.circle(radius=4, _fn=16)).show()
 
 A twisting, tapering column between two points:
 
 .. pythonscad-example::
+
+    from pybosl2 import extrude_from_to, shapes2d as s2
 
     extrude_from_to(s2.square([8, 4], center=True), [0, 0, 0], [8, 12, 30], twist=180, scale=2).show()
 

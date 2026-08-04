@@ -51,20 +51,26 @@ roof):
 
 .. pythonscad-example::
 
-    pybosl2.roof(s2.square([30, 30], center=True)).show()
+    from pybosl2 import roof, shapes2d as s2
+
+    roof(s2.square([30, 30], center=True)).show()
 
 Oversampling subdivides a solid's facets without changing its shape -- useful before a bend or a
 displacement:
 
 .. pythonscad-example::
 
-    pybosl2.cuboid([30, 30, 12]).oversample(3).show()
+    from pybosl2 import cuboid
+
+    cuboid([30, 30, 12]).oversample(3).show()
 
 Pulling a block apart stretches the material between the halves:
 
 .. pythonscad-example::
 
-    pybosl2.cuboid([24, 24, 12]).pull([0, 0, 1], 8).show()
+    from pybosl2 import cuboid
+
+    cuboid([24, 24, 12]).pull([0, 0, 1], 8).show()
 
 API reference
 -------------

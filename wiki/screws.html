@@ -213,15 +213,18 @@ wired into <a class="reference internal" href="#pybosl2.parts.screws.Screws.scre
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
 <p>An M8 socket cap screw with a hex drive recess:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M8&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;socket&quot;</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M8&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;socket&quot;</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>A countersunk (flat-head) screw:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;flat&quot;</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>A screw threaded into its matching hex nut (shown side by side):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">screw</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;button&quot;</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<span class="n">screw</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;button&quot;</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="s2">&quot;hex&quot;</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">nut</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">nut</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">_fa</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">_fs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
 <span class="p">(</span><span class="n">screw</span> <span class="o">|</span> <span class="n">nut</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
@@ -277,13 +280,13 @@ head-up: the shaft occupies <code class="docutils literal notranslate"><span cla
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-1ca6438f2b0f415f834a0b9006132e15" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-38a7439cf0f2491ab099cc4cb8a8c8eb" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-1ca6438f2b0f415f834a0b9006132e15");
+const el = document.getElementById("stlviewer-38a7439cf0f2491ab099cc4cb8a8c8eb");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -361,13 +364,13 @@ the standard across-flats width. <em>slop</em> adds radial clearance to the thre
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-196217490d9e42228e14b51275c5e05c" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-9e768d43b7ae42beaed1d39f5fdae7a3" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-196217490d9e42228e14b51275c5e05c");
+const el = document.getElementById("stlviewer-9e768d43b7ae42beaed1d39f5fdae7a3");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -448,13 +451,13 @@ with its mouth at <code class="docutils literal notranslate"><span class="pre">z
 </pre></div>
 </div>
 
-<div class="stl-viewer" id="stlviewer-fa0952ef30a7499481f0961e4d85485a" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<div class="stl-viewer" id="stlviewer-d90d3d879a47445da5b5700a8c92efdd" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
 <script type="module">
 import * as THREE from "https://esm.sh/three@0.160.0";
 import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
 import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-const el = document.getElementById("stlviewer-fa0952ef30a7499481f0961e4d85485a");
+const el = document.getElementById("stlviewer-d90d3d879a47445da5b5700a8c92efdd");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("#f7f7f9");
 const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
@@ -528,27 +531,287 @@ window.addEventListener("resize", resize);
 Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">screw</span></code></p>
 <p>An M6 screw:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+
+<div class="stl-viewer" id="stlviewer-7e964cd2f0f24d28b410a12713cefc31" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-7e964cd2f0f24d28b410a12713cefc31");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/7e4a0bf5811d61b0.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/7e4a0bf5811d61b0.stl">⬇ Download STL mesh</a></p>
 <p>A socket-head M6:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;socket&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;socket&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+
+<div class="stl-viewer" id="stlviewer-7e58851dc46d495f9366cc2cf39b42a2" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-7e58851dc46d495f9366cc2cf39b42a2");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/ee96c17d71292ec7.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/ee96c17d71292ec7.stl">⬇ Download STL mesh</a></p>
 <p>A Torx button-head M6:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;button&quot;</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="s2">&quot;torx&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="s2">&quot;button&quot;</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="s2">&quot;torx&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+
+<div class="stl-viewer" id="stlviewer-2ec9a8e65df848daaca0b8b76fd69026" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-2ec9a8e65df848daaca0b8b76fd69026");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/a270da95728fca25.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/a270da95728fca25.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">nut</span></code></p>
 <p>An M6 nut:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Screws</span><span class="o">.</span><span class="n">nut</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<span class="n">Screws</span><span class="o">.</span><span class="n">nut</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+
+<div class="stl-viewer" id="stlviewer-a8983dbe7a0d4c04b6bce345391638c4" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-a8983dbe7a0d4c04b6bce345391638c4");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/76ea59bd84b5d9d1.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/76ea59bd84b5d9d1.stl">⬇ Download STL mesh</a></p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">screw_hole</span></code></p>
 <p>A threaded screw-hole mask:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Screws</span><span class="o">.</span><span class="n">screw_hole</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<span class="n">Screws</span><span class="o">.</span><span class="n">screw_hole</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+
+<div class="stl-viewer" id="stlviewer-19789fee8fbc4a73b1cdc70afe5b2932" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+const el = document.getElementById("stlviewer-19789fee8fbc4a73b1cdc70afe5b2932");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#f7f7f9");
+const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
+camera.up.set(0, 0, 1);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+el.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function resize() {
+  const w = el.clientWidth, h = el.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / Math.max(1, h);
+  camera.updateProjectionMatrix();
+}
+
+new STLLoader().load("_stl/cadeb5a5dbf2428b.stl", function (geo) {
+  geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
+  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
+  geo.translate(-center.x, -center.y, -center.z);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
+    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
+  }));
+  scene.add(mesh);
+  const r = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
+  controls.target.set(0, 0, 0);
+  resize();
+  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
+}, undefined, function (err) {
+  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
+});
+window.addEventListener("resize", resize);
+</script>
+<p><a class="reference external" href="_stl/cadeb5a5dbf2428b.stl">⬇ Download STL mesh</a></p>
 </section>
 </section>
 
