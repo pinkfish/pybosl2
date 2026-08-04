@@ -579,7 +579,7 @@ def test_stroke_arrow_endcap_3d_is_a_cone(tmp_path):
     m = _render(
         tmp_path,
         "stroke([[0, 0, 0], [40, 0, 0]], width=4, endcaps='arrow')",
-        setup="from pybosl2.solid import use_backend; use_backend('csg')\n",
+        setup="from pybosl2._backend import set_default_backend; set_default_backend('csg')\n",
         name="arrow3d",
     )
     assert m.ntris > 0
