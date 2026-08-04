@@ -1331,7 +1331,7 @@ VARIANTS = {
         ("cuboid", "cuboid", "pybosl2.cuboid([30, 20, 15])"),
         ("sphere", "sphere", "pybosl2.sphere(radius=15)"),
         ("cylinder", "cylinder", "pybosl2.cylinder(height=20, radius=8)"),
-        ("cone", "cone", "pybosl2.cone(height=20, radius=10, chamfer=1)"),
+        ("cone", "cone", "pybosl2.cone(height=20, radius1=10, radius2=3, chamfer=1)"),
         ("prismoid", "prismoid", "pybosl2.prismoid(size1=[20, 20], size2=[10, 10], height=15)"),
         ("torus", "torus", "pybosl2.torus(major_radius=12, minor_radius=4)"),
         ("tube", "tube", "pybosl2.tube(height=20, outer_radius=10, inner_radius=6)"),

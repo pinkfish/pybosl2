@@ -459,10 +459,10 @@
    "wt": true
   },
   "cone": {
-   "tris": 116,
-   "vol": "2,890.0",
+   "tris": 360,
+   "vol": "2,902.4",
    "bbox": "20\u00d720\u00d720",
-   "wt": true
+   "wt": false
   },
   "prismoid": {
    "tris": 12,
