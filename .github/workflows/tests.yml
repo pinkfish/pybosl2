@@ -104,6 +104,13 @@ jobs:
       - name: Verify pythonscad imports
         run: python -c "import pythonscad, openscad, pybosl2.shapes3d; print('native modules import OK')"
 
-      - name: Run render tests
-        run: pytest -q tests/test_stl_render.py tests/test_stl_render_2d.py \
-          -k "not (test_stroke_arrow_endcap_2d or test_stroke_diamond_endcap_straddles_end or test_stroke_tail_and_arrow_mixed or test_stroke_arrow_endcap_3d_is_a_cone)"
+      - name: Run render tests (includes pythonscad-dependent 2D/3D tests)
+        run: |
+          pytest -q \
+            tests/test_stl_render.py \
+            tests/test_stl_render_2d.py \
+            tests/test_shapes2d_object.py \
+            tests/test_sdf_shapes2d.py \
+            tests/test_backend_crossbackend.py \
+            tests/test_backend_sdf.py \
+            tests/test_native_ops.py
