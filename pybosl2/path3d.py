@@ -1153,7 +1153,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 sweep_path = helix(turns=3, height=60, radius=20)
                 flat = sweep_path.path2d()
-                flat.stroke(width=2).linear_extrude(h=1).show()
+                flat.stroke(width=2).linear_extrude(height=1).show()
         """
         return Path2D(self._points[:, :2].tolist(), closed=self.closed)
 

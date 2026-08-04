@@ -119,7 +119,7 @@ Trapezoidal:
 .. pythonscad-example::
 
    from pybosl2.parts.walls import Walls
-   Walls.thinning_wall(height=50, l=[80, 50], thick=4).show()
+   Walls.thinning_wall(height=50, length=[80, 50], thick=4).show()
 
 .. rubric:: ``thinning_triangle``
 

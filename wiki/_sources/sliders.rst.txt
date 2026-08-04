@@ -31,7 +31,7 @@ A V-groove slider:
 .. pythonscad-example::
 
    from pybosl2.parts.sliders import Sliders
-   Sliders.slider(length=30, base=10, wall=4, slop=0.2).show()
+   Sliders.slider(l=30, base=10, wall=4, slop=0.2).show()
 
 .. rubric:: ``rail``
 
@@ -40,4 +40,4 @@ The mating rail:
 .. pythonscad-example::
 
    from pybosl2.parts.sliders import Sliders
-   Sliders.rail(length=100, w=10, height=10).show()
+   Sliders.rail(l=100, w=10, h=10).show()

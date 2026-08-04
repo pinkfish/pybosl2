@@ -235,7 +235,7 @@ def chain_hull(*objects: object) -> Bosl2Solid:
 
             from pybosl2 import shapes3d as s3, chain_hull
 
-            chain_hull([s3.sphere(r=5).translate([x * 20, 0, 0]) for x in range(4)]).show()
+            chain_hull([s3.sphere(radius=5).translate([x * 20, 0, 0]) for x in range(4)]).show()
     """
     from pythonscad import hull as _hull
 

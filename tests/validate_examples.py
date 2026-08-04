@@ -24,6 +24,7 @@ from __future__ import annotations
 import ast
 import builtins
 import importlib
+import inspect
 import re
 import sys
 from pathlib import Path
@@ -331,6 +332,102 @@ def _collect_scope_names(tree: ast.AST) -> tuple[set[str], set[str]]:
     return defined, loaded
 
 
+_SIGNATURE_CACHE: dict[str, frozenset[str]] = {}
+
+
+def _get_params(callable_obj: object) -> frozenset[str] | None:
+    """Return the parameter names for *callable_obj*, cached."""
+    try:
+        key = repr(callable_obj)
+        if key in _SIGNATURE_CACHE:
+            return _SIGNATURE_CACHE[key]
+        sig = inspect.signature(callable_obj)
+        params = frozenset(sig.parameters.keys())
+        _SIGNATURE_CACHE[key] = params
+        return params
+    except (ValueError, TypeError):
+        return None
+
+
+def _build_import_map(tree: ast.AST) -> dict[str, str]:
+    """Build a mapping of local names to fully-qualified module paths from import statements."""
+    name_map: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module:
+            for alias in node.names:
+                local = alias.asname or alias.name
+                name_map[local] = f"{node.module}.{alias.name}"
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                local = alias.asname or alias.name.split(".")[0]
+                name_map[local] = alias.name
+    return name_map
+
+
+def _try_import_attr(module_path: str, attr_name: str) -> object | None:
+    """Try to import *module_path* and get *attr_name* from it."""
+    try:
+        module = importlib.import_module(module_path)
+        if attr_name:
+            return getattr(module, attr_name, None)
+        return module
+    except ImportError:
+        return None
+
+
+def _resolve_callable_ast(func: ast.expr, name_map: dict[str, str]) -> object | None:
+    """Resolve an AST expression to a callable object using import mappings."""
+    try:
+        if isinstance(func, ast.Name):
+            full = name_map.get(func.id)
+            if full is None:
+                return None
+            parts = full.rsplit(".", 1)
+            if len(parts) == 2:
+                obj = _try_import_attr(parts[0], parts[1])
+                if obj is not None and inspect.ismodule(obj):
+                    return getattr(obj, func.id, obj)
+                return obj
+            obj = _try_import_attr(full, "")
+            if obj is not None and inspect.ismodule(obj):
+                return getattr(obj, func.id, obj)
+            return obj
+
+        if isinstance(func, ast.Attribute):
+            obj = _resolve_callable_ast(func.value, name_map)
+            if obj is not None:
+                return getattr(obj, func.attr, None)
+            return None
+
+    except Exception:
+        pass
+    return None
+
+
+def _check_kwargs(call_node: ast.Call, tree: ast.AST) -> list[str]:
+    """Check keyword argument names in *call_node* against the function signature."""
+    msgs: list[str] = []
+    name_map = _build_import_map(tree)
+
+    callable_obj = _resolve_callable_ast(call_node.func, name_map)
+    if callable_obj is None or not callable(callable_obj):
+        return msgs
+
+    params = _get_params(callable_obj)
+    if params is None:
+        return msgs
+
+    for kw in call_node.keywords:
+        if kw.arg is None:
+            continue
+        if kw.arg not in params:
+            msgs.append(
+                f"unknown keyword argument {kw.arg!r} for {ast.unparse(call_node.func)}() on line {call_node.lineno}"
+            )
+
+    return msgs
+
+
 def _validate_code(_file_path: Path, _line_number: int, code: str) -> list[_ExampleError]:
     """Run all static checks on a single example block.
 
@@ -363,6 +460,12 @@ def _validate_code(_file_path: Path, _line_number: int, code: str) -> list[_Exam
     known = defined | _PREAMBLE_NAMES | _BUILTIN_NAMES
     for name in sorted(loaded - known):
         errors.append(_ExampleError(f"undefined name: {name!r}"))
+
+    # 4. Keyword argument validation ----------------------------------------
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and node.keywords:
+            for msg in _check_kwargs(node, tree):
+                errors.append(_ExampleError(msg))
 
     return errors
 

@@ -61,22 +61,22 @@ An M8 socket cap screw with a hex drive recess:
 .. pythonscad-example::
 
     from pybosl2.parts.screws import Screws
-    Screws.screw("M8", 24, head="socket", drive="hex", _fa=6, _fs=1).show()
+    Screws.screw("M8", 24, head="socket", drive="hex", fa=6, fs=1).show()
 
 A countersunk (flat-head) screw:
 
 .. pythonscad-example::
 
     from pybosl2.parts.screws import Screws
-    Screws.screw("M6", 20, head="flat", _fa=6, _fs=1).show()
+    Screws.screw("M6", 20, head="flat", fa=6, fs=1).show()
 
 A screw threaded into its matching hex nut (shown side by side):
 
 .. pythonscad-example::
 
     from pybosl2.parts.screws import Screws
-    screw = Screws.screw("M6", 18, head="button", drive="hex", _fa=6, _fs=1)
-    nut = Screws.nut("M6", slop=0.1, _fa=6, _fs=1).right(18)
+    screw = Screws.screw("M6", 18, head="button", drive="hex", fa=6, fs=1)
+    nut = Screws.nut("M6", slop=0.1, fa=6, fs=1).right(18)
     (screw | nut).show()
 
 API reference

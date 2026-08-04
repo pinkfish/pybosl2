@@ -355,7 +355,7 @@
 <span class="sd">            from pybosl2 import Bezier</span>
 
 <span class="sd">            pts = Bezier([[44, 5], [48, 6], [64, -15]]).curve(20)</span>
-<span class="sd">            pts.stroke(width=2).linear_extrude(h=3).show()</span>
+<span class="sd">            pts.stroke(width=2).linear_extrude(height=3).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">))</span></div>
 
@@ -602,7 +602,7 @@
 <span class="sd">            from pybosl2 import Bezier</span>
 
 <span class="sd">            bz = Bezier([[0, 0], [25, 30], [50, 0], [75, -30], [100, 0]])</span>
-<span class="sd">            bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(h=3).show()</span>
+<span class="sd">            bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(height=3).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1.&quot;</span>
@@ -1410,7 +1410,7 @@
 
 <span class="sd">            patch = BezierPatch.flat([100, 100], n_degree=3)</span>
 <span class="sd">            pts = patch.points(0, [i / 16 for i in range(17)])</span>
-<span class="sd">            pts.stroke(width=2).linear_extrude(h=3).show()</span>
+<span class="sd">            pts.stroke(width=2).linear_extrude(height=3).show()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">patch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
         <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="n">patch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">patch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
