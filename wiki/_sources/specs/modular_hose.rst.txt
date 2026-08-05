@@ -118,7 +118,11 @@ modular hose
           if (!box.querySelector(".hint")) {
             const h = document.createElement("div");
             h.className = "hint";
-            h.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:1em;color:#a00;background:rgba(255,255,255,0.8);font-size:0.85em;";
+            h.style.cssText = (
+              "position:absolute;inset:0;display:flex;align-items:center;"
+              + "justify-content:center;padding:1em;color:#a00;"
+              + "background:rgba(255,255,255,0.8);font-size:0.85em;"
+            );
             h.textContent = "serve the docs over HTTP for the interactive 3-D view";
             box.appendChild(h);
           }

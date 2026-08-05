@@ -168,6 +168,14 @@ html_theme_options = {
 object_description_options = [
     ("py:parameter", {"include_in_toc": False}),
     ("py:.*Param", {"include_in_toc": False}),
+    ("py:attribute", {"include_in_toc": False}),
+    ("py:attribute:pybosl2.enums.*", {"include_in_toc": True}),
+    ("py:data", {"include_in_toc": False}),
+    ("py:exception", {"include_in_toc": False}),
+    ("py:module", {"include_in_toc": False}),
+    ("py:class", {"include_in_toc": True}),
+    ("py:function", {"include_in_toc": True}),
+    ("py:method", {"include_in_toc": True}),
 ]
 
 
