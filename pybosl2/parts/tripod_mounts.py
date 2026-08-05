@@ -120,7 +120,7 @@ class TripodMounts:
         ]
 
         # 1. Main body linear sweep:
-        body = pts.linear_sweep(height=length).orient(Anchor.FRONT).anchor(Anchor.FRONT)  # type: ignore[union-attr]
+        body = Bosl2Solid(pts.linear_sweep(height=length).polyhedron()).orient(Anchor.FRONT)  # type: ignore[union-attr]
         body = body.down(thickness / 2)
 
         # Apply centering translation to align the attachable box centered around origin:
@@ -143,13 +143,13 @@ class TripodMounts:
         body = body - cut1_all
 
         cutout_len = 26.0
-        cut2 = Path2D(facet).linear_sweep(height=cutout_len).orient(Anchor.FRONT).anchor(Anchor.BACK_RIGHT)  # type: ignore[union-attr]
+        cut2 = Bosl2Solid(Path2D(facet).linear_sweep(height=cutout_len).polyhedron()).orient(Anchor.FRONT)  # type: ignore[union-attr]
         cut2 = cut2.translate([-botwid / 2 + 0.64115 / 2, length / 2 - left_top, 0.0])
         body = body - cut2
 
         # 3. Add edge masks if chamfering is requested:
         if chamf_bot:
-            body = edge_mask(
+            body = edge_mask(  # type: ignore[assignment]
                 body,
                 [
                     Anchor.FRONT_LEFT,
@@ -176,7 +176,7 @@ class TripodMounts:
                 body = body - (c1 | c1.scale([1, 1, -1]) | c2 | c2.scale([1, 1, -1]))
 
         if chamf_top:
-            body = edge_mask(
+            body = edge_mask(  # type: ignore[assignment]
                 body,
                 [
                     Anchor.BACK_LEFT,

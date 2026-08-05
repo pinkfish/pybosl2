@@ -21,15 +21,15 @@ tripod mounts
       <div class="spec-info">
         <div class="spec-info-header">
           <h2>rendered &amp; measured</h2>
-          <span class="spec-pill spec-pass" id="wtpill">watertight</span>
+          <span class="spec-pill spec-pass" id="wtpill" style="display:none">watertight</span>
         </div>
         <p>The plate body is built from a turtle-defined cross-section swept over 52.5 mm. Chamfering is controlled by the <b>chamfer</b> argument — set to <b>all</b>, <b>bot</b>/<b>bottom</b>, or <b>none</b>.</p>
         <div class="spec-taglabel">variants &middot; click to load</div>
         <div class="spec-tags"><button class="spec-tag" type="button">all chamfer</button> <button class="spec-tag" type="button">bottom chamfer</button> <button class="spec-tag" type="button">no chamfer</button></div>
         <div class="spec-stats">
-          <div><span class="spec-stat-v" id="s-tris">—</span><span class="spec-stat-l">triangles</span></div>
-          <div><span class="spec-stat-v" id="s-vol">—</span><span class="spec-stat-l">mm&sup3; volume</span></div>
-          <div><span class="spec-stat-v" id="s-bbox">—</span><span class="spec-stat-l">bbox mm</span></div>
+          <div><span class="spec-stat-v" id="s-tris">308</span><span class="spec-stat-l">triangles</span></div>
+          <div><span class="spec-stat-v" id="s-vol">22,855.6</span><span class="spec-stat-l">mm&sup3; volume</span></div>
+          <div><span class="spec-stat-v" id="s-bbox">42×52×11</span><span class="spec-stat-l">bbox mm</span></div>
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
@@ -42,7 +42,7 @@ tripod mounts
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "rc2-all", "label": "all chamfer", "uri": "_stl/tripod_mounts-rc2-all.stl", "code": "TripodMounts.manfrotto_rc2_plate()", "part": "manfrotto_rc2_plate()", "tris": null, "vol": "\u2014", "bbox": "\u2014", "wt": true}, {"id": "rc2-bot", "label": "bottom chamfer", "uri": "_stl/tripod_mounts-rc2-bot.stl", "code": "TripodMounts.manfrotto_rc2_plate(chamfer=\"bot\")", "part": "manfrotto_rc2_plate(chamfer=\"bot\")", "tris": null, "vol": "\u2014", "bbox": "\u2014", "wt": true}, {"id": "rc2-none", "label": "no chamfer", "uri": "_stl/tripod_mounts-rc2-none.stl", "code": "TripodMounts.manfrotto_rc2_plate(chamfer=\"none\")", "part": "manfrotto_rc2_plate(chamfer=\"none\")", "tris": null, "vol": "\u2014", "bbox": "\u2014", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "rc2-all", "label": "all chamfer", "uri": "_stl/tripod_mounts-rc2-all.stl", "code": "TripodMounts.manfrotto_rc2_plate()", "part": "manfrotto_rc2_plate()", "tris": 308, "vol": "22,855.6", "bbox": "42\u00d752\u00d711", "wt": false}, {"id": "rc2-bot", "label": "bottom chamfer", "uri": "_stl/tripod_mounts-rc2-bot.stl", "code": "TripodMounts.manfrotto_rc2_plate(chamfer=\"bot\")", "part": "manfrotto_rc2_plate(chamfer=\"bot\")", "tris": 126, "vol": "22,865.9", "bbox": "42\u00d752\u00d711", "wt": false}, {"id": "rc2-none", "label": "no chamfer", "uri": "_stl/tripod_mounts-rc2-none.stl", "code": "TripodMounts.manfrotto_rc2_plate(chamfer=\"none\")", "part": "manfrotto_rc2_plate(chamfer=\"none\")", "tris": 46, "vol": "22,878.6", "bbox": "42\u00d752\u00d711", "wt": true}]</script>
     <script type="module">
     import * as THREE from "https://esm.sh/three@0.160.0";
     import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";

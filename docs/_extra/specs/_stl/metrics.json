@@ -575,5 +575,24 @@
    "wt": true
   }
  },
- "tripod_mounts": {}
+ "tripod_mounts": {
+  "rc2-all": {
+   "tris": 308,
+   "vol": "22,855.6",
+   "bbox": "42\u00d752\u00d711",
+   "wt": false
+  },
+  "rc2-bot": {
+   "tris": 126,
+   "vol": "22,865.9",
+   "bbox": "42\u00d752\u00d711",
+   "wt": false
+  },
+  "rc2-none": {
+   "tris": 46,
+   "vol": "22,878.6",
+   "bbox": "42\u00d752\u00d711",
+   "wt": true
+  }
+ }
 }
