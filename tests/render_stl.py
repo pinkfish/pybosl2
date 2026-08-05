@@ -112,6 +112,7 @@ _PREAMBLE = (
     "from pybosl2.parts.sliders import Sliders\n"
     "from pybosl2.parts.bottlecaps import BottleCaps\n"
     "from pybosl2.parts.screw_drive import ScrewDrive\n"
+    "from pybosl2.parts.tripod_mounts import TripodMounts\n"
     "from functools import reduce\n"
     "from pybosl2 import Region\n"
     "from pybosl2 import *\n"

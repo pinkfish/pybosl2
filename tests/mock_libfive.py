@@ -361,6 +361,26 @@ class _AabbSolid:
         z_max = mx[2] if len(mx) > 2 else 0.0
         return _AabbSolid([mn[0], mn[1], z_min + z0], [mx[0], mx[1], z_max + z1])
 
+    # -- directional move convenience methods (match Bosl2Solid interface) -----
+
+    def right(self, x: float):
+        return self.translate([float(x), 0.0, 0.0])
+
+    def left(self, x: float):
+        return self.translate([-float(x), 0.0, 0.0])
+
+    def back(self, y: float):
+        return self.translate([0.0, float(y), 0.0])
+
+    def forward(self, y: float):
+        return self.translate([0.0, -float(y), 0.0])
+
+    def up(self, z: float):
+        return self.translate([0.0, 0.0, float(z)])
+
+    def down(self, z: float):
+        return self.translate([0.0, 0.0, -float(z)])
+
     def __getattr__(self, name):
         # Permissive no-op for standard output/display/query/transform methods
         if name in (
