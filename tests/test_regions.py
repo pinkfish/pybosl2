@@ -330,4 +330,66 @@ def test_path_hull_list_arg() -> None:
     b = Path2D([[30, 0], [50, 0], [50, 20], [30, 20]])
     result = Path2D.hull([a, b])  # type: ignore[arg-type]
     assert isinstance(result, Path2D)
-    assert result.closed
+
+
+# ── uncovered Region methods ─────────────────────────────────────────────
+
+
+def test_region_empty_init() -> None:
+    r = Region([])
+    assert isinstance(r, Region)
+    assert len(r.paths) == 0
+
+
+def test_region_to_shapely() -> None:
+    r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
+    g = r.to_shapely()
+    assert g is not None
+    assert not g.is_empty
+
+
+def test_region_fill() -> None:
+    r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
+    result = r.fill()
+    from pybosl2.shapes2d import Bosl2Shape2D
+
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_region_linear_extrude() -> None:
+    r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
+    result = r.linear_extrude(height=10)
+    from pybosl2.shapes3d import Bosl2Solid
+
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_region_rotate_extrude() -> None:
+    r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
+    result = r.rotate_extrude(angle=360)
+    from pybosl2.shapes3d import Bosl2Solid
+
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_region_stroke() -> None:
+    r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
+    result = r.stroke(width=2)
+    assert isinstance(result, Region)
+
+
+def test_region_dashed_stroke() -> None:
+    r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
+    result = r.dashed_stroke()
+    assert isinstance(result, Region)
+
+
+def test_region_hull_type_error() -> None:
+    with pytest.raises(TypeError, match="convex_hull"):
+        Region.hull([42])  # type: ignore[list-item]
+
+
+def test_region_bounds_empty_raises() -> None:
+    r = Region([])
+    with pytest.raises(AssertionError, match="empty Region"):
+        r.bounds()

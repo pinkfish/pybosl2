@@ -145,3 +145,19 @@ def test_offset3d_and_round3d() -> None:
 def test_chain_hull_and_minkowski_diff_methods() -> None:
     assert isinstance(BOX.chain_hull(sphere(radius=5).right(30)), Bosl2Solid)
     assert isinstance(BOX.minkowski_difference(sphere(radius=4)), Bosl2Solid)
+
+
+# ── multi-diff minkowski ────────────────────────────────────────────────
+
+
+def test_minkowski_difference_multiple_diffs() -> None:
+    result = m.minkowski_difference(cuboid([20, 20, 20]), sphere(radius=3), sphere(radius=4))
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_cylindrical_extrude_default_size() -> None:
+    from pybosl2.miscellaneous import cylindrical_extrude
+
+    circle = s2.circle(10)
+    result = cylindrical_extrude(circle, outer_radius=50, inner_radius=40)
+    assert isinstance(result, Bosl2Solid)
