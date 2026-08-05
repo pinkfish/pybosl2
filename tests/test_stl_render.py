@@ -1705,6 +1705,16 @@ def test_sliders_rail_builds(tmp_path):
     assert m.volume > 0
 
 
+def test_tripod_rc2_plate_builds(tmp_path):
+    m = _render_golden(
+        tmp_path,
+        "TripodMounts.manfrotto_rc2_plate(fn=None, fa=None, fs=None)",
+        name="rc2_plate",
+    )
+    assert m.watertight
+    assert m.volume > 0
+
+
 def test_sdf_backend_real_render(tmp_path):
     # Tests that shapes constructed under the "sdf" active backend
     # correctly delegate to the libfive backend and mesh/render.
