@@ -42,67 +42,7 @@ hooks
 
 .. raw:: html
 
-    <script type="module">
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "ring", "label": "ring hole", "uri": "_stl/hooks-ring.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 25, outer_radius=25, inner_radius=20)", "part": "ring_hook([50, 10], 25, outer_radius=25, inner_radius=20)", "tris": 208, "vol": "9,771.2", "bbox": "50\u00d710\u00d750", "wt": true}, {"id": "solid", "label": "solid paddle", "uri": "_stl/hooks-solid.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([70, 10], 25, outer_radius=25, inner_radius=0)", "part": "ring_hook([70, 10], 25, outer_radius=25, inner_radius=0)", "tris": 124, "vol": "25,197.0", "bbox": "70\u00d710\u00d750", "wt": true}, {"id": "d-hole", "label": "D hole", "uri": "_stl/hooks-d-hole.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 25, outer_radius=25, inner_radius=15, hole=\"D\")", "part": "ring_hook([50, 10], 25, outer_radius=25, inner_radius=15, hole=\"D\")", "tris": 144, "vol": "18,737.4", "bbox": "50\u00d710\u00d750", "wt": true}, {"id": "rounded", "label": "rounded", "uri": "_stl/hooks-rounded.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5)", "part": "ring_hook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5)", "tris": 312, "vol": "21,937.7", "bbox": "50\u00d710\u00d765", "wt": true}, {"id": "custom", "label": "custom hole", "uri": "_stl/hooks-custom.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 20], 30, outer_radius=25, hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)])", "part": "ring_hook([50, 20], 30, outer_radius=25, hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)])", "tris": 120, "vol": "43,834.9", "bbox": "50\u00d720\u00d755", "wt": true}];
-const box = document.getElementById("viewer"), poster = document.getElementById("poster");
-let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
-const primaryColor = css("--model") || "#6f9ac9";
-function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
-  renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
-function init() {
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(window.devicePixelRatio); box.appendChild(renderer.domElement);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const k = new THREE.DirectionalLight(0xffffff, 0.85); k.position.set(1, 0.6, 1); scene.add(k);
-  const f = new THREE.DirectionalLight(0xffffff, 0.4); f.position.set(-1, -0.8, 0.5); scene.add(f);
-  controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
-  window.addEventListener("resize", resize); ready = true;
-  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
-}
-const loader = new STLLoader();
-function load(uri) {
-  if (!ready) init();
-  loader.load(uri, geo => {
-    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
-    geo.computeVertexNormals(); geo.computeBoundingBox();
-    const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
-    const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
-    geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
-    scene.add(mesh);
-    const r = Math.max(s.x, s.y, s.z) || 1;
-    camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
-    poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
-  }, undefined, () => {
-    if (!box.querySelector(".hint")) { const h = document.createElement("div");
-      h.className = "hint";
-      h.textContent = "serve the docs over HTTP for the interactive 3-D view";
-      box.appendChild(h); }
-  });
-}
-function select(i) {
-  const v = V[i];
-  document.querySelectorAll(".spec-tags button.spec-tag").forEach((b, j) =>
-    b.setAttribute("aria-selected", j === i ? "true" : "false"));
-  document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
-  document.getElementById("s-tris").textContent = v.tris == null ? "\u2014" : v.tris.toLocaleString();
-  document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;
-  document.getElementById("vpart").textContent = v.part;
-  document.getElementById("wtpill").style.display = v.wt ? "" : "none";
-  load(v.uri);
-}
-document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
-select(0);
-</script>
-    </script>
+    <script id="spec-data" type="application/json">[{"id": "ring", "label": "ring hole", "uri": "_stl/hooks-ring.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 25, outer_radius=25, inner_radius=20)", "part": "ring_hook([50, 10], 25, outer_radius=25, inner_radius=20)", "tris": 208, "vol": "9,771.2", "bbox": "50\u00d710\u00d750", "wt": true}, {"id": "solid", "label": "solid paddle", "uri": "_stl/hooks-solid.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([70, 10], 25, outer_radius=25, inner_radius=0)", "part": "ring_hook([70, 10], 25, outer_radius=25, inner_radius=0)", "tris": 124, "vol": "25,197.0", "bbox": "70\u00d710\u00d750", "wt": true}, {"id": "d-hole", "label": "D hole", "uri": "_stl/hooks-d-hole.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 25, outer_radius=25, inner_radius=15, hole=\"D\")", "part": "ring_hook([50, 10], 25, outer_radius=25, inner_radius=15, hole=\"D\")", "tris": 144, "vol": "18,737.4", "bbox": "50\u00d710\u00d750", "wt": true}, {"id": "rounded", "label": "rounded", "uri": "_stl/hooks-rounded.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5)", "part": "ring_hook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5)", "tris": 312, "vol": "21,937.7", "bbox": "50\u00d710\u00d765", "wt": true}, {"id": "custom", "label": "custom hole", "uri": "_stl/hooks-custom.stl", "code": "Hooks.<span class=\"k\">ring_hook</span>([50, 20], 30, outer_radius=25, hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)])", "part": "ring_hook([50, 20], 30, outer_radius=25, hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)])", "tris": 120, "vol": "43,834.9", "bbox": "50\u00d720\u00d755", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

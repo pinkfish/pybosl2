@@ -42,67 +42,7 @@ modular hose
 
 .. raw:: html
 
-    <script type="module">
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "segment", "label": "segment", "uri": "_stl/modular_hose-segment.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"segment\")", "part": "modular_hose(0.5, \"segment\")", "tris": 2760, "vol": "3,432.6", "bbox": "25\u00d725\u00d730", "wt": true}, {"id": "ball", "label": "ball end", "uri": "_stl/modular_hose-ball.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"ball\")", "part": "modular_hose(0.5, \"ball\")", "tris": 1500, "vol": "1,465.7", "bbox": "21\u00d721\u00d713", "wt": true}, {"id": "socket", "label": "socket end", "uri": "_stl/modular_hose-socket.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"socket\")", "part": "modular_hose(0.5, \"socket\")", "tris": 1500, "vol": "2,105.5", "bbox": "25\u00d725\u00d718", "wt": true}];
-const box = document.getElementById("viewer"), poster = document.getElementById("poster");
-let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
-const primaryColor = css("--model") || "#6f9ac9";
-function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
-  renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
-function init() {
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(window.devicePixelRatio); box.appendChild(renderer.domElement);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const k = new THREE.DirectionalLight(0xffffff, 0.85); k.position.set(1, 0.6, 1); scene.add(k);
-  const f = new THREE.DirectionalLight(0xffffff, 0.4); f.position.set(-1, -0.8, 0.5); scene.add(f);
-  controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
-  window.addEventListener("resize", resize); ready = true;
-  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
-}
-const loader = new STLLoader();
-function load(uri) {
-  if (!ready) init();
-  loader.load(uri, geo => {
-    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
-    geo.computeVertexNormals(); geo.computeBoundingBox();
-    const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
-    const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
-    geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
-    scene.add(mesh);
-    const r = Math.max(s.x, s.y, s.z) || 1;
-    camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
-    poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
-  }, undefined, () => {
-    if (!box.querySelector(".hint")) { const h = document.createElement("div");
-      h.className = "hint";
-      h.textContent = "serve the docs over HTTP for the interactive 3-D view";
-      box.appendChild(h); }
-  });
-}
-function select(i) {
-  const v = V[i];
-  document.querySelectorAll(".spec-tags button.spec-tag").forEach((b, j) =>
-    b.setAttribute("aria-selected", j === i ? "true" : "false"));
-  document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
-  document.getElementById("s-tris").textContent = v.tris == null ? "\u2014" : v.tris.toLocaleString();
-  document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;
-  document.getElementById("vpart").textContent = v.part;
-  document.getElementById("wtpill").style.display = v.wt ? "" : "none";
-  load(v.uri);
-}
-document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
-select(0);
-</script>
-    </script>
+    <script id="spec-data" type="application/json">[{"id": "segment", "label": "segment", "uri": "_stl/modular_hose-segment.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"segment\")", "part": "modular_hose(0.5, \"segment\")", "tris": 2760, "vol": "3,432.6", "bbox": "25\u00d725\u00d730", "wt": true}, {"id": "ball", "label": "ball end", "uri": "_stl/modular_hose-ball.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"ball\")", "part": "modular_hose(0.5, \"ball\")", "tris": 1500, "vol": "1,465.7", "bbox": "21\u00d721\u00d713", "wt": true}, {"id": "socket", "label": "socket end", "uri": "_stl/modular_hose-socket.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"socket\")", "part": "modular_hose(0.5, \"socket\")", "tris": 1500, "vol": "2,105.5", "bbox": "25\u00d725\u00d718", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

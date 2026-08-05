@@ -42,67 +42,7 @@ gears
 
 .. raw:: html
 
-    <script type="module">
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "spur", "label": "spur", "uri": "_stl/gears-spur.stl", "code": "Gears.<span class=\"k\">spur_gear</span>(mod=4, teeth=20, thickness=8, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)", "tris": 5320, "vol": "39,095.6", "bbox": "88\u00d788\u00d78", "wt": true}, {"id": "profile-shift", "label": "profile-shift", "uri": "_stl/gears-profile-shift.stl", "code": "Gears.<span class=\"k\">spur_gear</span>(mod=4, teeth=7, thickness=8)", "part": "spur_gear(mod=4, teeth=7, thickness=8)", "tris": 2012, "vol": "6,128.8", "bbox": "39\u00d738\u00d78", "wt": true}, {"id": "helical", "label": "helical", "uri": "_stl/gears-helical.stl", "code": "Gears.<span class=\"k\">spur_gear</span>(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)", "tris": 5800, "vol": "47,901.7", "bbox": "96\u00d796\u00d78", "wt": true}, {"id": "herringbone", "label": "herringbone", "uri": "_stl/gears-herringbone.stl", "code": "Gears.<span class=\"k\">spur_gear</span>(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)", "tris": 8700, "vol": "71,880.4", "bbox": "96\u00d796\u00d712", "wt": true}, {"id": "rack", "label": "rack", "uri": "_stl/gears-rack.stl", "code": "Gears.<span class=\"k\">rack</span>(mod=4, teeth=8, thickness=8, height=10)", "part": "rack(mod=4, teeth=8, thickness=8, height=10)", "tris": 140, "vol": "4,620.4", "bbox": "101\u00d78\u00d710", "wt": true}, {"id": "ring", "label": "ring gear", "uri": "_stl/gears-ring.stl", "code": "Gears.<span class=\"k\">ring_gear</span>(mod=4, teeth=24, thickness=8, backing=4)", "part": "ring_gear(mod=4, teeth=24, thickness=8, backing=4)", "tris": 6856, "vol": "23,015.5", "bbox": "114\u00d7113\u00d78", "wt": true}, {"id": "bevel", "label": "bevel", "uri": "_stl/gears-bevel.stl", "code": "Gears.<span class=\"k\">bevel_gear</span>(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)", "part": "bevel_gear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)", "tris": 3400, "vol": "36,770.3", "bbox": "85\u00d785\u00d713", "wt": true}, {"id": "worm", "label": "worm", "uri": "_stl/gears-worm.stl", "code": "Gears.<span class=\"k\">worm</span>(mod=4, diameter=30, length=50, starts=1)", "part": "worm(mod=4, diameter=30, length=50, starts=1)", "tris": 7982, "vol": "36,024.6", "bbox": "38\u00d738\u00d750", "wt": true}];
-const box = document.getElementById("viewer"), poster = document.getElementById("poster");
-let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
-const primaryColor = css("--model") || "#6f9ac9";
-function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
-  renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
-function init() {
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(window.devicePixelRatio); box.appendChild(renderer.domElement);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const k = new THREE.DirectionalLight(0xffffff, 0.85); k.position.set(1, 0.6, 1); scene.add(k);
-  const f = new THREE.DirectionalLight(0xffffff, 0.4); f.position.set(-1, -0.8, 0.5); scene.add(f);
-  controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
-  window.addEventListener("resize", resize); ready = true;
-  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
-}
-const loader = new STLLoader();
-function load(uri) {
-  if (!ready) init();
-  loader.load(uri, geo => {
-    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
-    geo.computeVertexNormals(); geo.computeBoundingBox();
-    const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
-    const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
-    geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
-    scene.add(mesh);
-    const r = Math.max(s.x, s.y, s.z) || 1;
-    camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
-    poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
-  }, undefined, () => {
-    if (!box.querySelector(".hint")) { const h = document.createElement("div");
-      h.className = "hint";
-      h.textContent = "serve the docs over HTTP for the interactive 3-D view";
-      box.appendChild(h); }
-  });
-}
-function select(i) {
-  const v = V[i];
-  document.querySelectorAll(".spec-tags button.spec-tag").forEach((b, j) =>
-    b.setAttribute("aria-selected", j === i ? "true" : "false"));
-  document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
-  document.getElementById("s-tris").textContent = v.tris == null ? "\u2014" : v.tris.toLocaleString();
-  document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;
-  document.getElementById("vpart").textContent = v.part;
-  document.getElementById("wtpill").style.display = v.wt ? "" : "none";
-  load(v.uri);
-}
-document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
-select(0);
-</script>
-    </script>
+    <script id="spec-data" type="application/json">[{"id": "spur", "label": "spur", "uri": "_stl/gears-spur.stl", "code": "Gears.<span class=\"k\">spur_gear</span>(mod=4, teeth=20, thickness=8, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)", "tris": 5320, "vol": "39,095.6", "bbox": "88\u00d788\u00d78", "wt": true}, {"id": "profile-shift", "label": "profile-shift", "uri": "_stl/gears-profile-shift.stl", "code": "Gears.<span class=\"k\">spur_gear</span>(mod=4, teeth=7, thickness=8)", "part": "spur_gear(mod=4, teeth=7, thickness=8)", "tris": 2012, "vol": "6,128.8", "bbox": "39\u00d738\u00d78", "wt": true}, {"id": "helical", "label": "helical", "uri": "_stl/gears-helical.stl", "code": "Gears.<span class=\"k\">spur_gear</span>(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)", "tris": 5800, "vol": "47,901.7", "bbox": "96\u00d796\u00d78", "wt": true}, {"id": "herringbone", "label": "herringbone", "uri": "_stl/gears-herringbone.stl", "code": "Gears.<span class=\"k\">spur_gear</span>(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)", "tris": 8700, "vol": "71,880.4", "bbox": "96\u00d796\u00d712", "wt": true}, {"id": "rack", "label": "rack", "uri": "_stl/gears-rack.stl", "code": "Gears.<span class=\"k\">rack</span>(mod=4, teeth=8, thickness=8, height=10)", "part": "rack(mod=4, teeth=8, thickness=8, height=10)", "tris": 140, "vol": "4,620.4", "bbox": "101\u00d78\u00d710", "wt": true}, {"id": "ring", "label": "ring gear", "uri": "_stl/gears-ring.stl", "code": "Gears.<span class=\"k\">ring_gear</span>(mod=4, teeth=24, thickness=8, backing=4)", "part": "ring_gear(mod=4, teeth=24, thickness=8, backing=4)", "tris": 6856, "vol": "23,015.5", "bbox": "114\u00d7113\u00d78", "wt": true}, {"id": "bevel", "label": "bevel", "uri": "_stl/gears-bevel.stl", "code": "Gears.<span class=\"k\">bevel_gear</span>(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)", "part": "bevel_gear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)", "tris": 3400, "vol": "36,770.3", "bbox": "85\u00d785\u00d713", "wt": true}, {"id": "worm", "label": "worm", "uri": "_stl/gears-worm.stl", "code": "Gears.<span class=\"k\">worm</span>(mod=4, diameter=30, length=50, starts=1)", "part": "worm(mod=4, diameter=30, length=50, starts=1)", "tris": 7982, "vol": "36,024.6", "bbox": "38\u00d738\u00d750", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

@@ -1514,9 +1514,7 @@ _RST_VIEWER = """.. raw:: html
 
 _RST_SCRIPT = """.. raw:: html
 
-    <script type="module">
-{script}
-    </script>
+    <script id="spec-data" type="application/json">{data}</script>
     <script>
     function copySpecCode(btn) {{var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){{btn.title='Copied!';btn.classList.add('copied');
@@ -1590,7 +1588,7 @@ def module_page(key: str, m: dict, metrics: dict) -> str:
         proof_html=proof_html,
         tests=m["tests"],
     )
-    script = _RST_SCRIPT.format(script=spec_viewer_html(data))
+    script = _RST_SCRIPT.format(data=spec_viewer_html(data))
     return header + viewer + script
 
 
