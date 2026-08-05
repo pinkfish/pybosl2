@@ -164,14 +164,6 @@ html_theme_options = {
     "toc_title": "On this page",
 }
 
-python_strip_self_type_annotations = True
-python_transform_type_annotations_pep585 = True
-python_transform_type_annotations_pep604 = True
-suppress_warnings = [
-    "duplicate object description",
-    "Parameter name",
-]
-
 
 def setup(app):
     """Regenerate docs artifacts from the live module structure before each build.
