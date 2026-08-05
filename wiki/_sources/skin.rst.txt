@@ -70,3 +70,4 @@ API reference
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: OSProfile

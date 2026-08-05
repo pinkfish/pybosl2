@@ -59,7 +59,9 @@ def mask2d_roundover(
         inset: Scalar or ``(x, y)`` inset of the rounding center from the corner (default 0).
         excess: Amount the flat sides extend past the origin, for a clean boolean cut (default 0.01).
         diameter: Rounding diameter (alternative to *radius*).
-        fn/fa/fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides.
+        fa: Arc smoothness overrides.
+        fs: Arc smoothness overrides.
 
     Returns:
         A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
@@ -101,12 +103,18 @@ def rounding_edge_mask(
     """A standalone 3-D edge-rounding cutter of length *length*, for manual positioning.
 
     Args:
-        length/height: Length of the cutter along its axis (default 1).
+        length: Length of the cutter along its axis (default 1).
+        height: Length of the cutter along its axis (default 1).
         radius: Rounding radius (both ends).
-        radius1/radius2: Rounding radius at each end, for a tapered cutter.
-        diameter/diameter1/diameter2: Rounding diameter (both ends) / each end.
+        radius1: Rounding radius at the first end, for a tapered cutter.
+        radius2: Rounding radius at the second end, for a tapered cutter.
+        diameter: Rounding diameter (both ends).
+        diameter1: Rounding diameter at the first end.
+        diameter2: Rounding diameter at the second end.
         excess: Amount the flat sides extend past the origin (default 0.1).
-        fn/fa/fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides.
+        fa: Arc smoothness overrides.
+        fs: Arc smoothness overrides.
 
     Returns:
         A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.
@@ -384,7 +392,9 @@ def corner_profile(
         convexity: Accepted for signature compatibility; unused.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
-        fn/fa/fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides.
+        fa: Arc smoothness overrides.
+        fs: Arc smoothness overrides.
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
     """
     _ = (children, convexity)
@@ -435,7 +445,9 @@ def face_profile(
         convexity: Accepted for signature compatibility; unused.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
-        fn/fa/fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides.
+        fa: Arc smoothness overrides.
+        fs: Arc smoothness overrides.
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
     """
     if radius is None:

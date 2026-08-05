@@ -115,7 +115,8 @@ def cylinder(
     Note: ``texture=`` (VNF surface texturing) is not supported by this pure-Python port.
 
     Args:
-        length/height:  length of the cylinder along its axis (default 1)
+        length:  length of the cylinder along its axis (default 1)
+        height:  length of the cylinder along its axis (default 1)
         radius:         radius of the cylinder (default 1)
         diameter:       diameter of the cylinder
         radius1:        radius of the negative end of the cylinder
@@ -123,18 +124,30 @@ def cylinder(
         diameter1:      diameter of the negative end of the cylinder
         diameter2:      diameter of the positive end of the cylinder
         center:         if given, overrides anchor (True -> CENTER, False -> BOTTOM)
-        chamfer/chamfer1/chamfer2: chamfer size on the end rims (overall/negative/positive)
-        rounding/rounding1/rounding2: rounding radius on the end rims (overall/negative/positive)
+        chamfer: chamfer size on the end rims (overall/negative/positive)
+        chamfer1: chamfer size on the end rims (overall/negative/positive)
+        chamfer2: chamfer size on the end rims (overall/negative/positive)
+        rounding: rounding radius on the end rims (overall/negative/positive)
+        rounding1: rounding radius on the end rims (overall/negative/positive)
+        rounding2: rounding radius on the end rims (overall/negative/positive)
         circumscribe:   circumscribe rather than inscribe the given radius (default False)
         realign:        shift point alignment (default False)
         shift:          X/Y offset for the positive end (shear) (default [0,0])
         anchor:         anchor point (default BOTTOM if center=False, otherwise CENTER)
         spin:           Z-axis rotation in degrees after anchor (default 0)
         orient:         direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs:       arc smoothness overrides
-        chamfer_angle/chamfer_angle1/chamfer_angle2: chamfer angle in degrees away from ends
-        from_end/from_end1/from_end2: measure chamfer along conic face (default False)
-        extra/extra1/extra2: add extra height at ends (invisible to anchoring)
+        fn:       arc smoothness overrides
+        fa:       arc smoothness overrides
+        fs:       arc smoothness overrides
+        chamfer_angle: chamfer angle in degrees away from ends
+        chamfer_angle1: chamfer angle in degrees away from ends
+        chamfer_angle2: chamfer angle in degrees away from ends
+        from_end: measure chamfer along conic face (default False)
+        from_end1: measure chamfer along conic face (default False)
+        from_end2: measure chamfer along conic face (default False)
+        extra: add extra height at ends (invisible to anchoring)
+        extra1: add extra height at ends (invisible to anchoring)
+        extra2: add extra height at ends (invisible to anchoring)
         teardrop:       limit rounding angle from horizontal
         clip_angle:     clip rounding arc at bottom of cylinder
         texture:        named texture to apply to cylinder side surface
@@ -266,7 +279,8 @@ def cyl(
     Note: `texture=` (VNF surface texturing) is not supported by this pure-Python port.
 
     Args:
-        length/height:  length of the cylinder along its axis (default 1)
+        length:  length of the cylinder along its axis (default 1)
+        height:  length of the cylinder along its axis (default 1)
         radius:      radius of the cylinder (default 1)
         diameter:    diameter of the cylinder
         radius1:    radius of the negative end of the cylinder
@@ -274,18 +288,30 @@ def cyl(
         diameter1:  diameter of the negative end of the cylinder
         diameter2:  diameter of the positive end of the cylinder
         center:   if given, overrides anchor (True -> CENTER, False -> BOTTOM)
-        chamfer/chamfer1/chamfer2: chamfer size on the end rims (overall/negative/positive)
-        rounding/rounding1/rounding2: rounding radius on the end rims (overall/negative/positive)
+        chamfer: chamfer size on the end rims (overall/negative/positive)
+        chamfer1: chamfer size on the end rims (overall/negative/positive)
+        chamfer2: chamfer size on the end rims (overall/negative/positive)
+        rounding: rounding radius on the end rims (overall/negative/positive)
+        rounding1: rounding radius on the end rims (overall/negative/positive)
+        rounding2: rounding radius on the end rims (overall/negative/positive)
         circumscribe: circumscribe rather than inscribe the given radius (default False)
         realign:      shift point alignment (default False)
         shift:        X/Y offset for the positive end (shear) (default [0,0])
         anchor:       anchor point (default CENTER)
         spin:         Z-axis rotation in degrees after anchor (default 0)
         orient:       direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs:     arc smoothness overrides
-        chamfer_angle/chamfer_angle1/chamfer_angle2: chamfer angle in degrees away from ends
-        from_end/from_end1/from_end2: measure chamfer along conic face (default False)
-        extra/extra1/extra2: add extra height at ends (invisible to anchoring)
+        fn:     arc smoothness overrides
+        fa:     arc smoothness overrides
+        fs:     arc smoothness overrides
+        chamfer_angle: chamfer angle in degrees away from ends
+        chamfer_angle1: chamfer angle in degrees away from ends
+        chamfer_angle2: chamfer angle in degrees away from ends
+        from_end: measure chamfer along conic face (default False)
+        from_end1: measure chamfer along conic face (default False)
+        from_end2: measure chamfer along conic face (default False)
+        extra: add extra height at ends (invisible to anchoring)
+        extra1: add extra height at ends (invisible to anchoring)
+        extra2: add extra height at ends (invisible to anchoring)
         teardrop:     limit rounding angle from horizontal
         clip_angle:   clip rounding arc at bottom of cylinder
         texture:      named texture to apply to cylinder side surface
@@ -843,24 +869,35 @@ def tube(
     Python keyword ``or``; they are exposed here as ``outer_radius``/``outer_radius1``/``outer_radius2`` instead.
 
     Args:
-        height/length:      height of the tube (default 1)
+        height:      height of the tube (default 1)
+        length:      height of the tube (default 1)
         outer_radius:       outer radius of the tube (BOSL2 ``or``) (default 1)
         inner_radius:       inner radius of the tube
         center:             if given, overrides anchor (True -> CENTER, False -> DOWN)
         outer_diameter:     outer diameter of the tube
         inner_diameter:     inner diameter of the tube
         wall:               horizontal wall thickness (default 1)
-        outer_radius1/outer_radius2: outer radius of the bottom/top
-        outer_diameter1/outer_diameter2: outer diameter of the bottom/top
-        inner_radius1/inner_radius2:  inner radius of the bottom/top
-        inner_diameter1/inner_diameter2:  inner diameter of the bottom/top
-        chamfer/chamfer1/chamfer2: chamfer size on end rims (overall/bottom/top)
-        rounding/rounding1/rounding2: rounding radius on end rims (overall/bottom/top)
+        outer_radius1: outer radius of the bottom/top
+        outer_radius2: outer radius of the bottom/top
+        outer_diameter1: outer diameter of the bottom/top
+        outer_diameter2: outer diameter of the bottom/top
+        inner_radius1:  inner radius of the bottom/top
+        inner_radius2:  inner radius of the bottom/top
+        inner_diameter1:  inner diameter of the bottom/top
+        inner_diameter2:  inner diameter of the bottom/top
+        chamfer: chamfer size on end rims (overall/bottom/top)
+        chamfer1: chamfer size on end rims (overall/bottom/top)
+        chamfer2: chamfer size on end rims (overall/bottom/top)
+        rounding: rounding radius on end rims (overall/bottom/top)
+        rounding1: rounding radius on end rims (overall/bottom/top)
+        rounding2: rounding radius on end rims (overall/bottom/top)
         realign:            rotate by half the angle of one face (default False)
         anchor:             anchor point (default CENTER)
         spin:               Z-axis rotation in degrees after anchor (default 0)
         orient:             direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs:           arc smoothness overrides
+        fn:           arc smoothness overrides
+        fa:           arc smoothness overrides
+        fs:           arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -982,7 +1019,8 @@ def cone(
     for a pointed cone, or with explicit ``radius2`` for a truncated (frustum) form.
 
     Args:
-        height/length:  height of the cone (default 1)
+        height:  height of the cone (default 1)
+        length:  height of the cone (default 1)
         radius:         base radius (default 1)
         radius1:        bottom radius (overrides *radius*)
         radius2:        top radius (default 0 for a pointed cone)
@@ -990,12 +1028,18 @@ def cone(
         diameter:       base diameter
         diameter1:      bottom diameter
         diameter2:      top diameter
-        chamfer/chamfer1/chamfer2: chamfer size on the end rims
-        rounding/rounding1/rounding2: rounding radius on the end rims
+        chamfer: chamfer size on the end rims
+        chamfer1: chamfer size on the end rims
+        chamfer2: chamfer size on the end rims
+        rounding: rounding radius on the end rims
+        rounding1: rounding radius on the end rims
+        rounding2: rounding radius on the end rims
         anchor:         anchor point
         spin:           Z-axis rotation in degrees after anchor (default 0)
         orient:         direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs:       arc smoothness overrides
+        fn:       arc smoothness overrides
+        fa:       arc smoothness overrides
+        fs:       arc smoothness overrides
 
     Examples:
         A pointed cone:

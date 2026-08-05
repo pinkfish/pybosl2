@@ -449,9 +449,12 @@ def cylindrical_heightfield(
         xrange:    [start, step, stop] range of X values for a function-literal surface
         yrange:    [start, step, stop] range of Y values for a function-literal surface
         maxh:      maximum height above the radius to model (default 99)
-        radius1/radius2:     radius of the bottom/top of the cylinder to wrap around
-        diameter/diameter1/diameter2:   diameter of the cylinder to wrap around / bottom / top
-        height/height:  alternate names for length (length of the cylinder)
+        radius1:     radius of the bottom/top of the cylinder to wrap around
+        radius2:     radius of the bottom/top of the cylinder to wrap around
+        diameter:   diameter of the cylinder to wrap around / bottom / top
+        diameter1:   diameter of the cylinder to wrap around / bottom / top
+        diameter2:   diameter of the cylinder to wrap around / bottom / top
+        height:  alternate names for length (length of the cylinder)
         anchor:    anchor point (default CENTER)
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
@@ -618,7 +621,12 @@ def plot_revolution(
         f:      a callable ``f(theta_degrees, z) -> radial displacement``
         angle:  a strictly increasing list/range of revolution angles in degrees
         z:      strictly increasing profile heights (with *radius1*/*radius2*)
-        radius1/radius2/radius/diameter1/diameter2/diameter: the profile's bottom/top radius (straight taper form)
+        radius1: the profile's bottom/top radius (straight taper form)
+        radius2: the profile's bottom/top radius (straight taper form)
+        radius: the profile's bottom/top radius (straight taper form)
+        diameter1: the profile's bottom/top radius (straight taper form)
+        diameter2: the profile's bottom/top radius (straight taper form)
+        diameter: the profile's bottom/top radius (straight taper form)
         path:   an explicit ``[[radius, z], ...]`` profile (instead of z + radii)
         rclip:  [rmin, rmax] to clamp the modulated radius
         rspan:  [rmin, rmax] to rescale the displacement into

@@ -651,9 +651,12 @@ def regular_ngon2d(
 
     Args:
         num_sides:       number of sides (default 6)
-        radius/diameter:     radius/diameter to the vertices
-        outer_radius/outer_diameter: outer radius/diameter (BOSL2 ``or``)
-        inner_radius/inner_diameter:   inner radius/diameter (apothem to face centres)
+        radius:     radius/diameter to the vertices
+        diameter:     radius/diameter to the vertices
+        outer_radius: outer radius/diameter (BOSL2 ``or``)
+        outer_diameter: outer radius/diameter (BOSL2 ``or``)
+        inner_radius:   inner radius/diameter (apothem to face centres)
+        inner_diameter:   inner radius/diameter (apothem to face centres)
         side:    length of each side
         realign: rotate so a face centre faces +X (default: vertex at +X)
         res:     meshing resolution (default 10)
@@ -798,8 +801,10 @@ def keyhole2d(
 
     Args:
         length:     overall length between the two circle centres (default 15)
-        radius1/diameter1:      radius/diameter of the small circle (default 5)
-        radius2/diameter2:      radius/diameter of the large circle (default 10)
+        radius1:      radius/diameter of the small circle (default 5)
+        diameter1:      radius/diameter of the small circle (default 5)
+        radius2:      radius/diameter of the large circle (default 10)
+        diameter2:      radius/diameter of the large circle (default 10)
         shoulder_radius: fillet radius at the shoulder junctions (default 0)
         res:        meshing resolution (default 10)
     """

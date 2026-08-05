@@ -1517,7 +1517,8 @@ def prismoid(
     Args:
         size1:  [width, length] of the bottom end
         size2:  [width, length] of the top end
-        height/length:    height of the prism
+        height:    height of the prism
+        length:    height of the prism
         shift:  [X,Y] shift of the top center relative to the bottom center
         anchor: anchor point (default BOTTOM)
         res:    libfive meshing resolution passed to frep() (default 10)
@@ -1569,7 +1570,8 @@ def rect_tube(
     one inner radius (default: same as the outer).
 
     Args:
-        height/length:       height/length of the tube (default 1)
+        height:       height/length of the tube (default 1)
+        length:       height/length of the tube (default 1)
         size:      outer [X,Y] size of the tube
         isize:     inner [X,Y] size of the tube
         wall:      wall thickness (used with `size` if `isize` isn't given, or vice versa)

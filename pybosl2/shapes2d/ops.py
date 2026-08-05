@@ -111,7 +111,9 @@ def round2d(
         outer_radius: radius to round only convex (outside) corners to (BOSL2 `or`)
         inner_radius: radius to round only concave (inside) corners to
         children:     the 2-D solid(s) to round
-        fn/fa/fs:  arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
     """
     orad = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
     irad = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
@@ -143,7 +145,9 @@ def shell2d(
         inner_radius: rounding radius for inside corners of the shell; a [CONVEX,CONCAVE]
                       pair rounds those corner types separately (default 0)
         children:     the 2-D solid(s) to shell
-        fn/fa/fs:  arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
     """
     assert thickness is not None, "shell2d(): must give thickness"
     assert children is not None, "shell2d(): must give children"

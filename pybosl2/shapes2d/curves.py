@@ -100,12 +100,13 @@ def star(
 
     Args:
         tips:           number of stellate tips
-        radius/outer_radius: radius to the tips of the star (BOSL2 `or`)
+        radius:         radius to the tips of the star
+        outer_radius:   radius to the tips of the star (BOSL2 `or`); alias for radius
         inner_radius:   radius to the inner corners of the star
-        diameter/outer_diameter: diameter to the tips of the star
+        diameter:       diameter to the tips of the star
+        outer_diameter: diameter to the tips of the star; alias for diameter
         inner_diameter: diameter to the inner corners of the star
-        step:           compute inner radius by virtually drawing a line `step` tips around the star (2 <= step <
-        tips/2)
+        step:           compute inner radius by virtually drawing a line `step` tips around the star (2 <= step < tips)
         realign:        put the midpoint of the last edge (instead of vertex 0) on the X+ axis (default False)
         align_tip:      rotate so the first tip points in this 2-D direction (applied before spin)
         align_pit:      rotate so the first inner corner points in this 2-D direction (applied before spin)
@@ -173,7 +174,9 @@ def teardrop2d(
         realign:    flip whether the bottom is a point or a flat (default False)
         anchor:     anchor point (default CENTER)
         spin:       Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -239,7 +242,9 @@ def egg(
         arc_diameter: diameter of the joining arcs (alternative to arc_radius)
         anchor:       anchor point (default CENTER)
         spin:         Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs:  arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -454,8 +459,11 @@ def squircle(
         size:       scalar or [x, y] size of the bounding box
         squareness: 0 (circle) .. 1 (square); default 0.5
         style:      only "fg" is supported
-        anchor/spin: standard BOSL2 2-D anchor / spin
-        fn/fa/fs: smoothness overrides
+        anchor:     standard BOSL2 2-D anchor
+        spin:       standard BOSL2 2-D spin
+        fn: smoothness overrides
+        fa: smoothness overrides
+        fs: smoothness overrides
 
     Examples:
         .. pythonscad-example::

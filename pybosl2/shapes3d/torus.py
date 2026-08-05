@@ -75,16 +75,22 @@ def pie_slice(
     """BOSL2 pie_slice() -- a pie slice, wedge of a cylinder/cone.
 
     Args:
-        height/length:    height of the pie slice
+        height:    height of the pie slice
+        length:    height of the pie slice
         radius:      radius of the pie slice
         angle:    pie slice angle in degrees (default 30)
         center: if given, overrides anchor
-        radius1/radius2:  bottom/top radius of the pie slice
-        diameter/diameter1/diameter2: diameter of the pie slice / bottom / top
+        radius1:  bottom radius of the pie slice
+        radius2:  top radius of the pie slice
+        diameter: diameter of the pie slice
+        diameter1: diameter of the bottom
+        diameter2: diameter of the top
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -164,7 +170,9 @@ def torus(
         inner_diameter:     inside diameter of the torus (use with outer_radius or outer_diameter)
         anchor: anchor point (default CENTER)
         orient: direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::

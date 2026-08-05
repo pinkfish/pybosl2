@@ -63,8 +63,8 @@ BACK = Point([0.0, 1.0, 0.0])
 class Sweepable:
     """Mixin adding sweep methods to Path2D and Path3D."""
 
-    def path_sweep(  # type: ignore[misc]
-        self: Path3D,
+    def path_sweep(
+        self,
         shape: Path2D,
         method: str = "incremental",
         normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
@@ -85,7 +85,7 @@ class Sweepable:
         """Sweep *shape* along this path (BOSL2 path_sweep())."""
         return _path_sweep(
             shape,
-            self,
+            cast("Path2D | Path3D", self),
             method=method,
             normal=normal,
             closed=closed,
@@ -103,18 +103,18 @@ class Sweepable:
             transforms=transforms,
         )
 
-    def path_sweep2d(  # type: ignore[misc]
-        self: Path2D,
+    def path_sweep2d(
+        self,
         shape: Path2D,
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
     ) -> VNF | Bosl2Solid:
         """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d())."""
-        return _path_sweep2d(shape, self, closed=closed, caps=caps, style=style)
+        return _path_sweep2d(shape, cast("Path2D", self), closed=closed, caps=caps, style=style)
 
-    def linear_sweep(  # type: ignore[misc]
-        self: Path2D,
+    def linear_sweep(
+        self,
         height: float | None = None,
         twist: float = 0.0,
         scale: Any = 1,
@@ -126,7 +126,7 @@ class Sweepable:
     ) -> VNF | Bosl2Solid:
         """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep())."""
         return _linear_sweep(
-            self,
+            cast("Path2D", self),
             height=height,
             twist=twist,
             scale=scale,
@@ -137,8 +137,8 @@ class Sweepable:
             style=style,
         )
 
-    def rotate_sweep(  # type: ignore[misc]
-        self: Path2D,
+    def rotate_sweep(
+        self,
         angle: float = 360.0,
         caps: CapsSpec = CapType.BUTT,
         _closed: bool | None = None,
@@ -147,15 +147,15 @@ class Sweepable:
     ) -> VNF | Bosl2Solid:
         """Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep())."""
         return _rotate_sweep(
-            self,
+            cast("Path2D", self),
             angle=angle,
             caps=caps,
             style=style,
             start=start,
         )
 
-    def spiral_sweep(  # type: ignore[misc]
-        self: Path2D,
+    def spiral_sweep(
+        self,
         height: float,
         radius: float | None = None,
         turns: float = 1.0,
@@ -169,7 +169,7 @@ class Sweepable:
     ) -> VNF | Bosl2Solid:
         """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep())."""
         return _spiral_sweep(
-            self,
+            cast("Path2D", self),
             height,
             radius=radius,
             turns=turns,
@@ -182,8 +182,8 @@ class Sweepable:
             style=style,
         )
 
-    def sweep(  # type: ignore[misc]
-        self: Path2D,
+    def sweep(
+        self,
         transforms: Sequence[Sequence[Sequence[float]]],
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
@@ -192,7 +192,7 @@ class Sweepable:
         """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF
         or Bosl2Solid (BOSL2 sweep())."""
         return _sweep(
-            [list(p) for p in self],
+            [list(p) for p in cast("Path2D", self)],
             transforms,
             closed=closed,
             caps=caps,
@@ -795,7 +795,8 @@ def _spiral_sweep(
     Args:
         poly:  the 2-D wire cross-section (closed path)
         height:     total height of the spiral
-        radius/diameter:   helix radius/diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
+        radius:   helix radius (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
+        diameter:   helix diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
         turns: number of turns (default 1)
         center: center the spiral on Z (default True)
         style: vnf_vertex_array quad-subdivision style
@@ -899,6 +900,13 @@ class OSType(Enum):
 
 @dataclass
 class OSProfile:
+    """Descriptor for an offset-sweep rim treatment profile (BOSL2 ``os_profile()``).
+
+    Holds the parameters that define how one rim of an extruded shape is treated
+    by :func:`offset_sweep` — roundover, flare, teardrop, chamfer, flat, or a
+    custom point profile.
+    """
+
     type: OSType
     radius: float = 0.0
     height: float = 0.0
@@ -908,7 +916,7 @@ class OSProfile:
     radius_sign: float = 1.0
     max_angle: float = 45.0
     width: float = 0.0
-    points: list[list[float]] = field(default_factory=list)
+    points: list[list[float]] = field(default_factory=list[list[float]])
 
     def get(self, key: str, default: object = None) -> object:
         if key == "type":
