@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from shapely.geometry import MultiPolygon
 
     from pybosl2.path2d import Path2D
-    from pybosl2.path3d import Path3D
+    from pybosl2.paths import Path
 
 import numpy as np
 
@@ -406,8 +406,8 @@ class Roundable:
     """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and
     :class:`~pybosl2.paths.Path3D`."""
 
-    def round_corners(  # type: ignore[misc]
-        self: Path2D | Path3D,
+    def round_corners(
+        self,
         radius: float | None = None,
         method: str = "circle",
         cut: float | Sequence[float] | None = None,
@@ -418,21 +418,22 @@ class Roundable:
         **kwargs: object,
     ) -> object:
         """Round every corner of this path (see :func:`round_corners`)."""
+        path_self = cast("Path", self)
         curv = curvature if curvature is not None else cast("float | None", kwargs.get("k"))
         return _round_corners(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             method=method,
             radius=radius,
             cut=cut,
             joint=joint,
             width=width,
             curvature=curv,
-            closed=self.closed if closed is None else closed,
+            closed=path_self.closed if closed is None else closed,
             **kwargs,  # type: ignore[arg-type]
         )
 
-    def smooth_path(  # type: ignore[misc]
-        self: Path2D | Path3D,
+    def smooth_path(
+        self,
         tangents: Sequence[Sequence[float]] | None = None,
         size: float | Sequence[float] | None = None,
         relsize: float | None = None,
@@ -441,14 +442,15 @@ class Roundable:
         closed: bool | None = None,
     ) -> object:
         """Fit a smooth continuous-curvature curve through this path (see :func:`smooth_path`)."""
+        path_self = cast("Path", self)
         return _smooth_path(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             tangents=tangents,
             size=size,
             relsize=relsize,
             splinesteps=splinesteps,
             uniform=uniform,
-            closed=self.closed if closed is None else closed,
+            closed=path_self.closed if closed is None else closed,
         )
 
     def offset_stroke(
@@ -459,10 +461,11 @@ class Roundable:
         joint: CapType = CapType.ROUND,
     ) -> object:
         """Offset this 2-D path to create a thickened outline Region (BOSL2 offset_stroke())."""
+        path_self = cast("Path", self)
         return _offset_stroke(
-            self,  # type: ignore[arg-type]
+            cast("Sequence[Sequence[float]]", self),
             width=width,
-            closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
+            closed=path_self.closed if closed is None else closed,
             endcap=endcap,
             joint=joint,
         )
