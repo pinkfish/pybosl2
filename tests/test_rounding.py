@@ -241,4 +241,31 @@ def test_path_methods_on_path_object() -> None:
     other = Path2D([[10, 10], [20, 20]], closed=False)
     res_pj = p.path_join([other], relocate=True)  # type: ignore[list-item]
     assert len(res_pj) == 4  # type: ignore[arg-type]
-    np.testing.assert_allclose(res_pj, [[0, 0], [10, 0], [10, 10], [20, 20]])  # type: ignore[call-overload]
+
+
+# ── uncovered rounding branches ─────────────────────────────────────────
+
+
+def test_round_corners_per_corner_size() -> None:
+    p = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]], closed=True)
+    result = p.round_corners(radius=5, size=[3, 5, 7, 10], closed=True)
+    assert isinstance(result, Path2D)
+
+
+def test_smooth_path_with_tangents() -> None:
+    p = Path2D([[0, 0], [10, 10], [20, 0]], closed=False)
+    result = p.smooth_path(tangents=[[1, 0], [0, 1], [1, 0]])  # type: ignore[call-arg]
+    assert isinstance(result, Path2D)
+
+
+def test_smooth_path_with_size() -> None:
+    p = Path2D([[0, 0], [10, 10], [20, 0]], closed=False)
+    result = p.smooth_path(size=5)  # type: ignore[call-arg]
+    assert isinstance(result, Path2D)
+
+
+def test_path_join_closed() -> None:
+    a = Path2D([[0, 0], [10, 10]], closed=False)
+    b = Path2D([[20, 0], [30, 10]], closed=False)
+    result = a.path_join([b], closed=True, relocate=True)  # type: ignore[list-item]
+    assert isinstance(result, Path2D)

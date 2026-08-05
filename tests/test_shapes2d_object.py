@@ -621,3 +621,22 @@ def test_square_chamfered_chainable_to_solid() -> None:
 def test_right_triangle_rounded_chainable_to_solid() -> None:
     result = s2.right_triangle([15, 10], rounding=2).linear_extrude(height=5)
     assert isinstance(result, Bosl2Solid)
+
+
+# ── uncovered shapes2d methods ───────────────────────────────────────────
+
+
+def test_cross_2d() -> None:
+    result = s2.cross(size=30, arm_width=6)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_cross_with_center() -> None:
+    result = s2.cross(size=[40, 30], arm_width=8, center=False)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_shape_rotate_keyword_a() -> None:
+    sq = s2.square(20)
+    result = sq.rotate(a=45)  # type: ignore[call-arg]
+    assert isinstance(result, Bosl2Shape2D)
