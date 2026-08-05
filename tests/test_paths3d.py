@@ -27,12 +27,20 @@ def test_construction_requires_3d_points() -> None:
     np.testing.assert_array_equal(p[0], [0.0, 0.0, 0.0])
     with pytest.raises(AssertionError):
         Path3D([[0, 0], [1, 1]])  # 2-D points rejected
+    assert p.array.shape == (4, 3)
+    assert p.closed is True
+    np.testing.assert_array_equal(p[-1], [0.0, 10.0, 5.0])
+    assert p.perimeter() == pytest.approx(42.3606797749979, abs=1e-9)
+    np.testing.assert_allclose(p.segment_lengths(), [10.0, 11.180339887498949, 10.0, 11.180339887498949], atol=1e-9)
 
 
 def test_closed_flag_and_repr() -> None:
     assert Path3D(SQUARE_LOOP).closed is True
     assert Path3D(SQUARE_LOOP, closed=False).closed is False
     assert "Path3D" in repr(Path3D(SQUARE_LOOP))
+    assert repr(Path3D(SQUARE_LOOP)) == "Path3D(4 pts, closed=True)"
+    assert repr(Path3D(SQUARE_LOOP, closed=False)) == "Path3D(4 pts, closed=False)"
+    assert len(Path3D(SQUARE_LOOP, closed=False)) == 4
 
 
 def test_array_and_bounds() -> None:
@@ -48,6 +56,10 @@ def test_array_and_bounds() -> None:
     assert bounds.width == 10
     assert bounds.length == 10
     assert bounds.height == 5
+    assert len(p) == 4
+    np.testing.assert_array_equal(p[0], [0.0, 0.0, 0.0])
+    np.testing.assert_array_equal(p[2], [10.0, 10.0, 5.0])
+    assert p.perimeter() == pytest.approx(42.3606797749979, abs=1e-9)
 
 
 def test_perimeter_open_vs_closed() -> None:
@@ -55,12 +67,24 @@ def test_perimeter_open_vs_closed() -> None:
     assert math.isclose(line.perimeter(), 30.0, abs_tol=1e-9)
     tri = Path3D([[0, 0, 0], [3, 0, 0], [3, 4, 0]], closed=True)
     assert math.isclose(tri.perimeter(), 3 + 4 + 5, abs_tol=1e-9)  # closed adds the 5 hypotenuse
+    assert len(line) == 3
+    assert len(tri) == 3
+    np.testing.assert_allclose(line.segment_lengths(), [10.0, 20.0], atol=1e-9)
+    np.testing.assert_allclose(tri.segment_lengths(), [3.0, 4.0, 5.0], atol=1e-9)
+    np.testing.assert_array_equal(line[-1], [0.0, 0.0, 30.0])
 
 
 def test_segment_lengths_and_fractions() -> None:
     line = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 40]], closed=False)
     np.testing.assert_allclose(line.segment_lengths(), [10, 30], atol=1e-9)
     np.testing.assert_allclose(line.length_fractions(), [0, 0.25, 1.0], atol=1e-9)
+    assert len(line) == 3
+    assert line.perimeter() == pytest.approx(40.0, abs=1e-9)
+    np.testing.assert_array_equal(line[0], [0.0, 0.0, 0.0])
+    np.testing.assert_array_equal(line[1], [0.0, 0.0, 10.0])
+    np.testing.assert_array_equal(line[2], [0.0, 0.0, 40.0])
+    assert line.closed is False
+    assert line.array.shape == (3, 3)
 
 
 def test_translate_and_directional_moves() -> None:
@@ -73,12 +97,18 @@ def test_translate_and_directional_moves() -> None:
     np.testing.assert_allclose(p.forward(5)[0], [0, -5, 0], atol=1e-9)
     np.testing.assert_allclose(p.up(5)[0], [0, 0, 5], atol=1e-9)
     np.testing.assert_allclose(p.down(5)[0], [0, 0, -5], atol=1e-9)
+    assert len(p) == 1
+    assert p.closed is False
+    np.testing.assert_array_equal(p[0], [0.0, 0.0, 0.0])
 
 
 def test_scale_scalar_and_vector() -> None:
     p = Path3D([[1, 2, 3]], closed=False)
     np.testing.assert_allclose(p.scale(2)[0], [2, 4, 6], atol=1e-9)
     np.testing.assert_allclose(p.scale([1, 0, 3])[0], [1, 0, 9], atol=1e-9)
+    assert len(p) == 1
+    assert p.array.shape == (1, 3)
+    np.testing.assert_array_equal(p[0], [1.0, 2.0, 3.0])
 
 
 def test_rotate_about_z_axis_and_euler() -> None:
@@ -88,12 +118,20 @@ def test_rotate_about_z_axis_and_euler() -> None:
     np.testing.assert_allclose(p.rotate([0, 0, 90])[0], [0, 1, 0], atol=1e-9)  # euler Z
     z_up = Path3D([[0, 0, 1]], closed=False)
     np.testing.assert_allclose(z_up.rotate([90, 0, 0])[0], [0, -1, 0], atol=1e-9)  # euler X: +Z -> -Y
+    assert len(p) == 1
+    assert len(z_up) == 1
+    assert p.closed is False
+    np.testing.assert_array_equal(p[0], [1.0, 0.0, 0.0])
+    np.testing.assert_array_equal(z_up[0], [0.0, 0.0, 1.0])
 
 
 def test_mirror_across_plane() -> None:
     p = Path3D([[1, 2, 3]], closed=False)
     np.testing.assert_allclose(p.mirror([0, 0, 1])[0], [1, 2, -3], atol=1e-9)
     np.testing.assert_allclose(p.mirror([1, 0, 0])[0], [-1, 2, 3], atol=1e-9)
+    assert len(p) == 1
+    np.testing.assert_array_equal(p[0], [1.0, 2.0, 3.0])
+    np.testing.assert_allclose(p.mirror([0, 1, 0])[0], [1, -2, 3], atol=1e-9)
 
 
 def test_reverse_close_cleanup_dedup() -> None:
@@ -104,6 +142,13 @@ def test_reverse_close_cleanup_dedup() -> None:
     assert len(closed.cleanup()) == 3  # duplicate closing point dropped
     dd = Path3D([[0, 0, 0], [0, 0, 0], [1, 0, 0]], closed=False).deduplicated()
     assert len(dd) == 2
+    assert len(p.reverse()) == 3
+    np.testing.assert_allclose(p.reverse()[-1], [0, 0, 0], atol=1e-9)
+    assert len(closed) == 4
+    np.testing.assert_allclose(closed[0], [0, 0, 0], atol=1e-9)
+    np.testing.assert_array_equal(dd[0], [0.0, 0.0, 0.0])
+    np.testing.assert_array_equal(dd[1], [1.0, 0.0, 0.0])
+    np.testing.assert_allclose(dd.array, [[0, 0, 0], [1, 0, 0]], atol=1e-9)
 
 
 def test_resample_and_subdivide_keep_3d() -> None:
@@ -115,6 +160,32 @@ def test_resample_and_subdivide_keep_3d() -> None:
     s = p.subdivide(num_copies=4)
     assert isinstance(s, Path3D)
     assert s.array.shape[1] == 3
+    np.testing.assert_allclose(
+        radius.array,
+        [
+            [0, 0, 0],
+            [0, 0, 5],
+            [0, 0, 10],
+            [0, 0, 15],
+            [0, 0, 20],
+            [0, 0, 25],
+            [0, 0, 30],
+        ],
+        atol=1e-9,
+    )
+    np.testing.assert_allclose(
+        s.array,
+        [
+            [0, 0, 0],
+            [0, 0, 10],
+            [0, 0, 20],
+            [0, 0, 30],
+        ],
+        atol=1e-9,
+    )
+    assert len(s) == 4
+    assert radius.closed is False
+    assert radius.perimeter() == pytest.approx(30.0, abs=1e-9)
 
 
 def test_cut_returns_path3d_subpaths() -> None:
@@ -122,6 +193,14 @@ def test_cut_returns_path3d_subpaths() -> None:
     parts = line.cut([10.0])
     assert len(parts) == 2
     assert all(isinstance(pt, Path3D) for pt in parts)
+    assert len(parts[0]) == 2
+    assert len(parts[1]) == 2
+    np.testing.assert_allclose(parts[0].array, [[0, 0, 0], [0, 0, 10]], atol=1e-9)
+    np.testing.assert_allclose(parts[1].array, [[0, 0, 10], [0, 0, 40]], atol=1e-9)
+    assert parts[0].closed is False
+    assert parts[1].closed is False
+    assert parts[0].perimeter() == pytest.approx(10.0, abs=1e-9)
+    assert parts[1].perimeter() == pytest.approx(30.0, abs=1e-9)
 
 
 def test_tangents_normals_curvature_torsion_shapes() -> None:
@@ -133,6 +212,26 @@ def test_tangents_normals_curvature_torsion_shapes() -> None:
     assert len(p.normals()) == 24
     assert p.curvature().shape == (24,)
     assert p.torsion().shape == (24,)
+    assert len(p) == 24
+    c = p.curvature()
+    assert float(np.min(c)) == pytest.approx(0.8679411357989224, abs=1e-9)
+    assert float(np.max(c)) == pytest.approx(0.9146926996719048, abs=1e-9)
+    assert float(np.mean(c)) == pytest.approx(0.9107967360158229, abs=1e-9)
+    tor = p.torsion()
+    assert float(np.min(tor)) == pytest.approx(0.3029990360512322, abs=1e-9)
+    assert float(np.max(tor)) == pytest.approx(0.31907479844666, abs=1e-9)
+    tangents = p.tangents()
+    np.testing.assert_allclose(
+        [float(tangents[0].x), float(tangents[0].y), float(tangents[0].z)],
+        [-0.004673336467025875, 0.950898585144923, 0.30946734996708364],
+        atol=1e-9,
+    )
+    normals = p.normals()
+    np.testing.assert_allclose(
+        [float(normals[0].x), float(normals[0].y), float(normals[0].z)],
+        [-0.9962600657729389, -0.031128418529578327, 0.08060336783253526],
+        atol=1e-9,
+    )
 
 
 def test_closest_point() -> None:
@@ -144,6 +243,12 @@ def test_closest_point() -> None:
     assert not pt.is_2d
     assert pt.z is not None
     np.testing.assert_allclose([pt.x, pt.y, pt.z], [0, 0, 5], atol=1e-9)
+    assert len(line) == 2
+    assert line.perimeter() == pytest.approx(10.0, abs=1e-9)
+    pt_end = line.closest_point([0, 0, 0])
+    np.testing.assert_allclose([pt_end.x, pt_end.y, pt_end.z], [0, 0, 0], atol=1e-9)
+    pt_end2 = line.closest_point([0, 0, 10])
+    np.testing.assert_allclose([pt_end2.x, pt_end2.y, pt_end2.z], [0, 0, 10], atol=1e-9)
 
 
 def test_path2d_drops_z() -> None:
@@ -152,6 +257,10 @@ def test_path2d_drops_z() -> None:
     assert isinstance(flat, Path2D)
     np.testing.assert_allclose(flat, [[1, 2], [3, 4]], atol=1e-9)
     assert flat.closed is False
+    assert len(flat) == 2
+    np.testing.assert_array_equal(flat[0], [1.0, 2.0])
+    np.testing.assert_array_equal(flat[1], [3.0, 4.0])
+    assert flat.array.shape == (2, 2)
 
 
 def test_stroke_and_dashed_build() -> None:
@@ -160,3 +269,7 @@ def test_stroke_and_dashed_build() -> None:
     p = Path3D([[0, 0, 0], [20, 0, 0], [20, 20, 10]], closed=False)
     assert p.stroke(width=3) is not None
     assert isinstance(p.dashed_stroke(dashpat=[5, 5]), Bosl2Solid)
+    assert len(p) == 3
+    assert p.perimeter() == pytest.approx(42.3606797749979, abs=1e-9)
+    np.testing.assert_array_equal(p[0], [0.0, 0.0, 0.0])
+    np.testing.assert_array_equal(p[-1], [20.0, 20.0, 10.0])
