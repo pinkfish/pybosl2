@@ -50,7 +50,7 @@ hinges
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; Hinges.<span class="k">knuckle_hinge_pair</span>(length=40, segs=5)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; Hinges.knuckle_hinge_pair(length=40, segs=5)</div>
         </div>
         <div class="spec-proof"><div class="spec-proof-big">0.02%</div><div class="spec-proof-txt"><b>&Delta;volume across the fold = 1.2 mm&sup3;.</b> A rigid rotation, not a distortion — the pin bore and knuckle mesh stay closed.</div></div>
         <div class="spec-tests">6 tests</div>
@@ -59,7 +59,7 @@ hinges
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "pair", "label": "knuckle pair", "uri": "_stl/hinges-pair.stl", "code": "Hinges.<span class=\"k\">knuckle_hinge_pair</span>(length=40, segs=5)", "part": "knuckle_hinge_pair(length=40, segs=5)", "tris": 370, "vol": "5,886.5", "bbox": "40\u00d746\u00d76", "wt": false}, {"id": "knuckle", "label": "single leaf", "uri": "_stl/hinges-knuckle.stl", "code": "Hinges.<span class=\"k\">knuckle_hinge</span>(length=40, segs=5)", "part": "knuckle_hinge(length=40, segs=5)", "tris": 212, "vol": "3,102.8", "bbox": "40\u00d726\u00d76", "wt": true}, {"id": "snap-lock", "label": "snap lock", "uri": "_stl/hinges-snap-lock.stl", "code": "Hinges.<span class=\"k\">snap_lock</span>()", "part": "snap_lock()", "tris": 36, "vol": "181.7", "bbox": "5\u00d75\u00d78", "wt": true}, {"id": "snap-socket", "label": "snap socket", "uri": "_stl/hinges-snap-socket.stl", "code": "Hinges.<span class=\"k\">snap_socket</span>()", "part": "snap_socket()", "tris": 76, "vol": "179.6", "bbox": "5\u00d75\u00d78", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "pair", "label": "knuckle pair", "uri": "_stl/hinges-pair.stl", "code": "Hinges.knuckle_hinge_pair(length=40, segs=5)", "part": "knuckle_hinge_pair(length=40, segs=5)", "tris": 370, "vol": "5,886.5", "bbox": "40\u00d746\u00d76", "wt": false}, {"id": "knuckle", "label": "single leaf", "uri": "_stl/hinges-knuckle.stl", "code": "Hinges.knuckle_hinge(length=40, segs=5)", "part": "knuckle_hinge(length=40, segs=5)", "tris": 212, "vol": "3,102.8", "bbox": "40\u00d726\u00d76", "wt": true}, {"id": "snap-lock", "label": "snap lock", "uri": "_stl/hinges-snap-lock.stl", "code": "Hinges.snap_lock()", "part": "snap_lock()", "tris": 36, "vol": "181.7", "bbox": "5\u00d75\u00d78", "wt": true}, {"id": "snap-socket", "label": "snap socket", "uri": "_stl/hinges-snap-socket.stl", "code": "Hinges.snap_socket()", "part": "snap_socket()", "tris": 76, "vol": "179.6", "bbox": "5\u00d75\u00d78", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

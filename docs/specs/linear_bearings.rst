@@ -33,7 +33,7 @@ linear bearings
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; LinearBearings.<span class="k">lmXuu_bearing</span>(8)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; LinearBearings.lmXuu_bearing(8)</div>
         </div>
 
         <div class="spec-tests">10 tests</div>
@@ -42,7 +42,7 @@ linear bearings
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "lm8uu", "label": "LM8UU", "uri": "_stl/linear_bearings-lm8uu.stl", "code": "LinearBearings.<span class=\"k\">lmXuu_bearing</span>(8)", "part": "lmXuu_bearing(8)", "tris": 816, "vol": "2,997.1", "bbox": "15\u00d715\u00d724", "wt": true}, {"id": "housing", "label": "LM8UU housing", "uri": "_stl/linear_bearings-housing.stl", "code": "LinearBearings.<span class=\"k\">lmXuu_housing</span>(8)", "part": "lmXuu_housing(8)", "tris": 508, "vol": "6,499.2", "bbox": "27\u00d724\u00d724", "wt": true}, {"id": "lm12uu", "label": "LM12UU", "uri": "_stl/linear_bearings-lm12uu.stl", "code": "LinearBearings.<span class=\"k\">lmXuu_bearing</span>(12)", "part": "lmXuu_bearing(12)", "tris": 1088, "vol": "6,932.1", "bbox": "21\u00d721\u00d730", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "lm8uu", "label": "LM8UU", "uri": "_stl/linear_bearings-lm8uu.stl", "code": "LinearBearings.lmXuu_bearing(8)", "part": "lmXuu_bearing(8)", "tris": 816, "vol": "2,997.1", "bbox": "15\u00d715\u00d724", "wt": true}, {"id": "housing", "label": "LM8UU housing", "uri": "_stl/linear_bearings-housing.stl", "code": "LinearBearings.lmXuu_housing(8)", "part": "lmXuu_housing(8)", "tris": 508, "vol": "6,499.2", "bbox": "27\u00d724\u00d724", "wt": true}, {"id": "lm12uu", "label": "LM12UU", "uri": "_stl/linear_bearings-lm12uu.stl", "code": "LinearBearings.lmXuu_bearing(12)", "part": "lmXuu_bearing(12)", "tris": 1088, "vol": "6,932.1", "bbox": "21\u00d721\u00d730", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

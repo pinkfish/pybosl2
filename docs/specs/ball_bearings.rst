@@ -33,7 +33,7 @@ ball bearings
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; BallBearings.<span class="k">ball_bearing</span>("608")</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; BallBearings.ball_bearing("608")</div>
         </div>
 
         <div class="spec-tests">10 tests</div>
@@ -42,7 +42,7 @@ ball bearings
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "608", "label": "608", "uri": "_stl/ball_bearings-608.stl", "code": "BallBearings.<span class=\"k\">ball_bearing</span>(\"608\")", "part": "ball_bearing(\"608\")", "tris": 2328, "vol": "1,640.6", "bbox": "22\u00d722\u00d77", "wt": true}, {"id": "6902zz", "label": "6902ZZ", "uri": "_stl/ball_bearings-6902zz.stl", "code": "BallBearings.<span class=\"k\">ball_bearing</span>(\"6902ZZ\")", "part": "ball_bearing(\"6902ZZ\")", "tris": 696, "vol": "2,862.2", "bbox": "28\u00d728\u00d77", "wt": true}, {"id": "r8", "label": "R8", "uri": "_stl/ball_bearings-r8.stl", "code": "BallBearings.<span class=\"k\">ball_bearing</span>(\"R8\")", "part": "ball_bearing(\"R8\")", "tris": 2978, "vol": "2,400.7", "bbox": "29\u00d728\u00d76", "wt": false}]</script>
+    <script id="spec-data" type="application/json">[{"id": "608", "label": "608", "uri": "_stl/ball_bearings-608.stl", "code": "BallBearings.ball_bearing(\"608\")", "part": "ball_bearing(\"608\")", "tris": 2328, "vol": "1,640.6", "bbox": "22\u00d722\u00d77", "wt": true}, {"id": "6902zz", "label": "6902ZZ", "uri": "_stl/ball_bearings-6902zz.stl", "code": "BallBearings.ball_bearing(\"6902ZZ\")", "part": "ball_bearing(\"6902ZZ\")", "tris": 696, "vol": "2,862.2", "bbox": "28\u00d728\u00d77", "wt": true}, {"id": "r8", "label": "R8", "uri": "_stl/ball_bearings-r8.stl", "code": "BallBearings.ball_bearing(\"R8\")", "part": "ball_bearing(\"R8\")", "tris": 2978, "vol": "2,400.7", "bbox": "29\u00d728\u00d76", "wt": false}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

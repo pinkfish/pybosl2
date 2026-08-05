@@ -33,7 +33,7 @@ cubetruss
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; CubeTruss.<span class="k">cubetruss</span>(extents=3)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; CubeTruss.cubetruss(extents=3)</div>
         </div>
 
         <div class="spec-tests">26 tests</div>
@@ -42,7 +42,7 @@ cubetruss
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "truss", "label": "3-truss", "uri": "_stl/cubetruss-truss.stl", "code": "CubeTruss.<span class=\"k\">cubetruss</span>(extents=3)", "part": "cubetruss(extents=3)", "tris": 1456, "vol": "15,456.6", "bbox": "30\u00d784\u00d730", "wt": true}, {"id": "segment", "label": "segment", "uri": "_stl/cubetruss-segment.stl", "code": "CubeTruss.<span class=\"k\">cubetruss_segment</span>()", "part": "cubetruss_segment()", "tris": 468, "vol": "5,997.9", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "corner", "label": "corner", "uri": "_stl/cubetruss-corner.stl", "code": "CubeTruss.<span class=\"k\">cubetruss_corner</span>()", "part": "cubetruss_corner()", "tris": 1992, "vol": "19,910.0", "bbox": "57\u00d757\u00d757", "wt": true}, {"id": "support", "label": "support", "uri": "_stl/cubetruss-support.stl", "code": "CubeTruss.<span class=\"k\">cubetruss_support</span>(extents=1)", "part": "cubetruss_support(extents=1)", "tris": 156, "vol": "3,150.3", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "clip", "label": "clip", "uri": "_stl/cubetruss-clip.stl", "code": "CubeTruss.<span class=\"k\">cubetruss_clip</span>()", "part": "cubetruss_clip()", "tris": 96, "vol": "354.0", "bbox": "33\u00d78\u00d720", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "truss", "label": "3-truss", "uri": "_stl/cubetruss-truss.stl", "code": "CubeTruss.cubetruss(extents=3)", "part": "cubetruss(extents=3)", "tris": 1456, "vol": "15,456.6", "bbox": "30\u00d784\u00d730", "wt": true}, {"id": "segment", "label": "segment", "uri": "_stl/cubetruss-segment.stl", "code": "CubeTruss.cubetruss_segment()", "part": "cubetruss_segment()", "tris": 468, "vol": "5,997.9", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "corner", "label": "corner", "uri": "_stl/cubetruss-corner.stl", "code": "CubeTruss.cubetruss_corner()", "part": "cubetruss_corner()", "tris": 1992, "vol": "19,910.0", "bbox": "57\u00d757\u00d757", "wt": true}, {"id": "support", "label": "support", "uri": "_stl/cubetruss-support.stl", "code": "CubeTruss.cubetruss_support(extents=1)", "part": "cubetruss_support(extents=1)", "tris": 156, "vol": "3,150.3", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "clip", "label": "clip", "uri": "_stl/cubetruss-clip.stl", "code": "CubeTruss.cubetruss_clip()", "part": "cubetruss_clip()", "tris": 96, "vol": "354.0", "bbox": "33\u00d78\u00d720", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

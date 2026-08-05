@@ -1,4 +1,4 @@
-:icon: material/precision-manufacturing
+:icon: material/handyman
 
 .. _spec-index:
 

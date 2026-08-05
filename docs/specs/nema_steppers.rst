@@ -33,7 +33,7 @@ nema steppers
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; NemaSteppers.<span class="k">nema_stepper_motor</span>(17)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; NemaSteppers.nema_stepper_motor(17)</div>
         </div>
 
         <div class="spec-tests">13 tests</div>
@@ -42,7 +42,7 @@ nema steppers
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "17", "label": "NEMA 17", "uri": "_stl/nema_steppers-17.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(17)", "part": "nema_stepper_motor(17)", "tris": 290, "vol": "43,858.4", "bbox": "42\u00d742\u00d744", "wt": true}, {"id": "23", "label": "NEMA 23", "uri": "_stl/nema_steppers-23.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(23)", "part": "nema_stepper_motor(23)", "tris": 388, "vol": "79,815.8", "bbox": "57\u00d757\u00d744", "wt": true}, {"id": "8", "label": "NEMA 8", "uri": "_stl/nema_steppers-8.stl", "code": "NemaSteppers.<span class=\"k\">nema_stepper_motor</span>(8)", "part": "nema_stepper_motor(8)", "tris": 262, "vol": "10,312.0", "bbox": "20\u00d720\u00d744", "wt": true}, {"id": "mask", "label": "mount mask", "uri": "_stl/nema_steppers-mask.stl", "code": "NemaSteppers.<span class=\"k\">nema_mount_mask</span>(17)", "part": "nema_mount_mask(17)", "tris": 506, "vol": "2,843.8", "bbox": "34\u00d739\u00d75", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "17", "label": "NEMA 17", "uri": "_stl/nema_steppers-17.stl", "code": "NemaSteppers.nema_stepper_motor(17)", "part": "nema_stepper_motor(17)", "tris": 290, "vol": "43,858.4", "bbox": "42\u00d742\u00d744", "wt": true}, {"id": "23", "label": "NEMA 23", "uri": "_stl/nema_steppers-23.stl", "code": "NemaSteppers.nema_stepper_motor(23)", "part": "nema_stepper_motor(23)", "tris": 388, "vol": "79,815.8", "bbox": "57\u00d757\u00d744", "wt": true}, {"id": "8", "label": "NEMA 8", "uri": "_stl/nema_steppers-8.stl", "code": "NemaSteppers.nema_stepper_motor(8)", "part": "nema_stepper_motor(8)", "tris": 262, "vol": "10,312.0", "bbox": "20\u00d720\u00d744", "wt": true}, {"id": "mask", "label": "mount mask", "uri": "_stl/nema_steppers-mask.stl", "code": "NemaSteppers.nema_mount_mask(17)", "part": "nema_mount_mask(17)", "tris": 506, "vol": "2,843.8", "bbox": "34\u00d739\u00d75", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

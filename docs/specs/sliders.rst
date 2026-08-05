@@ -33,7 +33,7 @@ sliders
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; Sliders.<span class="k">slider</span>(l=30, base=10, wall=4, slop=0.2)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; Sliders.slider(l=30, base=10, wall=4, slop=0.2)</div>
         </div>
 
         <div class="spec-tests">5 tests</div>
@@ -42,7 +42,7 @@ sliders
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "slider", "label": "slider", "uri": "_stl/sliders-slider.stl", "code": "Sliders.<span class=\"k\">slider</span>(l=30, base=10, wall=4, slop=0.2)", "part": "slider(l=30, base=10, wall=4, slop=0.2)", "tris": 100, "vol": "8,307.2", "bbox": "30\u00d718\u00d720", "wt": true}, {"id": "rail", "label": "rail", "uri": "_stl/sliders-rail.stl", "code": "Sliders.<span class=\"k\">rail</span>(l=100, w=10, h=10)", "part": "rail(l=100, w=10, h=10)", "tris": 52, "vol": "6,861.2", "bbox": "10\u00d7100\u00d710", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "slider", "label": "slider", "uri": "_stl/sliders-slider.stl", "code": "Sliders.slider(l=30, base=10, wall=4, slop=0.2)", "part": "slider(l=30, base=10, wall=4, slop=0.2)", "tris": 100, "vol": "8,307.2", "bbox": "30\u00d718\u00d720", "wt": true}, {"id": "rail", "label": "rail", "uri": "_stl/sliders-rail.stl", "code": "Sliders.rail(l=100, w=10, h=10)", "part": "rail(l=100, w=10, h=10)", "tris": 52, "vol": "6,861.2", "bbox": "10\u00d7100\u00d710", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

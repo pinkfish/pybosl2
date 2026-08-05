@@ -33,7 +33,7 @@ bottlecaps
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; BottleCaps.<span class="k">pco1810_neck</span>(fa=6)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; BottleCaps.pco1810_neck(fa=6)</div>
         </div>
 
         <div class="spec-tests">7 tests</div>
@@ -42,7 +42,7 @@ bottlecaps
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "pco1810-neck", "label": "PCO 1810 neck", "uri": "_stl/bottlecaps-pco1810-neck.stl", "code": "BottleCaps.<span class=\"k\">pco1810_neck</span>(fa=6)", "part": "pco1810_neck(fa=6)", "tris": 4130, "vol": "4,358.5", "bbox": "33\u00d733\u00d726", "wt": true}, {"id": "pco1810-cap", "label": "PCO 1810 cap", "uri": "_stl/bottlecaps-pco1810-cap.stl", "code": "BottleCaps.<span class=\"k\">pco1810_cap</span>(fa=6)", "part": "pco1810_cap(fa=6)", "tris": 932, "vol": "3,952.8", "bbox": "33\u00d733\u00d716", "wt": true}, {"id": "pco1881-neck", "label": "PCO 1881 neck", "uri": "_stl/bottlecaps-pco1881-neck.stl", "code": "BottleCaps.<span class=\"k\">pco1881_neck</span>(fa=6)", "part": "pco1881_neck(fa=6)", "tris": 3806, "vol": "3,258.7", "bbox": "33\u00d733\u00d722", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "pco1810-neck", "label": "PCO 1810 neck", "uri": "_stl/bottlecaps-pco1810-neck.stl", "code": "BottleCaps.pco1810_neck(fa=6)", "part": "pco1810_neck(fa=6)", "tris": 4130, "vol": "4,358.5", "bbox": "33\u00d733\u00d726", "wt": true}, {"id": "pco1810-cap", "label": "PCO 1810 cap", "uri": "_stl/bottlecaps-pco1810-cap.stl", "code": "BottleCaps.pco1810_cap(fa=6)", "part": "pco1810_cap(fa=6)", "tris": 932, "vol": "3,952.8", "bbox": "33\u00d733\u00d716", "wt": true}, {"id": "pco1881-neck", "label": "PCO 1881 neck", "uri": "_stl/bottlecaps-pco1881-neck.stl", "code": "BottleCaps.pco1881_neck(fa=6)", "part": "pco1881_neck(fa=6)", "tris": 3806, "vol": "3,258.7", "bbox": "33\u00d733\u00d722", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

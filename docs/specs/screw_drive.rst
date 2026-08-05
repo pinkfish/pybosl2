@@ -33,7 +33,7 @@ screw drive
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; ScrewDrive.<span class="k">phillips_mask</span>(size="#2", l=10)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; ScrewDrive.phillips_mask(size="#2", l=10)</div>
         </div>
 
         <div class="spec-tests">19 tests</div>
@@ -42,7 +42,7 @@ screw drive
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "phillips", "label": "Phillips #2", "uri": "_stl/screw_drive-phillips.stl", "code": "ScrewDrive.<span class=\"k\">phillips_mask</span>(size=\"#2\", l=10)", "part": "phillips_mask(size=\"#2\", l=10)", "tris": 176, "vol": "29.3", "bbox": "6\u00d76\u00d74", "wt": true}, {"id": "hex", "label": "hex 3 mm", "uri": "_stl/screw_drive-hex.stl", "code": "ScrewDrive.<span class=\"k\">hex_mask</span>(size=3, l=10)", "part": "hex_mask(size=3, l=10)", "tris": 20, "vol": "80.9", "bbox": "4\u00d73\u00d710", "wt": true}, {"id": "torx", "label": "Torx T30", "uri": "_stl/screw_drive-torx.stl", "code": "ScrewDrive.<span class=\"k\">torx_mask</span>(size=30, l=10)", "part": "torx_mask(size=30, l=10)", "tris": 188, "vol": "176.3", "bbox": "6\u00d75\u00d710", "wt": true}, {"id": "robertson", "label": "Robertson #2", "uri": "_stl/screw_drive-robertson.stl", "code": "ScrewDrive.<span class=\"k\">robertson_mask</span>(size=\"#2\", l=10)", "part": "robertson_mask(size=\"#2\", l=10)", "tris": 74, "vol": "93.4", "bbox": "4\u00d74\u00d710", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "phillips", "label": "Phillips #2", "uri": "_stl/screw_drive-phillips.stl", "code": "ScrewDrive.phillips_mask(size=\"#2\", l=10)", "part": "phillips_mask(size=\"#2\", l=10)", "tris": 176, "vol": "29.3", "bbox": "6\u00d76\u00d74", "wt": true}, {"id": "hex", "label": "hex 3 mm", "uri": "_stl/screw_drive-hex.stl", "code": "ScrewDrive.hex_mask(size=3, l=10)", "part": "hex_mask(size=3, l=10)", "tris": 20, "vol": "80.9", "bbox": "4\u00d73\u00d710", "wt": true}, {"id": "torx", "label": "Torx T30", "uri": "_stl/screw_drive-torx.stl", "code": "ScrewDrive.torx_mask(size=30, l=10)", "part": "torx_mask(size=30, l=10)", "tris": 188, "vol": "176.3", "bbox": "6\u00d75\u00d710", "wt": true}, {"id": "robertson", "label": "Robertson #2", "uri": "_stl/screw_drive-robertson.stl", "code": "ScrewDrive.robertson_mask(size=\"#2\", l=10)", "part": "robertson_mask(size=\"#2\", l=10)", "tris": 74, "vol": "93.4", "bbox": "4\u00d74\u00d710", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

@@ -33,7 +33,7 @@ modular hose
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; ModularHose.<span class="k">modular_hose</span>(0.5, "segment")</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; ModularHose.modular_hose(0.5, "segment")</div>
         </div>
 
         <div class="spec-tests">16 tests</div>
@@ -42,7 +42,7 @@ modular hose
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "segment", "label": "segment", "uri": "_stl/modular_hose-segment.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"segment\")", "part": "modular_hose(0.5, \"segment\")", "tris": 2760, "vol": "3,432.6", "bbox": "25\u00d725\u00d730", "wt": true}, {"id": "ball", "label": "ball end", "uri": "_stl/modular_hose-ball.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"ball\")", "part": "modular_hose(0.5, \"ball\")", "tris": 1500, "vol": "1,465.7", "bbox": "21\u00d721\u00d713", "wt": true}, {"id": "socket", "label": "socket end", "uri": "_stl/modular_hose-socket.stl", "code": "ModularHose.<span class=\"k\">modular_hose</span>(0.5, \"socket\")", "part": "modular_hose(0.5, \"socket\")", "tris": 1500, "vol": "2,105.5", "bbox": "25\u00d725\u00d718", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "segment", "label": "segment", "uri": "_stl/modular_hose-segment.stl", "code": "ModularHose.modular_hose(0.5, \"segment\")", "part": "modular_hose(0.5, \"segment\")", "tris": 2760, "vol": "3,432.6", "bbox": "25\u00d725\u00d730", "wt": true}, {"id": "ball", "label": "ball end", "uri": "_stl/modular_hose-ball.stl", "code": "ModularHose.modular_hose(0.5, \"ball\")", "part": "modular_hose(0.5, \"ball\")", "tris": 1500, "vol": "1,465.7", "bbox": "21\u00d721\u00d713", "wt": true}, {"id": "socket", "label": "socket end", "uri": "_stl/modular_hose-socket.stl", "code": "ModularHose.modular_hose(0.5, \"socket\")", "part": "modular_hose(0.5, \"socket\")", "tris": 1500, "vol": "2,105.5", "bbox": "25\u00d725\u00d718", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

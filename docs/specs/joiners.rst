@@ -33,7 +33,7 @@ joiners
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; Joiners.<span class="k">dovetail</span>("male", width=15, height=8, slide=30)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; Joiners.dovetail("male", width=15, height=8, slide=30)</div>
         </div>
 
         <div class="spec-tests">8 tests</div>
@@ -42,7 +42,7 @@ joiners
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "male", "label": "male dovetail", "uri": "_stl/joiners-male.stl", "code": "Joiners.<span class=\"k\">dovetail</span>(\"male\", width=15, height=8, slide=30)", "part": "dovetail(\"male\", width=15, height=8, slide=30)", "tris": 12, "vol": "3,920.0", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "female", "label": "female socket", "uri": "_stl/joiners-female.stl", "code": "Joiners.<span class=\"k\">dovetail</span>(\"female\", width=15, height=8, slide=30)", "part": "dovetail(\"female\", width=15, height=8, slide=30)", "tris": 12, "vol": "3,920.0", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "taper", "label": "tapered", "uri": "_stl/joiners-taper.stl", "code": "Joiners.<span class=\"k\">dovetail</span>(\"male\", width=15, height=8, slide=30, taper=4)", "part": "dovetail(\"male\", width=15, height=8, slide=30, taper=4)", "tris": 20, "vol": "3,419.1", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "snap-pin", "label": "snap pin", "uri": "_stl/joiners-snap-pin.stl", "code": "Joiners.<span class=\"k\">snap_pin</span>()", "part": "snap_pin()", "tris": 228, "vol": "173.5", "bbox": "6\u00d76\u00d714", "wt": true}, {"id": "socket", "label": "pin socket", "uri": "_stl/joiners-socket.stl", "code": "Joiners.<span class=\"k\">snap_pin_socket</span>()", "part": "snap_pin_socket()", "tris": 112, "vol": "301.2", "bbox": "6\u00d77\u00d713", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "male", "label": "male dovetail", "uri": "_stl/joiners-male.stl", "code": "Joiners.dovetail(\"male\", width=15, height=8, slide=30)", "part": "dovetail(\"male\", width=15, height=8, slide=30)", "tris": 12, "vol": "3,920.0", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "female", "label": "female socket", "uri": "_stl/joiners-female.stl", "code": "Joiners.dovetail(\"female\", width=15, height=8, slide=30)", "part": "dovetail(\"female\", width=15, height=8, slide=30)", "tris": 12, "vol": "3,920.0", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "taper", "label": "tapered", "uri": "_stl/joiners-taper.stl", "code": "Joiners.dovetail(\"male\", width=15, height=8, slide=30, taper=4)", "part": "dovetail(\"male\", width=15, height=8, slide=30, taper=4)", "tris": 20, "vol": "3,419.1", "bbox": "18\u00d730\u00d78", "wt": true}, {"id": "snap-pin", "label": "snap pin", "uri": "_stl/joiners-snap-pin.stl", "code": "Joiners.snap_pin()", "part": "snap_pin()", "tris": 228, "vol": "173.5", "bbox": "6\u00d76\u00d714", "wt": true}, {"id": "socket", "label": "pin socket", "uri": "_stl/joiners-socket.stl", "code": "Joiners.snap_pin_socket()", "part": "snap_pin_socket()", "tris": 112, "vol": "301.2", "bbox": "6\u00d77\u00d713", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

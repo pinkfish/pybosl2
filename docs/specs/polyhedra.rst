@@ -33,7 +33,7 @@ polyhedra
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; Polyhedra.<span class="k">tetrahedron</span>(radius=15)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; Polyhedra.tetrahedron(radius=15)</div>
         </div>
         <div class="spec-proof"><div class="spec-proof-big">V&minus;E+F=2</div><div class="spec-proof-txt"><b>Euler's formula holds for all five.</b> The icosahedron's 12 vertices, 30 edges and 20 faces satisfy it — the test suite checks each solid.</div></div>
         <div class="spec-tests">19 tests</div>
@@ -42,7 +42,7 @@ polyhedra
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "tetrahedron", "label": "tetrahedron", "uri": "_stl/polyhedra-tetrahedron.stl", "code": "Polyhedra.<span class=\"k\">tetrahedron</span>(radius=15)", "part": "tetrahedron(radius=15)", "tris": 4, "vol": "1,732.1", "bbox": "17\u00d717\u00d717", "wt": true}, {"id": "cube", "label": "cube", "uri": "_stl/polyhedra-cube.stl", "code": "Polyhedra.<span class=\"k\">cube</span>(radius=15)", "part": "cube(radius=15)", "tris": 12, "vol": "5,196.2", "bbox": "17\u00d717\u00d717", "wt": true}, {"id": "octahedron", "label": "octahedron", "uri": "_stl/polyhedra-octahedron.stl", "code": "Polyhedra.<span class=\"k\">octahedron</span>(radius=15)", "part": "octahedron(radius=15)", "tris": 8, "vol": "4,500.0", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "dodecahedron", "label": "dodecahedron", "uri": "_stl/polyhedra-dodecahedron.stl", "code": "Polyhedra.<span class=\"k\">dodecahedron</span>(side=12)", "part": "dodecahedron(side=12)", "tris": 36, "vol": "13,241.9", "bbox": "31\u00d731\u00d731", "wt": true}, {"id": "icosahedron", "label": "icosahedron", "uri": "_stl/polyhedra-icosahedron.stl", "code": "Polyhedra.<span class=\"k\">icosahedron</span>(radius=15)", "part": "icosahedron(radius=15)", "tris": 20, "vol": "8,559.5", "bbox": "26\u00d726\u00d726", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "tetrahedron", "label": "tetrahedron", "uri": "_stl/polyhedra-tetrahedron.stl", "code": "Polyhedra.tetrahedron(radius=15)", "part": "tetrahedron(radius=15)", "tris": 4, "vol": "1,732.1", "bbox": "17\u00d717\u00d717", "wt": true}, {"id": "cube", "label": "cube", "uri": "_stl/polyhedra-cube.stl", "code": "Polyhedra.cube(radius=15)", "part": "cube(radius=15)", "tris": 12, "vol": "5,196.2", "bbox": "17\u00d717\u00d717", "wt": true}, {"id": "octahedron", "label": "octahedron", "uri": "_stl/polyhedra-octahedron.stl", "code": "Polyhedra.octahedron(radius=15)", "part": "octahedron(radius=15)", "tris": 8, "vol": "4,500.0", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "dodecahedron", "label": "dodecahedron", "uri": "_stl/polyhedra-dodecahedron.stl", "code": "Polyhedra.dodecahedron(side=12)", "part": "dodecahedron(side=12)", "tris": 36, "vol": "13,241.9", "bbox": "31\u00d731\u00d731", "wt": true}, {"id": "icosahedron", "label": "icosahedron", "uri": "_stl/polyhedra-icosahedron.stl", "code": "Polyhedra.icosahedron(radius=15)", "part": "icosahedron(radius=15)", "tris": 20, "vol": "8,559.5", "bbox": "26\u00d726\u00d726", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

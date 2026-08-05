@@ -33,7 +33,7 @@ wiring
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; Wiring.<span class="k">wire_bundle</span>(PATH, wires=13, rounding=10)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; Wiring.wire_bundle(PATH, wires=13, rounding=10)</div>
         </div>
         <div class="spec-proof"><div class="spec-proof-big">529.0 mm³ ×13</div><div class="spec-proof-txt"><b>One wire seals watertight at 796 triangles.</b> Thirteen of them, hex-packed and tangent, are 13 independent tubes — 13 × 529.0 = 6,877 mm&sup3; of copper, no overlap.</div></div>
         <div class="spec-tests">11 tests</div>
@@ -42,7 +42,7 @@ wiring
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "13", "label": "13 wires", "uri": "_stl/wiring-13.stl", "code": "Wiring.<span class=\"k\">wire_bundle</span>(PATH, wires=13, rounding=10)", "part": "wire_bundle(PATH, wires=13, rounding=10)", "tris": 10348, "vol": "6,974.3", "bbox": "60\u00d759\u00d754", "wt": false}, {"id": "7", "label": "7 wires", "uri": "_stl/wiring-7.stl", "code": "Wiring.<span class=\"k\">wire_bundle</span>(PATH, wires=7, rounding=10)", "part": "wire_bundle(PATH, wires=7, rounding=10)", "tris": 5572, "vol": "3,703.2", "bbox": "56\u00d756\u00d753", "wt": false}, {"id": "1", "label": "1 wire", "uri": "_stl/wiring-1.stl", "code": "Wiring.<span class=\"k\">wire_bundle</span>(PATH, wires=1, rounding=10)", "part": "wire_bundle(PATH, wires=1, rounding=10)", "tris": 796, "vol": "529.0", "bbox": "52\u00d752\u00d751", "wt": true}, {"id": "thick", "label": "thick gauge", "uri": "_stl/wiring-thick.stl", "code": "Wiring.<span class=\"k\">wire_bundle</span>(PATH, wires=7, wirediam=3, rounding=15)", "part": "wire_bundle(PATH, wires=7, wirediam=3, rounding=15)", "tris": 5572, "vol": "8,043.4", "bbox": "59\u00d759\u00d754", "wt": false}]</script>
+    <script id="spec-data" type="application/json">[{"id": "13", "label": "13 wires", "uri": "_stl/wiring-13.stl", "code": "Wiring.wire_bundle(PATH, wires=13, rounding=10)", "part": "wire_bundle(PATH, wires=13, rounding=10)", "tris": 10348, "vol": "6,974.3", "bbox": "60\u00d759\u00d754", "wt": false}, {"id": "7", "label": "7 wires", "uri": "_stl/wiring-7.stl", "code": "Wiring.wire_bundle(PATH, wires=7, rounding=10)", "part": "wire_bundle(PATH, wires=7, rounding=10)", "tris": 5572, "vol": "3,703.2", "bbox": "56\u00d756\u00d753", "wt": false}, {"id": "1", "label": "1 wire", "uri": "_stl/wiring-1.stl", "code": "Wiring.wire_bundle(PATH, wires=1, rounding=10)", "part": "wire_bundle(PATH, wires=1, rounding=10)", "tris": 796, "vol": "529.0", "bbox": "52\u00d752\u00d751", "wt": true}, {"id": "thick", "label": "thick gauge", "uri": "_stl/wiring-thick.stl", "code": "Wiring.wire_bundle(PATH, wires=7, wirediam=3, rounding=15)", "part": "wire_bundle(PATH, wires=7, wirediam=3, rounding=15)", "tris": 5572, "vol": "8,043.4", "bbox": "59\u00d759\u00d754", "wt": false}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

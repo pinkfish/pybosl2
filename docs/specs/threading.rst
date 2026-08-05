@@ -33,7 +33,7 @@ threading
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; Threading.<span class="k">threaded_rod</span>(d=20, l=30, pitch=2.5, fa=6, fs=1)</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)</div>
         </div>
 
         <div class="spec-tests">25 tests</div>
@@ -42,7 +42,7 @@ threading
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "iso-rod", "label": "ISO rod", "uri": "_stl/threading-iso-rod.stl", "code": "Threading.<span class=\"k\">threaded_rod</span>(d=20, l=30, pitch=2.5, fa=6, fs=1)", "part": "threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)", "tris": 6172, "vol": "8,055.3", "bbox": "20\u00d720\u00d730", "wt": true}, {"id": "iso-nut", "label": "ISO nut", "uri": "_stl/threading-iso-nut.stl", "code": "Threading.<span class=\"k\">threaded_nut</span>(nutwidth=13, id=8, h=6.8, pitch=1.25)", "part": "threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)", "tris": 796, "vol": "610.8", "bbox": "15\u00d713\u00d77", "wt": true}, {"id": "trapezoidal", "label": "trapezoidal rod", "uri": "_stl/threading-trapezoidal.stl", "code": "Threading.<span class=\"k\">trapezoidal_threaded_rod</span>(d=20, l=30, pitch=4, fa=6, fs=1)", "part": "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)", "tris": 3932, "vol": "7,699.5", "bbox": "20\u00d720\u00d730", "wt": true}, {"id": "acme", "label": "ACME rod", "uri": "_stl/threading-acme.stl", "code": "Threading.<span class=\"k\">acme_threaded_rod</span>(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "part": "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "tris": 3996, "vol": "3,098.2", "bbox": "13\u00d713\u00d730", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "iso-rod", "label": "ISO rod", "uri": "_stl/threading-iso-rod.stl", "code": "Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)", "part": "threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)", "tris": 6172, "vol": "8,055.3", "bbox": "20\u00d720\u00d730", "wt": true}, {"id": "iso-nut", "label": "ISO nut", "uri": "_stl/threading-iso-nut.stl", "code": "Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)", "part": "threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)", "tris": 796, "vol": "610.8", "bbox": "15\u00d713\u00d77", "wt": true}, {"id": "trapezoidal", "label": "trapezoidal rod", "uri": "_stl/threading-trapezoidal.stl", "code": "Threading.trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)", "part": "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)", "tris": 3932, "vol": "7,699.5", "bbox": "20\u00d720\u00d730", "wt": true}, {"id": "acme", "label": "ACME rod", "uri": "_stl/threading-acme.stl", "code": "Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "part": "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)", "tris": 3996, "vol": "3,098.2", "bbox": "13\u00d713\u00d730", "wt": true}]</script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

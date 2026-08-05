@@ -82,7 +82,7 @@
     buttons.forEach(function(b, j) {
       b.setAttribute("aria-selected", j === i ? "true" : "false");
     });
-    document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
+    document.getElementById("code").textContent = ">>> " + v.code;
     document.getElementById("s-tris").textContent = v.tris == null ? "\u2014" : v.tris.toLocaleString();
     document.getElementById("s-vol").textContent = v.vol;
     document.getElementById("s-bbox").textContent = v.bbox;

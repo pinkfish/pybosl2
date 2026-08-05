@@ -1373,12 +1373,12 @@ VARIANTS = {
 
 
 def _derive_code(expr: str) -> tuple[str, str]:
-    """From a render expression, produce (html code with the method bolded, plain-text caption)."""
+    """From a render expression, produce (plain-text code, plain-text caption)."""
     m = re.match(r"([A-Za-z_][\w]*)\.([A-Za-z_]\w*)\((.*)\)\s*$", expr, re.S)
     if not m:
         return expr, expr
     cls, method, args = m.groups()
-    return f'{cls}.<span class="k">{method}</span>({args})', f"{method}({args})"
+    return f"{cls}.{method}({args})", f"{method}({args})"
 
 
 def build_variant_stls(force: bool = False) -> dict:
@@ -1594,7 +1594,7 @@ def module_page(key: str, m: dict, metrics: dict) -> str:
 
 def gallery_page() -> str:
     lines = [
-        ":icon: material/precision-manufacturing",
+        ":icon: material/handyman",
         "",
         ".. _spec-index:",
         "",
