@@ -27,8 +27,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from docs._ext.stl_viewer import spec_viewer_html
 
-OUT = Path(__file__).resolve().parent / "_extra" / "specs"
-STL_DIR = OUT / "_stl"
+OUT = Path(__file__).resolve().parent / "specs"
+STL_DIR = Path(__file__).resolve().parent / "_extra" / "specs" / "_stl"
 
 # Rendering is optional: with the PythonSCAD app present we render each variant to an STL and measure
 # it; without it, we reuse the STLs and metrics already cached on disk (_stl/metrics.json).
@@ -1457,34 +1457,88 @@ def build_variant_stls(force: bool = False) -> dict:
     return cache
 
 
-HEAD = (
-    '<!doctype html><html lang="en"><head><meta charset="utf-8">'
-    '<meta name="viewport" content="width=device-width,initial-scale=1">'
-    '<title>{title}</title><link rel="stylesheet" href="spec.css"></head><body>'
-)
-BAR = (
-    '<header class="bar"><div class="wrap"><a class="logo" href="index.html">pybosl2</a>'
-    '<span class="sep">/</span><span class="meta">{crumb}</span>'
-    '<nav><a href="index.html">catalog</a><a href="../index.html">API docs &rarr;</a></nav></div></header>'
-)
-# module pages get an extra header link straight to that module's own API reference page.
-MODBAR = (
-    '<header class="bar"><div class="wrap"><a class="logo" href="index.html">pybosl2</a>'
-    '<span class="sep">/</span><span class="meta">spec sheet · {mod}.py</span>'
-    '<nav><a href="index.html">catalog</a><a href="../{mod}.html">{mod}.py API &rarr;</a>'
-    '<a href="../index.html">all API docs &rarr;</a></nav></div></header>'
-)
-FOOT = (
-    '<footer><div class="wrap"><span class="mono">pybosl2</span>'
-    '<span class="mono" style="color:var(--ink-faint)">·</span>'
-    '<span class="mono">metrics measured from the exported STL via the PythonSCAD app</span>'
-    '<span class="r mono">BSD-2-Clause</span></div></footer></body></html>'
-)
+HEAD = ""
+
+BAR = ""
+
+MODBAR = ""
+
+FOOT = ""
 
 
-def module_page(key, m, metrics):
+_RST_HEADER = """:icon: material/wrench-outline
+
+.. _spec-{key}:
+
+{title}
+{underline}
+
+.. raw:: html
+
+    <p class="spec-lede">{subtitle}</p>
+
+"""
+
+_RST_VIEWER = """.. raw:: html
+
+    <div class="spec-panel">
+      <div class="spec-draw">
+        <div class="spec-caption"><span id="vpart">{part}</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-viewer" id="viewer">
+          <div class="spec-poster" id="poster">{svg}</div>
+        </div>
+      </div>
+      <div class="spec-info">
+        <div class="spec-info-header">
+          <h2>rendered &amp; measured</h2>
+          <span class="spec-pill spec-pass" id="wtpill"{pill_style}>watertight</span>
+        </div>
+        <p>{note}</p>
+        <div class="spec-taglabel">variants &middot; click to load</div>
+        <div class="spec-tags">{tags}</div>
+        <div class="spec-stats">
+          <div><span class="spec-stat-v" id="s-tris">{tris0}</span><span class="spec-stat-l">triangles</span></div>
+          <div><span class="spec-stat-v" id="s-vol">{vol}</span><span class="spec-stat-l">mm&sup3; volume</span></div>
+          <div><span class="spec-stat-v" id="s-bbox">{bbox}</span><span class="spec-stat-l">bbox mm</span></div>
+        </div>
+        <div class="spec-code-wrap">
+          <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
+          <div class="spec-code" id="code">&gt;&gt;&gt; {code}</div>
+        </div>
+        {proof_html}
+        <div class="spec-tests">{tests} tests</div>
+      </div>
+    </div>
+
+"""
+
+_RST_SCRIPT = """.. raw:: html
+
+    <script type="module">
+{script}
+    </script>
+    <script>
+    function copySpecCode(btn) {{var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
+    navigator.clipboard.writeText(code).then(function(){{btn.title='Copied!';btn.classList.add('copied');
+    setTimeout(function(){{btn.title='Copy to clipboard';btn.classList.remove('copied');}},1500);}});}}
+    </script>
+
+"""
+
+
+def _to_rst_link(text: str) -> str:
+    """Convert inline HTML in subtitle/note text to RST-style markup."""
+    text = re.sub(r"<em>(.*?)</em>", r"*\1*", text)
+    text = re.sub(r"<code>(.*?)</code>", r"``\1``", text)
+    text = re.sub(r"<strong>(.*?)</strong>", r"**\1**", text)
+    text = re.sub(r'<a href="(.*?)">(.*?)</a>', r"`\2 <\1>`_", text)
+    return text
+
+
+def module_page(key: str, m: dict, metrics: dict) -> str:
     variants = VARIANTS[key]
-    data, cache = [], metrics.get(key, {})
+    data: list[dict] = []
+    cache = metrics.get(key, {})
     for vid, label, expr in variants:
         code, part = _derive_code(expr)
         mm = cache.get(vid, {})
@@ -1503,72 +1557,66 @@ def module_page(key, m, metrics):
         )
     first = data[0]
     tris0 = f"{first['tris']:,}" if first["tris"] is not None else "—"
-    pill = "" if first["wt"] else ' style="display:none"'
-    tags = "".join(f'<button class="tag" type="button">{d["label"]}</button>' for d in data)
-    proof = ""
-    if m["proof"]:
+    pill_style = "" if first["wt"] else ' style="display:none"'
+    tags = " ".join(f'<button class="spec-tag" type="button">{d["label"]}</button>' for d in data)
+    proof_html = ""
+    if m.get("proof"):
         big, txt = m["proof"]
-        proof = f'<div class="proof"><div class="big">{big}</div><div class="txt">{txt}</div></div>'
-    script = spec_viewer_html(data)
-    return (
-        HEAD.format(title=f"{m['title']} · pybosl2")
-        + MODBAR.format(mod=m["title"])
-        + '<main><section class="hero"><div class="wrap">'
-        f'<div class="eyebrow">Spec sheet · {m["title"]}.py</div>'
-        f'<h1>{m["title"]}<span class="dim">.py</span></h1>'
-        f'<p class="lede">{m["subtitle"]}</p>'
-        '<div class="spec"><div class="draw">'
-        f'<div class="caption"><span id="vpart">{first["part"]}</span><span>interactive · drag to orbit</span></div>'
-        f'<div class="viewer" id="viewer"><div class="poster" id="poster">{m["svg"]}</div></div></div>'
-        '<div class="info">'
-        '<div style="display:flex;align-items:center;gap:12px"><h2>rendered &amp; measured</h2>'
-        f'<span class="pill pass" id="wtpill"{pill}>watertight</span></div>'
-        f"<p>{m['note']}</p>"
-        '<div class="taglabel">variants · click to load</div>'
-        f'<div class="tags">{tags}</div>'
-        '<div class="stats">'
-        f'<div><span class="v" id="s-tris">{tris0}</span><span class="l">triangles</span></div>'
-        f'<div><span class="v" id="s-vol">{first["vol"]}</span><span class="l">mm&sup3; volume</span></div>'
-        f'<div><span class="v" id="s-bbox">{first["bbox"]}</span><span class="l">bbox mm</span></div></div>'
-        '<div style="position:relative">'
-        f'<button class="copy-btn" onclick="copyCode(this)">Copy</button>'
-        f'<div class="code" id="code">&gt;&gt;&gt; {first["code"]}</div>'
-        "</div>"
-        f"{proof}"
-        '<div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">'
-        f'{m["tests"]} tests · <a href="../{m["title"]}.html">full API reference &rarr;</a></div>'
-        "</div></div></div></section></main>"
-        + script
-        + "<script>function copyCode(btn){const code=btn.nextElementSibling.textContent.trim();"
-        'navigator.clipboard.writeText(code).then(()=>{btn.textContent="Copied!";'
-        'setTimeout(()=>btn.textContent="Copy",1500);});}</script>' + FOOT
+        proof_html = (
+            f'<div class="spec-proof"><div class="spec-proof-big">{big}</div>'
+            f'<div class="spec-proof-txt">{txt}</div></div>'
+        )
+
+    rst_title = m["title"].replace("_", " ")
+    rst_subtitle = _to_rst_link(m["subtitle"])
+    rst_note = _to_rst_link(m["note"])
+
+    header = _RST_HEADER.format(
+        key=key,
+        title=rst_title,
+        underline="=" * len(rst_title),
+        subtitle=rst_subtitle,
     )
+    viewer = _RST_VIEWER.format(
+        part=first["part"],
+        svg=m["svg"],
+        pill_style=pill_style,
+        note=rst_note,
+        tags=tags,
+        tris0=tris0,
+        vol=first["vol"],
+        bbox=first["bbox"],
+        code=first["code"],
+        proof_html=proof_html,
+        tests=m["tests"],
+    )
+    script = _RST_SCRIPT.format(script=spec_viewer_html(data))
+    return header + viewer + script
 
 
-def gallery_page():
-    cards = ""
+def gallery_page() -> str:
+    lines = [
+        ":icon: material/precision-manufacturing",
+        "",
+        ".. _spec-index:",
+        "",
+        "Parts catalog",
+        "=============",
+        "",
+        "Every mechanical part here is a pure-Python port that builds real, watertight,",
+        "3-D-printable geometry through PythonSCAD. The featured modules carry a spec",
+        "sheet with metrics measured straight off the exported STL.",
+        "",
+        ".. toctree::",
+        "   :maxdepth: 1",
+        "   :titlesonly:",
+        "",
+    ]
     for key in GALLERY:
         m = MODULES[key]
-        cards += (
-            f'<a class="card" href="{key}.html"><div class="top">'
-            f'<span class="name">{m["title"]}<span class="py">.py</span></span>'
-            f'<span class="arrow">spec &rarr;</span></div>'
-            f'<p class="desc">{m["subtitle"]}</p></a>'
-        )
-    return (
-        HEAD.format(title="pybosl2 · parts catalog")
-        + BAR.format(crumb="BOSL2 &rarr; Python · renders through PythonSCAD")
-        + '<main><section class="hero"><div class="wrap">'
-        '<div class="eyebrow">Parts catalog</div>'
-        '<h1>BOSL2 parts,<br><span class="dim">ported to Python and verified against the real app.</span></h1>'
-        '<p class="lede">Every mechanical part here is a pure-Python port that builds real, watertight, '
-        "3-D-printable geometry through PythonSCAD. The featured modules carry a spec sheet with "
-        "metrics measured straight off the exported STL.</p>"
-        '</div></section><section style="padding-top:0"><div class="wrap">'
-        '<div class="sec-head"><div class="eyebrow" style="color:var(--ink-dim)">§</div>'
-        '<h3>The library</h3><span class="count">click a featured module for its spec sheet</span></div>'
-        f'<div class="grid">{cards}</div></div></section></main>' + FOOT
-    )
+        title = m["title"].replace("_", " ")
+        lines.append(f"   {title} <{key}>")
+    return "\n".join(lines) + "\n"
 
 
 # --------------------------------------------------------------------------
@@ -1710,16 +1758,13 @@ def _norm(html: str) -> str:
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "spec.css").write_text(CSS)
     metrics = build_variant_stls(force="--force" in sys.argv)
     pages = {
-        "index.html": gallery_page(),
-        **{f"{k}.html": module_page(k, m, metrics) for k, m in MODULES.items()},
+        "index.rst": gallery_page(),
+        **{f"{k}.rst": module_page(k, m, metrics) for k, m in MODULES.items()},
     }
-    for name, raw in pages.items():
-        pretty = _format_html(raw)
-        assert _norm(pretty) == _norm(raw), f"reindent changed the markup of {name}"  # render-safe check
-        (OUT / name).write_text(pretty)
+    for name, rst_content in pages.items():
+        (OUT / name).write_text(rst_content)
     print("wrote", OUT)
 
 

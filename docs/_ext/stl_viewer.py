@@ -153,7 +153,7 @@ function load(uri) {{
 }}
 function select(i) {{
   const v = V[i];
-  document.querySelectorAll(".tags button.tag").forEach((b, j) =>
+  document.querySelectorAll(".spec-tags button.spec-tag").forEach((b, j) =>
     b.setAttribute("aria-selected", j === i ? "true" : "false"));
   document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
   document.getElementById("s-tris").textContent = v.tris == null ? "\\u2014" : v.tris.toLocaleString();
@@ -183,7 +183,7 @@ def spec_viewer_html(
     The caller must provide these DOM elements on the page:
       #viewer  — container for the three.js canvas
       #poster  — static poster image hidden after first load
-      .tags button.tag  — variant-switching buttons (one per variant)
+      .spec-tags button.spec-tag  — variant-switching buttons (one per variant)
       #code    — element displaying the current variant's Python code
       #s-tris  — triangle count display
       #s-vol   — volume display

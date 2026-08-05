@@ -437,6 +437,14 @@ def _generate_index(modules: dict[str, dict[str, Any]]) -> None:
                         lines.insert(insert_at, f"    {extra}")
                 break
 
+    # Specs catalog toctree
+    lines.append(".. toctree::")
+    lines.append("   :maxdepth: 1")
+    lines.append("   :caption: Parts catalog")
+    lines.append("")
+    lines.append("    Visual specs &rarr; <specs/index>")
+    lines.append("")
+
     (DOCS_DIR / "index.rst").write_text("\n".join(lines))
 
 
