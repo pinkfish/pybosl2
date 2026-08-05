@@ -23,6 +23,7 @@ from pybosl2.parts.screw_drive import ScrewDrive
 from pybosl2.parts.screws import Screws
 from pybosl2.parts.sliders import Sliders
 from pybosl2.parts.threading import Threading
+from pybosl2.parts.tripod_mounts import TripodMounts, manfrotto_rc2_plate
 from pybosl2.parts.walls import Walls
 from pybosl2.parts.wiring import Wiring
 
@@ -48,6 +49,8 @@ __all__ = [
     "Screws",
     "Sliders",
     "Threading",
+    "TripodMounts",
+    "manfrotto_rc2_plate",
     "Walls",
     "Wiring",
 ]
