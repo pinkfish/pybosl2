@@ -175,7 +175,39 @@ def setup(app):
     """
     _regenerate_specs_patched(app)
     _regenerate_rsts_patched(app)
+
+    _patch_typehints_self_leak(app)
+
     return {"parallel_read_safe": True, "parallel_write_safe": True}
+
+
+def _patch_typehints_self_leak(app):
+    """Strip ``self`` from recorded type annotations so it does not leak into
+    autodoc field lists when methods have typed ``self`` (``self: Path3D``).
+
+    The issue is in ``sphinx/ext/autodoc/typehints.py``: ``record_typehints``
+    captures *all* parameters (including ``self`` when typed) by calling
+    ``inspect.signature(obj, bound_method=False)``, while
+    ``MethodDocumenter.format_args`` correctly strips ``self`` with
+    ``bound_method=True``.  The mismatched parameter list causes
+    ``:param self:`` to be injected into the docstring field list, which
+    Napoleon then flags as unmatched.
+    """
+
+    def _strip_self(
+        app: object,
+        _what: str,
+        name: str,
+        _obj: object,
+        _options: object,
+        _signature: str,
+        _return_annotation: str,
+    ) -> None:
+        annotations = app.env.temp_data.get("annotations", {})
+        if name in annotations:
+            annotations[name].pop("self", None)
+
+    app.connect("autodoc-process-signature", _strip_self, priority=999)
 
 
 def _regenerate_specs_patched(app):

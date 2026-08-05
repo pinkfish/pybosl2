@@ -538,7 +538,9 @@ def mask2d_cove(
     Args:
         radius: Cove radius.
         excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
-        fn/fa/fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides.
+        fa: Arc smoothness overrides.
+        fs: Arc smoothness overrides.
     """
     from pybosl2.path2d import Path2D
 
@@ -573,7 +575,9 @@ def mask2d_tear(
     Args:
         r: Radius of the teardrop circle.
         maxgap: Maximum gap height (unused, kept for compatibility).
-        fn/fa/fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides.
+        fa: Arc smoothness overrides.
+        fs: Arc smoothness overrides.
     """
     from pybosl2.path2d import Path2D
 
@@ -641,7 +645,9 @@ def mask2d_groove(
         chamfer: Groove chamfer offset (unused, kept for compatibility).
         round_radius: Groove corner rounding radius (unused, kept for compatibility).
         excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
-        fn/fa/fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides.
+        fa: Arc smoothness overrides.
+        fs: Arc smoothness overrides.
     """
     from pybosl2.path2d import Path2D
 
@@ -674,7 +680,9 @@ def mask3d_roundover(
         r: Rounding radius.
         size: Bounding box size (X, Y, Z).
         corners: Corners to select.
-        fn/fa/fs: Arc smoothness overrides.
+        fn: Arc smoothness overrides.
+        fa: Arc smoothness overrides.
+        fs: Arc smoothness overrides.
     """
     from pybosl2.shapes3d import cuboid
 

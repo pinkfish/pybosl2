@@ -1044,6 +1044,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../quaternions.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Quaternions</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../vectors.html" class="md-nav__link">
 
 
@@ -1655,6 +1679,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -2156,6 +2181,279 @@
         <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
         <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
     <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mask2d_chamfer">
+<a class="viewcode-back" href="../../masking.html#pybosl2.masking.mask2d_chamfer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask2d_chamfer</span><span class="p">(</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D L-shaped cutter cross-section for chamfering a 90-degree edge.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x: Chamfer width (X direction).</span>
+<span class="sd">        y: Chamfer height (Y direction). Defaults to `x`.</span>
+<span class="sd">        excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+
+    <span class="n">y_val</span> <span class="o">=</span> <span class="n">x</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">y</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="n">y_val</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y_val</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mask2d_cove">
+<a class="viewcode-back" href="../../masking.html#pybosl2.masking.mask2d_cove">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask2d_cove</span><span class="p">(</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D L-shaped cutter cross-section for a concave corner fillet (cove).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        radius: Cove radius.</span>
+<span class="sd">        excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).</span>
+<span class="sd">        fn: Arc smoothness overrides.</span>
+<span class="sd">        fa: Arc smoothness overrides.</span>
+<span class="sd">        fs: Arc smoothness overrides.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="n">radius</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="n">radius</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">radius</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">180.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">90.0</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">radius</span> <span class="o">+</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
+                <span class="n">radius</span> <span class="o">+</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">radius</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mask2d_tear">
+<a class="viewcode-back" href="../../masking.html#pybosl2.masking.mask2d_tear">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask2d_tear</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">maxgap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D L-shaped cutter cross-section with a teardrop-shaped profile.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        r: Radius of the teardrop circle.</span>
+<span class="sd">        maxgap: Maximum gap height (unused, kept for compatibility).</span>
+<span class="sd">        fn: Arc smoothness overrides.</span>
+<span class="sd">        fa: Arc smoothness overrides.</span>
+<span class="sd">        fs: Arc smoothness overrides.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+
+    <span class="n">_</span> <span class="o">=</span> <span class="n">maxgap</span>
+    <span class="n">excess</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">ang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">180.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">135.0</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">r</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
+                <span class="n">r</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="n">tip</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)),</span> <span class="n">r</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))]</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tip</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mask2d_step">
+<a class="viewcode-back" href="../../masking.html#pybosl2.masking.mask2d_step">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask2d_step</span><span class="p">(</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D cutter cross-section for cutting a step profile in a corner.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        width: Step width.</span>
+<span class="sd">        height: Step height.</span>
+<span class="sd">        excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+
+    <span class="n">pts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="n">width</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">excess</span><span class="p">,</span> <span class="n">height</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">height</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">width</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mask2d_groove">
+<a class="viewcode-back" href="../../masking.html#pybosl2.masking.mask2d_groove">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask2d_groove</span><span class="p">(</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">round_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D cutter cross-section for cutting a slot or groove.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        width: Groove width.</span>
+<span class="sd">        depth: Groove depth.</span>
+<span class="sd">        chamfer: Groove chamfer offset (unused, kept for compatibility).</span>
+<span class="sd">        round_radius: Groove corner rounding radius (unused, kept for compatibility).</span>
+<span class="sd">        excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).</span>
+<span class="sd">        fn: Arc smoothness overrides.</span>
+<span class="sd">        fa: Arc smoothness overrides.</span>
+<span class="sd">        fs: Arc smoothness overrides.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+
+    <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">chamfer</span><span class="p">,</span> <span class="n">round_radius</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+    <span class="n">half_w</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="n">half_w</span> <span class="o">+</span> <span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">half_w</span> <span class="o">-</span> <span class="n">excess</span><span class="p">,</span> <span class="o">-</span><span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">half_w</span> <span class="o">-</span> <span class="n">excess</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">half_w</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">half_w</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">half_w</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">half_w</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">half_w</span> <span class="o">+</span> <span class="n">excess</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="n">excess</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mask3d_roundover">
+<a class="viewcode-back" href="../../masking.html#pybosl2.masking.mask3d_roundover">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask3d_roundover</span><span class="p">(</span>
+    <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">corners</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;3-D cutter shape for rounding corners and edges of a box of the given size.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        r: Rounding radius.</span>
+<span class="sd">        size: Bounding box size (X, Y, Z).</span>
+<span class="sd">        corners: Corners to select.</span>
+<span class="sd">        fn: Arc smoothness overrides.</span>
+<span class="sd">        fa: Arc smoothness overrides.</span>
+<span class="sd">        fs: Arc smoothness overrides.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+
+    <span class="n">body</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">cutter</span> <span class="o">=</span> <span class="n">corner_profile</span><span class="p">(</span>
+        <span class="n">body</span><span class="p">,</span>
+        <span class="n">corners</span><span class="o">=</span><span class="n">corners</span><span class="p">,</span>
+        <span class="n">radius</span><span class="o">=</span><span class="n">r</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+        <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="n">return_cutter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">cutter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;mask3d_roundover(): failed to generate cutter&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cutter</span></div>
+
+
+
+<div class="viewcode-block" id="mask3d_chamfer">
+<a class="viewcode-back" href="../../masking.html#pybosl2.masking.mask3d_chamfer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask3d_chamfer</span><span class="p">(</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">corners</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;3-D cutter shape for chamfering corners and edges of a box of the given size.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        chamfer: Chamfer distance.</span>
+<span class="sd">        size: Bounding box size (X, Y, Z).</span>
+<span class="sd">        corners: Corners to select.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+
+    <span class="n">body</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">mask2d_chamfer</span><span class="p">(</span><span class="n">chamfer</span><span class="p">)</span>
+    <span class="n">cutter</span> <span class="o">=</span> <span class="n">corner_profile</span><span class="p">(</span>
+        <span class="n">body</span><span class="p">,</span>
+        <span class="n">corners</span><span class="o">=</span><span class="n">corners</span><span class="p">,</span>
+        <span class="n">radius</span><span class="o">=</span><span class="n">chamfer</span><span class="p">,</span>
+        <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+        <span class="n">children</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+        <span class="n">return_cutter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">cutter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;mask3d_chamfer(): failed to generate cutter&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cutter</span></div>
+
+
+
+<div class="viewcode-block" id="mask3d_groove">
+<a class="viewcode-back" href="../../masking.html#pybosl2.masking.mask3d_groove">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask3d_groove</span><span class="p">(</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;3-D cutter shape representing a slot or groove of the given width, depth, and length.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        width: Groove width.</span>
+<span class="sd">        depth: Groove depth.</span>
+<span class="sd">        length: Groove length.</span>
+<span class="sd">        chamfer: Groove chamfer offset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">g2d</span> <span class="o">=</span> <span class="n">mask2d_groove</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">)</span>
+    <span class="c1"># Extrude along Z:</span>
+    <span class="k">return</span> <span class="n">g2d</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore[return-value]</span></div>
 
 </code></pre></div>
 

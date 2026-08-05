@@ -33,8 +33,6 @@ class Quaternion:
         q: Quaternion 4-vector represented as a Numpy array
     """
 
-    q: np.ndarray
-
     def __init__(self, w: float = 1.0, x: float = 0.0, y: float = 0.0, z: float = 0.0) -> None:
         """Initialise a new Quaternion object with explicit components."""
         self.q = np.array([float(w), float(x), float(y), float(z)])
@@ -568,7 +566,7 @@ class Quaternion:
         if rotation_norm > 0:
             axis = rotation_vector / rotation_norm
             angle = rotation_norm
-            q2 = Quaternion.from_axis_angle(axis, angle)
+            q2 = Quaternion.from_axis_angle(axis, float(angle))
             self.q = (self * q2).q
             self._fast_normalise()
 

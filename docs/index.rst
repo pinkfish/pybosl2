@@ -121,6 +121,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 
     Geometry <geometry>
     Math <math>
+    Quaternions <quaternions>
     Vectors <vectors>
 
 .. toctree::
