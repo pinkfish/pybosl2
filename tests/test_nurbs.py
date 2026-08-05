@@ -14,6 +14,7 @@ import pytest
 
 from pybosl2.caps import CapType
 from pybosl2.nurbs import (
+    NurbsType,
     is_nurbs_patch,
     nurbs_curve,
     nurbs_elevate_degree,
@@ -63,7 +64,7 @@ def test_scalar_u_returns_single_point() -> None:
 
 
 def test_closed_curve_is_flagged_closed() -> None:
-    c = nurbs_curve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type="closed")
+    c = nurbs_curve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type=NurbsType.CLOSED)
     assert isinstance(c, Path2D)
     assert c.closed is True
 
@@ -91,7 +92,7 @@ def test_weights_pull_curve_toward_heavy_point() -> None:
 
 
 def test_parameter_list_form() -> None:
-    plist = ["clamped", 3, CTRL3, None, None, None]
+    plist = [NurbsType.CLAMPED, 3, CTRL3, None, None, None]
     a = nurbs_curve(plist, splinesteps=5)  # type: ignore[arg-type]
     b = nurbs_curve(CTRL3, 3, splinesteps=5)
     np.testing.assert_allclose(np.array(a), np.array(b), atol=1e-9)
@@ -132,13 +133,13 @@ def test_nurbs_vnf_returns_vnf() -> None:
 
 
 def test_nurbs_vnf_parameter_list() -> None:
-    plist = ["clamped", 3, PATCH, None, None, None]
+    plist = [NurbsType.CLAMPED, 3, PATCH, None, None, None]
     assert isinstance(nurbs_vnf(plist, splinesteps=4), VNF)
 
 
 def test_nurbs_vnf_caps_require_closed_clamped() -> None:
     with pytest.raises(AssertionError):
-        nurbs_vnf(PATCH, 3, type="clamped", caps=CapType.BUTT)  # both clamped -> no caps allowed
+        nurbs_vnf(PATCH, 3, type=NurbsType.CLAMPED, caps=CapType.BUTT)  # both clamped -> no caps allowed
 
 
 # -- degree elevation ---------------------------------------------------------------------
@@ -146,7 +147,7 @@ def test_nurbs_vnf_caps_require_closed_clamped() -> None:
 
 def test_elevate_raises_degree_and_count() -> None:
     el = nurbs_elevate_degree(CTRL2, 3)
-    assert el[0] == "clamped"
+    assert el[0] == NurbsType.CLAMPED
     assert el[1] == 4  # degree raised 3 -> 4
     assert len(el[2]) == len(CTRL2) + 1  # one more control point per elevation
 
@@ -166,7 +167,7 @@ def test_elevate_preserves_the_curve() -> None:
 
 def test_elevate_open_type_only() -> None:
     with pytest.raises(AssertionError):
-        nurbs_elevate_degree(CTRL2, 3, type="closed")
+        nurbs_elevate_degree(CTRL2, 3, type=NurbsType.CLOSED)
 
 
 # -- additional coverage tests --------------------------------------------------------------
@@ -174,7 +175,7 @@ def test_elevate_open_type_only() -> None:
 
 def test_open_curve_type() -> None:
     """Open curves do not interpolate endpoints and return the expected point count."""
-    c = nurbs_curve(CTRL3, 3, splinesteps=8, type="open")
+    c = nurbs_curve(CTRL3, 3, splinesteps=8, type=NurbsType.OPEN)
     assert isinstance(c, Path3D)
     assert c.closed is False
     assert len(c) == 17
@@ -184,7 +185,7 @@ def test_open_curve_type() -> None:
 
 def test_closed_curve_explicit_mult() -> None:
     """Closed curve with explicit scalar knot multiplicity produces a closed path."""
-    c = nurbs_curve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type="closed", mult=3)
+    c = nurbs_curve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, splinesteps=4, type=NurbsType.CLOSED, mult=3)
     assert isinstance(c, Path2D)
     assert c.closed is True
     assert len(c) == 4
@@ -214,7 +215,7 @@ def test_nurbs_vnf_with_caps() -> None:
     """A ["clamped","closed"] patch can be capped with butt caps."""
     from pybosl2.caps import CapType
 
-    vnf = nurbs_vnf(PATCH, 3, splinesteps=4, type=["clamped", "closed"], caps=CapType.BUTT)
+    vnf = nurbs_vnf(PATCH, 3, splinesteps=4, type=[NurbsType.CLAMPED, NurbsType.CLOSED], caps=CapType.BUTT)
     assert isinstance(vnf, VNF)
     assert len(vnf.vertices) == 80
     assert len(vnf.faces) == 130
@@ -224,7 +225,7 @@ def test_nurbs_vnf_closed_caps() -> None:
     """A ["closed","clamped"] patch can be capped with butt caps (flipped internally)."""
     from pybosl2.caps import CapType
 
-    vnf = nurbs_vnf(PATCH, 3, splinesteps=4, type=["closed", "clamped"], caps=CapType.BUTT)
+    vnf = nurbs_vnf(PATCH, 3, splinesteps=4, type=[NurbsType.CLOSED, NurbsType.CLAMPED], caps=CapType.BUTT)
     assert isinstance(vnf, VNF)
     assert len(vnf.vertices) == 80
     assert len(vnf.faces) == 130
@@ -233,7 +234,7 @@ def test_nurbs_vnf_closed_caps() -> None:
 def test_elevate_degree_noop() -> None:
     """Elevating zero times returns the input unchanged."""
     el = nurbs_elevate_degree(CTRL2, 3, times=0)
-    assert el[0] == "clamped"
+    assert el[0] == NurbsType.CLAMPED
     assert el[1] == 3
     assert len(el[2]) == len(CTRL2)
     np.testing.assert_array_equal(np.array(el[2]), np.array(CTRL2))
@@ -244,8 +245,8 @@ def test_elevate_degree_noop() -> None:
 
 def test_elevate_degree_open_type() -> None:
     """Elevating the degree of an open B-spline preserves the type and raises the degree."""
-    el = nurbs_elevate_degree(CTRL2, 3, type="open")
-    assert el[0] == "open"
+    el = nurbs_elevate_degree(CTRL2, 3, type=NurbsType.OPEN)
+    assert el[0] == NurbsType.OPEN
     assert el[1] == 4
     assert len(el[2]) == 11
     assert len(el[3]) == 16

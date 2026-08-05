@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from pybosl2.paths import Path
 
 import math
+from enum import Enum
 
 import numpy as np
 
@@ -41,6 +42,7 @@ from pybosl2._helpers import is_num
 from pybosl2.math import EPSILON, lerpn
 
 __all__ = [
+    "NurbsType",
     "nurbs_curve",
     "nurbs_patch_points",
     "nurbs_vnf",
@@ -50,20 +52,37 @@ __all__ = [
 
 
 # ---------------------------------------------------------------------------
+# Section: NURBS type enum
+# ---------------------------------------------------------------------------
+
+
+class NurbsType(Enum):
+    """NURBS curve/surface boundary condition.
+
+    Determines how the knot vector is built and whether the curve/surface wraps.
+
+    Attributes:
+        CLAMPED: Clamped (end-point-interpolating) — the default.
+        OPEN:     Open (non-interpolating) B-spline.
+        CLOSED:   Closed (periodic) — start and end connect.
+    """
+
+    CLAMPED = "clamped"
+    OPEN = "open"
+    CLOSED = "closed"
+
+
+# ---------------------------------------------------------------------------
 # Section: knot-vector helpers
 # ---------------------------------------------------------------------------
 
 
 def _is_param_list(x: object) -> bool:
-    return bool(
-        bool(
-            isinstance(x, (list, tuple)) and len(x) and isinstance(x[0], str) and x[0] in ("closed", "open", "clamped")
-        )
-    )
+    return bool(isinstance(x, (list, tuple)) and len(x) and isinstance(x[0], NurbsType))
 
 
-def _calc_mult(knots):  # type: ignore[no-untyped-def]
-    """Run-length multiplicities of the distinct values in *knots* (BOSL2 _calc_mult())."""
+def _calc_mult(knots: Sequence[float]) -> list[int]:
+    """Run-length multiplicities of the distinct values in *knots* (BOSL2 ``_calc_mult()``)."""
     ind = [0]
     for i in range(1, len(knots)):
         if not math.isclose(knots[i], knots[i - 1], rel_tol=0, abs_tol=EPSILON):
@@ -72,9 +91,16 @@ def _calc_mult(knots):  # type: ignore[no-untyped-def]
     return [ind[i + 1] - ind[i] for i in range(len(ind) - 1)]
 
 
-def _extend_knot_mult(mult, nxt, length):  # type: ignore[no-untyped-def]
-    """
-    Extend the multiplicity vector periodically to sum to *length* (BOSL2 _extend_knot_mult()).
+def _extend_knot_mult(mult: Sequence[int], nxt: int, length: int) -> list[int]:
+    """Extend a knot multiplicity vector periodically to sum to *length*.
+
+    Args:
+        mult: The multiplicity list to extend.
+        nxt: The index of the next multiplicity to repeat.
+        length: The target sum of the multiplicities.
+
+    Returns:
+        The extended multiplicity list.
     """
     mult = list(mult)
     n = len(mult)
@@ -87,8 +113,17 @@ def _extend_knot_mult(mult, nxt, length):  # type: ignore[no-untyped-def]
     return mult
 
 
-def _extend_knot_vector(knots, nxt, length):  # type: ignore[no-untyped-def]
-    """Extend the knot vector periodically to *length* entries (BOSL2 _extend_knot_vector())."""
+def _extend_knot_vector(knots: Sequence[float], nxt: int, length: int) -> list[float]:
+    """Extend a knot vector periodically to *length* entries.
+
+    Args:
+        knots: The knot vector to extend.
+        nxt: The index of the next knot from which to compute spacing.
+        length: The target length of the knot vector.
+
+    Returns:
+        The extended knot vector.
+    """
     knots = list(knots)
     while len(knots) < length:
         knots.append(knots[-1] + knots[nxt + 1] - knots[nxt])
@@ -96,15 +131,26 @@ def _extend_knot_vector(knots, nxt, length):  # type: ignore[no-untyped-def]
     return knots
 
 
-def _expand_knots(knots, mult):  # type: ignore[no-untyped-def]
-    out = []
+def _expand_knots(knots: Sequence[float], mult: Sequence[int]) -> list[float]:
+    """Expand a compact knot vector by repeating each knot by its multiplicity."""
+    out: list[float] = []
     for i in range(len(mult)):
         out += [knots[i]] * mult[i]
     return out
 
 
-def _findspan(u, p, knot, nctrl):  # type: ignore[no-untyped-def]
-    """The knot span index k with ``knot[k] <= u < knot[k+1]`` (clamped at the domain ends)."""
+def _findspan(u: float, p: int, knot: Sequence[float], nctrl: int) -> int:
+    """Find the knot span index *k* with ``knot[k] <= u < knot[k+1]``.
+
+    Args:
+        u: The parameter value.
+        p: The degree of the B-spline.
+        knot: The knot vector.
+        nctrl: The number of control points.
+
+    Returns:
+        The knot span index (clamped at the domain ends).
+    """
     if u >= knot[nctrl]:
         return nctrl - 1
     if u <= knot[p]:
@@ -120,8 +166,19 @@ def _findspan(u, p, knot, nctrl):  # type: ignore[no-untyped-def]
     return mid
 
 
-def _deboor(knot, ctrl, u, p, k):  # type: ignore[no-untyped-def]
-    """The de Boor evaluation of the spline at parameter *u* in span *k* (== BOSL2 _nurbs_pt())."""
+def _deboor(knot: Sequence[float], ctrl: list[np.ndarray], u: float, p: int, k: int) -> np.ndarray:
+    """Evaluate the B-spline at parameter *u* in span *k* using the de Boor algorithm.
+
+    Args:
+        knot: The knot vector.
+        ctrl: The list of control points (numpy arrays).
+        u: The parameter value at which to evaluate.
+        p: The degree of the B-spline.
+        k: The knot span index (as returned by :func:`_findspan`).
+
+    Returns:
+        The evaluated point as a numpy array.
+    """
     diameter = [np.array(ctrl[k - p + j], dtype=float) for j in range(p + 1)]
     for r in range(1, p + 1):
         for j in range(p, r - 1, -1):
@@ -144,13 +201,13 @@ def _nurbs_curve_pts(  # type: ignore[no-untyped-def]
     u=None,
     mult=None,
     weights=None,
-    type="clamped",  # noqa: A002
+    type: NurbsType = NurbsType.CLAMPED,  # noqa: A002
     knots=None,
 ):
     """The list of raw points on a NURBS curve (numpy arrays); wrapped by :func:`nurbs_curve`."""
     if _is_param_list(control):
         assert len(control) >= 6, "Invalid NURBS parameter list."
-        return _nurbs_curve_pts(  # type: ignore[no-untyped-call]
+        return _nurbs_curve_pts(
             control[2],
             control[1],
             splinesteps,
@@ -164,14 +221,14 @@ def _nurbs_curve_pts(  # type: ignore[no-untyped-def]
     if splinesteps is None and u is None:
         splinesteps = 16
     if is_num(u):
-        return _nurbs_curve_pts(control, degree, u=[u], mult=mult, weights=weights, knots=knots, type=type)  # type: ignore[no-untyped-call]
+        return _nurbs_curve_pts(control, degree, u=[u], mult=mult, weights=weights, knots=knots, type=type)
 
     if weights is not None:
         assert len(weights) == len(control), "weights must match the number of control points."
         homo = [
             list(np.asarray(control[i], dtype=float) * weights[i]) + [float(weights[i])] for i in range(len(control))
         ]
-        curve = _nurbs_curve_pts(  # type: ignore[no-untyped-call]
+        curve = _nurbs_curve_pts(
             homo,
             degree,
             splinesteps=splinesteps,
@@ -182,29 +239,29 @@ def _nurbs_curve_pts(  # type: ignore[no-untyped-def]
         )
         return [np.asarray(pt[:-1], dtype=float) / pt[-1] for pt in curve]
 
-    assert type in ("closed", "open", "clamped"), f"Unknown NURBS type: {type!r}"
-    assert type == "closed" or len(control) >= degree + 1, f"{type} NURBS needs at least degree+1 control points."
+    assert isinstance(type, NurbsType), f"Unknown NURBS type: {type!r}"
+    assert type == NurbsType.CLOSED or len(control) >= degree + 1, f"Not enough control points for {type}"
     uniform = knots is None
     mult_orig = mult
     ctrl = [np.asarray(p, dtype=float) for p in control]
-    if type == "closed":
+    if type == NurbsType.CLOSED:
         ctrl = ctrl + ctrl[:degree]
     sides = len(ctrl)  # control count (extended, for closed)
 
     # -- multiplicity vector ---------------------------------------------------------------
     if not uniform:
         pass
-    elif type == "clamped":
+    elif type == NurbsType.CLAMPED:
         base = list(mult) if mult is not None else [1] * (sides - degree + 1)
         mult = [degree + 1] + base[1:-1] + [degree + 1]
     elif mult is None:
         mult = [1] * (sides + degree + 1)
-    elif type == "open":
+    elif type == NurbsType.OPEN:
         pass
     else:  # closed with explicit mult
         _m = [mult] if is_num(mult) else list(mult)
         lastmult = _m[-1] + _m[0] - 1
-        mult = _extend_knot_mult(_m[:-1] + [lastmult], 1, sides + degree + 1)  # type: ignore[no-untyped-call]
+        mult = _extend_knot_mult(_m[:-1] + [lastmult], 1, sides + degree + 1)
 
     # -- knot vector -----------------------------------------------------------------------
     if uniform:
@@ -213,15 +270,15 @@ def _nurbs_curve_pts(  # type: ignore[no-untyped-def]
         for i in range(m):
             knot += [i / (m - 1)] * mult[i]
     else:
-        xknots = list(knots) if mult_orig is None else _expand_knots(knots, mult)  # type: ignore[no-untyped-call]
-        if type == "open":
+        xknots = list(knots) if mult_orig is None else _expand_knots(knots, mult)
+        if type == NurbsType.OPEN:
             knot = xknots
-        elif type == "clamped":
+        elif type == NurbsType.CLAMPED:
             knot = [xknots[0]] * degree + list(xknots) + [xknots[-1]] * degree
         else:  # closed
-            knot = _extend_knot_vector(list(xknots), 0, sides + degree + 1)  # type: ignore[no-untyped-call]
+            knot = _extend_knot_vector(list(xknots), 0, sides + degree + 1)
 
-    bound = None if type == "clamped" else [knot[degree], knot[sides]]
+    bound = None if type == NurbsType.CLAMPED else [knot[degree], knot[sides]]
 
     # -- parameter samples -----------------------------------------------------------------
     if splinesteps is not None:
@@ -230,14 +287,14 @@ def _nurbs_curve_pts(  # type: ignore[no-untyped-def]
         for i in range(degree, sides):
             if not math.isclose(knot[i], knot[i + 1], rel_tol=0, abs_tol=EPSILON):
                 adjusted_u += [float(x) for x in lerpn(knot[i], knot[i + 1], splinesteps, endpoint=False)]
-        if type != "closed":
+        if type != NurbsType.CLOSED:
             adjusted_u.append(knot[sides])
     else:
         uu = [float(x) for x in u]
         assert all(-1e-12 <= x <= 1 + 1e-12 for x in uu), "u must lie in [0, 1]."
         adjusted_u = uu if bound is None else [(bound[1] - bound[0]) * x + bound[0] for x in uu]
 
-    return [_deboor(knot, ctrl, val, degree, _findspan(val, degree, knot, sides)) for val in adjusted_u]  # type: ignore[no-untyped-call]
+    return [_deboor(knot, ctrl, val, degree, _findspan(val, degree, knot, sides)) for val in adjusted_u]
 
 
 def nurbs_curve(
@@ -247,20 +304,39 @@ def nurbs_curve(
     u: Any = None,
     mult: Any = None,
     weights: Any = None,
-    type: str = "clamped",  # noqa: A002
+    type: NurbsType = NurbsType.CLAMPED,  # noqa: A002
     knots: Any = None,
 ) -> Path | list[float]:
-    """Evaluate a NURBS curve, returning its points (BOSL2 nurbs_curve()).
+    """Evaluate a NURBS curve, returning its points.
 
-    Give either *splinesteps* (uniform samples between knots, with a sample at every knot) or *u*
-    (parameter values in ``[0, 1]``). *weights* makes it a rational NURBS; *mult* / *knots* give
-    knot multiplicities / an explicit knot vector; *type* is ``"clamped"`` (default), ``"open"`` or
-    ``"closed"``. The first argument may instead be a NURBS parameter list
+    This is the core curve evaluator — equivalent to BOSL2's ``nurbs_curve()``.
+    Give either *splinesteps* (uniform samples between knots, with a sample at
+    every knot) or *u* (parameter values in ``[0, 1]``).  *weights* makes it a
+    rational NURBS; *mult* / *knots* give knot multiplicities or an explicit
+    knot vector.  The first argument may also be a NURBS parameter list
     ``[type, degree, control, knots, mult, weights]``.
 
+    Args:
+        control: Control points — a sequence of ``[x,y]`` or ``[x,y,z]`` points,
+                 or a NURBS parameter list.
+        degree: The curve degree.  Required unless *control* is a parameter list.
+        splinesteps: Number of samples per knot span.  Mutually exclusive with *u*.
+        u: Explicit parameter values in ``[0, 1]``.  Mutually exclusive with
+           *splinesteps*.  A scalar returns a single point.
+        mult: Knot multiplicities.
+        weights: Weights for rational NURBS.  Must match the number of control points.
+        type: The boundary condition — :attr:`NurbsType.CLAMPED` (default),
+              :attr:`NurbsType.OPEN`, or :attr:`NurbsType.CLOSED`.
+        knots: Explicit knot vector.
+
     Returns:
-        A :class:`~pybosl2.paths.Path2D` (2-D control points) or :class:`~pybosl2.paths.Path3D` (3-D). A
-        single scalar *u* returns just that point as a plain list.
+        A :class:`~pybosl2.paths.Path2D` (2-D control points) or
+        :class:`~pybosl2.paths.Path3D` (3-D).  A scalar *u* returns a single
+        point as a plain list.
+
+    Raises:
+        AssertionError: If neither *splinesteps* nor *u* is provided, or if the
+                        control points don't match the degree requirements.
 
     Examples:
         A cubic clamped NURBS curve through five control points, swept into a tube:
@@ -276,7 +352,7 @@ def nurbs_curve(
     from pybosl2.path3d import Path3D
 
     scalar = is_num(u)
-    pts = _nurbs_curve_pts(  # type: ignore[no-untyped-call]
+    pts = _nurbs_curve_pts(
         control,
         degree,
         splinesteps=splinesteps,
@@ -289,7 +365,7 @@ def nurbs_curve(
     if scalar:
         return [float(c) for c in pts[0]]
     dim = len(pts[0])
-    closed = (control[0] if _is_param_list(control) else type) == "closed"
+    closed = (control[0] if _is_param_list(control) else type) == NurbsType.CLOSED
     if dim == 2:
         return Path2D([[float(p[0]), float(p[1])] for p in pts], closed=closed)
     if dim == 3:
@@ -317,21 +393,33 @@ def is_nurbs_patch(x: object) -> bool:
     )
 
 
-def _valid_surface_type(surface_type) -> bool:  # type: ignore[no-untyped-def]
-    if surface_type in ("closed", "clamped", "open"):
+def _valid_surface_type(surface_type: object) -> bool:
+    """Return True if *surface_type* is a :class:`NurbsType` or a pair of them."""
+    if isinstance(surface_type, NurbsType):
         return True
     if not isinstance(surface_type, (list, tuple)) or len(surface_type) != 2:
         return False
     return _valid_surface_type(surface_type[0]) and _valid_surface_type(surface_type[1])
 
 
-def _force_list2(x):  # type: ignore[no-untyped-def]
-    """A per-direction 2-list: an existing length-2 list is kept, anything else is duplicated
-    (BOSL2 force_list(x, 2)). Used for degree/type/splinesteps, which are scalars or [u, v] pairs."""
+def _force_list2(x: Any) -> list[Any]:
+    """Force a value into a 2-element list.
+
+    An existing length-2 list is kept unchanged; anything else (scalar or tuple)
+    is duplicated into ``[x, x]``.  Used for degree/type/splinesteps which can
+    be scalars or ``[u, v]`` pairs.
+
+    Args:
+        x: The value to convert.
+
+    Returns:
+        A list of two elements.
+    """
     return list(x) if isinstance(x, (list, tuple)) and len(x) == 2 else [x, x]
 
 
-def _column(grid, j):  # type: ignore[no-untyped-def]
+def _column(grid: list[list[Any]], j: int) -> list[Any]:
+    """Return column *j* from a 2-D grid."""
     return [row[j] for row in grid]
 
 
@@ -342,19 +430,34 @@ def nurbs_patch_points(
     u: Any = None,
     v: Any = None,
     weights: Any = None,
-    type: str | tuple[str, str] = ("clamped", "clamped"),  # noqa: A002
+    type: NurbsType | tuple[NurbsType, NurbsType] = (NurbsType.CLAMPED, NurbsType.CLAMPED),  # noqa: A002
     mult: Any = (None, None),
     knots: Any = (None, None),
 ) -> Any:
-    """Sample a NURBS surface *patch* on a grid of points (BOSL2 nurbs_patch_points()).
+    """Sample a NURBS surface patch on a grid of points.
 
-    *patch* is a rectangular array of control points (or a NURBS parameter list). *degree*,
-    *splinesteps*, *type*, *mult* and *knots* are scalars applied to both directions or 2-lists
-    ``[u_dir, v_dir]``. Give *splinesteps*, or *u* and *v* parameter lists. *weights* is a matrix
-    the size of *patch*.
+    Evaluates a NURBS surface — the equivalent of BOSL2's
+    ``nurbs_patch_points()``.  The patch is swept column-wise (U direction)
+    then row-wise (V direction) using :func:`_nurbs_curve_pts`.
+
+    Args:
+        patch: A rectangular array of control points, or a NURBS parameter list
+               ``[type, degree, control_points, knots, mult, weights]``.
+        degree: Scalar or ``[u_degree, v_degree]``.  Required unless *patch* is
+                a parameter list.
+        splinesteps: Scalar or ``[u_steps, v_steps]``.  Mutually exclusive
+                     with *u*/*v*.
+        u: Parameter values along U; a scalar returns a single point grid.
+        v: Parameter values along V; a scalar returns a single point grid.
+        weights: A matrix the same size as *patch* for rational NURBS weighting.
+        type: The boundary condition — a single :class:`NurbsType` applied to
+              both directions, or a ``(u_type, v_type)`` pair.
+        mult: Knot multiplicities — scalar applied to both, or ``[u, v]`` pair.
+        knots: Explicit knot vectors — scalar applied to both, or ``[u, v]`` pair.
 
     Returns:
-        A grid (list of rows) of ``[x, y, z]`` points.
+        A grid (list of rows) of ``[x, y, z]`` points.  When both *u* and *v*
+        are scalars, returns a single point.
     """
     if isinstance(patch, (list, tuple)) and len(patch) and _valid_surface_type(patch[0]):
         assert len(patch) >= 6, "NURBS parameter list is invalid."
@@ -393,23 +496,23 @@ def nurbs_patch_points(
             return list(np.asarray(pts[:-1], dtype=float) / pts[-1])
         return [[list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in row] for row in pts]
 
-    degree_list = _force_list2(degree)  # type: ignore[no-untyped-call]
-    type_list = _force_list2(type)  # type: ignore[no-untyped-call]
-    splinesteps_list = [None, None] if splinesteps is None else _force_list2(splinesteps)  # type: ignore[no-untyped-call]
+    degree_list = _force_list2(degree)
+    type_list = _force_list2(type)
+    splinesteps_list = [None, None] if splinesteps is None else _force_list2(splinesteps)
     mult = [mult, mult] if (mult is None or is_num(mult) or (mult and is_num(mult[0]))) else list(mult)
     knots = [knots, knots] if (knots is None or (knots and is_num(knots[0]))) else list(knots)
 
     if is_num(u) and is_num(v):
         inner = [
-            _nurbs_curve_pts(ctrl, degree_list[1], u=v, type=type_list[1], mult=mult[1], knots=knots[1])[0]  # type: ignore[no-untyped-call]
+            _nurbs_curve_pts(ctrl, degree_list[1], u=v, type=type_list[1], mult=mult[1], knots=knots[1])[0]
             for ctrl in patch
         ]
-        return _nurbs_curve_pts(inner, degree_list[0], u=u, type=type_list[0], mult=mult[0], knots=knots[0])[0]  # type: ignore[no-untyped-call]
+        return _nurbs_curve_pts(inner, degree_list[0], u=u, type=type_list[0], mult=mult[0], knots=knots[0])[0]
 
     # sweep each control-column as a u-curve, then each resulting row as a v-curve
     vsplines = [
-        _nurbs_curve_pts(  # type: ignore[no-untyped-call]
-            _column(patch, i),  # type: ignore[no-untyped-call]
+        _nurbs_curve_pts(
+            _column(patch, i),
             degree_list[0],
             splinesteps=splinesteps_list[0],
             u=u,
@@ -421,8 +524,8 @@ def nurbs_patch_points(
     ]
     out = []
     for i in range(len(vsplines[0])):
-        row = _nurbs_curve_pts(  # type: ignore[no-untyped-call]
-            _column(vsplines, i),  # type: ignore[no-untyped-call]
+        row = _nurbs_curve_pts(
+            _column(vsplines, i),
             degree_list[1],
             splinesteps=splinesteps_list[1],
             u=v,
@@ -439,31 +542,41 @@ def nurbs_vnf(
     degree: int | None = None,
     splinesteps: int = 16,
     weights: Any = None,
-    type: str = "clamped",  # noqa: A002
+    type: NurbsType | tuple[NurbsType, NurbsType] = (NurbsType.CLAMPED, NurbsType.CLAMPED),  # noqa: A002
     mult: Any = None,
     knots: Any = None,
     style: str = "default",
     reverse: bool = False,
     caps: "CapsSpec | None" = None,
 ) -> Any:
-    """Mesh a NURBS surface *patch* into a :class:`~pybosl2.vnf.VNF` (BOSL2 nurbs_vnf()).
+    """Mesh a NURBS surface patch into a ``[vertices, faces]`` VNF.
 
-    Samples the patch with :func:`nurbs_patch_points` and builds the mesh with
-    :meth:`~pybosl2.vnf.VNF.vertex_array`, wrapping the rows/columns for ``"closed"`` directions.
+    Samples the patch with :func:`nurbs_patch_points` and builds the mesh using
+    :meth:`~pybosl2.vnf.VNF.vertex_array`.  Row/column wrapping is determined
+    by the *type* parameter — ``CLOSED`` directions produce a continuous tube
+    or torus.
 
     Args:
-        patch:       control-point grid or a NURBS parameter list
-        degree:      scalar or ``[u, v]`` degree
-        splinesteps: scalar or ``[u, v]`` samples per knot span (default 16)
-        weights: as for :func:`nurbs_patch_points`
-        type: as for :func:`nurbs_patch_points`
-        mult: as for :func:`nurbs_patch_points`
-        knots: as for :func:`nurbs_patch_points`
-        style:       :meth:`~pybosl2.vnf.VNF.vertex_array` triangulation style
-        reverse:     flip every face normal
-        caps: a :data:`~pybosl2.caps.CapsSpec` to cap a
-              ``["clamped","closed"]`` / ``["closed","clamped"]`` surface.
+        patch: Control-point grid or a NURBS parameter list.
+        degree: Scalar or ``[u, v]`` degree.
+        splinesteps: Scalar or ``[u, v]`` samples per knot span (default 16).
+        weights: A weight matrix as for :func:`nurbs_patch_points`.
+        type: A :class:`NurbsType` applied to both directions, or a
+              ``(u_type, v_type)`` pair.
+        mult: Knot multiplicities as for :func:`nurbs_patch_points`.
+        knots: Knot vectors as for :func:`nurbs_patch_points`.
+        style: :meth:`~pybosl2.vnf.VNF.vertex_array` triangulation style.
+        reverse: If True, flip every face normal.
+        caps: A :data:`~pybosl2.caps.CapsSpec` to cap a
+              ``[CLAMPED, CLOSED]`` or ``[CLOSED, CLAMPED]`` surface.
               ``None`` means no caps.
+
+    Returns:
+        A :class:`~pybosl2.vnf.VNF`.
+
+    Raises:
+        AssertionError: If *caps* are requested on a type that doesn't support
+                        caps (must be paired ``CLAMPED``/``CLOSED`` or the reverse).
 
     Examples:
         A cubic B-spline surface patch meshed into a solid:
@@ -498,20 +611,19 @@ def nurbs_vnf(
             caps=caps,
         )
     assert is_nurbs_patch(patch), "patch must be a rectangular array of points."
-    assert _valid_surface_type(type), 'type must be "closed", "clamped", "open", or a pair of those.'
-    type = _force_list2(type)  # type: ignore[no-untyped-call]  # noqa: A001
+    assert _valid_surface_type(type), "type must be a NurbsType or a pair of NurbsTypes."
+    type_list: list[NurbsType] = _force_list2(type)
 
     cap_specs: list["CapSpec"] = norm_caps(caps) if caps is not None else norm_caps(CapType.NONE)
     havecaps = any(cs.cap_type != CapType.NONE for cs in cap_specs)
-    assert not havecaps or type in (["clamped", "closed"], ["closed", "clamped"]), (  # type: ignore[comparison-overlap]
-        'caps require type ["clamped","closed"] or ["closed","clamped"].'
-    )
-    flip = havecaps and type[0] == "closed"
+    cap_type_pairs = ([NurbsType.CLAMPED, NurbsType.CLOSED], [NurbsType.CLOSED, NurbsType.CLAMPED])
+    assert not havecaps or type_list in cap_type_pairs, "caps require [CLAMPED,CLOSED] or [CLOSED,CLAMPED]."
+    flip = havecaps and type_list[0] == NurbsType.CLOSED
     pts = nurbs_patch_points(
         patch,
         degree=degree,
         splinesteps=splinesteps,
-        type=(type[0], type[1]),
+        type=(type_list[0], type_list[1]),
         mult=mult,
         knots=knots,
         weights=weights,
@@ -521,10 +633,10 @@ def nurbs_vnf(
     return VNF.vertex_array(
         pts,
         style=style,
-        row_wrap=type[1 if flip else 0] == "closed",
-        col_wrap=type[0 if flip else 1] == "closed",
+        row_wrap=type_list[1 if flip else 0] == NurbsType.CLOSED,
+        col_wrap=type_list[0 if flip else 1] == NurbsType.CLOSED,
         reverse=reverse,
-        caps=cap_specs if havecaps else None,  # type: ignore[arg-type]
+        caps=cap_specs if havecaps else None,
     )
 
 
@@ -533,8 +645,18 @@ def nurbs_vnf(
 # ---------------------------------------------------------------------------
 
 
-def _nip(i, p, u, knot_vector):  # type: ignore[no-untyped-def]
-    """The i-th B-spline basis function of degree *p* at *u* on knot vector *U* (BOSL2 _nip())."""
+def _nip(i: int, p: int, u: float, knot_vector: Sequence[float]) -> float:
+    """The i-th B-spline basis function of degree *p* at *u*.
+
+    Args:
+        i: The basis function index.
+        p: The degree.
+        u: The parameter value at which to evaluate.
+        knot_vector: The knot vector.
+
+    Returns:
+        The basis function value ``N_{i,p}(u)``.
+    """
     m = len(knot_vector) - 1
     if (i == 0 and u <= knot_vector[0]) or (i == m - p - 1 and u >= knot_vector[m]):
         return 1.0
@@ -558,13 +680,15 @@ def _nip(i, p, u, knot_vector):  # type: ignore[no-untyped-def]
     return bvals[0]
 
 
-def _greville(knot_vector, p):  # type: ignore[no-untyped-def]
+def _greville(knot_vector: Sequence[float], p: int) -> list[float]:
+    """Compute the Greville abscissae for a B-spline of degree *p*."""
     sides = len(knot_vector) - p - 2
     return [sum(knot_vector[i + 1 : i + p + 1]) / p for i in range(sides + 1)]
 
 
-def _increment_knot_mults(knot_vector):  # type: ignore[no-untyped-def]
-    out = []
+def _increment_knot_mults(knot_vector: Sequence[float]) -> list[float]:
+    """Increment every knot multiplicity by 1 for degree elevation."""
+    out: list[float] = []
     i = 0
     while i < len(knot_vector):
         j = i
@@ -575,18 +699,29 @@ def _increment_knot_mults(knot_vector):  # type: ignore[no-untyped-def]
     return out
 
 
-def _elevate_once(ctrl, p, knot_vector):  # type: ignore[no-untyped-def]
-    ctrl = [np.asarray(c, dtype=float) for c in ctrl]
+def _elevate_once(
+    ctrl: list[np.ndarray], p: int, knot_vector: Sequence[float]
+) -> tuple[list[list[float]], list[float], int]:
+    """Elevate the degree of a B-spline by 1.
+
+    Args:
+        ctrl: The control points.
+        p: The current degree.
+        knot_vector: The current knot vector.
+
+    Returns:
+        A tuple of ``(new_control_points, new_knot_vector, new_degree)``.
+    """
     dim = len(ctrl[0])
     p_new = p + 1
-    knots_new = _increment_knot_mults(knot_vector)  # type: ignore[no-untyped-call]
+    knots_new = _increment_knot_mults(knot_vector)
     n_new = len(knots_new) - p_new - 2
     n_old = len(ctrl) - 1
-    grev = _greville(knots_new, p_new)  # type: ignore[no-untyped-call]
+    grev = _greville(knots_new, p_new)
     ctrl_vals = np.array(
-        [[sum(_nip(j, p, uu, knot_vector) * ctrl[j][d] for j in range(n_old + 1)) for d in range(dim)] for uu in grev]  # type: ignore[no-untyped-call]
+        [[sum(_nip(j, p, uu, knot_vector) * ctrl[j][d] for j in range(n_old + 1)) for d in range(dim)] for uu in grev]
     )
-    basis_mat = np.array([[_nip(i, p_new, grev[k], knots_new) for i in range(n_new + 1)] for k in range(n_new + 1)])  # type: ignore[no-untyped-call]
+    basis_mat = np.array([[_nip(i, p_new, grev[k], knots_new) for i in range(n_new + 1)] for k in range(n_new + 1)])
     new_ctrl = np.linalg.solve(basis_mat, ctrl_vals)
     return [list(row) for row in new_ctrl], knots_new, p_new
 
@@ -595,16 +730,34 @@ def nurbs_elevate_degree(
     control: Any,
     degree: int | None = None,
     knots: Any = None,
-    type: str = "clamped",  # noqa: A002
+    type: NurbsType = NurbsType.CLAMPED,  # noqa: A002
     times: int = 1,
     weights: Any = None,
     mult: Any = None,
 ) -> Any:
-    """Raise a NURBS/B-spline curve's degree by *times*, returning a parameter list (BOSL2 nurbs_elevate_degree()).
+    """Raise a NURBS/B-spline curve's degree by *times*.
 
-    Returns ``[type, new_degree, new_control, new_knots, None, new_weights]``. Only ``"clamped"``
-    and ``"open"`` splines are supported (as in BOSL2). Rational curves are elevated in homogeneous
+    Elevates the curve degree while preserving its shape.  Only
+    :attr:`NurbsType.CLAMPED` and :attr:`NurbsType.OPEN` splines are
+    supported (as in BOSL2).  Rational curves are elevated in homogeneous
     space and de-homogenised.
+
+    Args:
+        control: Control points or a NURBS parameter list.
+        degree: The current degree.  Required unless *control* is a parameter list.
+        knots: The current knot vector.
+        type: The boundary condition — must be :attr:`NurbsType.CLAMPED` or
+              :attr:`NurbsType.OPEN`.
+        times: How many times to elevate (default 1).  ``times=0`` returns the
+               input unchanged.
+        weights: Weights for a rational NURBS curve.
+        mult: Knot multiplicities.
+
+    Returns:
+        A NURBS parameter list ``[type, new_degree, control, knots, None, weights]``.
+
+    Raises:
+        AssertionError: If *type* is not ``CLAMPED`` or ``OPEN``.
     """
     if _is_param_list(control):
         assert len(control) >= 6, "Invalid NURBS parameter list."
@@ -632,28 +785,30 @@ def nurbs_elevate_degree(
         new_ctrl = [list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in radius[2]]
         return [radius[0], radius[1], new_ctrl, radius[3], None, new_w]
 
-    assert type in ("clamped", "open"), 'nurbs_elevate_degree: type must be "clamped" or "open".'
+    assert type in (NurbsType.CLAMPED, NurbsType.OPEN), "nurbs_elevate_degree: type must be CLAMPED or OPEN."
     assert is_num(times) and times >= 1, "times must be a positive integer."
     assert degree is not None, "degree must be provided."
     sides = len(control)
     if knots is None and mult is None:
         xknots = (
             [float(x) for x in lerpn(0, 1, sides - degree + 1)]
-            if type == "clamped"
+            if type == NurbsType.CLAMPED
             else [float(x) for x in lerpn(0, 1, sides + degree + 1)]
         )
     elif mult is None:
         xknots = list(knots)
     else:
         m = len(mult)
-        adj = ([degree + 1] + list(mult[1:-1]) + [degree + 1]) if (type == "clamped" and m >= 2) else list(mult)
+        adj = ([degree + 1] + list(mult[1:-1]) + [degree + 1]) if (type == NurbsType.CLAMPED and m >= 2) else list(mult)
         positions = list(knots) if knots is not None else [0 if m == 1 else i / (m - 1) for i in range(m)]
-        exp = _expand_knots(positions, adj)  # type: ignore[no-untyped-call]
-        xknots = exp[degree : len(exp) - degree] if type == "clamped" else exp
+        exp = _expand_knots(positions, adj)
+        xknots = exp[degree : len(exp) - degree] if type == NurbsType.CLAMPED else exp
 
-    u_full = ([xknots[0]] * degree + list(xknots) + [xknots[-1]] * degree) if type == "clamped" else list(xknots)
-    q, u_new, p_new = _elevate_once(control, degree, u_full)  # type: ignore[no-untyped-call]
-    new_knots = u_new[degree + 1 : len(u_new) - degree - 1] if type == "clamped" else u_new
+    u_full = (
+        ([xknots[0]] * degree + list(xknots) + [xknots[-1]] * degree) if type == NurbsType.CLAMPED else list(xknots)
+    )
+    q, u_new, p_new = _elevate_once(control, degree, u_full)
+    new_knots = u_new[degree + 1 : len(u_new) - degree - 1] if type == NurbsType.CLAMPED else u_new
     if times == 1:
         return [type, p_new, q, new_knots, None, None]
     return nurbs_elevate_degree(q, p_new, new_knots, type=type, times=times - 1)
