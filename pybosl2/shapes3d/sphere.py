@@ -88,7 +88,9 @@ def sphere(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -127,7 +129,9 @@ def spheroid(
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -214,20 +218,28 @@ def teardrop(
     """BOSL2 teardrop() -- a teardrop shape, useful for 3D-printable horizontal holes.
 
     Args:
-        height/l:    thickness of the teardrop (default 1)
+        height:    thickness of the teardrop (default 1)
         radius:      radius of the circular part (default 1)
         angle:    angle of the hat walls from the Z axis in degrees (default 45)
         cap_height:  height above center to truncate the shape (default: no truncation)
         circumscribe: produce a circumscribing teardrop shape (default False)
-        radius1/radius2:  radius of the circular portion of the front/back end
-        diameter/diameter1/diameter2: diameter of the circular portion / front end / back end
-        cap_h1/cap_h2: truncation height on the front/back side
-        chamfer/chamfer1/chamfer2: chamfer size along the bottom/top faces (overall/bottom/top) (default 0)
+        radius1:  radius of the circular portion of the front end
+        radius2:  radius of the circular portion of the back end
+        diameter: diameter of the circular portion
+        diameter1: diameter of the front end
+        diameter2: diameter of the back end
+        cap_h1: truncation height on the front side
+        cap_h2: truncation height on the back side
+        chamfer: chamfer size along the bottom/top faces (overall) (default 0)
+        chamfer1: chamfer size along the bottom face (default 0)
+        chamfer2: chamfer size along the top face (default 0)
         realign: shift face alignment, passed to teardrop2d (default False)
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -293,12 +305,13 @@ def onion(
         angle:    angle of the cone from vertical in degrees (default 45)
         cap_height:  height above the sphere center to truncate the shape (default: no truncation)
         circumscribe: circumscribe rather than inscribe the given radius/diameter (default False)
-        realign: adjust point alignment (flat vs pointy bottom) (default False)
         diameter:      diameter of the spherical portion of the bottom
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::

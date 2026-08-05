@@ -1699,7 +1699,9 @@
 <span class="sd">        inset: Scalar or ``(x, y)`` inset of the rounding center from the corner (default 0).</span>
 <span class="sd">        excess: Amount the flat sides extend past the origin, for a clean boolean cut (default 0.01).</span>
 <span class="sd">        diameter: Rounding diameter (alternative to *radius*).</span>
-<span class="sd">        fn/fa/fs: Arc smoothness overrides.</span>
+<span class="sd">        fn: Arc smoothness overrides.</span>
+<span class="sd">        fa: Arc smoothness overrides.</span>
+<span class="sd">        fs: Arc smoothness overrides.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.</span>
@@ -1744,12 +1746,18 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A standalone 3-D edge-rounding cutter of length *length*, for manual positioning.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        length/height: Length of the cutter along its axis (default 1).</span>
+<span class="sd">        length: Length of the cutter along its axis (default 1).</span>
+<span class="sd">        height: Length of the cutter along its axis (default 1).</span>
 <span class="sd">        radius: Rounding radius (both ends).</span>
-<span class="sd">        radius1/radius2: Rounding radius at each end, for a tapered cutter.</span>
-<span class="sd">        diameter/diameter1/diameter2: Rounding diameter (both ends) / each end.</span>
+<span class="sd">        radius1: Rounding radius at the first end, for a tapered cutter.</span>
+<span class="sd">        radius2: Rounding radius at the second end, for a tapered cutter.</span>
+<span class="sd">        diameter: Rounding diameter (both ends).</span>
+<span class="sd">        diameter1: Rounding diameter at the first end.</span>
+<span class="sd">        diameter2: Rounding diameter at the second end.</span>
 <span class="sd">        excess: Amount the flat sides extend past the origin (default 0.1).</span>
-<span class="sd">        fn/fa/fs: Arc smoothness overrides.</span>
+<span class="sd">        fn: Arc smoothness overrides.</span>
+<span class="sd">        fa: Arc smoothness overrides.</span>
+<span class="sd">        fs: Arc smoothness overrides.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.</span>
@@ -2039,7 +2047,9 @@
 <span class="sd">        convexity: Accepted for signature compatibility; unused.</span>
 <span class="sd">        anchor: The anchor *body* was built with (default ``CENTER``).</span>
 <span class="sd">        center: The box center in body&#39;s current frame.</span>
-<span class="sd">        fn/fa/fs: Arc smoothness overrides.</span>
+<span class="sd">        fn: Arc smoothness overrides.</span>
+<span class="sd">        fa: Arc smoothness overrides.</span>
+<span class="sd">        fs: Arc smoothness overrides.</span>
 <span class="sd">        return_cutter: If True, returns the generated cutter shape instead of cutting it.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">convexity</span><span class="p">)</span>
@@ -2093,7 +2103,9 @@
 <span class="sd">        convexity: Accepted for signature compatibility; unused.</span>
 <span class="sd">        anchor: The anchor *body* was built with (default ``CENTER``).</span>
 <span class="sd">        center: The box center in body&#39;s current frame.</span>
-<span class="sd">        fn/fa/fs: Arc smoothness overrides.</span>
+<span class="sd">        fn: Arc smoothness overrides.</span>
+<span class="sd">        fa: Arc smoothness overrides.</span>
+<span class="sd">        fs: Arc smoothness overrides.</span>
 <span class="sd">        return_cutter: If True, returns the generated cutter shape instead of cutting it.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

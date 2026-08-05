@@ -850,7 +850,9 @@ class CsgSolid(BaseShape):
             diameter:       rounding diameter
             children:       the 2-D mask cross-section path
             convexity:      accepted for compatibility; unused
-            fn/fa/fs:       arc smoothness overrides
+            fn:       arc smoothness overrides
+            fa:       arc smoothness overrides
+            fs:       arc smoothness overrides
             bbox:           override bounding box (see :meth:`_resolve_bounds`)
             r:              rounding radius alias
             d:              rounding diameter alias

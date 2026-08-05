@@ -795,7 +795,8 @@ def _spiral_sweep(
     Args:
         poly:  the 2-D wire cross-section (closed path)
         height:     total height of the spiral
-        radius/diameter:   helix radius/diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
+        radius:   helix radius (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
+        diameter:   helix diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
         turns: number of turns (default 1)
         center: center the spiral on Z (default True)
         style: vnf_vertex_array quad-subdivision style
@@ -899,6 +900,13 @@ class OSType(Enum):
 
 @dataclass
 class OSProfile:
+    """Descriptor for an offset-sweep rim treatment profile (BOSL2 ``os_profile()``).
+
+    Holds the parameters that define how one rim of an extruded shape is treated
+    by :func:`offset_sweep` — roundover, flare, teardrop, chamfer, flat, or a
+    custom point profile.
+    """
+
     type: OSType
     radius: float = 0.0
     height: float = 0.0

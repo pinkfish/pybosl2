@@ -377,8 +377,6 @@ class Region:
 
         Args:
             height: The extrusion height along +Z.
-            kwargs: Additional arguments forwarded to the backend's linear_extrude
-                implementation.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` (CSG) or

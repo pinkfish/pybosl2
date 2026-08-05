@@ -453,10 +453,15 @@ def nurbs_vnf(
         patch:       control-point grid or a NURBS parameter list
         degree:      scalar or ``[u, v]`` degree
         splinesteps: scalar or ``[u, v]`` samples per knot span (default 16)
-        weights/type/mult/knots: as for :func:`nurbs_patch_points`
+        weights: as for :func:`nurbs_patch_points`
+        type: as for :func:`nurbs_patch_points`
+        mult: as for :func:`nurbs_patch_points`
+        knots: as for :func:`nurbs_patch_points`
         style:       :meth:`~pybosl2.vnf.VNF.vertex_array` triangulation style
         reverse:     flip every face normal
-        caps/cap1/cap2: cap a ``["clamped","closed"]`` / ``["closed","clamped"]`` surface
+        caps: cap a ``["clamped","closed"]`` / ``["closed","clamped"]`` surface
+        cap1: cap a ``["clamped","closed"]`` / ``["closed","clamped"]`` surface
+        cap2: cap a ``["clamped","closed"]`` / ``["closed","clamped"]`` surface
 
     Examples:
         A cubic B-spline surface patch meshed into a solid:

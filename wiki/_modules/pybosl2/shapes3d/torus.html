@@ -1715,16 +1715,22 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;BOSL2 pie_slice() -- a pie slice, wedge of a cylinder/cone.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        height/length:    height of the pie slice</span>
+<span class="sd">        height:    height of the pie slice</span>
+<span class="sd">        length:    height of the pie slice</span>
 <span class="sd">        radius:      radius of the pie slice</span>
 <span class="sd">        angle:    pie slice angle in degrees (default 30)</span>
 <span class="sd">        center: if given, overrides anchor</span>
-<span class="sd">        radius1/radius2:  bottom/top radius of the pie slice</span>
-<span class="sd">        diameter/diameter1/diameter2: diameter of the pie slice / bottom / top</span>
+<span class="sd">        radius1:  bottom radius of the pie slice</span>
+<span class="sd">        radius2:  top radius of the pie slice</span>
+<span class="sd">        diameter: diameter of the pie slice</span>
+<span class="sd">        diameter1: diameter of the bottom</span>
+<span class="sd">        diameter2: diameter of the top</span>
 <span class="sd">        anchor: anchor point (default CENTER)</span>
 <span class="sd">        spin:   Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient: direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -1807,7 +1813,9 @@
 <span class="sd">        inner_diameter:     inside diameter of the torus (use with outer_radius or outer_diameter)</span>
 <span class="sd">        anchor: anchor point (default CENTER)</span>
 <span class="sd">        orient: direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>

@@ -1757,7 +1757,9 @@
 <span class="sd">        outer_radius: radius to round only convex (outside) corners to (BOSL2 `or`)</span>
 <span class="sd">        inner_radius: radius to round only concave (inside) corners to</span>
 <span class="sd">        children:     the 2-D solid(s) to round</span>
-<span class="sd">        fn/fa/fs:  arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">orad</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">irad</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
@@ -1792,7 +1794,9 @@
 <span class="sd">        inner_radius: rounding radius for inside corners of the shell; a [CONVEX,CONCAVE]</span>
 <span class="sd">                      pair rounds those corner types separately (default 0)</span>
 <span class="sd">        children:     the 2-D solid(s) to shell</span>
-<span class="sd">        fn/fa/fs:  arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;shell2d(): must give thickness&quot;</span>
     <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;shell2d(): must give children&quot;</span>

@@ -1728,7 +1728,9 @@
 <span class="sd">        anchor: anchor point (default CENTER)</span>
 <span class="sd">        spin:   Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient: direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -1770,7 +1772,9 @@
 <span class="sd">        anchor: anchor point (default CENTER)</span>
 <span class="sd">        spin:   Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient: direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -1860,20 +1864,28 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;BOSL2 teardrop() -- a teardrop shape, useful for 3D-printable horizontal holes.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        height/l:    thickness of the teardrop (default 1)</span>
+<span class="sd">        height:    thickness of the teardrop (default 1)</span>
 <span class="sd">        radius:      radius of the circular part (default 1)</span>
 <span class="sd">        angle:    angle of the hat walls from the Z axis in degrees (default 45)</span>
 <span class="sd">        cap_height:  height above center to truncate the shape (default: no truncation)</span>
 <span class="sd">        circumscribe: produce a circumscribing teardrop shape (default False)</span>
-<span class="sd">        radius1/radius2:  radius of the circular portion of the front/back end</span>
-<span class="sd">        diameter/diameter1/diameter2: diameter of the circular portion / front end / back end</span>
-<span class="sd">        cap_h1/cap_h2: truncation height on the front/back side</span>
-<span class="sd">        chamfer/chamfer1/chamfer2: chamfer size along the bottom/top faces (overall/bottom/top) (default 0)</span>
+<span class="sd">        radius1:  radius of the circular portion of the front end</span>
+<span class="sd">        radius2:  radius of the circular portion of the back end</span>
+<span class="sd">        diameter: diameter of the circular portion</span>
+<span class="sd">        diameter1: diameter of the front end</span>
+<span class="sd">        diameter2: diameter of the back end</span>
+<span class="sd">        cap_h1: truncation height on the front side</span>
+<span class="sd">        cap_h2: truncation height on the back side</span>
+<span class="sd">        chamfer: chamfer size along the bottom/top faces (overall) (default 0)</span>
+<span class="sd">        chamfer1: chamfer size along the bottom face (default 0)</span>
+<span class="sd">        chamfer2: chamfer size along the top face (default 0)</span>
 <span class="sd">        realign: shift face alignment, passed to teardrop2d (default False)</span>
 <span class="sd">        anchor: anchor point (default CENTER)</span>
 <span class="sd">        spin:   Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient: direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -1942,12 +1954,13 @@
 <span class="sd">        angle:    angle of the cone from vertical in degrees (default 45)</span>
 <span class="sd">        cap_height:  height above the sphere center to truncate the shape (default: no truncation)</span>
 <span class="sd">        circumscribe: circumscribe rather than inscribe the given radius/diameter (default False)</span>
-<span class="sd">        realign: adjust point alignment (flat vs pointy bottom) (default False)</span>
 <span class="sd">        diameter:      diameter of the spherical portion of the bottom</span>
 <span class="sd">        anchor: anchor point (default CENTER)</span>
 <span class="sd">        spin:   Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient: direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>

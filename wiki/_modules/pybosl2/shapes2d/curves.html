@@ -1740,12 +1740,13 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        tips:           number of stellate tips</span>
-<span class="sd">        radius/outer_radius: radius to the tips of the star (BOSL2 `or`)</span>
+<span class="sd">        radius:         radius to the tips of the star</span>
+<span class="sd">        outer_radius:   radius to the tips of the star (BOSL2 `or`); alias for radius</span>
 <span class="sd">        inner_radius:   radius to the inner corners of the star</span>
-<span class="sd">        diameter/outer_diameter: diameter to the tips of the star</span>
+<span class="sd">        diameter:       diameter to the tips of the star</span>
+<span class="sd">        outer_diameter: diameter to the tips of the star; alias for diameter</span>
 <span class="sd">        inner_diameter: diameter to the inner corners of the star</span>
-<span class="sd">        step:           compute inner radius by virtually drawing a line `step` tips around the star (2 &lt;= step &lt;</span>
-<span class="sd">        tips/2)</span>
+<span class="sd">        step:           compute inner radius by virtually drawing a line `step` tips around the star (2 &lt;= step &lt; tips)</span>
 <span class="sd">        realign:        put the midpoint of the last edge (instead of vertex 0) on the X+ axis (default False)</span>
 <span class="sd">        align_tip:      rotate so the first tip points in this 2-D direction (applied before spin)</span>
 <span class="sd">        align_pit:      rotate so the first inner corner points in this 2-D direction (applied before spin)</span>
@@ -1816,7 +1817,9 @@
 <span class="sd">        realign:    flip whether the bottom is a point or a flat (default False)</span>
 <span class="sd">        anchor:     anchor point (default CENTER)</span>
 <span class="sd">        spin:       Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -1885,7 +1888,9 @@
 <span class="sd">        arc_diameter: diameter of the joining arcs (alternative to arc_radius)</span>
 <span class="sd">        anchor:       anchor point (default CENTER)</span>
 <span class="sd">        spin:         Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs:  arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2109,8 +2114,11 @@
 <span class="sd">        size:       scalar or [x, y] size of the bounding box</span>
 <span class="sd">        squareness: 0 (circle) .. 1 (square); default 0.5</span>
 <span class="sd">        style:      only &quot;fg&quot; is supported</span>
-<span class="sd">        anchor/spin: standard BOSL2 2-D anchor / spin</span>
-<span class="sd">        fn/fa/fs: smoothness overrides</span>
+<span class="sd">        anchor:     standard BOSL2 2-D anchor</span>
+<span class="sd">        spin:       standard BOSL2 2-D spin</span>
+<span class="sd">        fn: smoothness overrides</span>
+<span class="sd">        fa: smoothness overrides</span>
+<span class="sd">        fs: smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>

@@ -1747,7 +1747,9 @@
 <span class="sd">        corner:   three 2-D points defining a path the circle should be tangent to</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -1812,7 +1814,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        count:      number of points (default: from $fn/$fa/$fs)</span>
-<span class="sd">        radius/diameter: radius / diameter of the arc</span>
+<span class="sd">        radius:   radius of the arc</span>
+<span class="sd">        diameter: diameter of the arc</span>
 <span class="sd">        angle:      degrees to sweep from *start*, or ``[start, end]``</span>
 <span class="sd">        center:     centre point (default ``[0, 0]``)</span>
 <span class="sd">        points:     two points (with *center*) or three points the arc passes through</span>
@@ -1821,7 +1824,9 @@
 <span class="sd">        thickness:  height of the circular segment for the width/thickness form</span>
 <span class="sd">        start:      starting angle in degrees (default 0)</span>
 <span class="sd">        wedge:      prepend the centre point, producing a closed sector (default False)</span>
-<span class="sd">        long/clockwise/counterclockwise: for the two-point form, take the long way / a given handedness</span>
+<span class="sd">        long:             for the two-point form, take the long way / a given handedness</span>
+<span class="sd">        clockwise:        for the two-point form, take the long way / a given handedness</span>
+<span class="sd">        counterclockwise: for the two-point form, take the long way / a given handedness</span>
 <span class="sd">        endpoint:   include the final point (default True)</span>
 
 <span class="sd">    Returns:</span>
@@ -1984,7 +1989,9 @@
 <span class="sd">        circumscribe: circumscribe rather than inscribe the ideal ellipse (default False)</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2037,10 +2044,13 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        length:         overall length between the two circle centers (default 15)</span>
-<span class="sd">        radius1/diameter1: radius/diameter of the small (bottom) circle (default 5)</span>
-<span class="sd">        radius2/diameter2: radius/diameter of the large (top) circle (default 10)</span>
+<span class="sd">        radius1:   radius/diameter of the small (bottom) circle (default 5)</span>
+<span class="sd">        diameter1: radius/diameter of the small (bottom) circle (default 5)</span>
+<span class="sd">        radius2:   radius/diameter of the large (top) circle (default 10)</span>
+<span class="sd">        diameter2: radius/diameter of the large (top) circle (default 10)</span>
 <span class="sd">        shoulder_radius: fillet radius where the shoulders meet the circles (default 0)</span>
-<span class="sd">        anchor/spin: standard BOSL2 2-D anchor / spin</span>
+<span class="sd">        anchor: standard BOSL2 2-D anchor / spin</span>
+<span class="sd">        spin:   standard BOSL2 2-D anchor / spin</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2116,10 +2126,16 @@
 <span class="sd">    not ported.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        radius1/radius2 (or diameter1/diameter2): the two radii/diameters</span>
-<span class="sd">        radius/diameter + ring_width: one radius plus the wall width</span>
+<span class="sd">        radius1:   the two radii/diameters</span>
+<span class="sd">        radius2:   the two radii/diameters</span>
+<span class="sd">        diameter1: the two radii/diameters</span>
+<span class="sd">        diameter2: the two radii/diameters</span>
+<span class="sd">        radius:     one radius plus the wall width</span>
+<span class="sd">        diameter:   one radius plus the wall width</span>
+<span class="sd">        ring_width: one radius plus the wall width</span>
 <span class="sd">        sides:    number of sides (overrides the smoothness overrides)</span>
-<span class="sd">        anchor/spin: standard BOSL2 2-D anchor / spin</span>
+<span class="sd">        anchor: standard BOSL2 2-D anchor / spin</span>
+<span class="sd">        spin:   standard BOSL2 2-D anchor / spin</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2169,7 +2185,9 @@
 <span class="sd">        diameter: diameter of the end circles (alternative to radius)</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2246,7 +2264,9 @@
 <span class="sd">        diameter: scale the shape to fit in a circle of this diameter</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>

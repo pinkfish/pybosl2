@@ -2466,7 +2466,8 @@
 <span class="sd">    Args:</span>
 <span class="sd">        poly:  the 2-D wire cross-section (closed path)</span>
 <span class="sd">        height:     total height of the spiral</span>
-<span class="sd">        radius/diameter:   helix radius/diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)</span>
+<span class="sd">        radius:   helix radius (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)</span>
+<span class="sd">        diameter:   helix diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)</span>
 <span class="sd">        turns: number of turns (default 1)</span>
 <span class="sd">        center: center the spiral on Z (default True)</span>
 <span class="sd">        style: vnf_vertex_array quad-subdivision style</span>
@@ -2574,10 +2575,15 @@
 
 
 
-<div class="viewcode-block" id="OSProfile">
-<a class="viewcode-back" href="../../skin.html#pybosl2.skin.OSProfile">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OSProfile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Descriptor for an offset-sweep rim treatment profile (BOSL2 ``os_profile()``).</span>
+
+<span class="sd">    Holds the parameters that define how one rim of an extruded shape is treated</span>
+<span class="sd">    by :func:`offset_sweep` — roundover, flare, teardrop, chamfer, flat, or a</span>
+<span class="sd">    custom point profile.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="nb">type</span><span class="p">:</span> <span class="n">OSType</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -2589,8 +2595,6 @@
     <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OSProfile.get">
-<a class="viewcode-back" href="../../skin.html#pybosl2.skin.OSProfile.get">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">value</span>
@@ -2603,8 +2607,7 @@
         <span class="n">attr</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">default</span></div>
-
+        <span class="k">return</span> <span class="n">default</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
@@ -2628,8 +2631,7 @@
             <span class="s2">&quot;r_sign&quot;</span><span class="p">:</span> <span class="s2">&quot;radius_sign&quot;</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">attr</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span></div>
-
+        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="os_circle">

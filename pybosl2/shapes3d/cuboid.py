@@ -289,7 +289,9 @@ def cube(
         anchor:        anchor point (default Anchor.CENTER)
         spin:          Z-axis rotation in degrees after anchor (default 0)
         orient:        direction to rotate the top towards, after spin (default Anchor.TOP)
-        fn/fa/fs:      arc smoothness overrides
+        fn:      arc smoothness overrides
+        fa:      arc smoothness overrides
+        fs:      arc smoothness overrides
 
     Examples:
         Basic cube:
@@ -377,7 +379,9 @@ def cuboid(
         anchor:       anchor point (default Anchor.CENTER)
         spin:         Z-axis rotation in degrees (default 0)
         orient:       direction to rotate the top towards (default Anchor.TOP)
-        fn/fa/fs:  arc smoothness overrides for rounded edges/corners
+        fn:  arc smoothness overrides for rounded edges/corners
+        fa:  arc smoothness overrides for rounded edges/corners
+        fs:  arc smoothness overrides for rounded edges/corners
 
     Examples:
         .. pythonscad-example::
@@ -497,7 +501,8 @@ def prismoid(
     Args:
         size1:     [width, length] of the bottom end
         size2:     [width, length] of the top end
-        height/length:       height of the prism
+        height:       height of the prism
+        length:       height of the prism
         shift:     [X,Y] shift of the top center relative to the bottom center
         rounding:  vertical-edge roundover radius, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
         rounding1: roundover radius for the bottom of the vertical-ish edges
@@ -509,7 +514,9 @@ def prismoid(
         anchor:    anchor point (default BOTTOM)
         spin:      Z-axis rotation in degrees after anchor (default 0)
         orient:    direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners
+        fa: arc smoothness overrides for rounded corners
+        fs: arc smoothness overrides for rounded corners
 
     Examples:
         .. pythonscad-example::
@@ -669,18 +676,29 @@ def rect_tube(
     """BOSL2 rect_tube() -- a rectangular tube (a rectangle with a rectangular hole through it).
 
     Args:
-        height/length:        height/length of the tube (default 1)
+        height:        height of the tube (default 1)
+        length:        length of the tube (default 1)
         size:       outer [X,Y] size of the tube
         isize:      inner [X,Y] size of the tube
         center:     if given, overrides anchor
         shift:      [X,Y] shift of the top center relative to the bottom center
         wall:       wall thickness
-        size1/size2:   outer [X,Y] size at the bottom/top
-        isize1/isize2: inner [X,Y] size at the bottom/top
-        rounding/rounding1/rounding2:    outer edge rounding radius (overall/bottom/top)
-        inner_rounding/inner_rounding1/inner_rounding2: inner edge rounding radius (default: same as rounding)
-        chamfer/chamfer1/chamfer2:       outer edge chamfer size (overall/bottom/top)
-        inner_chamfer/inner_chamfer1/inner_chamfer2:    inner edge chamfer size (default: same as chamfer)
+        size1:   outer [X,Y] size at the bottom/top
+        size2:   outer [X,Y] size at the bottom/top
+        isize1: inner [X,Y] size at the bottom/top
+        isize2: inner [X,Y] size at the bottom/top
+        rounding:    outer edge rounding radius (overall/bottom/top)
+        rounding1:    outer edge rounding radius (overall/bottom/top)
+        rounding2:    outer edge rounding radius (overall/bottom/top)
+        inner_rounding: inner edge rounding radius (default: same as rounding)
+        inner_rounding1: inner edge rounding radius (default: same as rounding)
+        inner_rounding2: inner edge rounding radius (default: same as rounding)
+        chamfer:       outer edge chamfer size (overall/bottom/top)
+        chamfer1:       outer edge chamfer size (overall/bottom/top)
+        chamfer2:       outer edge chamfer size (overall/bottom/top)
+        inner_chamfer:    inner edge chamfer size (default: same as chamfer)
+        inner_chamfer1:    inner edge chamfer size (default: same as chamfer)
+        inner_chamfer2:    inner edge chamfer size (default: same as chamfer)
         anchor:     anchor point (default BOTTOM)
         spin:       Z-axis rotation in degrees after anchor (default 0)
         orient:     direction to rotate the top towards, after spin (default UP)
@@ -846,11 +864,21 @@ def regular_prism(
 
     Args:
         sides:        number of sides (integer >= 3)
-        height/length/height/length: prism height (default 1)
-        radius/diameter/inner_radius/inner_diameter/side:    overall size (see above)
-        radius1/radius2:    bottom/top circumradius for a tapered prism
-        chamfer/chamfer1/chamfer2:    end chamfer size (overall/bottom/top)
-        rounding/rounding1/rounding2: end rounding radius (overall/bottom/top)
+        height: prism height (default 1)
+        length: prism height (default 1)
+        radius:    overall size (see above)
+        diameter:    overall size (see above)
+        inner_radius:    overall size (see above)
+        inner_diameter:    overall size (see above)
+        side:    overall size (see above)
+        radius1:    bottom/top circumradius for a tapered prism
+        radius2:    bottom/top circumradius for a tapered prism
+        chamfer:    end chamfer size (overall/bottom/top)
+        chamfer1:    end chamfer size (overall/bottom/top)
+        chamfer2:    end chamfer size (overall/bottom/top)
+        rounding: end rounding radius (overall/bottom/top)
+        rounding1: end rounding radius (overall/bottom/top)
+        rounding2: end rounding radius (overall/bottom/top)
         circumscribe:   circumscribe the nominal radius (scale by 1/cos(180/sides)) (default False)
         realign:  rotate by half a facet so a face, not a vertex, faces +X (default False)
         shift:    [X,Y] shift of the top center relative to the bottom center
@@ -858,7 +886,9 @@ def regular_prism(
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         orient:   direction to rotate the top towards, after spin (default UP)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::

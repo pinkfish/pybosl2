@@ -107,7 +107,9 @@ def square(
         chamfer:  corner chamfer size, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners
+        fa: arc smoothness overrides for rounded corners
+        fs: arc smoothness overrides for rounded corners
 
     Examples:
         .. pythonscad-example::
@@ -153,7 +155,9 @@ def rect(
         chamfer:  corner chamfer size, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners
+        fa: arc smoothness overrides for rounded corners
+        fs: arc smoothness overrides for rounded corners
     """
     rl = [float(rounding)] * 4 if isinstance(rounding, (int, float)) else [float(v) for v in rounding]
     cl = [float(chamfer)] * 4 if isinstance(chamfer, (int, float)) else [float(v) for v in chamfer]
@@ -309,8 +313,10 @@ def regular_ngon(
 
     Args:
         sides:          number of sides (default 6)
-        radius/outer_radius: outside radius, at the points (BOSL2 ``or``)
-        diameter/outer_diameter: outside diameter, at the points
+        radius:         outside radius, at the points
+        outer_radius:   outside radius, at the points (BOSL2 ``or``)
+        diameter:       outside diameter, at the points
+        outer_diameter: outside diameter, at the points
         inner_radius:   inside radius, at the center of the sides
         inner_diameter: inside diameter, at the center of the sides
         side:           length of each side
@@ -321,7 +327,9 @@ def regular_ngon(
         align_side:     rotate so the normal of side 0 points in this 2-D direction (applied before spin)
         anchor:         anchor point (default CENTER)
         spin:           Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs:    arc smoothness overrides for rounded tips
+        fn: arc smoothness overrides for rounded tips
+        fa: arc smoothness overrides for rounded tips
+        fs: arc smoothness overrides for rounded tips
 
     Examples:
         .. pythonscad-example::
@@ -513,7 +521,9 @@ def right_triangle(
         chamfer:  corner chamfer size (default 0)
         anchor:   anchor point (default: [-1,-1], the right-angle corner)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners
+        fa: arc smoothness overrides for rounded corners
+        fs: arc smoothness overrides for rounded corners
 
     Examples:
         .. pythonscad-example::
@@ -639,7 +649,9 @@ def trapezoid(
         flip:     point negative roundings/chamfers forward/back instead of left/right (default False)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides for rounded corners
+        fn: arc smoothness overrides for rounded corners
+        fa: arc smoothness overrides for rounded corners
+        fs: arc smoothness overrides for rounded corners
 
     Examples:
         .. pythonscad-example::

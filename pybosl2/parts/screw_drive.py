@@ -212,7 +212,9 @@ class ScrewDrive:
         Args:
             size: bit size as ``"#0"``..``"#4"`` or an integer ``0``..``4``.
             center: center the mask vertically (default: bottom on the XY plane).
-            fn/fa/fs: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
+            fn: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
+            fa: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
+            fs: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
 
         Examples:
             A #2 Phillips recess cut into a tapered head:

@@ -1932,7 +1932,9 @@
 <span class="sd">        anchor:        anchor point (default Anchor.CENTER)</span>
 <span class="sd">        spin:          Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:        direction to rotate the top towards, after spin (default Anchor.TOP)</span>
-<span class="sd">        fn/fa/fs:      arc smoothness overrides</span>
+<span class="sd">        fn:      arc smoothness overrides</span>
+<span class="sd">        fa:      arc smoothness overrides</span>
+<span class="sd">        fs:      arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        Basic cube:</span>
@@ -2023,7 +2025,9 @@
 <span class="sd">        anchor:       anchor point (default Anchor.CENTER)</span>
 <span class="sd">        spin:         Z-axis rotation in degrees (default 0)</span>
 <span class="sd">        orient:       direction to rotate the top towards (default Anchor.TOP)</span>
-<span class="sd">        fn/fa/fs:  arc smoothness overrides for rounded edges/corners</span>
+<span class="sd">        fn:  arc smoothness overrides for rounded edges/corners</span>
+<span class="sd">        fa:  arc smoothness overrides for rounded edges/corners</span>
+<span class="sd">        fs:  arc smoothness overrides for rounded edges/corners</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2146,7 +2150,8 @@
 <span class="sd">    Args:</span>
 <span class="sd">        size1:     [width, length] of the bottom end</span>
 <span class="sd">        size2:     [width, length] of the top end</span>
-<span class="sd">        height/length:       height of the prism</span>
+<span class="sd">        height:       height of the prism</span>
+<span class="sd">        length:       height of the prism</span>
 <span class="sd">        shift:     [X,Y] shift of the top center relative to the bottom center</span>
 <span class="sd">        rounding:  vertical-edge roundover radius, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)</span>
 <span class="sd">        rounding1: roundover radius for the bottom of the vertical-ish edges</span>
@@ -2158,7 +2163,9 @@
 <span class="sd">        anchor:    anchor point (default BOTTOM)</span>
 <span class="sd">        spin:      Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:    direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fn: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fa: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fs: arc smoothness overrides for rounded corners</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2327,18 +2334,29 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;BOSL2 rect_tube() -- a rectangular tube (a rectangle with a rectangular hole through it).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        height/length:        height/length of the tube (default 1)</span>
+<span class="sd">        height:        height of the tube (default 1)</span>
+<span class="sd">        length:        length of the tube (default 1)</span>
 <span class="sd">        size:       outer [X,Y] size of the tube</span>
 <span class="sd">        isize:      inner [X,Y] size of the tube</span>
 <span class="sd">        center:     if given, overrides anchor</span>
 <span class="sd">        shift:      [X,Y] shift of the top center relative to the bottom center</span>
 <span class="sd">        wall:       wall thickness</span>
-<span class="sd">        size1/size2:   outer [X,Y] size at the bottom/top</span>
-<span class="sd">        isize1/isize2: inner [X,Y] size at the bottom/top</span>
-<span class="sd">        rounding/rounding1/rounding2:    outer edge rounding radius (overall/bottom/top)</span>
-<span class="sd">        inner_rounding/inner_rounding1/inner_rounding2: inner edge rounding radius (default: same as rounding)</span>
-<span class="sd">        chamfer/chamfer1/chamfer2:       outer edge chamfer size (overall/bottom/top)</span>
-<span class="sd">        inner_chamfer/inner_chamfer1/inner_chamfer2:    inner edge chamfer size (default: same as chamfer)</span>
+<span class="sd">        size1:   outer [X,Y] size at the bottom/top</span>
+<span class="sd">        size2:   outer [X,Y] size at the bottom/top</span>
+<span class="sd">        isize1: inner [X,Y] size at the bottom/top</span>
+<span class="sd">        isize2: inner [X,Y] size at the bottom/top</span>
+<span class="sd">        rounding:    outer edge rounding radius (overall/bottom/top)</span>
+<span class="sd">        rounding1:    outer edge rounding radius (overall/bottom/top)</span>
+<span class="sd">        rounding2:    outer edge rounding radius (overall/bottom/top)</span>
+<span class="sd">        inner_rounding: inner edge rounding radius (default: same as rounding)</span>
+<span class="sd">        inner_rounding1: inner edge rounding radius (default: same as rounding)</span>
+<span class="sd">        inner_rounding2: inner edge rounding radius (default: same as rounding)</span>
+<span class="sd">        chamfer:       outer edge chamfer size (overall/bottom/top)</span>
+<span class="sd">        chamfer1:       outer edge chamfer size (overall/bottom/top)</span>
+<span class="sd">        chamfer2:       outer edge chamfer size (overall/bottom/top)</span>
+<span class="sd">        inner_chamfer:    inner edge chamfer size (default: same as chamfer)</span>
+<span class="sd">        inner_chamfer1:    inner edge chamfer size (default: same as chamfer)</span>
+<span class="sd">        inner_chamfer2:    inner edge chamfer size (default: same as chamfer)</span>
 <span class="sd">        anchor:     anchor point (default BOTTOM)</span>
 <span class="sd">        spin:       Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:     direction to rotate the top towards, after spin (default UP)</span>
@@ -2507,11 +2525,21 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        sides:        number of sides (integer &gt;= 3)</span>
-<span class="sd">        height/length/height/length: prism height (default 1)</span>
-<span class="sd">        radius/diameter/inner_radius/inner_diameter/side:    overall size (see above)</span>
-<span class="sd">        radius1/radius2:    bottom/top circumradius for a tapered prism</span>
-<span class="sd">        chamfer/chamfer1/chamfer2:    end chamfer size (overall/bottom/top)</span>
-<span class="sd">        rounding/rounding1/rounding2: end rounding radius (overall/bottom/top)</span>
+<span class="sd">        height: prism height (default 1)</span>
+<span class="sd">        length: prism height (default 1)</span>
+<span class="sd">        radius:    overall size (see above)</span>
+<span class="sd">        diameter:    overall size (see above)</span>
+<span class="sd">        inner_radius:    overall size (see above)</span>
+<span class="sd">        inner_diameter:    overall size (see above)</span>
+<span class="sd">        side:    overall size (see above)</span>
+<span class="sd">        radius1:    bottom/top circumradius for a tapered prism</span>
+<span class="sd">        radius2:    bottom/top circumradius for a tapered prism</span>
+<span class="sd">        chamfer:    end chamfer size (overall/bottom/top)</span>
+<span class="sd">        chamfer1:    end chamfer size (overall/bottom/top)</span>
+<span class="sd">        chamfer2:    end chamfer size (overall/bottom/top)</span>
+<span class="sd">        rounding: end rounding radius (overall/bottom/top)</span>
+<span class="sd">        rounding1: end rounding radius (overall/bottom/top)</span>
+<span class="sd">        rounding2: end rounding radius (overall/bottom/top)</span>
 <span class="sd">        circumscribe:   circumscribe the nominal radius (scale by 1/cos(180/sides)) (default False)</span>
 <span class="sd">        realign:  rotate by half a facet so a face, not a vertex, faces +X (default False)</span>
 <span class="sd">        shift:    [X,Y] shift of the top center relative to the bottom center</span>
@@ -2519,7 +2547,9 @@
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
 <span class="sd">        orient:   direction to rotate the top towards, after spin (default UP)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides</span>
+<span class="sd">        fn: arc smoothness overrides</span>
+<span class="sd">        fa: arc smoothness overrides</span>
+<span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>

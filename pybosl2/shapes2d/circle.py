@@ -107,7 +107,9 @@ def circle(
         corner:   three 2-D points defining a path the circle should be tangent to
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -169,7 +171,8 @@ def arc(
 
     Args:
         count:      number of points (default: from $fn/$fa/$fs)
-        radius/diameter: radius / diameter of the arc
+        radius:   radius of the arc
+        diameter: diameter of the arc
         angle:      degrees to sweep from *start*, or ``[start, end]``
         center:     centre point (default ``[0, 0]``)
         points:     two points (with *center*) or three points the arc passes through
@@ -178,7 +181,9 @@ def arc(
         thickness:  height of the circular segment for the width/thickness form
         start:      starting angle in degrees (default 0)
         wedge:      prepend the centre point, producing a closed sector (default False)
-        long/clockwise/counterclockwise: for the two-point form, take the long way / a given handedness
+        long:             for the two-point form, take the long way / a given handedness
+        clockwise:        for the two-point form, take the long way / a given handedness
+        counterclockwise: for the two-point form, take the long way / a given handedness
         endpoint:   include the final point (default True)
 
     Returns:
@@ -338,7 +343,9 @@ def ellipse(
         circumscribe: circumscribe rather than inscribe the ideal ellipse (default False)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -388,10 +395,13 @@ def keyhole(
 
     Args:
         length:         overall length between the two circle centers (default 15)
-        radius1/diameter1: radius/diameter of the small (bottom) circle (default 5)
-        radius2/diameter2: radius/diameter of the large (top) circle (default 10)
+        radius1:   radius/diameter of the small (bottom) circle (default 5)
+        diameter1: radius/diameter of the small (bottom) circle (default 5)
+        radius2:   radius/diameter of the large (top) circle (default 10)
+        diameter2: radius/diameter of the large (top) circle (default 10)
         shoulder_radius: fillet radius where the shoulders meet the circles (default 0)
-        anchor/spin: standard BOSL2 2-D anchor / spin
+        anchor: standard BOSL2 2-D anchor / spin
+        spin:   standard BOSL2 2-D anchor / spin
 
     Examples:
         .. pythonscad-example::
@@ -464,10 +474,16 @@ def ring(
     not ported.
 
     Args:
-        radius1/radius2 (or diameter1/diameter2): the two radii/diameters
-        radius/diameter + ring_width: one radius plus the wall width
+        radius1:   the two radii/diameters
+        radius2:   the two radii/diameters
+        diameter1: the two radii/diameters
+        diameter2: the two radii/diameters
+        radius:     one radius plus the wall width
+        diameter:   one radius plus the wall width
+        ring_width: one radius plus the wall width
         sides:    number of sides (overrides the smoothness overrides)
-        anchor/spin: standard BOSL2 2-D anchor / spin
+        anchor: standard BOSL2 2-D anchor / spin
+        spin:   standard BOSL2 2-D anchor / spin
 
     Examples:
         .. pythonscad-example::
@@ -514,7 +530,9 @@ def glued_circles(
         diameter: diameter of the end circles (alternative to radius)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::
@@ -588,7 +606,9 @@ def reuleaux_polygon(
         diameter: scale the shape to fit in a circle of this diameter
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
-        fn/fa/fs: arc smoothness overrides
+        fn: arc smoothness overrides
+        fa: arc smoothness overrides
+        fs: arc smoothness overrides
 
     Examples:
         .. pythonscad-example::

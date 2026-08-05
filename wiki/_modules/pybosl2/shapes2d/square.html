@@ -1747,7 +1747,9 @@
 <span class="sd">        chamfer:  corner chamfer size, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fn: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fa: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fs: arc smoothness overrides for rounded corners</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -1796,7 +1798,9 @@
 <span class="sd">        chamfer:  corner chamfer size, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fn: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fa: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fs: arc smoothness overrides for rounded corners</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">rounding</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">4</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rounding</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rounding</span><span class="p">]</span>
     <span class="n">cl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">chamfer</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">4</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chamfer</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">chamfer</span><span class="p">]</span>
@@ -1961,8 +1965,10 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        sides:          number of sides (default 6)</span>
-<span class="sd">        radius/outer_radius: outside radius, at the points (BOSL2 ``or``)</span>
-<span class="sd">        diameter/outer_diameter: outside diameter, at the points</span>
+<span class="sd">        radius:         outside radius, at the points</span>
+<span class="sd">        outer_radius:   outside radius, at the points (BOSL2 ``or``)</span>
+<span class="sd">        diameter:       outside diameter, at the points</span>
+<span class="sd">        outer_diameter: outside diameter, at the points</span>
 <span class="sd">        inner_radius:   inside radius, at the center of the sides</span>
 <span class="sd">        inner_diameter: inside diameter, at the center of the sides</span>
 <span class="sd">        side:           length of each side</span>
@@ -1973,7 +1979,9 @@
 <span class="sd">        align_side:     rotate so the normal of side 0 points in this 2-D direction (applied before spin)</span>
 <span class="sd">        anchor:         anchor point (default CENTER)</span>
 <span class="sd">        spin:           Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs:    arc smoothness overrides for rounded tips</span>
+<span class="sd">        fn: arc smoothness overrides for rounded tips</span>
+<span class="sd">        fa: arc smoothness overrides for rounded tips</span>
+<span class="sd">        fs: arc smoothness overrides for rounded tips</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2177,7 +2185,9 @@
 <span class="sd">        chamfer:  corner chamfer size (default 0)</span>
 <span class="sd">        anchor:   anchor point (default: [-1,-1], the right-angle corner)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fn: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fa: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fs: arc smoothness overrides for rounded corners</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2306,7 +2316,9 @@
 <span class="sd">        flip:     point negative roundings/chamfers forward/back instead of left/right (default False)</span>
 <span class="sd">        anchor:   anchor point (default CENTER)</span>
 <span class="sd">        spin:     Z-axis rotation in degrees after anchor (default 0)</span>
-<span class="sd">        fn/fa/fs: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fn: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fa: arc smoothness overrides for rounded corners</span>
+<span class="sd">        fs: arc smoothness overrides for rounded corners</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
