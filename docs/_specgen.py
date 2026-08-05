@@ -1594,7 +1594,7 @@ def module_page(key: str, m: dict, metrics: dict) -> str:
 
 def gallery_page() -> str:
     lines = [
-        ":icon: material/handyman",
+        ":icon: material/tools",
         "",
         ".. _spec-index:",
         "",
