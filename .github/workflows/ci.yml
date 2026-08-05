@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -e ".[test]" ruff mypy
+      - name: ruff check
+        run: ruff check .
+      - name: ruff format check
+        run: ruff format --check .
+      - name: mypy
+        run: mypy --strict -p pybosl2
+
+  test-and-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -e ".[test]" coverage diff-cover
+      - name: Run tests with coverage
+        run: >
+          coverage run -m pytest tests/
+          --ignore=tests/test_stl_render.py
+          --ignore=tests/test_stl_render_2d.py
+          --ignore=tests/test_sdf_paths.py
+          --ignore=tests/test_sdf_shapes2d.py
+          --ignore=tests/test_sdf_shapes3d.py
+          --ignore=tests/test_sdf_skin.py
+          --ignore=tests/test_sdf_joiners.py
+          --ignore=tests/test_backend_sdf.py
+          --ignore=tests/test_backend_sdf_sweep.py
+          --ignore=tests/test_backend_crossbackend.py
+          -q
+      - name: Generate coverage XML
+        run: coverage xml
+      - name: Check diff coverage (≥90% on new/modified code)
+        if: github.event_name == 'pull_request'
+        run: |
+          diff-cover coverage.xml \
+            --compare-branch=origin/${{ github.base_ref }} \
+            --fail-under=90 \
+            --html-report=diff-coverage.html
+      - name: Check overall coverage (≥79% baseline)
+        if: github.event_name == 'push'
+        run: |
+          coverage report --fail-under=79
+      - name: Upload coverage HTML (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: diff-coverage-report
+          path: diff-coverage.html

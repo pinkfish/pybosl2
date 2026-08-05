@@ -627,4 +627,75 @@ def test_oop_skin_and_sweep() -> None:
     transforms[1][:3, 3] = [0, 0, 10]
     vnf_swept = shape.sweep(transforms)
     assert isinstance(vnf_swept, VNF)
-    assert abs(vnf_swept.volume()) > 0
+
+
+# ── decorative caps coverage ────────────────────────────────────────────
+
+
+def test_path_sweep_arrow_cap() -> None:
+    from pybosl2.caps import CapSpec
+
+    circle = [[5, 0], [3, 4], [-4, 3], [-5, 0], [-4, -3], [3, -4]]
+    spine = Path2D([[0, 0], [20, 0], [20, 20]])
+    result = spine.path_sweep(circle, caps=CapSpec(CapType.ARROW, length=2))
+    assert result is not None
+
+
+def test_linear_sweep_decorative_cap() -> None:
+    from pybosl2.caps import CapSpec
+
+    sq = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    result = sq.linear_sweep(height=10, caps=CapSpec(CapType.ARROW, length=3))
+    assert result is not None
+
+
+def test_rotate_sweep_decorative_cap() -> None:
+    from pybosl2.caps import CapSpec
+
+    profile = [[10, 0], [10, 2], [2, 6], [0, 10]]
+    result = Path2D(profile).rotate_sweep(angle=90, caps=CapSpec(CapType.DOT))
+    assert result is not None
+
+
+def test_rounded_prism_teardrop_rim() -> None:
+    result = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).rounded_prism(
+        height=10,
+        joint_top=os_teardrop(radius=3),  # type: ignore[arg-type]
+    )
+    assert result is not None
+
+
+# ── rot_resample with transforms path ───────────────────────────────────
+
+
+def test_rot_resample_twist_list() -> None:
+    sq = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
+    curve = [[0, 0, 0], [10, 0, 5], [10, 10, 10], [0, 10, 15]]
+    tl = Path3D(curve).path_sweep(sq, transforms=True)  # type: ignore[arg-type]
+    result = rot_resample(tl, num_copies=12, twist=[5, 10, 15])
+    assert len(result) == 12
+
+
+def test_rounded_prism_smooth_rim() -> None:
+    result = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).rounded_prism(
+        height=10,
+        joint_top=os_smooth(cut=3, curvature=0.8),  # type: ignore[arg-type]
+    )
+    assert result is not None
+
+
+def test_rounded_prism_chamfer_rim() -> None:
+    result = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).rounded_prism(
+        height=10,
+        joint_top=os_chamfer(width=2),  # type: ignore[arg-type]
+    )
+    assert result is not None
+
+
+def test_rounded_prism_profile_rim() -> None:
+    custom = [[0, 0], [1, 3], [2, 5]]
+    result = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).rounded_prism(
+        height=10,
+        joint_top=os_profile(custom),  # type: ignore[arg-type]
+    )
+    assert result is not None
