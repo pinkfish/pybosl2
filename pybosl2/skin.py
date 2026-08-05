@@ -311,7 +311,7 @@ def _sweep(
     points = [np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float) for i in range(hi + 1)]
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(points, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = VNF.vertex_array(points, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         center1 = list(np.mean(points[0], axis=0))
         center2 = list(np.mean(points[-1], axis=0))
@@ -322,8 +322,7 @@ def _sweep(
 
     return VNF.vertex_array(
         points[:-1] if closed else points,
-        cap1=cap_specs[0],
-        cap2=cap_specs[1],
+        caps=cap_specs,
         col_wrap=True,
         row_wrap=closed,
         style=style,
@@ -614,7 +613,7 @@ def _skin(
     grid = sliced if not closed else sliced + [sliced[0]]
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(grid, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = VNF.vertex_array(grid, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         grid_arr = np.asarray(grid, dtype=float)
         center1 = list(grid_arr[0].mean(axis=0))
@@ -626,8 +625,7 @@ def _skin(
 
     vnf = VNF.vertex_array(
         grid[:-1] if closed else grid,
-        cap1=cap_specs[0] if cap_specs else None,
-        cap2=cap_specs[1] if cap_specs else None,
+        caps=cap_specs,
         col_wrap=True,
         row_wrap=closed,
         style=style,
@@ -697,7 +695,7 @@ def _linear_sweep(
         verts.append(np.asarray(_apply(m, base), dtype=float))
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(verts, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = VNF.vertex_array(verts, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         center1 = list(verts[0].mean(axis=0).tolist())
         center2 = list(verts[-1].mean(axis=0).tolist())
@@ -708,8 +706,7 @@ def _linear_sweep(
 
     vnf = VNF.vertex_array(
         verts,
-        cap1=cap_specs[0],
-        cap2=cap_specs[1],
+        caps=cap_specs,
         col_wrap=True,
         style=style,
     )
@@ -1296,7 +1293,7 @@ def _offset_sweep(
     norm = [_Path3D(row).subdivide_path(points=maxn, closed=True) for row in profiles_3d]
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(norm, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = VNF.vertex_array(norm, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         norm_arr = np.asarray(norm, dtype=float)
         center1 = list(norm_arr[0].mean(axis=0))
@@ -1308,8 +1305,7 @@ def _offset_sweep(
 
     vnf = VNF.vertex_array(
         norm,
-        cap1=cap_specs[0] if cap_specs else None,
-        cap2=cap_specs[1] if cap_specs else None,
+        caps=cap_specs,
         col_wrap=True,
         style=style,
     )
@@ -1552,7 +1548,7 @@ def _rounded_prism(
     cap_specs = norm_caps(caps)
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(norm, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = VNF.vertex_array(norm, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         norm_arr = np.asarray(norm, dtype=float)
         center1 = list(norm_arr[0].mean(axis=0))
@@ -1564,8 +1560,7 @@ def _rounded_prism(
 
     vnf = VNF.vertex_array(
         norm,
-        cap1=cap_specs[0] if cap_specs else None,
-        cap2=cap_specs[1] if cap_specs else None,
+        caps=cap_specs,
         col_wrap=True,
         style=style,
     )
@@ -1667,7 +1662,7 @@ def _bent_cutout_mask(
         inner_ring.append([r_in * c, r_in * s, y])
         outer_ring.append([r_out * c, r_out * s, y])
 
-    vnf = VNF.vertex_array([inner_ring, outer_ring], cap1=CapType.BUTT, cap2=CapType.BUTT, col_wrap=True, style=style)
+    vnf = VNF.vertex_array([inner_ring, outer_ring], caps=CapType.BUTT, col_wrap=True, style=style)
     return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
@@ -1737,7 +1732,7 @@ def _path_sweep2d(
         grid = grid + [grid[0]]
 
     if has_decorative_caps(cap_specs):
-        vnf = VNF.vertex_array(grid, cap1=None, cap2=None, col_wrap=True, style=style)
+        vnf = VNF.vertex_array(grid, col_wrap=True, style=style)
         vnf = vnf if vnf.volume() >= 0 else vnf.reverse()
         grid_arr = np.asarray(grid, dtype=float)
         center1 = list(grid_arr[0].mean(axis=0))
@@ -1749,8 +1744,7 @@ def _path_sweep2d(
 
     vnf = VNF.vertex_array(
         grid,
-        cap1=cap_specs[0] if cap_specs else None,
-        cap2=cap_specs[1] if cap_specs else None,
+        caps=cap_specs,
         col_wrap=True,
         style=style,
     )

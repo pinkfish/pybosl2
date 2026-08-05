@@ -36,7 +36,7 @@ from pybosl2.bounds import Bounds2D, Bounds3D
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from pybosl2.caps import CapSpec, CapsSpec, CapType
+    from pybosl2.caps import CapSpec, CapsSpec
     from pybosl2.isosurface import _MetaballSpec
     from pybosl2.path3d import Path3D
     from pybosl2.shapes3d import Bosl2Solid
@@ -895,8 +895,7 @@ class VNF:
     def vertex_array(
         cls,
         points: Path3D | list[Path3D] | list[list[list[float]]] | list[np.ndarray] | np.ndarray,
-        cap1: "CapType | CapSpec | None" = None,
-        cap2: "CapType | CapSpec | None" = None,
+        caps: "CapsSpec | None" = None,
         col_wrap: bool = False,
         row_wrap: bool = False,
         reverse: bool = False,
@@ -906,9 +905,20 @@ class VNF:
 
         Each grid cell becomes triangles (or a quad) chosen by *style*: "default", "alt",
         "min_edge", "min_area", "convex", "concave", "quincunx", "quad", "flip1", "flip2".
-        *col_wrap*/*row_wrap* close the grid into a tube/torus; *cap1*/*cap2* close the
-        column-wrapped ends with :class:`~pybosl2.caps.CapType` styles;
+        *col_wrap*/*row_wrap* close the grid into a tube/torus; *caps* closes the
+        column-wrapped ends with :class:`~pybosl2.caps.CapType` or
+        :class:`~pybosl2.caps.CapSpec` styles (see :data:`~pybosl2.caps.CapsSpec`).
         *reverse* flips face winding. Degenerate (zero-area) faces are dropped.
+
+        Args:
+            points: Input grid points.
+            caps: Cap specification for both ends: a single :class:`CapType`,
+                  :class:`CapSpec`, or a two-element pair ``[cap_start, cap_end]``.
+                  Pass ``None`` (the default) for no caps.
+            col_wrap: Close the column direction into a tube.
+            row_wrap: Close the row direction into a torus.
+            reverse: Flip face winding.
+            style: Triangulation method.
         """
         assert style in (
             "default",
@@ -922,15 +932,15 @@ class VNF:
             "flip1",
             "flip2",
         ), f"unknown vertex_array style: {style!r}"
-        from pybosl2.caps import CapType
+        from pybosl2.caps import CapType, norm_caps
 
-        def _resolve_cap(cap: CapType | CapSpec | None) -> tuple[bool, bool]:
-            if cap is None:
+        cap_specs: list[CapSpec] = norm_caps(caps) if caps is not None else norm_caps(CapType.NONE)
+        cap1, cap2 = cap_specs[0], cap_specs[1]
+
+        def _resolve_cap(cap: CapSpec) -> tuple[bool, bool]:
+            if cap.cap_type == CapType.NONE:
                 return False, False
-            cap_type = cap if isinstance(cap, CapType) else cap.cap_type
-            if cap_type == CapType.NONE:
-                return False, False
-            if cap_type in (CapType.ROUND, CapType.SPHERE):
+            if cap.cap_type in (CapType.ROUND, CapType.SPHERE):
                 return True, True
             return True, False
 

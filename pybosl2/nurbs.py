@@ -30,7 +30,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
-    from pybosl2.caps import CapSpec, CapType
+    from pybosl2.caps import CapSpec, CapsSpec
     from pybosl2.paths import Path
 
 import math
@@ -444,9 +444,7 @@ def nurbs_vnf(
     knots: Any = None,
     style: str = "default",
     reverse: bool = False,
-    caps: CapType | CapSpec | None = None,
-    cap1: CapType | CapSpec | None = None,
-    cap2: CapType | CapSpec | None = None,
+    caps: "CapsSpec | None" = None,
 ) -> Any:
     """Mesh a NURBS surface *patch* into a :class:`~pybosl2.vnf.VNF` (BOSL2 nurbs_vnf()).
 
@@ -463,9 +461,9 @@ def nurbs_vnf(
         knots: as for :func:`nurbs_patch_points`
         style:       :meth:`~pybosl2.vnf.VNF.vertex_array` triangulation style
         reverse:     flip every face normal
-        caps: cap a ``["clamped","closed"]`` / ``["closed","clamped"]`` surface
-        cap1: cap a ``["clamped","closed"]`` / ``["closed","clamped"]`` surface
-        cap2: cap a ``["clamped","closed"]`` / ``["closed","clamped"]`` surface
+        caps: a :data:`~pybosl2.caps.CapsSpec` to cap a
+              ``["clamped","closed"]`` / ``["closed","clamped"]`` surface.
+              ``None`` means no caps.
 
     Examples:
         A cubic B-spline surface patch meshed into a solid:
@@ -482,6 +480,7 @@ def nurbs_vnf(
             ]
             nurbs_vnf(patch, 3).polyhedron().show()
     """
+    from pybosl2.caps import CapType, norm_caps
     from pybosl2.vnf import VNF
 
     if isinstance(patch, (list, tuple)) and len(patch) and _valid_surface_type(patch[0]):
@@ -497,13 +496,13 @@ def nurbs_vnf(
             style=style,
             reverse=reverse,
             caps=caps,
-            cap1=cap1,
-            cap2=cap2,
         )
     assert is_nurbs_patch(patch), "patch must be a rectangular array of points."
     assert _valid_surface_type(type), 'type must be "closed", "clamped", "open", or a pair of those.'
     type = _force_list2(type)  # type: ignore[no-untyped-call]  # noqa: A001
-    havecaps = any(c for c in (caps, cap1, cap2))
+
+    cap_specs: list["CapSpec"] = norm_caps(caps) if caps is not None else norm_caps(CapType.NONE)
+    havecaps = any(cs.cap_type != CapType.NONE for cs in cap_specs)
     assert not havecaps or type in (["clamped", "closed"], ["closed", "clamped"]), (  # type: ignore[comparison-overlap]
         'caps require type ["clamped","closed"] or ["closed","clamped"].'
     )
@@ -519,16 +518,13 @@ def nurbs_vnf(
     )
     if flip:
         pts = [list(row) for row in zip(*pts, strict=False)]
-    c1 = cap1 if cap1 is not None else caps
-    c2 = cap2 if cap2 is not None else caps
     return VNF.vertex_array(
         pts,
         style=style,
         row_wrap=type[1 if flip else 0] == "closed",
         col_wrap=type[0 if flip else 1] == "closed",
         reverse=reverse,
-        cap1=c1,
-        cap2=c2,
+        caps=cap_specs if havecaps else None,  # type: ignore[arg-type]
     )
 
 
