@@ -195,16 +195,17 @@ def norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
 
     Returns a list of two fully-resolved :class:`CapSpec` objects for the
     start and end caps. ``CapSpec(cap_type=CapType.NONE)`` means no cap.
+    When *closed* is True, both caps are ``CapType.NONE``.
 
     Args:
         caps: The cap specification to normalize.
         closed: Whether the sweep is closed (no caps on either end).
 
     Returns:
-        A ``[CapSpec, CapSpec]`` pair (or ``[]`` for closed).
+        A ``[CapSpec, CapSpec]`` pair.
     """
     if closed:
-        return []
+        return [CapSpec(cap_type=CapType.NONE), CapSpec(cap_type=CapType.NONE)]
 
     if isinstance(caps, (list, tuple)):
         return [normalize_one(c) for c in caps[:2]]

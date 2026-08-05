@@ -10,10 +10,20 @@ tests/test_bosl2_reorient.py; here we check the object-level behaviour (what eac
 how the copies are placed). Native geometry is mocked, so Bosl2Solid tests assert type/union, not
 mesh geometry (that is covered in test_stl_render.py)."""
 
+import math
+
 import numpy as np
 import pytest
 
-from pybosl2.distributors import DistributableMatrix, xdistribute, ydistribute, zdistribute
+from pybosl2.distributors import (
+    DistributableMatrix,
+    _vec3,
+    line_copies,
+    path_copies,
+    xdistribute,
+    ydistribute,
+    zdistribute,
+)
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.points import Point
@@ -175,3 +185,229 @@ def test_distribute_returns_solid() -> None:
     assert isinstance(xdistribute([a, b, c], spacing=5), Bosl2Solid)
     assert isinstance(ydistribute([a, b], sizes=[10, 20]), Bosl2Solid)
     assert isinstance(zdistribute([a, b, c], length=100), Bosl2Solid)
+
+
+# ── _vec3 edge cases ─────────────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    ("inp", "fill", "expected"),
+    [
+        (5, 0.0, np.array([5.0, 0.0, 0.0])),
+        (np.array([7]), 1.0, np.array([7.0, 1.0, 1.0])),
+    ],
+)
+def test_vec3_scalar_and_1d(inp: object, fill: float, expected: np.ndarray) -> None:
+    np.testing.assert_allclose(_vec3(inp, fill=fill), expected)  # type: ignore[arg-type]
+
+
+# ── line_copies branches ─────────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "expected_count", "first_x", "last_x"),
+    [
+        pytest.param({"length": 30, "num_copies": 4}, 4, -15.0, 15.0, id="length+nc"),
+        pytest.param({"p1": [10, 0, 0], "p2": [40, 0, 0], "num_copies": 4}, 4, 10.0, 40.0, id="p1p2+nc"),
+        pytest.param({"spacing": 10, "length": 30, "num_copies": 4}, 4, -15.0, 15.0, id="spacing+length+nc"),
+        pytest.param({"num_copies": 1}, 1, 0.0, 0.0, id="nc=1"),
+    ],
+)
+def test_line_copies_branches(kwargs: dict[str, object], expected_count: int, first_x: float, last_x: float) -> None:
+    mats = line_copies(**kwargs)  # type: ignore[arg-type]
+    assert len(mats) == expected_count
+    if expected_count > 0:
+        np.testing.assert_allclose(mats[0][0, 3], first_x, atol=1e-9)
+        np.testing.assert_allclose(mats[-1][0, 3], last_x, atol=1e-9)
+
+
+# ── _axis_copies branches ────────────────────────────────────────────────
+
+
+def test_xcopies_scalar_start_pos() -> None:
+    mats = DistributableMatrix.xcopies(10, num_copies=3, start_pos=5)
+    xs = sorted(m[0, 3] for m in mats)
+    np.testing.assert_allclose(xs, [5, 15, 25], atol=1e-9)
+
+
+def test_xcopies_point_start_pos() -> None:
+    mats = DistributableMatrix.xcopies(10, num_copies=3, start_pos=Point(5, 2, 0))
+    xs = sorted(m[0, 3] for m in mats)
+    np.testing.assert_allclose(xs, [5, 15, 25], atol=1e-9)
+
+
+def test_xcopies_explicit_spacing_list() -> None:
+    mats = DistributableMatrix.xcopies([1, 10, 20, 50])
+    xs = [m[0, 3] for m in mats]
+    np.testing.assert_allclose(xs, [1, 10, 20, 50], atol=1e-9)
+
+
+def test_xcopies_with_length() -> None:
+    mats = DistributableMatrix.xcopies(length=30, num_copies=4)
+    xs = sorted(m[0, 3] for m in mats)
+    np.testing.assert_allclose(xs, [-15, -5, 5, 15], atol=1e-9)
+
+
+# ── ycopies / zcopies direct ─────────────────────────────────────────────
+
+
+def test_ycopies_direct() -> None:
+    mats = DistributableMatrix.ycopies(15, num_copies=3)
+    ys = sorted(m[1, 3] for m in mats)
+    np.testing.assert_allclose(ys, [-15, 0, 15], atol=1e-9)
+
+
+def test_zcopies_direct() -> None:
+    mats = DistributableMatrix.zcopies(15, num_copies=3)
+    zs = sorted(m[2, 3] for m in mats)
+    np.testing.assert_allclose(zs, [-15, 0, 15], atol=1e-9)
+
+
+# ── grid_copies branches ─────────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "expected_count"),
+    [
+        ({"size": 40, "spacing": 10}, 25),
+        ({"spacing": [12, 8], "num_copies": [3, 5]}, 15),
+        ({"size": 40, "num_copies": 5}, 25),
+        ({"size": [40, 30], "num_copies": [5, 4]}, 20),
+        ({"spacing": 10, "num_copies": 4}, 16),
+        ({}, 4),
+        ({"spacing": 8, "num_copies": [4, 3], "stagger": "alt"}, 6),
+    ],
+)
+def test_grid_copies_branches(kwargs: dict[str, object], expected_count: int) -> None:
+    mats = DistributableMatrix.grid_copies(**kwargs)  # type: ignore[arg-type]
+    assert len(mats) == expected_count
+
+
+# ── rot_copies branches ──────────────────────────────────────────────────
+
+
+def test_rot_copies_explicit_angles() -> None:
+    mats = DistributableMatrix.rot_copies(rots=[0, 90, 180, 270], num_copies=None)
+    assert len(mats) == 4
+
+
+def test_rot_copies_subrot_false() -> None:
+    mats = DistributableMatrix.rot_copies(num_copies=6, delta=[20, 0, 0], subrot=False, v=[0, 0, 1])
+    assert len(mats) == 6
+
+
+def test_rot_copies_custom_axis_offset() -> None:
+    mats = DistributableMatrix.rot_copies(num_copies=4, v=[1, 0, 0], offset=45, sa=10)
+    assert len(mats) == 4
+
+
+def test_rot_copies_zero_copies() -> None:
+    mats = DistributableMatrix.rot_copies(num_copies=0)
+    assert len(mats) == 0
+
+
+# ── yrot_copies direct ───────────────────────────────────────────────────
+
+
+def test_yrot_copies_direct() -> None:
+    mats = DistributableMatrix.yrot_copies(num_copies=4, radius=10)
+    assert len(mats) == 4
+    for m in mats:
+        dist = math.hypot(m[0, 3], m[1, 3], m[2, 3])
+        np.testing.assert_allclose(dist, 10, atol=1e-9)
+
+
+def test_yrot_copies_diameter() -> None:
+    mats = DistributableMatrix.yrot_copies(num_copies=4, diameter=20)
+    assert len(mats) == 4
+
+
+# ── path_copies branches ─────────────────────────────────────────────────
+
+
+def test_path_copies_explicit_dist() -> None:
+    mats = path_copies([[0, 0], [30, 0], [30, 30]], dist=[5, 20, 50])
+    assert len(mats) == 3
+
+
+def test_path_copies_start_pos_with_num_copies() -> None:
+    mats = path_copies([[0, 0], [30, 0], [30, 30]], start_pos=5, num_copies=4)
+    assert len(mats) == 4
+
+
+def test_path_copies_spacing_only() -> None:
+    mats = path_copies([[0, 0], [40, 0]], spacing=10, num_copies=None)
+    assert len(mats) >= 3
+
+
+def test_path_copies_rotate_children_false() -> None:
+    mats = path_copies([[0, 0], [30, 0], [30, 30]], num_copies=3, rotate_children=False)
+    assert len(mats) == 3
+    for m in mats:
+        np.testing.assert_allclose(m[:3, :3], np.eye(3), atol=1e-9)
+
+
+def test_path_copies_3d() -> None:
+    mats = path_copies([[0, 0, 0], [100, 0, 0]], dist=[0, 50, 100])
+    assert len(mats) == 3
+    assert all(m.shape == (4, 4) for m in mats)
+
+
+# ── flip copies direct ───────────────────────────────────────────────────
+
+
+def test_yflip_copy_direct() -> None:
+    mats = DistributableMatrix.yflip_copy(offset=5)
+    assert len(mats) == 2
+
+
+def test_zflip_copy_direct() -> None:
+    mats = DistributableMatrix.zflip_copy(offset=10, z=5)
+    assert len(mats) == 2
+
+
+# ── Distributable instance methods ───────────────────────────────────────
+
+
+def test_path_line_copies_instance() -> None:
+    sq = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
+    copies = sq.line_copies(spacing=20, num_copies=3)
+    assert len(copies) == 3
+    assert all(isinstance(c, Path2D) for c in copies)
+
+
+def test_path_ycopies_instance() -> None:
+    sq = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
+    copies = sq.ycopies(15, num_copies=3)
+    assert len(copies) == 3
+    assert all(isinstance(c, Path2D) for c in copies)
+
+
+def test_solid_rot_copies_instance() -> None:
+    result = cuboid([10, 10, 10]).rot_copies(num_copies=4, v=[0, 0, 1])
+    assert len(result) == 4
+    assert all(isinstance(c, Bosl2Solid) for c in result)
+
+
+def test_solid_yrot_copies_instance() -> None:
+    result = cuboid([5, 5, 5]).yrot_copies(num_copies=6, radius=20)
+    assert len(result) == 6
+    assert all(isinstance(c, Bosl2Solid) for c in result)
+
+
+def test_solid_mirror_copy_instance() -> None:
+    result = cuboid([10, 10, 10]).mirror_copy([0, 1, 0])
+    assert len(result) == 2
+    assert all(isinstance(c, Bosl2Solid) for c in result)
+
+
+def test_solid_yflip_copy_instance() -> None:
+    result = cuboid([10, 10, 10]).yflip_copy(offset=5, y=10)
+    assert len(result) == 2
+    assert all(isinstance(c, Bosl2Solid) for c in result)
+
+
+def test_solid_zflip_copy_instance() -> None:
+    result = cuboid([10, 10, 10]).zflip_copy(offset=2, z=0)
+    assert len(result) == 2
+    assert all(isinstance(c, Bosl2Solid) for c in result)

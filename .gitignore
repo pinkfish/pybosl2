@@ -19,3 +19,6 @@ docs/_build/
 
 # OS
 .DS_Store
+
+# Coverage stuff
+.coverage

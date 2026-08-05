@@ -503,3 +503,66 @@ def test_cylinder_equals_cyl() -> None:
     cb, sb = b.bounds()
     for i in range(3):
         assert abs(sa[i] - sb[i]) < 1
+
+
+# ── cylinder gap coverage tests ──────────────────────────────────────────
+
+
+def test_cyl_circumscribe() -> None:
+    c = cyl(height=20, radius=10, circumscribe=True)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_xcyl_circumscribe() -> None:
+    c = xcyl(height=20, radius=10, circumscribe=True)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_ycyl_circumscribe() -> None:
+    c = ycyl(height=20, radius=10, circumscribe=True)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_cyl_shift() -> None:
+    c = cyl(height=20, radius=10, shift=[3, 4])
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_cyl_shift_tapered() -> None:
+    c = cyl(height=20, radius1=8, radius2=4, shift=[5, 0])
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_cyl_asymmetric_chamfer_bottom_only() -> None:
+    c = cyl(height=20, radius=10, chamfer1=2, chamfer2=0)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_cyl_asymmetric_chamfer_top_only() -> None:
+    c = cyl(height=20, radius=10, chamfer1=0, chamfer2=2)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_cyl_asymmetric_rounding_bottom_only() -> None:
+    c = cyl(height=20, radius=10, rounding1=2, rounding2=0)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_cyl_asymmetric_rounding_top_only() -> None:
+    c = cyl(height=20, radius=10, rounding1=0, rounding2=2)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_cyl_chamfer_from_end() -> None:
+    c = cyl(height=20, radius=10, chamfer=2, from_end=True)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_cyl_chamfer_from_end_bottom() -> None:
+    c = cyl(height=20, radius=10, chamfer1=2, chamfer2=0, from_end1=True)
+    assert isinstance(c, Bosl2Solid)
+
+
+def test_tube_realign() -> None:
+    c = tube(height=20, outer_radius=15, inner_radius=10, realign=True)
+    assert isinstance(c, Bosl2Solid)

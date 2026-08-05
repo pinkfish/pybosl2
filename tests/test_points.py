@@ -6,6 +6,9 @@
 
 """Tests for pybosl2/points.py: the Point class (and Vector alias)."""
 
+import copy
+import math
+
 import numpy as np
 import pytest
 
@@ -163,3 +166,200 @@ class TestVector:
 
     def test_norm(self) -> None:
         assert Vector([3, 4]).norm == pytest.approx(5.0)
+
+
+class TestPointAdvanced:
+    """Tests for previously uncovered Point APIs."""
+
+    # ── repr ──────────────────────────────────────────────────────────
+
+    def test_repr_2d(self) -> None:
+        assert repr(Point(1.5, 2.5)) == "Point(1.5, 2.5)"
+
+    def test_repr_3d(self) -> None:
+        assert repr(Point(1.5, 2.5, 3.5)) == "Point(1.5, 2.5, 3.5)"
+
+    # ── __getitem__ slice ─────────────────────────────────────────────
+
+    def test_getitem_slice(self) -> None:
+        p = Point(1, 2, 3)
+        assert p[0:2] == (1.0, 2.0)
+        assert p[1:] == (2.0, 3.0)
+        assert p[:2] == (1.0, 2.0)
+
+    # ── reverse arithmetic ────────────────────────────────────────────
+
+    def test_radd(self) -> None:
+        result = [1.0, 2.0, 3.0] + Point(4, 5, 6)
+        assert isinstance(result, Point)
+        assert list(result) == [5, 7, 9]
+
+    def test_subtraction(self) -> None:
+        result = Point(5, 7, 9) - [1, 2, 3]
+        assert isinstance(result, Point)
+        assert list(result) == [4, 5, 6]
+
+    def test_rsub(self) -> None:
+        result = [5.0, 7.0, 9.0] - Point(4, 5, 6)
+        assert isinstance(result, Point)
+        assert list(result) == [1, 2, 3]
+
+    def test_truediv(self) -> None:
+        result = Point(4, 6, 8) / 2.0
+        assert isinstance(result, Point)
+        assert list(result) == [2, 3, 4]
+
+    def test_rtruediv(self) -> None:
+        result = 12.0 / Point(3, 4, 6)
+        assert isinstance(result, Point)
+        assert list(result) == [4, 3, 2]
+
+    def test_rmul(self) -> None:
+        result = 3.0 * Point(1, 2, 3)
+        assert isinstance(result, Point)
+        assert list(result) == [3, 6, 9]
+
+    def test_abs(self) -> None:
+        assert abs(Point(3, 4)) == pytest.approx(5.0)
+        assert abs(Point(1, 2, 2)) == pytest.approx(3.0)
+
+    def test_copy_dunder(self) -> None:
+        p = Point(3, 4, 5)
+        c = copy.copy(p)
+        assert c == p
+        assert c is not p
+
+    # ── from_seq ───────────────────────────────────────────────────────
+
+    def test_from_seq_2d(self) -> None:
+        p = Point.from_seq([1.0, 2.0])
+        assert p.is_2d
+        assert p == Point(1, 2)
+
+    def test_from_seq_3d(self) -> None:
+        p = Point.from_seq([1.0, 2.0, 3.0])
+        assert not p.is_2d
+        assert p == Point(1, 2, 3)
+
+    def test_from_seq_numpy(self) -> None:
+        p = Point.from_seq(np.array([4.0, 5.0, 6.0]))
+        assert p == Point(4, 5, 6)
+
+    def test_from_seq_raises(self) -> None:
+        with pytest.raises(ValueError, match="Expected 2 or 3"):
+            Point.from_seq([1.0, 2.0, 3.0, 4.0])
+        with pytest.raises(ValueError, match="Expected 2 or 3"):
+            Point.from_seq([1.0])
+
+    # ── __init__ edge cases ────────────────────────────────────────────
+
+    def test_init_from_point(self) -> None:
+        p = Point(1, 2, 3)
+        q = Point(p)
+        assert q == p
+        assert q is not p
+
+    def test_init_single_element(self) -> None:
+        p = Point([5.0])
+        assert p.is_2d
+        assert list(p) == [5.0, 0.0]
+
+    def test_init_empty_raises(self) -> None:
+        with pytest.raises(ValueError, match="Expected 1-3"):
+            Point([])
+
+    def test_init_from_numpy(self) -> None:
+        p = Point(np.array([7.0, 8.0, 9.0]))
+        assert p == Point(7, 8, 9)
+
+    # ── normalized ─────────────────────────────────────────────────────
+
+    def test_normalized(self) -> None:
+        n = Point(3, 4).normalized()
+        assert n.norm == pytest.approx(1.0)
+        assert n == pytest.approx(Point(0.6, 0.8))
+
+    def test_normalized_3d(self) -> None:
+        n = Point(1, 2, 2).normalized()
+        assert n.norm == pytest.approx(1.0)
+
+    def test_normalized_zero_raises(self) -> None:
+        with pytest.raises(ValueError, match="zero vector"):
+            Point(0, 0).normalized()
+
+    def test_normalized_zero_with_error(self) -> None:
+        fallback = Point(1, 0, 0)
+        result = Point(0, 0).normalized(error=fallback)
+        assert result == fallback
+
+    # ── angle ──────────────────────────────────────────────────────────
+
+    def test_angle(self) -> None:
+        a = Point(1, 0).angle(Point(0, 1))
+        assert a == pytest.approx(math.pi / 2)
+
+    def test_angle_dimension_mismatch(self) -> None:
+        with pytest.raises(ValueError, match="same dimension"):
+            Point(1, 0).angle(Point(1, 0, 0))
+
+    def test_angle_zero_vector(self) -> None:
+        with pytest.raises(ValueError, match="zero-length"):
+            Point(0, 0).angle(Point(1, 0))
+
+    # ── axis ───────────────────────────────────────────────────────────
+
+    def test_axis(self) -> None:
+        axis_vec, ang = Point(1, 0, 0).axis(Point(0, 1, 0))
+        assert ang == pytest.approx(math.pi / 2)
+        assert axis_vec == pytest.approx([0, 0, 1])
+
+    def test_axis_parallel(self) -> None:
+        axis_vec, ang = Point(2, 0, 0).axis(Point(3, 0, 0))
+        assert ang == pytest.approx(0.0)
+        assert axis_vec == [0.0, 0.0, 1.0]
+
+    def test_axis_dimension_error(self) -> None:
+        with pytest.raises(ValueError, match="3-D vectors"):
+            Point(1, 0).axis(Point(0, 1))
+
+    def test_axis_zero_vector(self) -> None:
+        with pytest.raises(ValueError, match="zero-length"):
+            Point(0, 0, 0).axis(Point(1, 0, 0))
+
+    # ── bisect ─────────────────────────────────────────────────────────
+
+    def test_bisect(self) -> None:
+        b = Point(1, 0).bisect(Point(0, 1))
+        assert b is not None
+        assert b.norm == pytest.approx(1.0)
+        assert b == pytest.approx(Point(math.sqrt(2) / 2, math.sqrt(2) / 2))
+
+    def test_bisect_opposite_returns_none(self) -> None:
+        b = Point(1, 0).bisect(Point(-1, 0))
+        assert b is None
+
+    def test_bisect_dimension_mismatch(self) -> None:
+        with pytest.raises(ValueError, match="same dimension"):
+            Point(1, 0).bisect(Point(1, 0, 0))
+
+    def test_bisect_zero_vector(self) -> None:
+        with pytest.raises(ValueError, match="zero-length"):
+            Point(0, 0).bisect(Point(1, 0))
+
+    # ── closest / furthest ─────────────────────────────────────────────
+
+    def test_closest(self) -> None:
+        pts = [Point(10, 0), Point(1, 0), Point(3, 4)]
+        assert Point(0, 0).closest(pts) == 1
+
+    def test_closest_empty_raises(self) -> None:
+        with pytest.raises(ValueError, match="empty"):
+            Point(0, 0).closest([])
+
+    def test_furthest(self) -> None:
+        pts = [Point(10, 0), Point(1, 0), Point(3, 4)]
+        assert Point(0, 0).furthest(pts) == 0
+
+    def test_furthest_empty_raises(self) -> None:
+        with pytest.raises(ValueError, match="empty"):
+            Point(0, 0).furthest([])

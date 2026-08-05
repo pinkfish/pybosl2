@@ -322,8 +322,8 @@ def _sweep(
 
     return VNF.vertex_array(
         points[:-1] if closed else points,
-        cap1=cap_specs[0] if cap_specs else None,
-        cap2=cap_specs[1] if cap_specs else None,
+        cap1=cap_specs[0],
+        cap2=cap_specs[1],
         col_wrap=True,
         row_wrap=closed,
         style=style,
@@ -708,8 +708,8 @@ def _linear_sweep(
 
     vnf = VNF.vertex_array(
         verts,
-        cap1=cap_specs[0] if cap_specs else None,
-        cap2=cap_specs[1] if cap_specs else None,
+        cap1=cap_specs[0],
+        cap2=cap_specs[1],
         col_wrap=True,
         style=style,
     )
