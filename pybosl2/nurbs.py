@@ -48,6 +48,7 @@ __all__ = [
     "NurbsType",
     "nurbs_curve",
     "nurbs_patch_points",
+    "nurbs_patch_point",
     "nurbs_vnf",
     "nurbs_elevate_degree",
     "is_nurbs_patch",
@@ -445,28 +446,31 @@ def nurbs_patch_points(
     patch: list[list[list[float]]] | NurbsPatchParam,
     degree: int | None = None,
     splinesteps: int | None = None,
-    u: float | list[float] | None = None,
-    v: float | list[float] | None = None,
+    u: list[float] | None = None,
+    v: list[float] | None = None,
     weights: list[list[float]] | None = None,
     type: NurbsType | tuple[NurbsType, NurbsType] = (NurbsType.CLAMPED, NurbsType.CLAMPED),  # noqa: A002
     mult: int | list[int] | tuple[int | None, int | None] | None = (None, None),
     knots: list[float] | tuple[list[float] | None, list[float] | None] | None = (None, None),
-) -> list[list[list[float]]] | list[float]:
+) -> list[list[list[float]]]:
     """Sample a NURBS surface patch on a grid of points.
 
     Evaluates a NURBS surface — the equivalent of BOSL2's
     ``nurbs_patch_points()``.  The patch is swept column-wise (U direction)
     then row-wise (V direction) using :func:`_nurbs_curve_pts`.
+    For single-point evaluation use :func:`nurbs_patch_point`.
 
     Args:
         patch: A rectangular array of control points, or a NURBS parameter list
-               ``[type, degree, control_points, knots, mult, weights]``.
+               ``(type, degree, control_points, knots, mult, weights)``.
         degree: Scalar or ``[u_degree, v_degree]``.  Required unless *patch* is
                 a parameter list.
-        splinesteps: Scalar or ``[u_steps, v_steps]``.  Mutually exclusive
-                     with *u*/*v*.
-        u: Parameter values along U; a scalar returns a single point grid.
-        v: Parameter values along V; a scalar returns a single point grid.
+        splinesteps: Scalar or ``[u_steps, v_steps]``.  Defaults to 16 if
+                     omitted and *u*/*v* are not given.
+        u: Explicit parameter values along U (list).  Mutually exclusive with
+           *splinesteps*.
+        v: Explicit parameter values along V (list).  Mutually exclusive with
+           *splinesteps*.
         weights: A matrix the same size as *patch* for rational NURBS weighting.
         type: The boundary condition — a single :class:`NurbsType` applied to
               both directions, or a ``(u_type, v_type)`` pair.
@@ -474,20 +478,19 @@ def nurbs_patch_points(
         knots: Explicit knot vectors — scalar applied to both, or ``[u, v]`` pair.
 
     Returns:
-        A grid (list of rows) of ``[x, y, z]`` points.  When both *u* and *v*
-        are scalars, returns a single point.
+        A grid (list of rows) of ``[x, y, z]`` points.
     """
     if isinstance(patch, (list, tuple)) and len(patch) and _valid_surface_type(patch[0]):
         assert len(patch) >= 6, "NURBS parameter list is invalid."
         plist = cast("NurbsPatchParam", patch)
         return nurbs_patch_points(
-            plist[2],  # control points
-            plist[1],  # degree
+            plist[2],
+            plist[1],
             splinesteps,
             u,
             v,
-            plist[5],  # weights
-            plist[0],  # type
+            plist[5],
+            plist[0],
             knots=cast("list[float] | tuple[list[float] | None, list[float] | None]", plist[3]),
             mult=cast("int | list[int] | tuple[int | None, int | None]", plist[4]),
         )
@@ -512,12 +515,12 @@ def nurbs_patch_points(
             mult=mult,
             knots=knots,
         )
-        if isinstance(pts, np.ndarray) and pts.ndim == 1:
-            return list(np.asarray(pts[:-1], dtype=float) / pts[-1])
-        return [[list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in row] for row in pts]  # type: ignore[union-attr]
+        return [[list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in row] for row in pts]
 
     degree_list: list[int] = _force_list2(degree)  # type: ignore[assignment]
     type_list: list[NurbsType] = _force_list2(type)  # type: ignore[assignment]
+    if splinesteps is None and u is None:
+        splinesteps = 16
     splinesteps_list: list[int | None] = [None, None] if splinesteps is None else _force_list2(splinesteps)  # type: ignore[assignment]
     mult_list: list[int] = (
         [cast("int", mult), cast("int", mult)]
@@ -529,15 +532,6 @@ def nurbs_patch_points(
         if (knots is None or (isinstance(knots, (list, tuple)) and knots and is_num(knots[0])))
         else list(knots)  # type: ignore[arg-type]
     )
-
-    if is_num(u) and is_num(v):
-        inner = [
-            _nurbs_curve_pts(ctrl, degree_list[1], u=v, type=type_list[1], mult=mult_list[1], knots=knots_list[1])[0]
-            for ctrl in cast("list[list[list[float]]]", patch)
-        ]
-        return _nurbs_curve_pts(  # type: ignore[no-any-return]
-            inner, degree_list[0], u=u, type=type_list[0], mult=mult_list[0], knots=knots_list[0]
-        )[0]
 
     # sweep each control-column as a u-curve, then each resulting row as a v-curve
     vsplines = [
@@ -552,7 +546,7 @@ def nurbs_patch_points(
         )
         for i in range(len(patch[0]))  # type: ignore[arg-type]
     ]
-    out = []
+    out: list[list[list[float]]] = []
     for i in range(len(cast("list[list[float]]", vsplines[0]))):
         row = _nurbs_curve_pts(
             _column(vsplines, i),
@@ -565,6 +559,95 @@ def nurbs_patch_points(
         )
         out.append([[float(c) for c in p] for p in row])
     return out
+
+
+def nurbs_patch_point(
+    patch: list[list[list[float]]] | NurbsPatchParam,
+    u: float,
+    v: float,
+    degree: int | None = None,
+    weights: list[list[float]] | None = None,
+    type: NurbsType | tuple[NurbsType, NurbsType] = (NurbsType.CLAMPED, NurbsType.CLAMPED),  # noqa: A002
+    mult: int | list[int] | tuple[int | None, int | None] | None = (None, None),
+    knots: list[float] | tuple[list[float] | None, list[float] | None] | None = (None, None),
+) -> list[float]:
+    """Evaluate a NURBS surface patch at a single (u, v) parameter pair.
+
+    This is a convenience wrapper around :func:`nurbs_patch_points` for
+    single-point evaluation.  It is equivalent to calling
+    ``nurbs_patch_points(..., u=[u], v=[v])[0][0]`` but avoids building the
+    full grid.
+
+    Args:
+        patch: A rectangular array of control points, or a NURBS parameter list.
+        u: Parameter value along U in ``[0, 1]``.
+        v: Parameter value along V in ``[0, 1]``.
+        degree: Scalar or ``[u_degree, v_degree]``.  Required unless *patch* is
+                a parameter list.
+        weights: A weight matrix for rational NURBS.
+        type: The boundary condition.
+        mult: Knot multiplicities.
+        knots: Explicit knot vectors.
+
+    Returns:
+        A single ``[x, y, z]`` point.
+    """
+    if isinstance(patch, (list, tuple)) and len(patch) and _valid_surface_type(patch[0]):
+        assert len(patch) >= 6, "NURBS parameter list is invalid."
+        plist = cast("NurbsPatchParam", patch)
+        return nurbs_patch_point(
+            plist[2],
+            u,
+            v,
+            plist[1],
+            plist[5],
+            plist[0],
+            mult=cast("int | list[int] | tuple[int | None, int | None]", plist[3]),
+            knots=cast("list[float] | tuple[list[float] | None, list[float] | None]", plist[4]),
+        )
+
+    if weights is not None:
+        wpatch: list[list[list[float]]] = cast("list[list[list[float]]]", patch)
+        wpatch = [
+            [
+                list(np.asarray(wpatch[i][j], dtype=float) * weights[i][j]) + [float(weights[i][j])]
+                for j in range(len(wpatch[0]))
+            ]
+            for i in range(len(wpatch))
+        ]
+        pt = nurbs_patch_point(
+            wpatch,
+            u,
+            v,
+            degree=degree,
+            type=type,
+            mult=mult,
+            knots=knots,
+        )
+        # De-homogenise: divide by w coordinate
+        w_val = pt[-1]
+        return [float(c) / w_val for c in pt[:-1]] if w_val else [float(c) for c in pt[:-1]]
+
+    degree_list: list[int] = _force_list2(degree)  # type: ignore[assignment]
+    type_list: list[NurbsType] = _force_list2(type)  # type: ignore[assignment]
+    mult_list: list[int] = (
+        [cast("int", mult), cast("int", mult)]
+        if (mult is None or is_num(mult) or (isinstance(mult, (list, tuple)) and mult and is_num(mult[0])))
+        else list(mult)  # type: ignore[arg-type]
+    )
+    knots_list: list[float] = (
+        [cast("float", knots), cast("float", knots)]
+        if (knots is None or (isinstance(knots, (list, tuple)) and knots and is_num(knots[0])))
+        else list(knots)  # type: ignore[arg-type]
+    )
+
+    inner = [
+        _nurbs_curve_pts(ctrl, degree_list[1], u=[v], type=type_list[1], mult=mult_list[1], knots=knots_list[1])[0]
+        for ctrl in patch
+    ]
+    return list(
+        _nurbs_curve_pts(inner, degree_list[0], u=[u], type=type_list[0], mult=mult_list[0], knots=knots_list[0])[0]
+    )
 
 
 def nurbs_vnf(
@@ -662,7 +745,7 @@ def nurbs_vnf(
     if flip:
         pts = [list(row) for row in zip(*pts, strict=False)]
     return VNF.vertex_array(
-        cast("list[list[list[float]]]", pts),
+        pts,
         style=style,
         row_wrap=type_list[1 if flip else 0] == NurbsType.CLOSED,
         col_wrap=type_list[0 if flip else 1] == NurbsType.CLOSED,

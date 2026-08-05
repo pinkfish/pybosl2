@@ -18,6 +18,7 @@ from pybosl2.nurbs import (
     is_nurbs_patch,
     nurbs_curve,
     nurbs_elevate_degree,
+    nurbs_patch_point,
     nurbs_patch_points,
     nurbs_vnf,
 )
@@ -204,8 +205,8 @@ def test_patch_points_weighted_rational() -> None:
     """A weighted (rational) patch point differs from the unweighted evaluation."""
     w = [[1.0] * 4 for _ in range(4)]
     w[1][1] = 5.0
-    pt_w = nurbs_patch_points(PATCH, 3, u=0.5, v=0.5, weights=w)
-    pt = nurbs_patch_points(PATCH, 3, u=0.5, v=0.5)
+    pt_w = nurbs_patch_point(PATCH, u=0.5, v=0.5, degree=3, weights=w)
+    pt = nurbs_patch_point(PATCH, u=0.5, v=0.5, degree=3)
     assert len(pt_w) == 3
     assert all(isinstance(x, float) for x in pt_w)
     assert not np.allclose(pt_w, pt)
