@@ -164,6 +164,11 @@ html_theme_options = {
     "toc_title": "On this page",
 }
 
+object_description_options = [
+    ("py:parameter", {"include_in_toc": False}),
+    ("py:.*Param", {"include_in_toc": False}),
+]
+
 
 def setup(app):
     """Regenerate docs artifacts from the live module structure before each build.
