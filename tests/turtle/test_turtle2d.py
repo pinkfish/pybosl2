@@ -10,18 +10,21 @@ import numpy as np
 import pytest
 
 from pybosl2.path2d import Path2D
-from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
+from pybosl2.points import Point
+from pybosl2.turtle import Turtle2D, Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as Tct
+
+M = TurtleCommand
 
 
 def test_turtle_square() -> None:
     t = turtle2d(
         [
-            TurtleCommand(Tct.MOVE, size=10),
-            TurtleCommand(Tct.LEFT, angle=90),
-            TurtleCommand(Tct.MOVE, size=10),
-            TurtleCommand(Tct.LEFT, angle=90),
-            TurtleCommand(Tct.MOVE, size=10),
+            M(Tct.MOVE, size=10),
+            M(Tct.LEFT, angle=90),
+            M(Tct.MOVE, size=10),
+            M(Tct.LEFT, angle=90),
+            M(Tct.MOVE, size=10),
         ]
     )
     p = t.points()
@@ -30,14 +33,14 @@ def test_turtle_square() -> None:
 
 
 def test_turtle_repeat_closes_square() -> None:
-    sub = [TurtleCommand(Tct.MOVE, size=40), TurtleCommand(Tct.LEFT, angle=90)]
-    p = turtle2d([TurtleCommand(Tct.REPEAT, size=4, sub_commands=sub)]).points()
+    sub = [M(Tct.MOVE, size=40), M(Tct.LEFT, angle=90)]
+    p = turtle2d([M(Tct.REPEAT, size=4, sub_commands=sub)]).points()
     np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
     np.testing.assert_allclose(p[-1], [0, 0], atol=1e-9)
 
 
 def test_turtle_full_state() -> None:
-    st = turtle2d([TurtleCommand(Tct.MOVE, size=5)]).full_state()
+    st = turtle2d([M(Tct.MOVE, size=5)]).full_state()
     assert isinstance(st, Turtle2DState)
     assert len(st.path) == 2
     np.testing.assert_allclose(st.path[-1], [5, 0], atol=1e-9)
@@ -47,4 +50,137 @@ def test_turtle_full_state() -> None:
 
 def test_turtle_unknown_command_raises() -> None:
     with pytest.raises(ValueError, match="z-axis"):
-        turtle2d([TurtleCommand(Tct.ZMOVE, size=5)])
+        turtle2d([M(Tct.ZMOVE, size=5)])
+
+
+# ── uncovered command types ─────────────────────────────────────────────
+
+
+def test_xmove() -> None:
+    p = turtle2d([M(Tct.XMOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
+    np.testing.assert_allclose(p[1], [20, 0], atol=1e-9)
+
+
+def test_ymove() -> None:
+    p = turtle2d([M(Tct.YMOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
+    np.testing.assert_allclose(p[1], [0, 20], atol=1e-9)
+
+
+def test_xymove() -> None:
+    p = turtle2d([M(Tct.XYZMOVE, size=Point(20, 30))]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
+    np.testing.assert_allclose(p[1], [20, 30], atol=1e-9)
+
+
+def test_jump() -> None:
+    p = turtle2d([M(Tct.JUMP, size=Point(30, 40))]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
+    np.testing.assert_allclose(p[1], [30, 40], atol=1e-9)
+
+
+def test_xjump() -> None:
+    p = turtle2d([M(Tct.XJUMP, size=50)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
+    np.testing.assert_allclose(p[1], [50, 0], atol=1e-9)
+
+
+def test_yjump() -> None:
+    p = turtle2d([M(Tct.YJUMP, size=60)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[0], [0, 0], atol=1e-9)
+    np.testing.assert_allclose(p[1], [0, 60], atol=1e-9)
+
+
+def test_right_turn() -> None:
+    p = turtle2d([M(Tct.RIGHT, angle=90), M(Tct.MOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[1], [0, -20], atol=1e-9)
+
+
+def test_zrot() -> None:
+    p = turtle2d([M(Tct.ZROT, angle=90), M(Tct.MOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[1], [0, 20], atol=1e-9)
+
+
+def test_angle_set() -> None:
+    p = turtle2d([M(Tct.ANGLE, angle=180), M(Tct.MOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[1], [20, 0], atol=1e-9)
+
+
+def test_setdir() -> None:
+    p = turtle2d([M(Tct.SETDIR, angle=90), M(Tct.MOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[1], [20, 0], atol=1e-9)
+
+
+def test_length_scale() -> None:
+    p = turtle2d([M(Tct.LENGTH, size=2), M(Tct.MOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[1], [40, 0], atol=1e-9)
+
+
+def test_scale_command() -> None:
+    p = turtle2d([M(Tct.SCALE, size=0.5), M(Tct.MOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[1], [10, 0], atol=1e-9)
+
+
+def test_addlength() -> None:
+    p = turtle2d([M(Tct.ADDLENGTH, size=3), M(Tct.MOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[1], [80, 0], atol=1e-9)
+
+
+def test_arcleft() -> None:
+    p = turtle2d([M(Tct.ARCSTEPS, size=8), M(Tct.ARCLEFT, angle=90, radius=10)]).points()
+    assert len(p) == 8
+    np.testing.assert_allclose(p[-1], [10, 10], atol=1e-9)
+
+
+def test_arcright() -> None:
+    p = turtle2d([M(Tct.ARCSTEPS, size=8), M(Tct.ARCRIGHT, angle=90, radius=10)]).points()
+    assert len(p) == 8
+    np.testing.assert_allclose(p[-1], [10, -10], atol=1e-9)
+
+
+def test_arczrot() -> None:
+    p = turtle2d([M(Tct.ARCSTEPS, size=8), M(Tct.ARCZROT, angle=90, radius=10)]).points()
+    assert len(p) == 8
+    np.testing.assert_allclose(p[-1], [10, 10], atol=1e-9)
+
+
+def test_compound_move() -> None:
+    p = turtle2d([M(Tct.MOVE, size=10, steps=3, is_compound=True)]).points()
+    assert len(p) == 4
+    np.testing.assert_allclose(p[0], [0, 0])
+    np.testing.assert_allclose(p[-1], [10, 0])
+
+
+def test_compound_reverse() -> None:
+    p = turtle2d([M(Tct.MOVE, size=10, steps=3, reverse=True, is_compound=True)]).points()
+    assert len(p) == 4
+    assert p[-1][0] == pytest.approx(-10)
+
+
+def test_compound_grow() -> None:
+    p = turtle2d([M(Tct.MOVE, size=10, steps=4, is_compound=True)]).points()
+    assert len(p) == 5
+    np.testing.assert_allclose(p[0], [0, 0])
+    np.testing.assert_allclose(p[-1], [10, 0])
+
+
+def test_turtle_stroke() -> None:
+    t = Turtle2D()
+    t.run([M(Tct.MOVE, size=20), M(Tct.LEFT, angle=90), M(Tct.MOVE, size=20)])
+    s = t.stroke(width=2)
+    assert isinstance(s, Path2D)
+    assert len(s) > 0

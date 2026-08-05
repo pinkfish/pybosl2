@@ -108,3 +108,24 @@ module = [
     "docs.*",
 ]
 ignore_errors = true
+
+[tool.coverage.run]
+source = ["pybosl2"]
+parallel = false
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_also = [
+    "def __repr__",
+    "def __str__",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.xml]
+output = "coverage.xml"

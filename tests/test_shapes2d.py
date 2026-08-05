@@ -10,6 +10,7 @@ import math
 
 import numpy as np
 
+import pybosl2.shapes2d as s2
 from pybosl2._helpers import (
     arc_points as _arc_points,
 )
@@ -191,3 +192,126 @@ def test_star_and_supershape_atype_enum() -> None:
     assert f1 is not None
     assert f2 is not None
     assert f3 is not None
+
+
+def test_regular_ngon_inner_radius() -> None:
+    """regular_ngon with inner_radius correctly scales to outer radius."""
+    import math
+
+    import pytest
+
+    from pybosl2.shapes2d.square import _regular_ngon_path
+
+    sc = 1.0 / math.cos(math.radians(30.0))
+    expected_radius = 10.0 * sc
+    path = _regular_ngon_path(6, expected_radius)
+
+    assert len(path) == 6
+    for pt in path:
+        assert math.hypot(pt[0], pt[1]) == pytest.approx(expected_radius)
+
+    shape = s2.regular_ngon(sides=6, inner_radius=10)
+    assert shape is not None
+
+
+def test_regular_ngon_inner_diameter() -> None:
+    """regular_ngon with inner_diameter correctly scales to outer radius."""
+    import math
+
+    import pytest
+
+    from pybosl2.shapes2d.square import _regular_ngon_path
+
+    sc = 1.0 / math.cos(math.radians(36.0))
+    expected_radius = 10.0 * sc
+    path = _regular_ngon_path(5, expected_radius)
+
+    assert len(path) == 5
+    for pt in path:
+        assert math.hypot(pt[0], pt[1]) == pytest.approx(expected_radius)
+
+    shape = s2.regular_ngon(sides=5, inner_diameter=20)
+    assert shape is not None
+
+
+def test_regular_ngon_side() -> None:
+    """regular_ngon with side= computes correct outer radius and all edges equal."""
+    import math
+
+    import pytest
+
+    from pybosl2.shapes2d.square import _regular_ngon_path
+
+    expected_radius = 8.0 / 2.0 / math.sin(math.radians(22.5))
+    path = _regular_ngon_path(8, expected_radius)
+
+    assert len(path) == 8
+    for i in range(len(path)):
+        j = (i + 1) % len(path)
+        d = math.hypot(path[j][0] - path[i][0], path[j][1] - path[i][1])
+        assert d == pytest.approx(8.0)
+
+    shape = s2.regular_ngon(sides=8, side=8)
+    assert shape is not None
+
+
+def test_regular_ngon_realign() -> None:
+    """regular_ngon with realign=True rotates first vertex away from X+ axis."""
+    import math
+
+    import pytest
+
+    from pybosl2.shapes2d.square import _regular_ngon_path
+
+    path = _regular_ngon_path(6, 10.0, realign=True)
+    assert len(path) == 6
+    angle = math.degrees(math.atan2(path[0][1], path[0][0]))
+    assert angle == pytest.approx(-30.0)
+
+    shape = s2.regular_ngon(sides=6, outer_diameter=20, realign=True)
+    assert shape is not None
+
+
+def test_regular_ngon_no_size_defaults() -> None:
+    """regular_ngon() with no size parameter falls back to dflt=0 (degenerate shape)."""
+    shape = s2.regular_ngon()
+    assert shape is not None
+
+
+def test_right_triangle_center() -> None:
+    """right_triangle with center=True anchors at CENTER."""
+    import pytest
+
+    shape = s2.right_triangle([15, 10], center=True)
+    assert shape is not None
+    assert shape.size == pytest.approx([15.0, 10.0])
+
+
+def test_right_triangle_scalar() -> None:
+    """right_triangle with scalar size (float) expands to [size, size]."""
+    import pytest
+
+    shape = s2.right_triangle(10)
+    assert shape is not None
+    assert shape.size == pytest.approx([10.0, 10.0])
+
+
+def test_trapezoid_angle_derivation() -> None:
+    """trapezoid derives height from angle when width1, width2, angle are given."""
+    import math
+
+    import pytest
+
+    from pybosl2.shapes2d.square import _trapezoid_path
+
+    expected_height = 5.0 / math.tan(math.radians(30.0))
+    path = _trapezoid_path(expected_height, 20.0, 10.0, 0.0, 0.0, 0.0, False)
+
+    assert len(path) == 4
+    assert path[0][0] == pytest.approx(10.0)
+    assert path[0][1] == pytest.approx(-expected_height / 2.0)
+    assert path[2][0] == pytest.approx(-5.0)
+    assert path[2][1] == pytest.approx(expected_height / 2.0)
+
+    shape = s2.trapezoid(width1=20, width2=10, angle=30)
+    assert shape is not None

@@ -152,6 +152,136 @@ def test_turtle3d_is_instance() -> None:
     assert isinstance(Turtle3D(), Turtle3D)
 
 
+# ── uncovered command types ─────────────────────────────────────────────
+
+
+def test_xmove_3d() -> None:
+    p = Turtle3D().run([M(Tct.XMOVE, size=20)]).points()
+    assert len(p) == 2
+    np.testing.assert_allclose(p[-1], [20, 0, 0], atol=1e-9)
+
+
+def test_ymove_3d() -> None:
+    p = Turtle3D().run([M(Tct.YMOVE, size=20)]).points()
+    np.testing.assert_allclose(p[-1], [0, 20, 0], atol=1e-9)
+
+
+def test_zmove_3d() -> None:
+    p = Turtle3D().run([M(Tct.ZMOVE, size=20)]).points()
+    np.testing.assert_allclose(p[-1], [0, 0, 20], atol=1e-9)
+
+
+def test_xymove_3d() -> None:
+    from pybosl2.points import Point
+
+    p = Turtle3D().run([M(Tct.XYZMOVE, size=Point(20, 30, 40))]).points()
+    np.testing.assert_allclose(p[-1], [20, 30, 40], atol=1e-9)
+
+
+def test_jump_3d() -> None:
+    from pybosl2.points import Point
+
+    p = Turtle3D().run([M(Tct.JUMP, size=Point(10, 20, 30))]).points()
+    np.testing.assert_allclose(p[-1], [10, 20, 30], atol=1e-9)
+
+
+def test_xjump_3d() -> None:
+    p = Turtle3D().run([M(Tct.XJUMP, size=50)]).points()
+    np.testing.assert_allclose(p[-1], [50, 0, 0], atol=1e-9)
+
+
+def test_yjump_3d() -> None:
+    p = Turtle3D().run([M(Tct.YJUMP, size=60)]).points()
+    np.testing.assert_allclose(p[-1], [0, 60, 0], atol=1e-9)
+
+
+def test_zjump_3d() -> None:
+    p = Turtle3D().run([M(Tct.ZJUMP, size=70)]).points()
+    np.testing.assert_allclose(p[-1], [0, 0, 70], atol=1e-9)
+
+
+def test_angle_3d() -> None:
+    p = Turtle3D().run([M(Tct.ANGLE, angle=180), M(Tct.MOVE, size=20)]).points()
+    n = np.linalg.norm(np.asarray(p[-1]) - np.asarray([20, 0, 0]))
+    assert n < 1e-9
+
+
+def test_length_3d() -> None:
+    p = Turtle3D().run([M(Tct.LENGTH, size=2), M(Tct.MOVE, size=20)]).points()
+    np.testing.assert_allclose(p[-1], [40, 0, 0], atol=1e-9)
+
+
+def test_addlength_3d() -> None:
+    p = Turtle3D().run([M(Tct.ADDLENGTH, size=3), M(Tct.MOVE, size=20)]).points()
+    np.testing.assert_allclose(p[-1], [80, 0, 0], atol=1e-9)
+
+
+def test_scale_3d() -> None:
+    p = Turtle3D().run([M(Tct.SCALE, size=0.5), M(Tct.MOVE, size=20)]).points()
+    np.testing.assert_allclose(p[-1], [10, 0, 0], atol=1e-9)
+
+
+def test_roll_3d() -> None:
+    t = Turtle3D().run([M(Tct.ROLL, angle=90)])
+    assert isinstance(t, Turtle3D)
+
+
+def test_xrot_3d() -> None:
+    t = Turtle3D().run([M(Tct.XROT, angle=-90)])
+    assert isinstance(t, Turtle3D)
+
+
+def test_yrot_3d() -> None:
+    t = Turtle3D().run([M(Tct.YROT, angle=-90)])
+    assert isinstance(t, Turtle3D)
+
+
+def test_arcleft_3d() -> None:
+    p = Turtle3D().run([M(Tct.ARCSTEPS, size=8), M(Tct.ARCLEFT, angle=90, radius=10)]).points()
+    assert len(p) >= 7
+
+
+def test_arcright_3d() -> None:
+    p = Turtle3D().run([M(Tct.ARCSTEPS, size=8), M(Tct.ARCRIGHT, angle=90, radius=10)]).points()
+    assert len(p) >= 7
+
+
+def test_arcup_3d() -> None:
+    p = Turtle3D().run([M(Tct.ARCSTEPS, size=8), M(Tct.ARCUP, angle=90, radius=10)]).points()
+    assert len(p) >= 7
+
+
+def test_compound_todir_3d() -> None:
+    from pybosl2.points import Point
+
+    cmd = M(
+        Tct.ARC,
+        radius=10,
+        angle=Point(0, 0, 1),
+        steps=8,
+        rotation_type=TurtleCommand.RotationType.TODIR,
+        is_compound=True,
+    )
+    p = Turtle3D().run([cmd]).points()
+    assert len(p) > 0
+
+
+def test_turtle3d_full_state() -> None:
+    st = Turtle3D().run([M(Tct.MOVE, size=10)]).full_state()
+    assert st.step > 0
+    assert st.arcsteps >= 0
+
+
+def test_compound_rollto_3d() -> None:
+    from pybosl2.points import Point
+    from pybosl2.turtle import TurtleCommandType as _Tct
+
+    cmd = M(_Tct.MOVE, size=10, steps=3, rollto=Point(0, 0, 1), is_compound=True)
+    xform = Turtle3D().run([cmd]).transforms()
+    assert len(xform) == 4
+    assert all(np.asarray(t).shape == (4, 4) for t in xform)
+
+
 def test_turtle_command_class_and_enum_simple() -> None:
     cmds = [
         TurtleCommand(Tct.MOVE, size=10),

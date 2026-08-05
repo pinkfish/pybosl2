@@ -77,8 +77,9 @@ def _extend_knot_mult(mult, nxt, length):  # type: ignore[no-untyped-def]
     Extend the multiplicity vector periodically to sum to *length* (BOSL2 _extend_knot_mult()).
     """
     mult = list(mult)
+    n = len(mult)
     while sum(mult) < length:
-        mult.append(mult[nxt])
+        mult.append(mult[nxt % n])
         nxt += 1
     total = sum(mult)
     if total > length:
@@ -201,8 +202,9 @@ def _nurbs_curve_pts(  # type: ignore[no-untyped-def]
     elif type == "open":
         pass
     else:  # closed with explicit mult
-        lastmult = mult[-1] + mult[0] - 1
-        mult = _extend_knot_mult(list(mult[:-1]) + [lastmult], 1, sides + degree + 1)  # type: ignore[no-untyped-call]
+        _m = [mult] if is_num(mult) else list(mult)
+        lastmult = _m[-1] + _m[0] - 1
+        mult = _extend_knot_mult(_m[:-1] + [lastmult], 1, sides + degree + 1)  # type: ignore[no-untyped-call]
 
     # -- knot vector -----------------------------------------------------------------------
     if uniform:
@@ -387,6 +389,8 @@ def nurbs_patch_points(
             mult=mult,
             knots=knots,
         )
+        if isinstance(pts, np.ndarray) and pts.ndim == 1:
+            return list(np.asarray(pts[:-1], dtype=float) / pts[-1])
         return [[list(np.asarray(pt[:-1], dtype=float) / pt[-1]) for pt in row] for row in pts]
 
     degree_list = _force_list2(degree)  # type: ignore[no-untyped-call]

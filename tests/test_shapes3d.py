@@ -25,6 +25,7 @@ from pybosl2.shapes3d import (
     plot3d,
     plot_revolution,
     prismoid,
+    regular_prism,
     sphere,
     textured_tile,
     tube,
@@ -566,3 +567,87 @@ def test_cyl_chamfer_from_end_bottom() -> None:
 def test_tube_realign() -> None:
     c = tube(height=20, outer_radius=15, inner_radius=10, realign=True)
     assert isinstance(c, Bosl2Solid)
+
+
+# ---------------------------------------------------------------------------
+# cuboid() / prismoid() / regular_prism() gap-coverage tests
+# ---------------------------------------------------------------------------
+
+
+def test_cuboid_negative_chamfer() -> None:
+    """cuboid with negative chamfer hits _edge_mask_negative (chamfer path)."""
+    result = cuboid([10, 10, 10], chamfer=-1)
+    assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[0] > 0
+    assert size[1] > 0
+    assert size[2] > 0
+
+
+def test_cuboid_negative_rounding() -> None:
+    """cuboid with negative rounding hits _edge_mask_negative (rounding path)."""
+    result = cuboid([10, 10, 10], rounding=-1)
+    assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[0] > 0
+    assert size[1] > 0
+    assert size[2] > 0
+
+
+def test_cuboid_p1_single_point_anchor() -> None:
+    """cuboid with p1 only anchors at BOTTOM_FRONT_LEFT then translates."""
+    result = cuboid([10, 10, 10], p1=[2, 3, 4])
+    assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    np.testing.assert_allclose(center, [7, 8, 9], atol=1e-9)
+    np.testing.assert_allclose(size, [10, 10, 10], atol=1e-9)
+
+
+def test_cuboid_except_edges() -> None:
+    """cuboid with except_edges exercises edge-set exclusion."""
+    from pybosl2._edges_lang import Anchor
+
+    result = cuboid([10, 10, 10], except_edges=[Anchor.TOP])
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_prismoid_asymmetric_rounding_and_chamfer() -> None:
+    """prismoid with rounding on bottom and chamfer on top and shift."""
+    result = prismoid(
+        size1=[10, 10],
+        size2=[20, 20],
+        height=10,
+        rounding1=2,
+        chamfer2=1.5,
+        shift=[3, 0],
+    )
+    assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] > 0
+
+
+def test_regular_prism_inner_radius_sizing() -> None:
+    """regular_prism sized by inner_radius (apothem)."""
+    result = regular_prism(sides=6, height=10, inner_radius=8)
+    assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] > 0
+
+
+def test_regular_prism_circumscribe() -> None:
+    """regular_prism with circumscribe=True scales radius by 1/cos(180/sides)."""
+    result = regular_prism(sides=8, height=10, circumscribe=True)
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_regular_prism_combined_options() -> None:
+    """regular_prism with realign, shift, and tapered radii."""
+    result = regular_prism(
+        sides=6,
+        height=10,
+        realign=True,
+        shift=[2, 0],
+        radius1=8,
+        radius2=5,
+    )
+    assert isinstance(result, Bosl2Solid)
