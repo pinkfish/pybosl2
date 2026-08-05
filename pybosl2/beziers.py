@@ -1397,7 +1397,7 @@ class BezierPatch:
         offset0 = pts - diameter[0] * normals
         offset1 = pts - diameter[1] * normals
         allpoints = [np.concatenate([offset0[i], offset1[i][::-1]]) for i in range(len(offset0))]
-        vnf = VNF.vertex_array(allpoints, col_wrap=True, cap1=CapType.BUTT, cap2=CapType.BUTT, style=style)
+        vnf = VNF.vertex_array(allpoints, caps=CapType.BUTT, col_wrap=True, style=style)
         return vnf.reverse() if diameter[0] < diameter[1] else vnf
 
     def vnf_degenerate(

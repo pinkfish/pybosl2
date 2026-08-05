@@ -1174,7 +1174,7 @@ class Gears:
         thickness = abs(topz - botz)
         cpz = (topz + botz) / 2
         vertices = [row[::-1] for row in verts1]
-        sides = VNF.vertex_array(vertices, cap1=None, cap2=None, col_wrap=True, reverse=True)
+        sides = VNF.vertex_array(vertices, col_wrap=True, reverse=True)
         top_verts, bot_verts = vertices[-1], vertices[0]
         gear_pts = len(top_verts)
         face_pts = gear_pts // teeth
@@ -1244,7 +1244,7 @@ class Gears:
             m = _m_zrot(i * astep - 360 * revs / 2) @ _m_up(i * zstep - length / 2)
             profiles.append(_apply(m, [[x, y, 0.0] for x, y in cross]))
         rprofiles = [prof[::-1] for prof in profiles]
-        vnf = VNF.vertex_array(rprofiles, cap1=CapType.BUTT, cap2=CapType.BUTT, col_wrap=True, style="min_edge")
+        vnf = VNF.vertex_array(rprofiles, caps=CapType.BUTT, col_wrap=True, style="min_edge")
         if left_handed:
             vnf = _vnf_xflip(vnf)
         return Bosl2Solid(vnf.polyhedron(), size=[diameter, diameter, length])
@@ -1319,7 +1319,7 @@ class Gears:
         for i in range(teeth):
             top_faces.append([gear_pts, (i + 1) * face_pts - 1, i * face_pts])
             top_faces.append([gear_pts, ((i + 1) % teeth) * face_pts, (i + 1) * face_pts - 1])
-        sides = VNF.vertex_array(profiles, cap1=None, cap2=None, col_wrap=True, style="min_edge")
+        sides = VNF.vertex_array(profiles, col_wrap=True, style="min_edge")
         top_cap = VNF(top_verts + [[0, 0, top_verts[0][2]]], [f[::-1] for f in top_faces])
         bot_cap = VNF(bot_verts + [[0, 0, bot_verts[0][2]]], top_faces)
         vnf = _vnf_join([top_cap, bot_cap, sides])

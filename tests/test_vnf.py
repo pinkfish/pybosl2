@@ -130,7 +130,7 @@ def test_vertex_array_too_small_is_empty() -> None:
 
 def test_vertex_array_caps_need_col_wrap() -> None:
     with pytest.raises(AssertionError):
-        VNF.vertex_array(_grid(3, 3, warp=True), cap1=CapType.BUTT, cap2=CapType.BUTT, col_wrap=False)
+        VNF.vertex_array(_grid(3, 3, warp=True), caps=CapType.BUTT, col_wrap=False)
 
 
 def test_vertex_array_bad_style() -> None:
@@ -283,7 +283,7 @@ def test_vertex_array_row_wrap() -> None:
 
 
 def test_vertex_array_flat_caps() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, cap1=CapType.BUTT, cap2=CapType.BUTT)
+    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, caps=CapType.BUTT)
     assert len(v.vertices) == 9
     assert len(v.faces) == 14
     assert _valid(v)
@@ -301,7 +301,7 @@ def test_vertex_array_flat_caps() -> None:
 
 
 def test_vertex_array_round_dome_caps() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, cap1=CapType.ROUND, cap2=CapType.ROUND)
+    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, caps=CapType.ROUND)
     assert len(v.vertices) == 11
     assert len(v.faces) == 18
     assert _valid(v)
@@ -317,7 +317,7 @@ def test_vertex_array_round_dome_caps() -> None:
 
 
 def test_vertex_array_mixed_caps() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, cap1=CapType.BUTT, cap2=CapType.ROUND)
+    v = VNF.vertex_array(_grid(3, 3, warp=True), col_wrap=True, caps=[CapType.BUTT, CapType.ROUND])
     assert len(v.vertices) == 10
     assert len(v.faces) == 16
     assert _valid(v)
@@ -526,8 +526,6 @@ def test_vnf_slice_returns_above_below() -> None:
 def test_vnf_geometry() -> None:
     vnf = VNF.vertex_array(
         [[[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]]],
-        cap1=None,
-        cap2=None,
         col_wrap=True,
         style="min_edge",
     )
@@ -558,8 +556,6 @@ def test_vnf_from_field_cube() -> None:
 def test_vnf_halfspace_closed() -> None:
     vnf = VNF.vertex_array(
         [[[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]], [[0, 0, 10], [10, 0, 10], [10, 10, 10], [0, 10, 10]]],
-        cap1=None,
-        cap2=None,
         col_wrap=True,
         style="min_edge",
     )
