@@ -110,7 +110,7 @@ html_extra_path = ["_extra"]
 html_theme = "sphinx_immaterial"
 html_static_path: list[str] = ["_static"]
 html_css_files: list[str] = ["specs.css"]
-html_js_files: list[str] = ["spec_viewer.js"]
+
 
 html_theme_options = {
     "icon": {
@@ -162,13 +162,20 @@ html_theme_options = {
         },
     ],
     "font": False,
-    "globaltoc_collapse": True,
     "toc_title": "On this page",
 }
 
 object_description_options = [
     ("py:parameter", {"include_in_toc": False}),
     ("py:.*Param", {"include_in_toc": False}),
+    ("py:attribute", {"include_in_toc": False}),
+    ("py:attribute:pybosl2.enums.*", {"include_in_toc": True}),
+    ("py:data", {"include_in_toc": False}),
+    ("py:exception", {"include_in_toc": False}),
+    ("py:module", {"include_in_toc": False}),
+    ("py:class", {"include_in_toc": True}),
+    ("py:function", {"include_in_toc": True}),
+    ("py:method", {"include_in_toc": True}),
 ]
 
 

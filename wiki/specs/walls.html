@@ -2278,6 +2278,115 @@
     <div class="spec-tests">12 tests</div>
   </div>
 </div><script id="spec-data" type="application/json">[{"id": "sparse", "label": "sparse", "uri": "_stl/walls-sparse.stl", "code": "Walls.sparse_wall(height=50, length=100, thick=4)", "part": "sparse_wall(height=50, length=100, thick=4)", "tris": 280, "vol": "12,007.0", "bbox": "4\u00d7101\u00d750", "wt": true}, {"id": "corrugated", "label": "corrugated", "uri": "_stl/walls-corrugated.stl", "code": "Walls.corrugated_wall(height=50, length=100, thick=5)", "part": "corrugated_wall(height=50, length=100, thick=5)", "tris": 476, "vol": "14,200.0", "bbox": "5\u00d7100\u00d750", "wt": true}, {"id": "thinning-wall", "label": "thinning wall", "uri": "_stl/walls-thinning-wall.stl", "code": "Walls.thinning_wall(height=50, length=80, thick=4)", "part": "thinning_wall(height=50, length=80, thick=4)", "tris": 44, "vol": "9,422.6", "bbox": "4\u00d780\u00d750", "wt": true}, {"id": "thinning-triangle", "label": "thinning triangle", "uri": "_stl/walls-thinning-triangle.stl", "code": "Walls.thinning_triangle(height=50, length=80, thick=4, center=True)", "part": "thinning_triangle(height=50, length=80, thick=4, center=True)", "tris": 74, "vol": "7,032.8", "bbox": "4\u00d780\u00d750", "wt": true}, {"id": "strut", "label": "narrowing strut", "uri": "_stl/walls-strut.stl", "code": "Walls.narrowing_strut(w=10, length=80, wall=5, angle=30)", "part": "narrowing_strut(w=10, length=80, wall=5, angle=30)", "tris": 16, "vol": "7,464.1", "bbox": "10\u00d780\u00d714", "wt": true}, {"id": "sparse-cuboid", "label": "sparse cuboid", "uri": "_stl/walls-sparse-cuboid.stl", "code": "Walls.sparse_cuboid([20, 40, 30], strut=2)", "part": "sparse_cuboid([20, 40, 30], strut=2)", "tris": 160, "vol": "14,673.8", "bbox": "20\u00d740\u00d730", "wt": true}]</script>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+(function() {
+  const dataEl = document.getElementById("spec-data");
+  if (!dataEl) return;
+  const V = JSON.parse(dataEl.textContent);
+  const box = document.getElementById("viewer");
+  const poster = document.getElementById("poster");
+  if (!box) return;
+
+  let renderer, scene, camera, controls, mesh, ready = false;
+  const css = (n) => (getComputedStyle(document.documentElement).getPropertyValue(n) || "").trim() || null;
+  const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
+
+  function resize() {
+    const w = box.clientWidth, h = box.clientHeight || 300;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / Math.max(1, h);
+    camera.updateProjectionMatrix();
+  }
+
+  function initThree() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6);
+    camera.up.set(0, 0, 1);
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    box.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const k = new THREE.DirectionalLight(0xffffff, 0.85);
+    k.position.set(1, 0.6, 1);
+    scene.add(k);
+    const f = new THREE.DirectionalLight(0xffffff, 0.4);
+    f.position.set(-1, -0.8, 0.5);
+    scene.add(f);
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    window.addEventListener("resize", resize);
+    ready = true;
+    (function loop() {
+      requestAnimationFrame(loop);
+      controls.update();
+      renderer.render(scene, camera);
+    })();
+  }
+
+  const loader = new STLLoader();
+  function loadStl(uri) {
+    if (!ready) initThree();
+    loader.load(uri, function(geo) {
+      if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+      geo.computeVertexNormals();
+      geo.computeBoundingBox();
+      const c = new THREE.Vector3();
+      geo.boundingBox.getCenter(c);
+      const s = new THREE.Vector3();
+      geo.boundingBox.getSize(s);
+      geo.translate(-c.x, -c.y, -c.z);
+      mesh = new THREE.Mesh(geo,
+        new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
+      scene.add(mesh);
+      const r = Math.max(s.x, s.y, s.z) || 1;
+      camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+      controls.target.set(0, 0, 0);
+      if (poster) poster.style.display = "none";
+      const hint = box.querySelector(".hint");
+      if (hint) hint.remove();
+      resize();
+    }, undefined, function() {
+      if (!box.querySelector(".hint")) {
+        const h = document.createElement("div");
+        h.className = "hint";
+        h.style.cssText = (
+          "position:absolute;inset:0;display:flex;align-items:center;"
+          + "justify-content:center;padding:1em;color:#a00;"
+          + "background:rgba(255,255,255,0.8);font-size:0.85em;"
+        );
+        h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+        box.appendChild(h);
+      }
+    });
+  }
+
+  function selectVariant(i) {
+    const v = V[i];
+    const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+    buttons.forEach((b, j) => {
+      b.setAttribute("aria-selected", j === i ? "true" : "false");
+      b.classList.toggle("active", j === i);
+    });
+    document.getElementById("code").textContent = ">>> " + v.code;
+    document.getElementById("s-tris").textContent = v.tris == null ? "—" : v.tris.toLocaleString();
+    document.getElementById("s-vol").textContent = v.vol;
+    document.getElementById("s-bbox").textContent = v.bbox;
+    document.getElementById("vpart").textContent = v.part;
+    document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+    loadStl(v.uri);
+  }
+
+  const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+  buttons.forEach((b, i) => {
+    b.addEventListener("click", () => { selectVariant(i); });
+  });
+  selectVariant(0);
+})();
+</script>
 <script>
 function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
 navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
@@ -2390,7 +2499,6 @@ setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied
 
 
         <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script src="../_static/spec_viewer.js?v=735f79ee"></script>
 
   </body>
 </html>
