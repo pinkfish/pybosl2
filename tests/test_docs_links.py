@@ -30,7 +30,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 DOCS_DIR = REPO_ROOT / "docs"
-SPECS_DIR = DOCS_DIR / "_extra" / "specs"
+SPECS_DIR = DOCS_DIR / "specs"
 WIKI_DIR = REPO_ROOT / "wiki"
 
 
@@ -43,7 +43,7 @@ def _rst_files() -> Iterator[Path]:
 
 def _spec_htmls() -> Iterator[Path]:
     if SPECS_DIR.is_dir():
-        yield from SPECS_DIR.glob("*.html")
+        yield from SPECS_DIR.glob("*.rst")
 
 
 def _resolve_module_attr(module_path: str, attr_name: str = "") -> bool:
@@ -58,14 +58,15 @@ def _resolve_module_attr(module_path: str, attr_name: str = "") -> bool:
 
 
 def _html_spec_exists(filename: str) -> bool:
-    """Check whether *filename* exists inside the specs directory.
+    """Check whether *filename* exists as a spec RST source.
 
     Returns True even if the specs dir doesn't exist (spec not yet built
     in CI — the link is still valid, just not yet verifiable).
     """
     if not SPECS_DIR.is_dir():
         return True
-    return (SPECS_DIR / filename).is_file()
+    rst_name = filename.replace(".html", ".rst")
+    return (SPECS_DIR / rst_name).is_file()
 
 
 def _resolve_docs_href(href: str) -> bool:
