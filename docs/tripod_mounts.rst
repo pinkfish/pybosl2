@@ -1,5 +1,5 @@
 Tripod mounts
-============
+=============
 
 .. raw:: html
 
