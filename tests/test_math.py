@@ -6,10 +6,12 @@
 
 """Tests for pybosl2/math.py: lerp/lerpn interpolation and the deriv calculus helpers."""
 
+import math
+
 import numpy as np
 import pytest
 
-from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
+from pybosl2.math import EPSILON, constrain, deriv, deriv2, deriv3, lerp, lerpn, mean, modang, quant, slerp, slerpn
 
 
 def test_epsilon_value() -> None:
@@ -90,3 +92,141 @@ def test_deriv_closed_wraps() -> None:
 def test_deriv_returns_ndarray(fn: object) -> None:
     path = [[float(i), float(i * i)] for i in range(6)]
     assert isinstance(fn(path), np.ndarray)  # type: ignore[operator]
+
+
+# ── deriv edge cases ─────────────────────────────────────────────────────
+
+
+def test_deriv_two_points() -> None:
+    path = [[0, 0], [2, 2]]
+    d = deriv(path)
+    assert d.shape == (2, 2)
+    np.testing.assert_allclose(d, [[1, 1], [1, 1]], atol=1e-12)
+
+
+def test_deriv_nonuniform_closed() -> None:
+    path = [[0, 0], [1, 0], [1, 1], [0, 1]]
+    h = [1.0, 1.0, 1.0, 1.0]
+    d = deriv(path, height=h, closed=True)
+    assert d.shape == (4, 2)
+
+
+def test_deriv2_length_three() -> None:
+    path = [[0, 0], [1, 1], [2, 4]]
+    d2 = deriv2(path)
+    assert d2.shape == (3, 2)
+
+
+def test_deriv2_length_four() -> None:
+    path = [[0, 0], [1, 1], [2, 4], [3, 9]]
+    d2 = deriv2(path)
+    assert d2.shape == (4, 2)
+
+
+def test_deriv2_closed() -> None:
+    square = [[0, 0], [1, 0], [1, 1], [0, 1]]
+    d2 = deriv2(square, closed=True)
+    assert d2.shape == (4, 2)
+
+
+def test_deriv3_closed() -> None:
+    hexagon = [[0, 0], [1, 0], [2, 1], [1, 2], [0, 2], [-1, 1]]
+    d3 = deriv3(hexagon, closed=True)
+    assert d3.shape == (6, 2)
+
+
+# ── convenience helpers ──────────────────────────────────────────────────
+
+
+def test_modang_basic() -> None:
+    assert modang(0) == 0.0
+    assert modang(90) == 90.0
+    assert modang(180) == pytest.approx(-180.0)
+    assert modang(270) == pytest.approx(-90.0)
+    assert modang(-90) == -90.0
+    assert modang(360) == 0.0
+    assert modang(450) == 90.0
+
+
+def test_constrain_basic() -> None:
+    assert constrain(5, minval=0, maxval=10) == 5.0
+    assert constrain(-1, minval=0) == 0.0
+    assert constrain(100, maxval=50, minval=0) == 50.0
+
+
+def test_constrain_none_bounds() -> None:
+    assert constrain(5) == 5.0
+    assert constrain(-100, maxval=0) == -100.0
+    assert constrain(200, minval=50) == 200.0
+
+
+def test_quant_basic() -> None:
+    assert quant(3.7, 1.0) == 4.0
+    assert quant(3.2, 0.5) == 3.0
+    assert quant(10, 3) == 9.0
+
+
+def test_quant_raises_on_nonpositive() -> None:
+    with pytest.raises(ValueError, match="Quantum must be positive"):
+        quant(5, 0)
+    with pytest.raises(ValueError, match="Quantum must be positive"):
+        quant(5, -1)
+
+
+def test_mean_basic() -> None:
+    assert mean([1, 2, 3, 4]) == 2.5
+    assert mean([5.0]) == 5.0
+
+
+def test_mean_empty_raises() -> None:
+    with pytest.raises(ValueError, match="empty"):
+        mean([])
+
+
+# ── slerp / slerpn ───────────────────────────────────────────────────────
+
+
+def test_slerp_basic() -> None:
+    result = slerp([1, 0, 0], [0, 1, 0], 0.0)
+    np.testing.assert_allclose(result, [1, 0, 0], atol=1e-9)
+
+    result = slerp([1, 0, 0], [0, 1, 0], 1.0)
+    np.testing.assert_allclose(result, [0, 1, 0], atol=1e-9)
+
+    result = slerp([1, 0, 0], [0, 1, 0], 0.5)
+    assert abs(math.hypot(*result) - 1.0) < 1e-9
+
+
+def test_slerp_zero_vector_raises() -> None:
+    with pytest.raises(ValueError, match="zero-length"):
+        slerp([0, 0, 0], [1, 0, 0], 0.5)
+    with pytest.raises(ValueError, match="zero-length"):
+        slerp([1, 0, 0], [0, 0, 0], 0.5)
+
+
+def test_slerp_opposite_vectors() -> None:
+    with pytest.raises(ValueError, match="180°"):
+        slerp([1, 0, 0], [-1, 0, 0], 0.5)
+
+
+def test_slerpn_basic() -> None:
+    result = slerpn([1, 0, 0], [0, 1, 0], 5)
+    assert len(result) == 5
+    for v in result:
+        assert len(v) == 3
+        assert abs(math.hypot(*v) - 1.0) < 1e-9
+
+
+def test_slerpn_no_endpoint() -> None:
+    result = slerpn([1, 0, 0], [0, 1, 0], 3, endpoint=False)
+    assert len(result) == 3
+
+
+def test_slerpn_zero_vector_raises() -> None:
+    with pytest.raises(ValueError, match="zero-length"):
+        slerpn([0, 0, 0], [1, 0, 0], 5)
+
+
+def test_slerpn_opposite_vectors() -> None:
+    with pytest.raises(ValueError, match="180°"):
+        slerpn([1, 0, 0], [-1, 0, 0], 5)
