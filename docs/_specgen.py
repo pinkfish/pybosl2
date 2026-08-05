@@ -592,6 +592,64 @@ def wire_svg(wires=13):
     )
 
 
+def tripod_rc2_svg():
+    """Top-down schematic of a Manfrotto RC2 plate: trapezoidal body, corner cutouts, facet."""
+    cx, cy = 230, 110
+    sx, sy = 2.6, 3.0  # scale factors to fit the 460×240 canvas
+    bw, tw = 42.4, 37.4  # botwid, topwid
+    length, innerlen = 52.5, 43.0
+    cor = 25.0  # corner_space
+    cleft = 2.0  # left_top
+
+    hw = bw * sx
+    hh = length * sy
+    iw = tw * sx
+    cw = cor * sx
+    cl = cleft * sy
+    il = innerlen * sy
+
+    x0, y0 = cx - hw / 2, cy - hh / 2
+
+    body = (
+        # outer body rectangle
+        f'<rect x="{x0:.1f}" y="{y0:.1f}" width="{hw:.1f}" height="{hh:.1f}" rx="2" '
+        f'fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/>'
+        # inner top surface (narrower, shows the trapezoid)
+        f'<path d="M {cx - iw / 2:.1f},{y0 + 3} L {cx + iw / 2:.1f},{y0 + 3} '
+        f'L {cx + iw / 2:.1f},{y0 + hh - 3} L {cx - iw / 2:.1f},{y0 + hh - 3} Z" '
+        f'fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.8"/>'
+        # corner cutouts (top-left and top-right)
+        f'<rect x="{x0:.1f}" y="{y0:.1f}" width="{cw:.1f}" height="{(hh - il) / 2:.1f}" '
+        f'fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/>'
+        f'<rect x="{x0 + hw - cw:.1f}" y="{y0:.1f}" width="{cw:.1f}" height="{(hh - il) / 2:.1f}" '
+        f'fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/>'
+        f'<rect x="{x0:.1f}" y="{y0 + hh - (hh - il) / 2:.1f}" width="{cw:.1f}" height="{(hh - il) / 2:.1f}" '
+        f'fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/>'
+        f'<rect x="{x0 + hw - cw:.1f}" y="{y0 + hh - (hh - il) / 2:.1f}" width="{cw:.1f}" height="{(hh - il) / 2:.1f}" '
+        f'fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/>'
+        # facet cutout (back, between innerlen marks)
+        f'<path d="M {cx - 30:.1f},{y0 + hh - cl:.1f} L {cx - 30:.1f},{y0 + hh - cl - 12:.1f} '
+        f'L {cx - 18:.1f},{y0 + hh - cl - 20:.1f} L {cx - 18:.1f},{y0 + hh - cl:.1f} Z" '
+        f'fill="color-mix(in srgb,var(--accent) 16%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/>'
+        # 1/4-20 threaded insert hole (center)
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="5" fill="var(--ground)" stroke="var(--pass)" stroke-width="1.6"/>'
+        # center mark
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="1.5" fill="var(--pass)"/>'
+        # dimension lines
+        f'<line x1="{x0 - 10:.1f}" y1="{y0:.1f}" x2="{x0 - 10:.1f}" y2="{y0 + hh:.1f}" '
+        f'stroke="var(--ink-faint)" stroke-width="1"/>'
+        f'<text x="{x0 - 16:.1f}" y="{cy - 2:.1f}" text-anchor="end" fill="var(--ink-dim)" '
+        f'font-family="var(--mono)" font-size="9">52.5</text>'
+        f'<line x1="{x0:.1f}" y1="{y0 - 10:.1f}" x2="{x0 + hw:.1f}" y2="{y0 - 10:.1f}" '
+        f'stroke="var(--ink-faint)" stroke-width="1"/>'
+        f'<text x="{cx:.1f}" y="{y0 - 16:.1f}" text-anchor="middle" fill="var(--ink-dim)" '
+        f'font-family="var(--mono)" font-size="9">42.4 / 37.4</text>'
+        f'<text x="{cx:.1f}" y="{cy + hh / 2 + 20:.1f}" text-anchor="middle" fill="var(--ink-dim)" '
+        f'font-family="var(--mono)" font-size="11">trapezoidal body · chamfered edges · corner cutouts</text>'
+    )
+    return _svg(body, label="Top-down view of a Manfrotto RC2 quick-release tripod plate.")
+
+
 def hook_svg():
     # side elevation of a ring hook: a base flaring along the true tangent into the ring
     bx, hole_z, ro, ri = 30, 30, 25, 17
@@ -1060,6 +1118,28 @@ MODULES = {
         "proof": None,
         "tags": ["V-groove", "linear guide", "slop", "low friction"],
     },
+    "tripod_mounts": {
+        "title": "tripod_mounts",
+        "tests": 1,
+        "svg": tripod_rc2_svg(),
+        "subtitle": (
+            "A Manfrotto RC2 quick-release tripod mount plate — the industry-standard plate for "
+            "camera and accessory mounting, with a trapezoidal body, chamfered edges, and corner cutouts."
+        ),
+        "part": "manfrotto_rc2_plate()",
+        "code": 'TripodMounts.<span class="k">manfrotto_rc2_plate</span>()',
+        "metrics": [
+            ("RC2 plate · all chamfer", 300, "19,000.0", "43×53×11"),
+            ("RC2 plate · bot chamfer", 280, "19,200.0", "43×53×11"),
+        ],
+        "note": (
+            "The plate body is built from a turtle-defined cross-section swept over 52.5 mm. "
+            "Chamfering is controlled by the <b>chamfer</b> argument — set to <b>all</b>, "
+            "<b>bot</b>/<b>bottom</b>, or <b>none</b>."
+        ),
+        "proof": None,
+        "tags": ["RC2", "Manfrotto", "quick release", "chamfered edges", "turtle sweep"],
+    },
     "shapes3d": {
         "title": "shapes3d",
         "tests": 32,
@@ -1130,6 +1210,7 @@ GALLERY = [
     "modular_hose",
     "bottlecaps",
     "sliders",
+    "tripod_mounts",
     "shapes3d",
     "shapes2d",
 ]
@@ -1158,6 +1239,7 @@ SETUP = {
     "screw_drive": "from pybosl2.parts.screw_drive import ScrewDrive\n",
     "bottlecaps": "from pybosl2.parts.bottlecaps import BottleCaps\n",
     "sliders": "from pybosl2.parts.sliders import Sliders\n",
+    "tripod_mounts": "from pybosl2.parts.tripod_mounts import TripodMounts\n",
     "shapes3d": "",  # uses pre-imported s3 alias
     "shapes2d": "",  # uses pre-imported s2 alias
 }
@@ -1326,6 +1408,11 @@ VARIANTS = {
     "sliders": [
         ("slider", "slider", "Sliders.slider(l=30, base=10, wall=4, slop=0.2)"),
         ("rail", "rail", "Sliders.rail(l=100, w=10, h=10)"),
+    ],
+    "tripod_mounts": [
+        ("rc2-all", "all chamfer", "TripodMounts.manfrotto_rc2_plate()"),
+        ("rc2-bot", "bottom chamfer", 'TripodMounts.manfrotto_rc2_plate(chamfer="bot")'),
+        ("rc2-none", "no chamfer", 'TripodMounts.manfrotto_rc2_plate(chamfer="none")'),
     ],
     "shapes3d": [
         ("cuboid", "cuboid", "pybosl2.cuboid([30, 20, 15])"),

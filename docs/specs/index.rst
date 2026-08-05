@@ -29,5 +29,6 @@ sheet with metrics measured straight off the exported STL.
    modular hose <modular_hose>
    bottlecaps <bottlecaps>
    sliders <sliders>
+   tripod mounts <tripod_mounts>
    shapes3d <shapes3d>
    shapes2d <shapes2d>

@@ -143,6 +143,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     Screws <screws>
     Sliders &#128736; <sliders>
     Threading &#128736; <threading>
+    Tripod Mounts &#128736; <tripod_mounts>
     Walls &#128736; <walls>
     Wiring &#128736; <wiring>
 
