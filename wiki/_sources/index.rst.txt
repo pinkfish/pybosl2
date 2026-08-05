@@ -151,3 +151,9 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :caption: Extras
 
     Miscellaneous <miscellaneous>
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Parts catalog
+
+    Visual specs &rarr; <specs/index>

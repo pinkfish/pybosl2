@@ -109,6 +109,8 @@ html_extra_path = ["_extra"]
 
 html_theme = "sphinx_immaterial"
 html_static_path: list[str] = ["_static"]
+html_css_files: list[str] = ["specs.css"]
+html_js_files: list[str] = ["spec_viewer.js"]
 
 html_theme_options = {
     "icon": {

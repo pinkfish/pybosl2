@@ -1,0 +1,50 @@
+:icon: material/wrench-outline
+
+.. _spec-modular_hose:
+
+modular hose
+============
+
+.. raw:: html
+
+    <p class="spec-lede">The ball-and-socket segments of a modular "Loc-Line" style adjustable hose — a ball end, a socket end, or a full segment, for the 1/4", 1/2" and 3/4" sizes.</p>
+
+.. raw:: html
+
+    <div class="spec-panel">
+      <div class="spec-draw">
+        <div class="spec-caption"><span id="vpart">modular_hose(0.5, "segment")</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-viewer" id="viewer">
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Section of a modular hose segment: a ball end, a waist, and a socket end with a through bore." xmlns="http://www.w3.org/2000/svg"><line x1="230" y1="30" x2="230" y2="222" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/><circle cx="230" cy="74" r="46" fill="color-mix(in srgb,var(--accent) 20%,var(--panel-2))" stroke="var(--ink-dim)" stroke-width="1.6"/><path d="M 196,96 L 264,96 L 270,150 L 190,150 Z" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.6"/><path d="M 172,150 A 58 58 0 0 0 288,150 L 288,204 A 58 58 0 0 1 274,164 A 44 44 0 0 1 186,164 A 58 58 0 0 1 172,204 Z" fill="url(#h)" stroke="var(--ink-dim)" stroke-width="1.6"/><defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/></pattern></defs><rect x="215" y="30" width="30" height="150" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.2" opacity="0.9"/><text x="230" y="222" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">ball · waist · socket · through bore</text></svg></div>
+        </div>
+      </div>
+      <div class="spec-info">
+        <div class="spec-info-header">
+          <h2>rendered &amp; measured</h2>
+          <span class="spec-pill spec-pass" id="wtpill">watertight</span>
+        </div>
+        <p>The ball/socket cross-section is the exact turtle-path profile BOSL2 uses, revolved into a segment. Segments chain into a bendy hose; <b>clearance</b> loosens the joint.</p>
+        <div class="spec-taglabel">variants &middot; click to load</div>
+        <div class="spec-tags"><button class="spec-tag" type="button">segment</button> <button class="spec-tag" type="button">ball end</button> <button class="spec-tag" type="button">socket end</button></div>
+        <div class="spec-stats">
+          <div><span class="spec-stat-v" id="s-tris">2,760</span><span class="spec-stat-l">triangles</span></div>
+          <div><span class="spec-stat-v" id="s-vol">3,432.6</span><span class="spec-stat-l">mm&sup3; volume</span></div>
+          <div><span class="spec-stat-v" id="s-bbox">25×25×30</span><span class="spec-stat-l">bbox mm</span></div>
+        </div>
+        <div class="spec-code-wrap">
+          <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
+          <div class="spec-code" id="code">&gt;&gt;&gt; ModularHose.modular_hose(0.5, "segment")</div>
+        </div>
+
+        <div class="spec-tests">16 tests</div>
+      </div>
+    </div>
+
+.. raw:: html
+
+    <script id="spec-data" type="application/json">[{"id": "segment", "label": "segment", "uri": "_stl/modular_hose-segment.stl", "code": "ModularHose.modular_hose(0.5, \"segment\")", "part": "modular_hose(0.5, \"segment\")", "tris": 2760, "vol": "3,432.6", "bbox": "25\u00d725\u00d730", "wt": true}, {"id": "ball", "label": "ball end", "uri": "_stl/modular_hose-ball.stl", "code": "ModularHose.modular_hose(0.5, \"ball\")", "part": "modular_hose(0.5, \"ball\")", "tris": 1500, "vol": "1,465.7", "bbox": "21\u00d721\u00d713", "wt": true}, {"id": "socket", "label": "socket end", "uri": "_stl/modular_hose-socket.stl", "code": "ModularHose.modular_hose(0.5, \"socket\")", "part": "modular_hose(0.5, \"socket\")", "tris": 1500, "vol": "2,105.5", "bbox": "25\u00d725\u00d718", "wt": true}]</script>
+    <script>
+    function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
+    navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
+    setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
+    </script>

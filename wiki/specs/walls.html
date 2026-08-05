@@ -1,147 +1,2396 @@
+
+
+
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>walls · pybosl2</title>
-    <link rel="stylesheet" href="spec.css">
+
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+
+
+
+
+        <link rel="prev" href="polyhedra.html">
+
+
+        <link rel="next" href="wiring.html">
+
+
+      <link rel="icon" href="">
+
+
+
+        <title>walls - pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../_static/specs.css?v=b38570de" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+
+
+
+
+
+
   </head>
-  <body>
-    <header class="bar">
-      <div class="wrap">
-        <a class="logo" href="index.html">pybosl2</a><span class="sep">/</span><span class="meta">spec sheet · walls.py</span>
-        <nav><a href="index.html">catalog</a><a href="../walls.html">walls.py API &rarr;</a><a href="../index.html">all API docs &rarr;</a></nav>
+
+
+
+
+
+
+
+
+
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+
+
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+
+    </div>
+    <div data-md-component="announce">
+
+    </div>
+
+
+
+
+
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.6.7 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+
+              walls
+
+          </span>
+        </div>
       </div>
-    </header>
-    <main>
-      <section class="hero">
-        <div class="wrap">
-          <div class="eyebrow">Spec sheet · walls.py</div>
-          <h1>walls<span class="dim">.py</span></h1>
-          <p class="lede">FDM-optimised walls that use less plastic and print without support: a cross-braced sparse wall, a corrugated wall, thick-edged thinning walls and triangles, and struts.</p>
-          <div class="spec">
-            <div class="draw">
-              <div class="caption"><span id="vpart">sparse_wall(height=50, length=100, thick=4)</span><span>interactive · drag to orbit</span></div>
-              <div class="viewer" id="viewer">
-                <div class="poster" id="poster">
-                  <svg viewBox="0 0 460 240" role="img" aria-label="Plan of a sparse cross-braced wall: a solid frame filled with diagonal X-braces." xmlns="http://www.w3.org/2000/svg">
-                    <rect x="34" y="24" width="392" height="168" fill="var(--panel-2)"/>
-                    <rect x="47" y="37" width="366" height="142" fill="var(--ground)"/>
-                    <line x1="47.0" y1="37" x2="108.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="108.0" y1="37" x2="47.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="108.0" y1="37" x2="169.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="169.0" y1="37" x2="108.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="169.0" y1="37" x2="230.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="230.0" y1="37" x2="169.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="230.0" y1="37" x2="291.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="291.0" y1="37" x2="230.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="291.0" y1="37" x2="352.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="352.0" y1="37" x2="291.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="352.0" y1="37" x2="413.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <line x1="413.0" y1="37" x2="352.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/>
-                    <rect x="34" y="24" width="392" height="168" fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/>
-                    <rect x="47" y="37" width="366" height="142" fill="none" stroke="var(--ink-dim)" stroke-width="1.3"/>
-                    <text x="230" y="218" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">sparse wall · X-braced · support-free</text>
-                  </svg>
+    </div>
+
+
+        <form class="md-header__option" data-md-component="palette">
+
+
+
+
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+
+
+</form>
+
+
+
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+
+
+
+      <label class="md-header__button md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+
+  </nav>
+
+</header>
+
+    <div class="md-container" data-md-component="container">
+
+
+
+
+
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+
+
+
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    pybosl2 (PythonSCAD port) 0.6.7 documentation
+  </label>
+
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+
+  <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+
+
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../backends.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> CSG &amp; SDF backends</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+
+
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../color.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Color</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../constants.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Constants</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../distributors.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Distributors</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../enums.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Enums</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../masking.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Masking</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../partitions.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Partitions</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../solid.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Solid</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../texture.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Texture</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../transforms.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Transforms</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../drawing.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Drawing</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../shapes2d.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> 2-<wbr>D Shapes</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../shapes3d.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> 3-<wbr>D Shapes</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../native_ops.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Native ops</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+
+
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../beziers.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Evaluate, analyze and build Bezier curves, paths, and surface patches <wbr>(BOSL2 beziers.<wbr>scad)</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../isosurface.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Isosurface</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../nurbs.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Nurbs</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../paths.html" class="md-nav__link">
+
+
+
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span> Abstract :<wbr>class:<wbr>`Path` base class for 2-<wbr>D and 3-<wbr>D path types</span></span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../regions.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Object API for 2-<wbr>D paths and regions</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../rounding.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Rounding</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../skin.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Skin</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../turtle3d.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Turtle3D</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../vnf.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Vnf</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+
+
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../geometry.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Geometry</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../math.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Math</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../quaternions.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Quaternions</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../vectors.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Vectors</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+
+
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../ball_bearings.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Ball Bearings &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../bottlecaps.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Bottlecaps &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../cubetruss.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Cubetruss &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../gears.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Gears &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../hinges.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Hinges &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../hooks.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Hooks &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../joiners.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Joiners &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../linear_bearings.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Linear Bearings &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../modular_hose.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Modular Hose &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../nema_steppers.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Nema Steppers &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../polyhedra.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Polyhedra &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../screw_drive.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Screw Drive &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../screws.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Screws</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../sliders.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Sliders &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../threading.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Threading &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../walls.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Walls &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../wiring.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Wiring &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+
+
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Extras</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../miscellaneous.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Miscellaneous</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+
+
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+    <span>Parts catalog</span>
+
+  </span>
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts catalog</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_1" checked>
+
+
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span> Visual specs &amp;rarr;</span>
+
+  </span>
+
+
+            </a>
+
+
+              <label class="md-nav__link " for="__nav_7_1" id="__nav_7_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+
+          </div>
+
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span> Visual specs &amp;rarr;</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="gears.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>gears</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="nema_steppers.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>nema steppers</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="hinges.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>hinges</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="joiners.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>joiners</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="hooks.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>hooks</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="polyhedra.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>polyhedra</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+      <a href="#" class="md-nav__link md-nav__link--active">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>walls</span>
+
+  </span>
+
+
+      </a>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="wiring.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>wiring</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="threading.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>threading</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="cubetruss.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>cubetruss</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="screw_drive.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>screw drive</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="ball_bearings.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>ball bearings</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="linear_bearings.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>linear bearings</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="modular_hose.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>modular hose</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="bottlecaps.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>bottlecaps</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="sliders.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>sliders</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="shapes3d.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>shapes3d</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="shapes2d.html" class="md-nav__link">
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m22.61 19-9.08-9.09c.93-2.34.47-5.1-1.44-7C9.79.61 6.21.4 3.66 2.26L7.5 6.11 6.08 7.5 2.25 3.69C.39 6.23.6 9.82 2.9 12.11c1.86 1.86 4.57 2.35 6.89 1.48l9.11 9.11c.39.39 1.02.39 1.41 0l2.3-2.3c.39-.4.39-1.01 0-1.4m-3 1.59-9.46-9.46c-.61.45-1.29.72-2 .82-1.36.2-2.79-.21-3.83-1.25C3.37 9.76 2.93 8.5 3 7.26l3.09 3.09 4.24-4.24L7.24 3c1.26-.05 2.49.39 3.44 1.33a4.47 4.47 0 0 1 1.24 3.96 4.35 4.35 0 0 1-.88 1.96l9.46 9.45z"/></svg>
+
+
+  <span class="md-ellipsis">
+    <span>shapes2d</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+  </ul>
+</nav>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="info">
-              <div style="display:flex;align-items:center;gap:12px">
-                <h2>rendered &amp; measured</h2>
-                <span class="pill pass" id="wtpill">watertight</span>
+
+
+
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+<nav class="md-nav md-nav--secondary">
+
+
+
+</nav>
+                  </div>
+                </div>
               </div>
-              <p>The diagonal braces are held under <b>maxang</b> from vertical so every overhang prints clean; the thinning wall is BOSL2's exact 24-point polyhedron, transcribed and closed watertight.</p>
-              <div class="taglabel">variants · click to load</div>
-              <div class="tags">
-                <button class="tag" type="button">sparse</button>
-                <button class="tag" type="button">corrugated</button>
-                <button class="tag" type="button">thinning wall</button>
-                <button class="tag" type="button">thinning triangle</button>
-                <button class="tag" type="button">narrowing strut</button>
-                <button class="tag" type="button">sparse cuboid</button>
-              </div>
-              <div class="stats">
-                <div><span class="v" id="s-tris">280</span><span class="l">triangles</span></div>
-                <div><span class="v" id="s-vol">12,007.0</span><span class="l">mm&sup3; volume</span></div>
-                <div><span class="v" id="s-bbox">4×101×50</span><span class="l">bbox mm</span></div>
-              </div>
-              <div style="position:relative">
-                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                <div class="code" id="code">&gt;&gt;&gt; Walls.<span class="k">sparse_wall</span>(height=50, length=100, thick=4)</div>
-              </div>
-              <div class="proof">
-                <div class="big">40%</div>
-                <div class="txt"><b>The sparse lattice fills its 4×100×50 envelope with 12,007 mm&sup3;</b> — 40% less plastic than the 20,000 mm&sup3; solid wall, and it needs no support.</div>
-              </div>
-              <div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">12 tests · <a href="../walls.html">full API reference &rarr;</a></div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-    <script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-const V = [{"id": "sparse", "label": "sparse", "uri": "_stl/walls-sparse.stl", "code": "Walls.<span class=\"k\">sparse_wall</span>(height=50, length=100, thick=4)", "part": "sparse_wall(height=50, length=100, thick=4)", "tris": 280, "vol": "12,007.0", "bbox": "4\u00d7101\u00d750", "wt": true}, {"id": "corrugated", "label": "corrugated", "uri": "_stl/walls-corrugated.stl", "code": "Walls.<span class=\"k\">corrugated_wall</span>(height=50, length=100, thick=5)", "part": "corrugated_wall(height=50, length=100, thick=5)", "tris": 476, "vol": "14,200.0", "bbox": "5\u00d7100\u00d750", "wt": true}, {"id": "thinning-wall", "label": "thinning wall", "uri": "_stl/walls-thinning-wall.stl", "code": "Walls.<span class=\"k\">thinning_wall</span>(height=50, length=80, thick=4)", "part": "thinning_wall(height=50, length=80, thick=4)", "tris": 44, "vol": "9,422.6", "bbox": "4\u00d780\u00d750", "wt": true}, {"id": "thinning-triangle", "label": "thinning triangle", "uri": "_stl/walls-thinning-triangle.stl", "code": "Walls.<span class=\"k\">thinning_triangle</span>(height=50, length=80, thick=4, center=True)", "part": "thinning_triangle(height=50, length=80, thick=4, center=True)", "tris": 74, "vol": "7,032.8", "bbox": "4\u00d780\u00d750", "wt": true}, {"id": "strut", "label": "narrowing strut", "uri": "_stl/walls-strut.stl", "code": "Walls.<span class=\"k\">narrowing_strut</span>(w=10, length=80, wall=5, angle=30)", "part": "narrowing_strut(w=10, length=80, wall=5, angle=30)", "tris": 16, "vol": "7,464.1", "bbox": "10\u00d780\u00d714", "wt": true}, {"id": "sparse-cuboid", "label": "sparse cuboid", "uri": "_stl/walls-sparse-cuboid.stl", "code": "Walls.<span class=\"k\">sparse_cuboid</span>([20, 40, 30], strut=2)", "part": "sparse_cuboid([20, 40, 30], strut=2)", "tris": 160, "vol": "14,673.8", "bbox": "20\u00d740\u00d730", "wt": true}];
-const box = document.getElementById("viewer"), poster = document.getElementById("poster");
-let renderer, scene, camera, controls, mesh, ready = false;
-const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || null;
-const primaryColor = css("--model") || "#6f9ac9";
-function resize() { const w = box.clientWidth, h = box.clientHeight || 300;
-  renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); }
-function init() {
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6); camera.up.set(0, 0, 1);
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(window.devicePixelRatio); box.appendChild(renderer.domElement);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const k = new THREE.DirectionalLight(0xffffff, 0.85); k.position.set(1, 0.6, 1); scene.add(k);
-  const f = new THREE.DirectionalLight(0xffffff, 0.4); f.position.set(-1, -0.8, 0.5); scene.add(f);
-  controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
-  window.addEventListener("resize", resize); ready = true;
-  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
-}
-const loader = new STLLoader();
-function load(uri) {
-  if (!ready) init();
-  loader.load(uri, geo => {
-    if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
-    geo.computeVertexNormals(); geo.computeBoundingBox();
-    const c = new THREE.Vector3(); geo.boundingBox.getCenter(c);
-    const s = new THREE.Vector3(); geo.boundingBox.getSize(s);
-    geo.translate(-c.x, -c.y, -c.z);
-    mesh = new THREE.Mesh(geo,
-      new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
-    scene.add(mesh);
-    const r = Math.max(s.x, s.y, s.z) || 1;
-    camera.position.set(r * 1.4, -r * 1.8, r * 1.15); controls.target.set(0, 0, 0);
-    poster.style.display = "none"; box.querySelector(".hint")?.remove(); resize();
-  }, undefined, () => {
-    if (!box.querySelector(".hint")) { const h = document.createElement("div");
-      h.className = "hint";
-      h.textContent = "serve the docs over HTTP for the interactive 3-D view";
-      box.appendChild(h); }
-  });
-}
-function select(i) {
-  const v = V[i];
-  document.querySelectorAll(".tags button.tag").forEach((b, j) =>
-    b.setAttribute("aria-selected", j === i ? "true" : "false"));
-  document.getElementById("code").innerHTML = "&gt;&gt;&gt; " + v.code;
-  document.getElementById("s-tris").textContent = v.tris == null ? "\u2014" : v.tris.toLocaleString();
-  document.getElementById("s-vol").textContent = v.vol; document.getElementById("s-bbox").textContent = v.bbox;
-  document.getElementById("vpart").textContent = v.part;
-  document.getElementById("wtpill").style.display = v.wt ? "" : "none";
-  load(v.uri);
-}
-document.querySelectorAll(".tags button.tag").forEach((b, i) => b.addEventListener("click", () => select(i)));
-select(0);
+
+
+
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+
+
+
+
+
+<h1 id="walls"><span id="spec-walls"></span>walls<a class="headerlink" href="#walls" title="Link to this heading">¶</a></h1>
+<p class="spec-lede">FDM-optimised walls that use less plastic and print without support: a cross-braced sparse wall, a corrugated wall, thick-edged thinning walls and triangles, and struts.</p><div class="spec-panel">
+  <div class="spec-draw">
+    <div class="spec-caption"><span id="vpart">sparse_wall(height=50, length=100, thick=4)</span><span>interactive &middot; drag to orbit</span></div>
+    <div class="spec-viewer" id="viewer">
+      <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Plan of a sparse cross-braced wall: a solid frame filled with diagonal X-braces." xmlns="http://www.w3.org/2000/svg"><rect x="34" y="24" width="392" height="168" fill="var(--panel-2)"/><rect x="47" y="37" width="366" height="142" fill="var(--ground)"/><line x1="47.0" y1="37" x2="108.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="108.0" y1="37" x2="47.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="108.0" y1="37" x2="169.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="169.0" y1="37" x2="108.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="169.0" y1="37" x2="230.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="230.0" y1="37" x2="169.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="230.0" y1="37" x2="291.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="291.0" y1="37" x2="230.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="291.0" y1="37" x2="352.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="352.0" y1="37" x2="291.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="352.0" y1="37" x2="413.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><line x1="413.0" y1="37" x2="352.0" y2="179" stroke="color-mix(in srgb,var(--accent) 42%,var(--panel))" stroke-width="7" stroke-linecap="round"/><rect x="34" y="24" width="392" height="168" fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/><rect x="47" y="37" width="366" height="142" fill="none" stroke="var(--ink-dim)" stroke-width="1.3"/><text x="230" y="218" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">sparse wall · X-braced · support-free</text></svg></div>
+    </div>
+  </div>
+  <div class="spec-info">
+    <div class="spec-info-header">
+      <h2>rendered &amp; measured</h2>
+      <span class="spec-pill spec-pass" id="wtpill">watertight</span>
+    </div>
+    <p>The diagonal braces are held under <b>maxang</b> from vertical so every overhang prints clean; the thinning wall is BOSL2's exact 24-point polyhedron, transcribed and closed watertight.</p>
+    <div class="spec-taglabel">variants &middot; click to load</div>
+    <div class="spec-tags"><button class="spec-tag" type="button">sparse</button> <button class="spec-tag" type="button">corrugated</button> <button class="spec-tag" type="button">thinning wall</button> <button class="spec-tag" type="button">thinning triangle</button> <button class="spec-tag" type="button">narrowing strut</button> <button class="spec-tag" type="button">sparse cuboid</button></div>
+    <div class="spec-stats">
+      <div><span class="spec-stat-v" id="s-tris">280</span><span class="spec-stat-l">triangles</span></div>
+      <div><span class="spec-stat-v" id="s-vol">12,007.0</span><span class="spec-stat-l">mm&sup3; volume</span></div>
+      <div><span class="spec-stat-v" id="s-bbox">4×101×50</span><span class="spec-stat-l">bbox mm</span></div>
+    </div>
+    <div class="spec-code-wrap">
+      <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
+      <div class="spec-code" id="code">&gt;&gt;&gt; Walls.sparse_wall(height=50, length=100, thick=4)</div>
+    </div>
+    <div class="spec-proof"><div class="spec-proof-big">40%</div><div class="spec-proof-txt"><b>The sparse lattice fills its 4×100×50 envelope with 12,007 mm&sup3;</b> — 40% less plastic than the 20,000 mm&sup3; solid wall, and it needs no support.</div></div>
+    <div class="spec-tests">12 tests</div>
+  </div>
+</div><script id="spec-data" type="application/json">[{"id": "sparse", "label": "sparse", "uri": "_stl/walls-sparse.stl", "code": "Walls.sparse_wall(height=50, length=100, thick=4)", "part": "sparse_wall(height=50, length=100, thick=4)", "tris": 280, "vol": "12,007.0", "bbox": "4\u00d7101\u00d750", "wt": true}, {"id": "corrugated", "label": "corrugated", "uri": "_stl/walls-corrugated.stl", "code": "Walls.corrugated_wall(height=50, length=100, thick=5)", "part": "corrugated_wall(height=50, length=100, thick=5)", "tris": 476, "vol": "14,200.0", "bbox": "5\u00d7100\u00d750", "wt": true}, {"id": "thinning-wall", "label": "thinning wall", "uri": "_stl/walls-thinning-wall.stl", "code": "Walls.thinning_wall(height=50, length=80, thick=4)", "part": "thinning_wall(height=50, length=80, thick=4)", "tris": 44, "vol": "9,422.6", "bbox": "4\u00d780\u00d750", "wt": true}, {"id": "thinning-triangle", "label": "thinning triangle", "uri": "_stl/walls-thinning-triangle.stl", "code": "Walls.thinning_triangle(height=50, length=80, thick=4, center=True)", "part": "thinning_triangle(height=50, length=80, thick=4, center=True)", "tris": 74, "vol": "7,032.8", "bbox": "4\u00d780\u00d750", "wt": true}, {"id": "strut", "label": "narrowing strut", "uri": "_stl/walls-strut.stl", "code": "Walls.narrowing_strut(w=10, length=80, wall=5, angle=30)", "part": "narrowing_strut(w=10, length=80, wall=5, angle=30)", "tris": 16, "vol": "7,464.1", "bbox": "10\u00d780\u00d714", "wt": true}, {"id": "sparse-cuboid", "label": "sparse cuboid", "uri": "_stl/walls-sparse-cuboid.stl", "code": "Walls.sparse_cuboid([20, 40, 30], strut=2)", "part": "sparse_cuboid([20, 40, 30], strut=2)", "tris": 160, "vol": "14,673.8", "bbox": "20\u00d740\u00d730", "wt": true}]</script>
+<script>
+function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
+navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
+setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
 </script>
-    <script>function copyCode(btn){const code=btn.nextElementSibling.textContent.trim();navigator.clipboard.writeText(code).then(()=>{btn.textContent="Copied!";setTimeout(()=>btn.textContent="Copy",1500);});}</script>
-    <footer>
-      <div class="wrap"><span class="mono">pybosl2</span><span class="mono" style="color:var(--ink-faint)">·</span><span class="mono">metrics measured from the exported STL via the PythonSCAD app</span><span class="r mono">BSD-2-Clause</span></div>
-    </footer>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </article>
+            </div>
+
+
+        </div>
+
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+
+      </main>
+
+        <footer class="md-footer">
+
+
+
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+
+
+          <a href="polyhedra.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: polyhedra">
+            <div class="md-footer__button md-icon">
+
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                polyhedra
+              </div>
+            </div>
+          </a>
+
+
+
+          <a href="wiring.html" class="md-footer__link md-footer__link--next" aria-label="Next: wiring">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                wiring
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+
+      </nav>
+
+
+
+
+  <div class="md-footer-meta md-typeset">
+
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+
+    </div>
+
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    7.4.7.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+
+</div>
+
+    </div>
+
+  </div>
+</footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+
+
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+
+
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script src="../_static/spec_viewer.js?v=735f79ee"></script>
+
   </body>
 </html>

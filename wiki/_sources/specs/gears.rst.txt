@@ -1,0 +1,50 @@
+:icon: material/wrench-outline
+
+.. _spec-gears:
+
+gears
+=====
+
+.. raw:: html
+
+    <p class="spec-lede">Involute spur gears whose teeth are *rack-carved with a real undercut*, the way the current BOSL2 does it — plus helical, herringbone, rack, ring, bevel and worm.</p>
+
+.. raw:: html
+
+    <div class="spec-panel">
+      <div class="spec-draw">
+        <div class="spec-caption"><span id="vpart">spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-viewer" id="viewer">
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Schematic of a 20-tooth involute gear with pitch circle and bore." xmlns="http://www.w3.org/2000/svg"><path d="M307.4,118.5 L327.1,122.9 L326.6,128.4 L306.5,129.6 L303.5,142.4 L320.8,152.6 L318.7,157.7 L299.2,152.7 L292.3,163.9 L305.7,179.0 L302.1,183.2 L285.1,172.4 L275.1,180.9 L283.1,199.4 L278.4,202.3 L265.6,186.7 L253.5,191.8 L255.3,211.8 L250.0,213.1 L242.6,194.4 L229.5,195.4 L225.1,215.1 L219.6,214.6 L218.4,194.5 L205.6,191.5 L195.4,208.8 L190.3,206.7 L195.3,187.2 L184.1,180.3 L169.0,193.7 L164.8,190.1 L175.6,173.1 L167.1,163.1 L148.6,171.1 L145.7,166.4 L161.3,153.6 L156.2,141.5 L136.2,143.3 L134.9,138.0 L153.6,130.6 L152.6,117.5 L132.9,113.1 L133.4,107.6 L153.5,106.4 L156.5,93.6 L139.2,83.4 L141.3,78.3 L160.8,83.3 L167.7,72.1 L154.3,57.0 L157.9,52.8 L174.9,63.6 L184.9,55.1 L176.9,36.6 L181.6,33.7 L194.4,49.3 L206.5,44.2 L204.7,24.2 L210.0,22.9 L217.4,41.6 L230.5,40.6 L234.9,20.9 L240.4,21.4 L241.6,41.5 L254.4,44.5 L264.6,27.2 L269.7,29.3 L264.7,48.8 L275.9,55.7 L291.0,42.3 L295.2,45.9 L284.4,62.9 L292.9,72.9 L311.4,64.9 L314.3,69.6 L298.7,82.4 L303.8,94.5 L323.8,92.7 L325.1,98.0 L306.4,105.4 Z" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.6"/><circle cx="230" cy="118" r="86" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="6 5" opacity="0.8"/><circle cx="230" cy="118" r="26" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/><circle cx="230" cy="118" r="2.5" fill="var(--accent)"/><text x="230" y="226" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">pitch circle · z=20</text></svg></div>
+        </div>
+      </div>
+      <div class="spec-info">
+        <div class="spec-info-header">
+          <h2>rendered &amp; measured</h2>
+          <span class="spec-pill spec-pass" id="wtpill">watertight</span>
+        </div>
+        <p>A 20-tooth helical gear meshes at <b>gear_dist()</b>; the 8-tooth gear picks up <b>profile_shift="auto"</b> so its flanks don't undercut. Both close watertight.</p>
+        <div class="spec-taglabel">variants &middot; click to load</div>
+        <div class="spec-tags"><button class="spec-tag" type="button">spur</button> <button class="spec-tag" type="button">profile-shift</button> <button class="spec-tag" type="button">helical</button> <button class="spec-tag" type="button">herringbone</button> <button class="spec-tag" type="button">rack</button> <button class="spec-tag" type="button">ring gear</button> <button class="spec-tag" type="button">bevel</button> <button class="spec-tag" type="button">worm</button></div>
+        <div class="spec-stats">
+          <div><span class="spec-stat-v" id="s-tris">5,320</span><span class="spec-stat-l">triangles</span></div>
+          <div><span class="spec-stat-v" id="s-vol">39,095.6</span><span class="spec-stat-l">mm&sup3; volume</span></div>
+          <div><span class="spec-stat-v" id="s-bbox">88×88×8</span><span class="spec-stat-l">bbox mm</span></div>
+        </div>
+        <div class="spec-code-wrap">
+          <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
+          <div class="spec-code" id="code">&gt;&gt;&gt; Gears.spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)</div>
+        </div>
+
+        <div class="spec-tests">52 tests</div>
+      </div>
+    </div>
+
+.. raw:: html
+
+    <script id="spec-data" type="application/json">[{"id": "spur", "label": "spur", "uri": "_stl/gears-spur.stl", "code": "Gears.spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)", "tris": 5320, "vol": "39,095.6", "bbox": "88\u00d788\u00d78", "wt": true}, {"id": "profile-shift", "label": "profile-shift", "uri": "_stl/gears-profile-shift.stl", "code": "Gears.spur_gear(mod=4, teeth=7, thickness=8)", "part": "spur_gear(mod=4, teeth=7, thickness=8)", "tris": 2012, "vol": "6,128.8", "bbox": "39\u00d738\u00d78", "wt": true}, {"id": "helical", "label": "helical", "uri": "_stl/gears-helical.stl", "code": "Gears.spur_gear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)", "tris": 5800, "vol": "47,901.7", "bbox": "96\u00d796\u00d78", "wt": true}, {"id": "herringbone", "label": "herringbone", "uri": "_stl/gears-herringbone.stl", "code": "Gears.spur_gear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)", "part": "spur_gear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)", "tris": 8700, "vol": "71,880.4", "bbox": "96\u00d796\u00d712", "wt": true}, {"id": "rack", "label": "rack", "uri": "_stl/gears-rack.stl", "code": "Gears.rack(mod=4, teeth=8, thickness=8, height=10)", "part": "rack(mod=4, teeth=8, thickness=8, height=10)", "tris": 140, "vol": "4,620.4", "bbox": "101\u00d78\u00d710", "wt": true}, {"id": "ring", "label": "ring gear", "uri": "_stl/gears-ring.stl", "code": "Gears.ring_gear(mod=4, teeth=24, thickness=8, backing=4)", "part": "ring_gear(mod=4, teeth=24, thickness=8, backing=4)", "tris": 6856, "vol": "23,015.5", "bbox": "114\u00d7113\u00d78", "wt": true}, {"id": "bevel", "label": "bevel", "uri": "_stl/gears-bevel.stl", "code": "Gears.bevel_gear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)", "part": "bevel_gear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)", "tris": 3400, "vol": "36,770.3", "bbox": "85\u00d785\u00d713", "wt": true}, {"id": "worm", "label": "worm", "uri": "_stl/gears-worm.stl", "code": "Gears.worm(mod=4, diameter=30, length=50, starts=1)", "part": "worm(mod=4, diameter=30, length=50, starts=1)", "tris": 7982, "vol": "36,024.6", "bbox": "38\u00d738\u00d750", "wt": true}]</script>
+    <script>
+    function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
+    navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
+    setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
+    </script>
