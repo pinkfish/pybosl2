@@ -60,6 +60,115 @@ hinges
 .. raw:: html
 
     <script id="spec-data" type="application/json">[{"id": "pair", "label": "knuckle pair", "uri": "_stl/hinges-pair.stl", "code": "Hinges.knuckle_hinge_pair(length=40, segs=5)", "part": "knuckle_hinge_pair(length=40, segs=5)", "tris": 370, "vol": "5,886.5", "bbox": "40\u00d746\u00d76", "wt": false}, {"id": "knuckle", "label": "single leaf", "uri": "_stl/hinges-knuckle.stl", "code": "Hinges.knuckle_hinge(length=40, segs=5)", "part": "knuckle_hinge(length=40, segs=5)", "tris": 212, "vol": "3,102.8", "bbox": "40\u00d726\u00d76", "wt": true}, {"id": "snap-lock", "label": "snap lock", "uri": "_stl/hinges-snap-lock.stl", "code": "Hinges.snap_lock()", "part": "snap_lock()", "tris": 36, "vol": "181.7", "bbox": "5\u00d75\u00d78", "wt": true}, {"id": "snap-socket", "label": "snap socket", "uri": "_stl/hinges-snap-socket.stl", "code": "Hinges.snap_socket()", "part": "snap_socket()", "tris": 76, "vol": "179.6", "bbox": "5\u00d75\u00d78", "wt": true}]</script>
+    <script type="module">
+    import * as THREE from "https://esm.sh/three@0.160.0";
+    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+    (function() {
+      const dataEl = document.getElementById("spec-data");
+      if (!dataEl) return;
+      const V = JSON.parse(dataEl.textContent);
+      const box = document.getElementById("viewer");
+      const poster = document.getElementById("poster");
+      if (!box) return;
+
+      let renderer, scene, camera, controls, mesh, ready = false;
+      const css = (n) => (getComputedStyle(document.documentElement).getPropertyValue(n) || "").trim() || null;
+      const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
+
+      function resize() {
+        const w = box.clientWidth, h = box.clientHeight || 300;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / Math.max(1, h);
+        camera.updateProjectionMatrix();
+      }
+
+      function initThree() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6);
+        camera.up.set(0, 0, 1);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        box.appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        const k = new THREE.DirectionalLight(0xffffff, 0.85);
+        k.position.set(1, 0.6, 1);
+        scene.add(k);
+        const f = new THREE.DirectionalLight(0xffffff, 0.4);
+        f.position.set(-1, -0.8, 0.5);
+        scene.add(f);
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        window.addEventListener("resize", resize);
+        ready = true;
+        (function loop() {
+          requestAnimationFrame(loop);
+          controls.update();
+          renderer.render(scene, camera);
+        })();
+      }
+
+      const loader = new STLLoader();
+      function loadStl(uri) {
+        if (!ready) initThree();
+        loader.load(uri, function(geo) {
+          if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+          geo.computeVertexNormals();
+          geo.computeBoundingBox();
+          const c = new THREE.Vector3();
+          geo.boundingBox.getCenter(c);
+          const s = new THREE.Vector3();
+          geo.boundingBox.getSize(s);
+          geo.translate(-c.x, -c.y, -c.z);
+          mesh = new THREE.Mesh(geo,
+            new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
+          scene.add(mesh);
+          const r = Math.max(s.x, s.y, s.z) || 1;
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          controls.target.set(0, 0, 0);
+          if (poster) poster.style.display = "none";
+          const hint = box.querySelector(".hint");
+          if (hint) hint.remove();
+          resize();
+        }, undefined, function() {
+          if (!box.querySelector(".hint")) {
+            const h = document.createElement("div");
+            h.className = "hint";
+            h.style.cssText = (
+              "position:absolute;inset:0;display:flex;align-items:center;"
+              + "justify-content:center;padding:1em;color:#a00;"
+              + "background:rgba(255,255,255,0.8);font-size:0.85em;"
+            );
+            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            box.appendChild(h);
+          }
+        });
+      }
+
+      function selectVariant(i) {
+        const v = V[i];
+        const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+        buttons.forEach((b, j) => {
+          b.setAttribute("aria-selected", j === i ? "true" : "false");
+          b.classList.toggle("active", j === i);
+        });
+        document.getElementById("code").textContent = ">>> " + v.code;
+        document.getElementById("s-tris").textContent = v.tris == null ? "—" : v.tris.toLocaleString();
+        document.getElementById("s-vol").textContent = v.vol;
+        document.getElementById("s-bbox").textContent = v.bbox;
+        document.getElementById("vpart").textContent = v.part;
+        document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+        loadStl(v.uri);
+      }
+
+      const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+      buttons.forEach((b, i) => {
+        b.addEventListener("click", () => { selectVariant(i); });
+      });
+      selectVariant(0);
+    })();
+    </script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

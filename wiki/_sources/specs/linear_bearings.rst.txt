@@ -43,6 +43,111 @@ linear bearings
 .. raw:: html
 
     <script id="spec-data" type="application/json">[{"id": "lm8uu", "label": "LM8UU", "uri": "_stl/linear_bearings-lm8uu.stl", "code": "LinearBearings.lmXuu_bearing(8)", "part": "lmXuu_bearing(8)", "tris": 816, "vol": "2,997.1", "bbox": "15\u00d715\u00d724", "wt": true}, {"id": "housing", "label": "LM8UU housing", "uri": "_stl/linear_bearings-housing.stl", "code": "LinearBearings.lmXuu_housing(8)", "part": "lmXuu_housing(8)", "tris": 508, "vol": "6,499.2", "bbox": "27\u00d724\u00d724", "wt": true}, {"id": "lm12uu", "label": "LM12UU", "uri": "_stl/linear_bearings-lm12uu.stl", "code": "LinearBearings.lmXuu_bearing(12)", "part": "lmXuu_bearing(12)", "tris": 1088, "vol": "6,932.1", "bbox": "21\u00d721\u00d730", "wt": true}]</script>
+    <script type="module">
+    import * as THREE from "https://esm.sh/three@0.160.0";
+    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+    (function() {
+      const dataEl = document.getElementById("spec-data");
+      if (!dataEl) return;
+      const V = JSON.parse(dataEl.textContent);
+      const box = document.getElementById("viewer");
+      const poster = document.getElementById("poster");
+      if (!box) return;
+
+      let renderer, scene, camera, controls, mesh, ready = false;
+      const css = (n) => (getComputedStyle(document.documentElement).getPropertyValue(n) || "").trim() || null;
+      const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
+
+      function resize() {
+        const w = box.clientWidth, h = box.clientHeight || 300;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / Math.max(1, h);
+        camera.updateProjectionMatrix();
+      }
+
+      function initThree() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6);
+        camera.up.set(0, 0, 1);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        box.appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        const k = new THREE.DirectionalLight(0xffffff, 0.85);
+        k.position.set(1, 0.6, 1);
+        scene.add(k);
+        const f = new THREE.DirectionalLight(0xffffff, 0.4);
+        f.position.set(-1, -0.8, 0.5);
+        scene.add(f);
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        window.addEventListener("resize", resize);
+        ready = true;
+        (function loop() {
+          requestAnimationFrame(loop);
+          controls.update();
+          renderer.render(scene, camera);
+        })();
+      }
+
+      const loader = new STLLoader();
+      function loadStl(uri) {
+        if (!ready) initThree();
+        loader.load(uri, function(geo) {
+          if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+          geo.computeVertexNormals();
+          geo.computeBoundingBox();
+          const c = new THREE.Vector3();
+          geo.boundingBox.getCenter(c);
+          const s = new THREE.Vector3();
+          geo.boundingBox.getSize(s);
+          geo.translate(-c.x, -c.y, -c.z);
+          mesh = new THREE.Mesh(geo,
+            new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
+          scene.add(mesh);
+          const r = Math.max(s.x, s.y, s.z) || 1;
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          controls.target.set(0, 0, 0);
+          if (poster) poster.style.display = "none";
+          const hint = box.querySelector(".hint");
+          if (hint) hint.remove();
+          resize();
+        }, undefined, function() {
+          if (!box.querySelector(".hint")) {
+            const h = document.createElement("div");
+            h.className = "hint";
+            h.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:1em;color:#a00;background:rgba(255,255,255,0.8);font-size:0.85em;";
+            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            box.appendChild(h);
+          }
+        });
+      }
+
+      function selectVariant(i) {
+        const v = V[i];
+        const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+        buttons.forEach((b, j) => {
+          b.setAttribute("aria-selected", j === i ? "true" : "false");
+          b.classList.toggle("active", j === i);
+        });
+        document.getElementById("code").textContent = ">>> " + v.code;
+        document.getElementById("s-tris").textContent = v.tris == null ? "—" : v.tris.toLocaleString();
+        document.getElementById("s-vol").textContent = v.vol;
+        document.getElementById("s-bbox").textContent = v.bbox;
+        document.getElementById("vpart").textContent = v.part;
+        document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+        loadStl(v.uri);
+      }
+
+      const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+      buttons.forEach((b, i) => {
+        b.addEventListener("click", () => { selectVariant(i); });
+      });
+      selectVariant(0);
+    })();
+    </script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');

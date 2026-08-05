@@ -2278,6 +2278,111 @@
     <div class="spec-tests">32 tests</div>
   </div>
 </div><script id="spec-data" type="application/json">[{"id": "cuboid", "label": "cuboid", "uri": "_stl/shapes3d-cuboid.stl", "code": "pybosl2.cuboid([30, 20, 15])", "part": "cuboid([30, 20, 15])", "tris": 12, "vol": "9,000.0", "bbox": "30\u00d720\u00d715", "wt": true}, {"id": "sphere", "label": "sphere", "uri": "_stl/shapes3d-sphere.stl", "code": "pybosl2.sphere(radius=15)", "part": "sphere(radius=15)", "tris": 896, "vol": "13,880.9", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "cylinder", "label": "cylinder", "uri": "_stl/shapes3d-cylinder.stl", "code": "pybosl2.cylinder(height=20, radius=8)", "part": "cylinder(height=20, radius=8)", "tris": 100, "vol": "3,982.2", "bbox": "16\u00d716\u00d720", "wt": true}, {"id": "cone", "label": "cone", "uri": "_stl/shapes3d-cone.stl", "code": "pybosl2.cone(height=20, radius1=10, radius2=3, chamfer=1)", "part": "cone(height=20, radius1=10, radius2=3, chamfer=1)", "tris": 360, "vol": "2,902.4", "bbox": "20\u00d720\u00d720", "wt": false}, {"id": "prismoid", "label": "prismoid", "uri": "_stl/shapes3d-prismoid.stl", "code": "pybosl2.prismoid(size1=[20, 20], size2=[10, 10], height=15)", "part": "prismoid(size1=[20, 20], size2=[10, 10], height=15)", "tris": 12, "vol": "3,500.0", "bbox": "20\u00d720\u00d715", "wt": true}, {"id": "torus", "label": "torus", "uri": "_stl/shapes3d-torus.stl", "code": "pybosl2.torus(major_radius=12, minor_radius=4)", "part": "torus(major_radius=12, minor_radius=4)", "tris": 780, "vol": "3,617.5", "bbox": "32\u00d732\u00d78", "wt": true}, {"id": "tube", "label": "tube", "uri": "_stl/shapes3d-tube.stl", "code": "pybosl2.tube(height=20, outer_radius=10, inner_radius=6)", "part": "tube(height=20, outer_radius=10, inner_radius=6)", "tris": 196, "vol": "4,016.4", "bbox": "20\u00d720\u00d720", "wt": true}, {"id": "teardrop", "label": "teardrop", "uri": "_stl/shapes3d-teardrop.stl", "code": "pybosl2.teardrop(height=20, radius=10)", "part": "teardrop(height=20, radius=10)", "tris": 92, "vol": "6,676.4", "bbox": "20\u00d720\u00d724", "wt": true}, {"id": "capsule", "label": "capsule", "uri": "_stl/shapes3d-capsule.stl", "code": "pybosl2.spheroid(radius=12)", "part": "spheroid(radius=12)", "tris": 896, "vol": "7,107.0", "bbox": "24\u00d724\u00d724", "wt": true}, {"id": "rounded-cuboid", "label": "rounded cuboid", "uri": "_stl/shapes3d-rounded-cuboid.stl", "code": "pybosl2.cuboid([30, 20, 15], rounding=4, edges=Anchor.Z, except_edges=TOP+FRONT+RIGHT)", "part": "cuboid([30, 20, 15], rounding=4, edges=Anchor.Z, except_edges=TOP+FRONT+RIGHT)", "tris": 36, "vol": "8,943.7", "bbox": "30\u00d720\u00d715", "wt": true}, {"id": "chamfered-cylinder", "label": "chamfered cyl", "uri": "_stl/shapes3d-chamfered-cylinder.stl", "code": "pybosl2.cylinder(height=20, radius=10, chamfer=2)", "part": "cylinder(height=20, radius=10, chamfer=2)", "tris": 360, "vol": "6,004.5", "bbox": "20\u00d720\u00d720", "wt": false}, {"id": "octahedron", "label": "octahedron", "uri": "_stl/shapes3d-octahedron.stl", "code": "pybosl2.octahedron(20)", "part": "octahedron(20)", "tris": 8, "vol": "1,333.3", "bbox": "20\u00d720\u00d720", "wt": true}]</script>
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.160.0";
+import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+(function() {
+  const dataEl = document.getElementById("spec-data");
+  if (!dataEl) return;
+  const V = JSON.parse(dataEl.textContent);
+  const box = document.getElementById("viewer");
+  const poster = document.getElementById("poster");
+  if (!box) return;
+
+  let renderer, scene, camera, controls, mesh, ready = false;
+  const css = (n) => (getComputedStyle(document.documentElement).getPropertyValue(n) || "").trim() || null;
+  const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
+
+  function resize() {
+    const w = box.clientWidth, h = box.clientHeight || 300;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / Math.max(1, h);
+    camera.updateProjectionMatrix();
+  }
+
+  function initThree() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6);
+    camera.up.set(0, 0, 1);
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    box.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const k = new THREE.DirectionalLight(0xffffff, 0.85);
+    k.position.set(1, 0.6, 1);
+    scene.add(k);
+    const f = new THREE.DirectionalLight(0xffffff, 0.4);
+    f.position.set(-1, -0.8, 0.5);
+    scene.add(f);
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    window.addEventListener("resize", resize);
+    ready = true;
+    (function loop() {
+      requestAnimationFrame(loop);
+      controls.update();
+      renderer.render(scene, camera);
+    })();
+  }
+
+  const loader = new STLLoader();
+  function loadStl(uri) {
+    if (!ready) initThree();
+    loader.load(uri, function(geo) {
+      if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+      geo.computeVertexNormals();
+      geo.computeBoundingBox();
+      const c = new THREE.Vector3();
+      geo.boundingBox.getCenter(c);
+      const s = new THREE.Vector3();
+      geo.boundingBox.getSize(s);
+      geo.translate(-c.x, -c.y, -c.z);
+      mesh = new THREE.Mesh(geo,
+        new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
+      scene.add(mesh);
+      const r = Math.max(s.x, s.y, s.z) || 1;
+      camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+      controls.target.set(0, 0, 0);
+      if (poster) poster.style.display = "none";
+      const hint = box.querySelector(".hint");
+      if (hint) hint.remove();
+      resize();
+    }, undefined, function() {
+      if (!box.querySelector(".hint")) {
+        const h = document.createElement("div");
+        h.className = "hint";
+        h.style.cssText = "position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:1em;color:#a00;background:rgba(255,255,255,0.8);font-size:0.85em;";
+        h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+        box.appendChild(h);
+      }
+    });
+  }
+
+  function selectVariant(i) {
+    const v = V[i];
+    const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+    buttons.forEach((b, j) => {
+      b.setAttribute("aria-selected", j === i ? "true" : "false");
+      b.classList.toggle("active", j === i);
+    });
+    document.getElementById("code").textContent = ">>> " + v.code;
+    document.getElementById("s-tris").textContent = v.tris == null ? "—" : v.tris.toLocaleString();
+    document.getElementById("s-vol").textContent = v.vol;
+    document.getElementById("s-bbox").textContent = v.bbox;
+    document.getElementById("vpart").textContent = v.part;
+    document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+    loadStl(v.uri);
+  }
+
+  const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+  buttons.forEach((b, i) => {
+    b.addEventListener("click", () => { selectVariant(i); });
+  });
+  selectVariant(0);
+})();
+</script>
 <script>
 function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
 navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
@@ -2390,7 +2495,6 @@ setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied
 
 
         <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script src="../_static/spec_viewer.js?v=735f79ee"></script>
 
   </body>
 </html>

@@ -43,6 +43,115 @@ screw drive
 .. raw:: html
 
     <script id="spec-data" type="application/json">[{"id": "phillips", "label": "Phillips #2", "uri": "_stl/screw_drive-phillips.stl", "code": "ScrewDrive.phillips_mask(size=\"#2\", l=10)", "part": "phillips_mask(size=\"#2\", l=10)", "tris": 176, "vol": "29.3", "bbox": "6\u00d76\u00d74", "wt": true}, {"id": "hex", "label": "hex 3 mm", "uri": "_stl/screw_drive-hex.stl", "code": "ScrewDrive.hex_mask(size=3, l=10)", "part": "hex_mask(size=3, l=10)", "tris": 20, "vol": "80.9", "bbox": "4\u00d73\u00d710", "wt": true}, {"id": "torx", "label": "Torx T30", "uri": "_stl/screw_drive-torx.stl", "code": "ScrewDrive.torx_mask(size=30, l=10)", "part": "torx_mask(size=30, l=10)", "tris": 188, "vol": "176.3", "bbox": "6\u00d75\u00d710", "wt": true}, {"id": "robertson", "label": "Robertson #2", "uri": "_stl/screw_drive-robertson.stl", "code": "ScrewDrive.robertson_mask(size=\"#2\", l=10)", "part": "robertson_mask(size=\"#2\", l=10)", "tris": 74, "vol": "93.4", "bbox": "4\u00d74\u00d710", "wt": true}]</script>
+    <script type="module">
+    import * as THREE from "https://esm.sh/three@0.160.0";
+    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
+    (function() {
+      const dataEl = document.getElementById("spec-data");
+      if (!dataEl) return;
+      const V = JSON.parse(dataEl.textContent);
+      const box = document.getElementById("viewer");
+      const poster = document.getElementById("poster");
+      if (!box) return;
+
+      let renderer, scene, camera, controls, mesh, ready = false;
+      const css = (n) => (getComputedStyle(document.documentElement).getPropertyValue(n) || "").trim() || null;
+      const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
+
+      function resize() {
+        const w = box.clientWidth, h = box.clientHeight || 300;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / Math.max(1, h);
+        camera.updateProjectionMatrix();
+      }
+
+      function initThree() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6);
+        camera.up.set(0, 0, 1);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        box.appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+        const k = new THREE.DirectionalLight(0xffffff, 0.85);
+        k.position.set(1, 0.6, 1);
+        scene.add(k);
+        const f = new THREE.DirectionalLight(0xffffff, 0.4);
+        f.position.set(-1, -0.8, 0.5);
+        scene.add(f);
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        window.addEventListener("resize", resize);
+        ready = true;
+        (function loop() {
+          requestAnimationFrame(loop);
+          controls.update();
+          renderer.render(scene, camera);
+        })();
+      }
+
+      const loader = new STLLoader();
+      function loadStl(uri) {
+        if (!ready) initThree();
+        loader.load(uri, function(geo) {
+          if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+          geo.computeVertexNormals();
+          geo.computeBoundingBox();
+          const c = new THREE.Vector3();
+          geo.boundingBox.getCenter(c);
+          const s = new THREE.Vector3();
+          geo.boundingBox.getSize(s);
+          geo.translate(-c.x, -c.y, -c.z);
+          mesh = new THREE.Mesh(geo,
+            new THREE.MeshPhongMaterial({ color: primaryColor, specular: 0x222222, shininess: 22 }));
+          scene.add(mesh);
+          const r = Math.max(s.x, s.y, s.z) || 1;
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          controls.target.set(0, 0, 0);
+          if (poster) poster.style.display = "none";
+          const hint = box.querySelector(".hint");
+          if (hint) hint.remove();
+          resize();
+        }, undefined, function() {
+          if (!box.querySelector(".hint")) {
+            const h = document.createElement("div");
+            h.className = "hint";
+            h.style.cssText = (
+              "position:absolute;inset:0;display:flex;align-items:center;"
+              + "justify-content:center;padding:1em;color:#a00;"
+              + "background:rgba(255,255,255,0.8);font-size:0.85em;"
+            );
+            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            box.appendChild(h);
+          }
+        });
+      }
+
+      function selectVariant(i) {
+        const v = V[i];
+        const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+        buttons.forEach((b, j) => {
+          b.setAttribute("aria-selected", j === i ? "true" : "false");
+          b.classList.toggle("active", j === i);
+        });
+        document.getElementById("code").textContent = ">>> " + v.code;
+        document.getElementById("s-tris").textContent = v.tris == null ? "—" : v.tris.toLocaleString();
+        document.getElementById("s-vol").textContent = v.vol;
+        document.getElementById("s-bbox").textContent = v.bbox;
+        document.getElementById("vpart").textContent = v.part;
+        document.getElementById("wtpill").style.display = v.wt ? "" : "none";
+        loadStl(v.uri);
+      }
+
+      const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
+      buttons.forEach((b, i) => {
+        b.addEventListener("click", () => { selectVariant(i); });
+      });
+      selectVariant(0);
+    })();
+    </script>
     <script>
     function copySpecCode(btn) {var code=btn.nextElementSibling.textContent.trim().replace(/^>>> /,'');
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
